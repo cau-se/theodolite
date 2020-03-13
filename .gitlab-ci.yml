@@ -50,7 +50,7 @@ test:
     - dockerex
   script: ./gradlew spotbugs
 
-.deploy-exp-bigdata19-bridge:
+.deploy:
   stage: deploy
   tags:
     - dockerex
@@ -64,13 +64,13 @@ test:
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t titan-ccp-exp-bigdata19-bridge ./exp-bigdata19-bridge
-    - docker tag titan-ccp-exp-bigdata19-bridge industrialdevops/titan-ccp-exp-bigdata19-bridge:${DOCKER_TAG_NAME}latest
-    - docker tag titan-ccp-exp-bigdata19-bridge industrialdevops/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$(date +%Y%m%d%H%M%S)
-    - docker tag titan-ccp-exp-bigdata19-bridge industrialdevops/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:${DOCKER_TAG_NAME}latest
+    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$CI_COMMIT_SHA
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
-    - docker push industrialdevops/titan-ccp-exp-bigdata19-bridge
+    - docker push $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge
     - docker logout
   only:
     variables:
+      - $DOCKERHUB_ORG
       - $DOCKERHUB_ID
       - $DOCKERHUB_PW
