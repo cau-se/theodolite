@@ -1,0 +1,1 @@
+Corresponds largely to the Hopping-Windowed-Based-Architecture/DFA2 from our DEDA 2020 Paper.
