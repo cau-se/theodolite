@@ -1,0 +1,147 @@
+image: openjdk:11-jdk
+
+# Disable the Gradle daemon for Continuous Integration servers as correctness
+# is usually a priority over speed in CI environments. Using a fresh
+# runtime for each build is more reliable since the runtime is completely
+# isolated from any previous builds.
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+cache:
+  paths:
+    - .gradle
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+stages:
+  - build
+  - test
+  - check
+  - deploy
+
+build:
+  stage: build
+  tags:
+    - dockerex
+  script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      #- build/libs/*.jar
+      #- record-bridge-raritan/build/libs/*.jar
+      #- record-bridge-raritan/build/distributions/*.tar
+      #- record-bridge-raritan/raritan-simulator/build/libs/*.jar
+      #- record-bridge-raritan/raritan-simulator/build/distributions/*.tar
+      #- load-tester-bridge/build/libs/*.jar
+      #- load-tester-bridge/build/distributions/*.tar
+      #- exp-bigdata19-bridge/build/libs/*.jar
+      - exp-bigdata19-bridge/build/distributions/*.tar
+    expire_in: 1 day
+
+test:
+  stage: test
+  tags:
+    - dockerex
+  script: ./gradlew test
+
+.checkstyle:
+  stage: check
+  tags:
+    - dockerex
+  script: ./gradlew checkstyle
+  
+.pmd:
+  stage: check
+  tags:
+    - dockerex
+  script: ./gradlew pmd
+  
+.spotbugs:
+  stage: check
+  tags:
+    - dockerex
+  script: ./gradlew spotbugs
+
+.deploy-raritan-bridge:
+  stage: deploy
+  tags:
+    - dockerex
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t titan-ccp-kieker-bridge-raritan ./record-bridge-raritan
+    - docker tag titan-ccp-kieker-bridge-raritan industrialdevops/titan-ccp-kieker-bridge-raritan:${DOCKER_TAG_NAME}latest
+    - docker tag titan-ccp-kieker-bridge-raritan industrialdevops/titan-ccp-kieker-bridge-raritan:$DOCKER_TAG_NAME$(date +%Y%m%d%H%M%S)
+    - docker tag titan-ccp-kieker-bridge-raritan industrialdevops/titan-ccp-kieker-bridge-raritan:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
+    - docker push industrialdevops/titan-ccp-kieker-bridge-raritan
+    - docker logout
+  only:
+    variables:
+      - $DOCKERHUB_ID
+      - $DOCKERHUB_PW
+
+.deploy-raritan-simulator:
+  stage: deploy
+  tags:
+    - dockerex
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t titan-ccp-raritan-simulator ./record-bridge-raritan/raritan-simulator
+    - docker tag titan-ccp-raritan-simulator industrialdevops/titan-ccp-raritan-simulator:${DOCKER_TAG_NAME}latest
+    - docker tag titan-ccp-raritan-simulator industrialdevops/titan-ccp-raritan-simulator:$DOCKER_TAG_NAME$(date +%Y%m%d%H%M%S)
+    - docker tag titan-ccp-raritan-simulator industrialdevops/titan-ccp-raritan-simulator:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
+    - docker push industrialdevops/titan-ccp-raritan-simulator
+    - docker logout
+  only:
+    variables:
+      - $DOCKERHUB_ID
+      - $DOCKERHUB_PW
+
+.deploy-load-tester-bridge:
+  stage: deploy
+  tags:
+    - dockerex
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t titan-ccp-load-tester-bridge ./load-tester-bridge
+    - docker tag titan-ccp-load-tester-bridge industrialdevops/titan-ccp-load-tester-bridge:${DOCKER_TAG_NAME}latest
+    - docker tag titan-ccp-load-tester-bridge industrialdevops/titan-ccp-load-tester-bridge:$DOCKER_TAG_NAME$(date +%Y%m%d%H%M%S)
+    - docker tag titan-ccp-load-tester-bridge industrialdevops/titan-ccp-load-tester-bridge:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
+    - docker push industrialdevops/titan-ccp-load-tester-bridge
+    - docker logout
+  only:
+    variables:
+      - $DOCKERHUB_ID
+      - $DOCKERHUB_PW
+
+deploy-exp-bigdata19-bridge:
+  stage: deploy
+  tags:
+    - dockerex
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t titan-ccp-exp-bigdata19-bridge ./exp-bigdata19-bridge
+    - docker tag titan-ccp-exp-bigdata19-bridge industrialdevops/titan-ccp-exp-bigdata19-bridge:${DOCKER_TAG_NAME}latest
+    - docker tag titan-ccp-exp-bigdata19-bridge industrialdevops/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$(date +%Y%m%d%H%M%S)
+    - docker tag titan-ccp-exp-bigdata19-bridge industrialdevops/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
+    - docker push industrialdevops/titan-ccp-exp-bigdata19-bridge
+    - docker logout
+  only:
+    variables:
+      - $DOCKERHUB_ID
+      - $DOCKERHUB_PW

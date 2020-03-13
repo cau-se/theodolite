@@ -1,0 +1,13 @@
+rootProject.name = 'scalability-benchmarking'
+
+include 'uc1-workload-generator'
+include 'uc1-application'
+
+include 'uc2-workload-generator'
+include 'uc2-application'
+
+include 'uc3-workload-generator'
+include 'uc3-application'
+
+include 'uc4-workload-generator'
+include 'uc4-application'

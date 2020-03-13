@@ -1,0 +1,4 @@
+# Organize Import Order
+# Thu Sep 20 12:36:31 CEST 2018
+# No pre-defined order. We use the (in Eclipse) auto-enabled lexicographic order.
+# The respective Checkstyle rule will check, if the order is correct.
