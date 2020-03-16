@@ -1,4 +1,4 @@
-package titan.ccp.kiekerbridge.expbigdata19;
+package uc3.workloadGenerator;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -9,9 +9,9 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import kafkaSender.KafkaRecordSender;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import titan.ccp.configuration.events.Event;
-import titan.ccp.kiekerbridge.KafkaRecordSender;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
 import titan.ccp.model.sensorregistry.SensorRegistry;
