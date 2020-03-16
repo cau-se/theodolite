@@ -1,4 +1,4 @@
-package titan.ccp.kiekerbridge;
+package kafkaSender;
 
 import java.util.Properties;
 import java.util.function.Function;
