@@ -1,5 +1,6 @@
 package uc1.streamprocessing;
 
+import com.google.gson.Gson;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -14,32 +15,30 @@ import titan.ccp.models.records.ActivePowerRecordFactory;
  */
 public class TopologyBuilder {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
-  private final String inputTopic;
+	private final String inputTopic;
 
-  private final StreamsBuilder builder = new StreamsBuilder();
+	private final StreamsBuilder builder = new StreamsBuilder();
 
-  /**
-   * Create a new {@link TopologyBuilder} using the given topics.
-   */
-  public TopologyBuilder(final String inputTopic) {
-    this.inputTopic = inputTopic;
-  }
+	/**
+	 * Create a new {@link TopologyBuilder} using the given topics.
+	 */
+	public TopologyBuilder(final String inputTopic) {
+		this.inputTopic = inputTopic;
+	}
 
-  /**
-   * Build the {@link Topology} for the History microservice.
-   */
-  public Topology build() {
+	/**
+	 * Build the {@link Topology} for the History microservice.
+	 */
+	public Topology build() {
+		final Gson gson = new Gson();
 
-    this.builder
-        .stream(this.inputTopic, Consumed.with(
-            Serdes.String(),
-            IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
-        .mapValues(value -> value.getValueInW())
-        .foreach((key, measurement) -> LOGGER
-            .info("Key: " + key + " Value: " + measurement));
+		this.builder
+				.stream(this.inputTopic,
+						Consumed.with(Serdes.String(), IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+				.mapValues(v -> gson.toJson(v)).foreach((k, v) -> LOGGER.info("Key: " + k + " Value: " + v));
 
-    return this.builder.build();
-  }
+		return this.builder.build();
+	}
 }
