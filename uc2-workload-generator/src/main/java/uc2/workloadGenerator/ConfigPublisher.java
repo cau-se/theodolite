@@ -1,4 +1,4 @@
-package titan.ccp.kiekerbridge.expbigdata19;
+package uc2.workloadGenerator;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
