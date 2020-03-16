@@ -1,4 +1,4 @@
-package titan.ccp.aggregation;
+package uc2.application;
 
 /**
  * Keys to access configuration parameters.

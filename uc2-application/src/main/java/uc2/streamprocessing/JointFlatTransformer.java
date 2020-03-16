@@ -1,4 +1,4 @@
-package titan.ccp.aggregation.streamprocessing;
+package uc2.streamprocessing;
 
 import com.google.common.base.MoreObjects;
 import java.util.ArrayList;

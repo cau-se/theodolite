@@ -1,4 +1,4 @@
-package titan.ccp.aggregation.streamprocessing;
+package uc2.streamprocessing;
 
 import java.util.Set;
 import titan.ccp.models.records.ActivePowerRecord;

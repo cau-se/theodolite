@@ -1,4 +1,4 @@
-package titan.ccp.aggregation.streamprocessing;
+package uc2.streamprocessing;
 
 import org.apache.kafka.streams.kstream.Windowed;
 import titan.ccp.models.records.ActivePowerRecord;

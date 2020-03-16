@@ -1,4 +1,4 @@
-package titan.ccp.aggregation.streamprocessing;
+package uc2.streamprocessing;
 
 import com.google.common.math.StatsAccumulator;
 import java.time.Duration;

@@ -1,4 +1,4 @@
-package titan.ccp.aggregation.streamprocessing;
+package uc2.streamprocessing;
 
 /**
  * A key consisting of the identifier of a sensor and an identifier of parent sensor.

@@ -1,4 +1,4 @@
-package titan.ccp.aggregation.streamprocessing;
+package uc2.streamprocessing;
 
 import org.apache.kafka.common.serialization.Serde;
 import titan.ccp.common.kafka.simpleserdes.BufferSerde;
