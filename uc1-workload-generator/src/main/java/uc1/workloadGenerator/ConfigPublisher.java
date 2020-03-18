@@ -1,4 +1,4 @@
-package uc2.workloadGenerator;
+package uc1.workloadGenerator;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -12,39 +12,37 @@ import titan.ccp.configuration.events.EventSerde;
 
 public class ConfigPublisher {
 
-  private final String topic;
+	private final String topic;
 
-  private final Producer<Event, String> producer;
+	private final Producer<Event, String> producer;
 
-  public ConfigPublisher(final String bootstrapServers, final String topic) {
-    this(bootstrapServers, topic, new Properties());
-  }
+	public ConfigPublisher(final String bootstrapServers, final String topic) {
+		this(bootstrapServers, topic, new Properties());
+	}
 
-  public ConfigPublisher(final String bootstrapServers, final String topic,
-      final Properties defaultProperties) {
-    this.topic = topic;
+	public ConfigPublisher(final String bootstrapServers, final String topic, final Properties defaultProperties) {
+		this.topic = topic;
 
-    final Properties properties = new Properties();
-    properties.putAll(defaultProperties);
-    properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "134217728"); // 128 MB
-    properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, "134217728"); // 128 MB
+		final Properties properties = new Properties();
+		properties.putAll(defaultProperties);
+		properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "134217728"); // 128 MB
+		properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, "134217728"); // 128 MB
 
-    this.producer =
-        new KafkaProducer<>(properties, EventSerde.serializer(), new StringSerializer());
-  }
+		this.producer = new KafkaProducer<>(properties, EventSerde.serializer(), new StringSerializer());
+	}
 
-  public void publish(final Event event, final String value) {
-    final ProducerRecord<Event, String> record = new ProducerRecord<>(this.topic, event, value);
-    try {
-      this.producer.send(record).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new IllegalArgumentException(e);
-    }
-  }
+	public void publish(final Event event, final String value) {
+		final ProducerRecord<Event, String> record = new ProducerRecord<>(this.topic, event, value);
+		try {
+			this.producer.send(record).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
 
-  public void close() {
-    this.producer.close();
-  }
+	public void close() {
+		this.producer.close();
+	}
 
 }

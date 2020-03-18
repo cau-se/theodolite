@@ -1,4 +1,4 @@
-package uc2.workloadGenerator;
+package uc1.workloadGenerator;
 
 import java.io.IOException;
 import java.util.List;

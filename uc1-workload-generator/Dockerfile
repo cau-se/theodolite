@@ -1,6 +1,6 @@
 FROM openjdk:11-slim
 
-ADD build/distributions/exp-bigdata19-bridge.tar /
+ADD build/distributions/uc1-workload-generator.tar /
 
-CMD export JAVA_OPTS=-Dorg.slf4j.simpleLogger.defaultLogLevel=$LOG_LEVEL \
-    && /exp-bigdata19-bridge/bin/exp-bigdata19-bridge
+CMD  JAVA_OPTS="$JAVA_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=$LOG_LEVEL" \
+     /uc1-workload-generator/bin/uc1-workload-generator
