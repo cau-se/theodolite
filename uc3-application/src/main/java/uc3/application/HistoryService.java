@@ -1,6 +1,7 @@
 package uc3.application;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
@@ -17,6 +18,8 @@ public class HistoryService {
 	private final Configuration config = Configurations.create();
 
 	private final CompletableFuture<Void> stopEvent = new CompletableFuture<>();
+	final int KAFKA_WINDOW_DURATION_MINUTES = Integer
+			.parseInt(Objects.requireNonNullElse(System.getenv("KAFKA_WINDOW_DURATION_MINUTES"), "60"));
 
 	/**
 	 * Start the service.
@@ -37,7 +40,7 @@ public class HistoryService {
 				.bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
 				.inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
 				.outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
-				.windowDuration(Duration.ofMinutes(this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES)))
+				.windowDuration(Duration.ofMinutes(this.KAFKA_WINDOW_DURATION_MINUTES))
 				.numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
 				.commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
 				.cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING)).build();

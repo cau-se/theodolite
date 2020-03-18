@@ -21,7 +21,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-mainClassName = "titan.ccp.kiekerbridge.expbigdata19.ExperimentorBigData"
+mainClassName = "uc3.application.HistoryService"
 
 eclipse {
     classpath {
