@@ -1,8 +1,8 @@
 package titan.ccp.aggregation.streamprocessing;
 
 import org.junit.Test;
-import titan.ccp.aggregation.streamprocessing.SensorParentKey;
-import titan.ccp.aggregation.streamprocessing.SensorParentKeySerde;
+import uc2.streamprocessing.SensorParentKey;
+import uc2.streamprocessing.SensorParentKeySerde;
 
 public class SensorParentKeySerdeTest {
 

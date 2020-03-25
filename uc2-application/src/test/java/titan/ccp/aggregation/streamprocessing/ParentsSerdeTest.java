@@ -2,7 +2,7 @@ package titan.ccp.aggregation.streamprocessing;
 
 import java.util.Set;
 import org.junit.Test;
-import titan.ccp.aggregation.streamprocessing.ParentsSerde;
+import uc2.streamprocessing.ParentsSerde;
 
 public class ParentsSerdeTest {
 
