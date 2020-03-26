@@ -22,6 +22,7 @@ public class KafkaStreamsBuilder {
   private String inputTopic; // NOPMD
   private String outputTopic; // NOPMD
   private Duration windowDuration; // NOPMD
+  private String schemaRegistryUrl; // NOPMD
   private int numThreads = -1; // NOPMD
   private int commitIntervalMs = -1; // NOPMD
   private int cacheMaxBytesBuff = -1; // NOPMD
@@ -36,13 +37,13 @@ public class KafkaStreamsBuilder {
     return this;
   }
 
-  public KafkaStreamsBuilder outputTopic(final String outputTopic) {
-    this.outputTopic = outputTopic;
+  public KafkaStreamsBuilder schemaRegistry(final String url) {
+    this.schemaRegistryUrl = url;
     return this;
   }
 
-  public KafkaStreamsBuilder windowDuration(final Duration windowDuration) {
-    this.windowDuration = windowDuration;
+  public KafkaStreamsBuilder outputTopic(final String outputTopic) {
+    this.outputTopic = outputTopic;
     return this;
   }
 
@@ -91,7 +92,7 @@ public class KafkaStreamsBuilder {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
     // TODO log parameters
     final TopologyBuilder topologyBuilder = new TopologyBuilder(this.inputTopic, this.outputTopic,
-        this.windowDuration, null);
+        this.windowDuration, this.schemaRegistryUrl);
     final Properties properties = PropertiesBuilder.bootstrapServers(this.bootstrapServers)
         .applicationId(APPLICATION_NAME + '-' + APPLICATION_VERSION) // TODO as parameter
         .set(StreamsConfig.NUM_STREAM_THREADS_CONFIG, this.numThreads, p -> p > 0)
