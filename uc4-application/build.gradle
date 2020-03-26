@@ -12,6 +12,18 @@ buildscript {
 sourceCompatibility = "1.11"
 targetCompatibility = "1.11"
 
+allprojects { 
+	repositories {
+	    jcenter()
+	    maven {
+	    	url "https://oss.sonatype.org/content/repositories/snapshots/"
+	    }
+    	maven {
+    		url 'https://packages.confluent.io/maven/'
+    	}
+	}
+}
+
 dependencies {
     compile project(':')
     
