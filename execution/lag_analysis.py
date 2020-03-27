@@ -21,7 +21,8 @@ start = now - timedelta(minutes=5)
 #print(start.isoformat().replace('+00:00', 'Z'))
 #print(end.isoformat().replace('+00:00', 'Z'))
 
-response = requests.get('http://localhost:9090/api/v1/query_range', params={
+#http://localhost:9090
+response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
     'query': "sum by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
     'start': start.isoformat(),
     'end': end.isoformat(),
