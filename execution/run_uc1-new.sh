@@ -49,4 +49,6 @@ while test $(kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-c
 do
     echo "Wait for topic deletion"
     sleep 5s
+    # Sometimes a second deletion seems to be required
+    kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic 'input,output,configuration,titan-.*'"
 done
