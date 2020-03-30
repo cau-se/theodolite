@@ -23,5 +23,6 @@ do
     do
         echo "Run $DIM_VALUE $REPLICA"
         ./run_uc$UC-new.sh $EXP_ID $DIM_VALUE $REPLICA $PARTITIONS
+        sleep 10s
     done
 done
