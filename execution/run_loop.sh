@@ -17,11 +17,16 @@ REPLICAS=${REPLICAS[*]}
 PARTITIONS=$PARTITIONS
 " >> "exp${EXP_ID}_uc${UC}_meta.txt"
 
+SUBEXPERIMENTS=$((${#DIM_VALUES[@]} * ${#REPLICAS[@]}))
+SUBEXPERIMENT_COUNTER=0
+
+echo "Going to execute $SUBEXPERIMENTS subexperiments in total..."
 for DIM_VALUE in "${DIM_VALUES[@]}"
 do
     for REPLICA in "${REPLICAS[@]}"
     do
-        echo "Run $DIM_VALUE $REPLICA"
+        SUBEXPERIMENT_COUNTER=$((SUBEXPERIMENT_COUNTER+1))
+        echo "Run subexperiment $SUBEXPERIMENT_COUNTER/$SUBEXPERIMENTS with config: $DIM_VALUE $REPLICA"
         ./run_uc$UC-new.sh $EXP_ID $DIM_VALUE $REPLICA $PARTITIONS
         sleep 10s
     done
