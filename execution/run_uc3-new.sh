@@ -44,10 +44,18 @@ kubectl delete -f uc3-application/aggregation-deployment.yaml
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list"
 
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic 'input,output,configuration,titan-.*'"
-while test $(kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n '/^titan-.*/p;/^input$/p;/^output$/p;/^configuration$/p' | wc -l) -gt 0
+echo "Finished execution, print topics:"
+#kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -r '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p'
+while test $(kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -r '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p' | wc -l) -gt 0
 do
     kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic 'input,output,configuration,titan-.*'"
     echo "Wait for topic deletion"
     sleep 5s
+    #echo "Finished waiting, print topics:"
+    #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -r '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p'
     # Sometimes a second deletion seems to be required
 done
+echo "Finish topic deletion, print topics:"
+#kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -r '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p'
+echo "Exiting script"
+
