@@ -32,6 +32,7 @@ response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', par
     'start': start.isoformat(),
     'end': end.isoformat(),
     'step': '5s'})
+# TODO Check if start=now()-5m and end=now() also works
 
 #response
 #print(response.request.path_url)
