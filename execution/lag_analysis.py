@@ -4,7 +4,7 @@ import requests
 from datetime import datetime, timedelta, timezone
 import pandas as pd
 import matplotlib.pyplot as plt
-import csv   
+import csv
 
 #
 exp_id =  sys.argv[1]
@@ -45,7 +45,7 @@ for result in results:
     topic = result['metric']['topic']
     for value in result['values']:
         #print(value)
-        d.append({'topic': topic, 'timestamp': int(value[0]), 'value': int(value[1])})
+        d.append({'topic': topic, 'timestamp': int(value[0]), 'value': int(value[1]) if value[1] != 'NaN' else 0})
 
 df = pd.DataFrame(d)
 
