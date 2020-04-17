@@ -63,3 +63,6 @@ echo "Exiting script"
 #TODO maybe delete schemas
 #https://docs.confluent.io/current/schema-registry/schema-deletion-guidelines.html
 #curl -X DELETE http://localhost:8081/subjects/Kafka-value
+
+KAFKA_LAG_EXPORTER_POD=$(kubectl get pod -l app.kubernetes.io/name=kafka-lag-exporter -o jsonpath="{.items[0].metadata.name}")
+kubectl delete pod $KAFKA_LAG_EXPORTER_POD
