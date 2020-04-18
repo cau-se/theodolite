@@ -28,7 +28,7 @@ start = now - timedelta(minutes=5)
 
 response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
     #'query': "sum by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
-    'query': "sum by(group, topic)(kafka_consumergroup_group_lag)",
+    'query': "sum by(group, topic)(kafka_consumergroup_group_lag > 0)",
     'start': start.isoformat(),
     'end': end.isoformat(),
     'step': '5s'})
