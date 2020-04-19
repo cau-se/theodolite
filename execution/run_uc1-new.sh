@@ -4,6 +4,7 @@ EXP_ID=$1
 DIM_VALUE=$2
 INSTANCES=$3
 PARTITIONS=$4
+EXECUTION_MINUTES=5
 
 # Start up Kafka
 # TODO
@@ -26,7 +27,7 @@ kubectl apply -f uc1-application/aggregation-deployment.yaml
 kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
-sleep 5m
+sleep ${EXECUTION_MINUTES}m
 
 # Run eval script
 source ../.venv/bin/activate
