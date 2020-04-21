@@ -36,7 +36,6 @@ public class HistoryService {
   private void createKafkaStreamsApplication() {
     final KafkaStreams kafkaStreams = new KafkaStreamsBuilder()
         .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-        .schemaRegistry(this.schemaRegistry)
         .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
         .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
         .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
