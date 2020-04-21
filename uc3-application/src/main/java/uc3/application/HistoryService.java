@@ -9,47 +9,45 @@ import titan.ccp.common.configuration.Configurations;
 import uc3.streamprocessing.KafkaStreamsBuilder;
 
 /**
- * A microservice that manages the history and, therefore, stores and aggregates
- * incoming measurements.
+ * A microservice that manages the history and, therefore, stores and aggregates incoming
+ * measurements.
  *
  */
 public class HistoryService {
 
-	private final Configuration config = Configurations.create();
+  private final Configuration config = Configurations.create();
 
-	private final CompletableFuture<Void> stopEvent = new CompletableFuture<>();
-	final int KAFKA_WINDOW_DURATION_MINUTES = Integer
-			.parseInt(Objects.requireNonNullElse(System.getenv("KAFKA_WINDOW_DURATION_MINUTES"), "60"));
+  private final CompletableFuture<Void> stopEvent = new CompletableFuture<>();
+  private final int windowDurationMinutes = Integer
+      .parseInt(Objects.requireNonNullElse(System.getenv("KAFKA_WINDOW_DURATION_MINUTES"), "60"));
 
-	/**
-	 * Start the service.
-	 *
-	 * @return {@link CompletableFuture} which is completed when the service is
-	 *         successfully started.
-	 */
-	public void run() {
-		this.createKafkaStreamsApplication();
-	}
+  /**
+   * Start the service.
+   */
+  public void run() {
+    this.createKafkaStreamsApplication();
+  }
 
-	/**
-	 * Build and start the underlying Kafka Streams application of the service.
-	 *
-	 */
-	private void createKafkaStreamsApplication() {
-		final KafkaStreams kafkaStreams = new KafkaStreamsBuilder()
-				.bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-				.inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
-				.outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
-				.windowDuration(Duration.ofMinutes(this.KAFKA_WINDOW_DURATION_MINUTES))
-				.numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
-				.commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
-				.cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING)).build();
-		this.stopEvent.thenRun(kafkaStreams::close);
-		kafkaStreams.start();
-	}
+  /**
+   * Build and start the underlying Kafka Streams application of the service.
+   *
+   */
+  private void createKafkaStreamsApplication() {
+    final KafkaStreams kafkaStreams = new KafkaStreamsBuilder()
+        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
+        .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
+        .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
+        .windowDuration(Duration.ofMinutes(this.windowDurationMinutes))
+        .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
+        .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
+        .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
+        .build();
+    this.stopEvent.thenRun(kafkaStreams::close);
+    kafkaStreams.start();
+  }
 
-	public static void main(final String[] args) {
-		new HistoryService().run();
-	}
+  public static void main(final String[] args) {
+    new HistoryService().run();
+  }
 
 }

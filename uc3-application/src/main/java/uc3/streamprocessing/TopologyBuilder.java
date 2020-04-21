@@ -48,7 +48,8 @@ public class TopologyBuilder {
         .stream(this.inputTopic,
             Consumed.with(Serdes.String(),
                 IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
-        .groupByKey().windowedBy(TimeWindows.of(this.duration))
+        .groupByKey()
+        .windowedBy(TimeWindows.of(this.duration))
         // .aggregate(
         // () -> 0.0,
         // (key, activePowerRecord, agg) -> agg + activePowerRecord.getValueInW(),
@@ -61,7 +62,7 @@ public class TopologyBuilder {
                 GenericSerde.from(Stats::toByteArray, Stats::fromByteArray)))
         .toStream()
         .map((k, s) -> KeyValue.pair(k.key(), s.toString()))
-        .peek((k, v) -> System.out.printf("key %s, value %f \n", k, v))
+        .peek((k, v) -> System.out.println(k + ": " + v))
         .to(this.outputTopic, Produced.with(Serdes.String(), Serdes.String()));
 
     return this.builder.build();
