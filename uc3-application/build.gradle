@@ -15,6 +15,7 @@ targetCompatibility = "1.11"
 dependencies {
     compile project(':')
     
+    compile('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT')
     compile 'org.slf4j:slf4j-simple:1.6.1'
 
     // Use JUnit test framework
