@@ -15,11 +15,8 @@ import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import titan.ccp.common.kafka.GenericSerde;
 import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
-import titan.ccp.model.records.HourOfDayActivePowerRecord;
 import titan.ccp.models.records.ActivePowerRecordFactory;
 import uc4.streamprocessing.util.StatsFactory;
 
@@ -28,13 +25,15 @@ import uc4.streamprocessing.util.StatsFactory;
  */
 public class TopologyBuilder {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
+  // private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
   private final ZoneId zone = ZoneId.of("Europe/Paris"); // TODO as parameter
 
 
   private final String inputTopic;
   private final String outputTopic;
+  private final Duration aggregtionDuration;
+  private final Duration aggregationAdvance;
 
   private final StreamsBuilder builder = new StreamsBuilder();
 
@@ -42,9 +41,11 @@ public class TopologyBuilder {
    * Create a new {@link TopologyBuilder} using the given topics.
    */
   public TopologyBuilder(final String inputTopic, final String outputTopic,
-      final Duration duration) {
+      final Duration aggregtionDuration, final Duration aggregationAdvance) {
     this.inputTopic = inputTopic;
     this.outputTopic = outputTopic;
+    this.aggregtionDuration = aggregtionDuration;
+    this.aggregationAdvance = aggregationAdvance;
   }
 
   /**
@@ -54,19 +55,13 @@ public class TopologyBuilder {
 
     final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
     final Serde<HourOfDayKey> keySerde = HourOfDayKeySerde.create();
-    final StatsRecordFactory<HourOfDayKey, HourOfDayActivePowerRecord> statsRecordFactory =
-        new HourOfDayRecordFactory();
-    final TimeWindows timeWindows =
-        TimeWindows.of(Duration.ofDays(30)).advanceBy(Duration.ofDays(1));
+    // final StatsRecordFactory<HourOfDayKey, HourOfDayActivePowerRecord> statsRecordFactory = new
+    // HourOfDayRecordFactory();
 
     this.builder
         .stream(this.inputTopic,
             Consumed.with(Serdes.String(),
                 IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
-        // .mapValues(kieker -> new ActivePowerRecord(
-        // kieker.getIdentifier(),
-        // kieker.getTimestamp(),
-        // kieker.getValueInW()))
         .selectKey((key, value) -> {
           final Instant instant = Instant.ofEpochMilli(value.getTimestamp());
           final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, this.zone);
@@ -74,7 +69,7 @@ public class TopologyBuilder {
         })
         .groupByKey(
             Grouped.with(keySerde, IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
-        .windowedBy(timeWindows)
+        .windowedBy(TimeWindows.of(this.aggregtionDuration).advanceBy(this.aggregationAdvance))
         .aggregate(
             () -> Stats.of(),
             (k, record, stats) -> StatsFactory.accumulate(stats, record.getValueInW()),

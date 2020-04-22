@@ -21,23 +21,34 @@ public class KafkaStreamsBuilder {
   private String bootstrapServers; // NOPMD
   private String inputTopic; // NOPMD
   private String outputTopic; // NOPMD
-  private Duration windowDuration; // NOPMD
+  private Duration aggregtionDuration; // NOPMD
+  private Duration aggregationAdvance; // NOPMD
   private int numThreads = -1; // NOPMD
   private int commitIntervalMs = -1; // NOPMD
   private int cacheMaxBytesBuff = -1; // NOPMD
-
-  public KafkaStreamsBuilder inputTopic(final String inputTopic) {
-    this.inputTopic = inputTopic;
-    return this;
-  }
 
   public KafkaStreamsBuilder bootstrapServers(final String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
     return this;
   }
 
+  public KafkaStreamsBuilder inputTopic(final String inputTopic) {
+    this.inputTopic = inputTopic;
+    return this;
+  }
+
   public KafkaStreamsBuilder outputTopic(final String outputTopic) {
     this.outputTopic = outputTopic;
+    return this;
+  }
+
+  public KafkaStreamsBuilder aggregtionDuration(final Duration aggregtionDuration) {
+    this.aggregtionDuration = aggregtionDuration;
+    return this;
+  }
+
+  public KafkaStreamsBuilder aggregationAdvance(final Duration aggregationAdvance) {
+    this.aggregationAdvance = aggregationAdvance;
     return this;
   }
 
@@ -84,9 +95,15 @@ public class KafkaStreamsBuilder {
    */
   public KafkaStreams build() {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
+    Objects.requireNonNull(this.outputTopic, "Output topic has not been set.");
+    Objects.requireNonNull(this.aggregtionDuration, "Aggregation duration has not been set.");
+    Objects.requireNonNull(this.aggregationAdvance, "Aggregation advance period has not been set.");
     // TODO log parameters
-    final TopologyBuilder topologyBuilder = new TopologyBuilder(this.inputTopic, this.outputTopic,
-        this.windowDuration);
+    final TopologyBuilder topologyBuilder = new TopologyBuilder(
+        this.inputTopic,
+        this.outputTopic,
+        this.aggregtionDuration,
+        this.aggregationAdvance);
     final Properties properties = PropertiesBuilder.bootstrapServers(this.bootstrapServers)
         .applicationId(APPLICATION_NAME + '-' + APPLICATION_VERSION) // TODO as parameter
         .set(StreamsConfig.NUM_STREAM_THREADS_CONFIG, this.numThreads, p -> p > 0)

@@ -7,9 +7,13 @@ public final class ConfigurationKeys {
 
   public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
 
+  public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
+
   public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
 
-  public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
+  public static final String AGGREGATION_DURATION_DAYS = "aggregtion.duration.days";
+
+  public static final String AGGREGATION_ADVANCE_DAYS = "aggregtion.advance.days";
 
   public static final String NUM_THREADS = "num.threads";
 
