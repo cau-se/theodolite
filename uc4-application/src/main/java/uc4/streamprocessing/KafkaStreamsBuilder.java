@@ -109,7 +109,8 @@ public class KafkaStreamsBuilder {
         .set(StreamsConfig.NUM_STREAM_THREADS_CONFIG, this.numThreads, p -> p > 0)
         .set(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, this.commitIntervalMs, p -> p >= 0)
         .set(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, this.cacheMaxBytesBuff, p -> p >= 0)
-        .set(StreamsConfig.METRICS_RECORDING_LEVEL_CONFIG, "DEBUG").build();
+        // .set(StreamsConfig.METRICS_RECORDING_LEVEL_CONFIG, "DEBUG")
+        .build();
     return new KafkaStreams(topologyBuilder.build(), properties);
   }
 
