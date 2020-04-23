@@ -14,8 +14,8 @@ spec:
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-      - name: uc2-application
-        image: "benediktwetzel/uc3-app:latest"
+      - name: uc3-application
+        image: "soerenhenning/uc3-app:latest"
         ports:
         - containerPort: 5555
           name: jmx
@@ -24,6 +24,8 @@ spec:
           value: "my-confluent-cp-kafka:9092"
         - name: KAFKA_WINDOW_DURATION_MINUTES
           value: "1"
+        - name: COMMIT_INTERVAL_MS
+          value: "100"
         - name: JAVA_OPTS
           value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5555"
       - name: prometheus-jmx-exporter

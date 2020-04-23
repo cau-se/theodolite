@@ -22,8 +22,12 @@ spec:
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
-        - name: SCHEMA_REGISTRY_URL
-          value: "http://my-confluent-cp-schema-registry:8081"
+        - name: AGGREGATION_DURATION_DAYS
+          value: "7" #AGGREGATION_DURATION_DAYS
+        - name: AGGREGATION_DURATION_ADVANCE
+          value: "1"
+        - name: COMMIT_INTERVAL_MS
+          value: "100"
         - name: JAVA_OPTS
           value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5555"
       - name: prometheus-jmx-exporter
