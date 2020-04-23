@@ -15,31 +15,33 @@ import titan.ccp.models.records.ActivePowerRecordFactory;
  */
 public class TopologyBuilder {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
-	private final String inputTopic;
-	private final Gson gson;
+  private final String inputTopic;
+  private final Gson gson;
 
-	private final StreamsBuilder builder = new StreamsBuilder();
+  private final StreamsBuilder builder = new StreamsBuilder();
 
-	/**
-	 * Create a new {@link TopologyBuilder} using the given topics.
-	 */
-	public TopologyBuilder(final String inputTopic) {
-		this.inputTopic = inputTopic;
-		this.gson = new Gson();
-	}
+  /**
+   * Create a new {@link TopologyBuilder} using the given topics.
+   */
+  public TopologyBuilder(final String inputTopic) {
+    this.inputTopic = inputTopic;
+    this.gson = new Gson();
+  }
 
-	/**
-	 * Build the {@link Topology} for the History microservice.
-	 */
-	public Topology build() {
+  /**
+   * Build the {@link Topology} for the History microservice.
+   */
+  public Topology build() {
 
-		this.builder
-				.stream(this.inputTopic,
-						Consumed.with(Serdes.String(), IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
-				.mapValues(v -> this.gson.toJson(v)).foreach((k, v) -> LOGGER.info("Key: " + k + " Value: " + v));
+    this.builder
+        .stream(this.inputTopic, Consumed.with(
+            Serdes.String(),
+            IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+        .mapValues(v -> this.gson.toJson(v))
+        .foreach((k, v) -> LOGGER.info("Key: " + k + " Value: " + v));
 
-		return this.builder.build();
-	}
+    return this.builder.build();
+  }
 }
