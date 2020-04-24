@@ -4,7 +4,7 @@ EXP_ID=$1
 DIM_VALUE=$2
 INSTANCES=$3
 PARTITIONS=$4
-EXECUTION_MINUTES=10
+EXECUTION_MINUTES=5
 
 # Maybe start up Kafka
 
@@ -16,11 +16,14 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 
 # Start workload generator
 NUM_SENSORS=$DIM_VALUE
+#NUM_SENSORS=xy
 sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g" uc4-workload-generator/deployment.yaml | kubectl apply -f -
 
 # Start application
 REPLICAS=$INSTANCES
+#AGGREGATION_DURATION_DAYS=$DIM_VALUE
 kubectl apply -f uc4-application/aggregation-deployment.yaml
+#sed "s/{{AGGREGATION_DURATION_DAYS}}/$AGGREGATION_DURATION_DAYS/g" uc4-application/aggregation-deployment.yaml | kubectl apply -f -
 kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
