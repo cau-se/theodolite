@@ -26,6 +26,10 @@ spec:
           value: "100"
         - name: JAVA_OPTS
           value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5555"
+        resources:
+          limits:
+            memory: "4Gi"
+            cpu: "1000m"
       - name: prometheus-jmx-exporter
         image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
         command:
