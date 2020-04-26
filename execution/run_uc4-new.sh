@@ -63,10 +63,5 @@ echo "Finish topic deletion, print topics:"
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -r '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p'
 echo "Exiting script"
 
-
-#TODO maybe delete schemas
-#https://docs.confluent.io/current/schema-registry/schema-deletion-guidelines.html
-#curl -X DELETE http://localhost:8081/subjects/Kafka-value
-
 KAFKA_LAG_EXPORTER_POD=$(kubectl get pod -l app.kubernetes.io/name=kafka-lag-exporter -o jsonpath="{.items[0].metadata.name}")
 kubectl delete pod $KAFKA_LAG_EXPORTER_POD
