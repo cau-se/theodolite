@@ -28,9 +28,9 @@ not for the actual benchmark execution and evaluation.
 
 Lightbend's Kafka Lag Exporter can be installed via helm:
 
-``sh
+```sh
 helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.0/kafka-lag-exporter-0.6.0.tgz
-``
+```
 
 **TODO** Add configuration + ServiceMonitor
 
