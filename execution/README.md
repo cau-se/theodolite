@@ -22,7 +22,24 @@ below), we provide a [patch](https://github.com/SoerenHenning/cp-helm-charts)
 for these helm charts. Note that this patch is only required for observation and
 not for the actual benchmark execution and evaluation.
 
+#### Our patched Confluent Helm Charts
+
+To use our patched Confluent Helm Charts clone the
+[chart's repsoitory](https://github.com/SoerenHenning/cp-helm-charts) and run
+
+```sh
+helm install my-confluent .
+```
+
+from within the cloned repository. Further configuration is possible by using a
+helm YAML configuration file, passed by `-f values.yaml` to helm's install
+command.
+
 **TODO** Add required configuration, installation
+
+#### Other options for Kafka
+
+Other Kafka deployment, for example, using Strimzi, should work in similiar way.
 
 ### The Kafka Lag Exporter
 
