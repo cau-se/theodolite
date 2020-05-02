@@ -37,7 +37,8 @@ python lag_analysis.py $EXP_ID uc1 $DIM_VALUE $INSTANCES
 deactivate
 
 # Stop wl and app
-kubectl delete -f uc1-workload-generator/deployment.yaml
+#kubectl delete -f uc1-workload-generator/deployment.yaml
+sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc1-workload-generator/deployment.yaml | kubectl delete -f -
 kubectl delete -f uc1-application/aggregation-deployment.yaml
 
 
