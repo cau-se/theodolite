@@ -19,7 +19,9 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 
 # Start workload generator
 NUM_SENSORS=$DIM_VALUE
-sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g" uc1-workload-generator/deployment.yaml | kubectl apply -f -
+WL_MAX_RECORDS=150000
+WL_INSTANCES=$(((NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
+sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc1-workload-generator/deployment.yaml | kubectl apply -f -
 
 # Start application
 REPLICAS=$INSTANCES

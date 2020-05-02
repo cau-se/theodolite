@@ -1,12 +1,13 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: titan-ccp-load-generator
 spec:
   selector:
     matchLabels:
       app: titan-ccp-load-generator
-  replicas: 1
+  serviceName: titan-ccp-load-generator
+  replicas: {{INSTANCES}}
   template:
     metadata:
       labels:
@@ -15,10 +16,16 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: benediktwetzel/uc1-wg:latest 
+        image: soerenhenning/uc1-wg:latest 
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
         - name: NUM_SENSORS
           value: "{{NUM_SENSORS}}"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTANCES
+          value: "{{INSTANCES}}"
           
