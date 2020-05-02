@@ -19,12 +19,13 @@ import titan.ccp.models.records.ActivePowerRecord;
 
 public class LoadGenerator {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
   private static final int WL_MAX_RECORDS = 150_000;
 
   public static void main(final String[] args) throws InterruptedException, IOException {
     // uc1
+    LOGGER.info("Start workload generator for use case UC1.");
 
     final int numSensors =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("NUM_SENSORS"), "10"));

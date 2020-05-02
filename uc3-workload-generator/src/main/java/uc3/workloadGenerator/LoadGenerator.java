@@ -11,14 +11,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import kafkaSender.KafkaRecordSender;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
 import titan.ccp.models.records.ActivePowerRecord;
 
 public class LoadGenerator {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
+
   public static void main(final String[] args) throws InterruptedException, IOException {
     // uc3
+    LOGGER.info("Start workload generator for use case UC3.");
 
     final int numSensor =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("NUM_SENSORS"), "10"));
