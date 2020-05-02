@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import kafkaSender.KafkaRecordSender;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
@@ -18,7 +20,10 @@ import titan.ccp.models.records.ActivePowerRecord;
 
 public class LoadGenerator {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
+
   public static void main(final String[] args) throws InterruptedException, IOException {
+    LOGGER.info("Start workload generator for use case UC2.");
 
     final String hierarchy = Objects.requireNonNullElse(System.getenv("HIERARCHY"), "deep");
     final int numNestedGroups = Integer
