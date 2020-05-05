@@ -9,9 +9,6 @@ PARTITIONS=$4
 #KAFKA_STREAMS_COMMIT_INTERVAL_MS=100
 EXECUTION_MINUTES=5
 
-# Start up Kafka
-# TODO
-
 # Create Topics
 #PARTITIONS=40
 #kubectl run temp-kafka --rm --attach --restart=Never --image=solsson/kafka --command -- bash -c "./bin/kafka-topics.sh --zookeeper my-confluent-cp-zookeeper:2181 --create --topic input --partitions $PARTITIONS --replication-factor 1; ./bin/kafka-topics.sh --zookeeper my-confluent-cp-zookeeper:2181 --create --topic configuration --partitions 1 --replication-factor 1; ./bin/kafka-topics.sh --zookeeper my-confluent-cp-zookeeper:2181 --create --topic output --partitions $PARTITIONS --replication-factor 1"
