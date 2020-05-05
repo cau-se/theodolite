@@ -4,9 +4,9 @@ EXP_ID=$1
 DIM_VALUE=$2
 INSTANCES=$3
 PARTITIONS=$4
-#CPU_LIMIT=1000
-#MEMORY_LIMIT=4Gi
-#KAFKA_STREAMS_COMMIT_INTERVAL_MS=100
+CPU_LIMIT=1000m
+MEMORY_LIMIT=4Gi
+KAFKA_STREAMS_COMMIT_INTERVAL_MS=100
 EXECUTION_MINUTES=5
 
 # Create Topics
@@ -19,11 +19,15 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 NUM_SENSORS=$DIM_VALUE
 WL_MAX_RECORDS=150000
 WL_INSTANCES=$(((NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
-sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc3-workload-generator/deployment.yaml | kubectl apply -f -
+
+WORKLOAD_GENERATOR_YAML=$(sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc3-workload-generator/deployment.yaml)
+echo "$WORKLOAD_GENERATOR_YAML" | kubectl apply -f -
 
 # Start application
 REPLICAS=$INSTANCES
-kubectl apply -f uc3-application/aggregation-deployment.yaml
+#kubectl apply -f uc3-application/aggregation-deployment.yaml
+APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc3-application/aggregation-deployment.yaml)
+echo "$APPLICATION_YAML" | kubectl apply -f -
 kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
@@ -37,8 +41,11 @@ deactivate
 # Stop wl and app
 #kubectl delete -f uc3-workload-generator/deployment.yaml
 #sed "s/{{INSTANCES}}/1/g" uc3-workload-generator/deployment.yaml | kubectl delete -f -
-sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc3-workload-generator/deployment.yaml | kubectl delete -f -
-kubectl delete -f uc1-application/aggregation-deployment.yaml
+echo "$WORKLOAD_GENERATOR_YAML" | kubectl delete -f -
+#kubectl delete -f uc1-application/aggregation-deployment.yaml
+#sed "s/{{CPU_LIMIT}}/1000m/g; s/{{MEMORY_LIMIT}}/4Gi/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/100/g" uc3-application/aggregation-deployment.yaml | kubectl delete -f -
+echo "$APPLICATION_YAML" | kubectl delete -f -
+
 
 
 # Delete topics instead of Kafka
