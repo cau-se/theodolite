@@ -24,14 +24,11 @@ public class LoadGenerator {
   private static final int WL_MAX_RECORDS = 150_000;
 
   public static void main(final String[] args) throws InterruptedException, IOException {
-    // uc1
     LOGGER.info("Start workload generator for use case UC1.");
 
     final int numSensors =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("NUM_SENSORS"), "10"));
     final int instanceId = getInstanceId();
-    final int instances =
-        Integer.parseInt(Objects.requireNonNullElse(System.getenv("INSTANCES"), "1"));
     final int periodMs =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("PERIOD_MS"), "1000"));
     final int value = Integer.parseInt(Objects.requireNonNullElse(System.getenv("VALUE"), "10"));
