@@ -3,13 +3,20 @@
 EXP_ID=$1
 DIM_VALUE=$2
 INSTANCES=$3
-PARTITIONS=$4
-#CPU_LIMIT=1000
-#MEMORY_LIMIT=4Gi
-#KAFKA_STREAMS_COMMIT_INTERVAL_MS=100
-EXECUTION_MINUTES=5
+PARTITIONS=${4:-40}
+CPU_LIMIT=${5:-1000m}
+MEMORY_LIMIT=${6:-4Gi}
+KAFKA_STREAMS_COMMIT_INTERVAL_MS=${7:-100}
+EXECUTION_MINUTES=${8:-5}
 
-# Maybe start up Kafka
+echo "EXP_ID: $EXP_ID"
+echo "DIM_VALUE: $DIM_VALUE"
+echo "INSTANCES: $INSTANCES"
+echo "PARTITIONS: $PARTITIONS"
+echo "CPU_LIMIT: $CPU_LIMIT"
+echo "MEMORY_LIMIT: $MEMORY_LIMIT"
+echo "KAFKA_STREAMS_COMMIT_INTERVAL_MS: $KAFKA_STREAMS_COMMIT_INTERVAL_MS"
+echo "EXECUTION_MINUTES: $EXECUTION_MINUTES"
 
 # Create Topics
 #PARTITIONS=40
@@ -23,7 +30,9 @@ sed "s/{{NUM_NESTED_GROUPS}}/$NUM_NESTED_GROUPS/g" uc2-workload-generator/deploy
 
 # Start application
 REPLICAS=$INSTANCES
-kubectl apply -f uc2-application/aggregation-deployment.yaml
+#kubectl apply -f uc2-application/aggregation-deployment.yaml
+APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc2-application/aggregation-deployment.yaml)
+echo "$APPLICATION_YAML" | kubectl apply -f -
 kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
@@ -36,7 +45,8 @@ deactivate
 
 # Stop wl and app
 kubectl delete -f uc2-workload-generator/deployment.yaml
-kubectl delete -f uc2-application/aggregation-deployment.yaml
+#kubectl delete -f uc2-application/aggregation-deployment.yaml
+echo "$APPLICATION_YAML" | kubectl delete -f -
 
 
 # Delete topics instead of Kafka
