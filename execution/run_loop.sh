@@ -3,7 +3,11 @@
 UC=$1
 IFS=', ' read -r -a DIM_VALUES <<< "$2"
 IFS=', ' read -r -a REPLICAS <<< "$3"
-PARTITIONS=$4
+PARTITIONS=${4:-40}
+CPU_LIMIT=${5:-1000m}
+MEMORY_LIMIT=${6:-4Gi}
+KAFKA_STREAMS_COMMIT_INTERVAL_MS=${7:-100}
+EXECUTION_MINUTES=${8:-5}
 
 # Get and increment counter
 EXP_ID=$(cat exp_counter.txt)
@@ -27,7 +31,7 @@ do
     do
         SUBEXPERIMENT_COUNTER=$((SUBEXPERIMENT_COUNTER+1))
         echo "Run subexperiment $SUBEXPERIMENT_COUNTER/$SUBEXPERIMENTS with config: $DIM_VALUE $REPLICA"
-        ./run_uc$UC-new.sh $EXP_ID $DIM_VALUE $REPLICA $PARTITIONS
+        ./run_uc$UC-new.sh $EXP_ID $DIM_VALUE $REPLICA $PARTITIONS $CPU_LIMIT $MEMORY_LIMIT $KAFKA_STREAMS_COMMIT_INTERVAL_MS $EXECUTION_MINUTES
         sleep 10s
     done
 done
