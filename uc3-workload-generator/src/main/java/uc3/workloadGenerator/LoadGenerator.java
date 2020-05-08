@@ -61,13 +61,14 @@ public class LoadGenerator {
     final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
     final Random random = new Random();
 
+    LOGGER.info("Start setting up sensors.");
     for (final String sensor : sensors) {
-      System.out.println("working");
       final int initialDelay = random.nextInt(periodMs);
       executor.scheduleAtFixedRate(() -> {
         kafkaRecordSender.write(new ActivePowerRecord(sensor, System.currentTimeMillis(), value));
       }, initialDelay, periodMs, TimeUnit.MILLISECONDS);
     }
+    LOGGER.info("Finished setting up sensors.");
 
     System.out.println("Wait for termination...");
     executor.awaitTermination(30, TimeUnit.DAYS);
