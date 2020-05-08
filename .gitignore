@@ -27,3 +27,6 @@ tmp/
 .idea/
 *.iml
 *.iws
+
+# Python Venv
+.venv
