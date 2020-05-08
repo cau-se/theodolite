@@ -23,37 +23,80 @@ stages:
 build:
   stage: build
   tags:
-    - dockerex
+    - exec-docker
   script: ./gradlew --build-cache assemble
 
 test:
   stage: test
   tags:
-    - dockerex
+    - exec-docker
   script: ./gradlew test
 
-.checkstyle:
+checkstyle:
   stage: check
   tags:
-    - dockerex
+    - exec-docker
   script: ./gradlew checkstyle
+  allow_failure: true
+  artifacts:
+    paths:
+      - build/reports/checkstyle/main.html
+      - uc1-application/build/reports/checkstyle/main.html
+      - uc1-workload-generator/build/reports/checkstyle/main.html
+      - uc2-application/build/reports/checkstyle/main.html
+      - uc2-workload-generator/build/reports/checkstyle/main.html
+      - uc3-application/build/reports/checkstyle/main.html
+      - uc3-workload-generator/build/reports/checkstyle/main.html
+      - uc4-application/build/reports/checkstyle/main.html
+      - uc4-workload-generator/build/reports/checkstyle/main.html
+    when: on_failure
+    expire_in: 1 day
   
-.pmd:
+pmd:
   stage: check
   tags:
-    - dockerex
+    - exec-docker
   script: ./gradlew pmd
+  allow_failure: true
+  artifacts:
+    paths:
+      - build/reports/pmd/*.html
+      - uc1-application/build/reports/pmd/*.html
+      - uc1-workload-generator/build/reports/pmd/*.html
+      - uc2-application/build/reports/pmd/*.html
+      - uc2-workload-generator/build/reports/pmd/*.html
+      - uc3-application/build/reports/pmd/*.html
+      - uc3-workload-generator/build/reports/pmd/*.html
+      - uc4-application/build/reports/pmd/*.html
+      - uc4-workload-generator/build/reports/pmd/*.html
+    when: on_failure
+    expire_in: 1 day
   
-.spotbugs:
+spotbugs:
   stage: check
   tags:
-    - dockerex
+    - exec-docker
   script: ./gradlew spotbugs
+  allow_failure: true
+  artifacts:
+    paths:
+      - build/reports/spotbugs/*.html
+      - uc1-application/build/reports/spotbugs/*.html
+      - uc1-workload-generator/build/reports/spotbugs/*.html
+      - uc2-application/build/reports/spotbugs/*.html
+      - uc2-workload-generator/build/reports/spotbugs/*.html
+      - uc3-application/build/reports/spotbugs/*.html
+      - uc3-workload-generator/build/reports/spotbugs/*.html
+      - uc4-application/build/reports/spotbugs/*.html
+      - uc4-workload-generator/build/reports/spotbugs/*.html
+    when: on_failure
+    expire_in: 1 day
+
 
 .deploy:
   stage: deploy
   tags:
-    - dockerex
+    - exec-docker
   # see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   # for image usage and settings for building with TLS and docker in docker
   image: docker:19.03.1
