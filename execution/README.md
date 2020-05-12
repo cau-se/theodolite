@@ -74,3 +74,22 @@ Depending on your setup, some additional adjustments may be necessary:
 * Change Prometheus' URL in `lag_analysis.py`
 * Change the path to your Python 3.7 virtual environment in the `run_XX.sh` schripts (to find the venv's `bin/activate`)
 * *Please let us know if there are further adjustments necessary*
+
+
+
+# Execution
+
+The `./run_loop.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
+
+```sh
+./run_loop.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration>
+```
+
+* `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
+* `<wl-values>`: Values for the workload generator to be tested, separated by commas. For example `100000, 200000, 300000`.
+* `<instances>`: Numbers of instances to be benchmarked, separated by commas. For example `1, 2, 3, 4`.
+* `<partitions>`: Number of partitions for Kafka topics. Optional. Default `40`.
+* `<cpu-limit>`: Kubernetes CPU limit. Optional. Default `1000m`.
+* `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
+* `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
+* `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
