@@ -54,10 +54,16 @@ helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/
 
 ## Python 3.7
 
-For executing benchmarks and analyzing their results, a Python 3.7 installation
+For executing benchmarks and analyzing their results, a **Python 3.7** installation
 is required. We suggest to use a virtual environment placed in the `.venv` directory.
 
-**TODO** Show how to install requirements
+As set of requirements is needed for the analysis Jupyter notebooks and the
+execution tool. You can install them with the following command (make sure to
+be in your virtual environment if you use one):
+
+```sh
+pip install -r requirements.txt 
+```
 
 
 ## Required Manual Adjustments
