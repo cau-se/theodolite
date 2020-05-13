@@ -1,0 +1,14 @@
+clusters:
+  - name: "my-confluent-cp-kafka"
+    bootstrapBrokers: "my-confluent-cp-kafka:9092"
+
+## The interval between refreshing metrics
+pollIntervalSeconds: 15
+
+prometheus:
+  serviceMonitor:
+    enabled: false
+    interval: "30s"
+    # service monitor label selectors: https://github.com/helm/charts/blob/f5a751f174263971fafd21eee4e35416d6612a3d/stable/prometheus-operator/templates/prometheus/prometheus.yaml#L74
+    # additionalLabels:
+    #   prometheus: k8s

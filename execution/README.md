@@ -7,12 +7,47 @@ For executing benchmarks, access to Kubernetes cluster is required. We suggest
 to create a dedicated namespace for executing our benchmarks. The following
 services need to be available as well.
 
-### Prometheus (+ Grafana)
+### Prometheus
 
-We suggest to use the Prometheus Operator and create a dedicated prometheus and
-grafana instance for these benchmarks.
+We suggest to use the [Prometheus Operator](https://github.com/coreos/prometheus-operator)
+and create a dedicated Prometheus instance for these benchmarks.
 
-**TODO** Add required configuration, introduce service Monitors
+If Prometheus Operator is not already available on your cluster, a convenient
+way to install is via the [**unofficial** Prometheus Operator Helm chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator).
+As you may not need an entire cluster monitoring stack, you can use our Helm
+configuration to only install the operator:
+
+```sh
+helm install prometheus-operator stable/prometheus-operator -f infrastructure/prometheus/helm-values.yaml
+```
+
+After installation, you need to create a Prometheus instance:
+
+```sh
+kubectl apply -f infrastructure/prometheus/prometheus.yaml
+```
+
+You might also need to apply the [ServiceAccount](infrastructure/prometheus/service-account.yaml), [ClusterRole](infrastructure/prometheus/cluster-role.yaml) 
+and the [CusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml),
+depending on your cluster's security policies.
+
+For the individual benchmarking components to be monitored, [ServiceMonitors](https://github.com/coreos/prometheus-operator#customresourcedefinitions)
+are used. See the corresponding sections below for how to install them.
+
+### Grafana
+
+As with Prometheus, we suggest to create a dedicated Grafana instance. Grafana
+can be installed with Helm:
+
+```sh
+helm install grafana stable/grafana
+```
+
+The official [Grafana Helm Chart repository](https://github.com/helm/charts/tree/master/stable/grafana)
+provides further documentation including a table of configuration options.
+
+We provide a [ready-to-use Grafana dashboard](infrastructure/grafana/scalability-benchmarking-dashbaord.json),
+which can be imported into your Grafana instance.
 
 ### A Kafka cluster
 
@@ -25,31 +60,40 @@ not for the actual benchmark execution and evaluation.
 #### Our patched Confluent Helm Charts
 
 To use our patched Confluent Helm Charts clone the
-[chart's repsoitory](https://github.com/SoerenHenning/cp-helm-charts) and run
+[chart's repsoitory](https://github.com/SoerenHenning/cp-helm-charts. We also
+provide a [default configuration](infrastructure/kafka/values.yaml). If you do
+not want to deploy 10 Kafka and 3 Zookeeper instances, alter the configuration
+file accordingly. To install Confluent's Kafka and use the configuration:
 
 ```sh
-helm install my-confluent .
+helm install my-confluent <path-to-cp-helm-charts> -f infrastructure/kafka/values.yaml
 ```
 
-from within the cloned repository. Further configuration is possible by using a
-helm YAML configuration file, passed by `-f values.yaml` to helm's install
-command.
+To let Prometheus scrape Kafka metrics, deploy a ServiceMonitor:
 
-**TODO** Add required configuration, installation
+```sh
+kubectl apply -f infrastructure/kafka/service-monitor.yaml
+```
 
 #### Other options for Kafka
 
-Other Kafka deployment, for example, using Strimzi, should work in similiar way.
+Other Kafka deployments, for example, using Strimzi, should work in similiar way.
 
 ### The Kafka Lag Exporter
 
-Lightbend's Kafka Lag Exporter can be installed via helm:
+[Lightbend's Kafka Lag Exporter](https://github.com/lightbend/kafka-lag-exporter)
+can be installed via Helm. We also provide a [default configuration](infrastructure/kafka-lag-exporter/values.yaml).
+To install use it:
 
 ```sh
-helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.0/kafka-lag-exporter-0.6.0.tgz
+helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.0/kafka-lag-exporter-0.6.0.tgz -f infrastructure/kafka-lag-exporter/values.yaml
 ```
 
-**TODO** Add configuration + ServiceMonitor
+To let Prometheus scrape Kafka lag metrics, deploy a ServiceMonitor:
+
+```sh
+kubectl apply -f infrastructure/kafka-lag-exporter/service-monitor.yaml
+```
 
 
 ## Python 3.7
