@@ -1,5 +1,3 @@
-apply plugin: 'application'
-
 buildscript {
   repositories {
     maven {

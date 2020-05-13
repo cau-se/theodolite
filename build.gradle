@@ -10,9 +10,16 @@ buildscript {
   }
 }
 
+// Plugins for all project
 allprojects {
   apply plugin: 'eclipse'
 }
+
+// Plugins for subprojects
+subprojects {
+  apply plugin: 'application'
+}
+
 
 apply plugin: 'java-library'
 apply plugin: 'pmd'
