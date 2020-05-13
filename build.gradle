@@ -1,9 +1,4 @@
-apply plugin: 'java-library'
-apply plugin: 'pmd'
-apply plugin: 'checkstyle'
-apply plugin: 'com.github.spotbugs'
-apply plugin: 'eclipse'
-
+// Inherited to all subprojects
 buildscript {
   repositories {
     maven {
@@ -15,6 +10,18 @@ buildscript {
   }
 }
 
+allprojects {
+  apply plugin: 'eclipse'
+}
+
+apply plugin: 'java-library'
+apply plugin: 'pmd'
+apply plugin: 'checkstyle'
+apply plugin: 'com.github.spotbugs'
+
+
+
+
 sourceCompatibility = "1.11"
 targetCompatibility = "1.11"
 
@@ -23,7 +30,7 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-allprojects { 
+allprojects {
 	repositories {
 	    jcenter()
 	    maven {
@@ -83,7 +90,7 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
 task checkstyle {
   group 'Quality Assurance'
   description 'Run Checkstyle'
-  
+
   dependsOn 'checkstyleMain'
   dependsOn 'checkstyleTest'
 }
@@ -99,14 +106,16 @@ task pmd {
 task spotbugs {
   group 'Quality Assurance'
   description 'Run SpotBugs'
-  
+
   dependsOn 'spotbugsMain'
   dependsOn 'spotbugsTest'
 }
 
-eclipse {
-    classpath {
-       downloadSources=true
-       downloadJavadoc=true
-    }
+allprojects {
+  eclipse {
+      classpath {
+         downloadSources=true
+         downloadJavadoc=true
+      }
+  }
 }

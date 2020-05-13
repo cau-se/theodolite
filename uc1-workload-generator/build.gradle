@@ -1,5 +1,4 @@
 apply plugin: 'application'
-apply plugin: 'eclipse'
 
 buildscript {
   repositories {
@@ -14,7 +13,7 @@ targetCompatibility = "1.11"
 
 dependencies {
     compile project(':')
-    
+
     compile 'org.slf4j:slf4j-simple:1.6.1'
 
     // Use JUnit test framework
@@ -22,10 +21,3 @@ dependencies {
 }
 
 mainClassName = "uc1.workloadGenerator.LoadGenerator"
-
-eclipse {
-    classpath {
-       downloadSources=true
-       downloadJavadoc=true
-    }
-}
