@@ -30,13 +30,13 @@ test:
   stage: test
   tags:
     - exec-docker
-  script: ./gradlew test
+  script: ./gradlew test --continue
 
 checkstyle:
   stage: check
   tags:
     - exec-docker
-  script: ./gradlew checkstyle
+  script: ./gradlew checkstyle --continue
   allow_failure: true
   artifacts:
     paths:
@@ -51,12 +51,12 @@ checkstyle:
       - uc4-workload-generator/build/reports/checkstyle/main.html
     when: on_failure
     expire_in: 1 day
-  
+
 pmd:
   stage: check
   tags:
     - exec-docker
-  script: ./gradlew pmd
+  script: ./gradlew pmd --continue
   allow_failure: true
   artifacts:
     paths:
@@ -71,12 +71,12 @@ pmd:
       - uc4-workload-generator/build/reports/pmd/*.html
     when: on_failure
     expire_in: 1 day
-  
+
 spotbugs:
   stage: check
   tags:
     - exec-docker
-  script: ./gradlew spotbugs
+  script: ./gradlew spotbugs --continue
   allow_failure: true
   artifacts:
     paths:
