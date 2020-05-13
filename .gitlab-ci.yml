@@ -34,7 +34,7 @@ test:
   artifacts:
     reports:
       junit:
-        - **/build/test-results/test/TEST-*.xml
+        - "**/build/test-results/test/TEST-*.xml"
 
 checkstyle:
   stage: check
@@ -44,7 +44,7 @@ checkstyle:
   allow_failure: true
   artifacts:
     paths:
-      - */build/reports/checkstyle/main.html
+      - "*/build/reports/checkstyle/main.html"
     when: on_failure
     expire_in: 1 day
 
@@ -56,7 +56,7 @@ pmd:
   allow_failure: true
   artifacts:
     paths:
-      - */build/reports/pmd/*.html
+      - "*/build/reports/pmd/*.html"
     when: on_failure
     expire_in: 1 day
 
@@ -68,7 +68,7 @@ spotbugs:
   allow_failure: true
   artifacts:
     paths:
-      - */build/reports/spotbugs/*.html
+      - "*/build/reports/spotbugs/*.html"
     when: on_failure
     expire_in: 1 day
 
