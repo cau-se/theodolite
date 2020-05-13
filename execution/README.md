@@ -60,7 +60,7 @@ not for the actual benchmark execution and evaluation.
 #### Our patched Confluent Helm Charts
 
 To use our patched Confluent Helm Charts clone the
-[chart's repsoitory](https://github.com/SoerenHenning/cp-helm-charts. We also
+[chart's repsoitory](https://github.com/SoerenHenning/cp-helm-charts). We also
 provide a [default configuration](infrastructure/kafka/values.yaml). If you do
 not want to deploy 10 Kafka and 3 Zookeeper instances, alter the configuration
 file accordingly. To install Confluent's Kafka and use the configuration:
@@ -83,7 +83,7 @@ Other Kafka deployments, for example, using Strimzi, should work in similiar way
 
 [Lightbend's Kafka Lag Exporter](https://github.com/lightbend/kafka-lag-exporter)
 can be installed via Helm. We also provide a [default configuration](infrastructure/kafka-lag-exporter/values.yaml).
-To install use it:
+To install it:
 
 ```sh
 helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.0/kafka-lag-exporter-0.6.0.tgz -f infrastructure/kafka-lag-exporter/values.yaml
