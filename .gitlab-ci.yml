@@ -40,15 +40,7 @@ checkstyle:
   allow_failure: true
   artifacts:
     paths:
-      - build/reports/checkstyle/main.html
-      - uc1-application/build/reports/checkstyle/main.html
-      - uc1-workload-generator/build/reports/checkstyle/main.html
-      - uc2-application/build/reports/checkstyle/main.html
-      - uc2-workload-generator/build/reports/checkstyle/main.html
-      - uc3-application/build/reports/checkstyle/main.html
-      - uc3-workload-generator/build/reports/checkstyle/main.html
-      - uc4-application/build/reports/checkstyle/main.html
-      - uc4-workload-generator/build/reports/checkstyle/main.html
+      - */build/reports/checkstyle/main.html
     when: on_failure
     expire_in: 1 day
 
@@ -60,15 +52,7 @@ pmd:
   allow_failure: true
   artifacts:
     paths:
-      - build/reports/pmd/*.html
-      - uc1-application/build/reports/pmd/*.html
-      - uc1-workload-generator/build/reports/pmd/*.html
-      - uc2-application/build/reports/pmd/*.html
-      - uc2-workload-generator/build/reports/pmd/*.html
-      - uc3-application/build/reports/pmd/*.html
-      - uc3-workload-generator/build/reports/pmd/*.html
-      - uc4-application/build/reports/pmd/*.html
-      - uc4-workload-generator/build/reports/pmd/*.html
+      - */build/reports/pmd/*.html
     when: on_failure
     expire_in: 1 day
 
@@ -80,15 +64,7 @@ spotbugs:
   allow_failure: true
   artifacts:
     paths:
-      - build/reports/spotbugs/*.html
-      - uc1-application/build/reports/spotbugs/*.html
-      - uc1-workload-generator/build/reports/spotbugs/*.html
-      - uc2-application/build/reports/spotbugs/*.html
-      - uc2-workload-generator/build/reports/spotbugs/*.html
-      - uc3-application/build/reports/spotbugs/*.html
-      - uc3-workload-generator/build/reports/spotbugs/*.html
-      - uc4-application/build/reports/spotbugs/*.html
-      - uc4-workload-generator/build/reports/spotbugs/*.html
+      - */build/reports/spotbugs/*.html
     when: on_failure
     expire_in: 1 day
 
