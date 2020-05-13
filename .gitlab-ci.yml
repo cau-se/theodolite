@@ -31,6 +31,10 @@ test:
   tags:
     - exec-docker
   script: ./gradlew test --continue
+  artifacts:
+    reports:
+      junit:
+        - **/build/test-results/test/TEST-*.xml
 
 checkstyle:
   stage: check
