@@ -23,17 +23,24 @@ subprojects {
   apply plugin: 'com.github.spotbugs'
 }
 
-
+// Local plugins
 apply plugin: 'java-library'
 
-sourceCompatibility = "1.11"
-targetCompatibility = "1.11"
+// Java version for all subprojects
+subprojects {
+  java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+}
+
 
 configurations.all {
     // Check for updates every build
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+//
 allprojects {
 	repositories {
 	    jcenter()
