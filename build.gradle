@@ -10,7 +10,7 @@ buildscript {
   }
 }
 
-// Plugins for all project
+// Plugins for all projects
 allprojects {
   apply plugin: 'eclipse'
 }
