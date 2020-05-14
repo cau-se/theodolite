@@ -21,10 +21,8 @@ subprojects {
   apply plugin: 'checkstyle'
   apply plugin: 'pmd'
   apply plugin: 'com.github.spotbugs'
+  apply plugin: 'java-library'
 }
-
-// Local plugins
-apply plugin: 'java-library'
 
 // Java version for all subprojects
 subprojects {
@@ -34,13 +32,12 @@ subprojects {
   }
 }
 
-
+// Check for updates every build
 configurations.all {
-    // Check for updates every build
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-//
+// Repositories for all projects
 allprojects {
 	repositories {
 	    jcenter()
@@ -50,20 +47,25 @@ allprojects {
 	}
 }
 
-dependencies {
-    // These dependencies is exported to consumers, that is to say found on their compile classpath.
-    api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
-    api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
-    api 'net.sourceforge.teetime:teetime:3.0'
+// Dependencies
+subprojects {
+  dependencies {
+      // These dependencies is exported to consumers, that is to say found on their compile classpath.
+      api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
+      api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
+      api 'net.sourceforge.teetime:teetime:3.0'
 
-    // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'org.apache.kafka:kafka-clients:2.1.0'
-    implementation 'com.google.guava:guava:24.1-jre'
-    implementation 'org.jctools:jctools-core:2.1.1'
+      // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+      implementation 'org.apache.kafka:kafka-clients:2.1.0'
+      implementation 'com.google.guava:guava:24.1-jre'
+      implementation 'org.jctools:jctools-core:2.1.1'
+      implementation 'org.slf4j:slf4j-simple:1.6.1'
 
-    // Use JUnit test framework
-    testImplementation 'junit:junit:4.12'
+      // Use JUnit test framework
+      testImplementation 'junit:junit:4.12'
+  }
 }
+
 // Per default XML reports for SpotBugs are generated
 // Include this to generate HTML reports
 tasks.withType(com.github.spotbugs.SpotBugsTask) {

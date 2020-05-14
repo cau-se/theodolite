@@ -1,10 +1,1 @@
-dependencies {
-    compile project(':')
-
-    compile 'org.slf4j:slf4j-simple:1.6.1'
-
-    // Use JUnit test framework
-    testCompile 'junit:junit:4.12'
-}
-
 mainClassName = "uc2.workloadGenerator.LoadGenerator"
