@@ -18,8 +18,7 @@ public class TopologyBuilder {
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
   private final String inputTopic;
-  private final Gson gson;
-
+  private final Gson gson = new Gson();
   private final StreamsBuilder builder = new StreamsBuilder();
 
   /**
@@ -27,14 +26,12 @@ public class TopologyBuilder {
    */
   public TopologyBuilder(final String inputTopic) {
     this.inputTopic = inputTopic;
-    this.gson = new Gson();
   }
 
   /**
    * Build the {@link Topology} for the History microservice.
    */
   public Topology build() {
-
     this.builder
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),

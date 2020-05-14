@@ -10,25 +10,33 @@ import titan.ccp.common.kafka.streams.PropertiesBuilder;
  * Builder for the Kafka Streams configuration.
  */
 public class KafkaStreamsBuilder {
-
-  private static final String APPLICATION_NAME = "titan-ccp-history";
-  private static final String APPLICATION_VERSION = "0.0.1";
-
   // private static final Logger LOGGER = LoggerFactory.getLogger(KafkaStreamsBuilder.class);
 
+  private String applicationName = "uc1-application"; // NOPMD
+  private String applicationVersion = "0.0.1"; // NOPMD
   private String bootstrapServers; // NOPMD
   private String inputTopic; // NOPMD
   private int numThreads = -1; // NOPMD
   private int commitIntervalMs = -1; // NOPMD
   private int cacheMaxBytesBuff = -1; // NOPMD
 
-  public KafkaStreamsBuilder inputTopic(final String inputTopic) {
-    this.inputTopic = inputTopic;
+  public KafkaStreamsBuilder applicationName(final String applicationName) {
+    this.applicationName = applicationName;
+    return this;
+  }
+
+  public KafkaStreamsBuilder applicationVersion(final String applicationVersion) {
+    this.applicationVersion = applicationVersion;
     return this;
   }
 
   public KafkaStreamsBuilder bootstrapServers(final String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
+    return this;
+  }
+
+  public KafkaStreamsBuilder inputTopic(final String inputTopic) {
+    this.inputTopic = inputTopic;
     return this;
   }
 
@@ -76,15 +84,13 @@ public class KafkaStreamsBuilder {
   public KafkaStreams build() {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
     // TODO log parameters
-    final TopologyBuilder topologyBuilder = new TopologyBuilder(
-        this.inputTopic);
+    final TopologyBuilder topologyBuilder = new TopologyBuilder(this.inputTopic);
     final Properties properties = PropertiesBuilder
         .bootstrapServers(this.bootstrapServers)
-        .applicationId(APPLICATION_NAME + '-' + APPLICATION_VERSION) // TODO as parameter
+        .applicationId(this.applicationName + '-' + this.applicationVersion)
         .set(StreamsConfig.NUM_STREAM_THREADS_CONFIG, this.numThreads, p -> p > 0)
         .set(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, this.commitIntervalMs, p -> p >= 0)
         .set(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, this.cacheMaxBytesBuff, p -> p >= 0)
-        // .set(StreamsConfig.METRICS_RECORDING_LEVEL_CONFIG, "DEBUG")
         .build();
     return new KafkaStreams(topologyBuilder.build(), properties);
   }

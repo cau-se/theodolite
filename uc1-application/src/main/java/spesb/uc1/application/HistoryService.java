@@ -31,13 +31,17 @@ public class HistoryService {
   private void createKafkaStreamsApplication() {
 
     final KafkaStreams kafkaStreams = new KafkaStreamsBuilder()
-        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-        .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
+        .applicationName(this.config.getString(ConfigurationKeys.APPLICATION_NAME))
+        .applicationVersion(this.config.getString(ConfigurationKeys.APPLICATION_VERSION))
         .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
         .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
         .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
+        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
+        .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
         .build();
+
     this.stopEvent.thenRun(kafkaStreams::close);
+
     kafkaStreams.start();
   }
 
