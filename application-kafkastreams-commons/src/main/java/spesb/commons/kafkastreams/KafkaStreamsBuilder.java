@@ -112,6 +112,21 @@ public abstract class KafkaStreamsBuilder {
   protected abstract Topology buildTopology();
 
   /**
+   * Build the {@link Properties} for a {@code KafkaStreams} application.
+   *
+   * @return A {@code Properties} object.
+   */
+  protected Properties buildProperties() {
+    return PropertiesBuilder
+        .bootstrapServers(this.bootstrapServers)
+        .applicationId(this.applicationName + '-' + this.applicationVersion)
+        .set(StreamsConfig.NUM_STREAM_THREADS_CONFIG, this.numThreads, p -> p > 0)
+        .set(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, this.commitIntervalMs, p -> p >= 0)
+        .set(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, this.cacheMaxBytesBuff, p -> p >= 0)
+        .build();
+  }
+
+  /**
    * Builds the {@link KafkaStreams} instance.
    */
   public KafkaStreams build() {
@@ -120,17 +135,8 @@ public abstract class KafkaStreamsBuilder {
     Objects.requireNonNull(this.applicationName, "Application name has not been set.");
     Objects.requireNonNull(this.applicationVersion, "Application version has not been set.");
 
-    // Build properties.
-    final Properties properties = PropertiesBuilder
-        .bootstrapServers(this.bootstrapServers)
-        .applicationId(this.applicationName + '-' + this.applicationVersion)
-        .set(StreamsConfig.NUM_STREAM_THREADS_CONFIG, this.numThreads, p -> p > 0)
-        .set(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, this.commitIntervalMs, p -> p >= 0)
-        .set(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, this.cacheMaxBytesBuff, p -> p >= 0)
-        .build();
-
     // Create the Kafka streams instance.
-    return new KafkaStreams(this.buildTopology(), properties);
+    return new KafkaStreams(this.buildTopology(), this.buildProperties());
   }
 
 }
