@@ -12,7 +12,7 @@ buildscript {
 sourceCompatibility = "1.11"
 targetCompatibility = "1.11"
 
-allprojects { 
+allprojects {
 	repositories {
 	    jcenter()
 	    maven {
@@ -26,7 +26,7 @@ allprojects {
 
 dependencies {
     compile project(':')
-    
+
     compile 'org.slf4j:slf4j-simple:1.6.1'
     compile('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT')
 
@@ -34,7 +34,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-mainClassName = "uc4.application.HistoryService"
+mainClassName = "spesb.uc4.application.HistoryService"
 
 eclipse {
     classpath {
