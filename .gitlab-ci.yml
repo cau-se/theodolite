@@ -30,65 +30,45 @@ test:
   stage: test
   tags:
     - exec-docker
-  script: ./gradlew test
+  script: ./gradlew test --continue
+  artifacts:
+    reports:
+      junit:
+        - "**/build/test-results/test/TEST-*.xml"
 
 checkstyle:
   stage: check
   tags:
     - exec-docker
-  script: ./gradlew checkstyle
+  script: ./gradlew checkstyle --continue
   allow_failure: true
   artifacts:
     paths:
-      - build/reports/checkstyle/main.html
-      - uc1-application/build/reports/checkstyle/main.html
-      - uc1-workload-generator/build/reports/checkstyle/main.html
-      - uc2-application/build/reports/checkstyle/main.html
-      - uc2-workload-generator/build/reports/checkstyle/main.html
-      - uc3-application/build/reports/checkstyle/main.html
-      - uc3-workload-generator/build/reports/checkstyle/main.html
-      - uc4-application/build/reports/checkstyle/main.html
-      - uc4-workload-generator/build/reports/checkstyle/main.html
+      - "*/build/reports/checkstyle/main.html"
     when: on_failure
     expire_in: 1 day
-  
+
 pmd:
   stage: check
   tags:
     - exec-docker
-  script: ./gradlew pmd
+  script: ./gradlew pmd --continue
   allow_failure: true
   artifacts:
     paths:
-      - build/reports/pmd/*.html
-      - uc1-application/build/reports/pmd/*.html
-      - uc1-workload-generator/build/reports/pmd/*.html
-      - uc2-application/build/reports/pmd/*.html
-      - uc2-workload-generator/build/reports/pmd/*.html
-      - uc3-application/build/reports/pmd/*.html
-      - uc3-workload-generator/build/reports/pmd/*.html
-      - uc4-application/build/reports/pmd/*.html
-      - uc4-workload-generator/build/reports/pmd/*.html
+      - "*/build/reports/pmd/*.html"
     when: on_failure
     expire_in: 1 day
-  
+
 spotbugs:
   stage: check
   tags:
     - exec-docker
-  script: ./gradlew spotbugs
+  script: ./gradlew spotbugs --continue
   allow_failure: true
   artifacts:
     paths:
-      - build/reports/spotbugs/*.html
-      - uc1-application/build/reports/spotbugs/*.html
-      - uc1-workload-generator/build/reports/spotbugs/*.html
-      - uc2-application/build/reports/spotbugs/*.html
-      - uc2-workload-generator/build/reports/spotbugs/*.html
-      - uc3-application/build/reports/spotbugs/*.html
-      - uc3-workload-generator/build/reports/spotbugs/*.html
-      - uc4-application/build/reports/spotbugs/*.html
-      - uc4-workload-generator/build/reports/spotbugs/*.html
+      - "*/build/reports/spotbugs/*.html"
     when: on_failure
     expire_in: 1 day
 
