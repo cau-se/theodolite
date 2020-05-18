@@ -117,6 +117,7 @@ Depending on your setup, some additional adjustments may be necessary:
 * Change Kafka and Zookeeper servers in the Kubernetes deployments (uc1-application etc.) and `run_XX.sh` scripts
 * Change Prometheus' URL in `lag_analysis.py`
 * Change the path to your Python 3.7 virtual environment in the `run_XX.sh` schripts (to find the venv's `bin/activate`)
+* Change the name of your Kubernetes namespace for [Prometheus' ClusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml)
 * *Please let us know if there are further adjustments necessary*
 
 

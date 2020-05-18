@@ -1,23 +1,5 @@
-apply plugin: 'application'
-apply plugin: 'eclipse'
-
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-}
-
-sourceCompatibility = "1.11"
-targetCompatibility = "1.11"
-
-allprojects { 
+allprojects {
 	repositories {
-	    jcenter()
-	    maven {
-	    	url "https://oss.sonatype.org/content/repositories/snapshots/"
-	    }
     	maven {
     		url 'https://packages.confluent.io/maven/'
     	}
@@ -25,20 +7,7 @@ allprojects {
 }
 
 dependencies {
-    compile project(':')
-    
-    compile 'org.slf4j:slf4j-simple:1.6.1'
     compile('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT')
-
-    // Use JUnit test framework
-    testCompile 'junit:junit:4.12'
 }
 
-mainClassName = "uc4.application.HistoryService"
-
-eclipse {
-    classpath {
-       downloadSources=true
-       downloadJavadoc=true
-    }
-}
+mainClassName = "spesb.uc4.application.HistoryService"
