@@ -46,8 +46,19 @@ helm install grafana stable/grafana -f infrastructure/grafana/values.yaml
 The official [Grafana Helm Chart repository](https://github.com/helm/charts/tree/master/stable/grafana)
 provides further documentation including a table of configuration options.
 
-We provide a [ready-to-use Grafana dashboard](infrastructure/grafana/scalability-benchmarking-dashbaord.json),
-which can be imported into your Grafana instance.
+We provide ConfigMaps for a [Grafana dashboard](infrastructure/grafana/dashboard-config-map.yaml) and a [Grafana data source](infrastructure/grafana/prometheus-datasource-config-map.yaml).
+
+Create the Configmap for the dashboard:
+
+```sh
+kubectl apply -f infrastructure/grafana/dashboard-config-map.yaml
+```
+
+Create the Configmap for the data source:
+
+```sh
+kubectl apply -f infrastructure/grafana/prometheus-datasource-config-map.yaml
+```
 
 ### A Kafka cluster
 
