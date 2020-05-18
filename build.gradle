@@ -37,7 +37,7 @@ dependencies {
     api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
     api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
     api 'net.sourceforge.teetime:teetime:3.0'
-
+    
     // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
     implementation 'org.apache.kafka:kafka-clients:2.1.0'
     implementation 'com.google.guava:guava:24.1-jre'
