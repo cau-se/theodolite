@@ -37,10 +37,10 @@ are used. See the corresponding sections below for how to install them.
 ### Grafana
 
 As with Prometheus, we suggest to create a dedicated Grafana instance. Grafana
-can be installed with Helm:
+with our default configuration can be installed with Helm:
 
 ```sh
-helm install grafana stable/grafana
+helm install grafana stable/grafana -f -f infrastructure/grafana/values.yaml
 ```
 
 The official [Grafana Helm Chart repository](https://github.com/helm/charts/tree/master/stable/grafana)

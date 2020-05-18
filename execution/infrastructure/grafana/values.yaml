@@ -1,0 +1,3 @@
+service:
+  nodePort: 31199
+  type: NodePort
