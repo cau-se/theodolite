@@ -1,4 +1,4 @@
-package common.functions;
+package common.functions.copy;
 
 @FunctionalInterface
 public interface BeforeAction {

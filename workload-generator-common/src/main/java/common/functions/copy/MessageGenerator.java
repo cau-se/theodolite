@@ -1,4 +1,4 @@
-package common.functions;
+package common.functions.copy;
 
 import common.messages.OutputMessage;
 import kieker.common.record.IMonitoringRecord;

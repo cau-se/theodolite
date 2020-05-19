@@ -1,4 +1,4 @@
-package communication.kafka;
+package communication.kafka.copy;
 
 import java.util.Properties;
 import java.util.function.Function;

@@ -15,15 +15,20 @@ public class Main {
 
     final KafkaWorkloadGenerator generator =
         KafkaWorkloadGeneratorBuilder.builder()
-            .setBeforeHook(() -> {
+            .setBeforeAction(() -> {
               System.out.println("Before Hook");
             })
             .setKeySpace(new KeySpace(5))
             .setPeriod(new Period(1000, TimeUnit.MILLISECONDS))
             .setDuration(new Duration(60, TimeUnit.SECONDS))
             .setGeneratorFunction(
-                key -> new OutputMessage(key, new ActivePowerRecord(key, 0L, 100d)))
+                key -> new OutputMessage<>(key,
+                    new ActivePowerRecord(key, 0L, 100d)))
             .build();
+
+
+    // dwhedhwedherbfherf ferufer e u uebvhebzvbjkr fjkebhr erfberf rt gtr grt gtr
+    // gebuwbfuzerfuzerzgfer fe rf er fe rferhfveurfgerzfgzuerf erf erf ethvrif
 
     generator.start();
   }

@@ -1,4 +1,4 @@
-package common.dimensions;
+package common.dimensions.copy2;
 
 import common.generators.WorkloadGenerator;
 
