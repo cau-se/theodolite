@@ -1,9 +1,4 @@
-apply plugin: 'java-library'
-apply plugin: 'pmd'
-apply plugin: 'checkstyle'
-apply plugin: 'com.github.spotbugs'
-apply plugin: 'eclipse'
-
+// Inherited to all subprojects
 buildscript {
   repositories {
     maven {
@@ -15,15 +10,35 @@ buildscript {
   }
 }
 
-sourceCompatibility = "1.11"
-targetCompatibility = "1.11"
+// Plugins for all projects
+allprojects {
+  apply plugin: 'eclipse'
+}
 
+// Plugins for subprojects
+subprojects {
+  apply plugin: 'application'
+  apply plugin: 'checkstyle'
+  apply plugin: 'pmd'
+  apply plugin: 'com.github.spotbugs'
+  apply plugin: 'java-library'
+}
+
+// Java version for all subprojects
+subprojects {
+  java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+}
+
+// Check for updates every build
 configurations.all {
-    // Check for updates every build
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-allprojects { 
+// Repositories for all projects
+allprojects {
 	repositories {
 	    jcenter()
 	    maven {
@@ -32,42 +47,23 @@ allprojects {
 	}
 }
 
-dependencies {
-    // These dependencies is exported to consumers, that is to say found on their compile classpath.
-    api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
-    api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
-    api 'net.sourceforge.teetime:teetime:3.0'
-    
-    // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'org.apache.kafka:kafka-clients:2.1.0'
-    implementation 'com.google.guava:guava:24.1-jre'
-    implementation 'org.jctools:jctools-core:2.1.1'
+// Dependencies
+subprojects {
+  dependencies {
+      // These dependencies is exported to consumers, that is to say found on their compile classpath.
+      api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
+      api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
+      api 'net.sourceforge.teetime:teetime:3.0'
 
-    // Use JUnit test framework
-    testImplementation 'junit:junit:4.12'
-}
+      // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+      implementation 'org.apache.kafka:kafka-clients:2.1.0'
+      implementation 'com.google.guava:guava:24.1-jre'
+      implementation 'org.jctools:jctools-core:2.1.1'
+      implementation 'org.slf4j:slf4j-simple:1.6.1'
 
-pmd {
-  ruleSets = [] // Gradle requires to clean the rule sets first
-  ruleSetFiles = files("config/pmd.xml")
-  ignoreFailures = false
-  toolVersion = "6.7.0"
-}
-
-checkstyle {
-  configDir = file("config")
-  configFile = file("config/checkstyle.xml")
-  maxWarnings = 0
-  ignoreFailures = false
-  toolVersion = "8.12"
-}
-
-spotbugs {
-  excludeFilter = file("config/spotbugs-exclude-filter.xml")
-  reportLevel = "low"
-  effort = "max"
-  ignoreFailures = false
-  toolVersion = '3.1.7'
+      // Use JUnit test framework
+      testImplementation 'junit:junit:4.12'
+  }
 }
 
 // Per default XML reports for SpotBugs are generated
@@ -80,33 +76,64 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
   }
 }
 
-task checkstyle {
-  group 'Quality Assurance'
-  description 'Run Checkstyle'
-  
-  dependsOn 'checkstyleMain'
-  dependsOn 'checkstyleTest'
+// Subprojects quality tools tasks
+subprojects {
+  task pmd {
+    group 'Quality Assurance'
+    description 'Run PMD'
+
+    dependsOn 'pmdMain'
+    dependsOn 'pmdTest'
+  }
+
+  task checkstyle {
+    group 'Quality Assurance'
+    description 'Run Checkstyle'
+
+    dependsOn 'checkstyleMain'
+    dependsOn 'checkstyleTest'
+  }
+
+  task spotbugs {
+    group 'Quality Assurance'
+    description 'Run SpotBugs'
+
+    dependsOn 'spotbugsMain'
+    dependsOn 'spotbugsTest'
+  }
 }
 
-task pmd {
-  group 'Quality Assurance'
-  description 'Run PMD'
+// Subprojects quality tools configuration
+subprojects {
+  pmd {
+    ruleSets = [] // Gradle requires to clean the rule sets first
+    ruleSetFiles = files("$rootProject.projectDir/config/pmd.xml")
+    ignoreFailures = false
+    toolVersion = "6.7.0"
+  }
 
-  dependsOn 'pmdMain'
-  dependsOn 'pmdTest'
+  checkstyle {
+    configDirectory = file("$rootProject.projectDir/config")
+    configFile = file("$rootProject.projectDir/config/checkstyle.xml")
+    maxWarnings = 0
+    ignoreFailures = false
+    toolVersion = "8.12"
+  }
+
+  spotbugs {
+    excludeFilter = file("$rootProject.projectDir/config/spotbugs-exclude-filter.xml")
+    reportLevel = "low"
+    effort = "max"
+    ignoreFailures = false
+    toolVersion = '3.1.7'
+  }
 }
 
-task spotbugs {
-  group 'Quality Assurance'
-  description 'Run SpotBugs'
-  
-  dependsOn 'spotbugsMain'
-  dependsOn 'spotbugsTest'
-}
-
-eclipse {
-    classpath {
-       downloadSources=true
-       downloadJavadoc=true
-    }
+allprojects {
+  eclipse {
+      classpath {
+         downloadSources=true
+         downloadJavadoc=true
+      }
+  }
 }

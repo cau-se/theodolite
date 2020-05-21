@@ -28,4 +28,5 @@ tmp/
 *.iml
 *.iws
 
+# Python Venv
 .venv

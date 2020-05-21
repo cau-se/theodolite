@@ -50,6 +50,8 @@ for result in results:
 
 df = pd.DataFrame(d)
 
+# Do some analysis
+
 input = df.loc[df['topic'] == "input"]
 
 #input.plot(kind='line',x='timestamp',y='value',color='red')
@@ -81,6 +83,30 @@ plt.plot(X, Y_pred, color='red')
 plt.savefig(f"{filename}_plot.png")
 
 df.to_csv(f"{filename}_values.csv")
+
+
+# Load total lag count
+
+response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+    'query': "sum by(group)(kafka_consumergroup_group_lag > 0)",
+    'start': start.isoformat(),
+    'end': end.isoformat(),
+    'step': '5s'})
+
+results = response.json()['data']['result']
+
+d = []
+
+for result in results:
+    #print(result['metric']['topic'])
+    group = result['metric']['group']
+    for value in result['values']:
+        #print(value)
+        d.append({'group': group, 'timestamp': int(value[0]), 'value': int(value[1]) if value[1] != 'NaN' else 0})
+
+df = pd.DataFrame(d)
+
+df.to_csv(f"{filename}_totallag.csv")
 
 
 # Load partition count

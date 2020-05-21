@@ -1,0 +1,55 @@
+image:
+  repository: grafana/grafana
+  tag: 6.7.3
+  pullPolicy: IfNotPresent
+
+# Administrator credentials when not using an existing secret (see below)
+adminUser: admin
+adminPassword: admin
+
+
+## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
+## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
+sidecar:
+  image: kiwigrid/k8s-sidecar:0.1.99
+  imagePullPolicy: IfNotPresent
+  dashboards:
+    enabled: true
+    SCProvider: true
+    # label that the configmaps with dashboards are marked with
+    label: grafana_dashboard
+    # folder in the pod that should hold the collected dashboards (unless `defaultFolderName` is set)
+    folder: /tmp/dashboards
+    # The default folder name, it will create a subfolder under the `folder` and put dashboards in there instead
+    defaultFolderName: null
+    # If specified, the sidecar will search for dashboard config-maps inside this namespace.
+    # Otherwise the namespace in which the sidecar is running will be used.
+    # It's also possible to specify ALL to search in all namespaces
+    searchNamespace: null
+    # provider configuration that lets grafana manage the dashboards
+    provider:
+      # name of the provider, should be unique
+      name: sidecarProvider
+      # orgid as configured in grafana
+      orgid: 1
+      # folder in which the dashboards should be imported in grafana
+      folder: ''
+      # type of the provider
+      type: file
+      # disableDelete to activate a import-only behaviour
+      disableDelete: false
+      # allow updating provisioned dashboards from the UI
+      allowUiUpdates: true
+  datasources:
+    enabled: true
+    # label that the configmaps with datasources are marked with
+    label: grafana_datasource
+    # If specified, the sidecar will search for datasource config-maps inside this namespace.
+    # Otherwise the namespace in which the sidecar is running will be used.
+    # It's also possible to specify ALL to search in all namespaces
+    searchNamespace: default
+
+
+service:
+  nodePort: 31199
+  type: NodePort
