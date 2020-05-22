@@ -1,7 +1,20 @@
 version: '3.1'
 
 services:
+  version: '3.1'
+
+services:
   zookeeper:
     image: zookeeper
     ports:
-      - 2181:2181
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost # Replace with docker network
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
+      KAFKA_CREATE_TOPICS: "input:3:1"
+

@@ -7,6 +7,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import common.dimensions.Duration;
 import common.dimensions.KeySpace;
 import common.dimensions.Period;
@@ -17,12 +19,19 @@ import common.messages.OutputMessage;
 import common.misc.Worker;
 import common.misc.WorkloadDefinition;
 import common.misc.WorkloadEntity;
+import common.misc.ZooKeeper;
 import communication.zookeeper.WorkloadDistributor;
 import kieker.common.record.IMonitoringRecord;
 
 public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements IWorkloadGenerator {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(WorkloadGenerator.class);
+
+  private final ZooKeeper zooKeeper;
+
   private final KeySpace keySpace;
+
+  private final int threads;
 
   private final Period period;
 
@@ -42,7 +51,7 @@ public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements 
 
   /**
    * Start the workload generation. The generation terminates automatically after the specified
-   * {@code duration}.s
+   * {@code duration}.
    */
   @Override
   public void start() {
@@ -55,13 +64,17 @@ public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements 
   }
 
   public WorkloadGenerator(
+      final ZooKeeper zooKeeper,
       final KeySpace keySpace,
+      final int threads,
       final Period period,
       final Duration duration,
       final BeforeAction beforeAction,
       final MessageGenerator<T> generatorFunction,
       final Transport<T> transport) {
+    this.zooKeeper = zooKeeper;
     this.period = period;
+    this.threads = threads;
     this.keySpace = keySpace;
     this.duration = duration;
     this.beforeAction = beforeAction;
@@ -80,29 +93,27 @@ public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements 
     };
     this.transport = transport;
 
-    final int threads = 10; // env
     this.executor = Executors.newScheduledThreadPool(threads);
     final Random random = new Random();
 
-    final int periodMs = period.getDuration();
+    final int periodMs = period.getPeriod();
 
     final BiConsumer<WorkloadDefinition, Worker> workerAction = (declaration, worker) -> {
 
       final List<WorkloadEntity<T>> entities = this.workloadSelector.apply(declaration, worker);
 
-      System.out.println("Beginning of Experiment...");
-      System.out.println("Experiment is going to be executed for the specified duration...");
+      LOGGER.info("Beginning of Experiment...");
+      LOGGER.info("Experiment is going to be executed for the specified duration...");
       entities.forEach(entity -> {
         final OutputMessage<T> message = entity.generateMessage();
         final long initialDelay = random.nextInt(periodMs);
         this.executor.scheduleAtFixedRate(() -> this.transport.transport(message), initialDelay,
             periodMs, period.getTimeUnit());
-
       });
 
       try {
         this.executor.awaitTermination(duration.getDuration(), duration.getTimeUnit());
-        System.out.println("Terminating now...");
+        LOGGER.info("Terminating now...");
         this.stop();
       } catch (final InterruptedException e) {
         // TODO Auto-generated catch block
@@ -111,6 +122,6 @@ public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements 
     };
 
     this.workloadDistributor =
-        new WorkloadDistributor(this.keySpace, this.beforeAction, workerAction);
+        new WorkloadDistributor(this.zooKeeper, this.keySpace, this.beforeAction, workerAction);
   }
 }

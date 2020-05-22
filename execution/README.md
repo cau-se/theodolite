@@ -68,19 +68,6 @@ below), we provide a [patch](https://github.com/SoerenHenning/cp-helm-charts)
 for these helm charts. Note that this patch is only required for observation and
 not for the actual benchmark execution and evaluation.
 
-<<<<<<< HEAD
-**TODO** Add required configuration, installation
-
-### The Kafka Lag Exporter
-
-Lightbend's Kafka Lag Exporter can be installed via helm:
-
-``sh
-helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.0/kafka-lag-exporter-0.6.0.tgz
-``
-
-**TODO** Add configuration + ServiceMonitor
-=======
 #### Our patched Confluent Helm Charts
 
 To use our patched Confluent Helm Charts clone the
@@ -118,17 +105,10 @@ To let Prometheus scrape Kafka lag metrics, deploy a ServiceMonitor:
 ```sh
 kubectl apply -f infrastructure/kafka-lag-exporter/service-monitor.yaml
 ```
->>>>>>> 624692753eb09684dd3dda3926482e9b56ada0d6
 
 
 ## Python 3.7
 
-<<<<<<< HEAD
-For executing benchmarks and analyzing their results, a Python 3.7 installation
-is required. We suggest to use a virtual environment placed in the `.venv` directory.
-
-**TODO** Show how to install requirements
-=======
 For executing benchmarks and analyzing their results, a **Python 3.7** installation
 is required. We suggest to use a virtual environment placed in the `.venv` directory.
 
@@ -169,4 +149,3 @@ The `./run_loop.sh` is the entrypoint for all benchmark executions. Is has to be
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
 * `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
 * `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
->>>>>>> 624692753eb09684dd3dda3926482e9b56ada0d6

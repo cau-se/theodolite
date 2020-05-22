@@ -6,12 +6,17 @@ import common.dimensions.KeySpace;
 import common.dimensions.Period;
 import common.functions.BeforeAction;
 import common.functions.MessageGenerator;
+import common.misc.ZooKeeper;
 import communication.kafka.KafkaRecordSender;
 import kieker.common.record.IMonitoringRecord;
 
 public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
 
+  private ZooKeeper zooKeeper;
+
   private KeySpace keySpace;
+
+  private int threads;
 
   private Period period;
 
@@ -32,8 +37,13 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
    *
    * @return the builder.
    */
-  public static KafkaWorkloadGeneratorBuilder<IMonitoringRecord> builder() {
+  public static <T extends IMonitoringRecord> KafkaWorkloadGeneratorBuilder<T> builder() {
     return new KafkaWorkloadGeneratorBuilder<>();
+  }
+
+  public KafkaWorkloadGeneratorBuilder<T> setZooKeeper(final ZooKeeper zooKeeper) {
+    this.zooKeeper = zooKeeper;
+    return this;
   }
 
   /**
@@ -55,6 +65,17 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
    */
   public KafkaWorkloadGeneratorBuilder<T> setKeySpace(final KeySpace keySpace) {
     this.keySpace = keySpace;
+    return this;
+  }
+
+  /**
+   * Set the key space for the {@link KafkaWorkloadGenerator}.
+   *
+   * @param keySpace the {@link KeySpace}.
+   * @return the builder.
+   */
+  public KafkaWorkloadGeneratorBuilder<T> setThreads(final int threads) {
+    this.threads = threads;
     return this;
   }
 
@@ -118,15 +139,24 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
    * @return the built instance of the {@link KafkaWorkloadGenerator}.
    */
   public KafkaWorkloadGenerator<T> build() {
+    Objects.requireNonNull(this.zooKeeper, "Please specify the ZooKeeper instance.");
+    this.threads = Objects.requireNonNullElse(this.threads, 1);
     Objects.requireNonNull(this.keySpace, "Please specify the key space.");
     Objects.requireNonNull(this.period, "Please specify the period.");
     Objects.requireNonNull(this.duration, "Please specify the duration.");
-    final BeforeAction beforeAction = Objects.requireNonNullElse(this.beforeAction, () -> {
+    this.beforeAction = Objects.requireNonNullElse(this.beforeAction, () -> {
     });
     Objects.requireNonNull(this.generatorFunction, "Please specify the generator function.");
-    // Objects.requireNonNull(this.kafkaRecordSender, "Please specify the kafka record sender.");
+    Objects.requireNonNull(this.kafkaRecordSender, "Please specify the kafka record sender.");
 
-    return new KafkaWorkloadGenerator<>(this.keySpace, this.period, this.duration, beforeAction,
-        this.generatorFunction, this.kafkaRecordSender);
+    return new KafkaWorkloadGenerator<>(
+        this.zooKeeper,
+        this.keySpace,
+        this.threads,
+        this.period,
+        this.duration,
+        this.beforeAction,
+        this.generatorFunction,
+        this.kafkaRecordSender);
   }
 }

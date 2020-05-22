@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
+import spesb.uc3.streamprocessing.TopologyBuilder;
 import titan.ccp.common.kafka.streams.PropertiesBuilder;
 
 /**

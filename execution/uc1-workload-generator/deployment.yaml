@@ -16,8 +16,13 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: soerenhenning/uc1-wg:latest 
+  #      image: soerenhenning/uc1-wg:latest 
+        image: sehrenstein/uc1-wg:latest 
         env:
+        - name: ZK_HOST
+          value: "my-confluent-cp-zookeeper"
+        - name: ZK_PORT
+          value: "2181"
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
         - name: NUM_SENSORS

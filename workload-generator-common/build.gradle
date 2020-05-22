@@ -13,7 +13,6 @@ sourceCompatibility = "1.11"
 targetCompatibility = "1.11"
 
 dependencies {
-    compile project(':')
     compile 'org.apache.curator:curator-recipes:4.3.0'
     compile 'org.slf4j:slf4j-simple:1.6.1'
 

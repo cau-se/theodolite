@@ -1,20 +1,28 @@
 package test;
 
-import common.KafkaWorkloadGenerator;
-import common.KafkaWorkloadGeneratorBuilder;
 import common.dimensions.Duration;
 import common.dimensions.KeySpace;
 import common.dimensions.Period;
+import common.generators.KafkaWorkloadGenerator;
+import common.generators.KafkaWorkloadGeneratorBuilder;
 import common.messages.OutputMessage;
+import common.misc.ZooKeeper;
+import communication.kafka.KafkaRecordSender;
 import java.util.concurrent.TimeUnit;
+import kieker.common.record.IMonitoringRecord;
 import titan.ccp.models.records.ActivePowerRecord;
 
 public class Main {
 
   public static void main(final String[] args) {
 
-    final KafkaWorkloadGenerator generator =
+    final KafkaRecordSender<IMonitoringRecord> recordSender =
+        new KafkaRecordSender<>("localhost:9092", "input");
+
+    final KafkaWorkloadGenerator<IMonitoringRecord> generator =
         KafkaWorkloadGeneratorBuilder.builder()
+            .setZooKeeper(new ZooKeeper("127.0.0.1", 2181))
+            .setKafkaRecordSender(recordSender)
             .setBeforeAction(() -> {
               System.out.println("Before Hook");
             })
@@ -25,10 +33,6 @@ public class Main {
                 key -> new OutputMessage<>(key,
                     new ActivePowerRecord(key, 0L, 100d)))
             .build();
-
-
-    // dwhedhwedherbfherf ferufer e u uebvhebzvbjkr fjkebhr erfberf rt gtr grt gtr
-    // gebuwbfuzerfuzerzgfer fe rf er fe rferhfveurfgerzfgzuerf erf erf ethvrif
 
     generator.start();
   }

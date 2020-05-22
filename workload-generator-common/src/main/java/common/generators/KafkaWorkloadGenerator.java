@@ -5,6 +5,7 @@ import common.dimensions.KeySpace;
 import common.dimensions.Period;
 import common.functions.BeforeAction;
 import common.functions.MessageGenerator;
+import common.misc.ZooKeeper;
 import communication.kafka.KafkaRecordSender;
 import kieker.common.record.IMonitoringRecord;
 
@@ -19,6 +20,7 @@ public class KafkaWorkloadGenerator<T extends IMonitoringRecord> extends Workloa
    * Create a new workload generator.
    *
    * @param keySpace the key space to generate the workload for.
+   * @param threads tha amount of threads to use per instance.
    * @param period the period how often a message is generated for each key specified in the
    *        {@code keySpace}
    * @param duration the duration how long the workload generator will emit messages.
@@ -29,22 +31,23 @@ public class KafkaWorkloadGenerator<T extends IMonitoringRecord> extends Workloa
    * @param recordSender the record sender which is used to send the generated messages to kafka.
    */
   public KafkaWorkloadGenerator(
+      final ZooKeeper zooKeeper,
       final KeySpace keySpace,
+      final int threads,
       final Period period,
       final Duration duration,
       final BeforeAction beforeAction,
       final MessageGenerator<T> generatorFunction,
       final KafkaRecordSender<T> recordSender) {
-    super(keySpace, period, duration, beforeAction, generatorFunction, o -> {
-      System.out.println(o.getKey());
-    });
+    super(zooKeeper, keySpace, threads, period, duration, beforeAction, generatorFunction,
+        recordSender);
     this.recordSender = recordSender;
   }
 
 
   @Override
   public void stop() {
-    // this.recordSender.terminate();
+    this.recordSender.terminate();
 
     super.stop();
   }

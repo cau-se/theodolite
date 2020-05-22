@@ -13,7 +13,7 @@ public class Period extends Dimension {
 
   /**
    * Define a new period.
-   * 
+   *
    * @param period the period
    * @param timeUnit the time unit that applies to the specified {@code period}
    */
@@ -23,7 +23,7 @@ public class Period extends Dimension {
     this.timeUnit = timeUnit;
   }
 
-  public int getDuration() {
+  public int getPeriod() {
     return this.period;
   }
 

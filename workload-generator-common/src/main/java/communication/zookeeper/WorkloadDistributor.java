@@ -7,32 +7,37 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.framework.recipes.atomic.AtomicValue;
 import org.apache.curator.framework.recipes.atomic.DistributedAtomicInteger;
-import org.apache.curator.retry.RetryNTimes;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import common.dimensions.KeySpace;
 import common.functions.BeforeAction;
 import common.misc.Worker;
 import common.misc.WorkloadDefinition;
+import common.misc.ZooKeeper;
 
 /*
  * The central class responsible for distributing the workload through all workload generators.
  */
 public class WorkloadDistributor {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(WorkloadDistributor.class);
+
+  private static final String NAMESPACE = "workload-generation";
   private static final String COUNTER_PATH = "/counter";
   private static final String WORKLOAD_PATH = "/workload";
   private static final String WORKLOAD_DEFINITION_PATH = "/workload/definition";
 
   private final DistributedAtomicInteger counter;
-
   private final KeySpace keySpace;
   private final BeforeAction beforeAction;
   private final BiConsumer<WorkloadDefinition, Worker> workerAction;
 
-  private final CuratorFramework client =
-      CuratorFrameworkFactory.newClient("127.0.0.1:2181", new RetryNTimes(3, 1000));
+  private final ZooKeeper zooKeeper;
+  private final CuratorFramework client;
 
   /**
    * Create a new workload distributor.
@@ -41,12 +46,21 @@ public class WorkloadDistributor {
    * @param beforeAction the before action for the workload generation.
    * @param workerAction the action to perform by the workers.
    */
-  public WorkloadDistributor(final KeySpace keySpace, final BeforeAction beforeAction,
+  public WorkloadDistributor(
+      final ZooKeeper zooKeeper,
+      final KeySpace keySpace,
+      final BeforeAction beforeAction,
       final BiConsumer<WorkloadDefinition, Worker> workerAction) {
-
+    this.zooKeeper = zooKeeper;
     this.keySpace = keySpace;
     this.beforeAction = beforeAction;
     this.workerAction = workerAction;
+
+    this.client = CuratorFrameworkFactory.builder()
+        .namespace(NAMESPACE)
+        .connectString(this.zooKeeper.getHost() + ":" + this.zooKeeper.getPort())
+        .retryPolicy(new ExponentialBackoffRetry(2000, 5))
+        .build();
 
     this.client.start();
 
@@ -58,7 +72,8 @@ public class WorkloadDistributor {
     }
 
     this.counter =
-        new DistributedAtomicInteger(this.client, COUNTER_PATH, new RetryNTimes(3, 1000));
+        new DistributedAtomicInteger(this.client, COUNTER_PATH,
+            new ExponentialBackoffRetry(2000, 5));
   }
 
   /**
@@ -78,7 +93,7 @@ public class WorkloadDistributor {
       this.client.checkExists().creatingParentsIfNeeded().forPath(WORKLOAD_DEFINITION_PATH);
 
       if (worker.getId() == 0) {
-        System.out.println("is master with id " + worker.getId());
+        LOGGER.info("This instance is master with id {}", worker.getId());
 
         this.beforeAction.run();
 
@@ -89,7 +104,7 @@ public class WorkloadDistributor {
 
         final int numberOfWorkers = this.counter.get().postValue();
 
-        System.out.printf("Number of Workers: %d\n", numberOfWorkers);
+        LOGGER.info("Number of Workers: {}", numberOfWorkers);
 
         final WorkloadDefinition declaration =
             new WorkloadDefinition(this.keySpace, numberOfWorkers);
@@ -98,7 +113,7 @@ public class WorkloadDistributor {
             declaration.toString().getBytes(StandardCharsets.UTF_8));
 
       } else {
-        System.out.println("is worker with id " + worker.getId());
+        LOGGER.info("This instance is worker with id {}", worker.getId());
 
         this.client.getChildren().usingWatcher(watcher).forPath(WORKLOAD_PATH);
       }
@@ -143,7 +158,6 @@ public class WorkloadDistributor {
    */
   public void stop() {
     this.client.close();
-
   }
 
 }
