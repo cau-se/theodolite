@@ -3,7 +3,7 @@ package spesb.uc1.application;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
-import spesb.uc1.streamprocessing.KafkaStreamsBuilder;
+import spesb.uc1.streamprocessing.Uc1KafkaStreamsBuilder;
 import titan.ccp.common.configuration.Configurations;
 
 /**
@@ -30,14 +30,20 @@ public class HistoryService {
    */
   private void createKafkaStreamsApplication() {
 
-    final KafkaStreams kafkaStreams = new KafkaStreamsBuilder()
-        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-        .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
+    final Uc1KafkaStreamsBuilder uc1KafkaStreamsBuilder = new Uc1KafkaStreamsBuilder();
+    uc1KafkaStreamsBuilder.inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC));
+
+    final KafkaStreams kafkaStreams = uc1KafkaStreamsBuilder
+        .applicationName(this.config.getString(ConfigurationKeys.APPLICATION_NAME))
+        .applicationVersion(this.config.getString(ConfigurationKeys.APPLICATION_VERSION))
         .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
         .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
         .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
+        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
         .build();
+
     this.stopEvent.thenRun(kafkaStreams::close);
+
     kafkaStreams.start();
   }
 

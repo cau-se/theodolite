@@ -52,11 +52,8 @@ public class TopologyBuilder {
    * Build the {@link Topology} for the History microservice.
    */
   public Topology build() {
-
     final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
     final Serde<HourOfDayKey> keySerde = HourOfDayKeySerde.create();
-    // final StatsRecordFactory<HourOfDayKey, HourOfDayActivePowerRecord> statsRecordFactory = new
-    // HourOfDayRecordFactory();
 
     this.builder
         .stream(this.inputTopic,

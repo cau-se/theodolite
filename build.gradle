@@ -10,18 +10,25 @@ buildscript {
   }
 }
 
-// Plugins for all projects
+// Variables used to distinct different subprojects
+def useCaseProjects = subprojects.findAll {it -> it.name.matches('uc(.)*')}
+def commonProjects = subprojects.findAll {it -> it.name.matches('(.)*commons(.)*')}
+
+
+// Plugins
 allprojects {
   apply plugin: 'eclipse'
 }
 
-// Plugins for subprojects
 subprojects {
-  apply plugin: 'application'
   apply plugin: 'checkstyle'
   apply plugin: 'pmd'
   apply plugin: 'com.github.spotbugs'
   apply plugin: 'java-library'
+}
+
+configure(useCaseProjects){
+    apply plugin: 'application'
 }
 
 // Java version for all subprojects
@@ -47,8 +54,8 @@ allprojects {
 	}
 }
 
-// Dependencies
-subprojects {
+// Dependencies for all use cases
+configure(useCaseProjects) {
   dependencies {
       // These dependencies is exported to consumers, that is to say found on their compile classpath.
       api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
@@ -60,6 +67,22 @@ subprojects {
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.6.1'
+      implementation project(':application-kafkastreams-commons')
+
+      // Use JUnit test framework
+      testImplementation 'junit:junit:4.12'
+  }
+}
+
+// Dependencies for all commons
+configure(commonProjects) {
+  dependencies {
+      // These dependencies is exported to consumers, that is to say found on their compile classpath.
+      api 'org.apache.kafka:kafka-clients:2.4.0'
+
+      // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+      implementation 'org.slf4j:slf4j-simple:1.6.1'
+      implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
