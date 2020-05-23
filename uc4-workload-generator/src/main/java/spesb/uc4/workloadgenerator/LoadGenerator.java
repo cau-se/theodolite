@@ -1,19 +1,19 @@
 package spesb.uc4.workloadgenerator;
 
+import common.dimensions.Duration;
+import common.dimensions.KeySpace;
+import common.dimensions.Period;
+import common.generators.KafkaWorkloadGenerator;
+import common.generators.KafkaWorkloadGeneratorBuilder;
+import common.misc.ZooKeeper;
+import communication.kafka.KafkaRecordSender;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spesb.kafkasender.KafkaRecordSender;
 import titan.ccp.models.records.ActivePowerRecord;
 
 public class LoadGenerator {
@@ -24,7 +24,11 @@ public class LoadGenerator {
     // uc4
     LOGGER.info("Start workload generator for use case UC4.");
 
-    final int numSensor =
+    // get environment variables
+    final String zooKeeperHost = Objects.requireNonNullElse(System.getenv("ZK_HOST"), "localhost");
+    final int zooKeeperPort =
+        Integer.parseInt(Objects.requireNonNullElse(System.getenv("ZK_PORT"), "2181"));
+    final int numSensors =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("NUM_SENSORS"), "10"));
     final int periodMs =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("PERIOD_MS"), "1000"));
@@ -39,6 +43,7 @@ public class LoadGenerator {
     final String kafkaLingerMs = System.getenv("KAFKA_LINGER_MS");
     final String kafkaBufferMemory = System.getenv("KAFKA_BUFFER_MEMORY");
 
+    // create kafka record sender
     final Properties kafkaProperties = new Properties();
     // kafkaProperties.put("acks", this.acknowledges);
     kafkaProperties.compute(ProducerConfig.BATCH_SIZE_CONFIG, (k, v) -> kafkaBatchSize);
@@ -48,23 +53,21 @@ public class LoadGenerator {
         new KafkaRecordSender<>(kafkaBootstrapServers,
             kafkaInputTopic, r -> r.getIdentifier(), r -> r.getTimestamp(), kafkaProperties);
 
-    final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
-    final Random random = new Random();
+    // create workload generator
+    final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
+        KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
+            .setKeySpace(new KeySpace("s_", numSensors))
+            .setThreads(threads)
+            .setPeriod(new Period(periodMs, TimeUnit.MILLISECONDS))
+            .setDuration(new Duration(30, TimeUnit.DAYS))
+            .setGeneratorFunction(
+                sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
+            .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
+            .setKafkaRecordSender(kafkaRecordSender)
+            .build();
 
-    final List<String> sensors =
-        IntStream.range(0, numSensor).mapToObj(i -> "s_" + i).collect(Collectors.toList());
-
-    for (final String sensor : sensors) {
-      final int initialDelay = random.nextInt(periodMs);
-      executor.scheduleAtFixedRate(() -> {
-        kafkaRecordSender.write(new ActivePowerRecord(sensor, System.currentTimeMillis(), value));
-      }, initialDelay, periodMs, TimeUnit.MILLISECONDS);
-    }
-
-    System.out.println("Wait for termination...");
-    executor.awaitTermination(30, TimeUnit.DAYS);
-    System.out.println("Will terminate now");
-
+    // start
+    workloadGenerator.start();
   }
 
 }

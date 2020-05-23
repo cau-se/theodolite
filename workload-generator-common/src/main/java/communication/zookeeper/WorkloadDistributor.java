@@ -143,8 +143,10 @@ public class WorkloadDistributor {
               WorkloadDefinition.fromString(new String(bytes, StandardCharsets.UTF_8));
 
           if (worker.getId() > declaration.getNumberOfWorkers() - 1) {
-            throw new IllegalStateException("Worker with id " + worker.getId()
-                + " was too slow and is therefore not participating in the workload generation.");
+            LOGGER.warn("Worker with id {} was to slow and is therefore in idle state",
+                worker.getId());
+            WorkloadDistributor.this.workerAction.accept(new WorkloadDefinition(new KeySpace(0), 0),
+                worker); // this worker generates no workload
           } else {
             WorkloadDistributor.this.workerAction.accept(declaration, worker);
           }

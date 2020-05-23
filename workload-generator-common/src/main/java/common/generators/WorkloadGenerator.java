@@ -15,7 +15,6 @@ import common.dimensions.Period;
 import common.functions.BeforeAction;
 import common.functions.MessageGenerator;
 import common.functions.Transport;
-import common.messages.OutputMessage;
 import common.misc.Worker;
 import common.misc.WorkloadDefinition;
 import common.misc.WorkloadEntity;
@@ -105,7 +104,7 @@ public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements 
       LOGGER.info("Beginning of Experiment...");
       LOGGER.info("Experiment is going to be executed for the specified duration...");
       entities.forEach(entity -> {
-        final OutputMessage<T> message = entity.generateMessage();
+        final T message = entity.generateMessage();
         final long initialDelay = random.nextInt(periodMs);
         this.executor.scheduleAtFixedRate(() -> this.transport.transport(message), initialDelay,
             periodMs, period.getTimeUnit());

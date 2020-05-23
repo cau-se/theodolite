@@ -9,7 +9,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import common.functions.Transport;
-import common.messages.OutputMessage;
 import kieker.common.record.IMonitoringRecord;
 import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
 
@@ -84,9 +83,8 @@ public class KafkaRecordSender<T extends IMonitoringRecord> implements Transport
   }
 
   @Override
-  public void transport(final OutputMessage<T> message) {
-    System.out.println(message.getKey());
-    this.write(message.getValue());
+  public void transport(final T message) {
+    this.write(message);
   }
 
 }

@@ -1,7 +1,6 @@
 package common.misc;
 
 import common.functions.MessageGenerator;
-import common.messages.OutputMessage;
 import kieker.common.record.IMonitoringRecord;
 
 public class WorkloadEntity<T extends IMonitoringRecord> {
@@ -13,7 +12,7 @@ public class WorkloadEntity<T extends IMonitoringRecord> {
     this.generator = generator;
   }
 
-  public OutputMessage<T> generateMessage() {
+  public T generateMessage() {
     return this.generator.generateMessage(this.key);
   }
 }
