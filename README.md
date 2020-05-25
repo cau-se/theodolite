@@ -1,8 +1,5 @@
-Current envisaged project structure:
+# Theodolite
 
+> A theodolite is a precision optical instrument for measuring angles between designated visible points in the horizontal and vertical planes.  -- <cite>[Wikipedia](https://en.wikipedia.org/wiki/Theodolite)</cite>
 
-* `scalability-benchmarking`
-    * `uc1-application-kstreams`
-    * `uc1-application-samza`
-    * `uc1-workload-generation`
-    * ...
+Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines.
