@@ -13,4 +13,3 @@ include 'uc4-workload-generator'
 include 'uc4-application'
 
 include 'workload-generator-common'
-include 'test-workload-generator'

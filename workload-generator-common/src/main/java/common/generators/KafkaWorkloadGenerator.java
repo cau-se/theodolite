@@ -19,6 +19,7 @@ public class KafkaWorkloadGenerator<T extends IMonitoringRecord> extends Workloa
   /**
    * Create a new workload generator.
    *
+   * @param zooKeeper a reference to the ZooKeeper instance.
    * @param keySpace the key space to generate the workload for.
    * @param threads tha amount of threads to use per instance.
    * @param period the period how often a message is generated for each key specified in the
