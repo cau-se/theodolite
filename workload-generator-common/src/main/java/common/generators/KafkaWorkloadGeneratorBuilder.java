@@ -41,6 +41,12 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
     return new KafkaWorkloadGeneratorBuilder<>();
   }
 
+  /**
+   * Set the ZooKeeper reference.
+   *
+   * @param zooKeeper a reference to the ZooKeeper instance.
+   * @return the builder.
+   */
   public KafkaWorkloadGeneratorBuilder<T> setZooKeeper(final ZooKeeper zooKeeper) {
     this.zooKeeper = zooKeeper;
     return this;
@@ -129,6 +135,7 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
    * Build the actual {@link KafkaWorkloadGenerator}. The following parameters are must be
    * specicified before this method is called:
    * <ul>
+   * <li>zookeeper</li>
    * <li>key space</li>
    * <li>period</li>
    * <li>duration</li>

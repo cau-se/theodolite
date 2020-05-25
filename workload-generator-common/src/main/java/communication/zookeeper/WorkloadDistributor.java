@@ -106,11 +106,11 @@ public class WorkloadDistributor {
 
         LOGGER.info("Number of Workers: {}", numberOfWorkers);
 
-        final WorkloadDefinition declaration =
+        final WorkloadDefinition definition =
             new WorkloadDefinition(this.keySpace, numberOfWorkers);
 
         this.client.create().withMode(CreateMode.EPHEMERAL).forPath(WORKLOAD_DEFINITION_PATH,
-            declaration.toString().getBytes(StandardCharsets.UTF_8));
+            definition.toString().getBytes(StandardCharsets.UTF_8));
 
       } else {
         LOGGER.info("This instance is worker with id {}", worker.getId());
@@ -118,7 +118,7 @@ public class WorkloadDistributor {
         this.client.getChildren().usingWatcher(watcher).forPath(WORKLOAD_PATH);
       }
 
-      Thread.sleep(20000); // wait until the workload declaration is retrieved
+      Thread.sleep(20000); // wait until the workload definition is retrieved
     } catch (final Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -139,16 +139,16 @@ public class WorkloadDistributor {
         if (event.getType() == EventType.NodeChildrenChanged) {
           final byte[] bytes =
               WorkloadDistributor.this.client.getData().forPath(WORKLOAD_DEFINITION_PATH);
-          final WorkloadDefinition declaration =
+          final WorkloadDefinition definition =
               WorkloadDefinition.fromString(new String(bytes, StandardCharsets.UTF_8));
 
-          if (worker.getId() > declaration.getNumberOfWorkers() - 1) {
+          if (worker.getId() > definition.getNumberOfWorkers() - 1) {
             LOGGER.warn("Worker with id {} was to slow and is therefore in idle state",
                 worker.getId());
             WorkloadDistributor.this.workerAction.accept(new WorkloadDefinition(new KeySpace(0), 0),
                 worker); // this worker generates no workload
           } else {
-            WorkloadDistributor.this.workerAction.accept(declaration, worker);
+            WorkloadDistributor.this.workerAction.accept(definition, worker);
           }
         }
       }

@@ -78,16 +78,16 @@ public class LoadGenerator {
                     new ConfigPublisher(kafkaBootstrapServers, "configuration");
                 configPublisher.publish(Event.SENSOR_REGISTRY_CHANGED, sensorRegistry.toJson());
                 configPublisher.close();
-                System.out.println("Configuration sent.");
+                LOGGER.info("Configuration sent.");
 
-                System.out.println("Now wait 30 seconds");
+                LOGGER.info("Now wait 30 seconds");
                 try {
                   Thread.sleep(30_000);
                 } catch (final InterruptedException e) {
                   // TODO Auto-generated catch block
                   e.printStackTrace();
                 }
-                System.out.println("And woke up again :)");
+                LOGGER.info("And woke up again :)");
               }
             })
             .setGeneratorFunction(

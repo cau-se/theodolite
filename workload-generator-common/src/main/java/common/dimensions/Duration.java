@@ -6,7 +6,7 @@ import common.generators.WorkloadGenerator;
 /**
  * Wrapper class for the definition of the duration for the {@link WorkloadGenerator}.
  */
-public class Duration extends Dimension {
+public class Duration {
 
   private final int duration;
   private final TimeUnit timeUnit;

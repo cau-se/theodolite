@@ -6,7 +6,7 @@ import common.generators.WorkloadGenerator;
  * Wrapper class for the definition of the Keys that should be used by the
  * {@link WorkloadGenerator}.
  */
-public class KeySpace extends Dimension {
+public class KeySpace {
 
   private final String prefix;
   private final int min;

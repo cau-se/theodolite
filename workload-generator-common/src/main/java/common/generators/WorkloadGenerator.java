@@ -78,13 +78,13 @@ public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements 
     this.duration = duration;
     this.beforeAction = beforeAction;
     this.generatorFunction = generatorFunction;
-    this.workloadSelector = (workloadDeclaration, worker) -> {
+    this.workloadSelector = (workloadDefinition, worker) -> {
       final List<WorkloadEntity<T>> workloadEntities = new LinkedList<>();
 
       for (int i =
-          workloadDeclaration.getKeySpace().getMin() + worker.getId(); i <= workloadDeclaration
-              .getKeySpace().getMax(); i += workloadDeclaration.getNumberOfWorkers()) {
-        final String id = workloadDeclaration.getKeySpace().getPrefix() + i;
+          workloadDefinition.getKeySpace().getMin() + worker.getId(); i <= workloadDefinition
+              .getKeySpace().getMax(); i += workloadDefinition.getNumberOfWorkers()) {
+        final String id = workloadDefinition.getKeySpace().getPrefix() + i;
         workloadEntities.add(new WorkloadEntity<>(id, this.generatorFunction));
       }
 
@@ -103,6 +103,7 @@ public abstract class WorkloadGenerator<T extends IMonitoringRecord> implements 
 
       LOGGER.info("Beginning of Experiment...");
       LOGGER.info("Experiment is going to be executed for the specified duration...");
+
       entities.forEach(entity -> {
         final T message = entity.generateMessage();
         final long initialDelay = random.nextInt(periodMs);

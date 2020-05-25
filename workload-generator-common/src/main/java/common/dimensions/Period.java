@@ -6,7 +6,7 @@ import common.generators.WorkloadGenerator;
 /**
  * Wrapper class for the definition of period to use for the {@link WorkloadGenerator}.
  */
-public class Period extends Dimension {
+public class Period {
 
   private final int period;
   private final TimeUnit timeUnit;

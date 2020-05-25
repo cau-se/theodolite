@@ -20,9 +20,8 @@ public class LoadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
-  private static final int WL_MAX_RECORDS = 150_000;
-
   public static void main(final String[] args) throws InterruptedException, IOException {
+    // uc2
     LOGGER.info("Start workload generator for use case UC3.");
 
     // get environment variables

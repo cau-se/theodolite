@@ -3,6 +3,9 @@ package common.misc;
 import common.functions.MessageGenerator;
 import kieker.common.record.IMonitoringRecord;
 
+/*
+ * Representation of a entity of the workload generation that generates load for one fixed key.
+ */
 public class WorkloadEntity<T extends IMonitoringRecord> {
   private final String key;
   private final MessageGenerator<T> generator;
