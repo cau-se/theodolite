@@ -43,7 +43,7 @@ sleep ${EXECUTION_MINUTES}m
 
 # Run eval script
 source ../.venv/bin/activate
-python lag_analysis.py $EXP_ID uc4 $DIM_VALUE $INSTANCES
+python lag_analysis.py $EXP_ID uc4 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop wl and app
