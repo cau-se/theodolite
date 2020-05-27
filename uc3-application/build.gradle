@@ -10,4 +10,4 @@ dependencies {
     compile('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT')
 }
 
-mainClassName = "spesb.uc3.application.HistoryService"
+mainClassName = "theodolite.uc3.application.HistoryService"
