@@ -10,7 +10,7 @@ KAFKA_STREAMS_COMMIT_INTERVAL_MS=${7:-100}
 EXECUTION_MINUTES=${8:-5}
 
 # Get and increment counter
-EXP_ID=$(cat exp_counter.txt)
+EXP_ID=$(cat exp_counter.txt 2>/dev/null || echo "0")
 echo $((EXP_ID+1)) > exp_counter.txt
 
 # Store meta information
