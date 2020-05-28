@@ -1,13 +1,20 @@
-# Requirements
+# Theodolite Execution Framework
 
+This directory contains the Theodolite framework for executing scalability
+benchmarks in a Kubernetes cluster. As Theodolite aims for executing benchmarks
+in realistic execution environments,, some third-party components are [required](#requirements).
+After everything is installed and configured, you can move on the [execution of
+benchmarks](#execution).
 
-## Kubernetes Cluster
+## Requirements
+
+### Kubernetes Cluster
 
 For executing benchmarks, access to Kubernetes cluster is required. We suggest
 to create a dedicated namespace for executing our benchmarks. The following
 services need to be available as well.
 
-### Prometheus
+#### Prometheus
 
 We suggest to use the [Prometheus Operator](https://github.com/coreos/prometheus-operator)
 and create a dedicated Prometheus instance for these benchmarks.
@@ -34,7 +41,7 @@ depending on your cluster's security policies.
 For the individual benchmarking components to be monitored, [ServiceMonitors](https://github.com/coreos/prometheus-operator#customresourcedefinitions)
 are used. See the corresponding sections below for how to install them.
 
-### Grafana
+#### Grafana
 
 As with Prometheus, we suggest to create a dedicated Grafana instance. Grafana
 with our default configuration can be installed with Helm:
@@ -60,7 +67,7 @@ Create the Configmap for the data source:
 kubectl apply -f infrastructure/grafana/prometheus-datasource-config-map.yaml
 ```
 
-### A Kafka cluster
+#### A Kafka cluster
 
 One possible way to set up a Kafka cluster is via [Confluent's Helm Charts](https://github.com/confluentinc/cp-helm-charts).
 For using these Helm charts and conjuction with the Prometheus Operator (see
@@ -68,7 +75,7 @@ below), we provide a [patch](https://github.com/SoerenHenning/cp-helm-charts)
 for these helm charts. Note that this patch is only required for observation and
 not for the actual benchmark execution and evaluation.
 
-#### Our patched Confluent Helm Charts
+##### Our patched Confluent Helm Charts
 
 To use our patched Confluent Helm Charts clone the
 [chart's repsoitory](https://github.com/SoerenHenning/cp-helm-charts). We also
@@ -86,11 +93,11 @@ To let Prometheus scrape Kafka metrics, deploy a ServiceMonitor:
 kubectl apply -f infrastructure/kafka/service-monitor.yaml
 ```
 
-#### Other options for Kafka
+##### Other options for Kafka
 
 Other Kafka deployments, for example, using Strimzi, should work in similiar way.
 
-### The Kafka Lag Exporter
+#### The Kafka Lag Exporter
 
 [Lightbend's Kafka Lag Exporter](https://github.com/lightbend/kafka-lag-exporter)
 can be installed via Helm. We also provide a [default configuration](infrastructure/kafka-lag-exporter/values.yaml).
@@ -107,21 +114,19 @@ kubectl apply -f infrastructure/kafka-lag-exporter/service-monitor.yaml
 ```
 
 
-## Python 3.7
+### Python 3.7
 
-For executing benchmarks and analyzing their results, a **Python 3.7** installation
-is required. We suggest to use a virtual environment placed in the `.venv` directory.
-
-As set of requirements is needed for the analysis Jupyter notebooks and the
-execution tool. You can install them with the following command (make sure to
-be in your virtual environment if you use one):
+For executing benchmarks, a **Python 3.7** installation is required. We suggest
+to use a virtual environment placed in the `.venv` directory (in the Theodolite
+root directory). As set of requirements is needed. You can install them with the following
+command (make sure to be in your virtual environment if you use one):
 
 ```sh
 pip install -r requirements.txt 
 ```
 
 
-## Required Manual Adjustments
+### Required Manual Adjustments
 
 Depending on your setup, some additional adjustments may be necessary:
 
@@ -133,7 +138,7 @@ Depending on your setup, some additional adjustments may be necessary:
 
 
 
-# Execution
+## Execution
 
 The `./run_loop.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
