@@ -135,10 +135,10 @@ Depending on your setup, some additional adjustments may be necessary:
 
 # Execution
 
-The `./run_loop.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
+The `./theodolite.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
 ```sh
-./run_loop.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration>
+./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration>
 ```
 
 * `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
