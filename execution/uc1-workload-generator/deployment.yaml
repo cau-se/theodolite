@@ -16,8 +16,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-  #      image: soerenhenning/uc1-wg:latest 
-        image: sehrenstein/uc1-wg:latest 
+        image: soerenhenning/uc1-wg:latest 
         env:
         - name: ZK_HOST
           value: "my-confluent-cp-zookeeper"

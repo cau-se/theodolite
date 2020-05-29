@@ -1,5 +1,4 @@
 apply plugin: 'java-library'
-apply plugin: 'eclipse'
 
 buildscript {
   repositories {
