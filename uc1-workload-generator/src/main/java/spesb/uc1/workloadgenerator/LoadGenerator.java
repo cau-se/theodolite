@@ -16,9 +16,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import titan.ccp.models.records.ActivePowerRecord;
 
-public class LoadGenerator {
+/**
+ * Load Generator for UC1.
+ */
+public final class LoadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
+
+  private static final int MAX_DURATION_IN_DAYS = 30;
+
+  private LoadGenerator() {}
 
   public static void main(final String[] args) throws InterruptedException, IOException {
     // uc1
@@ -62,7 +69,7 @@ public class LoadGenerator {
             .setKeySpace(new KeySpace("s_", numSensors))
             .setThreads(threads)
             .setPeriod(new Period(periodMs, TimeUnit.MILLISECONDS))
-            .setDuration(new Duration(30, TimeUnit.DAYS))
+            .setDuration(new Duration(MAX_DURATION_IN_DAYS, TimeUnit.DAYS))
             .setGeneratorFunction(
                 sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
             .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
