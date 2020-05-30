@@ -40,7 +40,7 @@ public class TopologyBuilder {
     this.builder
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),
-            this.srAvroSerdeFactory.<ActivePowerRecord>forKeys()))
+            this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
         .mapValues(v -> this.gson.toJson(v))
         .foreach((k, v) -> LOGGER.info("Key: " + k + " Value: " + v));
 

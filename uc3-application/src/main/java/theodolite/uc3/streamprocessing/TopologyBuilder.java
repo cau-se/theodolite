@@ -50,7 +50,7 @@ public class TopologyBuilder {
     this.builder
         .stream(this.inputTopic,
             Consumed.with(Serdes.String(),
-                this.srAvroSerdeFactory.<ActivePowerRecord>forKeys()))
+                this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
         .groupByKey()
         .windowedBy(TimeWindows.of(this.duration))
         // .aggregate(

@@ -15,7 +15,7 @@ import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 /**
  * Sends monitoring records to Kafka.
  *
- * @param <T> {@link IMonitoringRecord} to send
+ * @param <T> {@link SpecificRecord} to send
  */
 public class KafkaRecordSender<T extends SpecificRecord> {
 
@@ -72,7 +72,7 @@ public class KafkaRecordSender<T extends SpecificRecord> {
 
     this.producer = new KafkaProducer<>(properties,
         new StringSerializer(),
-        srAvroSerdeFactory.<T>forKeys().serializer());
+        srAvroSerdeFactory.<T>forValues().serializer());
   }
 
   /**
