@@ -18,40 +18,44 @@ import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.WindowedSerdes;
-import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
+import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.configuration.events.EventSerde;
+import titan.ccp.model.records.ActivePowerRecord;
+import titan.ccp.model.records.AggregatedActivePowerRecord;
 import titan.ccp.model.sensorregistry.SensorRegistry;
-import titan.ccp.models.records.ActivePowerRecord;
-import titan.ccp.models.records.ActivePowerRecordFactory;
-import titan.ccp.models.records.AggregatedActivePowerRecord;
-import titan.ccp.models.records.AggregatedActivePowerRecordFactory;
 
 /**
  * Builds Kafka Stream Topology for the History microservice.
  */
 public class TopologyBuilder {
 
+  private static final int LATENCY_OUTPOUT_THRESHOLD = 1000;
   // private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
   private final String inputTopic;
   private final String outputTopic;
   private final String configurationTopic;
+  private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
   private final Duration windowSize;
   private final Duration gracePeriod;
 
   private final StreamsBuilder builder = new StreamsBuilder();
   private final RecordAggregator recordAggregator = new RecordAggregator();
 
+  private StatsAccumulator latencyStats = new StatsAccumulator();
+  private long lastTime = System.currentTimeMillis();
 
   /**
    * Create a new {@link TopologyBuilder} using the given topics.
    */
   public TopologyBuilder(final String inputTopic, final String outputTopic,
-      final String configurationTopic, final Duration windowSize, final Duration gracePeriod) {
+      final String configurationTopic, final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory,
+      final Duration windowSize, final Duration gracePeriod) {
     this.inputTopic = inputTopic;
     this.outputTopic = outputTopic;
     this.configurationTopic = configurationTopic;
+    this.srAvroSerdeFactory = srAvroSerdeFactory;
     this.windowSize = windowSize;
     this.gracePeriod = gracePeriod;
   }
@@ -84,11 +88,11 @@ public class TopologyBuilder {
     final KStream<String, ActivePowerRecord> values = this.builder
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),
-            IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())));
+            this.srAvroSerdeFactory.forValues()));
     final KStream<String, ActivePowerRecord> aggregationsInput = this.builder
         .stream(this.outputTopic, Consumed.with(
             Serdes.String(),
-            IMonitoringRecordSerde.serde(new AggregatedActivePowerRecordFactory())))
+            this.srAvroSerdeFactory.<AggregatedActivePowerRecord>forValues()))
         .mapValues(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()));
 
     final KTable<String, ActivePowerRecord> inputTable = values
@@ -96,9 +100,9 @@ public class TopologyBuilder {
         .mapValues((k, v) -> new ActivePowerRecord(v.getIdentifier(), System.currentTimeMillis(),
             v.getValueInW()))
         .groupByKey(Grouped.with(Serdes.String(),
-            IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+            this.srAvroSerdeFactory.forValues()))
         .reduce((aggr, value) -> value, Materialized.with(Serdes.String(),
-            IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())));
+            this.srAvroSerdeFactory.forValues()));
     return inputTable;
   }
 
@@ -140,13 +144,13 @@ public class TopologyBuilder {
             jointFlatMapTransformerFactory.getStoreName())
         .groupByKey(Grouped.with(
             SensorParentKeySerde.serde(),
-            IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+            this.srAvroSerdeFactory.forValues()))
         .windowedBy(TimeWindows.of(this.windowSize).grace(this.gracePeriod))
         .reduce(
             // TODO Configurable window aggregation function
             (aggValue, newValue) -> newValue,
             Materialized.with(SensorParentKeySerde.serde(),
-                IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())));
+                this.srAvroSerdeFactory.forValues()));
 
   }
 
@@ -159,14 +163,14 @@ public class TopologyBuilder {
                 new WindowedSerdes.TimeWindowedSerde<>(
                     Serdes.String(),
                     this.windowSize.toMillis()),
-                IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+                this.srAvroSerdeFactory.forValues()))
         .aggregate(
             () -> null, this.recordAggregator::add, this.recordAggregator::substract,
             Materialized.with(
                 new WindowedSerdes.TimeWindowedSerde<>(
                     Serdes.String(),
                     this.windowSize.toMillis()),
-                IMonitoringRecordSerde.serde(new AggregatedActivePowerRecordFactory())))
+                this.srAvroSerdeFactory.forValues()))
         .suppress(Suppressed.untilTimeLimit(this.windowSize, BufferConfig.unbounded()))
         // .suppress(Suppressed.untilWindowCloses(BufferConfig.unbounded()))
         .toStream()
@@ -175,16 +179,13 @@ public class TopologyBuilder {
         .map((k, v) -> KeyValue.pair(k.key(), v)); // TODO compute Timestamp
   }
 
-  private StatsAccumulator latencyStats = new StatsAccumulator();
-  private long lastTime = System.currentTimeMillis();
-
   private void exposeOutputStream(final KStream<String, AggregatedActivePowerRecord> aggregations) {
     aggregations
         .peek((k, v) -> {
           final long time = System.currentTimeMillis();
           final long latency = time - v.getTimestamp();
           this.latencyStats.add(latency);
-          if (time - this.lastTime >= 1000) {
+          if (time - this.lastTime >= LATENCY_OUTPOUT_THRESHOLD) {
             System.out.println("latency,"
                 + time + ','
                 + this.latencyStats.mean() + ','
@@ -205,6 +206,6 @@ public class TopologyBuilder {
         })
         .to(this.outputTopic, Produced.with(
             Serdes.String(),
-            IMonitoringRecordSerde.serde(new AggregatedActivePowerRecordFactory())));
+            this.srAvroSerdeFactory.forValues()));
   }
 }

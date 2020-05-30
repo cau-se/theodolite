@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Objects;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
+import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 /**
  * Builder for the Kafka Streams configuration.
@@ -54,6 +55,7 @@ public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
         this.inputTopic,
         this.outputTopic,
         this.configurationTopic,
+        new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl),
         this.windowSize == null ? WINDOW_SIZE_DEFAULT : this.windowSize,
         this.gracePeriod == null ? GRACE_PERIOD_DEFAULT : this.gracePeriod);
 

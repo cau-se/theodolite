@@ -23,6 +23,8 @@ public final class ConfigurationKeys {
 
   public static final String CACHE_MAX_BYTES_BUFFERING = "cache.max.bytes.buffering";
 
+  public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
+
   private ConfigurationKeys() {}
 
 }
