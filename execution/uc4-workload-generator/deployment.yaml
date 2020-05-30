@@ -15,10 +15,11 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: soerenhenning/uc4-wg:latest 
+        image: soerenhenning/uc4-wg:latest
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
+        - name: SCHEMA_REGISTRY_URL
+          value: "http://my-confluent-cp-schema-registry:8081"
         - name: NUM_SENSORS
           value: "{{NUM_SENSORS}}"
-          
