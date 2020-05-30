@@ -7,7 +7,7 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
 import theodolite.commons.kafkastreams.ConfigurationKeys;
 import theodolite.uc3.streamprocessing.Uc3KafkaStreamsBuilder;
-import titan.ccp.common.configuration.Configurations;
+import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
  * A microservice that manages the history and, therefore, stores and aggregates incoming
@@ -16,7 +16,7 @@ import titan.ccp.common.configuration.Configurations;
  */
 public class HistoryService {
 
-  private final Configuration config = Configurations.create();
+  private final Configuration config = ServiceConfigurations.createWithDefaults();
 
   private final CompletableFuture<Void> stopEvent = new CompletableFuture<>();
   private final int windowDurationMinutes = Integer

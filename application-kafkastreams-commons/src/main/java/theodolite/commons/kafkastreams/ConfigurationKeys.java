@@ -31,6 +31,9 @@ public final class ConfigurationKeys {
 
   public static final String WINDOW_GRACE_MS = "window.grace.ms";
 
+  // UC3
+  public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+
   // UC4
   public static final String AGGREGATION_DURATION_DAYS = "aggregation.duration.days";
 
