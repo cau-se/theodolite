@@ -15,7 +15,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.kafkasender.KafkaRecordSender;
-import titan.ccp.models.records.ActivePowerRecord;
+import titan.ccp.model.records.ActivePowerRecord;
+import titan.ccp.model.records.ActivePowerRecord.Builder;
 
 public class LoadGenerator {
 
@@ -35,6 +36,8 @@ public class LoadGenerator {
     final int threads = Integer.parseInt(Objects.requireNonNullElse(System.getenv("THREADS"), "4"));
     final String kafkaBootstrapServers =
         Objects.requireNonNullElse(System.getenv("KAFKA_BOOTSTRAP_SERVERS"), "localhost:9092");
+    final String schemaRegistryUrl =
+        Objects.requireNonNullElse(System.getenv("SCHEMA_REGISTRY_URL"), "http://localhost:8091");
     final String kafkaInputTopic =
         Objects.requireNonNullElse(System.getenv("KAFKA_INPUT_TOPIC"), "input");
     final String kafkaBatchSize = System.getenv("KAFKA_BATCH_SIZE");
@@ -55,6 +58,7 @@ public class LoadGenerator {
     kafkaProperties.compute(ProducerConfig.BUFFER_MEMORY_CONFIG, (k, v) -> kafkaBufferMemory);
     final KafkaRecordSender<ActivePowerRecord> kafkaRecordSender = new KafkaRecordSender<>(
         kafkaBootstrapServers,
+        schemaRegistryUrl,
         kafkaInputTopic,
         r -> r.getIdentifier(),
         r -> r.getTimestamp(),
@@ -63,10 +67,14 @@ public class LoadGenerator {
     final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
     final Random random = new Random();
 
+    final Builder aprBuilder = ActivePowerRecord.newBuilder();
+
     for (final String sensor : sensors) {
       final int initialDelay = random.nextInt(periodMs);
       executor.scheduleAtFixedRate(() -> {
-        kafkaRecordSender.write(new ActivePowerRecord(sensor, System.currentTimeMillis(), value));
+        aprBuilder.setIdentifier(sensor).setTimestamp(System.currentTimeMillis())
+            .setValueInW(value);
+        kafkaRecordSender.write(aprBuilder.build());
       }, initialDelay, periodMs, TimeUnit.MILLISECONDS);
     }
 

@@ -7,8 +7,8 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
-import titan.ccp.models.records.ActivePowerRecordFactory;
+import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Builds Kafka Stream Topology for the History microservice.
@@ -18,14 +18,19 @@ public class TopologyBuilder {
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
   private final String inputTopic;
+  private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
+
   private final Gson gson = new Gson();
   private final StreamsBuilder builder = new StreamsBuilder();
+
 
   /**
    * Create a new {@link TopologyBuilder} using the given topics.
    */
-  public TopologyBuilder(final String inputTopic) {
+  public TopologyBuilder(final String inputTopic,
+      final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory) {
     this.inputTopic = inputTopic;
+    this.srAvroSerdeFactory = srAvroSerdeFactory;
   }
 
   /**
@@ -35,7 +40,7 @@ public class TopologyBuilder {
     this.builder
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),
-            IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+            this.srAvroSerdeFactory.<ActivePowerRecord>forKeys()))
         .mapValues(v -> this.gson.toJson(v))
         .foreach((k, v) -> LOGGER.info("Key: " + k + " Value: " + v));
 

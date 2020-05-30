@@ -2,14 +2,14 @@ package theodolite.kafkasender;
 
 import java.util.Properties;
 import java.util.function.Function;
-import kieker.common.record.IMonitoringRecord;
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
+import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 
 /**
@@ -17,7 +17,7 @@ import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
  *
  * @param <T> {@link IMonitoringRecord} to send
  */
-public class KafkaRecordSender<T extends IMonitoringRecord> {
+public class KafkaRecordSender<T extends SpecificRecord> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordSender.class);
 
@@ -29,24 +29,30 @@ public class KafkaRecordSender<T extends IMonitoringRecord> {
 
   private final Producer<String, T> producer;
 
-  public KafkaRecordSender(final String bootstrapServers, final String topic) {
-    this(bootstrapServers, topic, x -> "", x -> null, new Properties());
+  public KafkaRecordSender(final String bootstrapServers, final String schemaRegistryUrl,
+      final String topic) {
+    this(bootstrapServers, schemaRegistryUrl, topic, x -> "", x -> null, new Properties());
   }
 
-  public KafkaRecordSender(final String bootstrapServers, final String topic,
+  public KafkaRecordSender(final String bootstrapServers, final String schemaRegistryUrl,
+      final String topic,
       final Function<T, String> keyAccessor) {
-    this(bootstrapServers, topic, keyAccessor, x -> null, new Properties());
+    this(bootstrapServers, schemaRegistryUrl, topic, keyAccessor, x -> null, new Properties());
   }
 
-  public KafkaRecordSender(final String bootstrapServers, final String topic,
+  public KafkaRecordSender(final String bootstrapServers, final String schemaRegistryUrl,
+      final String topic,
       final Function<T, String> keyAccessor, final Function<T, Long> timestampAccessor) {
-    this(bootstrapServers, topic, keyAccessor, timestampAccessor, new Properties());
+    this(bootstrapServers, schemaRegistryUrl, topic, keyAccessor, timestampAccessor,
+        new Properties());
   }
 
   /**
    * Create a new {@link KafkaRecordSender}.
    */
-  public KafkaRecordSender(final String bootstrapServers, final String topic,
+  public KafkaRecordSender(final String bootstrapServers,
+      final String schemaRegistryUrl,
+      final String topic,
       final Function<T, String> keyAccessor, final Function<T, Long> timestampAccessor,
       final Properties defaultProperties) {
     this.topic = topic;
@@ -61,8 +67,12 @@ public class KafkaRecordSender<T extends IMonitoringRecord> {
     // properties.put("linger.ms", this.lingerMs);
     // properties.put("buffer.memory", this.bufferMemory);
 
-    this.producer = new KafkaProducer<>(properties, new StringSerializer(),
-        IMonitoringRecordSerde.serializer());
+    final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory =
+        new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl);
+
+    this.producer = new KafkaProducer<>(properties,
+        new StringSerializer(),
+        srAvroSerdeFactory.<T>forKeys().serializer());
   }
 
   /**

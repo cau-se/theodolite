@@ -17,6 +17,8 @@ public final class ConfigurationKeys {
 
   public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
 
+  public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
+
   public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
 
 
