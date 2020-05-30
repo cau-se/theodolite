@@ -3,6 +3,7 @@ package theodolite.uc1.application;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
+import theodolite.commons.kafkastreams.ConfigurationKeys;
 import theodolite.uc1.streamprocessing.Uc1KafkaStreamsBuilder;
 import titan.ccp.common.configuration.ServiceConfigurations;
 

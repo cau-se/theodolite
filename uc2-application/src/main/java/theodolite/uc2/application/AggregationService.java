@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
+import theodolite.commons.kafkastreams.ConfigurationKeys;
 import theodolite.uc2.streamprocessing.Uc2KafkaStreamsBuilder;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
