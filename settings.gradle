@@ -1,5 +1,7 @@
 rootProject.name = 'scalability-benchmarking'
 
+include 'workload-generator-common'
+
 include 'uc1-workload-generator'
 include 'uc1-application'
 
@@ -11,5 +13,3 @@ include 'uc3-application'
 
 include 'uc4-workload-generator'
 include 'uc4-application'
-
-include 'workload-generator-common'
