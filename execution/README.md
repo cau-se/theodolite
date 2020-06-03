@@ -95,7 +95,15 @@ kubectl apply -f infrastructure/kafka/service-monitor.yaml
 
 ##### Other options for Kafka
 
-Other Kafka deployments, for example, using Strimzi, should work in similiar way.
+Other Kafka deployments, for example, using Strimzi, should work in a similar way.
+
+#### A Kafka Client Pod
+
+A permanently running pod used for Kafka configuration is started via:
+
+```sh
+kubectl apply -f infrastructure/kafka/kafka-client.yaml 
+```
 
 #### The Kafka Lag Exporter
 
