@@ -115,12 +115,6 @@ To install it:
 helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.0/kafka-lag-exporter-0.6.0.tgz -f infrastructure/kafka-lag-exporter/values.yaml
 ```
 
-To let Prometheus scrape Kafka lag metrics, deploy a ServiceMonitor:
-
-```sh
-kubectl apply -f infrastructure/kafka-lag-exporter/service-monitor.yaml
-```
-
 
 ### Python 3.7
 
