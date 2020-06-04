@@ -8,7 +8,7 @@ pollIntervalSeconds: 15
 prometheus:
   serviceMonitor:
     enabled: true
-    interval: "30s"
+    interval: "5s"
     additionalLabels:
       appScope: titan-ccp
     # service monitor label selectors: https://github.com/helm/charts/blob/f5a751f174263971fafd21eee4e35416d6612a3d/stable/prometheus-operator/templates/prometheus/prometheus.yaml#L74
