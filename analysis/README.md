@@ -17,6 +17,6 @@ Python libraries, which can be installed via:
 pip install -r requirements.txt 
 ```
 
- We have tested these
+We have tested these
 notebooks with [Visual Studio Code](https://code.visualstudio.com/docs/python/jupyter-support),
 however, every other server should be fine as well.

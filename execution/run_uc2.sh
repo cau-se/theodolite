@@ -30,6 +30,10 @@ sed "s/{{NUM_NESTED_GROUPS}}/$NUM_NESTED_GROUPS/g" uc2-workload-generator/deploy
 
 # Start application
 REPLICAS=$INSTANCES
+# When not using `sed` anymore, use `kubectl apply -f uc2-application`
+kubectl apply -f uc2-application/aggregation-service.yaml
+kubectl apply -f uc2-application/jmx-configmap.yaml
+kubectl apply -f uc2-application/service-monitor.yaml
 #kubectl apply -f uc2-application/aggregation-deployment.yaml
 APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc2-application/aggregation-deployment.yaml)
 echo "$APPLICATION_YAML" | kubectl apply -f -
@@ -45,6 +49,9 @@ deactivate
 
 # Stop wl and app
 kubectl delete -f uc2-workload-generator/deployment.yaml
+kubectl delete -f uc2-application/aggregation-service.yaml
+kubectl delete -f uc2-application/jmx-configmap.yaml
+kubectl delete -f uc2-application/service-monitor.yaml
 #kubectl delete -f uc2-application/aggregation-deployment.yaml
 echo "$APPLICATION_YAML" | kubectl delete -f -
 

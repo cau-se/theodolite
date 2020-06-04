@@ -34,6 +34,10 @@ echo "$WORKLOAD_GENERATOR_YAML" | kubectl apply -f -
 
 # Start application
 REPLICAS=$INSTANCES
+# When not using `sed` anymore, use `kubectl apply -f uc3-application`
+kubectl apply -f uc3-application/aggregation-service.yaml
+kubectl apply -f uc3-application/jmx-configmap.yaml
+kubectl apply -f uc3-application/service-monitor.yaml
 #kubectl apply -f uc3-application/aggregation-deployment.yaml
 APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc3-application/aggregation-deployment.yaml)
 echo "$APPLICATION_YAML" | kubectl apply -f -
@@ -51,7 +55,10 @@ deactivate
 #kubectl delete -f uc3-workload-generator/deployment.yaml
 #sed "s/{{INSTANCES}}/1/g" uc3-workload-generator/deployment.yaml | kubectl delete -f -
 echo "$WORKLOAD_GENERATOR_YAML" | kubectl delete -f -
-#kubectl delete -f uc1-application/aggregation-deployment.yaml
+kubectl delete -f uc3-application/aggregation-service.yaml
+kubectl delete -f uc3-application/jmx-configmap.yaml
+kubectl delete -f uc3-application/service-monitor.yaml
+#kubectl delete -f uc3-application/aggregation-deployment.yaml
 #sed "s/{{CPU_LIMIT}}/1000m/g; s/{{MEMORY_LIMIT}}/4Gi/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/100/g" uc3-application/aggregation-deployment.yaml | kubectl delete -f -
 echo "$APPLICATION_YAML" | kubectl delete -f -
 
