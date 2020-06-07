@@ -1,12 +1,5 @@
 package theodolite.uc2.workloadgenerator;
 
-import common.dimensions.Duration;
-import common.dimensions.KeySpace;
-import common.dimensions.Period;
-import common.generators.KafkaWorkloadGenerator;
-import common.generators.KafkaWorkloadGeneratorBuilder;
-import common.misc.ZooKeeper;
-import communication.kafka.KafkaRecordSender;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Properties;
@@ -14,7 +7,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.kafkasender.KafkaRecordSender;
+import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
+import theodolite.commons.workloadgeneration.dimensions.Duration;
+import theodolite.commons.workloadgeneration.dimensions.KeySpace;
+import theodolite.commons.workloadgeneration.dimensions.Period;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
+import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
