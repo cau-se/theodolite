@@ -12,9 +12,8 @@ buildscript {
 
 // Variables used to distinct different subprojects
 def useCaseProjects = subprojects.findAll {it -> it.name.matches('uc(.)*')}
-def useCaseApplications = subprojects.findAll {it -> it.name.matches('uc[0-9]+-application')}
-def useCaseGenerators = subprojects.findAll {it -> it.name.matches('uc[0-9]+-workload-generator*')}
-def commonProjects = subprojects.findAll {it -> it.name.matches('(.)*common(s?)(.)*')}
+def commonProjects = subprojects.findAll {it -> it.name.matches('(.)*commons(.)*')}
+
 
 // Plugins
 allprojects {
@@ -58,8 +57,8 @@ allprojects {
 	}
 }
 
-// Dependencies for all use case applications
-configure(useCaseApplications) {
+// Dependencies for all use cases
+configure(useCaseProjects) {
   dependencies {
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }      // This branch depends still on old version of titan-ccp-common
@@ -84,11 +83,7 @@ configure(useCaseGenerators) {
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.6.1'
-      implementation project(':workload-generator-common')
-
-      // maintain build of generators
-      implementation 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
-      implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
+      implementation project(':application-kafkastreams-commons')
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
@@ -100,11 +95,10 @@ configure(commonProjects) {
   dependencies {
       // These dependencies is exported to consumers, that is to say found on their compile classpath.
       api 'org.apache.kafka:kafka-clients:2.4.0'
-      
+
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation 'org.slf4j:slf4j-simple:1.6.1'
-      implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }      // This branch depends still on old version of titan-ccp-common
-      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'

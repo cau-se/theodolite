@@ -32,6 +32,10 @@ sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g" uc4-workload-generator/deployment.yaml | 
 # Start application
 REPLICAS=$INSTANCES
 #AGGREGATION_DURATION_DAYS=$DIM_VALUE
+# When not using `sed` anymore, use `kubectl apply -f uc4-application`
+kubectl apply -f uc4-application/aggregation-service.yaml
+kubectl apply -f uc4-application/jmx-configmap.yaml
+kubectl apply -f uc4-application/service-monitor.yaml
 #kubectl apply -f uc4-application/aggregation-deployment.yaml
 #sed "s/{{AGGREGATION_DURATION_DAYS}}/$AGGREGATION_DURATION_DAYS/g" uc4-application/aggregation-deployment.yaml | kubectl apply -f -
 APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc4-application/aggregation-deployment.yaml)
@@ -43,11 +47,14 @@ sleep ${EXECUTION_MINUTES}m
 
 # Run eval script
 source ../.venv/bin/activate
-python lag_analysis.py $EXP_ID uc4 $DIM_VALUE $INSTANCES
+python lag_analysis.py $EXP_ID uc4 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop wl and app
 kubectl delete -f uc4-workload-generator/deployment.yaml
+kubectl delete -f uc4-application/aggregation-service.yaml
+kubectl delete -f uc4-application/jmx-configmap.yaml
+kubectl delete -f uc4-application/service-monitor.yaml
 #kubectl delete -f uc4-application/aggregation-deployment.yaml
 echo "$APPLICATION_YAML" | kubectl delete -f -
 
