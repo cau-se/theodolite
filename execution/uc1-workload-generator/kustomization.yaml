@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonLabels:
+  app: titan-ccp-aggregation
+
+# Use all resources to compose them into one file
+resources:
+  - deployment.yaml
+
+patchesStrategicMerge:
+- set_paramters.yaml # Patch setting the parameters

@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: benediktwetzel/uc2-wg:latest 
+        image: benediktwetzel/uc2-wg:latest
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
@@ -24,5 +24,4 @@ spec:
         - name: NUM_SENSORS
           value: "4"
         - name: NUM_NESTED_GROUPS
-          value: "{{NUM_NESTED_GROUPS}}"
-          
+          value: 25000

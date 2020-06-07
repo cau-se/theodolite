@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: titan-ccp-load-generator
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: workload-generator
+        env:
+        - name: NUM_SENSORS
+          value: 25000
+        - name: INSTANCES
+          value: 1

@@ -7,7 +7,7 @@ spec:
     matchLabels:
       app: titan-ccp-load-generator
   serviceName: titan-ccp-load-generator
-  replicas: {{INSTANCES}}
+  replicas: 1
   template:
     metadata:
       labels:
@@ -16,16 +16,15 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: soerenhenning/uc1-wg:latest 
+        image: soerenhenning/uc1-wg:latest
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
         - name: NUM_SENSORS
-          value: "{{NUM_SENSORS}}"
+          value: 25000
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
         - name: INSTANCES
-          value: "{{INSTANCES}}"
-          
+          value: 1
