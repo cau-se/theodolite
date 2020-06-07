@@ -11,5 +11,3 @@ spec:
         env:
         - name: NUM_SENSORS
           value: 25000
-        - name: INSTANCES
-          value: 1
