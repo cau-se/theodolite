@@ -10,6 +10,3 @@ resources:
   - aggregation-service.yaml
   - service-monitor.yaml
   - jmx-configmap.yaml
-
-patchesStrategicMerge:
-- set_paramters.yaml # Patch setting the resource parameters

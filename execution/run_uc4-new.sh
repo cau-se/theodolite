@@ -45,7 +45,7 @@ kubectl apply -k uc4-workload-generator
 
 # Start application
 REPLICAS=$INSTANCES
-cat <<EOF >uc1-application/set_paramters.yaml
+cat <<EOF >uc-application/overlay/uc1-application/set_paramters.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -54,17 +54,17 @@ spec:
   template:
     spec:
       containers:
-      - name: uc1-application
+      - name: uc-application
         env:
         - name: COMMIT_INTERVAL_MS
-          value: $KAFKA_STREAMS_COMMIT_INTERVAL_MS
+          value: "$KAFKA_STREAMS_COMMIT_INTERVAL_MS"
         resources:
           limits:
             memory: $MEMORY_LIMIT
             cpu: $CPU_LIMIT
 EOF
-kubectl apply -k uc4-application
-kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
+kubectl apply -k uc-application/overlay/uc4-application
+kubectl scale deployment uc4-titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
 sleep ${EXECUTION_MINUTES}m
@@ -76,7 +76,7 @@ deactivate
 
 # Stop workload generator and app
 kubectl delete -k uc4-workload-generator
-kubectl delete -k uc4-application
+kubectl delete -k uc-application/overlay/uc4-application
 
 
 # Delete topics instead of Kafka

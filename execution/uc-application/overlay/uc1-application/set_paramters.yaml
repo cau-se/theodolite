@@ -6,10 +6,10 @@ spec:
   template:
     spec:
       containers:
-      - name: uc3-application
+      - name: uc-application
         env:
         - name: COMMIT_INTERVAL_MS
-          value: 100
+          value: "100"
         resources:
           limits:
             memory: 4Gi
