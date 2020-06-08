@@ -10,4 +10,4 @@ spec:
       - name: workload-generator
         env:
         - name: NUM_NESTED_GROUPS
-          value: 25000
+          value: "25000"

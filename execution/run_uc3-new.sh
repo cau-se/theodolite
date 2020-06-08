@@ -42,9 +42,9 @@ spec:
       - name: workload-generator
         env:
         - name: NUM_SENSORS
-          value: $NUM_SENSORS
+          value: "$NUM_SENSORS"
         - name: INSTANCES
-          value: $WL_INSTANCES
+          value: "$WL_INSTANCES"
 EOF
 kubectl apply -k uc3-workload-generator
 

@@ -39,7 +39,7 @@ spec:
       - name: workload-generator
         env:
         - name: NUM_NESTED_GROUPS
-          value: $NUM_NESTED_GROUPS
+          value: "$NUM_NESTED_GROUPS"
 EOF
 kubectl apply -k uc2-workload-generator
 

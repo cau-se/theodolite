@@ -21,7 +21,7 @@ spec:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
         - name: NUM_SENSORS
-          value: 25000
+          value: "25000"
         - name: POD_NAME
           valueFrom:
             fieldRef:

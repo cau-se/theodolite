@@ -39,7 +39,7 @@ spec:
       - name: workload-generator
         env:
         - name: NUM_SENSORS
-          value: $NUM_SENSORS
+          value: "$NUM_SENSORS"
 EOF
 kubectl apply -k uc4-workload-generator
 

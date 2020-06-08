@@ -10,6 +10,6 @@ spec:
       - name: workload-generator
         env:
         - name: NUM_SENSORS
-          value: 25000
+          value: "25000"
         - name: INSTANCES
-          value: 1
+          value: "1"
