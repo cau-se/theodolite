@@ -45,7 +45,7 @@ kubectl apply -k uc2-workload-generator
 
 # Start application
 REPLICAS=$INSTANCES
-cat <<EOF >uc-application/overlay/uc1-application/set_paramters.yaml
+cat <<EOF >uc-application/overlay/uc2-application/set_paramters.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -67,7 +67,7 @@ kubectl apply -k uc-application/overlay/uc2-application
 kubectl scale deployment uc2-titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
-sleep ${EXECUTION_MINUTES}m
+sleep $(($EXECUTION_MINUTES * 60))
 
 # Run eval script
 source ../.venv/bin/activate

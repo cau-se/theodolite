@@ -72,7 +72,7 @@ kubectl apply -k uc-application/overlay/uc1-application
 kubectl scale deployment uc1-titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
-sleep ${EXECUTION_MINUTES}m
+sleep $(($EXECUTION_MINUTES * 60))
 
 # Run eval script
 source ../.venv/bin/activate

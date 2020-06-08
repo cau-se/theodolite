@@ -73,7 +73,7 @@ kubectl apply -k uc-application/overlay/uc3-application
 kubectl scale deployment uc3-titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
-sleep ${EXECUTION_MINUTES}m
+sleep $(($EXECUTION_MINUTES * 60))
 
 # Run eval script
 source ../.venv/bin/activate
@@ -81,7 +81,7 @@ python lag_analysis.py $EXP_ID uc3 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop workload generator and app
-kubectl delete -k uc1-workload-generator
+kubectl delete -k uc3-workload-generator
 kubectl delete -k uc-application/overlay/uc3-application
 
 # Delete topics instead of Kafka
