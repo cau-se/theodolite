@@ -16,7 +16,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: soerenhenning/uc1-wg:latest
+        image: workload-generator:latest
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
@@ -27,4 +27,4 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: INSTANCES
-          value: 1
+          value: "1"

@@ -29,7 +29,7 @@ NUM_SENSORS=$DIM_VALUE
 WL_MAX_RECORDS=150000
 WL_INSTANCES=$(((NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
 
-cat <<EOF >uc3-workload-generator/set_paramters.yaml
+cat <<EOF >uc-workload-generator/overlay/uc3-workload-generator/set_paramters.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -46,7 +46,7 @@ spec:
         - name: INSTANCES
           value: "$WL_INSTANCES"
 EOF
-kubectl apply -k uc3-workload-generator
+kubectl apply -k uc-workload-generator/overlay/uc3-workload-generator
 
 
 # Start application
@@ -81,7 +81,7 @@ python lag_analysis.py $EXP_ID uc3 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop workload generator and app
-kubectl delete -k uc3-workload-generator
+kubectl delete -k uc-workload-generator/overlay/uc3-workload-generator
 kubectl delete -k uc-application/overlay/uc3-application
 
 # Delete topics instead of Kafka

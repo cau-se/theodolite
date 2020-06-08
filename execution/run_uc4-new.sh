@@ -26,7 +26,7 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 
 # Start workload generator
 NUM_SENSORS=$DIM_VALUE
-cat <<EOF >uc4-workload-generator/set_paramters.yaml
+cat <<EOF >uuc-workload-generator/overlay/c4-workload-generator/set_paramters.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -41,7 +41,7 @@ spec:
         - name: NUM_SENSORS
           value: "$NUM_SENSORS"
 EOF
-kubectl apply -k uc4-workload-generator
+kubectl apply -k uc-workload-generator/overlay/uc4-workload-generator
 
 # Start application
 REPLICAS=$INSTANCES
@@ -75,7 +75,7 @@ python lag_analysis.py $EXP_ID uc4 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop workload generator and app
-kubectl delete -k uc4-workload-generator
+kubectl delete -k uc-workload-generator/overlay/uc4-workload-generator
 kubectl delete -k uc-application/overlay/uc4-application
 
 

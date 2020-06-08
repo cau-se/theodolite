@@ -26,7 +26,7 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 
 # Start workload generator
 NUM_NESTED_GROUPS=$DIM_VALUE
-cat <<EOF >uc2-workload-generator/set_paramters.yaml
+cat <<EOF >uc-workload-generator/overlay/uc2-workload-generator/set_paramters.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -38,10 +38,14 @@ spec:
       containers:
       - name: workload-generator
         env:
+        - name: NUM_SENSORS
+          value: "4"
+        - name: HIERARCHY
+          value: "full"
         - name: NUM_NESTED_GROUPS
           value: "$NUM_NESTED_GROUPS"
 EOF
-kubectl apply -k uc2-workload-generator
+kubectl apply -k uc-workload-generator/overlay/uc2-workload-generator
 
 # Start application
 REPLICAS=$INSTANCES
@@ -75,7 +79,7 @@ python lag_analysis.py $EXP_ID uc2 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop workload generator and app
-kubectl delete -k uc2-workload-generator
+kubectl delete -k uc-workload-generator/overlay/uc2-workload-generator
 kubectl delete -k uc-application/overlay/uc2-application
 
 

@@ -9,5 +9,10 @@ spec:
       containers:
       - name: workload-generator
         env:
+        - name: NUM_SENSORS
+          value: "4"
+        - name: HIERARCHY
+          value: "full"
         - name: NUM_NESTED_GROUPS
           value: "25000"
+
