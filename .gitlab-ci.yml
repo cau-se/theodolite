@@ -86,14 +86,26 @@ spotbugs:
     DOCKER_TLS_CERTDIR: "/certs"
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t titan-ccp-exp-bigdata19-bridge ./exp-bigdata19-bridge
-    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:${DOCKER_TAG_NAME}latest
-    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
+    - docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest
+    - docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
-    - docker push $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge
+    - docker push $DOCKERHUB_ORG/$IMAGE_NAME
     - docker logout
   only:
     variables:
       - $DOCKERHUB_ORG
       - $DOCKERHUB_ID
       - $DOCKERHUB_PW
+      - $IMAGE_NAME
+      - $JAVA_PROJECT_NAME
+    changes:
+      - ./$JAVA_PROJECT_NAME/**/*
+      - ./application-kafkastreams-commons/**/*
+
+deploy-uc1-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc1-kstreams-app"
+    JAVA_PROJECT_NAME: "uc4-application"
+  
