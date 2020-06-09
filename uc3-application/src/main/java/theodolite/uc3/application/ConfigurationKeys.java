@@ -5,21 +5,25 @@ package theodolite.uc3.application;
  */
 public final class ConfigurationKeys {
 
-	public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
+  public static final String APPLICATION_NAME = "application.name";
 
-	public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
+  public static final String APPLICATION_VERSION = "application.version";
 
-	public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
+  public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
 
-	public static final String NUM_THREADS = "num.threads";
+  public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
 
-	public static final String COMMIT_INTERVAL_MS = "commit.interval.ms";
+  public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
 
-	public static final String CACHE_MAX_BYTES_BUFFERING = "cache.max.bytes.buffering";
+  public static final String NUM_THREADS = "num.threads";
 
-	public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+  public static final String COMMIT_INTERVAL_MS = "commit.interval.ms";
 
-	private ConfigurationKeys() {
-	}
+  public static final String CACHE_MAX_BYTES_BUFFERING = "cache.max.bytes.buffering";
+
+  public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+
+  private ConfigurationKeys() {
+  }
 
 }
