@@ -101,10 +101,7 @@ spotbugs:
     - changes:
       - ./$JAVA_PROJECT_NAME/**/*
       - ./application-kafkastreams-commons/**/*
-      if:
-      - '$DOCKERHUB_ORG != ""'
       when: always
-    - when: manual
 
 deploy-uc1-kstreams-app:
   extends: .deploy
