@@ -107,6 +107,7 @@ spotbugs:
     changes:
       - ./$JAVA_PROJECT_NAME/**/*
       - ./application-kafkastreams-commons/**/*
+      - ./.gitlab-ci.yml
 
 deploy-uc1-kstreams-app:
   extends: .deploy
