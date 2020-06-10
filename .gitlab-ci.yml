@@ -111,4 +111,21 @@ deploy-uc1-kstreams-app:
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-application"
-  
+
+deploy-uc2-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc2-kstreams-app"
+    JAVA_PROJECT_NAME: "uc2-application"
+
+deploy-uc3-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc3-kstreams-app"
+    JAVA_PROJECT_NAME: "uc3-application"
+
+deploy-uc4-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc4-kstreams-app"
+    JAVA_PROJECT_NAME: "uc4-application"
