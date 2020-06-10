@@ -101,7 +101,10 @@ spotbugs:
     - changes:
       - ./$JAVA_PROJECT_NAME/**/*
       - ./application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
 
 deploy-uc1-kstreams-app:
   extends: .deploy
