@@ -102,11 +102,7 @@ spotbugs:
       - ./$JAVA_PROJECT_NAME/**/*
       - ./application-kafkastreams-commons/**/*
       if:
-      - "$DOCKERHUB_ORG"
-      - "$DOCKERHUB_ID"
-      - "$DOCKERHUB_PW"
-      - "$IMAGE_NAME"
-      - "$JAVA_PROJECT_NAME"
+      - '$DOCKERHUB_ORG != ""'
       when: always
     - when: manual
 
