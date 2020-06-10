@@ -97,6 +97,12 @@ spotbugs:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
     - docker push $DOCKERHUB_ORG/$IMAGE_NAME
     - docker logout
+  rules:
+    - changes:
+      - ./$JAVA_PROJECT_NAME/**/*
+      - ./application-kafkastreams-commons/**/*
+      when: always
+    - when: manual
   only:
     variables:
       - $DOCKERHUB_ORG
@@ -104,14 +110,10 @@ spotbugs:
       - $DOCKERHUB_PW
       - $IMAGE_NAME
       - $JAVA_PROJECT_NAME
-    changes:
-      - ./$JAVA_PROJECT_NAME/**/*
-      - ./application-kafkastreams-commons/**/*
-      - ./.gitlab-ci.yml
 
 deploy-uc1-kstreams-app:
   extends: .deploy
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
-    JAVA_PROJECT_NAME: "uc4-application"
+    JAVA_PROJECT_NAME: "uc1-application"
   
