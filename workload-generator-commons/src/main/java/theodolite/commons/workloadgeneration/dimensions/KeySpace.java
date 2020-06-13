@@ -1,10 +1,10 @@
 package theodolite.commons.workloadgeneration.dimensions;
 
-import theodolite.commons.workloadgeneration.generators.WorkloadGenerator;
+import theodolite.commons.workloadgeneration.generators.AbstractWorkloadGenerator;
 
 /**
  * Wrapper class for the definition of the Keys that should be used by the
- * {@link WorkloadGenerator}.
+ * {@link AbstractWorkloadGenerator}.
  */
 public class KeySpace {
 

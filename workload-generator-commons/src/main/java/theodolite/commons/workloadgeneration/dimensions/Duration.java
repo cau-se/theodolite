@@ -1,10 +1,10 @@
 package theodolite.commons.workloadgeneration.dimensions;
 
 import java.util.concurrent.TimeUnit;
-import theodolite.commons.workloadgeneration.generators.WorkloadGenerator;
+import theodolite.commons.workloadgeneration.generators.AbstractWorkloadGenerator;
 
 /**
- * Wrapper class for the definition of the duration for the {@link WorkloadGenerator}.
+ * Wrapper class for the definition of the duration for the {@link AbstractWorkloadGenerator}.
  */
 public class Duration {
 

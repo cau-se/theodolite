@@ -12,7 +12,7 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 /**
  * Workload generator for generating load for the kafka messaging system.
  */
-public class KafkaWorkloadGenerator<T extends IMonitoringRecord> extends WorkloadGenerator<T> {
+public class KafkaWorkloadGenerator<T extends IMonitoringRecord> extends AbstractWorkloadGenerator<T> {
 
   private final KafkaRecordSender<T> recordSender;
 
