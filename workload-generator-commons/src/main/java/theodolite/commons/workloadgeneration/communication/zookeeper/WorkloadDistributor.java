@@ -11,6 +11,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
@@ -29,14 +30,16 @@ public class WorkloadDistributor {
   private static final String COUNTER_PATH = "/counter";
   private static final String WORKLOAD_PATH = "/workload";
   private static final String WORKLOAD_DEFINITION_PATH = "/workload/definition";
-
   private final DistributedAtomicInteger counter;
   private final KeySpace keySpace;
   private final BeforeAction beforeAction;
   private final BiConsumer<WorkloadDefinition, Integer> workerAction;
 
+  private final int instances;
   private final ZooKeeper zooKeeper;
   private final CuratorFramework client;
+
+  private boolean workloadGenerationStarted = true;
 
   /**
    * Create a new workload distributor.
@@ -46,10 +49,12 @@ public class WorkloadDistributor {
    * @param workerAction the action to perform by the workers.
    */
   public WorkloadDistributor(
+      final int instances,
       final ZooKeeper zooKeeper,
       final KeySpace keySpace,
       final BeforeAction beforeAction,
       final BiConsumer<WorkloadDefinition, Integer> workerAction) {
+    this.instances = instances;
     this.zooKeeper = zooKeeper;
     this.keySpace = keySpace;
     this.beforeAction = beforeAction;
@@ -89,7 +94,7 @@ public class WorkloadDistributor {
 
       final CuratorWatcher watcher = this.buildWatcher(workerId);
 
-      this.client.checkExists().creatingParentsIfNeeded().forPath(WORKLOAD_DEFINITION_PATH);
+      this.client.checkExists().creatingParentsIfNeeded().forPath(WORKLOAD_PATH);
 
       if (workerId == 0) {
         LOGGER.info("This instance is master with id {}", workerId);
@@ -99,14 +104,10 @@ public class WorkloadDistributor {
         // register worker action, as master acts also as worker
         this.client.getChildren().usingWatcher(watcher).forPath(WORKLOAD_PATH);
 
-        Thread.sleep(10000); // wait for all workers to participate in the leader election
-
-        final int numberOfWorkers = this.counter.get().postValue();
-
-        LOGGER.info("Number of Workers: {}", numberOfWorkers);
+        LOGGER.info("Number of Workers: {}", this.instances);
 
         final WorkloadDefinition definition =
-            new WorkloadDefinition(this.keySpace, numberOfWorkers);
+            new WorkloadDefinition(this.keySpace, this.instances);
 
         this.client.create().withMode(CreateMode.EPHEMERAL).forPath(WORKLOAD_DEFINITION_PATH,
             definition.toString().getBytes(StandardCharsets.UTF_8));
@@ -115,12 +116,39 @@ public class WorkloadDistributor {
         LOGGER.info("This instance is worker with id {}", workerId);
 
         this.client.getChildren().usingWatcher(watcher).forPath(WORKLOAD_PATH);
+
+        final Stat exists =
+            this.client.checkExists().creatingParentsIfNeeded().forPath(WORKLOAD_DEFINITION_PATH);
+
+        if (exists != null) {
+          this.startWorkloadGeneration(workerId);
+        }
       }
 
-      Thread.sleep(20000); // wait until the workload definition is retrieved
+      Thread.sleep(20_000);
+
     } catch (final Exception e) {
       LOGGER.error("", e);
-      throw new IllegalStateException("Error when starting thze distribution of the workload.");
+      throw new IllegalStateException("Error when starting the distribution of the workload.");
+    }
+  }
+
+  /**
+   * Start the workload generation. This methods body does only get executed once.
+   *
+   * @param workerId the ID of this worker
+   * @throws Exception
+   */
+  private synchronized void startWorkloadGeneration(final int workerId) throws Exception {
+    if (!this.workloadGenerationStarted) {
+      this.workloadGenerationStarted = true;
+
+      final byte[] bytes =
+          this.client.getData().forPath(WORKLOAD_DEFINITION_PATH);
+      final WorkloadDefinition definition =
+          WorkloadDefinition.fromString(new String(bytes, StandardCharsets.UTF_8));
+
+      this.workerAction.accept(definition, workerId);
     }
   }
 
@@ -134,20 +162,13 @@ public class WorkloadDistributor {
     return new CuratorWatcher() {
 
       @Override
-      public void process(final WatchedEvent event) throws Exception {
+      public void process(final WatchedEvent event) {
         if (event.getType() == EventType.NodeChildrenChanged) {
-          final byte[] bytes =
-              WorkloadDistributor.this.client.getData().forPath(WORKLOAD_DEFINITION_PATH);
-          final WorkloadDefinition definition =
-              WorkloadDefinition.fromString(new String(bytes, StandardCharsets.UTF_8));
-
-          if (workerId > definition.getNumberOfWorkers() - 1) {
-            LOGGER.warn("Worker with id {} was to slow and is therefore in idle state",
-                workerId);
-            WorkloadDistributor.this.workerAction.accept(new WorkloadDefinition(new KeySpace(0), 0),
-                workerId); // this worker generates no workload
-          } else {
-            WorkloadDistributor.this.workerAction.accept(definition, workerId);
+          try {
+            WorkloadDistributor.this.startWorkloadGeneration(workerId);
+          } catch (final Exception e) {
+            LOGGER.error("", e);
+            throw new IllegalStateException("Error starting workload generation.");
           }
         }
       }

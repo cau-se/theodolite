@@ -11,6 +11,8 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
 public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
 
+  private int instances;
+
   private ZooKeeper zooKeeper;
 
   private KeySpace keySpace;
@@ -38,6 +40,17 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
    */
   public static <T extends IMonitoringRecord> KafkaWorkloadGeneratorBuilder<T> builder() {
     return new KafkaWorkloadGeneratorBuilder<>();
+  }
+
+  /**
+   * Set the number of instances.
+   *
+   * @param zooKeeper a reference to the ZooKeeper instance.
+   * @return the builder.
+   */
+  public KafkaWorkloadGeneratorBuilder<T> setInstances(final int instances) {
+    this.instances = instances;
+    return this;
   }
 
   /**
@@ -145,6 +158,7 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
    * @return the built instance of the {@link KafkaWorkloadGenerator}.
    */
   public KafkaWorkloadGenerator<T> build() {
+    Objects.requireNonNull(this.instances, "Please specify the number of instances.");
     Objects.requireNonNull(this.zooKeeper, "Please specify the ZooKeeper instance.");
     this.threads = Objects.requireNonNullElse(this.threads, 1);
     Objects.requireNonNull(this.keySpace, "Please specify the key space.");
@@ -156,6 +170,7 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
     Objects.requireNonNull(this.kafkaRecordSender, "Please specify the kafka record sender.");
 
     return new KafkaWorkloadGenerator<>(
+        this.instances,
         this.zooKeeper,
         this.keySpace,
         this.threads,

@@ -32,6 +32,7 @@ public class KafkaWorkloadGenerator<T extends IMonitoringRecord>
    * @param recordSender the record sender which is used to send the generated messages to kafka.
    */
   public KafkaWorkloadGenerator(
+      final int instances,
       final ZooKeeper zooKeeper,
       final KeySpace keySpace,
       final int threads,
@@ -40,7 +41,8 @@ public class KafkaWorkloadGenerator<T extends IMonitoringRecord>
       final BeforeAction beforeAction,
       final MessageGenerator<T> generatorFunction,
       final KafkaRecordSender<T> recordSender) {
-    super(zooKeeper, keySpace, threads, period, duration, beforeAction, generatorFunction,
+    super(instances, zooKeeper, keySpace, threads, period, duration, beforeAction,
+        generatorFunction,
         recordSender);
     this.recordSender = recordSender;
   }

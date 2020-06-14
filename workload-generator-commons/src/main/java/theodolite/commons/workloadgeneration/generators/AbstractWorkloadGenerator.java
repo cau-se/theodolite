@@ -26,6 +26,8 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWorkloadGenerator.class);
 
+  private final int instances;
+
   private final ZooKeeper zooKeeper;
 
   private final KeySpace keySpace;
@@ -63,6 +65,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
   }
 
   public AbstractWorkloadGenerator(
+      final int instances,
       final ZooKeeper zooKeeper,
       final KeySpace keySpace,
       final int threads,
@@ -71,6 +74,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
       final BeforeAction beforeAction,
       final MessageGenerator<T> generatorFunction,
       final Transport<T> transport) {
+    this.instances = instances;
     this.zooKeeper = zooKeeper;
     this.period = period;
     this.threads = threads;
@@ -123,6 +127,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
     };
 
     this.workloadDistributor =
-        new WorkloadDistributor(this.zooKeeper, this.keySpace, this.beforeAction, workerAction);
+        new WorkloadDistributor(this.instances, this.zooKeeper, this.keySpace, this.beforeAction,
+            workerAction);
   }
 }
