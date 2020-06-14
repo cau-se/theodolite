@@ -5,13 +5,11 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
-import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
@@ -61,7 +59,7 @@ public class LoadGenerator {
         KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
             .setKeySpace(new KeySpace("s_", numSensors))
             .setThreads(threads)
-            .setPeriod(new Period(periodMs, TimeUnit.MILLISECONDS))
+            .setPeriod(Duration.of(periodMs, ChronoUnit.MILLIS))
             .setDuration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
             .setGeneratorFunction(
                 sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))

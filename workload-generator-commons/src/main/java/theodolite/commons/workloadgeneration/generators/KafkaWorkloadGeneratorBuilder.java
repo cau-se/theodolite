@@ -5,7 +5,6 @@ import java.util.Objects;
 import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
-import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
@@ -18,7 +17,7 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
 
   private int threads;
 
-  private Period period;
+  private Duration period;
 
   private Duration duration;
 
@@ -91,7 +90,7 @@ public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
    * @param period the {@link Period}
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setPeriod(final Period period) {
+  public KafkaWorkloadGeneratorBuilder<T> setPeriod(final Duration period) {
     this.period = period;
     return this;
   }

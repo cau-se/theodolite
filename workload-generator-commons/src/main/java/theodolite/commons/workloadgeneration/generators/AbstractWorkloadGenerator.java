@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.communication.zookeeper.WorkloadDistributor;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
-import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 import theodolite.commons.workloadgeneration.functions.Transport;
@@ -34,7 +33,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
 
   private final int threads;
 
-  private final Period period;
+  private final Duration period;
 
   private final Duration duration;
 
@@ -68,7 +67,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
       final ZooKeeper zooKeeper,
       final KeySpace keySpace,
       final int threads,
-      final Period period,
+      final Duration period,
       final Duration duration,
       final BeforeAction beforeAction,
       final MessageGenerator<T> generatorFunction,
@@ -97,7 +96,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
     this.executor = Executors.newScheduledThreadPool(threads);
     final Random random = new Random();
 
-    final int periodMs = period.getPeriod();
+    final int periodMs = period.getNano() / 1_000_000;
 
     final BiConsumer<WorkloadDefinition, Worker> workerAction = (declaration, worker) -> {
 
@@ -110,7 +109,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
         final T message = entity.generateMessage();
         final long initialDelay = random.nextInt(periodMs);
         this.executor.scheduleAtFixedRate(() -> this.transport.transport(message), initialDelay,
-            periodMs, period.getTimeUnit());
+            periodMs, TimeUnit.MILLISECONDS);
       });
 
 

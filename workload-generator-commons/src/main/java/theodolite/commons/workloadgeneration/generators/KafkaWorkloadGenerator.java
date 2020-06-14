@@ -4,7 +4,6 @@ import java.time.Duration;
 import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
-import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
@@ -36,7 +35,7 @@ public class KafkaWorkloadGenerator<T extends IMonitoringRecord>
       final ZooKeeper zooKeeper,
       final KeySpace keySpace,
       final int threads,
-      final Period period,
+      final Duration period,
       final Duration duration,
       final BeforeAction beforeAction,
       final MessageGenerator<T> generatorFunction,
