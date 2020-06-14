@@ -15,7 +15,6 @@ public class ZooKeeper {
    * @param port of zookeeper.
    */
   public ZooKeeper(final String host, final int port) {
-    super();
     this.host = host;
     this.port = port;
   }

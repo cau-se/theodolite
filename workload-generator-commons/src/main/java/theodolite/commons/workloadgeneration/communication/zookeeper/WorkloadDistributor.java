@@ -71,8 +71,8 @@ public class WorkloadDistributor {
     try {
       this.client.blockUntilConnected();
     } catch (final InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.error("", e);
+      throw new IllegalStateException();
     }
 
     this.counter =

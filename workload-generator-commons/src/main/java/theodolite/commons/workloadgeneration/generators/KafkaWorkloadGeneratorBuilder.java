@@ -9,7 +9,7 @@ import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
-public class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
+public final class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
 
   private int instances;
 
