@@ -17,7 +17,6 @@ import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 import theodolite.commons.workloadgeneration.functions.Transport;
-import theodolite.commons.workloadgeneration.misc.Worker;
 import theodolite.commons.workloadgeneration.misc.WorkloadDefinition;
 import theodolite.commons.workloadgeneration.misc.WorkloadEntity;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
@@ -39,7 +38,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
 
   private final BeforeAction beforeAction;
 
-  private final BiFunction<WorkloadDefinition, Worker, List<WorkloadEntity<T>>> workloadSelector;
+  private final BiFunction<WorkloadDefinition, Integer, List<WorkloadEntity<T>>> workloadSelector;
 
   private final MessageGenerator<T> generatorFunction;
 
@@ -79,11 +78,11 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
     this.duration = duration;
     this.beforeAction = beforeAction;
     this.generatorFunction = generatorFunction;
-    this.workloadSelector = (workloadDefinition, worker) -> {
+    this.workloadSelector = (workloadDefinition, workerId) -> {
       final List<WorkloadEntity<T>> workloadEntities = new LinkedList<>();
 
       for (int i =
-          workloadDefinition.getKeySpace().getMin() + worker.getId(); i <= workloadDefinition
+          workloadDefinition.getKeySpace().getMin() + workerId; i <= workloadDefinition
               .getKeySpace().getMax(); i += workloadDefinition.getNumberOfWorkers()) {
         final String id = workloadDefinition.getKeySpace().getPrefix() + i;
         workloadEntities.add(new WorkloadEntity<>(id, this.generatorFunction));
@@ -98,9 +97,9 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
 
     final int periodMs = period.getNano() / 1_000_000;
 
-    final BiConsumer<WorkloadDefinition, Worker> workerAction = (declaration, worker) -> {
+    final BiConsumer<WorkloadDefinition, Integer> workerAction = (declaration, workerId) -> {
 
-      final List<WorkloadEntity<T>> entities = this.workloadSelector.apply(declaration, worker);
+      final List<WorkloadEntity<T>> entities = this.workloadSelector.apply(declaration, workerId);
 
       LOGGER.info("Beginning of Experiment...");
       LOGGER.info("Experiment is going to be executed for the specified duration...");
