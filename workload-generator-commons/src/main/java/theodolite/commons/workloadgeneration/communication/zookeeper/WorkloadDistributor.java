@@ -119,8 +119,8 @@ public class WorkloadDistributor {
 
       Thread.sleep(20000); // wait until the workload definition is retrieved
     } catch (final Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.error("", e);
+      throw new IllegalStateException("Error when starting thze distribution of the workload.");
     }
   }
 
