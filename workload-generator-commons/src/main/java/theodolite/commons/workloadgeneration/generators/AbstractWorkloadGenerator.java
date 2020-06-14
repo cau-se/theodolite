@@ -117,8 +117,8 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
         LOGGER.info("Terminating now...");
         this.stop();
       } catch (final InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOGGER.error("", e);
+        throw new IllegalStateException("Error when terminating the workload generation.");
       }
     };
 
