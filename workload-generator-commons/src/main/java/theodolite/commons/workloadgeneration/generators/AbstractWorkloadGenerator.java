@@ -1,17 +1,18 @@
 package theodolite.commons.workloadgeneration.generators;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import kieker.common.record.IMonitoringRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.communication.zookeeper.WorkloadDistributor;
-import theodolite.commons.workloadgeneration.dimensions.Duration;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
@@ -112,8 +113,9 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
             periodMs, period.getTimeUnit());
       });
 
+
       try {
-        this.executor.awaitTermination(duration.getDuration(), duration.getTimeUnit());
+        this.executor.awaitTermination(duration.getSeconds(), TimeUnit.SECONDS);
         LOGGER.info("Terminating now...");
         this.stop();
       } catch (final InterruptedException e) {

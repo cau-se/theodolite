@@ -1,6 +1,8 @@
 package theodolite.uc1.workloadgenerator;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -8,7 +10,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
-import theodolite.commons.workloadgeneration.dimensions.Duration;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
@@ -23,7 +24,7 @@ public final class LoadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
-  private static final int MAX_DURATION_IN_DAYS = 30;
+  private static final long MAX_DURATION_IN_DAYS = 30L;
 
   private LoadGenerator() {}
 
@@ -69,7 +70,7 @@ public final class LoadGenerator {
             .setKeySpace(new KeySpace("s_", numSensors))
             .setThreads(threads)
             .setPeriod(new Period(periodMs, TimeUnit.MILLISECONDS))
-            .setDuration(new Duration(MAX_DURATION_IN_DAYS, TimeUnit.DAYS))
+            .setDuration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
             .setGeneratorFunction(
                 sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
             .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))

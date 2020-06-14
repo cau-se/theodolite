@@ -1,9 +1,9 @@
 package theodolite.commons.workloadgeneration.generators;
 
+import java.time.Duration;
 import java.util.Objects;
 import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
-import theodolite.commons.workloadgeneration.dimensions.Duration;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;

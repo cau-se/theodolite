@@ -1,8 +1,8 @@
 package theodolite.commons.workloadgeneration.generators;
 
+import java.time.Duration;
 import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
-import theodolite.commons.workloadgeneration.dimensions.Duration;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.dimensions.Period;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
@@ -12,7 +12,8 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 /**
  * Workload generator for generating load for the kafka messaging system.
  */
-public class KafkaWorkloadGenerator<T extends IMonitoringRecord> extends AbstractWorkloadGenerator<T> {
+public class KafkaWorkloadGenerator<T extends IMonitoringRecord>
+    extends AbstractWorkloadGenerator<T> {
 
   private final KafkaRecordSender<T> recordSender;
 
