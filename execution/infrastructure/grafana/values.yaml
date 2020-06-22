@@ -47,8 +47,7 @@ sidecar:
     # If specified, the sidecar will search for datasource config-maps inside this namespace.
     # Otherwise the namespace in which the sidecar is running will be used.
     # It's also possible to specify ALL to search in all namespaces
-    searchNamespace: default
-
+    searchNamespace: null
 
 service:
   nodePort: 31199
