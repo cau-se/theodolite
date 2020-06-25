@@ -115,6 +115,10 @@ deploy-uc1-kstreams-app:
     - changes:
       - uc1-application/**/*
       - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
 
 deploy-uc2-kstreams-app:
   extends: .deploy
@@ -125,6 +129,10 @@ deploy-uc2-kstreams-app:
     - changes:
       - uc2-application/**/*
       - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
 
 deploy-uc3-kstreams-app:
   extends: .deploy
@@ -135,6 +143,10 @@ deploy-uc3-kstreams-app:
     - changes:
       - uc3-application/**/*
       - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
 
 deploy-uc4-kstreams-app:
   extends: .deploy
@@ -145,3 +157,7 @@ deploy-uc4-kstreams-app:
     - changes:
       - uc4-application/**/*
       - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
