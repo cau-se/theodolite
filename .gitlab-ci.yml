@@ -161,3 +161,59 @@ deploy-uc4-kstreams-app:
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual
+
+deploy-uc1-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc1-workload-generator"
+    JAVA_PROJECT_NAME: "uc1-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc1-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+
+deploy-uc2-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc2-workload-generator"
+    JAVA_PROJECT_NAME: "uc2-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc2-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+
+deploy-uc3-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc3-workload-generator"
+    JAVA_PROJECT_NAME: "uc3-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc3-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+
+deploy-uc4-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc4-workload-generator"
+    JAVA_PROJECT_NAME: "uc4-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc4-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
