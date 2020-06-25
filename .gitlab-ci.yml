@@ -99,8 +99,8 @@ spotbugs:
     - docker logout
   rules:
     - changes:
-      - ./$JAVA_PROJECT_NAME/**/*
-      - ./application-kafkastreams-commons/**/*
+      # - $JAVA_PROJECT_NAME/**/* # hope this can be simplified soon, see #51
+      - application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -111,21 +111,37 @@ deploy-uc1-kstreams-app:
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-application"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc1-application/**/*
+      - application-kafkastreams-commons/**/*
 
 deploy-uc2-kstreams-app:
   extends: .deploy
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
     JAVA_PROJECT_NAME: "uc2-application"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc2-application/**/*
+      - application-kafkastreams-commons/**/*
 
 deploy-uc3-kstreams-app:
   extends: .deploy
   variables:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
     JAVA_PROJECT_NAME: "uc3-application"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc3-application/**/*
+      - application-kafkastreams-commons/**/*
 
 deploy-uc4-kstreams-app:
   extends: .deploy
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-application"
+  rules: # hope this can be simplified soon, see #51
+    - changes:
+      - uc4-application/**/*
+      - application-kafkastreams-commons/**/*
