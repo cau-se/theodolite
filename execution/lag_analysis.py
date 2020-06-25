@@ -15,7 +15,7 @@ execution_minutes = int(sys.argv[5])
 time_diff_ms = int(os.getenv('CLOCK_DIFF_MS', 0))
 
 #http://localhost:9090/api/v1/query_range?query=sum%20by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)&start=2015-07-01T20:10:30.781Z&end=2020-07-01T20:11:00.781Z&step=15s
-
+prometheus_baseurl = 'http://localhost:9090'
 now_local = datetime.utcnow().replace(tzinfo=timezone.utc).replace(microsecond=0)
 now = now_local - timedelta(milliseconds=time_diff_ms)
 print(f"Now Local: {now_local}")
@@ -27,7 +27,7 @@ start = now - timedelta(minutes=execution_minutes)
 #print(start.isoformat().replace('+00:00', 'Z'))
 #print(end.isoformat().replace('+00:00', 'Z'))
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
     #'query': "sum by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
     'query': "sum by(group, topic)(kafka_consumergroup_group_lag > 0)",
     'start': start.isoformat(),
@@ -87,7 +87,7 @@ df.to_csv(f"{filename}_values.csv")
 
 # Load total lag count
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
     'query': "sum by(group)(kafka_consumergroup_group_lag > 0)",
     'start': start.isoformat(),
     'end': end.isoformat(),
@@ -111,7 +111,7 @@ df.to_csv(f"{filename}_totallag.csv")
 
 # Load partition count
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
     'query': "count by(group,topic)(kafka_consumergroup_group_offset > 0)",
     'start': start.isoformat(),
     'end': end.isoformat(),
@@ -135,7 +135,7 @@ df.to_csv(f"{filename}_partitions.csv")
 
 # Load instances count
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
     'query': "count(count (kafka_consumer_consumer_fetch_manager_metrics_records_lag) by(pod))",
     'start': start.isoformat(),
     'end': end.isoformat(),
