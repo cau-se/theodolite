@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namePrefix: uc4-
+
+images:
+  - name: uc-app
+    newName: soerenhenning/uc4-app
+    newTag: latest
+
+bases:
+- ../../base
+
+patchesStrategicMerge:
+- set_paramters.yaml # Patch setting the resource parameters

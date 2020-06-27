@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
-metadata:  
+metadata:
   name: titan-ccp-aggregation
   labels:
     app: titan-ccp-aggregation
 spec:
   #type: NodePort
-  selector:    
+  selector:
     app: titan-ccp-aggregation
-  ports:  
+  ports:
   - name: http
     port: 80
     targetPort: 80

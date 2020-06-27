@@ -29,40 +29,60 @@ NUM_SENSORS=$DIM_VALUE
 WL_MAX_RECORDS=150000
 WL_INSTANCES=$(((NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
 
-WORKLOAD_GENERATOR_YAML=$(sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc3-workload-generator/deployment.yaml)
-echo "$WORKLOAD_GENERATOR_YAML" | kubectl apply -f -
+cat <<EOF >uc-workload-generator/overlay/uc3-workload-generator/set_paramters.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: titan-ccp-load-generator
+spec:
+  replicas: $WL_INSTANCES
+  template:
+    spec:
+      containers:
+      - name: workload-generator
+        env:
+        - name: NUM_SENSORS
+          value: "$NUM_SENSORS"
+        - name: INSTANCES
+          value: "$WL_INSTANCES"
+EOF
+kubectl apply -k uc-workload-generator/overlay/uc3-workload-generator
+
 
 # Start application
 REPLICAS=$INSTANCES
-# When not using `sed` anymore, use `kubectl apply -f uc3-application`
-kubectl apply -f uc3-application/aggregation-service.yaml
-kubectl apply -f uc3-application/jmx-configmap.yaml
-kubectl apply -f uc3-application/service-monitor.yaml
-#kubectl apply -f uc3-application/aggregation-deployment.yaml
-APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc3-application/aggregation-deployment.yaml)
-echo "$APPLICATION_YAML" | kubectl apply -f -
-kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
+cat <<EOF >uc-application/overlay/uc3-application/set_paramters.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: titan-ccp-aggregation
+spec:
+  template:
+    spec:
+      containers:
+      - name: uc-application
+        env:
+        - name: COMMIT_INTERVAL_MS
+          value: "$KAFKA_STREAMS_COMMIT_INTERVAL_MS"
+        resources:
+          limits:
+            memory: $MEMORY_LIMIT
+            cpu: $CPU_LIMIT
+EOF
+kubectl apply -k uc-application/overlay/uc3-application
+kubectl scale deployment uc3-titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
-sleep ${EXECUTION_MINUTES}m
+sleep $(($EXECUTION_MINUTES * 60))
 
 # Run eval script
 source ../.venv/bin/activate
 python lag_analysis.py $EXP_ID uc3 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
-# Stop wl and app
-#kubectl delete -f uc3-workload-generator/deployment.yaml
-#sed "s/{{INSTANCES}}/1/g" uc3-workload-generator/deployment.yaml | kubectl delete -f -
-echo "$WORKLOAD_GENERATOR_YAML" | kubectl delete -f -
-kubectl delete -f uc3-application/aggregation-service.yaml
-kubectl delete -f uc3-application/jmx-configmap.yaml
-kubectl delete -f uc3-application/service-monitor.yaml
-#kubectl delete -f uc3-application/aggregation-deployment.yaml
-#sed "s/{{CPU_LIMIT}}/1000m/g; s/{{MEMORY_LIMIT}}/4Gi/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/100/g" uc3-application/aggregation-deployment.yaml | kubectl delete -f -
-echo "$APPLICATION_YAML" | kubectl delete -f -
-
-
+# Stop workload generator and app
+kubectl delete -k uc-workload-generator/overlay/uc3-workload-generator
+kubectl delete -k uc-application/overlay/uc3-application
 
 # Delete topics instead of Kafka
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic 'input,output,configuration,titan-.*'"
