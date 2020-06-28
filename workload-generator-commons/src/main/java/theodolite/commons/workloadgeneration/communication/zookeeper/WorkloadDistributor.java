@@ -19,7 +19,7 @@ import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.misc.WorkloadDefinition;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
-/*
+/**
  * The central class responsible for distributing the workload through all workload generators.
  */
 public class WorkloadDistributor {
@@ -30,6 +30,14 @@ public class WorkloadDistributor {
   private static final String COUNTER_PATH = "/counter";
   private static final String WORKLOAD_PATH = "/workload";
   private static final String WORKLOAD_DEFINITION_PATH = "/workload/definition";
+
+  // Curator retry strategy
+  private static final int BASE_SLEEP_TIME_MS = 2000;
+  private static final int MAX_RETRIES = 5;
+
+  // Wait time
+  private static final int MAX_WAIT_TIME = 20_000;
+
   private final DistributedAtomicInteger counter;
   private final KeySpace keySpace;
   private final BeforeAction beforeAction;
@@ -39,7 +47,7 @@ public class WorkloadDistributor {
   private final ZooKeeper zooKeeper;
   private final CuratorFramework client;
 
-  private boolean workloadGenerationStarted = true;
+  private boolean workloadGenerationStarted = false;
 
   /**
    * Create a new workload distributor.
@@ -63,7 +71,7 @@ public class WorkloadDistributor {
     this.client = CuratorFrameworkFactory.builder()
         .namespace(NAMESPACE)
         .connectString(this.zooKeeper.getHost() + ":" + this.zooKeeper.getPort())
-        .retryPolicy(new ExponentialBackoffRetry(2000, 5))
+        .retryPolicy(new ExponentialBackoffRetry(BASE_SLEEP_TIME_MS, MAX_RETRIES))
         .build();
 
     this.client.start();
@@ -77,7 +85,7 @@ public class WorkloadDistributor {
 
     this.counter =
         new DistributedAtomicInteger(this.client, COUNTER_PATH,
-            new ExponentialBackoffRetry(2000, 5));
+            new ExponentialBackoffRetry(BASE_SLEEP_TIME_MS, MAX_RETRIES));
   }
 
   /**
@@ -94,7 +102,11 @@ public class WorkloadDistributor {
 
       final CuratorWatcher watcher = this.buildWatcher(workerId);
 
-      this.client.checkExists().creatingParentsIfNeeded().forPath(WORKLOAD_PATH);
+      final Stat nodeExists =
+          this.client.checkExists().creatingParentsIfNeeded().forPath(WORKLOAD_PATH);
+      if (nodeExists == null) {
+        this.client.create().forPath(WORKLOAD_PATH);
+      }
 
       if (workerId == 0) {
         LOGGER.info("This instance is master with id {}", workerId);
@@ -117,16 +129,19 @@ public class WorkloadDistributor {
 
         this.client.getChildren().usingWatcher(watcher).forPath(WORKLOAD_PATH);
 
-        final Stat exists =
+        final Stat definitionExists =
             this.client.checkExists().creatingParentsIfNeeded().forPath(WORKLOAD_DEFINITION_PATH);
 
-        if (exists != null) {
+        if (definitionExists != null) {
           this.startWorkloadGeneration(workerId);
         }
       }
 
-      Thread.sleep(20_000);
+      Thread.sleep(MAX_WAIT_TIME);
 
+      if (!this.workloadGenerationStarted) {
+        LOGGER.warn("No workload definition retrieved for 20 s. Terminating now..");
+      }
     } catch (final Exception e) {
       LOGGER.error("", e);
       throw new IllegalStateException("Error when starting the distribution of the workload.");
@@ -137,7 +152,7 @@ public class WorkloadDistributor {
    * Start the workload generation. This methods body does only get executed once.
    *
    * @param workerId the ID of this worker
-   * @throws Exception
+   * @throws Exception when an error occurs
    */
   private synchronized void startWorkloadGeneration(final int workerId) throws Exception {
     if (!this.workloadGenerationStarted) {

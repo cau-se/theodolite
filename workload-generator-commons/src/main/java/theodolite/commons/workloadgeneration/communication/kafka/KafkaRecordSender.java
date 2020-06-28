@@ -2,13 +2,13 @@ package theodolite.commons.workloadgeneration.communication.kafka;
 
 import java.util.Properties;
 import java.util.function.Function;
+import kieker.common.record.IMonitoringRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.functions.Transport;
 import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
 

@@ -26,6 +26,9 @@ public final class LoadGenerator {
 
   private LoadGenerator() {}
 
+  /**
+   * Entry point.
+   */
   public static void main(final String[] args) throws InterruptedException, IOException {
     // uc1
     LOGGER.info("Start workload generator for use case UC1.");

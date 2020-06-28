@@ -1,6 +1,6 @@
 package theodolite.commons.workloadgeneration.misc;
 
-/*
+/**
  * Wrapper for connection information for ZooKeeper.
  */
 public class ZooKeeper {

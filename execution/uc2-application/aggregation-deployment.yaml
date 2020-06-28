@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: uc2-application
-        image: "benediktwetzel/uc2-app:latest"
+        image: "soerenhenning/uc2-app:latest"
         ports:
         - containerPort: 5555
           name: jmx

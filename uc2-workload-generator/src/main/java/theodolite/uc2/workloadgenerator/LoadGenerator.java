@@ -51,6 +51,8 @@ public class LoadGenerator {
     final String kafkaBatchSize = System.getenv("KAFKA_BATCH_SIZE");
     final String kafkaLingerMs = System.getenv("KAFKA_LINGER_MS");
     final String kafkaBufferMemory = System.getenv("KAFKA_BUFFER_MEMORY");
+    final int instances =
+        Integer.parseInt(Objects.requireNonNullElse(System.getenv("INSTANCES"), "1"));
 
     // build sensor registry
     final MutableSensorRegistry sensorRegistry =
@@ -69,6 +71,7 @@ public class LoadGenerator {
     // create workload generator
     final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
         KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
+            .setInstances(instances)
             .setKeySpace(new KeySpace("s_", numSensors))
             .setThreads(threads)
             .setPeriod(Duration.of(periodMs, ChronoUnit.MILLIS))

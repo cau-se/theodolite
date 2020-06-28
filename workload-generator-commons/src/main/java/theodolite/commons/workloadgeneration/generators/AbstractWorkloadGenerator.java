@@ -21,6 +21,11 @@ import theodolite.commons.workloadgeneration.misc.WorkloadDefinition;
 import theodolite.commons.workloadgeneration.misc.WorkloadEntity;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
+/**
+ * Base for workload generators.
+ *
+ * @param <T> The type of records the workload generator is dedicated for.
+ */
 public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
     implements WorkloadGenerator {
 
@@ -51,19 +56,18 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
   private final ScheduledExecutorService executor;
 
   /**
-   * Start the workload generation. The generation terminates automatically after the specified
-   * {@code duration}.
+   * Create a new workload generator.
+   *
+   * @param instances the number of workload-generator instances.
+   * @param zooKeeper the zookeeper connection.
+   * @param keySpace the keyspace.
+   * @param threads the number of threads that is used to generate the load.
+   * @param period the period, how often a new record is emitted.
+   * @param duration the maximum runtime.
+   * @param beforeAction the action to perform before the workload generation starts.
+   * @param generatorFunction the function that is used to generate the individual records.
+   * @param transport the function that is used to send generated messages to the messaging system.
    */
-  @Override
-  public void start() {
-    this.workloadDistributor.start();
-  }
-
-  @Override
-  public void stop() {
-    this.workloadDistributor.stop();
-  }
-
   public AbstractWorkloadGenerator(
       final int instances,
       final ZooKeeper zooKeeper,
@@ -99,19 +103,25 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
     this.executor = Executors.newScheduledThreadPool(threads);
     final Random random = new Random();
 
-    final int periodMs = period.getNano() / 1_000_000;
+    final int periodMs = (int) period.toMillis();
+
+    LOGGER.info("Period: " + periodMs);
 
     final BiConsumer<WorkloadDefinition, Integer> workerAction = (declaration, workerId) -> {
 
       final List<WorkloadEntity<T>> entities = this.workloadSelector.apply(declaration, workerId);
 
       LOGGER.info("Beginning of Experiment...");
+      LOGGER.info("Generating records for {} keys.", entities.size());
       LOGGER.info("Experiment is going to be executed for the specified duration...");
 
       entities.forEach(entity -> {
         final T message = entity.generateMessage();
         final long initialDelay = random.nextInt(periodMs);
-        this.executor.scheduleAtFixedRate(() -> this.transport.transport(message), initialDelay,
+        final Runnable task = () -> {
+          this.transport.transport(message);
+        };
+        this.executor.scheduleAtFixedRate(task, initialDelay,
             periodMs, TimeUnit.MILLISECONDS);
       });
 
@@ -129,5 +139,19 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
     this.workloadDistributor =
         new WorkloadDistributor(this.instances, this.zooKeeper, this.keySpace, this.beforeAction,
             workerAction);
+  }
+
+  /**
+   * Start the workload generation. The generation terminates automatically after the specified
+   * {@code duration}.
+   */
+  @Override
+  public void start() {
+    this.workloadDistributor.start();
+  }
+
+  @Override
+  public void stop() {
+    this.workloadDistributor.stop();
   }
 }

@@ -2,11 +2,17 @@ package theodolite.commons.workloadgeneration.misc;
 
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 
-/*
+/**
  * The central class that contains all information that needs to be exchanged between the nodes for
  * distributed workload generation.
  */
 public class WorkloadDefinition {
+  private static final int ZERO = 0;
+  private static final int ONE = 1;
+  private static final int TWO = 2;
+  private static final int THREE = 3;
+  private static final int FOUR = 4;
+
   private final KeySpace keySpace;
   private final int numberOfWorkers;
 
@@ -52,12 +58,14 @@ public class WorkloadDefinition {
   public static WorkloadDefinition fromString(final String workloadDefinitionString) {
     final String[] deserialized = workloadDefinitionString.split(";");
 
-    if (deserialized.length != 4) {
+    if (deserialized.length != FOUR) {
       throw new IllegalArgumentException(
           "Wrong workload definition string when trying to parse the workload generation.");
     }
 
-    return new WorkloadDefinition(new KeySpace(deserialized[0], Integer.valueOf(deserialized[1]),
-        Integer.valueOf(deserialized[2])), Integer.valueOf(deserialized[3]));
+    return new WorkloadDefinition(
+        new KeySpace(deserialized[ZERO], Integer.valueOf(deserialized[ONE]),
+            Integer.valueOf(deserialized[TWO])),
+        Integer.valueOf(deserialized[THREE]));
   }
 }

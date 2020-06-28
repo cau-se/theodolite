@@ -9,6 +9,11 @@ import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
+/**
+ * Builder for {@link workload generators}.
+ *
+ * @param <T> the record for which the builder is dedicated for.
+ */
 public final class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
 
   private int instances;
@@ -45,7 +50,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
   /**
    * Set the number of instances.
    *
-   * @param zooKeeper a reference to the ZooKeeper instance.
+   * @param instances the number of instances.
    * @return the builder.
    */
   public KafkaWorkloadGeneratorBuilder<T> setInstances(final int instances) {
@@ -89,7 +94,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> {
   /**
    * Set the key space for the {@link KafkaWorkloadGenerator}.
    *
-   * @param keySpace the {@link KeySpace}.
+   * @param threads the number of threads.
    * @return the builder.
    */
   public KafkaWorkloadGeneratorBuilder<T> setThreads(final int threads) {
