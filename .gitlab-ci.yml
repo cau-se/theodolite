@@ -72,8 +72,7 @@ spotbugs:
     when: on_failure
     expire_in: 1 day
 
-
-.deploy:
+deploy-uc1-flink-app:
   stage: deploy
   tags:
     - exec-docker
@@ -82,18 +81,13 @@ spotbugs:
   image: docker:19.03.1
   services:
     - docker:19.03.1-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
   script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t titan-ccp-exp-bigdata19-bridge ./exp-bigdata19-bridge
-    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:${DOCKER_TAG_NAME}latest
-    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - cd docker-flink/
+    - ./build.sh --job-artifacts ../uc1-application/build/libs/uc1-application-all.jar --from-release --flink-version 1.10.1 --scala-version 2.12 --image-name $DOCKERHUB_ID/theodolite-flink-uc1:latest
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
-    - docker push $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge
+    - docker push $DOCKERHUB_ID/theodolite-flink-uc1
     - docker logout
   only:
     variables:
-      - $DOCKERHUB_ORG
       - $DOCKERHUB_ID
       - $DOCKERHUB_PW
