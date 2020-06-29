@@ -4,9 +4,11 @@ buildscript {
     maven {
       url "https://plugins.gradle.org/m2/"
     }
+    jcenter()
   }
   dependencies {
     classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.3"
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
   }
 }
 
@@ -28,7 +30,15 @@ subprojects {
 }
 
 configure(useCaseProjects){
+    apply plugin: 'java'
     apply plugin: 'application'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    applicationDefaultJvmArgs = ["-Dlog4j.configuration=log4j.properties"]
+}
+
+ext {
+    flinkVersion = '1.10.1'
+    scalaBinaryVersion = '2.12'
 }
 
 // Java version for all subprojects
@@ -37,6 +47,10 @@ subprojects {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
   }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 // Check for updates every build
@@ -50,7 +64,9 @@ allprojects {
 	    jcenter()
 	    maven {
 	    	url "https://oss.sonatype.org/content/repositories/snapshots/"
+            "https://repository.apache.org/content/repositories/snapshots/"
 	    }
+        mavenCentral()
 	}
 }
 
@@ -69,8 +85,29 @@ configure(useCaseProjects) {
       implementation 'org.slf4j:slf4j-simple:1.6.1'
       implementation project(':application-kafkastreams-commons')
 
+      compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: "flink-streaming-java_${scalaBinaryVersion}", version:"${flinkVersion}"
+      compile group: 'org.apache.flink', name: "flink-table-api-java-bridge_${scalaBinaryVersion}", version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: "flink-table-planner_${scalaBinaryVersion}", version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: "flink-connector-kafka_${scalaBinaryVersion}", version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: 'flink-avro', version: '1.10.1'
+      compile group: 'org.industrial-devops', name: 'titan-ccp-common', version: '0.0.3-SNAPSHOT'
+
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
+  }
+
+  run.classpath = sourceSets.main.runtimeClasspath
+
+  jar {
+      manifest {
+          attributes 'Built-By': System.getProperty('user.name'),
+                     'Build-Jdk': System.getProperty('java.version')
+      }
+  }
+
+  shadowJar {
+      configurations = [project.configurations.compile]
   }
 }
 
@@ -131,7 +168,7 @@ subprojects {
   pmd {
     ruleSets = [] // Gradle requires to clean the rule sets first
     ruleSetFiles = files("$rootProject.projectDir/config/pmd.xml")
-    ignoreFailures = false
+    ignoreFailures = true
     toolVersion = "6.7.0"
   }
 
@@ -139,7 +176,7 @@ subprojects {
     configDirectory = file("$rootProject.projectDir/config")
     configFile = file("$rootProject.projectDir/config/checkstyle.xml")
     maxWarnings = 0
-    ignoreFailures = false
+    ignoreFailures = true
     toolVersion = "8.12"
   }
 
@@ -147,7 +184,7 @@ subprojects {
     excludeFilter = file("$rootProject.projectDir/config/spotbugs-exclude-filter.xml")
     reportLevel = "low"
     effort = "max"
-    ignoreFailures = false
+    ignoreFailures = true
     toolVersion = '3.1.7'
   }
 }
