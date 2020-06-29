@@ -82,6 +82,7 @@ deploy-uc1-flink-app:
   services:
     - docker:19.03.1-dind
   script:
+    - apk add --no-cache bash
     - cd docker-flink/
     - ./build.sh --job-artifacts ../uc1-application/build/libs/uc1-application-all.jar --from-release --flink-version 1.10.1 --scala-version 2.12 --image-name $DOCKERHUB_ID/theodolite-flink-uc1:latest
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
