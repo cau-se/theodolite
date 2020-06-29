@@ -42,6 +42,8 @@ public class HistoryService {
 
     // Configuration of the stream application
     final KafkaStreams kafkaStreams = uc4KafkaStreamsBuilder
+        .applicationName(this.config.getString(ConfigurationKeys.APPLICATION_NAME))
+        .applicationVersion(this.config.getString(ConfigurationKeys.APPLICATION_VERSION))
         .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
         .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
         .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
