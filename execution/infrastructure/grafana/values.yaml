@@ -49,7 +49,6 @@ sidecar:
     # It's also possible to specify ALL to search in all namespaces
     searchNamespace: null
 
-
 service:
   nodePort: 31199
   type: NodePort
