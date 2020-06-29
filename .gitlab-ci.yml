@@ -27,8 +27,14 @@ build:
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "*/build/libs/*.jar"
-      - "*/build/distributions/*.tar"
+      - "uc1-application/build/libs/uc1-application-all.jar"
+      - "uc1-workload-generator/build/distributions/uc1-workload-generator.tar"
+      - "uc2-application/build/distributions/uc2-application.tar"
+      - "uc2-workload-generator/build/distributions/uc2-workload-generator.tar"
+      - "uc3-application/build/distributions/uc3-application.tar"
+      - "uc3-workload-generator/build/distributions/uc3-workload-generator.tar"
+      - "uc4-application/build/distributions/uc4-application.tar"
+      - "uc4-workload-generator/build/distributions/uc4-workload-generator.tar"
     expire_in: 1 day
 
 test:
