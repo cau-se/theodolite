@@ -25,6 +25,11 @@ build:
   tags:
     - exec-docker
   script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "*/build/libs/*.jar"
+      - "*/build/distributions/*.tar"
+    expire_in: 1 day
 
 test:
   stage: test
@@ -75,7 +80,7 @@ spotbugs:
 deploy-uc1-flink-app:
   stage: deploy
   tags:
-    - exec-docker
+    - exec-dind
   # see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   # for image usage and settings for building with TLS and docker in docker
   image: docker:19.03.1
