@@ -92,6 +92,7 @@ deploy-uc1-flink-app:
   image: docker:19.03.1
   services:
     - docker:19.03.1-dind
+  cache: {}
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   script:
