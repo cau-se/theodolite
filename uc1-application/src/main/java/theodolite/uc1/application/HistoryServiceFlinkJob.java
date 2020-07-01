@@ -9,6 +9,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import titan.ccp.common.configuration.Configurations;
 import titan.ccp.models.records.ActivePowerRecord;
+import titan.ccp.models.records.ActivePowerRecordFactory;
 
 /**
  * The History Microservice Flink Job.
@@ -31,12 +32,19 @@ public class HistoryServiceFlinkJob {
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
     kafkaProps.setProperty("group.id", applicationId);
 
+    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> serde =
+        new FlinkMonitoringRecordSerde<>(inputTopic,
+                                         ActivePowerRecord.class,
+                                         ActivePowerRecordFactory.class);
+
     final FlinkKafkaConsumer<ActivePowerRecord> kafka = new FlinkKafkaConsumer<>(
-        inputTopic, new ActivePowerRecordDeSerializer(inputTopic), kafkaProps);
+        inputTopic, serde, kafkaProps);
+
     kafka.setStartFromGroupOffsets();
     kafka.setCommitOffsetsOnCheckpoints(true);
 
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     env.enableCheckpointing(commitIntervalMs);
     env.setParallelism(numThreads);
@@ -53,8 +61,8 @@ public class HistoryServiceFlinkJob {
 
     try {
       env.execute(applicationId);
-    } catch (Exception e) {
-      e.printStackTrace();
+    } catch (Exception e) { //NOPMD
+      e.printStackTrace(); //NOPMD
     }
   }
 
