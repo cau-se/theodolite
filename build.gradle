@@ -88,11 +88,11 @@ configure(useCaseProjects) {
       compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-streaming-java_${scalaBinaryVersion}", version:"${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-table-api-java-bridge_${scalaBinaryVersion}", version: "${flinkVersion}"
-      compile group: 'org.apache.flink', name: "flink-table-planner_${scalaBinaryVersion}", version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: "flink-table-planner_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: maybe use blink planner instead
       compile group: 'org.apache.flink', name: "flink-connector-kafka_${scalaBinaryVersion}", version: "${flinkVersion}"
       compile group: 'org.apache.flink', name: 'flink-avro', version: '1.10.1'
       compile group: 'org.industrial-devops', name: 'titan-ccp-common', version: '0.0.3-SNAPSHOT'
-
+      compile group: 'org.apache.flink', name: "flink-runtime-web_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: remove after development
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
   }

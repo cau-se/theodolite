@@ -1,4 +1,4 @@
-package theodolite.uc3.streamprocessing.util;
+package theodolite.uc3.application.util;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
