@@ -3,8 +3,11 @@ package theodolite.uc3.application;
 import com.google.common.math.Stats;
 import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -13,8 +16,12 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
+import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
+import theodolite.commons.flink.serialization.StatsSerializer;
 import titan.ccp.common.configuration.Configurations;
 import titan.ccp.models.records.ActivePowerRecord;
 import titan.ccp.models.records.ActivePowerRecordFactory;
@@ -45,26 +52,34 @@ public class HistoryServiceFlinkJob {
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
     kafkaProps.setProperty("group.id", applicationId);
 
-    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> serde =
-        new FlinkMonitoringRecordSerde<>(inputTopic,
-                                         ActivePowerRecord.class,
-                                         ActivePowerRecordFactory.class);
+    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> sourceSerde =
+        new FlinkMonitoringRecordSerde<>(
+            inputTopic,
+            ActivePowerRecord.class,
+            ActivePowerRecordFactory.class);
 
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource = new FlinkKafkaConsumer<>(
-        inputTopic, serde, kafkaProps);
+        inputTopic, sourceSerde, kafkaProps);
 
     kafkaSource.setStartFromGroupOffsets();
     kafkaSource.setCommitOffsetsOnCheckpoints(true);
     kafkaSource.assignTimestampsAndWatermarks(new AscendingTimestampExtractor<>() {
-      private static final long serialVersionUID = 908331665581359352L; // NOPMD
+      private static final long serialVersionUID = 908331665581359352L; //NOPMD
       @Override
-      public long extractAscendingTimestamp(final ActivePowerRecord element) {
+      public long extractAscendingTimestamp(ActivePowerRecord element) {
         return element.getTimestamp();
       }
     });
 
-    final FlinkKafkaProducer<String> kafkaSink = new FlinkKafkaProducer<>(
-        outputTopic, new SimpleStringSchema(), kafkaProps);
+    final FlinkKafkaKeyValueSerde<String, String> sinkSerde =
+        new FlinkKafkaKeyValueSerde<>(outputTopic,
+            Serdes::String,
+            Serdes::String,
+            TypeInformation.of(new TypeHint<Tuple2<String, String>>(){})
+        );
+    kafkaProps.setProperty("transaction.timeout.ms", ""+5*60*1000);
+    final FlinkKafkaProducer<Tuple2<String, String>> kafkaSink = new FlinkKafkaProducer<>(
+        outputTopic, sinkSerde, kafkaProps, FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
     kafkaSink.setWriteTimestampToKafka(true);
 
     // environment with Web-GUI for development (included in deployment)
@@ -95,14 +110,19 @@ public class HistoryServiceFlinkJob {
         .name("[Kafka Consumer] Topic: " + inputTopic);
 
     stream
+        .rebalance()
         .keyBy((KeySelector<ActivePowerRecord, String>) ActivePowerRecord::getIdentifier)
         .window(TumblingEventTimeWindows.of(Time.minutes(windowDuration)))
-        .aggregate(new StatsAggregateFunction())//.name("aggregate")
-        .map(Stats::toString).name("map toString")
-        .map(record -> {
-          LOGGER.info(record);
-          return record;
-        }).name("map print")
+        .aggregate(new StatsAggregateFunction(), new StatsProcessWindowFunction())
+        .map(new MapFunction<Tuple2<String, Stats>, Tuple2<String, String>>() {
+          @Override
+          public Tuple2<String, String> map(Tuple2<String, Stats> t) {
+            final String key = t.f0;
+            final String value = t.f1.toString();
+            LOGGER.info(key + ": " + value);
+            return new Tuple2<>(key, value);
+          }
+        }).name("map")
         .addSink(kafkaSink).name("[Kafka Producer] Topic: " + outputTopic);
 
     if (LOGGER.isInfoEnabled()) {

@@ -3,6 +3,7 @@ package theodolite.uc3.application;
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
 import org.apache.flink.api.common.functions.AggregateFunction;
+import org.apache.flink.api.java.tuple.Tuple2;
 import theodolite.uc3.application.util.StatsFactory;
 import titan.ccp.models.records.ActivePowerRecord;
 
