@@ -109,6 +109,7 @@ configure(useCaseProjects) {
 
   shadowJar {
       configurations = [project.configurations.compile]
+      zip64 true
   }
 }
 
