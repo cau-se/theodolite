@@ -7,6 +7,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
 import titan.ccp.common.configuration.Configurations;
 import titan.ccp.models.records.ActivePowerRecord;
 import titan.ccp.models.records.ActivePowerRecordFactory;
@@ -52,6 +53,7 @@ public class HistoryServiceFlinkJob {
     final DataStream<ActivePowerRecord> stream = env.addSource(kafka);
 
     stream
+        .rebalance()
         .keyBy((KeySelector<ActivePowerRecord, String>) ActivePowerRecord::getIdentifier)
         .map(v -> "ActivePowerRecord { "
             + "identifier: " + v.getIdentifier() + ", "
