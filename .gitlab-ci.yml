@@ -37,7 +37,7 @@ build:
       - "uc4-workload-generator/build/distributions/uc4-workload-generator.tar"
     expire_in: 1 day
 
-test:
+.test:
   stage: test
   tags:
     - exec-docker
@@ -47,7 +47,7 @@ test:
       junit:
         - "**/build/test-results/test/TEST-*.xml"
 
-checkstyle:
+.checkstyle:
   stage: check
   tags:
     - exec-docker
@@ -59,7 +59,7 @@ checkstyle:
     when: on_failure
     expire_in: 1 day
 
-pmd:
+.pmd:
   stage: check
   tags:
     - exec-docker
@@ -71,7 +71,7 @@ pmd:
     when: on_failure
     expire_in: 1 day
 
-spotbugs:
+.spotbugs:
   stage: check
   tags:
     - exec-docker
@@ -98,7 +98,7 @@ spotbugs:
   script:
     - docker build --pull -t $IMAGE_NAME:latest ./$JAVA_PROJECT_NAME
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
-    - docker push $DOCKERHUB_ID/$IMAGE_NAME
+    - docker push $DOCKERHUB_ID/$IMAGE_NAME:latest
     - docker logout
   only:
     variables:
