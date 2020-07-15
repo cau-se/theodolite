@@ -79,12 +79,13 @@ configure(useCaseProjects) {
       api 'net.sourceforge.teetime:teetime:3.0'
 
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-      implementation 'org.apache.kafka:kafka-clients:2.1.0'
+      implementation 'org.apache.kafka:kafka-clients:2.2.0'
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.6.1'
-      implementation project(':application-kafkastreams-commons')
+      implementation project(':application-commons')
 
+      compile group: 'org.apache.kafka', name: 'kafka-clients', version: "2.2.0"
       compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-streaming-java_${scalaBinaryVersion}", version:"${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-table-api-java-bridge_${scalaBinaryVersion}", version: "${flinkVersion}"
@@ -93,6 +94,7 @@ configure(useCaseProjects) {
       compile group: 'org.apache.flink', name: 'flink-avro', version: '1.10.1'
       compile group: 'org.industrial-devops', name: 'titan-ccp-common', version: '0.0.3-SNAPSHOT'
       compile group: 'org.apache.flink', name: "flink-runtime-web_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: remove after development
+      compile group: 'org.apache.flink', name: "flink-statebackend-rocksdb_${scalaBinaryVersion}", version: "${flinkVersion}"
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
   }
@@ -115,12 +117,14 @@ configure(useCaseProjects) {
 configure(commonProjects) {
   dependencies {
       // These dependencies is exported to consumers, that is to say found on their compile classpath.
-      api 'org.apache.kafka:kafka-clients:2.4.0'
+      api 'org.apache.kafka:kafka-clients:2.2.0'
 
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation 'org.slf4j:slf4j-simple:1.6.1'
       implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
 
+      compile group: 'org.apache.flink', name: "flink-connector-kafka_${scalaBinaryVersion}", version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
   }
