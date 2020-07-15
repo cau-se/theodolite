@@ -1,8 +1,3 @@
-FROM openjdk:11-slim
+FROM nicobiernat/flink:1.11-scala_2.12-java_11
 
-
-ADD build/distributions/uc3-application.tar /
-
-
-CMD  JAVA_OPTS="$JAVA_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=$LOG_LEVEL" \
-     /uc3-application/bin/uc3-application
+ADD build/libs/uc3-application-all.jar /opt/flink/usrlib/artifacts/uc3-application-all.jar

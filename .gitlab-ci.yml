@@ -96,7 +96,7 @@ build:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   script:
-    - docker build --pull -t $IMAGE_NAME:latest ./$JAVA_PROJECT_NAME
+    - docker build --pull -t $DOCKERHUB_ID/$IMAGE_NAME:latest ./$JAVA_PROJECT_NAME
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
     - docker push $DOCKERHUB_ID/$IMAGE_NAME:latest
     - docker logout
