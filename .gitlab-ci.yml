@@ -98,7 +98,7 @@ spotbugs:
   script:
     - docker build --pull -t $IMAGE_NAME:latest ./$JAVA_PROJECT_NAME
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
-    - docker push $DOCKERHUB_ID/$IMAGE_NAME
+    - docker push $DOCKERHUB_ID/$IMAGE_NAME:latest
     - docker logout
   only:
     variables:
