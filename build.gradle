@@ -37,7 +37,7 @@ configure(useCaseProjects){
 }
 
 ext {
-    flinkVersion = '1.10.1'
+    flinkVersion = '1.11.0'
     scalaBinaryVersion = '2.12'
 }
 
@@ -83,15 +83,14 @@ configure(useCaseProjects) {
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.6.1'
-      implementation project(':application-commons')
+      compile project(':application-commons')
 
       compile group: 'org.apache.kafka', name: 'kafka-clients', version: "2.2.0"
       compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-streaming-java_${scalaBinaryVersion}", version:"${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-table-api-java-bridge_${scalaBinaryVersion}", version: "${flinkVersion}"
-      compile group: 'org.apache.flink', name: "flink-table-planner_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: maybe use blink planner instead
+      compile group: 'org.apache.flink', name: "flink-table-planner-blink_${scalaBinaryVersion}", version: "${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-connector-kafka_${scalaBinaryVersion}", version: "${flinkVersion}"
-      compile group: 'org.apache.flink', name: 'flink-avro', version: '1.10.1'
       compile group: 'org.industrial-devops', name: 'titan-ccp-common', version: '0.0.3-SNAPSHOT'
       compile group: 'org.apache.flink', name: "flink-runtime-web_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: remove after development
       compile group: 'org.apache.flink', name: "flink-statebackend-rocksdb_${scalaBinaryVersion}", version: "${flinkVersion}"
