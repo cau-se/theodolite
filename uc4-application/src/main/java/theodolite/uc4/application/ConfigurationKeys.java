@@ -25,7 +25,7 @@ public final class ConfigurationKeys {
 
   public static final String CACHE_MAX_BYTES_BUFFERING = "cache.max.bytes.buffering";
 
-  public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+  public static final String TIME_ZONE = "time.zone";
 
   private ConfigurationKeys() {}
 

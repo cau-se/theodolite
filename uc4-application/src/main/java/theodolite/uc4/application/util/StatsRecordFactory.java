@@ -1,4 +1,4 @@
-package theodolite.uc4.streamprocessing;
+package theodolite.uc4.application.util;
 
 import com.google.common.math.Stats;
 import org.apache.avro.specific.SpecificRecord;

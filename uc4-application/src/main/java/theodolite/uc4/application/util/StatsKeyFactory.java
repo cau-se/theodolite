@@ -1,4 +1,4 @@
-package theodolite.uc4.streamprocessing;
+package theodolite.uc4.application.util;
 
 import java.time.LocalDateTime;
 
