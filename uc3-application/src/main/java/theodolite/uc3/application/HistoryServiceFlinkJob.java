@@ -3,6 +3,7 @@ package theodolite.uc3.application;
 import com.google.common.math.Stats;
 import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -11,7 +12,6 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -63,13 +63,7 @@ public class HistoryServiceFlinkJob {
 
     kafkaSource.setStartFromGroupOffsets();
     kafkaSource.setCommitOffsetsOnCheckpoints(true);
-    kafkaSource.assignTimestampsAndWatermarks(new AscendingTimestampExtractor<>() {
-      private static final long serialVersionUID = 908331665581359352L; //NOPMD
-      @Override
-      public long extractAscendingTimestamp(ActivePowerRecord element) {
-        return element.getTimestamp();
-      }
-    });
+    kafkaSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
 
     final FlinkKafkaKeyValueSerde<String, String> sinkSerde =
         new FlinkKafkaKeyValueSerde<>(outputTopic,
