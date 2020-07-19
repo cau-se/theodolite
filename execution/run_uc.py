@@ -259,6 +259,8 @@ def delete_topics(topics):
     return
 
 
+# Stop the lag exporter in order to reset it and allow smooth execution for
+# next use cases
 def stop_lag_exporter():
     print('Stop the lag exporter')
 
@@ -307,6 +309,7 @@ def main():
     delete_topics(topics)
     print('---------------------')
     stop_lag_exporter()
+
 
 if __name__ == '__main__':
     main()
