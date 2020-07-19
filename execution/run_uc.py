@@ -1,11 +1,14 @@
 from kubernetes import client, config  # kubernetes api
 from kubernetes.stream import stream
-# import confuse
 import argparse  # parse arguments from cli
+from os import path # path utilities
 import subprocess  # execute bash commands
 import time  # process sleep
+import yaml # convert from file to yaml object
 
-v1 = None  # acces kubernetes api
+coreApi = None  # acces kubernetes core api
+appsApi = None  # acces kubernetes apps api
+customApi = None  # acces kubernetes custom object api
 args = None  # CLI arguments
 
 
@@ -65,15 +68,17 @@ def load_variables():
 
 
 def initialize_kubernetes_api():
-    global v1
+    global coreApi, appsApi, customApi
     print('Connect to kubernetes api')
     try:
         config.load_kube_config()  # try using local config
-    except e:
+    except config.config_exception.ConfigException:
         # load config from pod, if local config is not available
         config.load_incluster_config()
 
-    v1 = client.CoreV1Api()
+    coreApi = client.CoreV1Api()
+    appsApi = client.AppsV1Api()
+    customApi = client.CustomObjectsApi()
 
 
 def create_topics(topics):
@@ -140,44 +145,58 @@ spec:\n\
 def start_application():
     print('Start use case applications')
 
-    parameters_path = 'uc-application/overlay/uc' + args.uc_id + '-application'
-    f = open(parameters_path + '/set_paramters.yaml', 'w')
-    f.write('\
-apiVersion: apps/v1\n\
-kind: Deployment\n\
-metadata:\n\
-  name: titan-ccp-aggregation\n\
-spec:\n\
-  template:\n\
-    spec:\n\
-      containers:\n\
-      - name: uc-application\n\
-        env:\n\
-        - name: COMMIT_INTERVAL_MS\n\
-          value: "' + str(args.commit_interval_ms) + '"\n\
-        resources:\n\
-          limits:\n\
-            memory: ' + str(args.memory_limit) + '\n\
-            cpu: ' + str(args.cpu_limit) + '\n')  # cpu limit is already str
-    f.close()
+    # Apply aggregation service
+    with open(path.join(path.dirname(__file__), "uc-application/base/aggregation-service.yaml")) as f:
+        dep = yaml.safe_load(f)
+        try:
+            resp = coreApi.create_namespaced_service(
+                namespace="default", body=dep)
+            print("Service '%s' created." % resp.metadata.name)
+        except:
+            print("Service creation error.")
 
-    exec_command = [
-        'kubectl',
-        'apply',
-        '-k',
-        parameters_path
-    ]
-    output = subprocess.run(exec_command, capture_output=True, text=True)
-    print(output)
-    exec_command = [
-        'kubectl',
-        'scale',
-        'deployment',
-        'uc' + args.uc_id + '-titan-ccp-aggregation',
-        '--replicas=' + str(args.instances)
-    ]
-    output = subprocess.run(exec_command, capture_output=True, text=True)
-    print(output)
+    # Apply jmx config map for aggregation service
+    with open(path.join(path.dirname(__file__), "uc-application/base/jmx-configmap.yaml")) as f:
+        dep = yaml.safe_load(f)
+        try:
+            resp = coreApi.create_namespaced_config_map(
+                namespace="default", body=dep)
+            print("ConfigMap '%s' created." % resp.metadata.name)
+        except:
+            print("ConfigMap creation error.")
+
+    # Create custom object service monitor
+    with open(path.join(path.dirname(__file__), "uc-application/base/service-monitor.yaml")) as f:
+        dep = yaml.safe_load(f)
+        try:
+            resp = customApi.create_namespaced_custom_object(
+                group="monitoring.coreos.com",
+                version="v1",
+                namespace="default",
+                plural="servicemonitors", # From CustomResourceDefinition of ServiceMonitor
+                body=dep,
+            )
+            print("ServiceMonitor '%s' created." % resp['metadata']['name'])
+        except:
+            print("ServiceMonitor creation error")
+
+    # Create deployment
+    with open(path.join(path.dirname(__file__), "uc-application/base/aggregation-deployment.yaml")) as f:
+        dep = yaml.safe_load(f)
+        dep['spec']['replicas'] = args.instances
+        uc_container = dep['spec']['template']['spec']['containers'][0]
+        uc_container['image'] = 'soerenhenning/uc1-app:latest'
+        uc_container['env'][1]['value'] = str(args.commit_interval_ms)
+        uc_container['resources']['limits']['memory'] = str(args.memory_limit)
+        uc_container['resources']['limits']['cpu'] = str(args.cpu_limit) # cpu limit is already str
+        try:
+            resp = appsApi.create_namespaced_deployment(
+                namespace="default",
+                body=dep
+            )
+            print("Deployment '%s' created." % resp.metadata.name)
+        except client.rest.ApiException as e:
+            print("Deployment creation error: %s" % e.reason)
     return
 
 
