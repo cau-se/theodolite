@@ -5,7 +5,7 @@ namePrefix: uc2-
 
 images:
   - name: workload-generator
-    newName: soerenhenning/uc2-wl
+    newName: soerenhenning/uc2-wg
     newTag: latest
 
 bases:
