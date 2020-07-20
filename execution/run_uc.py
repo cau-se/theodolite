@@ -102,7 +102,7 @@ def create_topics(topics):
             --create --topic {topic} --partitions {partitions}\
             --replication-factor 1'
         ]
-        resp = stream(v1.connect_get_namespaced_pod_exec,
+        resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "kafka-client",
                       'default',
                       command=exec_command,
@@ -142,7 +142,9 @@ def load_yaml_files():
 def start_workload_generator(wg_yaml):
     """Starts the workload generator.
     :param wg_yaml: The yaml object for the workload generator.
-    :return: The StatefulSet created by the API
+    :return:
+        The StatefulSet created by the API or in case it already exist/error
+        the yaml object.
     """
     print('Start workload generator')
     num_sensors = args.dim_value
@@ -168,7 +170,7 @@ def start_workload_generator(wg_yaml):
         return wg_ss
     except client.rest.ApiException as e:
         print("StatefulSet creation error: %s" % e.reason)
-    return
+        return wg_yaml
 
 
 def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
@@ -181,6 +183,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
     :param deploy_yaml: The yaml object for the application.
     :return:
         The Service, ServiceMonitor, JMX ConfigMap and Deployment.
+        In case the resource already exist/error the yaml object is returned.
         return svc, svc_monitor, jmx_cm, app_deploy
     """
     print('Start use case application')
@@ -191,8 +194,9 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
         svc = coreApi.create_namespaced_service(
             namespace="default", body=svc_yaml)
         print("Service '%s' created." % svc.metadata.name)
-    except:
-        print("Service creation error.")
+    except client.rest.ApiException as e:
+        svc = svc_yaml
+        print("Service creation error: %s" % e.reason)
 
     # Create custom object service monitor
     try:
@@ -204,16 +208,18 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
             body=svc_monitor_yaml,
         )
         print("ServiceMonitor '%s' created." % svc_monitor['metadata']['name'])
-    except:
-        print("ServiceMonitor creation error")
+    except client.rest.ApiException as e:
+        svc_monitor = svc_monitor_yaml
+        print("ServiceMonitor creation error: %s" % e.reason)
 
     # Apply jmx config map for aggregation service
     try:
         jmx_cm = coreApi.create_namespaced_config_map(
             namespace="default", body=jmx_yaml)
         print("ConfigMap '%s' created." % jmx_cm.metadata.name)
-    except:
-        print("ConfigMap creation error.")
+    except client.rest.ApiException as e:
+        jmx_cm = jmx_yaml
+        print("ConfigMap creation error: %s" % e.reason)
 
     # Create deployment
     deploy_yaml['spec']['replicas'] = args.instances
@@ -225,12 +231,13 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
     app_container['resources']['limits']['memory'] = args.memory_limit
     app_container['resources']['limits']['cpu'] = args.cpu_limit
     try:
-        resp = appsApi.create_namespaced_deployment(
+        app_deploy = appsApi.create_namespaced_deployment(
             namespace="default",
             body=deploy_yaml
         )
-        print("Deployment '%s' created." % resp.metadata.name)
+        print("Deployment '%s' created." % app_deploy.metadata.name)
     except client.rest.ApiException as e:
+        app_deploy = deploy_yaml
         print("Deployment creation error: %s" % e.reason)
 
     return svc, svc_monitor, jmx_cm, app_deploy
@@ -259,6 +266,19 @@ def run_evaluation_script():
     return
 
 
+def delete_resource(obj, del_func):
+    try:
+        del_func(obj.metadata.name, 'default')
+    except Exception as e:
+        logging.info('Error deleting resource with api object, try with dict.')
+        try:
+            del_func(obj['metadata']['name'], 'default')
+        except Exception as e:
+            print("Error deleting resource")
+            log.error(e)
+            return
+    print('Resource deleted')
+
 def stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy):
     """Stops the applied applications and delete resources.
     :param wg: The workload generator statefull set.
@@ -268,18 +288,30 @@ def stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy):
     :param app_deploy: The application deployment.
     """
     print('Stop use case application and workload generator')
-    exec_command = [
-        'kubectl',
-        'delete',
-        '-k',
-        'uc-workload-generator/overlay/uc' + args.uc_id + '-workload-generator'
-    ]
-    output = subprocess.run(exec_command, capture_output=True, text=True)
-    print(output)
 
-    exec_command[3] = 'uc-application/overlay/uc' + args.uc_id + '-application'
-    output = subprocess.run(exec_command, capture_output=True, text=True)
-    print(output)
+    print('Delete workload generator')
+    delete_resource(wg, appsApi.delete_namespaced_stateful_set)
+
+    print('Delete app service')
+    delete_resource(app_svc, coreApi.delete_namespaced_service)
+
+    print('Delete service monitor')
+    try:
+        customApi.delete_namespaced_custom_object(
+            group="monitoring.coreos.com",
+            version="v1",
+            namespace="default",
+            plural="servicemonitors",
+            name=app_svc_monitor['metadata']['name'])
+        print('Resource deleted')
+    except Exception as e:
+        print("Error deleting service monitor")
+
+    print('Delete jmx config map')
+    delete_resource(app_jmx, coreApi.delete_namespaced_config_map)
+
+    print('Delete uc application')
+    delete_resource(app_deploy, appsApi.delete_namespaced_deployment)
     return
 
 
@@ -304,7 +336,7 @@ def delete_topics(topics):
     # Wait that topics get deleted
     while True:
         # topic deletion, sometimes a second deletion seems to be required
-        resp = stream(v1.connect_get_namespaced_pod_exec,
+        resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "kafka-client",
                       'default',
                       command=topics_deletion_command,
@@ -314,7 +346,7 @@ def delete_topics(topics):
 
         print('Wait for topic deletion')
         time.sleep(5)
-        resp = stream(v1.connect_get_namespaced_pod_exec,
+        resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "kafka-client",
                       'default',
                       command=num_topics_command,
@@ -373,7 +405,7 @@ def main():
     print('---------------------')
     wait_execution()
     print('---------------------')
-    stop_applications()
+    stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy)
     print('---------------------')
     delete_topics(topics)
     print('---------------------')
@@ -381,5 +413,5 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     main()
