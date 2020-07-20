@@ -110,35 +110,26 @@ def start_workload_generator():
     # TODO: How is this calculation done?
     wl_instances = int(((num_sensors + (wl_max_records - 1)) / wl_max_records))
 
-    parameters_path = 'uc-workload-generator/overlay/uc' + args.uc_id\
-        + '-workload-generator'
-    f = open(parameters_path + '/set_paramters.yaml', 'w')
-    f.write('\
-apiVersion: apps/v1\n\
-kind: StatefulSet\n\
-metadata:\n\
-  name: titan-ccp-load-generator\n\
-spec:\n\
-  replicas: ' + str(wl_instances) + '\n\
-  template:\n\
-    spec:\n\
-      containers:\n\
-      - name: workload-generator\n\
-        env:\n\
-        - name: NUM_SENSORS\n\
-          value: "' + str(num_sensors) + '"\n\
-        - name: INSTANCES\n\
-          value: "' + str(wl_instances) + '"\n')
-    f.close()
 
-    exec_command = [
-        'kubectl',
-        'apply',
-        '-k',
-        parameters_path
-    ]
-    output = subprocess.run(exec_command, capture_output=True, text=True)
-    print(output)
+    # Create statefull set
+    with open(path.join(path.dirname(__file__), "uc-workload-generator/base/workloadGenerator.yaml")) as f:
+        dep = yaml.safe_load(f)
+        dep['spec']['replicas'] = wl_instances
+        # TODO: acces over name of container
+        wg_containter = dep['spec']['template']['spec']['containers'][0]
+        wg_containter['image'] = 'soerenhenning/uc' + args.uc_id + '-wg:latest'
+        # TODO: acces over name of attribute
+        wg_containter['env'][1]['value'] = str(num_sensors)
+        wg_containter['env'][2]['value'] = str(wl_instances)
+        print(dep)
+        try:
+            resp = appsApi.create_namespaced_stateful_set(
+                namespace="default",
+                body=dep
+            )
+            print("StatefulSet '%s' created." % resp.metadata.name)
+        except client.rest.ApiException as e:
+            print("StatefulSet creation error: %s" % e.reason)
     return
 
 
@@ -184,11 +175,13 @@ def start_application():
     with open(path.join(path.dirname(__file__), "uc-application/base/aggregation-deployment.yaml")) as f:
         dep = yaml.safe_load(f)
         dep['spec']['replicas'] = args.instances
-        uc_container = dep['spec']['template']['spec']['containers'][0]
-        uc_container['image'] = 'soerenhenning/uc1-app:latest'
-        uc_container['env'][1]['value'] = str(args.commit_interval_ms)
-        uc_container['resources']['limits']['memory'] = str(args.memory_limit)
-        uc_container['resources']['limits']['cpu'] = str(args.cpu_limit) # cpu limit is already str
+        # TODO: acces over name of container
+        app_container = dep['spec']['template']['spec']['containers'][0]
+        app_container['image'] = 'soerenhenning/uc' + args.uc_id + '-app:latest'
+        # TODO: acces over name of attribute
+        app_container['env'][1]['value'] = str(args.commit_interval_ms)
+        app_container['resources']['limits']['memory'] = str(args.memory_limit)
+        app_container['resources']['limits']['cpu'] = str(args.cpu_limit) # cpu limit is already str
         try:
             resp = appsApi.create_namespaced_deployment(
                 namespace="default",

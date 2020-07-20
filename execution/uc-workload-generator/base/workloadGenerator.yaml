@@ -22,9 +22,9 @@ spec:
           value: "my-confluent-cp-kafka:9092"
         - name: NUM_SENSORS
           value: "25000"
+        - name: INSTANCES
+          value: "1"
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        - name: INSTANCES
-          value: "1"
