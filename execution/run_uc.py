@@ -180,8 +180,8 @@ def start_application():
         app_container['image'] = 'soerenhenning/uc' + args.uc_id + '-app:latest'
         # TODO: acces over name of attribute
         app_container['env'][1]['value'] = str(args.commit_interval_ms)
-        app_container['resources']['limits']['memory'] = str(args.memory_limit)
-        app_container['resources']['limits']['cpu'] = str(args.cpu_limit) # cpu limit is already str
+        app_container['resources']['limits']['memory'] = args.memory_limit
+        app_container['resources']['limits']['cpu'] = args.cpu_limit
         try:
             resp = appsApi.create_namespaced_deployment(
                 namespace="default",
