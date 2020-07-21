@@ -1,41 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env python
 
-UC=$1
-IFS=', ' read -r -a DIM_VALUES <<< "$2"
-IFS=', ' read -r -a REPLICAS <<< "$3"
-PARTITIONS=${4:-40}
-CPU_LIMIT=${5:-1000m}
-MEMORY_LIMIT=${6:-4Gi}
-KAFKA_STREAMS_COMMIT_INTERVAL_MS=${7:-100}
-EXECUTION_MINUTES=${8:-5}
+import sys
+import os
+from strategies.config import ExperimentConfig
+import strategies.strategies.default_strategy as default_strategy
+from strategies.experiment_execution import ExperimentExecutor
+import strategies.subexperiment_execution.subexperiment_executor as subexperiment_executor
 
-# Get and increment counter
-EXP_ID=$(cat exp_counter.txt 2>/dev/null || echo "0")
-echo $((EXP_ID+1)) > exp_counter.txt
+uc=sys.argv[1]
+dim_values=sys.argv[2].split(',')
+replicas=sys.argv[3].split(',')
+partitions=sys.argv[4] if len(sys.argv) >= 5 and sys.argv[4] else 40
+cpu_limit=sys.argv[5] if len(sys.argv) >= 6 and sys.argv[5] else "1000m"
+memory_limit=sys.argv[6] if len(sys.argv) >= 7 and sys.argv[6] else "4Gi"
+kafka_streams_commit_interval_ms=sys.argv[7] if len(sys.argv) >= 8 and sys.argv[7] else 100
+execution_minutes=sys.argv[8] if len(sys.argv) >= 9 and sys.argv[8] else 5
+benchmark_strategy=sys.argv[9] if len(sys.argv) >= 10 and sys.argv[9] else "default"
 
-# Store meta information
-IFS=$', '; echo \
-"UC=$UC
-DIM_VALUES=${DIM_VALUES[*]}
-REPLICAS=${REPLICAS[*]}
-PARTITIONS=$PARTITIONS
-CPU_LIMIT=$CPU_LIMIT
-MEMORY_LIMIT=$MEMORY_LIMIT
-KAFKA_STREAMS_COMMIT_INTERVAL_MS=$KAFKA_STREAMS_COMMIT_INTERVAL_MS
-EXECUTION_MINUTES=$EXECUTION_MINUTES
-" >> "exp${EXP_ID}_uc${UC}_meta.txt"
+print("Chosen benchmarking strategy: "+benchmark_strategy)
+print("Going to execute " + str(len(dim_values)*len(replicas)) + " subexperiments in total..")
 
-SUBEXPERIMENTS=$((${#DIM_VALUES[@]} * ${#REPLICAS[@]}))
-SUBEXPERIMENT_COUNTER=0
-
-echo "Going to execute $SUBEXPERIMENTS subexperiments in total..."
-for DIM_VALUE in "${DIM_VALUES[@]}"
-do
-    for REPLICA in "${REPLICAS[@]}"
-    do
-        SUBEXPERIMENT_COUNTER=$((SUBEXPERIMENT_COUNTER+1))
-        echo "Run subexperiment $SUBEXPERIMENT_COUNTER/$SUBEXPERIMENTS with config: $DIM_VALUE $REPLICA"
-        ./run_uc$UC-new.sh $EXP_ID $DIM_VALUE $REPLICA $PARTITIONS $CPU_LIMIT $MEMORY_LIMIT $KAFKA_STREAMS_COMMIT_INTERVAL_MS $EXECUTION_MINUTES
-        sleep 10s
-    done
-done
+experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, default_strategy, subexperiment_executor)
+executor = ExperimentExecutor(experiment_config)
+executor.execute()
