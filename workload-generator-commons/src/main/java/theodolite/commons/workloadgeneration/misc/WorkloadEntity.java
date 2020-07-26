@@ -1,6 +1,5 @@
 package theodolite.commons.workloadgeneration.misc;
 
-import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 
 /**
@@ -8,7 +7,7 @@ import theodolite.commons.workloadgeneration.functions.MessageGenerator;
  *
  * @param <T> The type of records the workload generator is dedicated for.
  */
-public class WorkloadEntity<T extends IMonitoringRecord> {
+public class WorkloadEntity<T> {
   private final String key;
   private final MessageGenerator<T> generator;
 

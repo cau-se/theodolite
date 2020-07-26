@@ -9,7 +9,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import kieker.common.record.IMonitoringRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.communication.zookeeper.WorkloadDistributor;
@@ -26,33 +25,22 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
  *
  * @param <T> The type of records the workload generator is dedicated for.
  */
-public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
+public abstract class AbstractWorkloadGenerator<T>
     implements WorkloadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWorkloadGenerator.class);
 
   private final int instances;
-
   private final ZooKeeper zooKeeper;
-
   private final KeySpace keySpace;
-
   private final int threads;
-
   private final Duration period;
-
   private final Duration duration;
-
   private final BeforeAction beforeAction;
-
   private final BiFunction<WorkloadDefinition, Integer, List<WorkloadEntity<T>>> workloadSelector;
-
   private final MessageGenerator<T> generatorFunction;
-
   private final Transport<T> transport;
-
   private WorkloadDistributor workloadDistributor;
-
   private final ScheduledExecutorService executor;
 
   /**
