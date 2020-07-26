@@ -1,4 +1,4 @@
-package theodolite.kafkasender;
+package theodolite.commons.workloadgeneration.communication.kafka;
 
 import java.util.Properties;
 import java.util.function.Function;
@@ -9,15 +9,15 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.workloadgeneration.functions.Transport;
 import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
-
 
 /**
  * Sends monitoring records to Kafka.
  *
  * @param <T> {@link IMonitoringRecord} to send
  */
-public class KafkaRecordSender<T extends IMonitoringRecord> {
+public class KafkaRecordSender<T extends IMonitoringRecord> implements Transport<T> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordSender.class);
 
@@ -79,6 +79,11 @@ public class KafkaRecordSender<T extends IMonitoringRecord> {
 
   public void terminate() {
     this.producer.close();
+  }
+
+  @Override
+  public void transport(final T message) {
+    this.write(message);
   }
 
 }

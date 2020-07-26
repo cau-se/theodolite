@@ -1,5 +1,6 @@
 rootProject.name = 'scalability-benchmarking'
 
+include 'workload-generator-commons'
 include 'application-kafkastreams-commons'
 
 include 'uc1-workload-generator'
