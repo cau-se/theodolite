@@ -3,8 +3,9 @@ package theodolite.uc1.application;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
+import theodolite.commons.kafkastreams.ConfigurationKeys;
 import theodolite.uc1.streamprocessing.Uc1KafkaStreamsBuilder;
-import titan.ccp.common.configuration.Configurations;
+import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
  * A microservice that manages the history and, therefore, stores and aggregates incoming
@@ -13,7 +14,7 @@ import titan.ccp.common.configuration.Configurations;
  */
 public class HistoryService {
 
-  private final Configuration config = Configurations.create();
+  private final Configuration config = ServiceConfigurations.createWithDefaults();
 
   private final CompletableFuture<Void> stopEvent = new CompletableFuture<>();
 
@@ -40,6 +41,7 @@ public class HistoryService {
         .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
         .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
         .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
+        .schemaRegistry(this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL))
         .build();
 
     this.stopEvent.thenRun(kafkaStreams::close);
