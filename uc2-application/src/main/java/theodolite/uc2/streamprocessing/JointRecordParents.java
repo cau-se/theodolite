@@ -1,5 +1,6 @@
 package theodolite.uc2.streamprocessing;
 
+import java.util.Objects;
 import java.util.Set;
 import titan.ccp.models.records.ActivePowerRecord;
 
@@ -26,6 +27,27 @@ public class JointRecordParents {
     return this.record;
   }
 
+  @Override
+  public String toString() {
+    return "{" + this.parents + ", " + this.record + "}";
+  }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.parents, this.record);
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof JointRecordParents) {
+      final JointRecordParents other = (JointRecordParents) obj;
+      return Objects.equals(this.parents, other.parents)
+          && Objects.equals(this.record, other.record);
+    }
+    return false;
+  }
 
 }
