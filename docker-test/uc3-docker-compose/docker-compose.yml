@@ -16,12 +16,12 @@ services:
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
       KAFKA_CREATE_TOPICS: "input:3:1,output:3:1,configuration:3:1,aggregation-feedback:3:1,dayofweek:3:1,hourofday:3:1,hourofweek:3:1"
   uc-app:
-    image: theodolite/theodolite-uc3-kstreams-app:latest
+    image: theodolite/theodolite-uc3-kstreams-app:v0-1-1
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_WINDOW_DURATION_MINUTES: 60
   uc-wg: 
-    image: theodolite/theodolite-uc3-workload-generator:latest
+    image: theodolite/theodolite-uc3-workload-generator:v0-1-1
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       NUM_SENSORS: 1
