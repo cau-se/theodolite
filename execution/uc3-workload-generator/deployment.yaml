@@ -16,7 +16,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: theodolite/theodolite-uc3-workload-generator:v0-1-1
+        image: theodolite/theodolite-uc3-workload-generator:v0.1.2
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
