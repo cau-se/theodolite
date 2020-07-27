@@ -16,7 +16,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: soerenhenning/uc3-wg:latest
+        image: theodolite/theodolite-uc3-workload-generator:latest 
         env:
         - name: ZK_HOST
           value: "my-confluent-cp-zookeeper"
