@@ -155,9 +155,14 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> { // 
    * @return the built instance of the {@link KafkaWorkloadGenerator}.
    */
   public KafkaWorkloadGenerator<T> build() {
-    Objects.requireNonNull(this.instances, "Please specify the number of instances.");
+    if (this.instances < 1) { // NOPMD
+      throw new IllegalArgumentException(
+          "Please specify a valid number of instances. Currently: " + this.instances);
+    }
     Objects.requireNonNull(this.zooKeeper, "Please specify the ZooKeeper instance.");
-    this.threads = Objects.requireNonNullElse(this.threads, 1);
+    if (this.threads < 1) { // NOPMD
+      this.threads = 1;
+    }
     Objects.requireNonNull(this.keySpace, "Please specify the key space.");
     Objects.requireNonNull(this.period, "Please specify the period.");
     Objects.requireNonNull(this.duration, "Please specify the duration.");
