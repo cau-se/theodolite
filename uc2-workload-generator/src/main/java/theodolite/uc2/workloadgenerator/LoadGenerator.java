@@ -18,18 +18,37 @@ import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
 
-public class LoadGenerator {
+/**
+ * The {@code LoadGenerator} creates a load in Kafka.
+ */
+public final class LoadGenerator {
+
+  private static final int SLEEP_PERIOD = 30_000;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
+  // Constants
+  private static final String DEEP = "deep";
   private static final long MAX_DURATION_IN_DAYS = 30L;
 
+  // Make this a utility class, because all methods are static.
+  private LoadGenerator() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Main method.
+   *
+   * @param args CLI arguments
+   * @throws InterruptedException Interrupt happened
+   * @throws IOException happened.
+   */
   public static void main(final String[] args) throws InterruptedException, IOException {
     // uc2
     LOGGER.info("Start workload generator for use case UC2.");
 
     // get environment variables
-    final String hierarchy = Objects.requireNonNullElse(System.getenv("HIERARCHY"), "deep");
+    final String hierarchy = Objects.requireNonNullElse(System.getenv("HIERARCHY"), DEEP);
     final int numNestedGroups = Integer
         .parseInt(Objects.requireNonNullElse(System.getenv("NUM_NESTED_GROUPS"), "1"));
     final String zooKeeperHost = Objects.requireNonNullElse(System.getenv("ZK_HOST"), "localhost");
@@ -81,12 +100,12 @@ public class LoadGenerator {
     // create workload generator
     final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
         KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
-            .setInstances(instances)
-            .setKeySpace(new KeySpace("s_", numSensors))
-            .setThreads(threads)
-            .setPeriod(Duration.of(periodMs, ChronoUnit.MILLIS))
-            .setDuration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
-            .setBeforeAction(() -> {
+            .instances(instances)
+            .keySpace(new KeySpace("s_", numSensors))
+            .threads(threads)
+            .period(Duration.of(periodMs, ChronoUnit.MILLIS))
+            .duration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
+            .beforeAction(() -> {
               if (sendRegistry) {
                 final ConfigPublisher configPublisher =
                     new ConfigPublisher(kafkaBootstrapServers, "configuration");
@@ -96,18 +115,18 @@ public class LoadGenerator {
 
                 LOGGER.info("Now wait 30 seconds");
                 try {
-                  Thread.sleep(30_000);
+                  Thread.sleep(SLEEP_PERIOD);
                 } catch (final InterruptedException e) {
                   // TODO Auto-generated catch block
-                  e.printStackTrace();
+                  LOGGER.error(e.getMessage(), e);
                 }
                 LOGGER.info("And woke up again :)");
               }
             })
-            .setGeneratorFunction(
+            .generatorFunction(
                 sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
-            .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
-            .setKafkaRecordSender(kafkaRecordSender)
+            .zooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
+            .kafkaRecordSender(kafkaRecordSender)
             .build();
 
     // start
@@ -119,7 +138,7 @@ public class LoadGenerator {
       final int numNestedGroups,
       final int numSensors) {
     final MutableSensorRegistry sensorRegistry = new MutableSensorRegistry("group_lvl_0");
-    if (hierarchy.equals("deep")) {
+    if (DEEP.equals(hierarchy)) {
       MutableAggregatedSensor lastSensor = sensorRegistry.getTopLevelSensor();
       for (int lvl = 1; lvl < numNestedGroups; lvl++) {
         lastSensor = lastSensor.addChildAggregatedSensor("group_lvl_" + lvl);
@@ -127,7 +146,7 @@ public class LoadGenerator {
       for (int s = 0; s < numSensors; s++) {
         lastSensor.addChildMachineSensor("sensor_" + s);
       }
-    } else if (hierarchy.equals("full")) {
+    } else if ("full".equals(hierarchy)) {
       addChildren(sensorRegistry.getTopLevelSensor(), numSensors, 1, numNestedGroups, 0);
     } else {
       throw new IllegalStateException();
@@ -136,8 +155,8 @@ public class LoadGenerator {
   }
 
   private static int addChildren(final MutableAggregatedSensor parent, final int numChildren,
-      final int lvl,
-      final int maxLvl, int nextId) {
+      final int lvl, final int maxLvl, final int startId) {
+    int nextId = startId;
     for (int c = 0; c < numChildren; c++) {
       if (lvl == maxLvl) {
         parent.addChildMachineSensor("s_" + nextId);

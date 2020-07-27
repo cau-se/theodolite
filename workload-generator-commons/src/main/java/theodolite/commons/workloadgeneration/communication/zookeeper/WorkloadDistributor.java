@@ -44,10 +44,10 @@ public class WorkloadDistributor {
   private final BiConsumer<WorkloadDefinition, Integer> workerAction;
 
   private final int instances;
-  private final ZooKeeper zooKeeper;
+  private final ZooKeeper zooKeeper; // NOPMD keep instance variable instead of local variable
   private final CuratorFramework client;
 
-  private boolean workloadGenerationStarted = false;
+  private boolean workloadGenerationStarted = false; // NOPMD explicit intention that false
 
   /**
    * Create a new workload distributor.
@@ -79,8 +79,8 @@ public class WorkloadDistributor {
     try {
       this.client.blockUntilConnected();
     } catch (final InterruptedException e) {
-      LOGGER.error("", e);
-      throw new IllegalStateException();
+      LOGGER.error(e.getMessage(), e);
+      throw new IllegalStateException(e);
     }
 
     this.counter =
@@ -142,9 +142,9 @@ public class WorkloadDistributor {
       if (!this.workloadGenerationStarted) {
         LOGGER.warn("No workload definition retrieved for 20 s. Terminating now..");
       }
-    } catch (final Exception e) {
-      LOGGER.error("", e);
-      throw new IllegalStateException("Error when starting the distribution of the workload.");
+    } catch (final Exception e) { // NOPMD need to catch exception because of external framework
+      LOGGER.error(e.getMessage(), e);
+      throw new IllegalStateException("Error when starting the distribution of the workload.", e);
     }
   }
 
@@ -154,7 +154,9 @@ public class WorkloadDistributor {
    * @param workerId the ID of this worker
    * @throws Exception when an error occurs
    */
-  private synchronized void startWorkloadGeneration(final int workerId) throws Exception {
+  // NOPMD because exception thrown from used framework
+  private synchronized void startWorkloadGeneration(final int workerId) throws Exception { // NOPMD
+
     if (!this.workloadGenerationStarted) {
       this.workloadGenerationStarted = true;
 
@@ -181,9 +183,9 @@ public class WorkloadDistributor {
         if (event.getType() == EventType.NodeChildrenChanged) {
           try {
             WorkloadDistributor.this.startWorkloadGeneration(workerId);
-          } catch (final Exception e) {
-            LOGGER.error("", e);
-            throw new IllegalStateException("Error starting workload generation.");
+          } catch (final Exception e) { // NOPMD external framework throws exception
+            LOGGER.error(e.getMessage(), e);
+            throw new IllegalStateException("Error starting workload generation.", e);
           }
         }
       }

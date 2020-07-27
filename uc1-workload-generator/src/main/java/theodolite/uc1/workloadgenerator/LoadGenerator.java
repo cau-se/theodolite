@@ -77,15 +77,15 @@ public final class LoadGenerator {
     // create workload generator
     final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
         KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
-            .setInstances(instances)
-            .setKeySpace(new KeySpace("s_", numSensors))
-            .setThreads(threads)
-            .setPeriod(Duration.of(periodMs, ChronoUnit.MILLIS))
-            .setDuration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
-            .setGeneratorFunction(
+            .instances(instances)
+            .keySpace(new KeySpace("s_", numSensors))
+            .threads(threads)
+            .period(Duration.of(periodMs, ChronoUnit.MILLIS))
+            .duration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
+            .generatorFunction(
                 sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
-            .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
-            .setKafkaRecordSender(kafkaRecordSender)
+            .zooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
+            .kafkaRecordSender(kafkaRecordSender)
             .build();
 
     // start

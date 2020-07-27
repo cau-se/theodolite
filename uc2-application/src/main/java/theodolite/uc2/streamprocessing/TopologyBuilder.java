@@ -18,6 +18,8 @@ import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.WindowedSerdes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.configuration.events.EventSerde;
@@ -30,8 +32,9 @@ import titan.ccp.model.sensorregistry.SensorRegistry;
  */
 public class TopologyBuilder {
 
+
   private static final int LATENCY_OUTPOUT_THRESHOLD = 1000;
-  // private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
   private final String inputTopic;
   private final String outputTopic;
@@ -186,20 +189,22 @@ public class TopologyBuilder {
           final long latency = time - v.getTimestamp();
           this.latencyStats.add(latency);
           if (time - this.lastTime >= LATENCY_OUTPOUT_THRESHOLD) {
-            System.out.println("latency,"
-                + time + ','
-                + this.latencyStats.mean() + ','
-                + (this.latencyStats.count() > 0
-                    ? this.latencyStats.populationStandardDeviation()
-                    : Double.NaN)
-                + ','
-                + (this.latencyStats.count() > 1
-                    ? this.latencyStats.sampleStandardDeviation()
-                    : Double.NaN)
-                + ','
-                + this.latencyStats.min() + ','
-                + this.latencyStats.max() + ','
-                + this.latencyStats.count());
+            if (LOGGER.isInfoEnabled()) {
+              LOGGER.info("latency,"
+                  + time + ','
+                  + this.latencyStats.mean() + ','
+                  + (this.latencyStats.count() > 0
+                      ? this.latencyStats.populationStandardDeviation()
+                      : Double.NaN)
+                  + ','
+                  + (this.latencyStats.count() > 1
+                      ? this.latencyStats.sampleStandardDeviation()
+                      : Double.NaN)
+                  + ','
+                  + this.latencyStats.min() + ','
+                  + this.latencyStats.max() + ','
+                  + this.latencyStats.count());
+            }
             this.latencyStats = new StatsAccumulator();
             this.lastTime = time;
           }

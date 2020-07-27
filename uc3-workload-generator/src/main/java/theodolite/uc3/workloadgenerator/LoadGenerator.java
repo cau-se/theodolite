@@ -15,12 +15,28 @@ import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBu
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 import titan.ccp.model.records.ActivePowerRecord;
 
-public class LoadGenerator {
+/**
+ * The {@code LoadGenerator} creates a load in Kafka.
+ */
+public final class LoadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
+  // constants
   private static final long MAX_DURATION_IN_DAYS = 30L;
 
+  // Make this a utility class, because all methods are static.
+  private LoadGenerator() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Main method.
+   *
+   * @param args CLI arguments
+   * @throws InterruptedException Interrupt happened
+   * @throws IOException happened.
+   */
   public static void main(final String[] args) throws InterruptedException, IOException {
     // uc2
     LOGGER.info("Start workload generator for use case UC3.");
@@ -68,15 +84,15 @@ public class LoadGenerator {
     // create workload generator
     final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
         KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
-            .setInstances(instances)
-            .setKeySpace(new KeySpace("s_", numSensors))
-            .setThreads(threads)
-            .setPeriod(Duration.of(periodMs, ChronoUnit.MILLIS))
-            .setDuration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
-            .setGeneratorFunction(
+            .instances(instances)
+            .keySpace(new KeySpace("s_", numSensors))
+            .threads(threads)
+            .period(Duration.of(periodMs, ChronoUnit.MILLIS))
+            .duration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
+            .generatorFunction(
                 sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
-            .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
-            .setKafkaRecordSender(kafkaRecordSender)
+            .zooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
+            .kafkaRecordSender(kafkaRecordSender)
             .build();
 
     // start

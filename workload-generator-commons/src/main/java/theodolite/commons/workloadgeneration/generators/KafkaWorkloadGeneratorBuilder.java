@@ -14,25 +14,17 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
  *
  * @param <T> the record for which the builder is dedicated for.
  */
-public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
+public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> { // NOPMD
 
-  private int instances;
-
-  private ZooKeeper zooKeeper;
-
-  private KeySpace keySpace;
-
-  private int threads;
-
-  private Duration period;
-
-  private Duration duration;
-
-  private BeforeAction beforeAction;
-
-  private MessageGenerator<T> generatorFunction;
-
-  private KafkaRecordSender<T> kafkaRecordSender;
+  private int instances; // NOPMD
+  private ZooKeeper zooKeeper; // NOPMD
+  private KeySpace keySpace; // NOPMD
+  private int threads; // NOPMD
+  private Duration period; // NOPMD
+  private Duration duration; // NOPMD
+  private BeforeAction beforeAction; // NOPMD
+  private MessageGenerator<T> generatorFunction; // NOPMD
+  private KafkaRecordSender<T> kafkaRecordSender; // NOPMD
 
   private KafkaWorkloadGeneratorBuilder() {
 
@@ -53,7 +45,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param instances the number of instances.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setInstances(final int instances) {
+  public KafkaWorkloadGeneratorBuilder<T> instances(final int instances) {
     this.instances = instances;
     return this;
   }
@@ -64,7 +56,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param zooKeeper a reference to the ZooKeeper instance.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setZooKeeper(final ZooKeeper zooKeeper) {
+  public KafkaWorkloadGeneratorBuilder<T> zooKeeper(final ZooKeeper zooKeeper) {
     this.zooKeeper = zooKeeper;
     return this;
   }
@@ -75,7 +67,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param beforeAction the {@link BeforeAction}.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setBeforeAction(final BeforeAction beforeAction) {
+  public KafkaWorkloadGeneratorBuilder<T> beforeAction(final BeforeAction beforeAction) {
     this.beforeAction = beforeAction;
     return this;
   }
@@ -86,7 +78,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param keySpace the {@link KeySpace}.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setKeySpace(final KeySpace keySpace) {
+  public KafkaWorkloadGeneratorBuilder<T> keySpace(final KeySpace keySpace) {
     this.keySpace = keySpace;
     return this;
   }
@@ -97,7 +89,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param threads the number of threads.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setThreads(final int threads) {
+  public KafkaWorkloadGeneratorBuilder<T> threads(final int threads) {
     this.threads = threads;
     return this;
   }
@@ -108,7 +100,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param period the {@link Period}
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setPeriod(final Duration period) {
+  public KafkaWorkloadGeneratorBuilder<T> period(final Duration period) {
     this.period = period;
     return this;
   }
@@ -119,7 +111,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param duration the {@link Duration}.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setDuration(final Duration duration) {
+  public KafkaWorkloadGeneratorBuilder<T> duration(final Duration duration) {
     this.duration = duration;
     return this;
   }
@@ -130,7 +122,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param generatorFunction the generator function.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setGeneratorFunction(
+  public KafkaWorkloadGeneratorBuilder<T> generatorFunction(
       final MessageGenerator<T> generatorFunction) {
     this.generatorFunction = generatorFunction;
     return this;
@@ -142,7 +134,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> {
    * @param kafkaRecordSender the record sender to use.
    * @return the builder.
    */
-  public KafkaWorkloadGeneratorBuilder<T> setKafkaRecordSender(
+  public KafkaWorkloadGeneratorBuilder<T> kafkaRecordSender(
       final KafkaRecordSender<T> kafkaRecordSender) {
     this.kafkaRecordSender = kafkaRecordSender;
     return this;
