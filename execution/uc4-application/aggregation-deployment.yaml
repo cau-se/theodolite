@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: uc4-application
-        image: "theodolite/theodolite-uc4-kstreams-app:latest"
+        image: "theodolite/theodolite-uc4-kstreams-app:v0-1-1"
         ports:
         - containerPort: 5555
           name: jmx
