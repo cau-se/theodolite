@@ -9,7 +9,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import kieker.common.record.IMonitoringRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.communication.zookeeper.WorkloadDistributor;
@@ -26,33 +25,19 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
  *
  * @param <T> The type of records the workload generator is dedicated for.
  */
-public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
+public abstract class AbstractWorkloadGenerator<T>
     implements WorkloadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWorkloadGenerator.class);
 
-  private final int instances;
-
-  private final ZooKeeper zooKeeper;
-
-  private final KeySpace keySpace;
-
-  private final int threads;
-
-  private final Duration period;
-
-  private final Duration duration;
-
-  private final BeforeAction beforeAction;
-
+  private final int instances; // NOPMD keep instance variable instead of local variable
+  private final ZooKeeper zooKeeper; // NOPMD keep instance variable instead of local variable
+  private final KeySpace keySpace;// NOPMD keep instance variable instead of local variable
+  private final BeforeAction beforeAction; // NOPMD keep instance variable instead of local variable
   private final BiFunction<WorkloadDefinition, Integer, List<WorkloadEntity<T>>> workloadSelector;
-
   private final MessageGenerator<T> generatorFunction;
-
   private final Transport<T> transport;
-
-  private WorkloadDistributor workloadDistributor;
-
+  private WorkloadDistributor workloadDistributor; // NOPMD keep instance variable instead of local
   private final ScheduledExecutorService executor;
 
   /**
@@ -80,10 +65,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
       final Transport<T> transport) {
     this.instances = instances;
     this.zooKeeper = zooKeeper;
-    this.period = period;
-    this.threads = threads;
     this.keySpace = keySpace;
-    this.duration = duration;
     this.beforeAction = beforeAction;
     this.generatorFunction = generatorFunction;
     this.workloadSelector = (workloadDefinition, workerId) -> {
@@ -105,7 +87,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
 
     final int periodMs = (int) period.toMillis();
 
-    LOGGER.info("Period: " + periodMs);
+    LOGGER.info("Period: " + periodMs); // NOPMD no computational intensive logger call
 
     final BiConsumer<WorkloadDefinition, Integer> workerAction = (declaration, workerId) -> {
 
@@ -132,7 +114,7 @@ public abstract class AbstractWorkloadGenerator<T extends IMonitoringRecord>
         this.stop();
       } catch (final InterruptedException e) {
         LOGGER.error("", e);
-        throw new IllegalStateException("Error when terminating the workload generation.");
+        throw new IllegalStateException("Error when terminating the workload generation.", e);
       }
     };
 

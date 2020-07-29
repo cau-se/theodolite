@@ -10,7 +10,13 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.configuration.events.EventSerde;
 
+/**
+ * Class to publish a configuration to Kafka.
+ *
+ */
 public class ConfigPublisher {
+
+  private static final String MEMORY_CONFIG = "134217728"; // 128 MB
 
   private final String topic;
 
@@ -20,6 +26,13 @@ public class ConfigPublisher {
     this(bootstrapServers, topic, new Properties());
   }
 
+  /**
+   * Creates a new {@link ConfigPublisher} object.
+   *
+   * @param bootstrapServers Zoo Keeper server.
+   * @param topic where to write the configuration.
+   * @param defaultProperties default properties.
+   */
   public ConfigPublisher(final String bootstrapServers, final String topic,
       final Properties defaultProperties) {
     this.topic = topic;
@@ -27,13 +40,19 @@ public class ConfigPublisher {
     final Properties properties = new Properties();
     properties.putAll(defaultProperties);
     properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "134217728"); // 128 MB
-    properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, "134217728"); // 128 MB
+    properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, MEMORY_CONFIG);
+    properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, MEMORY_CONFIG);
 
     this.producer =
         new KafkaProducer<>(properties, EventSerde.serializer(), new StringSerializer());
   }
 
+  /**
+   * Publish an event with given value to the kafka topic.
+   *
+   * @param event Which {@link Event} happened.
+   * @param value Configuration value.
+   */
   public void publish(final Event event, final String value) {
     final ProducerRecord<Event, String> record = new ProducerRecord<>(this.topic, event, value);
     try {

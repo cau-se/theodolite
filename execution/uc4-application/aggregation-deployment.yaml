@@ -22,6 +22,8 @@ spec:
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
+        - name: SCHEMA_REGISTRY_URL
+          value: "http://my-confluent-cp-schema-registry:8081"
         - name: AGGREGATION_DURATION_DAYS
           value: "3" #AGGREGATION_DURATION_DAYS
         - name: AGGREGATION_DURATION_ADVANCE

@@ -13,6 +13,8 @@ import titan.ccp.common.kafka.streams.PropertiesBuilder;
 public abstract class KafkaStreamsBuilder {
 
   // Kafkastreams application specific
+  protected String schemaRegistryUrl; // NOPMD for use in subclass
+
   private String applicationName; // NOPMD
   private String applicationVersion; // NOPMD
   private String bootstrapServers; // NOPMD
@@ -52,6 +54,17 @@ public abstract class KafkaStreamsBuilder {
    */
   public KafkaStreamsBuilder bootstrapServers(final String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
+    return this;
+  }
+
+  /**
+   * Sets the URL for the schema registry.
+   *
+   * @param url The URL of the schema registry.
+   * @return
+   */
+  public KafkaStreamsBuilder schemaRegistry(final String url) {
+    this.schemaRegistryUrl = url;
     return this;
   }
 
@@ -131,9 +144,10 @@ public abstract class KafkaStreamsBuilder {
    */
   public KafkaStreams build() {
     // Check for required attributes for building properties.
-    Objects.requireNonNull(this.bootstrapServers, "Bootstrap server has not been set.");
     Objects.requireNonNull(this.applicationName, "Application name has not been set.");
     Objects.requireNonNull(this.applicationVersion, "Application version has not been set.");
+    Objects.requireNonNull(this.bootstrapServers, "Bootstrap server has not been set.");
+    Objects.requireNonNull(this.schemaRegistryUrl, "Schema registry has not been set.");
 
     // Create the Kafka streams instance.
     return new KafkaStreams(this.buildTopology(), this.buildProperties());

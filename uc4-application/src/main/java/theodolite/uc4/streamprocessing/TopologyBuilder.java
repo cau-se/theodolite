@@ -17,8 +17,8 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import theodolite.uc4.streamprocessing.util.StatsFactory;
 import titan.ccp.common.kafka.GenericSerde;
-import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
-import titan.ccp.models.records.ActivePowerRecordFactory;
+import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Builds Kafka Stream Topology for the History microservice.
@@ -32,6 +32,7 @@ public class TopologyBuilder {
 
   private final String inputTopic;
   private final String outputTopic;
+  private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
   private final Duration aggregtionDuration;
   private final Duration aggregationAdvance;
 
@@ -41,9 +42,11 @@ public class TopologyBuilder {
    * Create a new {@link TopologyBuilder} using the given topics.
    */
   public TopologyBuilder(final String inputTopic, final String outputTopic,
+      final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory,
       final Duration aggregtionDuration, final Duration aggregationAdvance) {
     this.inputTopic = inputTopic;
     this.outputTopic = outputTopic;
+    this.srAvroSerdeFactory = srAvroSerdeFactory;
     this.aggregtionDuration = aggregtionDuration;
     this.aggregationAdvance = aggregationAdvance;
   }
@@ -58,14 +61,14 @@ public class TopologyBuilder {
     this.builder
         .stream(this.inputTopic,
             Consumed.with(Serdes.String(),
-                IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+                this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
         .selectKey((key, value) -> {
           final Instant instant = Instant.ofEpochMilli(value.getTimestamp());
           final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, this.zone);
           return keyFactory.createKey(value.getIdentifier(), dateTime);
         })
         .groupByKey(
-            Grouped.with(keySerde, IMonitoringRecordSerde.serde(new ActivePowerRecordFactory())))
+            Grouped.with(keySerde, this.srAvroSerdeFactory.forValues()))
         .windowedBy(TimeWindows.of(this.aggregtionDuration).advanceBy(this.aggregationAdvance))
         .aggregate(
             () -> Stats.of(),

@@ -3,7 +3,6 @@ package theodolite.uc2.streamprocessing;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Test;
-import theodolite.uc2.streamprocessing.OptionalParentsSerde;
 
 public class OptionalParentsSerdeTest {
 

@@ -24,6 +24,8 @@ spec:
           value: "2181"
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
+        - name: SCHEMA_REGISTRY_URL
+          value: "http://my-confluent-cp-schema-registry:8081"
         - name: NUM_SENSORS
           value: "{{NUM_SENSORS}}"
         - name: POD_NAME
@@ -32,4 +34,3 @@ spec:
               fieldPath: metadata.name
         - name: INSTANCES
           value: "{{INSTANCES}}"
-          
