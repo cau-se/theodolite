@@ -86,6 +86,33 @@ do
 done
 echo "Finish topic deletion, print topics:"
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -E '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p'
+
+# delete zookeeper nodes used for workload generation
+echo "Delete ZooKeeper configurations used for workload generation"
+kubectl exec zookeeper-client -- bash -c "zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall /workload-generation"
+echo "Waiting for deletion"
+
+while [ true ]
+do
+    IFS=', ' read -r -a array <<< $(kubectl exec zookeeper-client -- bash -c "zookeeper-shell my-confluent-cp-zookeeper:2181 ls /" | tail -n 1 | awk -F[\]\[] '{print $2}')
+    found=0
+    for element in "${array[@]}"
+    do
+        if [ "$element" == "workload-generation" ]; then
+                found=1
+                break
+        fi
+    done
+    if [ $found -ne 1 ]; then
+        echo "ZooKeeper reset was successful."
+        break
+    else 
+        echo "ZooKeeper reset was not successful. Retrying in 5s."
+        sleep 5s
+    fi
+done
+echo "Deletion finished"
+
 echo "Exiting script"
 
 KAFKA_LAG_EXPORTER_POD=$(kubectl get pod -l app.kubernetes.io/name=kafka-lag-exporter -o jsonpath="{.items[0].metadata.name}")

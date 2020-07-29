@@ -66,6 +66,9 @@ configure(useCaseProjects) {
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.6.1'
       implementation project(':application-kafkastreams-commons')
+      
+      // These dependencies are used for the workload-generator-commmon
+      implementation project(':workload-generator-commons')
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
@@ -77,6 +80,8 @@ configure(commonProjects) {
   dependencies {
       // These dependencies is exported to consumers, that is to say found on their compile classpath.
       api 'org.apache.kafka:kafka-clients:2.4.0'
+      api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
+      api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
 
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation 'org.slf4j:slf4j-simple:1.6.1'

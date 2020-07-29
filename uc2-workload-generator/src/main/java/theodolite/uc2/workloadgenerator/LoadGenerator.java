@@ -1,18 +1,18 @@
 package theodolite.uc2.workloadgenerator;
 
 import java.io.IOException;
-import java.util.List;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.kafkasender.KafkaRecordSender;
+import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
+import theodolite.commons.workloadgeneration.dimensions.KeySpace;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
+import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
@@ -22,13 +22,20 @@ public class LoadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
+  private static final long MAX_DURATION_IN_DAYS = 30L;
+
   public static void main(final String[] args) throws InterruptedException, IOException {
+    // uc2
     LOGGER.info("Start workload generator for use case UC2.");
 
+    // get environment variables
     final String hierarchy = Objects.requireNonNullElse(System.getenv("HIERARCHY"), "deep");
     final int numNestedGroups = Integer
         .parseInt(Objects.requireNonNullElse(System.getenv("NUM_NESTED_GROUPS"), "1"));
-    final int numSensor =
+    final String zooKeeperHost = Objects.requireNonNullElse(System.getenv("ZK_HOST"), "localhost");
+    final int zooKeeperPort =
+        Integer.parseInt(Objects.requireNonNullElse(System.getenv("ZK_PORT"), "2181"));
+    final int numSensors =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("NUM_SENSORS"), "1"));
     final int periodMs =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("PERIOD_MS"), "1000"));
@@ -44,38 +51,14 @@ public class LoadGenerator {
     final String kafkaBatchSize = System.getenv("KAFKA_BATCH_SIZE");
     final String kafkaLingerMs = System.getenv("KAFKA_LINGER_MS");
     final String kafkaBufferMemory = System.getenv("KAFKA_BUFFER_MEMORY");
+    final int instances =
+        Integer.parseInt(Objects.requireNonNullElse(System.getenv("INSTANCES"), "1"));
 
-    final MutableSensorRegistry sensorRegistry = new MutableSensorRegistry("group_lvl_0");
-    if (hierarchy.equals("deep")) {
-      MutableAggregatedSensor lastSensor = sensorRegistry.getTopLevelSensor();
-      for (int lvl = 1; lvl < numNestedGroups; lvl++) {
-        lastSensor = lastSensor.addChildAggregatedSensor("group_lvl_" + lvl);
-      }
-      for (int s = 0; s < numSensor; s++) {
-        lastSensor.addChildMachineSensor("sensor_" + s);
-      }
-    } else if (hierarchy.equals("full")) {
-      addChildren(sensorRegistry.getTopLevelSensor(), numSensor, 1, numNestedGroups, 0);
-    } else {
-      throw new IllegalStateException();
-    }
+    // build sensor registry
+    final MutableSensorRegistry sensorRegistry =
+        buildSensorRegistry(hierarchy, numNestedGroups, numSensors);
 
-    final List<String> sensors =
-        sensorRegistry.getMachineSensors().stream().map(s -> s.getIdentifier())
-            .collect(Collectors.toList());
-
-    if (sendRegistry) {
-      final ConfigPublisher configPublisher =
-          new ConfigPublisher(kafkaBootstrapServers, "configuration");
-      configPublisher.publish(Event.SENSOR_REGISTRY_CHANGED, sensorRegistry.toJson());
-      configPublisher.close();
-      System.out.println("Configuration sent.");
-
-      System.out.println("Now wait 30 seconds");
-      Thread.sleep(30_000);
-      System.out.println("And woke up again :)");
-    }
-
+    // create kafka record sender
     final Properties kafkaProperties = new Properties();
     // kafkaProperties.put("acks", this.acknowledges);
     kafkaProperties.compute(ProducerConfig.BATCH_SIZE_CONFIG, (k, v) -> kafkaBatchSize);
@@ -85,20 +68,61 @@ public class LoadGenerator {
         new KafkaRecordSender<>(kafkaBootstrapServers,
             kafkaInputTopic, r -> r.getIdentifier(), r -> r.getTimestamp(), kafkaProperties);
 
-    final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
-    final Random random = new Random();
+    // create workload generator
+    final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
+        KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
+            .setInstances(instances)
+            .setKeySpace(new KeySpace("s_", numSensors))
+            .setThreads(threads)
+            .setPeriod(Duration.of(periodMs, ChronoUnit.MILLIS))
+            .setDuration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
+            .setBeforeAction(() -> {
+              if (sendRegistry) {
+                final ConfigPublisher configPublisher =
+                    new ConfigPublisher(kafkaBootstrapServers, "configuration");
+                configPublisher.publish(Event.SENSOR_REGISTRY_CHANGED, sensorRegistry.toJson());
+                configPublisher.close();
+                LOGGER.info("Configuration sent.");
 
-    for (final String sensor : sensors) {
-      final int initialDelay = random.nextInt(periodMs);
-      executor.scheduleAtFixedRate(() -> {
-        kafkaRecordSender.write(new ActivePowerRecord(sensor, System.currentTimeMillis(), value));
-      }, initialDelay, periodMs, TimeUnit.MILLISECONDS);
+                LOGGER.info("Now wait 30 seconds");
+                try {
+                  Thread.sleep(30_000);
+                } catch (final InterruptedException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
+                LOGGER.info("And woke up again :)");
+              }
+            })
+            .setGeneratorFunction(
+                sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
+            .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
+            .setKafkaRecordSender(kafkaRecordSender)
+            .build();
+
+    // start
+    workloadGenerator.start();
+  }
+
+  private static MutableSensorRegistry buildSensorRegistry(
+      final String hierarchy,
+      final int numNestedGroups,
+      final int numSensors) {
+    final MutableSensorRegistry sensorRegistry = new MutableSensorRegistry("group_lvl_0");
+    if (hierarchy.equals("deep")) {
+      MutableAggregatedSensor lastSensor = sensorRegistry.getTopLevelSensor();
+      for (int lvl = 1; lvl < numNestedGroups; lvl++) {
+        lastSensor = lastSensor.addChildAggregatedSensor("group_lvl_" + lvl);
+      }
+      for (int s = 0; s < numSensors; s++) {
+        lastSensor.addChildMachineSensor("sensor_" + s);
+      }
+    } else if (hierarchy.equals("full")) {
+      addChildren(sensorRegistry.getTopLevelSensor(), numSensors, 1, numNestedGroups, 0);
+    } else {
+      throw new IllegalStateException();
     }
-
-    System.out.println("Wait for termination...");
-    executor.awaitTermination(30, TimeUnit.DAYS);
-    System.out.println("Will terminate now");
-
+    return sensorRegistry;
   }
 
   private static int addChildren(final MutableAggregatedSensor parent, final int numChildren,

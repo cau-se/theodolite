@@ -1,38 +1,49 @@
 package theodolite.uc1.workloadgenerator;
 
 import java.io.IOException;
-import java.util.List;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.kafkasender.KafkaRecordSender;
+import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
+import theodolite.commons.workloadgeneration.dimensions.KeySpace;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
+import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 import titan.ccp.models.records.ActivePowerRecord;
 
-public class LoadGenerator {
+/**
+ * Load Generator for UC1.
+ */
+public final class LoadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
-  private static final int WL_MAX_RECORDS = 150_000;
+  private static final long MAX_DURATION_IN_DAYS = 30L;
 
+  private LoadGenerator() {}
+
+  /**
+   * Entry point.
+   */
   public static void main(final String[] args) throws InterruptedException, IOException {
+    // uc1
     LOGGER.info("Start workload generator for use case UC1.");
 
+    // get environment variables
+    final String zooKeeperHost = Objects.requireNonNullElse(System.getenv("ZK_HOST"), "localhost");
+    final int zooKeeperPort =
+        Integer.parseInt(Objects.requireNonNullElse(System.getenv("ZK_PORT"), "2181"));
     final int numSensors =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("NUM_SENSORS"), "10"));
-    final int instanceId = getInstanceId();
     final int periodMs =
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("PERIOD_MS"), "1000"));
     final int value = Integer.parseInt(Objects.requireNonNullElse(System.getenv("VALUE"), "10"));
-    final int threads = Integer.parseInt(Objects.requireNonNullElse(System.getenv("THREADS"), "4"));
+    final int threads = Integer.parseInt(Objects.requireNonNullElse(System.getenv("THREADS"),
+        "4"));
     final String kafkaBootstrapServers =
         Objects.requireNonNullElse(System.getenv("KAFKA_BOOTSTRAP_SERVERS"), "localhost:9092");
     final String kafkaInputTopic =
@@ -40,14 +51,10 @@ public class LoadGenerator {
     final String kafkaBatchSize = System.getenv("KAFKA_BATCH_SIZE");
     final String kafkaLingerMs = System.getenv("KAFKA_LINGER_MS");
     final String kafkaBufferMemory = System.getenv("KAFKA_BUFFER_MEMORY");
+    final int instances =
+        Integer.parseInt(Objects.requireNonNullElse(System.getenv("INSTANCES"), "1"));
 
-    final int idStart = instanceId * WL_MAX_RECORDS;
-    final int idEnd = Math.min((instanceId + 1) * WL_MAX_RECORDS, numSensors);
-    LOGGER.info("Generating data for sensors with IDs from {} to {} (exclusive).", idStart, idEnd);
-    final List<String> sensors = IntStream.range(idStart, idEnd)
-        .mapToObj(i -> "s_" + i)
-        .collect(Collectors.toList());
-
+    // create kafka record sender
     final Properties kafkaProperties = new Properties();
     // kafkaProperties.put("acks", this.acknowledges);
     kafkaProperties.compute(ProducerConfig.BATCH_SIZE_CONFIG, (k, v) -> kafkaBatchSize);
@@ -60,33 +67,21 @@ public class LoadGenerator {
         r -> r.getTimestamp(),
         kafkaProperties);
 
-    final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
-    final Random random = new Random();
+    // create workload generator
+    final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
+        KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
+            .setInstances(instances)
+            .setKeySpace(new KeySpace("s_", numSensors))
+            .setThreads(threads)
+            .setPeriod(Duration.of(periodMs, ChronoUnit.MILLIS))
+            .setDuration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
+            .setGeneratorFunction(
+                sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
+            .setZooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
+            .setKafkaRecordSender(kafkaRecordSender)
+            .build();
 
-    for (final String sensor : sensors) {
-      final int initialDelay = random.nextInt(periodMs);
-      executor.scheduleAtFixedRate(() -> {
-        kafkaRecordSender.write(new ActivePowerRecord(sensor, System.currentTimeMillis(), value));
-      }, initialDelay, periodMs, TimeUnit.MILLISECONDS);
-    }
-
-    System.out.println("Wait for termination...");
-    executor.awaitTermination(30, TimeUnit.DAYS);
-    System.out.println("Will terminate now");
-
+    // start
+    workloadGenerator.start();
   }
-
-  private static int getInstanceId() {
-    final String podName = System.getenv("POD_NAME");
-    if (podName == null) {
-      return 0;
-    } else {
-      return Pattern.compile("-")
-          .splitAsStream(podName)
-          .reduce((p, x) -> x)
-          .map(Integer::parseInt)
-          .orElse(0);
-    }
-  }
-
 }
