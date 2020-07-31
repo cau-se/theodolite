@@ -54,7 +54,7 @@ python lag_analysis.py $EXP_ID uc4 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop wl and app
-#sed "s/{{INSTANCES}}/1/g" uc1-workload-generator/deployment.yaml | kubectl delete -f -
+#sed "s/{{INSTANCES}}/1/g" uc4-workload-generator/deployment.yaml | kubectl delete -f -
 echo "$WORKLOAD_GENERATOR_YAML" | kubectl delete -f -
 kubectl delete -f uc4-application/aggregation-service.yaml
 kubectl delete -f uc4-application/jmx-configmap.yaml

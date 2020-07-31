@@ -27,8 +27,8 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 # Start workload generator
 NUM_NESTED_GROUPS=$DIM_VALUE
 WL_MAX_RECORDS=150000
-APROX_NUM_SENSORS=$((4**NUM_NESTED_GROUPS))NUM_NESTED_GROUPS
-WL_INSTANCES=$(((APROX_NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
+APPROX_NUM_SENSORS=$((4**NUM_NESTED_GROUPS))
+WL_INSTANCES=$(((APPROX_NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
 
 sed "s/{{NUM_NESTED_GROUPS}}/$NUM_NESTED_GROUPS/g" uc2-workload-generator/deployment.yaml | kubectl apply -f -
 WORKLOAD_GENERATOR_YAML=$(sed "s/{{NUM_NESTED_GROUPS}}/$NUM_NESTED_GROUPS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc2-workload-generator/deployment.yaml)
@@ -54,7 +54,7 @@ python lag_analysis.py $EXP_ID uc2 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop wl and app
-#sed "s/{{INSTANCES}}/1/g" uc1-workload-generator/deployment.yaml | kubectl delete -f -
+#sed "s/{{INSTANCES}}/1/g" uc2-workload-generator/deployment.yaml | kubectl delete -f -
 echo "$WORKLOAD_GENERATOR_YAML" | kubectl delete -f -
 kubectl delete -f uc2-application/aggregation-service.yaml
 kubectl delete -f uc2-application/jmx-configmap.yaml
