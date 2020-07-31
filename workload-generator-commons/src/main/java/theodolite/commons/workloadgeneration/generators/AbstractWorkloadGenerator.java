@@ -87,7 +87,7 @@ public abstract class AbstractWorkloadGenerator<T>
 
     final int periodMs = (int) period.toMillis();
 
-    LOGGER.info("Period: " + periodMs); // NOPMD no computational intensive logger call
+    LOGGER.info("Period: {}", periodMs);
 
     final BiConsumer<WorkloadDefinition, Integer> workerAction = (declaration, workerId) -> {
 
@@ -118,9 +118,12 @@ public abstract class AbstractWorkloadGenerator<T>
       }
     };
 
-    this.workloadDistributor =
-        new WorkloadDistributor(this.instances, this.zooKeeper, this.keySpace, this.beforeAction,
-            workerAction);
+    this.workloadDistributor = new WorkloadDistributor(
+        this.instances,
+        this.zooKeeper,
+        this.keySpace,
+        this.beforeAction,
+        workerAction);
   }
 
   /**
