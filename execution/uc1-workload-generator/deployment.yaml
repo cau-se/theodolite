@@ -1,12 +1,11 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: titan-ccp-load-generator
 spec:
   selector:
     matchLabels:
       app: titan-ccp-load-generator
-  serviceName: titan-ccp-load-generator
   replicas: {{INSTANCES}}
   template:
     metadata:
