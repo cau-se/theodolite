@@ -100,11 +100,8 @@ public abstract class AbstractWorkloadGenerator<T>
       entities.forEach(entity -> {
         final T message = entity.generateMessage();
         final long initialDelay = random.nextInt(periodMs);
-        final Runnable task = () -> {
-          this.transport.transport(message);
-        };
-        this.executor.scheduleAtFixedRate(task, initialDelay,
-            periodMs, TimeUnit.MILLISECONDS);
+        final Runnable task = () -> this.transport.transport(message);
+        this.executor.scheduleAtFixedRate(task, initialDelay, periodMs, TimeUnit.MILLISECONDS);
       });
 
 
