@@ -15,8 +15,7 @@ import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBu
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
-import titan.ccp.model.sensorregistry.MutableSensorRegistry;
+import titan.ccp.model.sensorregistry.SensorRegistry;
 
 /**
  * The {@code LoadGenerator} creates a load in Kafka.
@@ -48,7 +47,11 @@ public final class LoadGenerator {
     LOGGER.info("Start workload generator for use case UC2.");
 
     // get environment variables
-    final String hierarchy = Objects.requireNonNullElse(System.getenv("HIERARCHY"), DEEP);
+    final String hierarchy = System.getenv("HIERARCHY");
+    if (hierarchy != null && hierarchy.equals(DEEP)) {
+      LOGGER.error(
+          "The HIERARCHY parameter is no longer supported. Creating a full hierachy instead.");
+    }
     final int numNestedGroups = Integer
         .parseInt(Objects.requireNonNullElse(System.getenv("NUM_NESTED_GROUPS"), "1"));
     final String zooKeeperHost = Objects.requireNonNullElse(System.getenv("ZK_HOST"), "localhost");
@@ -77,8 +80,8 @@ public final class LoadGenerator {
         Integer.parseInt(Objects.requireNonNullElse(System.getenv("INSTANCES"), "1"));
 
     // build sensor registry
-    final MutableSensorRegistry sensorRegistry =
-        buildSensorRegistry(hierarchy, numNestedGroups, numSensors);
+    final SensorRegistry sensorRegistry =
+        new SensorRegistryBuilder(numNestedGroups, numSensors).build();
 
     // create kafka record sender
     final Properties kafkaProperties = new Properties();
@@ -101,7 +104,7 @@ public final class LoadGenerator {
     final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
         KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
             .instances(instances)
-            .keySpace(new KeySpace("s_", numSensors))
+            .keySpace(new KeySpace("s_", sensorRegistry.getMachineSensors().size()))
             .threads(threads)
             .period(Duration.of(periodMs, ChronoUnit.MILLIS))
             .duration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
@@ -131,44 +134,6 @@ public final class LoadGenerator {
 
     // start
     workloadGenerator.start();
-  }
-
-  private static MutableSensorRegistry buildSensorRegistry(
-      final String hierarchy,
-      final int numNestedGroups,
-      final int numSensors) {
-    final MutableSensorRegistry sensorRegistry = new MutableSensorRegistry("group_lvl_0");
-    if (DEEP.equals(hierarchy)) {
-      MutableAggregatedSensor lastSensor = sensorRegistry.getTopLevelSensor();
-      for (int lvl = 1; lvl < numNestedGroups; lvl++) {
-        lastSensor = lastSensor.addChildAggregatedSensor("group_lvl_" + lvl);
-      }
-      for (int s = 0; s < numSensors; s++) {
-        lastSensor.addChildMachineSensor("sensor_" + s);
-      }
-    } else if ("full".equals(hierarchy)) {
-      addChildren(sensorRegistry.getTopLevelSensor(), numSensors, 1, numNestedGroups, 0);
-    } else {
-      throw new IllegalStateException();
-    }
-    return sensorRegistry;
-  }
-
-  private static int addChildren(final MutableAggregatedSensor parent, final int numChildren,
-      final int lvl, final int maxLvl, final int startId) {
-    int nextId = startId;
-    for (int c = 0; c < numChildren; c++) {
-      if (lvl == maxLvl) {
-        parent.addChildMachineSensor("s_" + nextId);
-        nextId++;
-      } else {
-        final MutableAggregatedSensor newParent =
-            parent.addChildAggregatedSensor("g_" + lvl + '_' + nextId);
-        nextId++;
-        nextId = addChildren(newParent, numChildren, lvl + 1, maxLvl, nextId);
-      }
-    }
-    return nextId;
   }
 
 }
