@@ -26,7 +26,13 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 
 # Start workload generator
 NUM_NESTED_GROUPS=$DIM_VALUE
+WL_MAX_RECORDS=150000
+APROX_NUM_SENSORS=$((4**NUM_NESTED_GROUPS))NUM_NESTED_GROUPS
+WL_INSTANCES=$(((APROX_NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
+
 sed "s/{{NUM_NESTED_GROUPS}}/$NUM_NESTED_GROUPS/g" uc2-workload-generator/deployment.yaml | kubectl apply -f -
+WORKLOAD_GENERATOR_YAML=$(sed "s/{{NUM_NESTED_GROUPS}}/$NUM_NESTED_GROUPS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc2-workload-generator/deployment.yaml)
+echo "$WORKLOAD_GENERATOR_YAML" | kubectl apply -f -
 
 # Start application
 REPLICAS=$INSTANCES
