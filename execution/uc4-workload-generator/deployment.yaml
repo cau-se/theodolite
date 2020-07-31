@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: titan-ccp-load-generator
-  replicas: 1
+  replicas: {{INSTANCES}}
   template:
     metadata:
       labels:
@@ -27,3 +27,9 @@ spec:
           value: "http://my-confluent-cp-schema-registry:8081"
         - name: NUM_SENSORS
           value: "{{NUM_SENSORS}}"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTANCES
+          value: "{{INSTANCES}}"

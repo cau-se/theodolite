@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: titan-ccp-load-generator
-  replicas: 1
+  replicas: {{INSTANCES}}
   template:
     metadata:
       labels:
@@ -31,3 +31,9 @@ spec:
           value: "4"
         - name: NUM_NESTED_GROUPS
           value: "{{NUM_NESTED_GROUPS}}"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTANCES
+          value: "{{INSTANCES}}"
