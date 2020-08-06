@@ -13,3 +13,4 @@ class ExperimentConfig:
     execution_minutes: int
     benchmarking_strategy: object
     subexperiment_executor: object
+    subexperiment_evaluator: object

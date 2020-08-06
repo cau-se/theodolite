@@ -11,6 +11,6 @@ def execute(config):
             subexperiment_counter+=1
             print(f"Run subexperiment {subexperiment_counter}/{subexperiments_total} with dimension value {dim_value} and {replica} replicas.")
 
-            subexperiment_config = SubexperimentConfig(config.use_case, subexperiment_counter, dim_value, replica, config.partitions, config.cpu_limit, config.memory_limit, config.kafka_streams_commit_interval_ms, config.execution_minutes, config.subexperiment_executor)
+            subexperiment_config = SubexperimentConfig(config.use_case, subexperiment_counter, dim_value, replica, config.partitions, config.cpu_limit, config.memory_limit, config.kafka_streams_commit_interval_ms, config.execution_minutes)
 
             config.subexperiment_executor.execute(subexperiment_config)

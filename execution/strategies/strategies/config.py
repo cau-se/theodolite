@@ -12,4 +12,3 @@ class SubexperimentConfig:
     memory_limit: str
     kafka_streams_commit_interval_ms: int
     execution_minutes: int
-    subexperiment_executor: object

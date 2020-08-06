@@ -20,6 +20,9 @@ benchmark_strategy=sys.argv[9] if len(sys.argv) >= 10 and sys.argv[9] else "defa
 print("Chosen benchmarking strategy: "+benchmark_strategy)
 print("Going to execute " + str(len(dim_values)*len(replicas)) + " subexperiments in total..")
 
+# todo set noop evaluator for default strategy
 experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, default_strategy, subexperiment_executor)
 executor = ExperimentExecutor(experiment_config)
 executor.execute()
+
+# todo add step strategy
