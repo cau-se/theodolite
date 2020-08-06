@@ -1,7 +1,7 @@
 # Contains the default strategy that executes a subexperiment for all combinations of instances and dimension values.
 
 import os
-from config import SubexperimentConfig
+from .config import SubexperimentConfig
 
 def execute(config):
     subexperiment_counter=0
