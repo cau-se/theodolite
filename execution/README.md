@@ -142,7 +142,9 @@ Depending on your setup, some additional adjustments may be necessary:
 
 ## Execution
 
-The `./theodolite.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
+Please note that **Python 3.7** installation is required for executing Theodolite.
+
+The `./theodolite.py` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
 ```sh
 ./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration> <domain-restriction> <search-strategy>
