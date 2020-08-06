@@ -15,13 +15,15 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: uc2-application
-        image: "benediktwetzel/uc2-app:latest"
+        image: "theodolite/theodolite-uc2-kstreams-app:latest"
         ports:
         - containerPort: 5555
           name: jmx
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
+        - name: SCHEMA_REGISTRY_URL
+          value: "http://my-confluent-cp-schema-registry:8081"
         - name: COMMIT_INTERVAL_MS
           value: "{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}"
         - name: JAVA_OPTS

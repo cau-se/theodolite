@@ -1,12 +1,11 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: titan-ccp-load-generator
 spec:
   selector:
     matchLabels:
       app: titan-ccp-load-generator
-  serviceName: titan-ccp-load-generator
   replicas: {{INSTANCES}}
   template:
     metadata:
@@ -16,10 +15,16 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: soerenhenning/uc1-wg:latest 
+        image: theodolite/theodolite-uc1-workload-generator:latest
         env:
+        - name: ZK_HOST
+          value: "my-confluent-cp-zookeeper"
+        - name: ZK_PORT
+          value: "2181"
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"
+        - name: SCHEMA_REGISTRY_URL
+          value: "http://my-confluent-cp-schema-registry:8081"
         - name: NUM_SENSORS
           value: "{{NUM_SENSORS}}"
         - name: POD_NAME
@@ -28,4 +33,3 @@ spec:
               fieldPath: metadata.name
         - name: INSTANCES
           value: "{{INSTANCES}}"
-          

@@ -9,7 +9,7 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueStore;
-import titan.ccp.models.records.ActivePowerRecord;
+import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Transforms the join result of an {@link ActivePowerRecord} and the corresponding sensor parents

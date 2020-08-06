@@ -92,12 +92,15 @@ spotbugs:
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
-    - docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest
-    - docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA
+    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+    - "[ $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
     - docker push $DOCKERHUB_ORG/$IMAGE_NAME
     - docker logout
   rules:
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       # - $JAVA_PROJECT_NAME/**/* # hope this can be simplified soon, see #51
       - application-kafkastreams-commons/**/*
@@ -113,6 +116,8 @@ deploy-uc1-kstreams-app:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-application"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc1-application/**/*
       - application-kafkastreams-commons/**/*
@@ -128,6 +133,8 @@ deploy-uc2-kstreams-app:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
     JAVA_PROJECT_NAME: "uc2-application"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc2-application/**/*
       - application-kafkastreams-commons/**/*
@@ -143,6 +150,8 @@ deploy-uc3-kstreams-app:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
     JAVA_PROJECT_NAME: "uc3-application"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc3-application/**/*
       - application-kafkastreams-commons/**/*
@@ -158,6 +167,8 @@ deploy-uc4-kstreams-app:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-application"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc4-application/**/*
       - application-kafkastreams-commons/**/*
@@ -173,6 +184,8 @@ deploy-uc1-workload-generator:
     IMAGE_NAME: "theodolite-uc1-workload-generator"
     JAVA_PROJECT_NAME: "uc1-workload-generator"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc1-workload-generator/**/*
       - application-kafkastreams-commons/**/*
@@ -188,6 +201,8 @@ deploy-uc2-workload-generator:
     IMAGE_NAME: "theodolite-uc2-workload-generator"
     JAVA_PROJECT_NAME: "uc2-workload-generator"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc2-workload-generator/**/*
       - application-kafkastreams-commons/**/*
@@ -203,6 +218,8 @@ deploy-uc3-workload-generator:
     IMAGE_NAME: "theodolite-uc3-workload-generator"
     JAVA_PROJECT_NAME: "uc3-workload-generator"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc3-workload-generator/**/*
       - application-kafkastreams-commons/**/*
@@ -218,6 +235,8 @@ deploy-uc4-workload-generator:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-workload-generator"
   rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
     - changes:
       - uc4-workload-generator/**/*
       - application-kafkastreams-commons/**/*

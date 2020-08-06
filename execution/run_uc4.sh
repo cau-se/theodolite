@@ -26,8 +26,11 @@ kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-z
 
 # Start workload generator
 NUM_SENSORS=$DIM_VALUE
-#NUM_SENSORS=xy
-sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g" uc4-workload-generator/deployment.yaml | kubectl apply -f -
+WL_MAX_RECORDS=150000
+WL_INSTANCES=$(((NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
+
+WORKLOAD_GENERATOR_YAML=$(sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc4-workload-generator/deployment.yaml)
+echo "$WORKLOAD_GENERATOR_YAML" | kubectl apply -f -
 
 # Start application
 REPLICAS=$INSTANCES
@@ -51,7 +54,8 @@ python lag_analysis.py $EXP_ID uc4 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop wl and app
-kubectl delete -f uc4-workload-generator/deployment.yaml
+#sed "s/{{INSTANCES}}/1/g" uc4-workload-generator/deployment.yaml | kubectl delete -f -
+echo "$WORKLOAD_GENERATOR_YAML" | kubectl delete -f -
 kubectl delete -f uc4-application/aggregation-service.yaml
 kubectl delete -f uc4-application/jmx-configmap.yaml
 kubectl delete -f uc4-application/service-monitor.yaml
@@ -81,6 +85,33 @@ do
 done
 echo "Finish topic deletion, print topics:"
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -E '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p'
+
+# delete zookeeper nodes used for workload generation
+echo "Delete ZooKeeper configurations used for workload generation"
+kubectl exec zookeeper-client -- bash -c "zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall /workload-generation"
+echo "Waiting for deletion"
+
+while [ true ]
+do
+    IFS=', ' read -r -a array <<< $(kubectl exec zookeeper-client -- bash -c "zookeeper-shell my-confluent-cp-zookeeper:2181 ls /" | tail -n 1 | awk -F[\]\[] '{print $2}')
+    found=0
+    for element in "${array[@]}"
+    do
+        if [ "$element" == "workload-generation" ]; then
+                found=1
+                break
+        fi
+    done
+    if [ $found -ne 1 ]; then
+        echo "ZooKeeper reset was successful."
+        break
+    else 
+        echo "ZooKeeper reset was not successful. Retrying in 5s."
+        sleep 5s
+    fi
+done
+echo "Deletion finished"
+
 echo "Exiting script"
 
 KAFKA_LAG_EXPORTER_POD=$(kubectl get pod -l app.kubernetes.io/name=kafka-lag-exporter -o jsonpath="{.items[0].metadata.name}")
