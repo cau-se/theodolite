@@ -74,8 +74,10 @@ allprojects {
 configure(useCaseProjects) {
   dependencies {
       // These dependencies is exported to consumers, that is to say found on their compile classpath.
-      api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
-      api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
+      compile('org.industrial-devops:titan-ccp-common:0.0.4-SNAPSHOT') {
+          changing = true
+      }
+      api 'net.kieker-monitoring:kieker:1.14'//-SNAPSHOT'
       api 'net.sourceforge.teetime:teetime:3.0'
 
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
@@ -121,7 +123,10 @@ configure(commonProjects) {
 
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation 'org.slf4j:slf4j-simple:1.6.1'
-      implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common:0.0.4-SNAPSHOT') {
+          changing = true
+//          exclude group: 'net.kieker-monitoring', module: 'kieker'
+      }
 
       compile group: 'org.apache.flink', name: "flink-connector-kafka_${scalaBinaryVersion}", version: "${flinkVersion}"
       compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
