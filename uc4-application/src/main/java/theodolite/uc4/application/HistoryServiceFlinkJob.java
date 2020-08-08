@@ -55,8 +55,10 @@ public class HistoryServiceFlinkJob {
     final String timeZoneString = this.config.getString(ConfigurationKeys.TIME_ZONE);
     final ZoneId timeZone = ZoneId.of(timeZoneString);
     final Time aggregationDuration =
+//        Time.minutes(2);
         Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
     final Time aggregationAdvance =
+//        Time.minutes(1);
         Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
 
     final Properties kafkaProps = new Properties();
