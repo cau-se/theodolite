@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 import matplotlib.pyplot as plt
 import csv
-
 #
 exp_id =  sys.argv[1]
 benchmark = sys.argv[2]
@@ -13,6 +12,8 @@ dim_value = sys.argv[3]
 instances = sys.argv[4]
 execution_minutes = int(sys.argv[5])
 time_diff_ms = int(os.getenv('CLOCK_DIFF_MS', 0))
+
+prometheus_query_path = 'http://kube1.se.internal:32529/api/v1/query_range'
 
 #http://localhost:9090/api/v1/query_range?query=sum%20by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)&start=2015-07-01T20:10:30.781Z&end=2020-07-01T20:11:00.781Z&step=15s
 
@@ -27,7 +28,7 @@ start = now - timedelta(minutes=execution_minutes)
 #print(start.isoformat().replace('+00:00', 'Z'))
 #print(end.isoformat().replace('+00:00', 'Z'))
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_query_path, params={
     #'query': "sum by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
     'query': "sum by(group, topic)(kafka_consumergroup_group_lag > 0)",
     'start': start.isoformat(),
@@ -87,7 +88,7 @@ df.to_csv(f"{filename}_values.csv")
 
 # Load total lag count
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_query_path, params={
     'query': "sum by(group)(kafka_consumergroup_group_lag > 0)",
     'start': start.isoformat(),
     'end': end.isoformat(),
@@ -108,10 +109,17 @@ df = pd.DataFrame(d)
 
 df.to_csv(f"{filename}_totallag.csv")
 
+# save whether the subexperiment was successful or not, meaning whether the consumer lag was above some threshhold or not
+# Assumption: Due to fluctuations within the record lag measurements, it is sufficient to analyze the second half of measurements.
+second_half = list(map(lambda x: x['value'], d[len(d)//2:]))
+avg_lag = sum(second_half) / len(second_half)
+with open(r"last_exp_result.txt", "w+") as file:
+    success = 0 if avg_lag > 1000 else 1
+    file.write(str(success))
 
 # Load partition count
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_query_path, params={
     'query': "count by(group,topic)(kafka_consumergroup_group_offset > 0)",
     'start': start.isoformat(),
     'end': end.isoformat(),
@@ -135,7 +143,7 @@ df.to_csv(f"{filename}_partitions.csv")
 
 # Load instances count
 
-response = requests.get('http://kube1.se.internal:32529/api/v1/query_range', params={
+response = requests.get(prometheus_query_path, params={
     'query': "count(count (kafka_consumer_consumer_fetch_manager_metrics_records_lag) by(pod))",
     'start': start.isoformat(),
     'end': end.isoformat(),
