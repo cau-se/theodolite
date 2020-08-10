@@ -35,13 +35,17 @@ echo "$WORKLOAD_GENERATOR_YAML" | kubectl apply -f -
 # Start application
 REPLICAS=$INSTANCES
 # When not using `sed` anymore, use `kubectl apply -f uc1-application`
-kubectl apply -f uc1-application/aggregation-service.yaml
-kubectl apply -f uc1-application/jmx-configmap.yaml
-kubectl apply -f uc1-application/service-monitor.yaml
-#kubectl apply -f uc1-application/aggregation-deployment.yaml
-APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc1-application/aggregation-deployment.yaml)
-echo "$APPLICATION_YAML" | kubectl apply -f -
-kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
+CONFIG_YAML=$(sed "s/{{REPLICAS}}/$REPLICAS/g; s/{{CPU_LIMIT}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g;" uc1-application/flink-configuration-configmap.yaml)
+
+echo "$CONFIG_YAML" | kubectl apply -f -
+kubectl apply -f uc1-application/jobmanager-service.yaml
+kubectl apply -f uc1-application/jobmanager-rest-service.yaml
+
+JOBMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc1-application/jobmanager-job.yaml)
+echo "$JOBMANAGER_YAML" | kubectl apply -f -
+TASKMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{REPLICAS}}/$REPLICAS/g" uc1-application/taskmanager-job-deployment.yaml)
+echo "$TASKMANAGER_YAML" | kubectl apply -f -
+#kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
 
 # Execute for certain time
 sleep ${EXECUTION_MINUTES}m
@@ -52,16 +56,14 @@ python lag_analysis.py $EXP_ID uc1 $DIM_VALUE $INSTANCES $EXECUTION_MINUTES
 deactivate
 
 # Stop wl and app
-#kubectl delete -f uc1-workload-generator/deployment.yaml
-#sed "s/{{INSTANCES}}/1/g" uc1-workload-generator/deployment.yaml | kubectl delete -f -
-#sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g; s/{{INSTANCES}}/$WL_INSTANCES/g" uc1-workload-generator/deployment.yaml | kubectl delete -f -
 echo "$WORKLOAD_GENERATOR_YAML" | kubectl delete -f -
-kubectl delete -f uc1-application/aggregation-service.yaml
-kubectl delete -f uc1-application/jmx-configmap.yaml
-kubectl delete -f uc1-application/service-monitor.yaml
-#kubectl delete -f uc1-application/aggregation-deployment.yaml
-echo "$APPLICATION_YAML" | kubectl delete -f -
 
+echo "$CONFIG_YAML"| kubectl delete -f -
+kubectl delete -f uc1-application/jobmanager-service.yaml
+kubectl delete -f uc1-application/jobmanager-rest-service.yaml
+
+echo "$JOBMANAGER_YAML" | kubectl delete -f -
+echo "$TASKMANAGER_YAML" | kubectl delete -f -
 
 # Delete topics instead of Kafka
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic 'input,output,configuration,titan-.*'"

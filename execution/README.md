@@ -127,6 +127,21 @@ command (make sure to be in your virtual environment if you use one):
 pip install -r requirements.txt 
 ```
 
+### Apache Flink
+For executing benchmarks implemented with Apache Flink, we need to create a Flink Job Cluster in Kubernetes.
+First, we create the common resources ConfigMap for the cluster and Service for the JobManager and its REST interface. 
+```
+kubectl apply -f kubernetes-flink/flink-configuration-configmap.yaml
+kubectl apply -f kubernetes-flink/jobmanager-service.yaml
+kubectl apply -f kubernetes-flink/jobmanager-rest-service.yaml
+```
+After that, continue with the Job Cluster specific resources Job for the JobManager and Deployment for the TaskManagers.
+TODO: This should be taken care of by the scripts!
+```
+kubectl apply -f kubernetes-flink/jobmanager-job.yaml
+kubectl apply -f kubernetes-flink/taskmanager-job-deployment.yaml
+```
+
 
 ### Required Manual Adjustments
 
