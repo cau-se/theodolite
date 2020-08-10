@@ -1,4 +1,6 @@
-package theodolite.uc2.streamprocessing;
+package theodolite.uc2.application.util;
+
+import java.util.Objects;
 
 /**
  * A key consisting of the identifier of a sensor and an identifier of parent sensor.
@@ -26,5 +28,19 @@ public class SensorParentKey {
   public String toString() {
     return "{" + this.sensorIdentifier + ", " + this.parentIdentifier + "}";
   }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(sensorIdentifier, parentIdentifier);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) return true;
+    if (!(obj instanceof SensorParentKey)) return false;
+    final SensorParentKey k = (SensorParentKey) obj;
+    return sensorIdentifier.equals(k.sensorIdentifier) && parentIdentifier.equals(k.parentIdentifier);
+  }
+
 
 }

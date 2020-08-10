@@ -1,0 +1,283 @@
+package theodolite.uc2.application;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.kafka.common.serialization.Serdes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
+import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
+import theodolite.uc2.application.util.ImmutableSensorRegistrySerializer;
+import theodolite.uc2.application.util.ImmutableSetSerializer;
+import theodolite.uc2.application.util.SensorParentKey;
+import theodolite.uc2.application.util.SensorParentKeySerializer;
+import titan.ccp.common.configuration.Configurations;
+import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
+import titan.ccp.configuration.events.Event;
+import titan.ccp.configuration.events.EventSerde;
+import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
+import titan.ccp.model.sensorregistry.SensorRegistry;
+import titan.ccp.models.records.ActivePowerRecord;
+import titan.ccp.models.records.ActivePowerRecordFactory;
+import titan.ccp.models.records.AggregatedActivePowerRecord;
+import titan.ccp.models.records.AggregatedActivePowerRecordFactory;
+
+import java.time.Duration;
+import java.util.Properties;
+import java.util.Set;
+
+/**
+ * The Aggregation Microservice Flink Job.
+ */
+public class AggregationServiceFlinkJob {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AggregationServiceFlinkJob.class);
+
+  private final Configuration config = Configurations.create();
+
+  private void run() {
+    // Configurations
+    final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
+    final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
+    final String applicationId = applicationName + "-" + applicationVersion;
+    final int numThreads = this.config.getInt(ConfigurationKeys.NUM_THREADS);
+    final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
+    //final int maxBytesBuffering = this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING);
+    final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
+    final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
+    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final Time windowSize = Time.milliseconds(this.config.getLong(ConfigurationKeys.WINDOW_SIZE_MS));
+    final Duration windowGrace = Duration.ofMillis(this.config.getLong(ConfigurationKeys.WINDOW_GRACE_MS));
+    final String configurationTopic = this.config.getString(ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
+
+    final Properties kafkaProps = new Properties();
+    kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
+    kafkaProps.setProperty("group.id", applicationId);
+
+    // Sources and Sinks with Serializer and Deserializer
+
+    // Source from input topic with ActivePowerRecords
+    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> inputSerde =
+        new FlinkMonitoringRecordSerde<>(inputTopic,
+            ActivePowerRecord.class,
+            ActivePowerRecordFactory.class);
+
+    final FlinkKafkaConsumer<ActivePowerRecord> kafkaInputSource = new FlinkKafkaConsumer<>(
+        inputTopic, inputSerde, kafkaProps);
+
+    kafkaInputSource.setStartFromGroupOffsets();
+    kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
+    kafkaInputSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
+
+    // Source from output topic with AggregatedPowerRecords
+    final FlinkMonitoringRecordSerde<AggregatedActivePowerRecord, AggregatedActivePowerRecordFactory> outputSerde =
+        new FlinkMonitoringRecordSerde<>(inputTopic,
+            AggregatedActivePowerRecord.class,
+            AggregatedActivePowerRecordFactory.class);
+
+    final FlinkKafkaConsumer<AggregatedActivePowerRecord> kafkaOutputSource = new FlinkKafkaConsumer<>(
+        outputTopic, outputSerde, kafkaProps);
+
+    kafkaOutputSource.setStartFromGroupOffsets();
+    kafkaOutputSource.setCommitOffsetsOnCheckpoints(true);
+    kafkaOutputSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
+
+    // Source from configuration topic with EventSensorRegistry JSON
+    final FlinkKafkaKeyValueSerde<Event, String> configSerde =
+        new FlinkKafkaKeyValueSerde<>(
+            configurationTopic,
+            EventSerde::serde,
+            Serdes::String,
+            TypeInformation.of(new TypeHint<Tuple2<Event, String>>() {
+            }));
+
+    final FlinkKafkaConsumer<Tuple2<Event, String>> kafkaConfigSource = new FlinkKafkaConsumer<>(
+        configurationTopic, configSerde, kafkaProps);
+    kafkaConfigSource.setStartFromGroupOffsets();
+    kafkaConfigSource.setCommitOffsetsOnCheckpoints(true);
+
+    // Sink to output topic with SensorId, AggregatedActivePowerRecord
+    FlinkKafkaKeyValueSerde<String, AggregatedActivePowerRecord> aggregationSerde =
+        new FlinkKafkaKeyValueSerde<>(
+            outputTopic,
+            Serdes::String,
+            () -> IMonitoringRecordSerde.serde(new AggregatedActivePowerRecordFactory()),
+            TypeInformation.of(new TypeHint<Tuple2<String, AggregatedActivePowerRecord>>() {
+            }));
+
+    final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaAggregationSink =
+        new FlinkKafkaProducer<>(
+            outputTopic,
+            aggregationSerde,
+            kafkaProps,
+            FlinkKafkaProducer.Semantic.AT_LEAST_ONCE); //TODO: EXACTLY_ONCE if necessary
+    kafkaAggregationSink.setWriteTimestampToKafka(true);
+
+    // environment with Web-GUI for development (included in deployment)
+    //org.apache.flink.configuration.Configuration conf =
+    //    new org.apache.flink.configuration.Configuration();
+    //conf.setInteger("rest.port", 8081);
+    //final StreamExecutionEnvironment env =
+    //    StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+
+    // Execution environment configuration
+
+    final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+    env.enableCheckpointing(commitIntervalMs);
+    env.setParallelism(numThreads);
+
+    // State Backend
+//    try { // TODO: StateBackend
+//      RocksDBStateBackend backend = new RocksDBStateBackend("file:///home/nico/flink-fs-backend", true);
+//      env.setStateBackend(backend);
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//    env.setStateBackend(new MemoryStateBackend(Integer.MAX_VALUE));
+//    env.setStateBackend(new FsStateBackend("file:///home/nico/flink-fs-backend"));
+
+    // Kryo serializer registration
+    env.getConfig().registerTypeWithKryoSerializer(ActivePowerRecord.class,
+        new FlinkMonitoringRecordSerde<>(
+            inputTopic,
+            ActivePowerRecord.class,
+            ActivePowerRecordFactory.class));
+
+    env.getConfig().registerTypeWithKryoSerializer(ImmutableSensorRegistry.class, new ImmutableSensorRegistrySerializer());
+    env.getConfig().registerTypeWithKryoSerializer(SensorParentKey.class, new SensorParentKeySerializer());
+
+    env.getConfig().registerTypeWithKryoSerializer(Set.of().getClass(), new ImmutableSetSerializer());
+    env.getConfig().registerTypeWithKryoSerializer(Set.of(1).getClass(), new ImmutableSetSerializer());
+    env.getConfig().registerTypeWithKryoSerializer(Set.of(1, 2, 3, 4).getClass(), new ImmutableSetSerializer());
+
+    env.getConfig().getRegisteredTypesWithKryoSerializers().forEach((c, s) ->
+        LOGGER.info("Class " + c.getName() + " registered with serializer "
+            + s.getSerializer().getClass().getName()));
+
+    // Streaming topology
+
+    // Build input stream
+    final DataStream<ActivePowerRecord> inputStream = env.addSource(kafkaInputSource)
+        .name("[Kafka Consumer] Topic: " + inputTopic);
+
+    // Build aggregation stream
+    final DataStream<ActivePowerRecord> aggregationsInputStream = env.addSource(kafkaOutputSource)
+        .name("[Kafka Consumer] Topic: " + outputTopic)
+        .map(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()))
+        .name("[Map] AggregatedActivePowerRecord -> ActivePowerRecord");
+
+    // Merge input and aggregation streams
+    final DataStream<ActivePowerRecord> mergedInputStream = inputStream
+        .union(aggregationsInputStream);
+
+    // Build parent sensor stream from configuration stream
+    final DataStream<Tuple2<String, Set<String>>> configurationsStream =
+        env.addSource(kafkaConfigSource)
+            .name("[Kafka Consumer] Topic: " + configurationTopic)
+            .filter(tuple -> tuple.f0 == Event.SENSOR_REGISTRY_CHANGED
+                || tuple.f0 == Event.SENSOR_REGISTRY_STATUS).name("[Filter] SensorRegistry changed")
+            .map(new MapFunction<Tuple2<Event, String>, SensorRegistry>() {
+              @Override
+              public SensorRegistry map(Tuple2<Event, String> tuple) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                String prettyJsonString = gson.toJson(new JsonParser().parse(tuple.f1));
+                LOGGER.info("SensorRegistry: " + prettyJsonString);
+                return SensorRegistry.fromJson(tuple.f1);
+              }
+            }).name("[Map] JSON -> SensorRegistry")
+            .keyBy(sr -> sr)
+            .flatMap(new ChildParentsFlatMapFunction())
+            .name("[FlatMap] SensorRegistry -> (ChildSensor, ParentSensor[])");
+
+// DEBUG Output:
+//  configurationsStream.print();
+//  mergedInputStream.map(new MapFunction<ActivePowerRecord, String>() {
+//    @Override
+//    public String map(ActivePowerRecord value) throws Exception {
+//      return "ActivePowerRecord { "
+//          + "identifier: " + value.getIdentifier() + ", "
+//          + "timestamp: " + value.getTimestamp() + ", "
+//          + "valueInW: " + value.getValueInW() + " }";
+//    }
+//  }).print();
+
+    DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
+        mergedInputStream.connect(configurationsStream)
+            .keyBy(ActivePowerRecord::getIdentifier,
+                ((KeySelector<Tuple2<String, Set<String>>, String>) t -> (String) t.f0))
+            .flatMap(new JoinAndDuplicateCoFlatMapFunction())
+            .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
+
+    DataStream<AggregatedActivePowerRecord> aggregationStream = lastValueStream
+        .assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace))
+        .keyBy(t -> t.f0.getParent())
+        .window(TumblingEventTimeWindows.of(windowSize))
+        .process(new RecordAggregationWindowProcessFunction())
+        .name("[Aggregate] ((Sensor, Group), ActivePowerRecord) -> AggregatedActivePowerRecord");
+
+    // add Kafka Sink
+    aggregationStream
+        .map(new MapFunction<AggregatedActivePowerRecord, Tuple2<String, AggregatedActivePowerRecord>>() {
+          @Override
+          public Tuple2<String, AggregatedActivePowerRecord> map(AggregatedActivePowerRecord value) throws Exception {
+            return new Tuple2<>(value.getIdentifier(), value);
+          }
+        })
+        .name("[Map] AggregatedActivePowerRecord -> (Sensor, AggregatedActivePowerRecord)")
+        .addSink(kafkaAggregationSink).name("[Kafka Producer] Topic: " + outputTopic);
+
+    // add stdout sink
+    aggregationStream
+        .map(new MapFunction<AggregatedActivePowerRecord, String>() {
+          @Override
+          public String map(AggregatedActivePowerRecord value) throws Exception {
+            return
+                "AggregatedActivePowerRecord { "
+                    + "identifier: " + value.getIdentifier() + ", "
+                    + "timestamp: " + value.getTimestamp() + ", "
+                    + "minInW: " + value.getMinInW() + ", "
+                    + "maxInW: " + value.getMaxInW() + ", "
+                    + "count: " + value.getCount() + ", "
+                    + "sumInW: " + value.getSumInW() + ", "
+                    + "avgInW: " + value.getAverageInW() + " }";
+          }
+        })
+        .name("[Map] toString")
+        .print();
+
+    // Execution plan
+
+    if (LOGGER.isInfoEnabled()) {
+      LOGGER.info("Execution Plan:\n" + env.getExecutionPlan());
+    }
+
+    // Execute Job
+
+    try {
+      env.execute(applicationId);
+    } catch (Exception e) { //NOPMD
+      e.printStackTrace(); //NOPMD
+    }
+  }
+
+  public static void main(final String[] args) {
+    new AggregationServiceFlinkJob().run();
+  }
+}
