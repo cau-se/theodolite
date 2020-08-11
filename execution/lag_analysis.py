@@ -13,7 +13,7 @@ instances = sys.argv[4]
 execution_minutes = int(sys.argv[5])
 time_diff_ms = int(os.getenv('CLOCK_DIFF_MS', 0))
 
-prometheus_query_path = 'http://kube1.se.internal:32529/api/v1/query_range'
+prometheus_query_path = 'http://localhost:9090/api/v1/query_range'
 
 #http://localhost:9090/api/v1/query_range?query=sum%20by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)&start=2015-07-01T20:10:30.781Z&end=2020-07-01T20:11:00.781Z&step=15s
 
@@ -50,6 +50,14 @@ for result in results:
         d.append({'topic': topic, 'timestamp': int(value[0]), 'value': int(value[1]) if value[1] != 'NaN' else 0})
 
 df = pd.DataFrame(d)
+
+# save whether the subexperiment was successful or not, meaning whether the consumer lag was above some threshhold or not
+# Assumption: Due to fluctuations within the record lag measurements, it is sufficient to analyze the second half of measurements.
+second_half = list(map(lambda x: x['value'], filter(lambda x: x['topic'] == 'input', d[len(d)//2:])))
+avg_lag = sum(second_half) / len(second_half)
+with open(r"last_exp_result.txt", "w+") as file:
+    success = 0 if avg_lag > 1000 else 1
+    file.write(str(success))
 
 # Do some analysis
 
@@ -108,14 +116,6 @@ for result in results:
 df = pd.DataFrame(d)
 
 df.to_csv(f"{filename}_totallag.csv")
-
-# save whether the subexperiment was successful or not, meaning whether the consumer lag was above some threshhold or not
-# Assumption: Due to fluctuations within the record lag measurements, it is sufficient to analyze the second half of measurements.
-second_half = list(map(lambda x: x['value'], d[len(d)//2:]))
-avg_lag = sum(second_half) / len(second_half)
-with open(r"last_exp_result.txt", "w+") as file:
-    success = 0 if avg_lag > 1000 else 1
-    file.write(str(success))
 
 # Load partition count
 
