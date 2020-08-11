@@ -156,11 +156,12 @@ The `./theodolite.sh` is the entrypoint for all benchmark executions. Is has to 
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
 * `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
 * `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
-* `<strategy>`: The benchmarking strategy. Can be set to `default` or `step`. For more details see Section _Benchmarking Strategies_. Default `default`.
+* `<strategy>`: The benchmarking strategy. Can be set to `default`, `step` or `binary-search`. For more details see Section _Benchmarking Strategies_. Default `default`.
 
 ### Benchmarking Strategies
 There are the following benchmarking strategies:
 
 * `default`: Execute a subexperiment for each combination of the number of replicas (N), and the number of workload intensities (M). The amount of executed subexperiments is always N*M.
-* `step`: A heuristic which works as follows: After each subexperiment, it is checked, whether the application could handle the workload. If the workload could be handled, the workload intensity is increased in the next subexperiment. Otherwise, the workload intensity is kept the same and the number of instances is increased. The amount of executed subexperiments is at most N+M-1.
+* `step`: A heuristic which works as follows: After each subexperiment, it is checked, whether the application could handle the workload. If the workload could be handled, the workload intensity is increased in the next subexperiment. Otherwise, the workload intensity is kept the same and the number of instances is increased. The amount of executed sub-experiments is at most N+M-1.
+* `binary-search`: A heuristic which works as follows: For each number of instances, a binary-search like strategy is used to determine the workload intensity, to which the system handle the workload. The limiting workload intensity is taken into consideration when executing sub-experiments for other number of replicas. The number of executed sub-experiments is at most M*log(N).
 
