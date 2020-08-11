@@ -30,7 +30,6 @@ def searchTransition(config, replica_index, lower, upper, subexperiment_counter)
     else:
         # test mid
         mid=(upper+lower)//2
-        print(mid)
         print(f"Run subexperiment {subexperiment_counter} with config {config.dim_values[mid]} {config.replicas[replica_index]}")
         subexperiment_config = SubexperimentConfig(config.use_case, subexperiment_counter, config.dim_values[mid], config.replicas[replica_index], config.partitions, config.cpu_limit, config.memory_limit, config.kafka_streams_commit_interval_ms, config.execution_minutes)
         config.subexperiment_executor.execute(subexperiment_config)
