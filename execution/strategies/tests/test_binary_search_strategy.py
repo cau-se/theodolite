@@ -1,7 +1,7 @@
 import pprint
 
 from strategies.config import ExperimentConfig
-import strategies.strategies.step_strategy as step_strategy
+import strategies.strategies.binary_search_strategy as binary_search_strategy
 from strategies.experiment_execution import ExperimentExecutor
 import strategies.subexperiment_execution.subexperiment_executor as subexperiment_executor
 
@@ -26,20 +26,21 @@ successful = [
        [ False, False, False, False, False, False, False ] 
     ]
 
-# the expected order of executed experiments
 expected_order = [
+        (3,0), # interval (0, 6)
+        (1,0), 
         (0,0),
-        (1,0),
+        (3,1), # interval (0, 6)
         (1,1),
+        (3,2), # interval (0, 6)
         (1,2),
         (2,2),
-        (3,2),
+        (4,3), # interval (3, 6)
         (3,3),
-        (4,3),
+        (5,4), # interval (4, 6)
         (4,4),
-        (5,4),
-        (5,5),
-        (5,6),
+        (5,5), # interval (5,6)
+        (5,6), # interval (5,6)
         (6,6)
     ]
 
@@ -65,14 +66,16 @@ subexperiment_evaluator = Object()
 def subexperiment_evaluator_execute():
     print("Evaluating last experiment. Index was:")
     global expected_order, experiment_counter, last_experiment, successful
+    pp.pprint(last_experiment)
+    print("Index was expected to be:")
     pp.pprint(expected_order[experiment_counter])
     assert expected_order[experiment_counter] == last_experiment
     print("Index was as expected. Evaluation finished.")
-    return successful[last_experiment[0]][last_experiment[1]]
+    return 1 if successful[last_experiment[0]][last_experiment[1]] else 0
 
 subexperiment_evaluator.execute = subexperiment_evaluator_execute
 
-def test_step_strategy():
+def test_binary_search_strategy():
     # declare parameters
     uc="test-uc"
     partitions=40
@@ -82,6 +85,6 @@ def test_step_strategy():
     execution_minutes=5
 
     # execute
-    experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, step_strategy, subexperiment_executor, subexperiment_evaluator)
+    experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, binary_search_strategy, subexperiment_executor, subexperiment_evaluator)
     executor = ExperimentExecutor(experiment_config)
     executor.execute()

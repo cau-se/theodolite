@@ -5,6 +5,7 @@ import os
 from strategies.config import ExperimentConfig
 import strategies.strategies.default_strategy as default_strategy
 import strategies.strategies.step_strategy as step_strategy
+import strategies.strategies.binary_search_strategy as binary_search_strategy
 from strategies.experiment_execution import ExperimentExecutor
 import strategies.subexperiment_execution.subexperiment_executor as subexperiment_executor
 import strategies.subexperiment_evaluation.noop_subexperiment_evaluator as noop_subexperiment_evaluator
@@ -25,6 +26,8 @@ print(f"Chosen benchmarking strategy: {benchmark_strategy}")
 if benchmark_strategy == "step":
     print(f"Going to execute at most {len(dim_values)+len(replicas)-1} subexperiments in total..")
     experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, step_strategy, subexperiment_executor, subexperiment_evaluator)
+elif benchmark_strategy == "binary-search":
+    experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, binary_search_strategy, subexperiment_executor, subexperiment_evaluator)
 else:
     print(f"Going to execute {len(dim_values)*len(replicas)} subexperiments in total..")
     experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, default_strategy, subexperiment_executor, noop_subexperiment_evaluator)
