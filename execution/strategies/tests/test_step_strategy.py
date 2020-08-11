@@ -68,7 +68,7 @@ def subexperiment_evaluator_execute():
     pp.pprint(expected_order[experiment_counter])
     assert expected_order[experiment_counter] == last_experiment
     print("Index was as expected. Evaluation finished.")
-    return successful[last_experiment[0]][last_experiment[1]]
+    return 1 if successful[last_experiment[0]][last_experiment[1]] else 0
 
 subexperiment_evaluator.execute = subexperiment_evaluator_execute
 
