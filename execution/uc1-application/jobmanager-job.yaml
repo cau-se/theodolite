@@ -61,7 +61,7 @@ spec:
               - key: log4j-console.properties
                 path: log4j-console.properties
         - name: flink-config-volume-rw
-            emptyDir: {}
+          emptyDir: {}
 #        - name: job-artifacts-volume
 #          hostPath:
 #            path: /host/path/to/job/artifacts
