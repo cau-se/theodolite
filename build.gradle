@@ -96,6 +96,8 @@ configure(useCaseProjects) {
       compile group: 'org.industrial-devops', name: 'titan-ccp-common', version: '0.0.3-SNAPSHOT'
       compile group: 'org.apache.flink', name: "flink-runtime-web_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: remove after development
       compile group: 'org.apache.flink', name: "flink-statebackend-rocksdb_${scalaBinaryVersion}", version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: 'flink-metrics-prometheus_2.12', version: '1.11.1'
+
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
   }
