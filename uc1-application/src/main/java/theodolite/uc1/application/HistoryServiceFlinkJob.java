@@ -1,6 +1,5 @@
 package theodolite.uc1.application;
 
-import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -11,6 +10,8 @@ import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
 import titan.ccp.common.configuration.Configurations;
 import titan.ccp.models.records.ActivePowerRecord;
 import titan.ccp.models.records.ActivePowerRecordFactory;
+
+import java.util.Properties;
 
 /**
  * The History Microservice Flink Job.
@@ -48,7 +49,7 @@ public class HistoryServiceFlinkJob {
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     env.enableCheckpointing(commitIntervalMs);
-    env.setParallelism(numThreads);
+    //env.setParallelism(numThreads);
 
     final DataStream<ActivePowerRecord> stream = env.addSource(kafka);
 

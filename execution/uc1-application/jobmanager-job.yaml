@@ -18,11 +18,23 @@ spec:
               value: "my-confluent-cp-kafka:9092"
             - name: COMMIT_INTERVAL_MS
               value: "{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}"
+            - name: JOB_MANAGER_RPC_ADDRESS
+              value: "flink-jobmanager"
+            - name: FLINK_PROPERTIES
+              value: |+
+                blob.server.port: 6124
+                jobmanager.rpc.port: 6123
+                taskmanager.rpc.port: 6122
+                queryable-state.proxy.ports: 6125
+                jobmanager.memory.process.size: {{MEMORY_LIMIT}}
+                taskmanager.memory.process.size: {{MEMORY_LIMIT}}
+                parallelism.default: {{REPLICAS}}
           resources:
             limits:
               memory: "{{MEMORY_LIMIT}}"
               cpu: "{{CPU_LIMIT}}"
           args: ["standalone-job", "--job-classname", "theodolite.uc1.application.HistoryServiceFlinkJob"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
+          #command: ['sleep', '60m']
           ports:
             - containerPort: 6123
               name: rpc
@@ -43,9 +55,9 @@ spec:
           securityContext:
             runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
       initContainers:
-        - name: init-taskmanager
+        - name: init-jobmanager
           image: busybox:1.28
-          command: ['cp', '-r', "flink-config", "flink-config-rw"]
+          command: ['cp', '-a', '/flink-config/.', '/flink-config-rw/']
           volumeMounts:
             - name: flink-config-volume
               mountPath: /flink-config/
