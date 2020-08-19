@@ -46,6 +46,8 @@ spec:
               name: rpc
             - containerPort: 6125
               name: query-state
+            - containerPort: 9249
+              name: metrics
           livenessProbe:
             tcpSocket:
               port: 6122

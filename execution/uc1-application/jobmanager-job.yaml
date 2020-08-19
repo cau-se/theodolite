@@ -42,6 +42,8 @@ spec:
               name: blob-server
             - containerPort: 8081
               name: webui
+            - containerPort: 9249
+              name: metrics
           livenessProbe:
             tcpSocket:
               port: 6123
