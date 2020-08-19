@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: kafka-client
-    image: confluentinc/cp-enterprise-kafka:5.4.0
+    image: confluentinc/cp-enterprise-kafka:5.5.0
     command:
       - sh
       - -c
