@@ -30,8 +30,6 @@ import titan.ccp.model.sensorregistry.SensorRegistry;
  * Builds Kafka Stream Topology for the History microservice.
  */
 public class TopologyBuilder {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
-
   // Streams Variables
   private final String inputTopic;
   private final String feedbackTopic;
