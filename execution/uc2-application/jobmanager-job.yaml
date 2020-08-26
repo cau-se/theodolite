@@ -33,7 +33,7 @@ spec:
             limits:
               memory: "{{MEMORY_LIMIT}}"
               cpu: "{{CPU_LIMIT}}"
-          args: ["standalone-job", "--job-classname", "theodolite.uc1.application.AggregationServiceFlinkJob"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
+          args: ["standalone-job", "--job-classname", "theodolite.uc2.application.AggregationServiceFlinkJob"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
           ports:
             - containerPort: 6123
               name: rpc
