@@ -15,10 +15,26 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
       KAFKA_CREATE_TOPICS: "input:3:1,output:3:1,configuration:3:1,aggregation-feedback:3:1,dayofweek:3:1,hourofday:3:1,hourofweek:3:1"
-  uc-app:
-    image: benediktwetzel/uc2-app:latest
+  jobmanager:
+    image: nicobiernat/theodolite-flink-uc2:latest
+    ports:
+      - "8081:8081"
+    command: standalone-job --job-classname theodolite.uc2.application.AggregationServiceFlinkJob
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 1
+
+
+  taskmanager:
+    image: nicobiernat/theodolite-flink-uc2:latest
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
   uc-wg: 
     image: benediktwetzel/uc2-wg:latest
     environment:

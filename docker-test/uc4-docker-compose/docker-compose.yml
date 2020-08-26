@@ -15,21 +15,34 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
       KAFKA_CREATE_TOPICS: "input:3:1,output:3:1,configuration:3:1,aggregation-feedback:3:1,dayofweek:3:1,hourofday:3:1,hourofweek:3:1"
-  schema-registry:
-    image: confluentinc/cp-schema-registry:5.3.1
-    depends_on:
-      - zookeeper
-      - kafka
-    expose:
-      - "8081"
+#  schema-registry:
+#    image: confluentinc/cp-schema-registry:5.3.1
+#    depends_on:
+#      - zookeeper
+#      - kafka
+#    expose:
+#      - "8081"
+#    environment:
+#      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+#      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+  jobmanager:
+    image: nicobiernat/theodolite-flink-uc4:latest
+    ports:
+      - "8081:8081"
+    command: standalone-job --job-classname theodolite.uc4.application.HistoryServiceFlinkJob
     environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-  uc-app:
-    image: soerenhenning/uc4-app:latest #TODO
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 1
+  taskmanager:
+    image: nicobiernat/theodolite-flink-uc4:latest
+    command: taskmanager
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
   uc-wg: 
     image: soerenhenning/uc4-wg:latest #TODO
     environment:
