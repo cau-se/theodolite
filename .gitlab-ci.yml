@@ -128,3 +128,28 @@ deploy-uc4-flink-app:
   variables:
     IMAGE_NAME: "theodolite-flink-uc4"
     JAVA_PROJECT_NAME: "uc4-application"
+
+
+deploy-uc1-flink-wg:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-flink-uc1-wg"
+    JAVA_PROJECT_NAME: "uc1-workload-generator"
+
+deploy-uc2-flink-wg:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-flink-uc2-wg"
+    JAVA_PROJECT_NAME: "uc2-workload-generator"
+
+deploy-uc3-flink-wg:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-flink-uc3-wg"
+    JAVA_PROJECT_NAME: "uc3-workload-generator"
+
+deploy-uc4-flink-wg:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-flink-uc4-wg"
+    JAVA_PROJECT_NAME: "uc4-workload-generator"

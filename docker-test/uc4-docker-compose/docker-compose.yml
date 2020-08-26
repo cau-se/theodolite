@@ -44,6 +44,6 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
   uc-wg: 
-    image: soerenhenning/uc4-wg:latest #TODO
+    image: nicobiernat/theodolite-flink-uc4-wg:latest
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
