@@ -1,7 +1,6 @@
 package theodolite.uc3.application;
 
 import com.google.common.math.Stats;
-import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -26,6 +25,8 @@ import titan.ccp.common.configuration.Configurations;
 import titan.ccp.models.records.ActivePowerRecord;
 import titan.ccp.models.records.ActivePowerRecordFactory;
 
+import java.util.Properties;
+
 
 /**
  * The History Microservice Flink Job.
@@ -40,7 +41,7 @@ public class HistoryServiceFlinkJob {
     final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
     final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
     final String applicationId = applicationName + "-" + applicationVersion;
-    final int numThreads = this.config.getInt(ConfigurationKeys.NUM_THREADS);
+//    final int numThreads = this.config.getInt(ConfigurationKeys.NUM_THREADS);
     final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
     //final int maxBytesBuffering = this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING);
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
@@ -87,7 +88,7 @@ public class HistoryServiceFlinkJob {
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     env.enableCheckpointing(commitIntervalMs);
-    env.setParallelism(numThreads);
+//    env.setParallelism(numThreads);
 
     env.getConfig().registerTypeWithKryoSerializer(ActivePowerRecord.class,
         new FlinkMonitoringRecordSerde<>(
