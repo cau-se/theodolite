@@ -111,6 +111,12 @@ deploy-uc1-flink-app:
     IMAGE_NAME: "theodolite-flink-uc1"
     JAVA_PROJECT_NAME: "uc1-application"
 
+deploy-uc2-flink-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-flink-uc2"
+    JAVA_PROJECT_NAME: "uc2-application"
+
 deploy-uc3-flink-app:
   extends: .deploy
   variables:
