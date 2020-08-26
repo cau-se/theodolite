@@ -12,7 +12,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: jobmanager
-          image: nicobiernat/theodolite-flink-uc1 # flink:1.11.0-scala_2.11
+          image: nicobiernat/theodolite-flink-uc1
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "my-confluent-cp-kafka:9092"

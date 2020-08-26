@@ -31,13 +31,18 @@ sed "s/{{NUM_NESTED_GROUPS}}/$NUM_NESTED_GROUPS/g" uc2-workload-generator/deploy
 # Start application
 REPLICAS=$INSTANCES
 # When not using `sed` anymore, use `kubectl apply -f uc2-application`
-kubectl apply -f uc2-application/aggregation-service.yaml
-kubectl apply -f uc2-application/jmx-configmap.yaml
+CONFIG_YAML=$(sed "s/{{REPLICAS}}/$REPLICAS/g; s/{{CPU_LIMIT}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g;" uc2-application/flink-configuration-configmap.yaml)
+
+echo "$CONFIG_YAML" | kubectl apply -f -
 kubectl apply -f uc2-application/service-monitor.yaml
-#kubectl apply -f uc2-application/aggregation-deployment.yaml
-APPLICATION_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g" uc2-application/aggregation-deployment.yaml)
-echo "$APPLICATION_YAML" | kubectl apply -f -
-kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
+kubectl apply -f uc2-application/jobmanager-service.yaml
+kubectl apply -f uc2-application/jobmanager-rest-service.yaml
+kubectl apply -f uc2-application/taskmanager-service.yaml
+
+JOBMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{REPLICAS}}/$REPLICAS/g" uc2-application/jobmanager-job.yaml)
+echo "$JOBMANAGER_YAML" | kubectl apply -f -
+TASKMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{REPLICAS}}/$REPLICAS/g" uc2-application/taskmanager-job-deployment.yaml)
+echo "$TASKMANAGER_YAML" | kubectl apply -f -
 
 # Execute for certain time
 sleep ${EXECUTION_MINUTES}m
@@ -49,11 +54,13 @@ deactivate
 
 # Stop wl and app
 kubectl delete -f uc2-workload-generator/deployment.yaml
-kubectl delete -f uc2-application/aggregation-service.yaml
-kubectl delete -f uc2-application/jmx-configmap.yaml
-kubectl delete -f uc2-application/service-monitor.yaml
+kubectl delete -f uc1-application/service-monitor.yaml
+kubectl delete -f uc1-application/jobmanager-service.yaml
+kubectl delete -f uc1-application/jobmanager-rest-service.yaml
+kubectl delete -f uc1-application/taskmanager-service.yaml
 #kubectl delete -f uc2-application/aggregation-deployment.yaml
-echo "$APPLICATION_YAML" | kubectl delete -f -
+echo "$JOBMANAGER_YAML" | kubectl delete -f -
+echo "$TASKMANAGER_YAML" | kubectl delete -f -
 
 
 # Delete topics instead of Kafka
