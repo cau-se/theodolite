@@ -1,6 +1,5 @@
 package theodolite.uc2.streamprocessing;
 
-import com.google.common.math.StatsAccumulator;
 import java.time.Duration;
 import java.util.Set;
 import org.apache.kafka.common.serialization.Serdes;
@@ -31,40 +30,48 @@ import titan.ccp.model.sensorregistry.SensorRegistry;
  * Builds Kafka Stream Topology for the History microservice.
  */
 public class TopologyBuilder {
-
-
-  private static final int LATENCY_OUTPOUT_THRESHOLD = 1000;
-  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
-
+  // Streams Variables
   private final String inputTopic;
+  private final String feedbackTopic;
   private final String outputTopic;
   private final String configurationTopic;
-  private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
-  private final Duration windowSize;
+  private final Duration emitPeriod;
   private final Duration gracePeriod;
+
+  // SERDEs
+  private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
 
   private final StreamsBuilder builder = new StreamsBuilder();
   private final RecordAggregator recordAggregator = new RecordAggregator();
 
-  private StatsAccumulator latencyStats = new StatsAccumulator();
-  private long lastTime = System.currentTimeMillis();
-
   /**
    * Create a new {@link TopologyBuilder} using the given topics.
+   *
+   * @param inputTopic The topic where to read sensor measurements from.
+   * @param configurationTopic The topic where the hierarchy of the sensors is published.
+   * @param feedbackTopic The topic where aggregation results are written to for feedback.
+   * @param outputTopic The topic where to publish aggregation results.
+   * @param emitPeriod The Duration results are emitted with.
+   * @param gracePeriod The Duration for how long late arriving records are considered.
+   * @param srAvroSerdeFactory Factory for creating avro SERDEs
+   *
    */
   public TopologyBuilder(final String inputTopic, final String outputTopic,
-      final String configurationTopic, final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory,
-      final Duration windowSize, final Duration gracePeriod) {
+      final String feedbackTopic, final String configurationTopic,
+      final Duration emitPeriod, final Duration gracePeriod,
+      final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory) {
     this.inputTopic = inputTopic;
-    this.outputTopic = outputTopic;
+    this.feedbackTopic = feedbackTopic;
     this.configurationTopic = configurationTopic;
-    this.srAvroSerdeFactory = srAvroSerdeFactory;
-    this.windowSize = windowSize;
+    this.outputTopic = outputTopic;
+    this.emitPeriod = emitPeriod;
     this.gracePeriod = gracePeriod;
+
+    this.srAvroSerdeFactory = srAvroSerdeFactory;
   }
 
   /**
-   * Build the {@link Topology} for the History microservice.
+   * Build the {@link Topology} for the Aggregation microservice.
    */
   public Topology build() {
     // 1. Build Parent-Sensor Table
@@ -78,8 +85,11 @@ public class TopologyBuilder {
         this.buildLastValueTable(parentSensorTable, inputTable);
 
     // 4. Build Aggregations Stream
-    final KStream<String, AggregatedActivePowerRecord> aggregations =
+    final KTable<Windowed<String>, AggregatedActivePowerRecord> aggregations =
         this.buildAggregationStream(lastValueTable);
+
+    // 6. Expose Feedback Stream
+    this.exposeFeedbackStream(aggregations);
 
     // 5. Expose Aggregations Stream
     this.exposeOutputStream(aggregations);
@@ -92,19 +102,20 @@ public class TopologyBuilder {
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),
             this.srAvroSerdeFactory.forValues()));
+
     final KStream<String, ActivePowerRecord> aggregationsInput = this.builder
-        .stream(this.outputTopic, Consumed.with(
+        .stream(this.feedbackTopic, Consumed.with(
             Serdes.String(),
             this.srAvroSerdeFactory.<AggregatedActivePowerRecord>forValues()))
         .mapValues(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()));
 
     final KTable<String, ActivePowerRecord> inputTable = values
         .merge(aggregationsInput)
-        .mapValues((k, v) -> new ActivePowerRecord(v.getIdentifier(), System.currentTimeMillis(),
-            v.getValueInW()))
-        .groupByKey(Grouped.with(Serdes.String(),
+        .groupByKey(Grouped.with(
+            Serdes.String(),
             this.srAvroSerdeFactory.forValues()))
-        .reduce((aggr, value) -> value, Materialized.with(Serdes.String(),
+        .reduce((aggr, value) -> value, Materialized.with(
+            Serdes.String(),
             this.srAvroSerdeFactory.forValues()));
     return inputTable;
   }
@@ -115,15 +126,9 @@ public class TopologyBuilder {
         .filter((key, value) -> key == Event.SENSOR_REGISTRY_CHANGED
             || key == Event.SENSOR_REGISTRY_STATUS);
 
-    final ChildParentsTransformerFactory childParentsTransformerFactory =
-        new ChildParentsTransformerFactory();
-    this.builder.addStateStore(childParentsTransformerFactory.getStoreBuilder());
-
     return configurationStream
         .mapValues(data -> SensorRegistry.fromJson(data))
-        .flatTransform(
-            childParentsTransformerFactory.getTransformerSupplier(),
-            childParentsTransformerFactory.getStoreName())
+        .flatTransform(new ChildParentsTransformerSupplier())
         .groupByKey(Grouped.with(Serdes.String(), OptionalParentsSerde.serde()))
         .aggregate(
             () -> Set.<String>of(),
@@ -131,33 +136,27 @@ public class TopologyBuilder {
             Materialized.with(Serdes.String(), ParentsSerde.serde()));
   }
 
-
   private KTable<Windowed<SensorParentKey>, ActivePowerRecord> buildLastValueTable(
       final KTable<String, Set<String>> parentSensorTable,
       final KTable<String, ActivePowerRecord> inputTable) {
-    final JointFlatTransformerFactory jointFlatMapTransformerFactory =
-        new JointFlatTransformerFactory();
-    this.builder.addStateStore(jointFlatMapTransformerFactory.getStoreBuilder());
 
     return inputTable
         .join(parentSensorTable, (record, parents) -> new JointRecordParents(parents, record))
         .toStream()
-        .flatTransform(
-            jointFlatMapTransformerFactory.getTransformerSupplier(),
-            jointFlatMapTransformerFactory.getStoreName())
+        .flatTransform(new JointFlatTransformerSupplier())
         .groupByKey(Grouped.with(
             SensorParentKeySerde.serde(),
             this.srAvroSerdeFactory.forValues()))
-        .windowedBy(TimeWindows.of(this.windowSize).grace(this.gracePeriod))
+        .windowedBy(TimeWindows.of(this.emitPeriod).grace(this.gracePeriod))
         .reduce(
             // TODO Configurable window aggregation function
-            (aggValue, newValue) -> newValue,
-            Materialized.with(SensorParentKeySerde.serde(),
+            (oldVal, newVal) -> newVal.getTimestamp() >= oldVal.getTimestamp() ? newVal : oldVal,
+            Materialized.with(
+                SensorParentKeySerde.serde(),
                 this.srAvroSerdeFactory.forValues()));
-
   }
 
-  private KStream<String, AggregatedActivePowerRecord> buildAggregationStream(
+  private KTable<Windowed<String>, AggregatedActivePowerRecord> buildAggregationStream(
       final KTable<Windowed<SensorParentKey>, ActivePowerRecord> lastValueTable) {
     return lastValueTable
         .groupBy(
@@ -165,50 +164,42 @@ public class TopologyBuilder {
             Grouped.with(
                 new WindowedSerdes.TimeWindowedSerde<>(
                     Serdes.String(),
-                    this.windowSize.toMillis()),
+                    this.emitPeriod.toMillis()),
                 this.srAvroSerdeFactory.forValues()))
         .aggregate(
-            () -> null, this.recordAggregator::add, this.recordAggregator::substract,
+            () -> null,
+            this.recordAggregator::add,
+            this.recordAggregator::substract,
             Materialized.with(
                 new WindowedSerdes.TimeWindowedSerde<>(
                     Serdes.String(),
-                    this.windowSize.toMillis()),
+                    this.emitPeriod.toMillis()),
                 this.srAvroSerdeFactory.forValues()))
-        .suppress(Suppressed.untilTimeLimit(this.windowSize, BufferConfig.unbounded()))
-        // .suppress(Suppressed.untilWindowCloses(BufferConfig.unbounded()))
-        .toStream()
         // TODO timestamp -1 indicates that this record is emitted by an substract event
-        .filter((k, record) -> record.getTimestamp() != -1)
-        .map((k, v) -> KeyValue.pair(k.key(), v)); // TODO compute Timestamp
+        .filter((k, record) -> record.getTimestamp() != -1);
   }
 
-  private void exposeOutputStream(final KStream<String, AggregatedActivePowerRecord> aggregations) {
+  private void exposeFeedbackStream(
+      final KTable<Windowed<String>, AggregatedActivePowerRecord> aggregations) {
+
     aggregations
-        .peek((k, v) -> {
-          final long time = System.currentTimeMillis();
-          final long latency = time - v.getTimestamp();
-          this.latencyStats.add(latency);
-          if (time - this.lastTime >= LATENCY_OUTPOUT_THRESHOLD) {
-            if (LOGGER.isInfoEnabled()) {
-              LOGGER.info("latency,"
-                  + time + ','
-                  + this.latencyStats.mean() + ','
-                  + (this.latencyStats.count() > 0
-                      ? this.latencyStats.populationStandardDeviation()
-                      : Double.NaN)
-                  + ','
-                  + (this.latencyStats.count() > 1
-                      ? this.latencyStats.sampleStandardDeviation()
-                      : Double.NaN)
-                  + ','
-                  + this.latencyStats.min() + ','
-                  + this.latencyStats.max() + ','
-                  + this.latencyStats.count());
-            }
-            this.latencyStats = new StatsAccumulator();
-            this.lastTime = time;
-          }
-        })
+        .toStream()
+        .filter((k, record) -> record != null)
+        .selectKey((k, v) -> k.key())
+        .to(this.feedbackTopic, Produced.with(
+            Serdes.String(),
+            this.srAvroSerdeFactory.forValues()));
+  }
+
+  private void exposeOutputStream(
+      final KTable<Windowed<String>, AggregatedActivePowerRecord> aggregations) {
+
+    aggregations
+        // .suppress(Suppressed.untilWindowCloses(BufferConfig.unbounded()))
+        .suppress(Suppressed.untilTimeLimit(this.emitPeriod, BufferConfig.unbounded()))
+        .toStream()
+        .filter((k, record) -> record != null)
+        .selectKey((k, v) -> k.key())
         .to(this.outputTopic, Produced.with(
             Serdes.String(),
             this.srAvroSerdeFactory.forValues()));

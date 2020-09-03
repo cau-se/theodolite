@@ -28,6 +28,8 @@ spec:
           value: "{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}"
         - name: JAVA_OPTS
           value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5555"
+        - name: LOG_LEVEL
+          value: "INFO"
         resources:
           limits:
             memory: "{{MEMORY_LIMIT}}"

@@ -11,17 +11,23 @@ import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
  */
 public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD builder method
 
-  private static final Duration WINDOW_SIZE_DEFAULT = Duration.ofSeconds(1);
+  private static final Duration EMIT_PERIOD_DEFAULT = Duration.ofSeconds(1);
   private static final Duration GRACE_PERIOD_DEFAULT = Duration.ZERO;
 
   private String inputTopic; // NOPMD
+  private String feedbackTopic; // NOPMD
   private String outputTopic; // NOPMD
   private String configurationTopic; // NOPMD
-  private Duration windowSize; // NOPMD
+  private Duration emitPeriod; // NOPMD
   private Duration gracePeriod; // NOPMD
 
   public Uc2KafkaStreamsBuilder inputTopic(final String inputTopic) {
     this.inputTopic = inputTopic;
+    return this;
+  }
+
+  public Uc2KafkaStreamsBuilder feedbackTopic(final String feedbackTopic) {
+    this.feedbackTopic = feedbackTopic;
     return this;
   }
 
@@ -35,8 +41,8 @@ public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
     return this;
   }
 
-  public Uc2KafkaStreamsBuilder windowSize(final Duration windowSize) {
-    this.windowSize = Objects.requireNonNull(windowSize);
+  public Uc2KafkaStreamsBuilder emitPeriod(final Duration emitPeriod) {
+    this.emitPeriod = Objects.requireNonNull(emitPeriod);
     return this;
   }
 
@@ -48,16 +54,18 @@ public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
   @Override
   protected Topology buildTopology() {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
+    Objects.requireNonNull(this.feedbackTopic, "Feedback topic has not been set.");
     Objects.requireNonNull(this.outputTopic, "Output topic has not been set.");
     Objects.requireNonNull(this.configurationTopic, "Configuration topic has not been set.");
 
     final TopologyBuilder topologyBuilder = new TopologyBuilder(
         this.inputTopic,
+        this.feedbackTopic,
         this.outputTopic,
         this.configurationTopic,
-        new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl),
-        this.windowSize == null ? WINDOW_SIZE_DEFAULT : this.windowSize,
-        this.gracePeriod == null ? GRACE_PERIOD_DEFAULT : this.gracePeriod);
+        this.emitPeriod == null ? EMIT_PERIOD_DEFAULT : this.emitPeriod,
+        this.gracePeriod == null ? GRACE_PERIOD_DEFAULT : this.gracePeriod,
+        new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl));
 
     return topologyBuilder.build();
   }
