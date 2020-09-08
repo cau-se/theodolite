@@ -157,8 +157,8 @@ The `./theodolite.sh` is the entrypoint for all benchmark executions. Is has to 
 ```
 
 * `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
-* `<wl-values>`: Values for the workload generator to be tested, separated by commas. For example `100000, 200000, 300000`.
-* `<instances>`: Numbers of instances to be benchmarked, separated by commas. For example `1, 2, 3, 4`.
+* `<wl-values>`: Values for the workload generator to be tested, quoted and separated by commas. For example `"100000, 200000, 300000"`.
+* `<instances>`: Numbers of instances to be benchmarked, quoted and separated by commas. For example `"1, 2, 3, 4"`.
 * `<partitions>`: Number of partitions for Kafka topics. Optional. Default `40`.
 * `<cpu-limit>`: Kubernetes CPU limit. Optional. Default `1000m`.
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
