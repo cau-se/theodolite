@@ -40,7 +40,7 @@ public abstract class AbstractWorkloadGenerator<T>
   private final MessageGenerator<T> generatorFunction;
   private final Transport<T> transport;
   private WorkloadDistributor workloadDistributor; // NOPMD keep instance variable instead of local
-  // private final ScheduledExecutorService executor;
+  private final ScheduledExecutorService executor;
 
   /**
    * Create a new workload generator.
@@ -84,8 +84,8 @@ public abstract class AbstractWorkloadGenerator<T>
     };
     this.transport = transport;
 
-    // this.executor = Executors.newScheduledThreadPool(threads);
-    // final Random random = new Random();
+    this.executor = Executors.newScheduledThreadPool(threads);
+    final Random random = new Random();
 
     final int periodMs = (int) period.toMillis();
 
@@ -100,54 +100,33 @@ public abstract class AbstractWorkloadGenerator<T>
       final List<String> sensors = IntStream.range(idStart, idEnd)
           .mapToObj(i -> "s_" + i)
           .collect(Collectors.toList());
-
-
-
-      final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
-      final Random random = new Random();
-
-      LOGGER.info("Start setting up sensors.");
-      for (final String sensor : sensors) {
-        final int initialDelay = random.nextInt(periodMs);
-
-        executor.scheduleAtFixedRate(() -> {
-          final T record = this.generatorFunction.generateMessage(sensor);
-          this.transport.transport(record);
-        }, initialDelay, periodMs, TimeUnit.MILLISECONDS);
-      }
-      LOGGER.info("Finished setting up sensors.");
-
-      System.out.println("Wait for termination...");
-      try {
-        executor.awaitTermination(30, TimeUnit.DAYS);
-      } catch (final InterruptedException e) {
-        throw new IllegalStateException("Error when terminating the workload generation.", e);
-      }
-      System.out.println("Will terminate now");
-
       // final List<WorkloadEntity<T>> entities = this.workloadSelector.apply(declaration,
       // workerId);
-      //
-      // LOGGER.info("Beginning of Experiment...");
+
+      LOGGER.info("Beginning of Experiment...");
       // LOGGER.info("Generating records for {} keys.", entities.size());
-      // LOGGER.info("Experiment is going to be executed for the specified duration...");
-      //
+      LOGGER.info("Experiment is going to be executed for the specified duration...");
+
+      LOGGER.info("Start setting up sensors.");
       // entities.forEach(entity -> {
-      // final T message = entity.generateMessage();
-      // final long initialDelay = random.nextInt(periodMs);
-      // final Runnable task = () -> this.transport.transport(message);
-      // this.executor.scheduleAtFixedRate(task, initialDelay, periodMs, TimeUnit.MILLISECONDS);
+      for (final String sensor : sensors) {
+        final T message = this.generatorFunction.generateMessage(sensor);
+        // final T message = entity.generateMessage();
+        final long initialDelay = random.nextInt(periodMs);
+        final Runnable task = () -> this.transport.transport(message);
+        this.executor.scheduleAtFixedRate(task, initialDelay, periodMs, TimeUnit.MILLISECONDS);
+      }
       // });
-      //
-      //
-      // try {
-      // this.executor.awaitTermination(duration.getSeconds(), TimeUnit.SECONDS);
-      // LOGGER.info("Terminating now...");
-      // this.stop();
-      // } catch (final InterruptedException e) {
-      // LOGGER.error("", e);
-      // throw new IllegalStateException("Error when terminating the workload generation.", e);
-      // }
+      LOGGER.info("Finished setting up sensors.");
+
+      try {
+        this.executor.awaitTermination(duration.getSeconds(), TimeUnit.SECONDS);
+        LOGGER.info("Terminating now...");
+        // this.stop();
+      } catch (final InterruptedException e) {
+        LOGGER.error("", e);
+        throw new IllegalStateException("Error when terminating the workload generation.", e);
+      }
     };
 
     this.workloadDistributor = new WorkloadDistributor(
