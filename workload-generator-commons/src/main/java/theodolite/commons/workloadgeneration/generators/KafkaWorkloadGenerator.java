@@ -1,7 +1,7 @@
 package theodolite.commons.workloadgeneration.generators;
 
 import java.time.Duration;
-import org.apache.avro.specific.SpecificRecord;
+import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
@@ -13,7 +13,7 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
  *
  * @param <T> The type of records the workload generator is dedicated for.
  */
-public class KafkaWorkloadGenerator<T extends SpecificRecord>
+public class KafkaWorkloadGenerator<T extends IMonitoringRecord>
     extends AbstractWorkloadGenerator<T> {
 
   private final KafkaRecordSender<T> recordSender;

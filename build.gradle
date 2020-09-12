@@ -79,8 +79,9 @@ configure(useCaseApplications) {
 configure(useCaseGenerators) {
   dependencies {
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
-      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      //implementation('org.industrial-devops:titan-ccp-common:0.0.4-SNAPSHOT') { changing = true }
+      //implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'com.google.guava:guava:1.14'
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.7.25'
@@ -98,8 +99,8 @@ configure(commonProjects) {
   dependencies {
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation 'org.slf4j:slf4j-simple:1.7.25'
-      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
-      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common:0.0.4-SNAPSHOT') { changing = true }
+      //implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'

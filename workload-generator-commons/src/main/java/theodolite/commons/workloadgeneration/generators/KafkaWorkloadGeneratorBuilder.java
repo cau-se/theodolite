@@ -2,7 +2,7 @@ package theodolite.commons.workloadgeneration.generators;
 
 import java.time.Duration;
 import java.util.Objects;
-import org.apache.avro.specific.SpecificRecord;
+import kieker.common.record.IMonitoringRecord;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
 import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
@@ -14,7 +14,7 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
  *
  * @param <T> the record for which the builder is dedicated for.
  */
-public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> { // NOPMD
+public final class KafkaWorkloadGeneratorBuilder<T extends IMonitoringRecord> { // NOPMD
 
   private int instances; // NOPMD
   private ZooKeeper zooKeeper; // NOPMD
@@ -35,7 +35,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> { // 
    *
    * @return the builder.
    */
-  public static <T extends SpecificRecord> KafkaWorkloadGeneratorBuilder<T> builder() {
+  public static <T extends IMonitoringRecord> KafkaWorkloadGeneratorBuilder<T> builder() {
     return new KafkaWorkloadGeneratorBuilder<>();
   }
 

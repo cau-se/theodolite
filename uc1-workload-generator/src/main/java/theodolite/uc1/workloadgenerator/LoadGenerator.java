@@ -13,7 +13,7 @@ import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
-import titan.ccp.model.records.ActivePowerRecord;
+import titan.ccp.models.records.ActivePowerRecord;
 
 /**
  * Load Generator for UC1.

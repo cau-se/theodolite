@@ -14,8 +14,8 @@ import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 import titan.ccp.configuration.events.Event;
-import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.sensorregistry.SensorRegistry;
+import titan.ccp.models.records.ActivePowerRecord;
 
 /**
  * The {@code LoadGenerator} creates a load in Kafka.

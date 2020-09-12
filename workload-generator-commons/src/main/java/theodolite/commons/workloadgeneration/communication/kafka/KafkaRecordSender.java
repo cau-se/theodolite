@@ -2,7 +2,7 @@ package theodolite.commons.workloadgeneration.communication.kafka;
 
 import java.util.Properties;
 import java.util.function.Function;
-import org.apache.avro.specific.SpecificRecord;
+import kieker.common.record.IMonitoringRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,14 +10,14 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.functions.Transport;
-import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
 
 /**
  * Sends monitoring records to Kafka.
  *
  * @param <T> {@link IMonitoringRecord} to send
  */
-public class KafkaRecordSender<T extends SpecificRecord> implements Transport<T> {
+public class KafkaRecordSender<T extends IMonitoringRecord> implements Transport<T> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordSender.class);
 
@@ -45,10 +45,8 @@ public class KafkaRecordSender<T extends SpecificRecord> implements Transport<T>
     // properties.put("linger.ms", this.lingerMs);
     // properties.put("buffer.memory", this.bufferMemory);
 
-    final SchemaRegistryAvroSerdeFactory avroSerdeFactory =
-        new SchemaRegistryAvroSerdeFactory(builder.schemaRegistryUrl);
     this.producer = new KafkaProducer<>(properties, new StringSerializer(),
-        avroSerdeFactory.<T>forKeys().serializer());
+        IMonitoringRecordSerde.serializer());
   }
 
   /**
@@ -56,7 +54,7 @@ public class KafkaRecordSender<T extends SpecificRecord> implements Transport<T>
    *
    * @param <T> Type of the records that should later be send.
    */
-  public static class Builder<T extends SpecificRecord> {
+  public static class Builder<T extends IMonitoringRecord> {
 
     private final String bootstrapServers;
     private final String topic;
