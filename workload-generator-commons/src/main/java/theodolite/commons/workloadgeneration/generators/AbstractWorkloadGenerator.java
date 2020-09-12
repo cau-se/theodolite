@@ -98,9 +98,8 @@ public abstract class AbstractWorkloadGenerator<T>
       LOGGER.info("Experiment is going to be executed for the specified duration...");
 
       entities.forEach(entity -> {
-        final T message = entity.generateMessage();
         final long initialDelay = random.nextInt(periodMs);
-        final Runnable task = () -> this.transport.transport(message);
+        final Runnable task = () -> this.transport.transport(entity.generateMessage());
         this.executor.scheduleAtFixedRate(task, initialDelay, periodMs, TimeUnit.MILLISECONDS);
       });
 
