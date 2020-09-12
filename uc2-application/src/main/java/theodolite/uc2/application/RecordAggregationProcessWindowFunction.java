@@ -10,16 +10,13 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import theodolite.uc2.application.util.SensorParentKey;
 import titan.ccp.models.records.ActivePowerRecord;
 import titan.ccp.models.records.AggregatedActivePowerRecord;
 
-public class RecordAggregationWindowProcessFunction extends ProcessWindowFunction<Tuple2<SensorParentKey, ActivePowerRecord>, AggregatedActivePowerRecord, String, TimeWindow> {
+public class RecordAggregationProcessWindowFunction extends ProcessWindowFunction<Tuple2<SensorParentKey, ActivePowerRecord>, AggregatedActivePowerRecord, String, TimeWindow> {
 
-  private static final long serialVersionUID = 6030159552332624435L; //NOPMD
-  private static final Logger LOGGER = LoggerFactory.getLogger(RecordAggregationWindowProcessFunction.class);
+  private static final long serialVersionUID = 6030159552332624435L;
 
   private transient MapState<SensorParentKey, ActivePowerRecord> lastValueState;
   private transient ValueState<AggregatedActivePowerRecord> aggregateState;

@@ -10,6 +10,9 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -37,6 +40,7 @@ import titan.ccp.models.records.ActivePowerRecordFactory;
 import titan.ccp.models.records.AggregatedActivePowerRecord;
 import titan.ccp.models.records.AggregatedActivePowerRecordFactory;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.Set;
@@ -55,15 +59,16 @@ public class AggregationServiceFlinkJob {
     final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
     final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
     final String applicationId = applicationName + "-" + applicationVersion;
-//    final int numThreads = this.config.getInt(ConfigurationKeys.NUM_THREADS);
     final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
-    //final int maxBytesBuffering = this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING);
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final Time windowSize = Time.milliseconds(this.config.getLong(ConfigurationKeys.WINDOW_SIZE_MS));
     final Duration windowGrace = Duration.ofMillis(this.config.getLong(ConfigurationKeys.WINDOW_GRACE_MS));
     final String configurationTopic = this.config.getString(ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
+    final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND).toLowerCase();
+    final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH);
+    final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -125,15 +130,8 @@ public class AggregationServiceFlinkJob {
             outputTopic,
             aggregationSerde,
             kafkaProps,
-            FlinkKafkaProducer.Semantic.AT_LEAST_ONCE); //TODO: EXACTLY_ONCE if necessary
+            FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
     kafkaAggregationSink.setWriteTimestampToKafka(true);
-
-    // environment with Web-GUI for development (included in deployment)
-    //org.apache.flink.configuration.Configuration conf =
-    //    new org.apache.flink.configuration.Configuration();
-    //conf.setInteger("rest.port", 8081);
-    //final StreamExecutionEnvironment env =
-    //    StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
 
     // Execution environment configuration
 
@@ -141,17 +139,19 @@ public class AggregationServiceFlinkJob {
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     env.enableCheckpointing(commitIntervalMs);
-//    env.setParallelism(numThreads);
 
     // State Backend
-//    try { // TODO: StateBackend
-//      RocksDBStateBackend backend = new RocksDBStateBackend("file:///home/nico/flink-fs-backend", true);
-//      env.setStateBackend(backend);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-//    env.setStateBackend(new MemoryStateBackend(Integer.MAX_VALUE));
-//    env.setStateBackend(new FsStateBackend("file:///home/nico/flink-fs-backend"));
+    if (stateBackend.equals("filesystem")) {
+      env.setStateBackend(new FsStateBackend(stateBackendPath));
+    } else if (stateBackend.equals("rocksdb")) {
+      try {
+        env.setStateBackend(new RocksDBStateBackend(stateBackendPath, true));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    } else {
+      env.setStateBackend(new MemoryStateBackend(memoryStateBackendSize));
+    }
 
     // Kryo serializer registration
     env.getConfig().registerTypeWithKryoSerializer(ActivePowerRecord.class,
@@ -175,11 +175,13 @@ public class AggregationServiceFlinkJob {
 
     // Build input stream
     final DataStream<ActivePowerRecord> inputStream = env.addSource(kafkaInputSource)
-        .name("[Kafka Consumer] Topic: " + inputTopic);
+        .name("[Kafka Consumer] Topic: " + inputTopic)
+        .rebalance();
 
     // Build aggregation stream
     final DataStream<ActivePowerRecord> aggregationsInputStream = env.addSource(kafkaOutputSource)
         .name("[Kafka Consumer] Topic: " + outputTopic)
+        .rebalance()
         .map(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()))
         .name("[Map] AggregatedActivePowerRecord -> ActivePowerRecord");
 
@@ -206,18 +208,6 @@ public class AggregationServiceFlinkJob {
             .flatMap(new ChildParentsFlatMapFunction())
             .name("[FlatMap] SensorRegistry -> (ChildSensor, ParentSensor[])");
 
-// DEBUG Output:
-//  configurationsStream.print();
-//  mergedInputStream.map(new MapFunction<ActivePowerRecord, String>() {
-//    @Override
-//    public String map(ActivePowerRecord value) throws Exception {
-//      return "ActivePowerRecord { "
-//          + "identifier: " + value.getIdentifier() + ", "
-//          + "timestamp: " + value.getTimestamp() + ", "
-//          + "valueInW: " + value.getValueInW() + " }";
-//    }
-//  }).print();
-
     DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
         mergedInputStream.connect(configurationsStream)
             .keyBy(ActivePowerRecord::getIdentifier,
@@ -229,7 +219,7 @@ public class AggregationServiceFlinkJob {
         .assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace))
         .keyBy(t -> t.f0.getParent())
         .window(TumblingEventTimeWindows.of(windowSize))
-        .process(new RecordAggregationWindowProcessFunction())
+        .process(new RecordAggregationProcessWindowFunction())
         .name("[Aggregate] ((Sensor, Group), ActivePowerRecord) -> AggregatedActivePowerRecord");
 
     // add Kafka Sink
@@ -272,8 +262,8 @@ public class AggregationServiceFlinkJob {
 
     try {
       env.execute(applicationId);
-    } catch (Exception e) { //NOPMD
-      e.printStackTrace(); //NOPMD
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

@@ -8,6 +8,9 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -21,11 +24,15 @@ import org.slf4j.LoggerFactory;
 import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
 import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
 import theodolite.commons.flink.serialization.StatsSerializer;
-import theodolite.uc4.application.util.*;
+import theodolite.uc4.application.util.HourOfDayKey;
+import theodolite.uc4.application.util.HourOfDayKeyFactory;
+import theodolite.uc4.application.util.HourOfDayKeySerde;
+import theodolite.uc4.application.util.StatsKeyFactory;
 import titan.ccp.common.configuration.Configurations;
 import titan.ccp.models.records.ActivePowerRecord;
 import titan.ccp.models.records.ActivePowerRecordFactory;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -46,20 +53,17 @@ public class HistoryServiceFlinkJob {
     final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
     final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
     final String applicationId = applicationName + "-" + applicationVersion;
-//    final int numThreads = this.config.getInt(ConfigurationKeys.NUM_THREADS);
     final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
-    //final int maxBytesBuffering = this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING);
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final String timeZoneString = this.config.getString(ConfigurationKeys.TIME_ZONE);
     final ZoneId timeZone = ZoneId.of(timeZoneString);
-    final Time aggregationDuration =
-//        Time.minutes(2);
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
-    final Time aggregationAdvance =
-//        Time.minutes(1);
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+    final Time aggregationDuration = Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+    final Time aggregationAdvance = Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+    final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND).toLowerCase();
+    final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH);
+    final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -67,12 +71,6 @@ public class HistoryServiceFlinkJob {
 
     // Sources and Sinks with Serializer and Deserializer
 
-//    final FlinkKafkaKeyValueSerde<String, ActivePowerRecord> sourceSerde =
-//        new FlinkKafkaKeyValueSerde<>(inputTopic,
-//            Serdes::String,
-//            () -> IMonitoringRecordSerde.serde(new ActivePowerRecordFactory()),
-//            TypeInformation.of(new TypeHint<Tuple2<String, ActivePowerRecord>>() {})
-//        );
     final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> sourceSerde =
         new FlinkMonitoringRecordSerde<>(
             inputTopic,
@@ -97,32 +95,25 @@ public class HistoryServiceFlinkJob {
         outputTopic, sinkSerde, kafkaProps, FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
     kafkaSink.setWriteTimestampToKafka(true);
 
-    // environment with Web-GUI for development (included in deployment)
-    //org.apache.flink.configuration.Configuration conf =
-    //   new org.apache.flink.configuration.Configuration();
-    //conf.setInteger("rest.port", 8081);
-    //final StreamExecutionEnvironment env =
-    //StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
-
     // Execution environment configuration
 
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     env.enableCheckpointing(commitIntervalMs);
-//    env.setParallelism(numThreads);
 
-// TODO: Change StateBackend if necessary (State too big)
-
-//    try {
-//      RocksDBStateBackend backend =
-//          new RocksDBStateBackend("file:///home/nico/flink-fs-backend", true);
-//      env.setStateBackend(backend);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-//    env.setStateBackend(new MemoryStateBackend(Integer.MAX_VALUE));
-//    env.setStateBackend(new FsStateBackend("file:///home/nico/flink-fs-backend"));
+    // State Backend
+    if (stateBackend.equals("filesystem")) {
+      env.setStateBackend(new FsStateBackend(stateBackendPath));
+    } else if (stateBackend.equals("rocksdb")) {
+      try {
+        env.setStateBackend(new RocksDBStateBackend(stateBackendPath, true));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    } else {
+      env.setStateBackend(new MemoryStateBackend(memoryStateBackendSize));
+    }
 
     // Kryo serializer registration
     env.getConfig().registerTypeWithKryoSerializer(HourOfDayKey.class, new HourOfDayKeySerde());
@@ -175,8 +166,8 @@ public class HistoryServiceFlinkJob {
 
     try {
       env.execute(applicationId);
-    } catch (Exception e) { //NOPMD
-      e.printStackTrace(); //NOPMD
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

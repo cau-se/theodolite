@@ -39,7 +39,7 @@ public class FlinkMonitoringRecordSerde<R extends IMonitoringRecord, F extends I
     implements KafkaDeserializationSchema<R>,
                KafkaSerializationSchema<R> {
 
-  private static final long serialVersionUID = -5687951056995646212L; //NOPMD
+  private static final long serialVersionUID = -5687951056995646212L;
 
   private final String topic;
   private transient Serde<String> keySerde;
@@ -104,7 +104,7 @@ public class FlinkMonitoringRecordSerde<R extends IMonitoringRecord, F extends I
             recordFactoryClass.getDeclaredConstructor().newInstance());
       } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
           | InvocationTargetException e) {
-        e.printStackTrace(); //NOPMD
+        e.printStackTrace();
       }
     }
   }

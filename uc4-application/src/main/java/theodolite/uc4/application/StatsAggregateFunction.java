@@ -12,7 +12,7 @@ import titan.ccp.models.records.ActivePowerRecord;
 @SuppressWarnings("UnstableApiUsage")
 public class StatsAggregateFunction implements AggregateFunction<ActivePowerRecord, Stats, Stats> {
 
-  private static final long serialVersionUID = -8873572990921515499L; // NOPMD
+  private static final long serialVersionUID = -8873572990921515499L;
 
   @Override
   public Stats createAccumulator() {

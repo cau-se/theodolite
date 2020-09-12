@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class StatsSerializer extends Serializer<Stats> implements Serializable {
 
-  private static final long serialVersionUID = -1276866176534267373L; //NOPMD
+  private static final long serialVersionUID = -1276866176534267373L;
 
   @Override
   public void write(final Kryo kryo, final Output output, final Stats object) {

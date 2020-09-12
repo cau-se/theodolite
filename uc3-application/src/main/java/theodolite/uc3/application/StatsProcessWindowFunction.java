@@ -8,7 +8,7 @@ import org.apache.flink.util.Collector;
 
 public class StatsProcessWindowFunction extends ProcessWindowFunction<Stats, Tuple2<String, Stats>, String, TimeWindow> {
 
-  private static final long serialVersionUID = 4363099880614593379L; //NOPMD
+  private static final long serialVersionUID = 4363099880614593379L;
 
   @Override
   public void process(String key, Context context, Iterable<Stats> elements, Collector<Tuple2<String, Stats>> out) {

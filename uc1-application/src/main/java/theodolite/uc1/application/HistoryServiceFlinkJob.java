@@ -1,8 +1,6 @@
 package theodolite.uc1.application;
 
 import org.apache.commons.configuration2.Configuration;
-import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -24,9 +22,7 @@ public class HistoryServiceFlinkJob {
     final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
     final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
     final String applicationId = applicationName + "-" + applicationVersion;
-//    final int numThreads = this.config.getInt(ConfigurationKeys.NUM_THREADS);
     final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
-    //final int maxBytesBuffering = this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING);
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
 
@@ -39,23 +35,19 @@ public class HistoryServiceFlinkJob {
                                          ActivePowerRecord.class,
                                          ActivePowerRecordFactory.class);
 
-    final FlinkKafkaConsumer<ActivePowerRecord> kafka = new FlinkKafkaConsumer<>(
-        inputTopic, serde, kafkaProps);
-
-    kafka.setStartFromGroupOffsets();
-    kafka.setCommitOffsetsOnCheckpoints(true);
+    final FlinkKafkaConsumer<ActivePowerRecord> kafkaConsumer =
+        new FlinkKafkaConsumer<>(inputTopic, serde, kafkaProps);
+    kafkaConsumer.setStartFromGroupOffsets();
+    kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
 
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     env.enableCheckpointing(commitIntervalMs);
-    //env.setParallelism(numThreads);
 
-    final DataStream<ActivePowerRecord> stream = env.addSource(kafka);
+    final DataStream<ActivePowerRecord> stream = env.addSource(kafkaConsumer);
 
     stream
         .rebalance()
-        .keyBy((KeySelector<ActivePowerRecord, String>) ActivePowerRecord::getIdentifier)
         .map(v -> "ActivePowerRecord { "
             + "identifier: " + v.getIdentifier() + ", "
             + "timestamp: " + v.getTimestamp() + ", "
@@ -64,8 +56,8 @@ public class HistoryServiceFlinkJob {
 
     try {
       env.execute(applicationId);
-    } catch (Exception e) { //NOPMD
-      e.printStackTrace(); //NOPMD
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

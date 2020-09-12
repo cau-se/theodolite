@@ -15,13 +15,15 @@ public final class ConfigurationKeys {
 
   public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
 
-  public static final String NUM_THREADS = "num.threads";
-
   public static final String COMMIT_INTERVAL_MS = "commit.interval.ms";
 
-  public static final String CACHE_MAX_BYTES_BUFFERING = "cache.max.bytes.buffering";
-
   public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+
+  public static final String FLINK_STATE_BACKEND = "flink.state.backend";
+
+  public static final String FLINK_STATE_BACKEND_PATH = "flink.state.backend.path";
+
+  public static final String FLINK_STATE_BACKEND_MEMORY_SIZE = "flink.state.backend.memory.size";
 
   private ConfigurationKeys() {
   }
