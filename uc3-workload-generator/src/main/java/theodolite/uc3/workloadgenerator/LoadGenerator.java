@@ -1,20 +1,20 @@
 package theodolite.uc3.workloadgenerator;
 
 
+
 import java.io.IOException;
-import java.util.List;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
+import theodolite.commons.workloadgeneration.dimensions.KeySpace;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
+import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
+import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 import titan.ccp.models.records.ActivePowerRecord;
 
 
@@ -84,30 +84,24 @@ public final class LoadGenerator {
                 .defaultProperties(kafkaProperties)
                 .build();
 
-    final int idStart = 0;
-    final int idEnd = numSensors;
-    LOGGER.info("Generating data for sensors with IDs from {} to {} (exclusive).", idStart, idEnd);
-    final List<String> sensors = IntStream.range(idStart, numSensors)
-        .mapToObj(i -> "s_" + i)
-        .collect(Collectors.toList());
 
 
+    // create workload generator
+    final KafkaWorkloadGenerator<ActivePowerRecord> workloadGenerator =
+        KafkaWorkloadGeneratorBuilder.<ActivePowerRecord>builder()
+            .instances(instances)
+            .keySpace(new KeySpace("s_", numSensors))
+            .threads(threads)
+            .period(Duration.of(periodMs, ChronoUnit.MILLIS))
+            .duration(Duration.of(MAX_DURATION_IN_DAYS, ChronoUnit.DAYS))
+            .generatorFunction(
+                sensor -> new ActivePowerRecord(sensor, System.currentTimeMillis(), value))
+            .zooKeeper(new ZooKeeper(zooKeeperHost, zooKeeperPort))
+            .kafkaRecordSender(kafkaRecordSender)
+            .build();
 
-    final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
-    final Random random = new Random();
-
-    LOGGER.info("Start setting up sensors.");
-    for (final String sensor : sensors) {
-      final int initialDelay = random.nextInt(periodMs);
-      executor.scheduleAtFixedRate(() -> {
-        kafkaRecordSender.write(new ActivePowerRecord(sensor, System.currentTimeMillis(), value));
-      }, initialDelay, periodMs, TimeUnit.MILLISECONDS);
-    }
-    LOGGER.info("Finished setting up sensors.");
-
-    System.out.println("Wait for termination...");
-    executor.awaitTermination(30, TimeUnit.DAYS);
-    System.out.println("Will terminate now");
+    // start
+    workloadGenerator.start();
 
 
 
