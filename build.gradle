@@ -64,7 +64,7 @@ configure(useCaseApplications) {
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
       implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
-      implementation 'org.apache.kafka:kafka-streams:2.4.0'
+      implementation 'org.apache.kafka:kafka-streams:2.5.0'
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.7.25'
