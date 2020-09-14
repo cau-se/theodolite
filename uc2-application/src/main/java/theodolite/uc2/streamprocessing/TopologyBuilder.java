@@ -17,8 +17,6 @@ import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.WindowedSerdes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.configuration.events.EventSerde;
@@ -126,9 +124,15 @@ public class TopologyBuilder {
         .filter((key, value) -> key == Event.SENSOR_REGISTRY_CHANGED
             || key == Event.SENSOR_REGISTRY_STATUS);
 
+    final ChildParentsTransformerFactory childParentsTransformerFactory =
+        new ChildParentsTransformerFactory();
+    this.builder.addStateStore(childParentsTransformerFactory.getStoreBuilder());
+
     return configurationStream
         .mapValues(data -> SensorRegistry.fromJson(data))
-        .flatTransform(new ChildParentsTransformerSupplier())
+        .flatTransform(
+            childParentsTransformerFactory.getTransformerSupplier(),
+            childParentsTransformerFactory.getStoreName())
         .groupByKey(Grouped.with(Serdes.String(), OptionalParentsSerde.serde()))
         .aggregate(
             () -> Set.<String>of(),
@@ -139,11 +143,16 @@ public class TopologyBuilder {
   private KTable<Windowed<SensorParentKey>, ActivePowerRecord> buildLastValueTable(
       final KTable<String, Set<String>> parentSensorTable,
       final KTable<String, ActivePowerRecord> inputTable) {
+    final JointFlatTransformerFactory jointFlatMapTransformerFactory =
+        new JointFlatTransformerFactory();
+    this.builder.addStateStore(jointFlatMapTransformerFactory.getStoreBuilder());
 
     return inputTable
         .join(parentSensorTable, (record, parents) -> new JointRecordParents(parents, record))
         .toStream()
-        .flatTransform(new JointFlatTransformerSupplier())
+        .flatTransform(
+            jointFlatMapTransformerFactory.getTransformerSupplier(),
+            jointFlatMapTransformerFactory.getStoreName())
         .groupByKey(Grouped.with(
             SensorParentKeySerde.serde(),
             this.srAvroSerdeFactory.forValues()))
