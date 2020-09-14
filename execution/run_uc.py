@@ -1,11 +1,11 @@
 import argparse  # parse arguments from cli
 from kubernetes import client, config  # kubernetes api
 from kubernetes.stream import stream
-import logging # logging
-from os import path # path utilities
+import logging  # logging
+from os import path  # path utilities
 import subprocess  # execute bash commands
 import time  # process sleep
-import yaml # convert from file to yaml object
+import yaml  # convert from file to yaml object
 
 coreApi = None  # acces kubernetes core api
 appsApi = None  # acces kubernetes apps api
@@ -131,12 +131,12 @@ def load_yaml_files():
     print('Load kubernetes yaml files')
     wg = load_yaml('uc-workload-generator/base/workloadGenerator.yaml')
     app_svc = load_yaml('uc-application/base/aggregation-service.yaml')
-    app_svc_monitor  = load_yaml('uc-application/base/service-monitor.yaml')
+    app_svc_monitor = load_yaml('uc-application/base/service-monitor.yaml')
     app_jmx = load_yaml('uc-application/base/jmx-configmap.yaml')
     app_deploy = load_yaml('uc-application/base/aggregation-deployment.yaml')
 
     print('Kubernetes yaml files loaded')
-    return wg, app_svc, app_svc_monitor ,app_jmx, app_deploy
+    return wg, app_svc, app_svc_monitor, app_jmx, app_deploy
 
 
 def start_workload_generator(wg_yaml):
@@ -156,7 +156,8 @@ def start_workload_generator(wg_yaml):
     wg_yaml['spec']['replicas'] = wl_instances
     # TODO: acces over name of container
     wg_containter = wg_yaml['spec']['template']['spec']['containers'][0]
-    wg_containter['image'] = 'soerenhenning/uc' + args.uc_id + '-wg:latest'
+    wg_containter['image'] = 'theodolite/theodolite-uc' + args.uc_id + \
+        + '-workload-generator:latest'
     # TODO: acces over name of attribute
     wg_containter['env'][1]['value'] = str(num_sensors)
     wg_containter['env'][2]['value'] = str(wl_instances)
@@ -204,7 +205,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
             group="monitoring.coreos.com",
             version="v1",
             namespace="default",
-            plural="servicemonitors", # From CustomResourceDefinition of ServiceMonitor
+            plural="servicemonitors",  # CustomResourceDef of ServiceMonitor
             body=svc_monitor_yaml,
         )
         print("ServiceMonitor '%s' created." % svc_monitor['metadata']['name'])
@@ -225,7 +226,8 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
     deploy_yaml['spec']['replicas'] = args.instances
     # TODO: acces over name of container
     app_container = deploy_yaml['spec']['template']['spec']['containers'][0]
-    app_container['image'] = 'soerenhenning/uc' + args.uc_id + '-app:latest'
+    app_container['image'] = 'theodolite/theodolite-uc' + args.uc_id \
+        + '-kstreams-app:latest'
     # TODO: acces over name of attribute
     app_container['env'][1]['value'] = str(args.commit_interval_ms)
     app_container['resources']['limits']['memory'] = args.memory_limit
@@ -279,6 +281,7 @@ def delete_resource(obj, del_func):
             return
     print('Resource deleted')
 
+
 def stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy):
     """Stops the applied applications and delete resources.
     :param wg: The workload generator statefull set.
@@ -324,13 +327,16 @@ def delete_topics(topics):
     num_topics_command = [
         '/bin/sh',
         '-c',
-        f'kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list | sed -n -E "/^(theodolite-.*|input|output|configuration)( - marked for deletion)?$/p" | wc -l'
+        f'kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list \
+        | sed -n -E "/^(theodolite-.*|input|output|configuration)\
+        ( - marked for deletion)?$/p" | wc -l'
     ]
 
     topics_deletion_command = [
         '/bin/sh',
         '-c',
-        f'kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic "input|output|configuration|theodolite-.*"'
+        f'kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete \
+        --topic "input|output|configuration|theodolite-.*"'
     ]
 
     # Wait that topics get deleted
@@ -397,11 +403,15 @@ def main():
               ('configuration', 1)]
     create_topics(topics)
     print('---------------------')
-    wg, app_svc, app_svc_monitor, app_jmx, app_deploy  = load_yaml_files()
+    wg, app_svc, app_svc_monitor, app_jmx, app_deploy = load_yaml_files()
     print('---------------------')
     wg = start_workload_generator(wg)
     print('---------------------')
-    app_svc, app_svc_monitor, app_jmx, app_deploy = start_application(app_svc, app_svc_monitor, app_jmx, app_deploy)
+    app_svc, app_svc_monitor, app_jmx, app_deploy = start_application(
+        app_svc,
+        app_svc_monitor,
+        app_jmx,
+        app_deploy)
     print('---------------------')
     wait_execution()
     print('---------------------')
