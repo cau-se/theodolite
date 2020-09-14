@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Objects;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
+import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 /**
  * Builder for the Kafka Streams configuration.
@@ -36,7 +37,7 @@ public class Uc3KafkaStreamsBuilder extends KafkaStreamsBuilder {
     Objects.requireNonNull(this.windowDuration, "Window duration has not been set.");
 
     final TopologyBuilder topologyBuilder = new TopologyBuilder(this.inputTopic, this.outputTopic,
-        this.windowDuration);
+        new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl), this.windowDuration);
     return topologyBuilder.build();
   }
 

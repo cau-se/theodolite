@@ -12,8 +12,9 @@ buildscript {
 
 // Variables used to distinct different subprojects
 def useCaseProjects = subprojects.findAll {it -> it.name.matches('uc(.)*')}
+def useCaseApplications = subprojects.findAll {it -> it.name.matches('uc[0-9]+-application')}
+def useCaseGenerators = subprojects.findAll {it -> it.name.matches('uc[0-9]+-workload-generator*')}
 def commonProjects = subprojects.findAll {it -> it.name.matches('(.)*commons(.)*')}
-
 
 // Plugins
 allprojects {
@@ -51,23 +52,41 @@ allprojects {
 	    maven {
 	    	url "https://oss.sonatype.org/content/repositories/snapshots/"
 	    }
+      maven {
+        url 'https://packages.confluent.io/maven/'
+    }
 	}
 }
 
-// Dependencies for all use cases
-configure(useCaseProjects) {
+// Dependencies for all use case applications
+configure(useCaseApplications) {
   dependencies {
-      // These dependencies is exported to consumers, that is to say found on their compile classpath.
-      api('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
-      api 'net.kieker-monitoring:kieker:1.14-SNAPSHOT'
-      api 'net.sourceforge.teetime:teetime:3.0'
-
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-      implementation 'org.apache.kafka:kafka-clients:2.1.0'
+      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
-      implementation 'org.slf4j:slf4j-simple:1.6.1'
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
       implementation project(':application-kafkastreams-commons')
+
+      // Use JUnit test framework
+      testImplementation 'junit:junit:4.12'
+  }
+}
+
+// Dependencies for all use case generators
+configure(useCaseGenerators) {
+  dependencies {
+      // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'com.google.guava:guava:24.1-jre'
+      implementation 'org.jctools:jctools-core:2.1.1'
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
+
+      // These dependencies are used for the workload-generator-commmon
+      implementation project(':workload-generator-commons')
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
@@ -77,12 +96,10 @@ configure(useCaseProjects) {
 // Dependencies for all commons
 configure(commonProjects) {
   dependencies {
-      // These dependencies is exported to consumers, that is to say found on their compile classpath.
-      api 'org.apache.kafka:kafka-clients:2.4.0'
-
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-      implementation 'org.slf4j:slf4j-simple:1.6.1'
-      implementation('org.industrial-devops:titan-ccp-common:0.0.3-SNAPSHOT') { changing = true }
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
+      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'

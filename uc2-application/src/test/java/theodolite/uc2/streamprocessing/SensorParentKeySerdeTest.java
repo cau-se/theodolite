@@ -1,8 +1,6 @@
 package theodolite.uc2.streamprocessing;
 
 import org.junit.Test;
-import theodolite.uc2.streamprocessing.SensorParentKey;
-import theodolite.uc2.streamprocessing.SensorParentKeySerde;
 
 public class SensorParentKeySerdeTest {
 

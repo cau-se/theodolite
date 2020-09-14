@@ -102,7 +102,15 @@ Other Kafka deployments, for example, using Strimzi, should work in a similar wa
 A permanently running pod used for Kafka configuration is started via:
 
 ```sh
-kubectl apply -f infrastructure/kafka/kafka-client.yaml 
+kubectl apply -f infrastructure/kafka/kafka-client.yaml
+```
+
+#### A Zookeeper Client Pod
+
+Also a permanently running pod for ZooKeeper access is started via:
+
+```sh
+kubectl apply -f infrastructure/zookeeper-client.yaml
 ```
 
 #### The Kafka Lag Exporter
@@ -142,15 +150,15 @@ Depending on your setup, some additional adjustments may be necessary:
 
 ## Execution
 
-The `./run_loop.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
+The `./theodolite.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
 ```sh
-./run_loop.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration>
+./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration>
 ```
 
 * `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
-* `<wl-values>`: Values for the workload generator to be tested, separated by commas. For example `100000, 200000, 300000`.
-* `<instances>`: Numbers of instances to be benchmarked, separated by commas. For example `1, 2, 3, 4`.
+* `<wl-values>`: Values for the workload generator to be tested, separated by commas and quoted. For example `"100000, 200000, 300000"`.
+* `<instances>`: Numbers of instances to be benchmarked, separated by commas and quoted. For example `"1, 2, 3, 4"`.
 * `<partitions>`: Number of partitions for Kafka topics. Optional. Default `40`.
 * `<cpu-limit>`: Kubernetes CPU limit. Optional. Default `1000m`.
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.

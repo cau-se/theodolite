@@ -5,7 +5,7 @@ namePrefix: uc1-
 
 images:
   - name: uc-app
-    newName: soerenhenning/uc1-app
+    newName: theodolite/theodolite-uc1-kstreams-app
     newTag: latest
 
 bases:

@@ -14,5 +14,6 @@ spec:
         - name: HIERARCHY
           value: "full"
         - name: NUM_NESTED_GROUPS
-          value: "25000"
-
+          value: "5"
+        - name: INSTANCES
+          value: "1"

@@ -3,13 +3,14 @@ kind: Deployment
 metadata:
   name: titan-ccp-aggregation
 spec:
+  replicas: 1
   template:
     spec:
       containers:
       - name: uc-application
         env:
         - name: COMMIT_INTERVAL_MS
-          value: 100
+          value: "100"
         resources:
           limits:
             memory: 4Gi

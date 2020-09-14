@@ -25,6 +25,11 @@ build:
   tags:
     - exec-docker
   script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "build/libs/*.jar"
+      - "*/build/distributions/*.tar"
+    expire_in: 1 day
 
 test:
   stage: test
@@ -76,7 +81,7 @@ spotbugs:
 .deploy:
   stage: deploy
   tags:
-    - exec-docker
+    - exec-dind
   # see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   # for image usage and settings for building with TLS and docker in docker
   image: docker:19.03.1
@@ -86,14 +91,157 @@ spotbugs:
     DOCKER_TLS_CERTDIR: "/certs"
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t titan-ccp-exp-bigdata19-bridge ./exp-bigdata19-bridge
-    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:${DOCKER_TAG_NAME}latest
-    - docker tag titan-ccp-exp-bigdata19-bridge $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge:$DOCKER_TAG_NAME$CI_COMMIT_SHA
+    - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
+    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+    - "[ $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $DOCKERHUB_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_ID --password-stdin
-    - docker push $DOCKERHUB_ORG/titan-ccp-exp-bigdata19-bridge
+    - docker push $DOCKERHUB_ORG/$IMAGE_NAME
     - docker logout
-  only:
-    variables:
-      - $DOCKERHUB_ORG
-      - $DOCKERHUB_ID
-      - $DOCKERHUB_PW
+  rules:
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      # - $JAVA_PROJECT_NAME/**/* # hope this can be simplified soon, see #51
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc1-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc1-kstreams-app"
+    JAVA_PROJECT_NAME: "uc1-application"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc1-application/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc2-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc2-kstreams-app"
+    JAVA_PROJECT_NAME: "uc2-application"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc2-application/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc3-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc3-kstreams-app"
+    JAVA_PROJECT_NAME: "uc3-application"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc3-application/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc4-kstreams-app:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc4-kstreams-app"
+    JAVA_PROJECT_NAME: "uc4-application"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc4-application/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc1-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc1-workload-generator"
+    JAVA_PROJECT_NAME: "uc1-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc1-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc2-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc2-workload-generator"
+    JAVA_PROJECT_NAME: "uc2-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc2-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc3-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc3-workload-generator"
+    JAVA_PROJECT_NAME: "uc3-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc3-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc4-workload-generator:
+  extends: .deploy
+  variables:
+    IMAGE_NAME: "theodolite-uc4-workload-generator"
+    JAVA_PROJECT_NAME: "uc4-workload-generator"
+  rules: # hope this can be simplified soon, see #51
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - uc4-workload-generator/**/*
+      - application-kafkastreams-commons/**/*
+      if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: always
+    - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true

@@ -5,7 +5,7 @@ namePrefix: uc1-
 
 images:
   - name: workload-generator
-    newName: soerenhenning/uc1-wg
+    newName: theodolite/theodolite-uc1-workload-generator
     newTag: latest
 
 bases:

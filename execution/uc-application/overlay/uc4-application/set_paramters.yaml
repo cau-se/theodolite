@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: titan-ccp-aggregation
 spec:
+  replicas: 1
   template:
     spec:
       containers:
