@@ -29,21 +29,20 @@ start = now - timedelta(minutes=execution_minutes)
 
 response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
     #'query': "sum by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
-    'query': "sum by(group, topic)(kafka_consumergroup_group_lag > 0)",
+    #'query': "sum by(group, topic)(kafka_consumergroup_group_lag > 0)", # KAFKA STREAMS
+    'query': "sum by(job_name) (flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max)", # FLINK
     'start': start.isoformat(),
     'end': end.isoformat(),
     'step': '5s'})
 
 #response
-#print(response.request.path_url)
-#response.content
+print(response.content) # DEBUG
 results = response.json()['data']['result']
-
 d = []
 
 for result in results:
     #print(result['metric']['topic'])
-    topic = result['metric']['topic']
+    topic = result['metric']['job_name']
     for value in result['values']:
         #print(value)
         d.append({'topic': topic, 'timestamp': int(value[0]), 'value': int(value[1]) if value[1] != 'NaN' else 0})
@@ -51,16 +50,16 @@ for result in results:
 df = pd.DataFrame(d)
 
 # Do some analysis
-
-input = df.loc[df['topic'] == "input"]
-
+print("Record Lag grouped by job_id (here topic)")
+print(df)
+input = df # df.loc[df['topic'] == "input"]
 #input.plot(kind='line',x='timestamp',y='value',color='red')
 #plt.show()
-
 from sklearn.linear_model import LinearRegression
 
 X = input.iloc[:, 1].values.reshape(-1, 1)  # values converts it into a numpy array
 Y = input.iloc[:, 2].values.reshape(-1, 1)  # -1 means that calculate the dimension of rows, but have 1 column
+print(X, Y)
 linear_regressor = LinearRegression()  # create object for the class
 linear_regressor.fit(X, Y)  # perform linear regression
 Y_pred = linear_regressor.predict(X)  # make predictions
@@ -88,7 +87,8 @@ df.to_csv(f"{filename}_values.csv")
 # Load total lag count
 
 response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
-    'query': "sum by(group)(kafka_consumergroup_group_lag > 0)",
+    #'query': "sum by(group)(kafka_consumergroup_group_lag > 0)",
+    'query': "sum by(job_name) (flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max)", # FLINK
     'start': start.isoformat(),
     'end': end.isoformat(),
     'step': '5s'})
@@ -99,7 +99,7 @@ d = []
 
 for result in results:
     #print(result['metric']['topic'])
-    group = result['metric']['group']
+    group = result['metric']['job_name'] # job_id was group
     for value in result['values']:
         #print(value)
         d.append({'group': group, 'timestamp': int(value[0]), 'value': int(value[1]) if value[1] != 'NaN' else 0})
@@ -112,7 +112,8 @@ df.to_csv(f"{filename}_totallag.csv")
 # Load partition count
 
 response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
-    'query': "count by(group,topic)(kafka_consumergroup_group_offset > 0)",
+    #'query': "count by(group,topic)(kafka_consumergroup_group_offset > 0)",
+    'query': "count by(job_name) (flink_taskmanager_job_task_operator_KafkaConsumer_topic_partition_committedOffsets)", # FLINK
     'start': start.isoformat(),
     'end': end.isoformat(),
     'step': '5s'})
@@ -123,7 +124,7 @@ d = []
 
 for result in results:
     #print(result['metric']['topic'])
-    topic = result['metric']['topic']
+    topic = result['metric']['job_name']
     for value in result['values']:
         #print(value)
         d.append({'topic': topic, 'timestamp': int(value[0]), 'value': int(value[1]) if value[1] != 'NaN' else 0})
@@ -136,7 +137,8 @@ df.to_csv(f"{filename}_partitions.csv")
 # Load instances count
 
 response = requests.get(prometheus_baseurl+'/api/v1/query_range', params={
-    'query': "count(count (kafka_consumer_consumer_fetch_manager_metrics_records_lag) by(pod))",
+    #'query': "count(count (kafka_consumer_consumer_fetch_manager_metrics_records_lag) by(pod))",
+    'query': "flink_jobmanager_numRegisteredTaskManagers",
     'start': start.isoformat(),
     'end': end.isoformat(),
     'step': '5s'})

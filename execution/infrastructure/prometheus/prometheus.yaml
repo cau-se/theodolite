@@ -11,5 +11,7 @@ spec:
   resources:
     requests:
       memory: 400Mi
+    limits:
+      memory: 400Mi
   #scrapeInterval: 1s
   enableAdminAPI: true

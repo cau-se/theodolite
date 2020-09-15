@@ -1,12 +1,21 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: kafka-client
 spec:
-  containers:
-  - name: kafka-client
-    image: confluentinc/cp-enterprise-kafka:5.5.0
-    command:
-      - sh
-      - -c
-      - "exec tail -f /dev/null"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-client
+  template:
+    metadata:
+      labels:
+        app: kafka-client
+    spec:
+      containers:
+      - name: kafka-client
+        image: confluentinc/cp-enterprise-kafka:5.5.0
+        command:
+          - sh
+          - -c
+          - "exec tail -f /dev/null"
