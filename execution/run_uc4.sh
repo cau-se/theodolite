@@ -31,7 +31,7 @@ WL_INSTANCES=$(((NUM_SENSORS + (WL_MAX_RECORDS -1 ))/ WL_MAX_RECORDS))
 
 cat <<EOF >uuc-workload-generator/overlay/uc4-workload-generator/set_paramters.yaml
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: titan-ccp-load-generator
 spec:

@@ -147,6 +147,7 @@ def start_workload_generator(wg_yaml):
         the yaml object.
     """
     print('Start workload generator')
+
     num_sensors = args.dim_value
     wl_max_records = 150000
     # TODO: How is this calculation done?
@@ -157,20 +158,20 @@ def start_workload_generator(wg_yaml):
     # TODO: acces over name of container
     wg_containter = wg_yaml['spec']['template']['spec']['containers'][0]
     wg_containter['image'] = 'theodolite/theodolite-uc' + args.uc_id + \
-        + '-workload-generator:latest'
+        '-workload-generator:latest'
     # TODO: acces over name of attribute
     wg_containter['env'][1]['value'] = str(num_sensors)
     wg_containter['env'][2]['value'] = str(wl_instances)
 
     try:
-        wg_ss = appsApi.create_namespaced_stateful_set(
+        wg_ss = appsApi.create_namespaced_deployment(
             namespace="default",
             body=wg_yaml
         )
-        print("StatefulSet '%s' created." % wg_ss.metadata.name)
+        print("Deployment '%s' created." % wg_ss.metadata.name)
         return wg_ss
     except client.rest.ApiException as e:
-        print("StatefulSet creation error: %s" % e.reason)
+        print("Deployment creation error: %s" % e.reason)
         return wg_yaml
 
 
@@ -277,7 +278,7 @@ def delete_resource(obj, del_func):
             del_func(obj['metadata']['name'], 'default')
         except Exception as e:
             print("Error deleting resource")
-            log.error(e)
+            logging.error(e)
             return
     print('Resource deleted')
 
@@ -293,7 +294,7 @@ def stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy):
     print('Stop use case application and workload generator')
 
     print('Delete workload generator')
-    delete_resource(wg, appsApi.delete_namespaced_stateful_set)
+    delete_resource(wg, appsApi.delete_namespaced_deployment)
 
     print('Delete app service')
     delete_resource(app_svc, coreApi.delete_namespaced_service)
@@ -392,6 +393,11 @@ def stop_lag_exporter():
     print(output)
     return
 
+# def start():
+#
+#
+# def stop():
+#
 
 def main():
     load_variables()
@@ -400,6 +406,7 @@ def main():
     print('---------------------')
     topics = [('input', args.partitions),
               ('output', args.partitions),
+              ('aggregation-feedback', args.partitions),
               ('configuration', 1)]
     create_topics(topics)
     print('---------------------')
