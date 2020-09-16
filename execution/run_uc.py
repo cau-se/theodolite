@@ -230,7 +230,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
     app_container['image'] = 'theodolite/theodolite-uc' + args.uc_id \
         + '-kstreams-app:latest'
     # TODO: acces over name of attribute
-    app_container['env'][1]['value'] = str(args.commit_interval_ms)
+    app_container['env'][0]['value'] = str(args.commit_interval_ms)
     app_container['resources']['limits']['memory'] = args.memory_limit
     app_container['resources']['limits']['cpu'] = args.cpu_limit
     try:
