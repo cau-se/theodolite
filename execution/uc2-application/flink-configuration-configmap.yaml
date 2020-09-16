@@ -16,6 +16,7 @@ data:
     taskmanager.memory.process.size: {{MEMORY_LIMIT}}
     parallelism.default: {{REPLICAS}}
     metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+    metrics.reporter.prom.interval: 10 SECONDS
     taskmanager.network.detailed-metrics: true
   # -> gives metrics about inbound/outbound network queue lengths
   log4j-console.properties: |+
