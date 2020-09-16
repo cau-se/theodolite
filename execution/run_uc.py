@@ -325,11 +325,13 @@ def delete_topics(topics):
     """
     print('Delete topics from Kafka')
 
+    topics_delete = 'theodolite-.*|' + '|'.join([ti[0] for ti in topics])
+
     num_topics_command = [
         '/bin/sh',
         '-c',
         f'kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list \
-        | sed -n -E "/^(theodolite-.*|input|output|configuration)\
+        | sed -n -E "/^({topics_delete})\
         ( - marked for deletion)?$/p" | wc -l'
     ]
 
@@ -337,7 +339,7 @@ def delete_topics(topics):
         '/bin/sh',
         '-c',
         f'kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete \
-        --topic "input|output|configuration|theodolite-.*"'
+        --topic "{topics_delete}"'
     ]
 
     # Wait that topics get deleted
