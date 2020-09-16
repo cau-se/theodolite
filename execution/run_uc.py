@@ -364,6 +364,47 @@ def delete_topics(topics):
             break
     return
 
+def reset_zookeeper():
+    """Delete ZooKeeper configurations used for workload generation.
+    """
+    print('Delete ZooKeeper configurations used for workload generation')
+
+    delete_zoo_data_command = [
+        'kubectl',
+        'exec',
+        'zookeeper-client',
+        '--',
+        'bash',
+        '-c',
+        'zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall /workload-generation'
+    ]
+
+    check_zoo_data_command = [
+        'kubectl',
+        'exec',
+        'zookeeper-client',
+        '--',
+        'bash',
+        '-c',
+        'zookeeper-shell my-confluent-cp-zookeeper:2181 ls /'
+        # "| awk -F[\]\[] '{print $2}'"
+    ]
+
+    output = subprocess.run(delete_zoo_data_command, capture_output=True, text=True)
+    logging.info(output.stdout)
+
+    # Wait for configuration deletion
+    while True:
+        output = subprocess.run(check_zoo_data_command, capture_output=True, text=True)
+        logging.debug(output)
+
+        if 'workload-generation' in output.stdout:
+            print('ZooKeeper reset was not successful. Retrying in 5s.')
+            time.sleep(5)
+        else:
+            logging.info('ZooKeeper reset was successful.')
+            break
+    return
 
 def stop_lag_exporter():
     """
@@ -425,6 +466,8 @@ def main():
     stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy)
     print('---------------------')
     delete_topics(topics)
+    print('---------------------')
+    reset_zookeeper()
     print('---------------------')
     stop_lag_exporter()
 
