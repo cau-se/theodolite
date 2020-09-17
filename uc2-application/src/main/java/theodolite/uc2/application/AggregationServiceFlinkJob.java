@@ -87,7 +87,6 @@ public class AggregationServiceFlinkJob {
 
     kafkaInputSource.setStartFromGroupOffsets();
     kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
-    kafkaInputSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
 
     // Source from output topic with AggregatedPowerRecords
     final FlinkMonitoringRecordSerde<AggregatedActivePowerRecord, AggregatedActivePowerRecordFactory> outputSerde =
@@ -100,7 +99,6 @@ public class AggregationServiceFlinkJob {
 
     kafkaOutputSource.setStartFromGroupOffsets();
     kafkaOutputSource.setCommitOffsetsOnCheckpoints(true);
-    kafkaOutputSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
 
     // Source from configuration topic with EventSensorRegistry JSON
     final FlinkKafkaKeyValueSerde<Event, String> configSerde =
@@ -134,7 +132,6 @@ public class AggregationServiceFlinkJob {
     kafkaAggregationSink.setWriteTimestampToKafka(true);
 
     // Execution environment configuration
-
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -176,7 +173,9 @@ public class AggregationServiceFlinkJob {
     // Build input stream
     final DataStream<ActivePowerRecord> inputStream = env.addSource(kafkaInputSource)
         .name("[Kafka Consumer] Topic: " + inputTopic)
-        .rebalance();
+        .rebalance()
+        .map(r -> r)
+        .name("[Map] Rebalance Forward");
 
     // Build aggregation stream
     final DataStream<ActivePowerRecord> aggregationsInputStream = env.addSource(kafkaOutputSource)
@@ -216,7 +215,9 @@ public class AggregationServiceFlinkJob {
             .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
 
     DataStream<AggregatedActivePowerRecord> aggregationStream = lastValueStream
-        .assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace))
+        .rebalance()
+        .assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps())
+        //.assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace)) // does not work for some reason
         .keyBy(t -> t.f0.getParent())
         .window(TumblingEventTimeWindows.of(windowSize))
         .process(new RecordAggregationProcessWindowFunction())
