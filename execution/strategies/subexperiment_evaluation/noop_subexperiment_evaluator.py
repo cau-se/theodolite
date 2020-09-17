@@ -1,2 +1,2 @@
-def execute():
+def execute(config):
     return

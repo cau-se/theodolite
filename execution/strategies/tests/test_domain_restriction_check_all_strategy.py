@@ -1,7 +1,8 @@
 import pprint
 
 from strategies.config import ExperimentConfig
-import strategies.strategies.binary_search_strategy as binary_search_strategy
+import strategies.strategies.search.check_all_strategy as check_all_strategy
+import strategies.strategies.domain_restriction.lower_bound_strategy as lower_bound_strategy
 from strategies.experiment_execution import ExperimentExecutor
 import strategies.subexperiment_execution.subexperiment_executor as subexperiment_executor
 
@@ -11,7 +12,7 @@ class Object(object):
 pp = pprint.PrettyPrinter(indent=4)
 
 dim_values = [0, 1, 2, 3, 4, 5, 6]
-replicas = [0, 1, 2, 3, 4, 5, 6]
+replicass = [0, 1, 2, 3, 4, 5, 6]
 
 # True means the experiment was successful
 # the experiments are indexed row (representing dimension values) and column (representing number of replicas) wise as usual arrays from 0 - 6 respectively.
@@ -26,22 +27,40 @@ successful = [
        [ False, False, False, False, False, False, False ] 
     ]
 
+# the expected order of executed experiments
 expected_order = [
-        (3,0), # interval (0, 6)
-        (1,0), 
-        (0,0),
-        (3,1), # interval (0, 6)
+        (0,0), # workload dim 0
+        (0,1),
+        (0,2),
+        (0,3),
+        (0,4),
+        (0,5),
+        (0,6),
+        (1,0), # workload dim 1
         (1,1),
-        (3,2), # interval (0, 6)
         (1,2),
-        (2,2),
-        (4,3), # interval (3, 6)
+        (1,3),
+        (1,4),
+        (1,5),
+        (1,6),
+        (2,2), # workload dim 2
+        (2,3),
+        (2,4),
+        (2,5),
+        (2,6),
+        (3,2), # workload dim 3
         (3,3),
-        (5,4), # interval (4, 6)
+        (3,4),
+        (3,5),
+        (3,6),
+        (4,3), # workload dim 4
         (4,4),
-        (5,5), # interval (5,6)
-        (5,6), # interval (5,6)
-        (6,6)
+        (4,5),
+        (4,6),
+        (5,4), # workload dim 3
+        (5,5),
+        (5,6),
+        (6,6) # workload dim 6
     ]
 
 last_experiment = (0, 0)
@@ -63,11 +82,9 @@ subexperiment_executor.execute = subexperiment_executor_executor
 
 subexperiment_evaluator = Object()
 
-def subexperiment_evaluator_execute():
+def subexperiment_evaluator_execute(i):
     print("Evaluating last experiment. Index was:")
     global expected_order, experiment_counter, last_experiment, successful
-    pp.pprint(last_experiment)
-    print("Index was expected to be:")
     pp.pprint(expected_order[experiment_counter])
     assert expected_order[experiment_counter] == last_experiment
     print("Index was as expected. Evaluation finished.")
@@ -75,7 +92,7 @@ def subexperiment_evaluator_execute():
 
 subexperiment_evaluator.execute = subexperiment_evaluator_execute
 
-def test_binary_search_strategy():
+def test_linear_search_strategy():
     # declare parameters
     uc="test-uc"
     partitions=40
@@ -85,6 +102,18 @@ def test_binary_search_strategy():
     execution_minutes=5
 
     # execute
-    experiment_config = ExperimentConfig(uc, dim_values, replicas, partitions, cpu_limit, memory_limit, kafka_streams_commit_interval_ms, execution_minutes, binary_search_strategy, subexperiment_executor, subexperiment_evaluator)
+    experiment_config = ExperimentConfig(
+        use_case=uc,
+        dim_values=dim_values,
+        replicass=replicass,
+        partitions=partitions,
+        cpu_limit=cpu_limit,
+        memory_limit=memory_limit,
+        kafka_streams_commit_interval_ms=kafka_streams_commit_interval_ms,
+        execution_minutes=execution_minutes,
+        domain_restriction_strategy=lower_bound_strategy,
+        search_strategy=check_all_strategy,
+        subexperiment_executor=subexperiment_executor,
+        subexperiment_evaluator=subexperiment_evaluator)
     executor = ExperimentExecutor(experiment_config)
     executor.execute()

@@ -3,4 +3,4 @@ class ExperimentExecutor:
         self.config=config
     
     def execute(self):
-        self.config.benchmarking_strategy.execute(self.config)
+        self.config.domain_restriction_strategy.execute(self.config)
