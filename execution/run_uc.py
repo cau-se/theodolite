@@ -396,8 +396,8 @@ def reset_zookeeper():
         '--',
         'bash',
         '-c',
-        'zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall'
-        + ' /workload-generation'
+        'zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall '
+        + '/workload-generation'
     ]
 
     check_zoo_data_command = [
@@ -407,8 +407,8 @@ def reset_zookeeper():
         '--',
         'bash',
         '-c',
-        'zookeeper-shell my-confluent-cp-zookeeper:2181 ls /'
-        # "| awk -F[\]\[] '{print $2}'"
+        'zookeeper-shell my-confluent-cp-zookeeper:2181 get '
+        + '/workload-generation'
     ]
 
     # Wait for configuration deletion
@@ -425,12 +425,12 @@ def reset_zookeeper():
                                 text=True)
         logging.debug(output)
 
-        if 'workload-generation' in output.stdout:
-            print('ZooKeeper reset was not successful. Retrying in 5s.')
-            time.sleep(5)
-        else:
+        if output.returncode == 1: # Means data not available anymore
             print('ZooKeeper reset was successful.')
             break
+        else:
+            print('ZooKeeper reset was not successful. Retrying in 5s.')
+            time.sleep(5)
     return
 
 
