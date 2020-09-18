@@ -77,8 +77,11 @@ def initialize_kubernetes_api():
     print('Connect to kubernetes api')
     try:
         config.load_kube_config()  # try using local config
-    except config.config_exception.ConfigException:
+    except config.config_exception.ConfigException as e:
         # load config from pod, if local config is not available
+        logging.debug('Failed loading local Kubernetes configuration,'
+                      + ' try from cluster')
+        logging.debug(e)
         config.load_incluster_config()
 
     coreApi = client.CoreV1Api()
@@ -120,8 +123,9 @@ def load_yaml(file_path):
         f = open(path.join(path.dirname(__file__), file_path))
         with f:
             return yaml.safe_load(f)
-    except:
-        print('Error opening file %s' % file_path)
+    except Exception as e:
+        logging.error('Error opening file %s' % file_path)
+        logging.error(e)
 
 
 def load_yaml_files():
@@ -198,7 +202,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
         print("Service '%s' created." % svc.metadata.name)
     except client.rest.ApiException as e:
         svc = svc_yaml
-        print("Service creation error: %s" % e.reason)
+        logging.error("Service creation error: %s" % e.reason)
 
     # Create custom object service monitor
     try:
@@ -212,7 +216,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
         print("ServiceMonitor '%s' created." % svc_monitor['metadata']['name'])
     except client.rest.ApiException as e:
         svc_monitor = svc_monitor_yaml
-        print("ServiceMonitor creation error: %s" % e.reason)
+        logging.error("ServiceMonitor creation error: %s" % e.reason)
 
     # Apply jmx config map for aggregation service
     try:
@@ -221,7 +225,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
         print("ConfigMap '%s' created." % jmx_cm.metadata.name)
     except client.rest.ApiException as e:
         jmx_cm = jmx_yaml
-        print("ConfigMap creation error: %s" % e.reason)
+        logging.error("ConfigMap creation error: %s" % e.reason)
 
     # Create deployment
     deploy_yaml['spec']['replicas'] = args.instances
@@ -241,7 +245,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml):
         print("Deployment '%s' created." % app_deploy.metadata.name)
     except client.rest.ApiException as e:
         app_deploy = deploy_yaml
-        print("Deployment creation error: %s" % e.reason)
+        logging.error("Deployment creation error: %s" % e.reason)
 
     return svc, svc_monitor, jmx_cm, app_deploy
 
@@ -277,7 +281,7 @@ def delete_resource(obj, del_func):
         try:
             del_func(obj['metadata']['name'], 'default')
         except Exception as e:
-            print("Error deleting resource")
+            logging.error("Error deleting resource")
             logging.error(e)
             return
     print('Resource deleted')
@@ -366,6 +370,7 @@ def delete_topics(topics):
             break
     return
 
+
 def reset_zookeeper():
     """Delete ZooKeeper configurations used for workload generation.
     """
@@ -378,7 +383,8 @@ def reset_zookeeper():
         '--',
         'bash',
         '-c',
-        'zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall /workload-generation'
+        'zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall'
+        + ' /workload-generation'
     ]
 
     check_zoo_data_command = [
@@ -392,21 +398,28 @@ def reset_zookeeper():
         # "| awk -F[\]\[] '{print $2}'"
     ]
 
-    output = subprocess.run(delete_zoo_data_command, capture_output=True, text=True)
-    logging.info(output.stdout)
-
     # Wait for configuration deletion
     while True:
-        output = subprocess.run(check_zoo_data_command, capture_output=True, text=True)
+        # Delete Zookeeper configuration data
+        output = subprocess.run(delete_zoo_data_command,
+                                capture_output=True,
+                                text=True)
+        logging.debug(output.stdout)
+
+        # Check data is deleted
+        output = subprocess.run(check_zoo_data_command,
+                                capture_output=True,
+                                text=True)
         logging.debug(output)
 
         if 'workload-generation' in output.stdout:
             print('ZooKeeper reset was not successful. Retrying in 5s.')
             time.sleep(5)
         else:
-            logging.info('ZooKeeper reset was successful.')
+            print('ZooKeeper reset was successful.')
             break
     return
+
 
 def stop_lag_exporter():
     """
@@ -441,6 +454,7 @@ def stop_lag_exporter():
 #
 # def stop():
 #
+
 
 def main():
     load_variables()
