@@ -1,5 +1,14 @@
 package theodolite.uc2.workloadgenerator;
 
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import theodolite.kafkasender.KafkaRecordSender;
+import titan.ccp.configuration.events.Event;
+import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
+import titan.ccp.model.sensorregistry.MutableSensorRegistry;
+import titan.ccp.models.records.ActivePowerRecord;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -9,14 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import theodolite.kafkasender.KafkaRecordSender;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
-import titan.ccp.model.sensorregistry.MutableSensorRegistry;
-import titan.ccp.models.records.ActivePowerRecord;
 
 public class LoadGenerator {
 
@@ -65,14 +66,25 @@ public class LoadGenerator {
             .collect(Collectors.toList());
 
     if (sendRegistry) {
+      // Resend registry for when the application did not pick up the first one
+      System.out.println("Waiting 10 seconds before sending registry...");
+      final ScheduledExecutorService executor = Executors.newScheduledThreadPool(threads);
+      executor.scheduleAtFixedRate(() -> {
+        final ConfigPublisher configPublisher =
+            new ConfigPublisher(kafkaBootstrapServers, "configuration");
+        configPublisher.publish(Event.SENSOR_REGISTRY_CHANGED, sensorRegistry.toJson());
+        configPublisher.close();
+        System.out.println("Configuration sent.");
+      }, 30, 30, TimeUnit.SECONDS);
+
       final ConfigPublisher configPublisher =
           new ConfigPublisher(kafkaBootstrapServers, "configuration");
       configPublisher.publish(Event.SENSOR_REGISTRY_CHANGED, sensorRegistry.toJson());
       configPublisher.close();
       System.out.println("Configuration sent.");
 
-      System.out.println("Now wait 30 seconds");
-      Thread.sleep(30_000);
+      System.out.println("Now wait 3 seconds");
+      Thread.sleep(3_000);
       System.out.println("And woke up again :)");
     }
 

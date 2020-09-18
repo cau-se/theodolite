@@ -16,7 +16,7 @@ import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
@@ -188,6 +188,20 @@ public class AggregationServiceFlinkJob {
     final DataStream<ActivePowerRecord> mergedInputStream = inputStream
         .union(aggregationsInputStream);
 
+    mergedInputStream
+        .map(new MapFunction<ActivePowerRecord, String>() {
+          @Override
+          public String map(ActivePowerRecord value) throws Exception {
+            return
+                "ActivePowerRecord { "
+                    + "identifier: " + value.getIdentifier() + ", "
+                    + "timestamp: " + value.getTimestamp() + ", "
+                    + "valueInW: " + value.getValueInW() + " }";
+          }
+        })
+        .name("[Map] toString")
+        .print();
+
     // Build parent sensor stream from configuration stream
     final DataStream<Tuple2<String, Set<String>>> configurationsStream =
         env.addSource(kafkaConfigSource)
@@ -213,13 +227,23 @@ public class AggregationServiceFlinkJob {
                 ((KeySelector<Tuple2<String, Set<String>>, String>) t -> (String) t.f0))
             .flatMap(new JoinAndDuplicateCoFlatMapFunction())
             .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
+    lastValueStream
+        .map(new MapFunction<Tuple2<SensorParentKey, ActivePowerRecord>, String>() {
+          @Override
+          public String map(Tuple2<SensorParentKey, ActivePowerRecord> t) throws Exception {
+            return "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + "ActivePowerRecord {"
+                + "identifier: " + t.f1.getIdentifier() + ", "
+                + "timestamp: " + t.f1.getTimestamp() + ", "
+                + "valueInW: " + t.f1.getValueInW() + " }";
+          }
+        })
+        .print();
 
     DataStream<AggregatedActivePowerRecord> aggregationStream = lastValueStream
         .rebalance()
-        .assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps())
-        //.assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace)) // does not work for some reason
+        .assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace))
         .keyBy(t -> t.f0.getParent())
-        .window(TumblingEventTimeWindows.of(windowSize))
+        .window(TumblingProcessingTimeWindows.of(windowSize))
         .process(new RecordAggregationProcessWindowFunction())
         .name("[Aggregate] ((Sensor, Group), ActivePowerRecord) -> AggregatedActivePowerRecord");
 
