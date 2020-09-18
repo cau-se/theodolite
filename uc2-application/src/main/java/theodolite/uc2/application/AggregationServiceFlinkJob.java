@@ -6,15 +6,18 @@ import com.google.gson.JsonParser;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.state.MapStateDescriptor;
+import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -69,6 +72,7 @@ public class AggregationServiceFlinkJob {
     final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND, "").toLowerCase();
     final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
     final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE, MemoryStateBackend.DEFAULT_MAX_STATE_SIZE);
+    final boolean debug = this.config.getBoolean(ConfigurationKeys.DEBUG, true);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -132,6 +136,9 @@ public class AggregationServiceFlinkJob {
     kafkaAggregationSink.setWriteTimestampToKafka(true);
 
     // Execution environment configuration
+//    org.apache.flink.configuration.Configuration conf = new org.apache.flink.configuration.Configuration();
+//    conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true);
+//    final StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -188,20 +195,21 @@ public class AggregationServiceFlinkJob {
     final DataStream<ActivePowerRecord> mergedInputStream = inputStream
         .union(aggregationsInputStream);
 
-    mergedInputStream
-        .map(new MapFunction<ActivePowerRecord, String>() {
-          @Override
-          public String map(ActivePowerRecord value) throws Exception {
-            return
-                "ActivePowerRecord { "
-                    + "identifier: " + value.getIdentifier() + ", "
-                    + "timestamp: " + value.getTimestamp() + ", "
-                    + "valueInW: " + value.getValueInW() + " }";
-          }
-        })
-        .name("[Map] toString")
-        .print();
-
+    if (debug) {
+      mergedInputStream
+          .map(new MapFunction<ActivePowerRecord, String>() {
+            @Override
+            public String map(ActivePowerRecord value) throws Exception {
+              return
+                  "ActivePowerRecord { "
+                      + "identifier: " + value.getIdentifier() + ", "
+                      + "timestamp: " + value.getTimestamp() + ", "
+                      + "valueInW: " + value.getValueInW() + " }";
+            }
+          })
+          .name("[Map] toString")
+          .print();
+    }
     // Build parent sensor stream from configuration stream
     final DataStream<Tuple2<String, Set<String>>> configurationsStream =
         env.addSource(kafkaConfigSource)
@@ -221,23 +229,42 @@ public class AggregationServiceFlinkJob {
             .flatMap(new ChildParentsFlatMapFunction())
             .name("[FlatMap] SensorRegistry -> (ChildSensor, ParentSensor[])");
 
+//    DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
+//        mergedInputStream.connect(configurationsStream)
+//            .keyBy(ActivePowerRecord::getIdentifier,
+//                ((KeySelector<Tuple2<String, Set<String>>, String>) t -> (String) t.f0))
+//            .flatMap(new JoinAndDuplicateCoFlatMapFunction()) //TODO: use BroadcastProcessFunction instead
+//            .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
+
+    KeyedStream<ActivePowerRecord, String> keyedStream =
+        mergedInputStream.keyBy(ActivePowerRecord::getIdentifier);
+
+    MapStateDescriptor<String, Set<String>> sensorConfigStateDescriptor =
+        new MapStateDescriptor<>(
+            "join-and-duplicate-state",
+            BasicTypeInfo.STRING_TYPE_INFO,
+            TypeInformation.of(new TypeHint<Set<String>>() {}));
+
+    BroadcastStream<Tuple2<String, Set<String>>> broadcastStream =
+        configurationsStream.broadcast(sensorConfigStateDescriptor);
+
     DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
-        mergedInputStream.connect(configurationsStream)
-            .keyBy(ActivePowerRecord::getIdentifier,
-                ((KeySelector<Tuple2<String, Set<String>>, String>) t -> (String) t.f0))
-            .flatMap(new JoinAndDuplicateCoFlatMapFunction())
-            .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
-    lastValueStream
-        .map(new MapFunction<Tuple2<SensorParentKey, ActivePowerRecord>, String>() {
-          @Override
-          public String map(Tuple2<SensorParentKey, ActivePowerRecord> t) throws Exception {
-            return "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + "ActivePowerRecord {"
-                + "identifier: " + t.f1.getIdentifier() + ", "
-                + "timestamp: " + t.f1.getTimestamp() + ", "
-                + "valueInW: " + t.f1.getValueInW() + " }";
-          }
-        })
-        .print();
+        keyedStream.connect(broadcastStream)
+        .process(new JoinAndDuplicateKeyedBroadcastProcessFunction());
+
+    if (debug) {
+      lastValueStream
+          .map(new MapFunction<Tuple2<SensorParentKey, ActivePowerRecord>, String>() {
+            @Override
+            public String map(Tuple2<SensorParentKey, ActivePowerRecord> t) throws Exception {
+              return "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + "ActivePowerRecord {"
+                  + "identifier: " + t.f1.getIdentifier() + ", "
+                  + "timestamp: " + t.f1.getTimestamp() + ", "
+                  + "valueInW: " + t.f1.getValueInW() + " }";
+            }
+          })
+          .print();
+    }
 
     DataStream<AggregatedActivePowerRecord> aggregationStream = lastValueStream
         .rebalance()
