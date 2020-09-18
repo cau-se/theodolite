@@ -154,18 +154,31 @@ def start_workload_generator(wg_yaml):
 
     num_sensors = args.dim_value
     wl_max_records = 150000
-    # TODO: How is this calculation done?
     wl_instances = int(((num_sensors + (wl_max_records - 1)) / wl_max_records))
+
+    # set parameters special for uc 2
+    if args.uc_id == '2':
+        print('use uc2 stuff')
+        num_nested_groups = args.dim_value
+        num_sensors = '4'
+        approx_num_sensors = int(num_sensors) ** num_nested_groups
+        wl_instances = int(
+            ((approx_num_sensors + wl_max_records - 1) / wl_max_records)
+        )
 
     # Customize workload generator creations
     wg_yaml['spec']['replicas'] = wl_instances
     # TODO: acces over name of container
+    # Set used use case
     wg_containter = wg_yaml['spec']['template']['spec']['containers'][0]
     wg_containter['image'] = 'theodolite/theodolite-uc' + args.uc_id + \
         '-workload-generator:latest'
     # TODO: acces over name of attribute
-    wg_containter['env'][1]['value'] = str(num_sensors)
-    wg_containter['env'][2]['value'] = str(wl_instances)
+    # Set environment variables
+    wg_containter['env'][0]['value'] = str(num_sensors)
+    wg_containter['env'][1]['value'] = str(wl_instances)
+    if args.uc_id == '2':  # Special configuration for uc2
+        wg_containter['env'][2]['value'] = str(num_nested_groups)
 
     try:
         wg_ss = appsApi.create_namespaced_deployment(
