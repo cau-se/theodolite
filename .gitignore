@@ -30,3 +30,6 @@ tmp/
 
 # Python Venv
 .venv
+
+# Python cache files
+*.pyc
