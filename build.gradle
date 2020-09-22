@@ -64,9 +64,10 @@ configure(useCaseApplications) {
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
       implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
       implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
-      implementation 'org.slf4j:slf4j-simple:1.6.1'
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
       implementation project(':application-kafkastreams-commons')
 
       // Use JUnit test framework
@@ -82,7 +83,7 @@ configure(useCaseGenerators) {
       implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
-      implementation 'org.slf4j:slf4j-simple:1.6.1'
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
 
       // These dependencies are used for the workload-generator-commmon
       implementation project(':workload-generator-commons')
@@ -96,7 +97,7 @@ configure(useCaseGenerators) {
 configure(commonProjects) {
   dependencies {
       // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-      implementation 'org.slf4j:slf4j-simple:1.6.1'
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
       implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
       implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
 

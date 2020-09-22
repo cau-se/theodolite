@@ -102,7 +102,15 @@ Other Kafka deployments, for example, using Strimzi, should work in a similar wa
 A permanently running pod used for Kafka configuration is started via:
 
 ```sh
-kubectl apply -f infrastructure/kafka/kafka-client.yaml 
+kubectl apply -f infrastructure/kafka/kafka-client.yaml
+```
+
+#### A Zookeeper Client Pod
+
+Also a permanently running pod for ZooKeeper access is started via:
+
+```sh
+kubectl apply -f infrastructure/zookeeper-client.yaml
 ```
 
 #### The Kafka Lag Exporter

@@ -22,14 +22,16 @@ public final class ConfigurationKeys {
   public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
 
   // Additional topics
+  public static final String KAFKA_FEEDBACK_TOPIC = "kafka.feedback.topic";
+
   public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
 
-  public static final String CONFIGURATION_KAFKA_TOPIC = "configuration.kafka.topic";
+  public static final String KAFKA_CONFIGURATION_TOPIC = "kafka.configuration.topic";
 
   // UC2
-  public static final String WINDOW_SIZE_MS = "window.size.ms";
+  public static final String EMIT_PERIOD_MS = "emit.period.ms";
 
-  public static final String WINDOW_GRACE_MS = "window.grace.ms";
+  public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
   // UC3
   public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
