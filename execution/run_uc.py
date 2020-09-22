@@ -2,6 +2,7 @@ import argparse  # parse arguments from cli
 import atexit # used to clear resources at exit of program (e.g. ctrl-c)
 from kubernetes import client, config  # kubernetes api
 from kubernetes.stream import stream
+import lag_analysis
 import logging  # logging
 from os import path  # path utilities
 import subprocess  # execute bash commands
@@ -20,6 +21,11 @@ def load_variables():
     global args
     print('Load CLI variables')
     parser = argparse.ArgumentParser(description='Run use case Programm')
+    parser.add_argument('--exp-id', '-id',
+                        dest='exp_id',
+                        default='1',
+                        metavar='EXP_ID',
+                        help='ID of the experiment')
     parser.add_argument('--use-case', '-uc',
                         dest='uc_id',
                         default='1',
@@ -285,14 +291,10 @@ def wait_execution():
     return
 
 
-def run_evaluation_script():
-    """Runs the evaluation script."""
-    # TODO: implement
-    # # Run eval script
-    # source ../.venv/bin/activate
-    # python lag_analysis.py $EXP_ID uc1 $DIM_VALUE $INSTANCES
-    #   $EXECUTION_MINUTES
-    # deactivate
+def run_evaluation():
+    """Runs the evaluation function"""
+    print('Run evaluation function')
+    lag_analysis.main(args.exp_id, f'uc{args.uc_id}', args.dim_value, args.instances, args.execution_minutes)
     return
 
 
@@ -388,7 +390,7 @@ def delete_topics(topics):
         print(resp)
 
         print('Wait for topic deletion')
-        time.sleep(5)
+        time.sleep(2)
         resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "kafka-client",
                       'default',
@@ -536,6 +538,9 @@ def main():
     print('---------------------')
 
     wait_execution()
+    print('---------------------')
+
+    run_evaluation()
     print('---------------------')
 
     # Cluster is resetted with atexit method
