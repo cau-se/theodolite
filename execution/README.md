@@ -145,23 +145,32 @@ Depending on your setup, some additional adjustments may be necessary:
 The `./theodolite.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
 ```sh
-./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration>
+./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration> <domain-restriction> <search-strategy>
 ```
 
 * `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
-* `<wl-values>`: Values for the workload generator to be tested, separated by commas. For example `100000, 200000, 300000`.
-* `<instances>`: Numbers of instances to be benchmarked, separated by commas. For example `1, 2, 3, 4`.
+* `<wl-values>`: Values for the workload generator to be tested, separated by commas and sorted in ascending order. For example `100000, 200000, 300000`.
+* `<instances>`: Numbers of instances to be benchmarked, separated by commas and sorted in ascending order. For example `1, 2, 3, 4`.
 * `<partitions>`: Number of partitions for Kafka topics. Optional. Default `40`.
 * `<cpu-limit>`: Kubernetes CPU limit. Optional. Default `1000m`.
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
 * `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
 * `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
-* `<strategy>`: The benchmarking strategy. Can be set to `default`, `step` or `binary-search`. For more details see Section _Benchmarking Strategies_. Default `default`.
+* `<domain-restriction>`: The domain restriction: `domain-restriction` to use domain restriction `no-domain-restriction` to not use domain restriction. Default `no-domain-restriction`. For more details see Section _Domain Restriction_.
+* `<search-strategy>`: The benchmarking search strategy. Can be set to `check_all`, `linear-search` or `binary-search`. Default `default`. For more details see Section _Benchmarking Search Strategies_.
 
-### Benchmarking Strategies
+### Domain Restriction
+For dimension value, we have a domain of the amounts of instances. As a consequence, for each dimension value the maximum number of lag experiments is equal to the size of the domain. How the domain is determined is defined by the following domain restriction strategies.
+
+* `no-domain-restriction`: For each dimension value, the domain of instances is equal to the set of all amounts of instances.
+* `domain-restriction`: For each dimension value, the domain is computed as follows:
+    * If the dimension value is the smallest dimension value the domain of the amounts of instances is equal to the set of all amounts of instances.
+    * If the dimension value is not the smallest dimension value and N is the amount of minimal amount of instances that was suitable for the last smaller dimension value the domain for this dimension value contains all amounts of instances greater than, or equal to N.
+
+### Benchmarking Search Strategies
 There are the following benchmarking strategies:
 
-* `default`: Execute a subexperiment for each combination of the number of replicas (N), and the number of workload intensities (M). The amount of executed subexperiments is always N*M.
-* `step`: A heuristic which works as follows: After each subexperiment, it is checked, whether the application could handle the workload. If the workload could be handled, the workload intensity is increased in the next subexperiment. Otherwise, the workload intensity is kept the same and the number of instances is increased. The amount of executed sub-experiments is at most N+M-1.
-* `binary-search`: A heuristic which works as follows: For each number of instances, a binary-search like strategy is used to determine the workload intensity, to which the system handle the workload. The limiting workload intensity is taken into consideration when executing sub-experiments for other number of replicas. The number of executed sub-experiments is at most N*log(M).
+* `check_all`: For each dimension value, execute one lag experiment for all amounts of instances within the current domain.
+* `linear-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is from the lowest number of instances to the highest amount of instances and the execution for each dimension value is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
+* `binary-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is in a binary-search-like manner. The execution is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
 
