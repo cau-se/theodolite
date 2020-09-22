@@ -1,4 +1,5 @@
 import argparse  # parse arguments from cli
+import atexit # used to clear resources at exit of program (e.g. ctrl-c)
 from kubernetes import client, config  # kubernetes api
 from kubernetes.stream import stream
 import logging  # logging
@@ -483,6 +484,7 @@ def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
     """
     Stop the applications, delete topics, reset zookeeper and stop lag exporter.
     """
+    print('Reset cluster')
     stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy)
     print('---------------------')
     delete_topics(topics)
@@ -490,7 +492,6 @@ def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
     reset_zookeeper()
     print('---------------------')
     stop_lag_exporter()
-
 
 def main():
     load_variables()
@@ -507,14 +508,19 @@ def main():
               ('aggregation-feedback', args.partitions),
               ('configuration', 1)]
 
+    # Check for reset options
     if args.reset_only:
-        print('Reset only cluster')
+        # Only reset cluster an then end program
         reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
         sys.exit()
     if args.reset:
-        print('Reset cluster before execution')
+        # Reset cluster before execution
+        print('Reset only mode')
         reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
         print('---------------------')
+
+    # Register the reset operation so that is executed at the end of program
+    atexit.register(reset_cluster, wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
 
     create_topics(topics)
     print('---------------------')
@@ -532,7 +538,8 @@ def main():
     wait_execution()
     print('---------------------')
 
-    reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
+    # Cluster is resetted with atexit method
+    # reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
 
 
 if __name__ == '__main__':
