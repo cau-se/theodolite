@@ -1,5 +1,4 @@
-# Runs subexperiments for all numbers of replicas with an index > lower_replicas_bound_index
-
+# The check_all strategy
 import os
 from strategies.strategies.config import SubexperimentConfig
 

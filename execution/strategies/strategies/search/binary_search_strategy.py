@@ -1,3 +1,4 @@
+# The binary search strategy
 import os
 from strategies.strategies.config import SubexperimentConfig
 

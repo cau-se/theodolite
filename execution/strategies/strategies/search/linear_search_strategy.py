@@ -1,4 +1,4 @@
-# Perform linear search to determine the lowest number of replicas which is suitable for the dimension value with an index > lower_replicas_bound_index
+# The linear-search strategy
 
 import os
 from strategies.strategies.config import SubexperimentConfig

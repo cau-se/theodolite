@@ -1,29 +1,4 @@
-# strats:
-# default: not end subexp when suitable instances found, increasing the number of instances with each iteration
-# H1 end subexp when suitable instances found, increasing the number of instances with each iteration.
-# H2 start with suitable instances from experiments for the last lower dim value -> outer loop over dim values, tracking suitable instances
-# H3 end subexp when suitable instances found, using binary search.
-
-# 3 Suchstrategien:
-#   1. H0 (Teste alle)
-#   2. H1 (Lineare Suche)
-#   3. H2 (Binäre Suche)
-
-# Optional: Einschränkung des Suchraumes:
-#   1. Keine Einschränkung
-#   2. Untere Schranke
-
-# Fragen: Erkläre vorgehen, verstehen wir dasselbe?
-# Zeithorizont?
-
-# linear regressor besprechen im lag_analysis.py skript
-
-# useful combinations
-
-# Zum Report:
-# Gegenüberstellung Suchstrategie & keine Suchstrategie (im Idealfall wdh. von Experimenten)
-
-
+# The lower bound strategy
 def execute(config):
     dim_value_index = 0
     lower_bound_replicas_index = 0

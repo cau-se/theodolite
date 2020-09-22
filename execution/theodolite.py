@@ -26,9 +26,9 @@ search_strategy=sys.argv[10] if len(sys.argv) >= 11 and (sys.argv[10] == "linear
 print(f"Domain restriction of search space activated: {domain_restriction}")
 print(f"Chosen search strategy: {search_strategy}")
 
-# use h3
+# domain restriction
 if domain_restriction:
-    # use h1 & h3
+    # domain restriction + linear-search
     if search_strategy == "linear-search":
         print(f"Going to execute at most {len(dim_values)+len(replicas)-1} subexperiments in total..")
         experiment_config = ExperimentConfig(
@@ -44,7 +44,7 @@ if domain_restriction:
             search_strategy=linear_search_strategy,
             subexperiment_executor=subexperiment_executor,
             subexperiment_evaluator=subexperiment_evaluator)
-    # use h2 & h3
+    # domain restriction + binary-search
     elif search_strategy == "binary-search":
         experiment_config = ExperimentConfig(
             use_case=uc,
@@ -59,7 +59,7 @@ if domain_restriction:
             search_strategy=binary_search_strategy,
             subexperiment_executor=subexperiment_executor,
             subexperiment_evaluator=subexperiment_evaluator)
-    # use h0 & h3
+    # domain restriction + check_all
     else:
         print(f"Going to execute {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(
@@ -75,9 +75,9 @@ if domain_restriction:
             search_strategy=check_all_strategy,
             subexperiment_executor=subexperiment_executor,
             subexperiment_evaluator=subexperiment_evaluator)
-# not use h3
+# no domain restriction
 else:
-    # use h1 & !h3
+    # no domain restriction + linear-search
     if search_strategy == "linear-search":
         print(f"Going to execute at most {len(dim_values)+len(replicas)-1} subexperiments in total..")
         experiment_config = ExperimentConfig(
@@ -93,7 +93,7 @@ else:
             search_strategy=linear_search_strategy,
             subexperiment_executor=subexperiment_executor,
             subexperiment_evaluator=subexperiment_evaluator)
-    # use h2 & !h3
+    # no domain restriction + binary-search
     elif search_strategy == "binary-search":
         experiment_config = ExperimentConfig(
             use_case=uc,
@@ -108,7 +108,7 @@ else:
             search_strategy=binary_search_strategy,
             subexperiment_executor=subexperiment_executor,
             subexperiment_evaluator=subexperiment_evaluator)
-    # use h0 & !h3
+    # no domain restriction + check_all
     else:
         print(f"Going to execute {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(

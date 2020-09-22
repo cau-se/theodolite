@@ -15,6 +15,5 @@ def compute(directory, filename, warmup_sec, threshold):
     Y_pred = linear_regressor.predict(X)  # make predictions
 
     trend_slope = linear_regressor.coef_[0][0]
-    #print(linear_regressor.coef_)
 
     return trend_slope

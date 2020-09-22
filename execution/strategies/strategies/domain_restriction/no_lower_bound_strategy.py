@@ -1,3 +1,4 @@
+# The strategy where the domain contains all amounts of instances
 def execute(config):
     dim_value_index = 0
     subexperiment_counter = 0
