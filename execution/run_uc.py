@@ -4,6 +4,7 @@ from kubernetes.stream import stream
 import logging  # logging
 from os import path  # path utilities
 import subprocess  # execute bash commands
+import sys # for exit of program
 import time  # process sleep
 import yaml  # convert from file to yaml object
 
@@ -64,6 +65,14 @@ def load_variables():
                         metavar='EXECUTION_MINUTES',
                         help='Duration in minutes subexperiments should be \
                                 executed for')
+    parser.add_argument('--reset', '-res',
+                        dest='reset',
+                        action="store_true",
+                        help='Resets the environment before execution')
+    parser.add_argument('--reset-only', '-reso',
+                        dest='reset_only',
+                        action="store_true",
+                        help='Only resets the environment. Ignores all other parameters')
 
     args = parser.parse_args()
     print(args)
@@ -287,10 +296,17 @@ def run_evaluation_script():
 
 
 def delete_resource(obj, del_func):
+    """
+    Helper function to delete kuberentes resources.
+    First tries to delete with the kuberentes object.
+    Then it uses the dict representation of yaml to delete the object.
+    :param obj: Either kubernetes resource object or yaml as a dict.
+    :param del_func: The function that need to be executed for deletion
+    """
     try:
         del_func(obj.metadata.name, 'default')
     except Exception as e:
-        logging.info('Error deleting resource with api object, try with dict.')
+        logging.debug('Error deleting resource with api object, try with dict.')
         try:
             del_func(obj['metadata']['name'], 'default')
         except Exception as e:
@@ -462,36 +478,11 @@ def stop_lag_exporter():
     print(output)
     return
 
-# def start():
-#
-#
-# def stop():
-#
 
-
-def main():
-    load_variables()
-    print('---------------------')
-    initialize_kubernetes_api()
-    print('---------------------')
-    topics = [('input', args.partitions),
-              ('output', args.partitions),
-              ('aggregation-feedback', args.partitions),
-              ('configuration', 1)]
-    create_topics(topics)
-    print('---------------------')
-    wg, app_svc, app_svc_monitor, app_jmx, app_deploy = load_yaml_files()
-    print('---------------------')
-    wg = start_workload_generator(wg)
-    print('---------------------')
-    app_svc, app_svc_monitor, app_jmx, app_deploy = start_application(
-        app_svc,
-        app_svc_monitor,
-        app_jmx,
-        app_deploy)
-    print('---------------------')
-    wait_execution()
-    print('---------------------')
+def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
+    """
+    Stop the applications, delete topics, reset zookeeper and stop lag exporter.
+    """
     stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy)
     print('---------------------')
     delete_topics(topics)
@@ -499,6 +490,49 @@ def main():
     reset_zookeeper()
     print('---------------------')
     stop_lag_exporter()
+
+
+def main():
+    load_variables()
+    print('---------------------')
+
+    wg, app_svc, app_svc_monitor, app_jmx, app_deploy = load_yaml_files()
+    print('---------------------')
+
+    initialize_kubernetes_api()
+    print('---------------------')
+
+    topics = [('input', args.partitions),
+              ('output', args.partitions),
+              ('aggregation-feedback', args.partitions),
+              ('configuration', 1)]
+
+    if args.reset_only:
+        print('Reset only cluster')
+        reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
+        sys.exit()
+    if args.reset:
+        print('Reset cluster before execution')
+        reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
+        print('---------------------')
+
+    create_topics(topics)
+    print('---------------------')
+
+    wg = start_workload_generator(wg)
+    print('---------------------')
+
+    app_svc, app_svc_monitor, app_jmx, app_deploy = start_application(
+        app_svc,
+        app_svc_monitor,
+        app_jmx,
+        app_deploy)
+    print('---------------------')
+
+    wait_execution()
+    print('---------------------')
+
+    reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
 
 
 if __name__ == '__main__':
