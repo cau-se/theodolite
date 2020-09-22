@@ -79,7 +79,7 @@ if domain_restriction:
 else:
     # no domain restriction + linear-search
     if search_strategy == "linear-search":
-        print(f"Going to execute at most {len(dim_values)+len(replicas)-1} subexperiments in total..")
+        print(f"Going to execute at most {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(
             use_case=uc,
             dim_values=dim_values,
