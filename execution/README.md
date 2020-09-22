@@ -142,11 +142,7 @@ Depending on your setup, some additional adjustments may be necessary:
 
 ## Execution
 
-<<<<<<< HEAD
-Please note that **Python 3.7** installation is required for executing Theodolite.
-=======
 Please note that a **Python 3.7** installation is required for executing Theodolite.
->>>>>>> e8849b0... Update execution/README.md
 
 The `./theodolite.py` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
