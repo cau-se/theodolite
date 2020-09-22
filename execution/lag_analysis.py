@@ -13,7 +13,7 @@ instances = sys.argv[4]
 execution_minutes = int(sys.argv[5])
 time_diff_ms = int(os.getenv('CLOCK_DIFF_MS', 0))
 
-prometheus_query_path = 'http://localhost:9090/api/v1/query_range'
+prometheus_query_path = 'http://kube1.se.internal:32529/api/v1/query_range'
 
 #http://localhost:9090/api/v1/query_range?query=sum%20by(job,topic)(kafka_consumer_consumer_fetch_manager_metrics_records_lag)&start=2015-07-01T20:10:30.781Z&end=2020-07-01T20:11:00.781Z&step=15s
 
