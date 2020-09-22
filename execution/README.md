@@ -120,7 +120,7 @@ can be installed via Helm. We also provide a [default configuration](infrastruct
 To install it:
 
 ```sh
-helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.0/kafka-lag-exporter-0.6.0.tgz -f infrastructure/kafka-lag-exporter/values.yaml
+helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.3/kafka-lag-exporter-0.6.3.tgz -f infrastructure/kafka-lag-exporter/values.yaml
 ```
 
 
@@ -159,8 +159,8 @@ The `./theodolite.py` is the entrypoint for all benchmark executions. Is has to 
 ```
 
 * `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
-* `<wl-values>`: Values for the workload generator to be tested, separated by commas and sorted in ascending order. For example `100000, 200000, 300000`.
-* `<instances>`: Numbers of instances to be benchmarked, separated by commas and sorted in ascending order. For example `1, 2, 3, 4`.
+* `<wl-values>`: Values for the workload generator to be tested, separated by commas, quoted, and sorted in ascending order. For example `"100000, 200000, 300000"`.
+* `<instances>`: Numbers of instances to be benchmarked, separated by commas, quoted, and sorted in ascending order. For example `"1, 2, 3, 4"`.
 * `<partitions>`: Number of partitions for Kafka topics. Optional. Default `40`.
 * `<cpu-limit>`: Kubernetes CPU limit. Optional. Default `1000m`.
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.

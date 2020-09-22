@@ -76,7 +76,7 @@ echo "Finished execution, print topics:"
 #kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -E '/^(titan-.*|input|output|configuration)( - marked for deletion)?$/p'
 while test $(kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --list" | sed -n -E '/^(theodolite-.*|input|output|configuration)( - marked for deletion)?$/p' | wc -l) -gt 0
 do
-    kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic 'input|output|configuration|theodolite-.*'"
+    kubectl exec kafka-client -- bash -c "kafka-topics --zookeeper my-confluent-cp-zookeeper:2181 --delete --topic 'input|output|configuration|theodolite-.*' --if-exists"
     echo "Wait for topic deletion"
     sleep 5s
     #echo "Finished waiting, print topics:"
@@ -90,25 +90,10 @@ echo "Finish topic deletion, print topics:"
 echo "Delete ZooKeeper configurations used for workload generation"
 kubectl exec zookeeper-client -- bash -c "zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall /workload-generation"
 echo "Waiting for deletion"
-
-while [ true ]
+while kubectl exec zookeeper-client -- bash -c "zookeeper-shell my-confluent-cp-zookeeper:2181 get /workload-generation"
 do
-    IFS=', ' read -r -a array <<< $(kubectl exec zookeeper-client -- bash -c "zookeeper-shell my-confluent-cp-zookeeper:2181 ls /" | tail -n 1 | awk -F[\]\[] '{print $2}')
-    found=0
-    for element in "${array[@]}"
-    do
-        if [ "$element" == "workload-generation" ]; then
-                found=1
-                break
-        fi
-    done
-    if [ $found -ne 1 ]; then
-        echo "ZooKeeper reset was successful."
-        break
-    else 
-        echo "ZooKeeper reset was not successful. Retrying in 5s."
-        sleep 5s
-    fi
+    echo "Wait for ZooKeeper state deletion."
+    sleep 5s
 done
 echo "Deletion finished"
 
