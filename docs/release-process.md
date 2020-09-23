@@ -1,8 +1,7 @@
 # Release Process
 
-We assume that we are creating the release `v0.1.1`. Please make sure to update
-to modify the following steps according to the release, you are actually
-performing.
+We assume that we are creating the release `v0.1.1`. Please make sure to adjust
+the following steps according to the release, you are actually performing.
 
 1. Create a new branch `v0.1` if not already exists. This branch will never
 again be merged into master.
