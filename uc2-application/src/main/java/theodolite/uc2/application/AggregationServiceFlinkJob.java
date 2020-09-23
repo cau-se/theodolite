@@ -1,23 +1,17 @@
 package theodolite.uc2.application;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.state.MapStateDescriptor;
-import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
-import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -73,6 +67,7 @@ public class AggregationServiceFlinkJob {
     final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
     final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE, MemoryStateBackend.DEFAULT_MAX_STATE_SIZE);
     final boolean debug = this.config.getBoolean(ConfigurationKeys.DEBUG, true);
+    final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -90,7 +85,8 @@ public class AggregationServiceFlinkJob {
         inputTopic, inputSerde, kafkaProps);
 
     kafkaInputSource.setStartFromGroupOffsets();
-    kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
+    if (checkpointing)
+      kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
 
     // Source from output topic with AggregatedPowerRecords
     final FlinkMonitoringRecordSerde<AggregatedActivePowerRecord, AggregatedActivePowerRecordFactory> outputSerde =
@@ -116,7 +112,8 @@ public class AggregationServiceFlinkJob {
     final FlinkKafkaConsumer<Tuple2<Event, String>> kafkaConfigSource = new FlinkKafkaConsumer<>(
         configurationTopic, configSerde, kafkaProps);
     kafkaConfigSource.setStartFromGroupOffsets();
-    kafkaConfigSource.setCommitOffsetsOnCheckpoints(true);
+    if (checkpointing)
+      kafkaConfigSource.setCommitOffsetsOnCheckpoints(true);
 
     // Sink to output topic with SensorId, AggregatedActivePowerRecord
     FlinkKafkaKeyValueSerde<String, AggregatedActivePowerRecord> aggregationSerde =
@@ -142,7 +139,8 @@ public class AggregationServiceFlinkJob {
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-    env.enableCheckpointing(commitIntervalMs);
+    if (checkpointing)
+      env.enableCheckpointing(commitIntervalMs);
 
     // State Backend
     if (stateBackend.equals("filesystem")) {
@@ -219,38 +217,38 @@ public class AggregationServiceFlinkJob {
             .map(new MapFunction<Tuple2<Event, String>, SensorRegistry>() {
               @Override
               public SensorRegistry map(Tuple2<Event, String> tuple) {
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                String prettyJsonString = gson.toJson(new JsonParser().parse(tuple.f1));
-                LOGGER.info("SensorRegistry: " + prettyJsonString);
+//                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//                String prettyJsonString = gson.toJson(new JsonParser().parse(tuple.f1));
+//                LOGGER.info("SensorRegistry: " + prettyJsonString);
                 return SensorRegistry.fromJson(tuple.f1);
               }
             }).name("[Map] JSON -> SensorRegistry")
-            .keyBy(sr -> sr)
+            .keyBy(sr -> 1)
             .flatMap(new ChildParentsFlatMapFunction())
             .name("[FlatMap] SensorRegistry -> (ChildSensor, ParentSensor[])");
 
-//    DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
-//        mergedInputStream.connect(configurationsStream)
-//            .keyBy(ActivePowerRecord::getIdentifier,
-//                ((KeySelector<Tuple2<String, Set<String>>, String>) t -> (String) t.f0))
-//            .flatMap(new JoinAndDuplicateCoFlatMapFunction()) //TODO: use BroadcastProcessFunction instead
-//            .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
-
-    KeyedStream<ActivePowerRecord, String> keyedStream =
-        mergedInputStream.keyBy(ActivePowerRecord::getIdentifier);
-
-    MapStateDescriptor<String, Set<String>> sensorConfigStateDescriptor =
-        new MapStateDescriptor<>(
-            "join-and-duplicate-state",
-            BasicTypeInfo.STRING_TYPE_INFO,
-            TypeInformation.of(new TypeHint<Set<String>>() {}));
-
-    BroadcastStream<Tuple2<String, Set<String>>> broadcastStream =
-        configurationsStream.broadcast(sensorConfigStateDescriptor);
-
     DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
-        keyedStream.connect(broadcastStream)
-        .process(new JoinAndDuplicateKeyedBroadcastProcessFunction());
+        mergedInputStream.connect(configurationsStream)
+            .keyBy(ActivePowerRecord::getIdentifier,
+                ((KeySelector<Tuple2<String, Set<String>>, String>) t -> (String) t.f0))
+            .flatMap(new JoinAndDuplicateCoFlatMapFunction())
+            .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
+
+//    KeyedStream<ActivePowerRecord, String> keyedStream =
+//        mergedInputStream.keyBy(ActivePowerRecord::getIdentifier);
+//
+//    MapStateDescriptor<String, Set<String>> sensorConfigStateDescriptor =
+//        new MapStateDescriptor<>(
+//            "join-and-duplicate-state",
+//            BasicTypeInfo.STRING_TYPE_INFO,
+//            TypeInformation.of(new TypeHint<Set<String>>() {}));
+//
+//    BroadcastStream<Tuple2<String, Set<String>>> broadcastStream =
+//        configurationsStream.keyBy(t -> t.f0).broadcast(sensorConfigStateDescriptor);
+//
+//    DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
+//        keyedStream.connect(broadcastStream)
+//        .process(new JoinAndDuplicateKeyedBroadcastProcessFunction());
 
     if (debug) {
       lastValueStream

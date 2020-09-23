@@ -30,6 +30,8 @@ public final class ConfigurationKeys {
 
   public static final String DEBUG = "debug";
 
+  public static final String CHECKPOINTING = "checkpointing";
+
   private ConfigurationKeys() {}
 
 }

@@ -53,6 +53,7 @@ public class HistoryServiceFlinkJob {
     final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND, "").toLowerCase();
     final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
     final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE, MemoryStateBackend.DEFAULT_MAX_STATE_SIZE);
+    final boolean checkpointing= this.config.getBoolean(ConfigurationKeys.CHECKPOINTING);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -68,7 +69,8 @@ public class HistoryServiceFlinkJob {
         inputTopic, sourceSerde, kafkaProps);
 
     kafkaSource.setStartFromGroupOffsets();
-    kafkaSource.setCommitOffsetsOnCheckpoints(true);
+    if (checkpointing)
+      kafkaSource.setCommitOffsetsOnCheckpoints(true);
     kafkaSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
 
     final FlinkKafkaKeyValueSerde<String, String> sinkSerde =
@@ -85,7 +87,8 @@ public class HistoryServiceFlinkJob {
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-    env.enableCheckpointing(commitIntervalMs);
+    if (checkpointing)
+      env.enableCheckpointing(commitIntervalMs);
 
     // State Backend
     if (stateBackend.equals("filesystem")) {
