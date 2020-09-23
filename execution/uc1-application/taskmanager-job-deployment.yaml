@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: taskmanager
-          image: nicobiernat/theodolite-flink-uc1 # flink:1.11.0-scala_2.11
+          image: nicobiernat/theodolite-flink-uc1
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "my-confluent-cp-kafka:9092"
@@ -25,7 +25,7 @@ spec:
             - name: JOB_MANAGER_RPC_ADDRESS
               value: "flink-jobmanager"
             - name: TASK_MANAGER_NUMBER_OF_TASK_SLOTS
-              value: "1" # TODO: make configurable
+              value: "{{TASKSLOTS}}"
             - name: FLINK_PROPERTIES
               value: |+
                 blob.server.port: 6124
@@ -34,7 +34,7 @@ spec:
                 queryable-state.proxy.ports: 6125
                 jobmanager.memory.process.size: {{MEMORY_LIMIT}}
                 taskmanager.memory.process.size: {{MEMORY_LIMIT}}
-                parallelism.default: {{REPLICAS}}
+                parallelism.default: {{PARALLELISM}}
           resources:
             limits:
               memory: "{{MEMORY_LIMIT}}"
