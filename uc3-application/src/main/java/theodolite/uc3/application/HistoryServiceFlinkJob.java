@@ -53,7 +53,7 @@ public class HistoryServiceFlinkJob {
     final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND, "").toLowerCase();
     final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
     final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE, MemoryStateBackend.DEFAULT_MAX_STATE_SIZE);
-    final boolean checkpointing= this.config.getBoolean(ConfigurationKeys.CHECKPOINTING);
+    final boolean checkpointing= this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
