@@ -5,7 +5,7 @@ import run_uc
 
 def execute(subexperiment_config):
     run_uc.main(
-        exp_id=subexperiment_config.counter,
+        exp_id=subexperiment_config.exp_id,
         uc_id=subexperiment_config.use_case,
         dim_value=int(subexperiment_config.dim_value),
         instances=int(subexperiment_config.replicas),

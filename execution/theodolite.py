@@ -26,6 +26,15 @@ search_strategy=sys.argv[10] if len(sys.argv) >= 11 and (sys.argv[10] == "linear
 print(f"Domain restriction of search space activated: {domain_restriction}")
 print(f"Chosen search strategy: {search_strategy}")
 
+if os.path.exists("exp_counter.txt"):
+    with open("exp_counter.txt", mode="r") as read_stream:
+        exp_id = int(read_stream.read())
+else:
+    exp_id = 0
+
+with open("exp_counter.txt", mode="w") as write_stream:
+    write_stream.write(str(exp_id+1))
+
 # domain restriction
 if domain_restriction:
     # domain restriction + linear-search
@@ -33,6 +42,7 @@ if domain_restriction:
         print(f"Going to execute at most {len(dim_values)+len(replicas)-1} subexperiments in total..")
         experiment_config = ExperimentConfig(
             use_case=uc,
+            exp_id=exp_id,
             dim_values=dim_values,
             replicass=replicas,
             partitions=partitions,
@@ -48,6 +58,7 @@ if domain_restriction:
     elif search_strategy == "binary-search":
         experiment_config = ExperimentConfig(
             use_case=uc,
+            exp_id=exp_id,
             dim_values=dim_values,
             replicass=replicas,
             partitions=partitions,
@@ -64,6 +75,7 @@ if domain_restriction:
         print(f"Going to execute {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(
             use_case=uc,
+            exp_id=exp_id,
             dim_values=dim_values,
             replicass=replicas,
             partitions=partitions,
@@ -82,6 +94,7 @@ else:
         print(f"Going to execute at most {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(
             use_case=uc,
+            exp_id=exp_id,
             dim_values=dim_values,
             replicass=replicas,
             partitions=partitions,
@@ -97,6 +110,7 @@ else:
     elif search_strategy == "binary-search":
         experiment_config = ExperimentConfig(
             use_case=uc,
+            exp_id=exp_id,
             dim_values=dim_values,
             replicass=replicas,
             partitions=partitions,
@@ -113,6 +127,7 @@ else:
         print(f"Going to execute {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(
             use_case=uc,
+            exp_id=exp_id,
             dim_values=dim_values,
             replicass=replicas,
             partitions=partitions,
