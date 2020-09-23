@@ -4,6 +4,7 @@ from dataclasses import dataclass
 class ExperimentConfig:
     """ Wrapper for the configuration of an experiment. """
     use_case: str
+    exp_id: int
     dim_values: list
     replicass: list
     partitions: int
