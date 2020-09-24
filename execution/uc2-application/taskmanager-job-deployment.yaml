@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: taskmanager
-          image: nicobiernat/theodolite-flink-uc2
+          #image: nicobiernat/theodolite-flink-uc2
+          image: theodolitebuild/theodolite-flink-uc2:latest
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "my-confluent-cp-kafka:9092"
@@ -28,6 +29,8 @@ spec:
               value: "{{TASKSLOTS}}" # TODO: make configurable
             - name: DEBUG
               value: "false"
+            - name: CHECKPOINTING
+              value: "true"
             - name: FLINK_PROPERTIES
               value: |+
                 blob.server.port: 6124
