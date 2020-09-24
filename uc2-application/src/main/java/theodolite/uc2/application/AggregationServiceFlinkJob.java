@@ -85,8 +85,9 @@ public class AggregationServiceFlinkJob {
         inputTopic, inputSerde, kafkaProps);
 
     kafkaInputSource.setStartFromGroupOffsets();
-    if (checkpointing)
+    if (checkpointing) {
       kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
+    }
 
     // Source from output topic with AggregatedPowerRecords
     final FlinkMonitoringRecordSerde<AggregatedActivePowerRecord, AggregatedActivePowerRecordFactory> outputSerde =
@@ -98,7 +99,9 @@ public class AggregationServiceFlinkJob {
         outputTopic, outputSerde, kafkaProps);
 
     kafkaOutputSource.setStartFromGroupOffsets();
-    kafkaOutputSource.setCommitOffsetsOnCheckpoints(true);
+    if (checkpointing) {
+      kafkaOutputSource.setCommitOffsetsOnCheckpoints(true);
+    }
 
     // Source from configuration topic with EventSensorRegistry JSON
     final FlinkKafkaKeyValueSerde<Event, String> configSerde =
@@ -112,8 +115,9 @@ public class AggregationServiceFlinkJob {
     final FlinkKafkaConsumer<Tuple2<Event, String>> kafkaConfigSource = new FlinkKafkaConsumer<>(
         configurationTopic, configSerde, kafkaProps);
     kafkaConfigSource.setStartFromGroupOffsets();
-    if (checkpointing)
+    if (checkpointing) {
       kafkaConfigSource.setCommitOffsetsOnCheckpoints(true);
+    }
 
     // Sink to output topic with SensorId, AggregatedActivePowerRecord
     FlinkKafkaKeyValueSerde<String, AggregatedActivePowerRecord> aggregationSerde =
@@ -139,8 +143,9 @@ public class AggregationServiceFlinkJob {
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-    if (checkpointing)
+    if (checkpointing) {
       env.enableCheckpointing(commitIntervalMs);
+    }
 
     // State Backend
     if (stateBackend.equals("filesystem")) {
@@ -284,24 +289,25 @@ public class AggregationServiceFlinkJob {
         .addSink(kafkaAggregationSink).name("[Kafka Producer] Topic: " + outputTopic);
 
     // add stdout sink
-    aggregationStream
-        .map(new MapFunction<AggregatedActivePowerRecord, String>() {
-          @Override
-          public String map(AggregatedActivePowerRecord value) throws Exception {
-            return
-                "AggregatedActivePowerRecord { "
-                    + "identifier: " + value.getIdentifier() + ", "
-                    + "timestamp: " + value.getTimestamp() + ", "
-                    + "minInW: " + value.getMinInW() + ", "
-                    + "maxInW: " + value.getMaxInW() + ", "
-                    + "count: " + value.getCount() + ", "
-                    + "sumInW: " + value.getSumInW() + ", "
-                    + "avgInW: " + value.getAverageInW() + " }";
-          }
-        })
-        .name("[Map] toString")
-        .print();
-
+    if (debug) {
+        aggregationStream
+            .map(new MapFunction<AggregatedActivePowerRecord, String>() {
+              @Override
+              public String map(AggregatedActivePowerRecord value) throws Exception {
+                return
+                    "AggregatedActivePowerRecord { "
+                        + "identifier: " + value.getIdentifier() + ", "
+                        + "timestamp: " + value.getTimestamp() + ", "
+                        + "minInW: " + value.getMinInW() + ", "
+                        + "maxInW: " + value.getMaxInW() + ", "
+                        + "count: " + value.getCount() + ", "
+                        + "sumInW: " + value.getSumInW() + ", "
+                        + "avgInW: " + value.getAverageInW() + " }";
+              }
+            })
+            .name("[Map] toString")
+            .print();
+    }
     // Execution plan
 
     if (LOGGER.isInfoEnabled()) {
