@@ -28,6 +28,10 @@ public final class ConfigurationKeys {
 
   public static final String FLINK_STATE_BACKEND_MEMORY_SIZE = "flink.state.backend.memory.size";
 
+  public static final String DEBUG = "debug";
+
+  public static final String CHECKPOINTING = "checkpointing";
+
   private ConfigurationKeys() {}
 
 }

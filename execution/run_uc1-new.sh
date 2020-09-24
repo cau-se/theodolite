@@ -36,8 +36,10 @@ echo "$WORKLOAD_GENERATOR_YAML" | kubectl apply -f -
 
 # Start application
 REPLICAS=$INSTANCES
+TASKSLOTS=1
+PARALLELISM=$((INSTANCES * TASKSLOTS))
 # When not using `sed` anymore, use `kubectl apply -f uc1-application`
-CONFIG_YAML=$(sed "s/{{REPLICAS}}/$REPLICAS/g; s/{{CPU_LIMIT}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g;" uc1-application/flink-configuration-configmap.yaml)
+CONFIG_YAML=$(sed "s/{{PARALLELISM}}/$PARALLELISM/g; s/{{TASKSLOTS}}/$TASKSLOTS/g; s/{{REPLICAS}}/$REPLICAS/g; s/{{CPU_LIMIT}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g;" uc1-application/flink-configuration-configmap.yaml)
 
 echo "$CONFIG_YAML" | kubectl apply -f -
 kubectl apply -f uc1-application/service-monitor.yaml
@@ -45,9 +47,9 @@ kubectl apply -f uc1-application/jobmanager-service.yaml
 kubectl apply -f uc1-application/jobmanager-rest-service.yaml
 kubectl apply -f uc1-application/taskmanager-service.yaml
 
-JOBMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{REPLICAS}}/$REPLICAS/g" uc1-application/jobmanager-job.yaml)
+JOBMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{PARALLELISM}}/$PARALLELISM/g; s/{{TASKSLOTS}}/$TASKSLOTS/g; s/{{REPLICAS}}/$REPLICAS/g;" uc1-application/jobmanager-job.yaml)
 echo "$JOBMANAGER_YAML" | kubectl apply -f -
-TASKMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{REPLICAS}}/$REPLICAS/g" uc1-application/taskmanager-job-deployment.yaml)
+TASKMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{PARALLELISM}}/$PARALLELISM/g; s/{{TASKSLOTS}}/$TASKSLOTS/g; s/{{REPLICAS}}/$REPLICAS/g;" uc1-application/taskmanager-job-deployment.yaml)
 echo "$TASKMANAGER_YAML" | kubectl apply -f -
 #kubectl scale deployment titan-ccp-aggregation --replicas=$REPLICAS
 

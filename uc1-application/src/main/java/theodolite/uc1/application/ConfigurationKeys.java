@@ -15,6 +15,7 @@ public final class ConfigurationKeys {
 
   public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
 
+  public static final String CHECKPOINTING = "checkpointing";
 
   private ConfigurationKeys() {}
 

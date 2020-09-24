@@ -25,6 +25,7 @@ public class HistoryServiceFlinkJob {
     final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
+    final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -38,11 +39,12 @@ public class HistoryServiceFlinkJob {
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaConsumer =
         new FlinkKafkaConsumer<>(inputTopic, serde, kafkaProps);
     kafkaConsumer.setStartFromGroupOffsets();
-    kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
+    if (checkpointing)
+      kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
 
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-    env.enableCheckpointing(commitIntervalMs);
+    if (checkpointing)
+      env.enableCheckpointing(commitIntervalMs);
 
     final DataStream<ActivePowerRecord> stream = env.addSource(kafkaConsumer);
 

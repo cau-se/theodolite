@@ -7,14 +7,14 @@ metadata:
 data:
   flink-conf.yaml: |+
     jobmanager.rpc.address: flink-jobmanager
-    taskmanager.numberOfTaskSlots: 1
+    taskmanager.numberOfTaskSlots: {{TASKSLOTS}}
     blob.server.port: 6124
     jobmanager.rpc.port: 6123
     taskmanager.rpc.port: 6122
     queryable-state.proxy.ports: 6125
     jobmanager.memory.process.size: {{MEMORY_LIMIT}}
     taskmanager.memory.process.size: {{MEMORY_LIMIT}}
-    parallelism.default: {{REPLICAS}}
+    parallelism.default: {{PARALLELISM}}
     metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
     metrics.reporter.prom.interval: 10 SECONDS
     taskmanager.network.detailed-metrics: true

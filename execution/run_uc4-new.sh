@@ -33,20 +33,20 @@ sed "s/{{NUM_SENSORS}}/$NUM_SENSORS/g" uc4-workload-generator/deployment.yaml | 
 
 # Start application
 REPLICAS=$INSTANCES
-#AGGREGATION_DURATION_DAYS=$DIM_VALUE
+TASKSLOTS=1
+PARALLELISM=$((INSTANCES * TASKSLOTS))
 # When not using `sed` anymore, use `kubectl apply -f uc4-application`
-CONFIG_YAML=$(sed "s/{{REPLICAS}}/$REPLICAS/g; s/{{CPU_LIMIT}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g;" uc4-application/flink-configuration-configmap.yaml)
+CONFIG_YAML=$(sed "s/{{PARALLELISM}}/$PARALLELISM/g; s/{{TASKSLOTS}}/$TASKSLOTS/g; s/{{REPLICAS}}/$REPLICAS/g; s/{{CPU_LIMIT}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g;" uc4-application/flink-configuration-configmap.yaml)
 
 echo "$CONFIG_YAML" | kubectl apply -f -
 kubectl apply -f uc4-application/service-monitor.yaml
 kubectl apply -f uc4-application/jobmanager-service.yaml
 kubectl apply -f uc4-application/jobmanager-rest-service.yaml
 kubectl apply -f uc4-application/taskmanager-service.yaml
-#kubectl apply -f uc4-application/aggregation-deployment.yaml
-#sed "s/{{AGGREGATION_DURATION_DAYS}}/$AGGREGATION_DURATION_DAYS/g" uc4-application/aggregation-deployment.yaml | kubectl apply -f -
-JOBMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{REPLICAS}}/$REPLICAS/g" uc4-application/jobmanager-job.yaml)
+
+JOBMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{PARALLELISM}}/$PARALLELISM/g; s/{{TASKSLOTS}}/$TASKSLOTS/g; s/{{REPLICAS}}/$REPLICAS/g;" uc4-application/jobmanager-job.yaml)
 echo "$JOBMANAGER_YAML" | kubectl apply -f -
-TASKMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{REPLICAS}}/$REPLICAS/g" uc4-application/taskmanager-job-deployment.yaml)
+TASKMANAGER_YAML=$(sed "s/{{CPU_LIMIT}}/$CPU_LIMIT/g; s/{{MEMORY_LIMIT}}/$MEMORY_LIMIT/g; s/{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}/$KAFKA_STREAMS_COMMIT_INTERVAL_MS/g; s/{{PARALLELISM}}/$PARALLELISM/g; s/{{TASKSLOTS}}/$TASKSLOTS/g; s/{{REPLICAS}}/$REPLICAS/g;" uc4-application/taskmanager-job-deployment.yaml)
 echo "$TASKMANAGER_YAML" | kubectl apply -f -
 
 # Execute for certain time

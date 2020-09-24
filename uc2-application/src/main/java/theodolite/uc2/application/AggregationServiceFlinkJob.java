@@ -1,8 +1,5 @@
 package theodolite.uc2.application;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -66,9 +63,11 @@ public class AggregationServiceFlinkJob {
     final Time windowSize = Time.milliseconds(this.config.getLong(ConfigurationKeys.WINDOW_SIZE_MS));
     final Duration windowGrace = Duration.ofMillis(this.config.getLong(ConfigurationKeys.WINDOW_GRACE_MS));
     final String configurationTopic = this.config.getString(ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
-    final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND).toLowerCase();
-    final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH);
-    final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE);
+    final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND, "").toLowerCase();
+    final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
+    final int memoryStateBackendSize = this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE, MemoryStateBackend.DEFAULT_MAX_STATE_SIZE);
+    final boolean debug = this.config.getBoolean(ConfigurationKeys.DEBUG, true);
+    final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -86,8 +85,8 @@ public class AggregationServiceFlinkJob {
         inputTopic, inputSerde, kafkaProps);
 
     kafkaInputSource.setStartFromGroupOffsets();
-    kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
-    kafkaInputSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
+    if (checkpointing)
+      kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
 
     // Source from output topic with AggregatedPowerRecords
     final FlinkMonitoringRecordSerde<AggregatedActivePowerRecord, AggregatedActivePowerRecordFactory> outputSerde =
@@ -100,7 +99,6 @@ public class AggregationServiceFlinkJob {
 
     kafkaOutputSource.setStartFromGroupOffsets();
     kafkaOutputSource.setCommitOffsetsOnCheckpoints(true);
-    kafkaOutputSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
 
     // Source from configuration topic with EventSensorRegistry JSON
     final FlinkKafkaKeyValueSerde<Event, String> configSerde =
@@ -114,7 +112,8 @@ public class AggregationServiceFlinkJob {
     final FlinkKafkaConsumer<Tuple2<Event, String>> kafkaConfigSource = new FlinkKafkaConsumer<>(
         configurationTopic, configSerde, kafkaProps);
     kafkaConfigSource.setStartFromGroupOffsets();
-    kafkaConfigSource.setCommitOffsetsOnCheckpoints(true);
+    if (checkpointing)
+      kafkaConfigSource.setCommitOffsetsOnCheckpoints(true);
 
     // Sink to output topic with SensorId, AggregatedActivePowerRecord
     FlinkKafkaKeyValueSerde<String, AggregatedActivePowerRecord> aggregationSerde =
@@ -134,11 +133,14 @@ public class AggregationServiceFlinkJob {
     kafkaAggregationSink.setWriteTimestampToKafka(true);
 
     // Execution environment configuration
-
+//    org.apache.flink.configuration.Configuration conf = new org.apache.flink.configuration.Configuration();
+//    conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true);
+//    final StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-    env.enableCheckpointing(commitIntervalMs);
+    if (checkpointing)
+      env.enableCheckpointing(commitIntervalMs);
 
     // State Backend
     if (stateBackend.equals("filesystem")) {
@@ -176,7 +178,9 @@ public class AggregationServiceFlinkJob {
     // Build input stream
     final DataStream<ActivePowerRecord> inputStream = env.addSource(kafkaInputSource)
         .name("[Kafka Consumer] Topic: " + inputTopic)
-        .rebalance();
+        .rebalance()
+        .map(r -> r)
+        .name("[Map] Rebalance Forward");
 
     // Build aggregation stream
     final DataStream<ActivePowerRecord> aggregationsInputStream = env.addSource(kafkaOutputSource)
@@ -189,6 +193,21 @@ public class AggregationServiceFlinkJob {
     final DataStream<ActivePowerRecord> mergedInputStream = inputStream
         .union(aggregationsInputStream);
 
+    if (debug) {
+      mergedInputStream
+          .map(new MapFunction<ActivePowerRecord, String>() {
+            @Override
+            public String map(ActivePowerRecord value) throws Exception {
+              return
+                  "ActivePowerRecord { "
+                      + "identifier: " + value.getIdentifier() + ", "
+                      + "timestamp: " + value.getTimestamp() + ", "
+                      + "valueInW: " + value.getValueInW() + " }";
+            }
+          })
+          .name("[Map] toString")
+          .print();
+    }
     // Build parent sensor stream from configuration stream
     final DataStream<Tuple2<String, Set<String>>> configurationsStream =
         env.addSource(kafkaConfigSource)
@@ -198,13 +217,13 @@ public class AggregationServiceFlinkJob {
             .map(new MapFunction<Tuple2<Event, String>, SensorRegistry>() {
               @Override
               public SensorRegistry map(Tuple2<Event, String> tuple) {
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                String prettyJsonString = gson.toJson(new JsonParser().parse(tuple.f1));
-                LOGGER.info("SensorRegistry: " + prettyJsonString);
+//                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//                String prettyJsonString = gson.toJson(new JsonParser().parse(tuple.f1));
+//                LOGGER.info("SensorRegistry: " + prettyJsonString);
                 return SensorRegistry.fromJson(tuple.f1);
               }
             }).name("[Map] JSON -> SensorRegistry")
-            .keyBy(sr -> sr)
+            .keyBy(sr -> 1)
             .flatMap(new ChildParentsFlatMapFunction())
             .name("[FlatMap] SensorRegistry -> (ChildSensor, ParentSensor[])");
 
@@ -215,7 +234,38 @@ public class AggregationServiceFlinkJob {
             .flatMap(new JoinAndDuplicateCoFlatMapFunction())
             .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
 
+//    KeyedStream<ActivePowerRecord, String> keyedStream =
+//        mergedInputStream.keyBy(ActivePowerRecord::getIdentifier);
+//
+//    MapStateDescriptor<String, Set<String>> sensorConfigStateDescriptor =
+//        new MapStateDescriptor<>(
+//            "join-and-duplicate-state",
+//            BasicTypeInfo.STRING_TYPE_INFO,
+//            TypeInformation.of(new TypeHint<Set<String>>() {}));
+//
+//    BroadcastStream<Tuple2<String, Set<String>>> broadcastStream =
+//        configurationsStream.keyBy(t -> t.f0).broadcast(sensorConfigStateDescriptor);
+//
+//    DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
+//        keyedStream.connect(broadcastStream)
+//        .process(new JoinAndDuplicateKeyedBroadcastProcessFunction());
+
+    if (debug) {
+      lastValueStream
+          .map(new MapFunction<Tuple2<SensorParentKey, ActivePowerRecord>, String>() {
+            @Override
+            public String map(Tuple2<SensorParentKey, ActivePowerRecord> t) throws Exception {
+              return "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + "ActivePowerRecord {"
+                  + "identifier: " + t.f1.getIdentifier() + ", "
+                  + "timestamp: " + t.f1.getTimestamp() + ", "
+                  + "valueInW: " + t.f1.getValueInW() + " }";
+            }
+          })
+          .print();
+    }
+
     DataStream<AggregatedActivePowerRecord> aggregationStream = lastValueStream
+        .rebalance()
         .assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace))
         .keyBy(t -> t.f0.getParent())
         .window(TumblingEventTimeWindows.of(windowSize))

@@ -20,6 +20,8 @@ spec:
               value: "{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}"
             - name: JOB_MANAGER_RPC_ADDRESS
               value: "flink-jobmanager"
+            - name: DEBUG
+              value: "false"
             - name: FLINK_PROPERTIES
               value: |+
                 blob.server.port: 6124
@@ -28,7 +30,7 @@ spec:
                 queryable-state.proxy.ports: 6125
                 jobmanager.memory.process.size: {{MEMORY_LIMIT}}
                 taskmanager.memory.process.size: {{MEMORY_LIMIT}}
-                parallelism.default: {{REPLICAS}}
+                parallelism.default: {{PARALLELISM}}
           resources:
             limits:
               memory: "{{MEMORY_LIMIT}}"
