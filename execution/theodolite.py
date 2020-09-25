@@ -22,6 +22,10 @@ def load_variables():
     parser = benchmark_parser("Run theodolite benchmarking")
     args = parser.parse_args()
     print(args)
+    if args.uc is None or args.loads is None or args.instances_list is None:
+        print('The options --uc, --loads and --instances are mandatory.')
+        print('Some might not be set!')
+        sys.exit(1)
     return args
 
 

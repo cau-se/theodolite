@@ -22,6 +22,10 @@ def load_variables():
     parser = execution_parser(description='Run use case Programm')
     args = parser.parse_args()
     print(args)
+    if args.exp_id is None or args.uc is None or args.load is None or args.instances is None :
+        print('The options --exp-id, --uc, --load and --instances are mandatory.')
+        print('Some might not be set!')
+        sys.exit(1)
     return args
 
 
