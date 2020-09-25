@@ -70,7 +70,7 @@ if domain_restriction:
             search_strategy=binary_search_strategy,
             subexperiment_executor=subexperiment_executor,
             subexperiment_evaluator=subexperiment_evaluator)
-    # domain restriction + check_all
+    # domain restriction + check-all
     else:
         print(f"Going to execute {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(
@@ -122,7 +122,7 @@ else:
             search_strategy=binary_search_strategy,
             subexperiment_executor=subexperiment_executor,
             subexperiment_evaluator=subexperiment_evaluator)
-    # no domain restriction + check_all
+    # no domain restriction + check-all
     else:
         print(f"Going to execute {len(dim_values)*len(replicas)} subexperiments in total..")
         experiment_config = ExperimentConfig(
