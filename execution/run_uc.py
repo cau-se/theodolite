@@ -5,6 +5,7 @@ from kubernetes.stream import stream
 import lag_analysis
 import logging  # logging
 from os import path  # path utilities
+from strategies.cli_parser import execution_parser
 import subprocess  # execute bash commands
 import sys  # for exit of program
 import time  # process sleep
@@ -17,69 +18,8 @@ customApi = None  # acces kubernetes custom object api
 
 def load_variables():
     """Load the CLI variables given at the command line"""
-    global args
     print('Load CLI variables')
-    parser = argparse.ArgumentParser(description='Run use case Programm')
-    parser.add_argument('--exp-id', '-id',
-                        dest='exp_id',
-                        default='1',
-                        metavar='EXP_ID',
-                        help='ID of the experiment')
-    parser.add_argument('--use-case', '-uc',
-                        dest='uc_id',
-                        default='1',
-                        metavar='UC_NUMBER',
-                        help='use case number, one of 1, 2, 3 or 4')
-    parser.add_argument('--dim-value', '-d',
-                        dest='dim_value',
-                        default=10000,
-                        type=int,
-                        metavar='DIM_VALUE',
-                        help='Value for the workload generator to be tested')
-    parser.add_argument('--instances', '-i',
-                        dest='instances',
-                        default=1,
-                        type=int,
-                        metavar='INSTANCES',
-                        help='Numbers of instances to be benchmarked')
-    parser.add_argument('--partitions', '-p',
-                        dest='partitions',
-                        default=40,
-                        type=int,
-                        metavar='PARTITIONS',
-                        help='Number of partitions for Kafka topics')
-    parser.add_argument('--cpu-limit', '-cpu',
-                        dest='cpu_limit',
-                        default='1000m',
-                        metavar='CPU_LIMIT',
-                        help='Kubernetes CPU limit')
-    parser.add_argument('--memory-limit', '-mem',
-                        dest='memory_limit',
-                        default='4Gi',
-                        metavar='MEMORY_LIMIT',
-                        help='Kubernetes memory limit')
-    parser.add_argument('--commit-interval', '-ci',
-                        dest='commit_interval_ms',
-                        default=100,
-                        type=int,
-                        metavar='KAFKA_STREAMS_COMMIT_INTERVAL_MS',
-                        help='Kafka Streams commit interval in milliseconds')
-    parser.add_argument('--executions-minutes', '-exm',
-                        dest='execution_minutes',
-                        default=5,
-                        type=int,
-                        metavar='EXECUTION_MINUTES',
-                        help='Duration in minutes subexperiments should be \
-                                executed for')
-    parser.add_argument('--reset', '-res',
-                        dest='reset',
-                        action="store_true",
-                        help='Resets the environment before execution')
-    parser.add_argument('--reset-only', '-reso',
-                        dest='reset_only',
-                        action="store_true",
-                        help='Only resets the environment. Ignores all other parameters')
-
+    parser = execution_parser(description='Run use case Programm')
     args = parser.parse_args()
     print(args)
     return args
@@ -310,7 +250,7 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes):
     :param int execution_minutes: How long the use case where executed.
     """
     print('Run evaluation function')
-    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes)
+    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, 'http://localhost:9090')
     return
 
 
@@ -590,7 +530,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     args = load_variables()
     print('---------------------')
-    main(args.exp_id, args.uc_id, args.dim_value, args.instances,
+    main(args.exp_id, args.uc, args.load, args.instances,
          args.partitions, args.cpu_limit, args.memory_limit,
-         args.commit_interval_ms, args.execution_minutes, args.reset,
+         args.commit_ms, args.duration, args.reset,
          args.reset_only)

@@ -6,9 +6,9 @@ def default_parser(description):
     :param description: The description the argument parser should show.
     """
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('uc',
+    parser.add_argument('--uc',
                         metavar='<uc>',
-                        help='use case number, one of 1, 2, 3 or 4')
+                        help='[mandatory] use case number, one of 1, 2, 3 or 4')
     parser.add_argument('--partitions', '-p',
                         default=40,
                         type=int,
@@ -44,21 +44,21 @@ def default_parser(description):
 def benchmark_parser(description):
     """
     Parser for the overall benchmark execution
+    :param description: The description the argument parser should show.
     """
     parser = default_parser(description)
 
-    parser.add_argument('loads',
+    parser.add_argument('--loads',
                         type=int,
                         metavar='<load>',
                         nargs='+',
-                        help='Loads that should be executed')
+                        help='[mandatory] Loads that should be executed')
     parser.add_argument('--instances', '-i',
                         dest='instances_list',
-                        default=[1],
                         type=int,
-                        metavar='<instance>',
+                        metavar='<instances>',
                         nargs='+',
-                        help='List of instances used in benchmarks')
+                        help='[mandatory] List of instances used in benchmarks')
     parser.add_argument('--domain-restriction',
                         action="store_true",
                         help='To use domain restriction. For details see README')
@@ -66,4 +66,23 @@ def benchmark_parser(description):
                         default='default',
                         metavar='<strategy>',
                         help='The benchmarking search strategy. Can be set to default, linear-search or binary-search')
+    return parser
+
+def execution_parser(description):
+    """
+    Parser for executing one use case
+    :param description: The description the argument parser should show.
+    """
+    parser = default_parser(description)
+    parser.add_argument('--exp-id',
+                        metavar='<exp id>',
+                        help='[mandatory] ID of the experiment')
+    parser.add_argument('--load',
+                        type=int,
+                        metavar='<load>',
+                        help='[mandatory] Load that should be used for benchmakr')
+    parser.add_argument('--instances',
+                        type=int,
+                        metavar='<instances>',
+                        help='[mandatory] Numbers of instances to be benchmarked')
     return parser
