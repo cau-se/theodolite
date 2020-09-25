@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import argparse
+from lib.cli_parser import benchmark_parser
 import logging  # logging
 import os
 import sys
 from strategies.config import ExperimentConfig
-from strategies.cli_parser import benchmark_parser
 import strategies.strategies.domain_restriction.lower_bound_strategy as lower_bound_strategy
 import strategies.strategies.domain_restriction.no_lower_bound_strategy as no_lower_bound_strategy
 import strategies.strategies.search.check_all_strategy as check_all_strategy

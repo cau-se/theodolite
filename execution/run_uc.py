@@ -5,7 +5,7 @@ from kubernetes.stream import stream
 import lag_analysis
 import logging  # logging
 from os import path  # path utilities
-from strategies.cli_parser import execution_parser
+from lib.cli_parser import execution_parser
 import subprocess  # execute bash commands
 import sys  # for exit of program
 import time  # process sleep

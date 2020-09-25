@@ -1,4 +1,14 @@
 import argparse
+import os
+
+def env_list_default(env, tf):
+    """
+    Makes a list from an environment string.
+    """
+    v = os.environ.get(env)
+    if v is not None:
+        v = [tf(s) for s in v.split(',')]
+    return v
 
 def default_parser(description):
     """
@@ -8,29 +18,30 @@ def default_parser(description):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--uc',
                         metavar='<uc>',
+                        default=os.environ.get('UC'),
                         help='[mandatory] use case number, one of 1, 2, 3 or 4')
     parser.add_argument('--partitions', '-p',
-                        default=40,
-                        type=int,
                         metavar='<partitions>',
+                        type=int,
+                        default=os.environ.get('PARTITIONS', 40),
                         help='Number of partitions for Kafka topics')
     parser.add_argument('--cpu-limit', '-cpu',
-                        default='1000m',
                         metavar='<CPU limit>',
+                        default=os.environ.get('CPU_LIMIT', '1000m'),
                         help='Kubernetes CPU limit')
     parser.add_argument('--memory-limit', '-mem',
-                        default='4Gi',
                         metavar='<memory limit>',
+                        default=os.environ.get('MEMORY_LIMIT', '4Gi'),
                         help='Kubernetes memory limit')
     parser.add_argument('--commit-ms',
-                        default=100,
-                        type=int,
                         metavar='<commit ms>',
+                        type=int,
+                        default=os.environ.get('COMMIT_MS', 100),
                         help='Kafka Streams commit interval in milliseconds')
     parser.add_argument('--duration', '-d',
-                        default=5,
-                        type=int,
                         metavar='<duration>',
+                        type=int,
+                        default=os.environ.get('DURATION', 5),
                         help='Duration in minutes subexperiments should be \
                                 executed for')
     parser.add_argument('--reset',
@@ -49,22 +60,24 @@ def benchmark_parser(description):
     parser = default_parser(description)
 
     parser.add_argument('--loads',
-                        type=int,
                         metavar='<load>',
+                        type=int,
                         nargs='+',
+                        default=env_list_default('LOADS', int),
                         help='[mandatory] Loads that should be executed')
     parser.add_argument('--instances', '-i',
                         dest='instances_list',
-                        type=int,
                         metavar='<instances>',
+                        type=int,
                         nargs='+',
+                        default=env_list_default('INSTANCES', int),
                         help='[mandatory] List of instances used in benchmarks')
     parser.add_argument('--domain-restriction',
                         action="store_true",
                         help='To use domain restriction. For details see README')
     parser.add_argument('--search-strategy',
-                        default='default',
                         metavar='<strategy>',
+                        default=os.environ.get('SEARCH_STRATEGY', 'default'),
                         help='The benchmarking search strategy. Can be set to default, linear-search or binary-search')
     return parser
 
@@ -76,13 +89,16 @@ def execution_parser(description):
     parser = default_parser(description)
     parser.add_argument('--exp-id',
                         metavar='<exp id>',
+                        default=os.environ.get('EXP_ID'),
                         help='[mandatory] ID of the experiment')
     parser.add_argument('--load',
-                        type=int,
                         metavar='<load>',
+                        type=int,
+                        default=os.environ.get('LOAD'),
                         help='[mandatory] Load that should be used for benchmakr')
     parser.add_argument('--instances',
-                        type=int,
                         metavar='<instances>',
+                        type=int,
+                        default=os.environ.get('INSTANCES'),
                         help='[mandatory] Numbers of instances to be benchmarked')
     return parser
