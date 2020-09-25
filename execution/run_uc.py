@@ -553,7 +553,7 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
                       app_jmx, app_deploy, topics)
         print('---------------------')
 
-    # Register the reset operation so that is executed at the end of program
+    # Register the reset operation so that is executed at the abort of program
     atexit.register(reset_cluster, wg, app_svc,
                     app_svc_monitor, app_jmx, app_deploy, topics)
 
@@ -581,8 +581,9 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
     run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes)
     print('---------------------')
 
-    # Cluster is resetted with atexit method
-    # reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
+    # Reset cluster regular, therefore abort exit not needed anymore
+    reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics)
+    atexit.unregister(reset_cluster)
 
 
 if __name__ == '__main__':
