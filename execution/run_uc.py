@@ -254,7 +254,7 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes):
     :param int execution_minutes: How long the use case where executed.
     """
     print('Run evaluation function')
-    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, 'http://localhost:9090')
+    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes)
     return
 
 
