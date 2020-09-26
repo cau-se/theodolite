@@ -370,22 +370,14 @@ def reset_zookeeper():
     print('Delete ZooKeeper configurations used for workload generation')
 
     delete_zoo_data_command = [
-        'kubectl',
-        'exec',
-        'zookeeper-client',
-        '--',
-        'bash',
+        '/bin/sh',
         '-c',
         'zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall '
         + '/workload-generation'
     ]
 
     check_zoo_data_command = [
-        'kubectl',
-        'exec',
-        'zookeeper-client',
-        '--',
-        'bash',
+        '/bin/sh',
         '-c',
         'zookeeper-shell my-confluent-cp-zookeeper:2181 get '
         + '/workload-generation'
@@ -394,18 +386,25 @@ def reset_zookeeper():
     # Wait for configuration deletion
     while True:
         # Delete Zookeeper configuration data
-        output = subprocess.run(delete_zoo_data_command,
-                                capture_output=True,
-                                text=True)
-        logging.debug(output.stdout)
+        resp = stream(coreApi.connect_get_namespaced_pod_exec,
+                      "zookeeper-client",
+                      'default',
+                      command=delete_zoo_data_command,
+                      stderr=True, stdin=False,
+                      stdout=True, tty=False)
+        logging.debug(resp)
 
         # Check data is deleted
-        output = subprocess.run(check_zoo_data_command,
-                                capture_output=True,
-                                text=True)
-        logging.debug(output)
+        client = stream(coreApi.connect_get_namespaced_pod_exec,
+                      "zookeeper-client",
+                      'default',
+                      command=check_zoo_data_command,
+                      stderr=True, stdin=False,
+                      stdout=True, tty=False,
+                      _preload_content=False)  # Get client for returncode
+        client.run_forever(timeout=60)  # Start the client
 
-        if output.returncode == 1:  # Means data not available anymore
+        if client.returncode == 1:  # Means data not available anymore
             print('ZooKeeper reset was successful.')
             break
         else:
