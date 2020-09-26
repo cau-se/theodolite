@@ -50,6 +50,10 @@ def default_parser(description):
     parser.add_argument('--reset-only',
                         action="store_true",
                         help='Only resets the environment. Ignores all other parameters')
+    parser.add_argument('--prometheus',
+                        metavar='<URL>',
+                        default=os.environ.get('PROMETHEUS_BASE_URL'),
+                        help='Defines where to find the prometheus instance')
     return parser
 
 def benchmark_parser(description):
