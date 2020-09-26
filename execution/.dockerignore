@@ -1,0 +1,9 @@
+*
+!requirements.txt
+!uc-workload-generator
+!uc-application
+!strategies
+!lib
+!theodolite.py
+!run_uc.py
+!lag_analysis.py
