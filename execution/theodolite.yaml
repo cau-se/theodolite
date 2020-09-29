@@ -7,8 +7,8 @@ spec:
     spec:
       containers:
       - name: theodolite
-        image: theodolite:latest
-        imagePullPolicy: Never
+        image: bvonheid/theodolite:latest
+        # imagePullPolicy: Never # Used to pull "own" local image
         env:
         - name: UC
           value: "1"
