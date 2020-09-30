@@ -150,17 +150,37 @@ Depending on your setup, some additional adjustments may be necessary:
 
 ## Execution
 
-The `./theodolite.sh` is the entrypoint for all benchmark executions. Is has to be called as follows:
+Please note that a **Python 3.7** installation is required for executing Theodolite.
+
+The `./theodolite.py` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
 ```sh
-./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration>
+./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration> <domain-restriction> <search-strategy>
 ```
 
 * `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
-* `<wl-values>`: Values for the workload generator to be tested, separated by commas and quoted. For example `"100000, 200000, 300000"`.
-* `<instances>`: Numbers of instances to be benchmarked, separated by commas and quoted. For example `"1, 2, 3, 4"`.
+* `<wl-values>`: Values for the workload generator to be tested, separated by commas and sorted in ascending order. For example `100000,200000,300000`.
+* `<instances>`: Numbers of instances to be benchmarked, separated by commas and sorted in ascending order. For example `1,2,3,4`.
 * `<partitions>`: Number of partitions for Kafka topics. Optional. Default `40`.
 * `<cpu-limit>`: Kubernetes CPU limit. Optional. Default `1000m`.
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
 * `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
 * `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
+* `<domain-restriction>`: The domain restriction: `domain-restriction` to use domain restriction `no-domain-restriction` to not use domain restriction. Default `no-domain-restriction`. For more details see Section _Domain Restriction_.
+* `<search-strategy>`: The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. Default `check-all`. For more details see Section _Benchmarking Search Strategies_.
+
+### Domain Restriction
+For dimension value, we have a domain of the amounts of instances. As a consequence, for each dimension value the maximum number of lag experiments is equal to the size of the domain. How the domain is determined is defined by the following domain restriction strategies.
+
+* `no-domain-restriction`: For each dimension value, the domain of instances is equal to the set of all amounts of instances.
+* `domain-restriction`: For each dimension value, the domain is computed as follows:
+    * If the dimension value is the smallest dimension value the domain of the amounts of instances is equal to the set of all amounts of instances.
+    * If the dimension value is not the smallest dimension value and N is the amount of minimal amount of instances that was suitable for the last smaller dimension value the domain for this dimension value contains all amounts of instances greater than, or equal to N.
+
+### Benchmarking Search Strategies
+There are the following benchmarking strategies:
+
+* `check-all`: For each dimension value, execute one lag experiment for all amounts of instances within the current domain.
+* `linear-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is from the lowest number of instances to the highest amount of instances and the execution for each dimension value is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
+* `binary-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is in a binary-search-like manner. The execution is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
+
