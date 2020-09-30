@@ -17,8 +17,6 @@ import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.WindowedSerdes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.configuration.events.EventSerde;
@@ -38,7 +36,7 @@ public class TopologyBuilder {
   private final Duration emitPeriod;
   private final Duration gracePeriod;
 
-  // SERDEs
+  // Serdes
   private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
 
   private final StreamsBuilder builder = new StreamsBuilder();
