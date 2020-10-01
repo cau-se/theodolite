@@ -46,7 +46,6 @@ checkstyle:
   tags:
     - exec-docker
   script: ./gradlew checkstyle --continue
-  allow_failure: true
   artifacts:
     paths:
       - "*/build/reports/checkstyle/main.html"
@@ -58,7 +57,6 @@ pmd:
   tags:
     - exec-docker
   script: ./gradlew pmd --continue
-  allow_failure: true
   artifacts:
     paths:
       - "*/build/reports/pmd/*.html"
@@ -70,7 +68,6 @@ spotbugs:
   tags:
     - exec-docker
   script: ./gradlew spotbugs --continue
-  allow_failure: true
   artifacts:
     paths:
       - "*/build/reports/spotbugs/*.html"
