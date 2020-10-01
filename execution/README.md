@@ -167,7 +167,7 @@ The `./theodolite.py` is the entrypoint for all benchmark executions. Is has to 
 * `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
 * `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
 * `<domain-restriction>`: The domain restriction: `domain-restriction` to use domain restriction `no-domain-restriction` to not use domain restriction. Default `no-domain-restriction`. For more details see Section _Domain Restriction_.
-* `<search-strategy>`: The benchmarking search strategy. Can be set to `check_all`, `linear-search` or `binary-search`. Default `default`. For more details see Section _Benchmarking Search Strategies_.
+* `<search-strategy>`: The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. Default `check-all`. For more details see Section _Benchmarking Search Strategies_.
 
 ### Domain Restriction
 For dimension value, we have a domain of the amounts of instances. As a consequence, for each dimension value the maximum number of lag experiments is equal to the size of the domain. How the domain is determined is defined by the following domain restriction strategies.
@@ -180,7 +180,7 @@ For dimension value, we have a domain of the amounts of instances. As a conseque
 ### Benchmarking Search Strategies
 There are the following benchmarking strategies:
 
-* `check_all`: For each dimension value, execute one lag experiment for all amounts of instances within the current domain.
+* `check-all`: For each dimension value, execute one lag experiment for all amounts of instances within the current domain.
 * `linear-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is from the lowest number of instances to the highest amount of instances and the execution for each dimension value is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
 * `binary-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is in a binary-search-like manner. The execution is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
 
