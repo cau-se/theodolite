@@ -88,6 +88,7 @@ def test_binary_search_strategy():
 
     # execute
     experiment_config = ExperimentConfig(
+        exp_id="0",
         use_case=uc,
         dim_values=dim_values,
         replicass=replicass,
