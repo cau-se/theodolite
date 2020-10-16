@@ -21,7 +21,7 @@ memory_limit=sys.argv[6] if len(sys.argv) >= 7 and sys.argv[6] else "4Gi"
 kafka_streams_commit_interval_ms=sys.argv[7] if len(sys.argv) >= 8 and sys.argv[7] else 100
 execution_minutes=sys.argv[8] if len(sys.argv) >= 9 and sys.argv[8] else 5
 domain_restriction=bool(sys.argv[9]) if len(sys.argv) >= 10 and sys.argv[9] == "restrict-domain" else False
-search_strategy=sys.argv[10] if len(sys.argv) >= 11 and (sys.argv[10] == "linear-search" or sys.argv[10] == "binary-search") else "default"
+search_strategy=sys.argv[10] if len(sys.argv) >= 11 and (sys.argv[10] == "linear-search" or sys.argv[10] == "binary-search") else "check-all"
 
 print(f"Domain restriction of search space activated: {domain_restriction}")
 print(f"Chosen search strategy: {search_strategy}")
@@ -34,6 +34,23 @@ else:
 
 with open("exp_counter.txt", mode="w") as write_stream:
     write_stream.write(str(exp_id+1))
+
+# Store metadata
+separator = ","
+lines = [
+        f"UC={uc}\n",
+        f"DIM_VALUES={separator.join(dim_values)}\n",
+        f"REPLICAS={separator.join(replicas)}\n",
+        f"PARTITIONS={partitions}\n",
+        f"CPU_LIMIT={cpu_limit}\n",
+        f"MEMORY_LIMIT={memory_limit}\n",
+        f"KAFKA_STREAMS_COMMIT_INTERVAL_MS={kafka_streams_commit_interval_ms}\n",
+        f"EXECUTION_MINUTES={execution_minutes}\n",
+        f"DOMAIN_RESTRICTION={domain_restriction}\n",
+        f"SEARCH_STRATEGY={search_strategy}"
+        ]
+with open(f"exp{exp_id}_uc{uc}_meta.txt", "w") as stream:
+    stream.writelines(lines)
 
 # domain restriction
 if domain_restriction:
