@@ -166,14 +166,14 @@ The `./theodolite.py` is the entrypoint for all benchmark executions. Is has to 
 * `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
 * `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
 * `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
-* `<domain-restriction>`: The domain restriction: `domain-restriction` to use domain restriction `no-domain-restriction` to not use domain restriction. Default `no-domain-restriction`. For more details see Section _Domain Restriction_.
+* `<domain-restriction>`: The domain restriction: `restrict-domain` to use domain restriction, `no-domain-restriction` to not use domain restriction. Default `no-domain-restriction`. For more details see Section _Domain Restriction_.
 * `<search-strategy>`: The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. Default `check-all`. For more details see Section _Benchmarking Search Strategies_.
 
 ### Domain Restriction
 For dimension value, we have a domain of the amounts of instances. As a consequence, for each dimension value the maximum number of lag experiments is equal to the size of the domain. How the domain is determined is defined by the following domain restriction strategies.
 
 * `no-domain-restriction`: For each dimension value, the domain of instances is equal to the set of all amounts of instances.
-* `domain-restriction`: For each dimension value, the domain is computed as follows:
+* `restrict-domain`: For each dimension value, the domain is computed as follows:
     * If the dimension value is the smallest dimension value the domain of the amounts of instances is equal to the set of all amounts of instances.
     * If the dimension value is not the smallest dimension value and N is the amount of minimal amount of instances that was suitable for the last smaller dimension value the domain for this dimension value contains all amounts of instances greater than, or equal to N.
 

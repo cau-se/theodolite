@@ -421,25 +421,18 @@ def stop_lag_exporter():
     """
     print('Stop the lag exporter')
 
-    find_pod_command = [
-        'kubectl',
-        'get',
-        'pod',
-        '-l',
-        'app.kubernetes.io/name=kafka-lag-exporter',
-        '-o',
-        'jsonpath="{.items[0].metadata.name}"'
-    ]
-    output = subprocess.run(find_pod_command, capture_output=True, text=True)
-    lag_exporter_pod = output.stdout.replace('"', '')
-    delete_pod_command = [
-        'kubectl',
-        'delete',
-        'pod',
-        lag_exporter_pod
-    ]
-    output = subprocess.run(delete_pod_command, capture_output=True, text=True)
-    print(output)
+    try:
+        # Get lag exporter
+        pod_list = coreApi.list_namespaced_pod(namespace='default', label_selector='app.kubernetes.io/name=kafka-lag-exporter')
+        lag_exporter_pod = pod_list.items[0].metadata.name
+
+        # Delete lag exporter pod
+        res = coreApi.delete_namespaced_pod(name=lag_exporter_pod, namespace='default')
+    except ApiException as e:
+        logging.error('Exception while stopping lag exporter')
+        logging.error(e)
+
+    print('Deleted lag exporter pod: ' + lag_exporter_pod)
     return
 
 

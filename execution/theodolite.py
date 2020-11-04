@@ -40,6 +40,23 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit, commit_
     else:
         exp_id = 0
 
+    # Store metadata
+    separator = ","
+    lines = [
+            f"UC={uc}\n",
+            f"DIM_VALUES={separator.join(loads)}\n",
+            f"REPLICAS={separator.join(instances_list)}\n",
+            f"PARTITIONS={partitions}\n",
+            f"CPU_LIMIT={cpu_limit}\n",
+            f"MEMORY_LIMIT={memory_limit}\n",
+            f"KAFKA_STREAMS_COMMIT_INTERVAL_MS={commit_ms}\n",
+            f"EXECUTION_MINUTES={duration}\n",
+            f"DOMAIN_RESTRICTION={domain_restriction}\n",
+            f"SEARCH_STRATEGY={search_strategy}"
+            ]
+    with open(f"exp{exp_id}_uc{uc}_meta.txt", "w") as stream:
+        stream.writelines(lines)
+
     with open("exp_counter.txt", mode="w") as write_stream:
         write_stream.write(str(exp_id + 1))
 
