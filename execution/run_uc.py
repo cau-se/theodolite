@@ -4,8 +4,8 @@ from kubernetes import client, config  # kubernetes api
 from kubernetes.stream import stream
 import lag_analysis
 import logging  # logging
-from os import path  # path utilities
-from strategies.cli_parser import execution_parser
+from os import path, environ  # path utilities
+from lib.cli_parser import execution_parser
 import subprocess  # execute bash commands
 import sys  # for exit of program
 import time  # process sleep
@@ -244,7 +244,7 @@ def wait_execution(execution_minutes):
     return
 
 
-def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes):
+def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prometheus_base_url=None):
     """
     Runs the evaluation function
     :param string exp_id: ID of the experiment.
@@ -254,7 +254,12 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes):
     :param int execution_minutes: How long the use case where executed.
     """
     print('Run evaluation function')
-    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes)
+    if prometheus_base_url is None and environ.get('PROMETHEUS_BASE_URL') is None:
+        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes)
+    elif prometheus_base_url is not None:
+        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, prometheus_base_url)
+    else:
+        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, environ.get('PROMETHEUS_BASE_URL'))
     return
 
 
@@ -370,22 +375,14 @@ def reset_zookeeper():
     print('Delete ZooKeeper configurations used for workload generation')
 
     delete_zoo_data_command = [
-        'kubectl',
-        'exec',
-        'zookeeper-client',
-        '--',
-        'bash',
+        '/bin/sh',
         '-c',
         'zookeeper-shell my-confluent-cp-zookeeper:2181 deleteall '
         + '/workload-generation'
     ]
 
     check_zoo_data_command = [
-        'kubectl',
-        'exec',
-        'zookeeper-client',
-        '--',
-        'bash',
+        '/bin/sh',
         '-c',
         'zookeeper-shell my-confluent-cp-zookeeper:2181 get '
         + '/workload-generation'
@@ -394,18 +391,25 @@ def reset_zookeeper():
     # Wait for configuration deletion
     while True:
         # Delete Zookeeper configuration data
-        output = subprocess.run(delete_zoo_data_command,
-                                capture_output=True,
-                                text=True)
-        logging.debug(output.stdout)
+        resp = stream(coreApi.connect_get_namespaced_pod_exec,
+                      "zookeeper-client",
+                      'default',
+                      command=delete_zoo_data_command,
+                      stderr=True, stdin=False,
+                      stdout=True, tty=False)
+        logging.debug(resp)
 
         # Check data is deleted
-        output = subprocess.run(check_zoo_data_command,
-                                capture_output=True,
-                                text=True)
-        logging.debug(output)
+        client = stream(coreApi.connect_get_namespaced_pod_exec,
+                      "zookeeper-client",
+                      'default',
+                      command=check_zoo_data_command,
+                      stderr=True, stdin=False,
+                      stdout=True, tty=False,
+                      _preload_content=False)  # Get client for returncode
+        client.run_forever(timeout=60)  # Start the client
 
-        if output.returncode == 1:  # Means data not available anymore
+        if client.returncode == 1:  # Means data not available anymore
             print('ZooKeeper reset was successful.')
             break
         else:
@@ -450,7 +454,7 @@ def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
     stop_lag_exporter()
 
 
-def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, reset, reset_only):
+def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, prometheus_base_url=None, reset=False, reset_only=False):
     """
     Main method to execute one time the benchmark for a given use case.
     Start workload generator/application -> execute -> analyse -> stop all
@@ -515,7 +519,7 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
     wait_execution(execution_minutes)
     print('---------------------')
 
-    run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes)
+    run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prometheus_base_url)
     print('---------------------')
 
     # Reset cluster regular, therefore abort exit not needed anymore
@@ -529,5 +533,5 @@ if __name__ == '__main__':
     print('---------------------')
     main(args.exp_id, args.uc, args.load, args.instances,
          args.partitions, args.cpu_limit, args.memory_limit,
-         args.commit_ms, args.duration, args.reset,
+         args.commit_ms, args.duration, args.prometheus, args.reset,
          args.reset_only)
