@@ -29,7 +29,7 @@ def load_variables():
     return args
 
 
-def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit, commit_ms, duration, domain_restriction, search_strategy, reset, reset_only):
+def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit, commit_ms, duration, domain_restriction, search_strategy, reset, reset_only, namespace):
 
     print(f"Domain restriction of search space activated: {domain_restriction}")
     print(f"Chosen search strategy: {search_strategy}")
@@ -175,4 +175,4 @@ if __name__ == '__main__':
     main(args.uc, args.loads, args.instances_list, args.partitions, args.cpu_limit,
          args.memory_limit, args.commit_ms, args.duration,
          args.domain_restriction, args.search_strategy, args.reset,
-         args.reset_only)
+         args.reset_only, args.namespace)

@@ -15,6 +15,8 @@ coreApi = None  # acces kubernetes core api
 appsApi = None  # acces kubernetes apps api
 customApi = None  # acces kubernetes custom object api
 
+namespace = None
+
 
 def load_variables():
     """Load the CLI variables given at the command line"""
@@ -67,7 +69,7 @@ def create_topics(topics):
         ]
         resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "kafka-client",
-                      'default',
+                      namespace,
                       command=exec_command,
                       stderr=True, stdin=False,
                       stdout=True, tty=False)
@@ -144,7 +146,7 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
 
     try:
         wg_ss = appsApi.create_namespaced_deployment(
-            namespace="default",
+            namespace=namespace,
             body=wg_yaml
         )
         print("Deployment '%s' created." % wg_ss.metadata.name)
@@ -178,7 +180,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
     # Create Service
     try:
         svc = coreApi.create_namespaced_service(
-            namespace="default", body=svc_yaml)
+            namespace=namespace, body=svc_yaml)
         print("Service '%s' created." % svc.metadata.name)
     except client.rest.ApiException as e:
         svc = svc_yaml
@@ -189,7 +191,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
         svc_monitor = customApi.create_namespaced_custom_object(
             group="monitoring.coreos.com",
             version="v1",
-            namespace="default",
+            namespace=namespace,
             plural="servicemonitors",  # CustomResourceDef of ServiceMonitor
             body=svc_monitor_yaml,
         )
@@ -201,7 +203,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
     # Apply jmx config map for aggregation service
     try:
         jmx_cm = coreApi.create_namespaced_config_map(
-            namespace="default", body=jmx_yaml)
+            namespace=namespace, body=jmx_yaml)
         print("ConfigMap '%s' created." % jmx_cm.metadata.name)
     except client.rest.ApiException as e:
         jmx_cm = jmx_yaml
@@ -219,7 +221,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
     app_container['resources']['limits']['cpu'] = cpu_limit
     try:
         app_deploy = appsApi.create_namespaced_deployment(
-            namespace="default",
+            namespace=namespace,
             body=deploy_yaml
         )
         print("Deployment '%s' created." % app_deploy.metadata.name)
@@ -272,12 +274,12 @@ def delete_resource(obj, del_func):
     :param del_func: The function that need to be executed for deletion
     """
     try:
-        del_func(obj.metadata.name, 'default')
+        del_func(obj.metadata.name, namespace)
     except Exception as e:
         logging.debug(
             'Error deleting resource with api object, try with dict.')
         try:
-            del_func(obj['metadata']['name'], 'default')
+            del_func(obj['metadata']['name'], namespace)
         except Exception as e:
             logging.error("Error deleting resource")
             logging.error(e)
@@ -306,7 +308,7 @@ def stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy):
         customApi.delete_namespaced_custom_object(
             group="monitoring.coreos.com",
             version="v1",
-            namespace="default",
+            namespace=namespace,
             plural="servicemonitors",
             name=app_svc_monitor['metadata']['name'])
         print('Resource deleted')
@@ -349,7 +351,7 @@ def delete_topics(topics):
         # topic deletion, sometimes a second deletion seems to be required
         resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "kafka-client",
-                      'default',
+                      namespace,
                       command=topics_deletion_command,
                       stderr=True, stdin=False,
                       stdout=True, tty=False)
@@ -359,7 +361,7 @@ def delete_topics(topics):
         time.sleep(2)
         resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "kafka-client",
-                      'default',
+                      namespace,
                       command=num_topics_command,
                       stderr=True, stdin=False,
                       stdout=True, tty=False)
@@ -393,7 +395,7 @@ def reset_zookeeper():
         # Delete Zookeeper configuration data
         resp = stream(coreApi.connect_get_namespaced_pod_exec,
                       "zookeeper-client",
-                      'default',
+                      namespace,
                       command=delete_zoo_data_command,
                       stderr=True, stdin=False,
                       stdout=True, tty=False)
@@ -402,7 +404,7 @@ def reset_zookeeper():
         # Check data is deleted
         client = stream(coreApi.connect_get_namespaced_pod_exec,
                       "zookeeper-client",
-                      'default',
+                      namespace,
                       command=check_zoo_data_command,
                       stderr=True, stdin=False,
                       stdout=True, tty=False,
@@ -427,11 +429,11 @@ def stop_lag_exporter():
 
     try:
         # Get lag exporter
-        pod_list = coreApi.list_namespaced_pod(namespace='default', label_selector='app.kubernetes.io/name=kafka-lag-exporter')
+        pod_list = coreApi.list_namespaced_pod(namespace=namespace, label_selector='app.kubernetes.io/name=kafka-lag-exporter')
         lag_exporter_pod = pod_list.items[0].metadata.name
 
         # Delete lag exporter pod
-        res = coreApi.delete_namespaced_pod(name=lag_exporter_pod, namespace='default')
+        res = coreApi.delete_namespaced_pod(name=lag_exporter_pod, namespace=namespace)
     except ApiException as e:
         logging.error('Exception while stopping lag exporter')
         logging.error(e)
@@ -454,7 +456,7 @@ def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
     stop_lag_exporter()
 
 
-def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, prometheus_base_url=None, reset=False, reset_only=False):
+def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, prometheus_base_url=None, reset=False, reset_only=False, ns=namespace):
     """
     Main method to execute one time the benchmark for a given use case.
     Start workload generator/application -> execute -> analyse -> stop all
@@ -470,6 +472,8 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
     :param boolean reset: Flag for reset of cluster before execution.
     :param boolean reset_only: Flag to only reset the application.
     """
+    global namespace
+    namespace = ns
     wg, app_svc, app_svc_monitor, app_jmx, app_deploy = load_yaml_files()
     print('---------------------')
 
@@ -534,4 +538,4 @@ if __name__ == '__main__':
     main(args.exp_id, args.uc, args.load, args.instances,
          args.partitions, args.cpu_limit, args.memory_limit,
          args.commit_ms, args.duration, args.prometheus, args.reset,
-         args.reset_only)
+         args.reset_only, args.namespace)
