@@ -44,6 +44,10 @@ def default_parser(description):
                         default=os.environ.get('DURATION', 5),
                         help='Duration in minutes subexperiments should be \
                                 executed for')
+    parser.add_argument('--namespace',
+                        metavar='<NS>',
+                        default=os.environ.get('NAMESPACE', 'default'),
+                        help='Defines the Kubernetes where the applications should run')
     parser.add_argument('--reset',
                         action="store_true",
                         help='Resets the environment before execution')
