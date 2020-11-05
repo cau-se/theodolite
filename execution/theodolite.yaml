@@ -30,6 +30,8 @@ spec:
         #   value: ""
         - name: PROMETHEUS_BASE_URL
           value: "http://prometheus-operated:9090"
+        # - name: NAMESPACE
+        #   value: "default"
         - name: PYTHONUNBUFFERED
           value: "1"
       restartPolicy: Never
