@@ -14,5 +14,7 @@ def execute(subexperiment_config):
         memory_limit=subexperiment_config.memory_limit,
         commit_interval_ms=subexperiment_config.kafka_streams_commit_interval_ms,
         execution_minutes=int(subexperiment_config.execution_minutes),
+        prometheus_base_url=None,
         reset=False,
-        reset_only=False)
+        reset_only=False,
+        ns="default")

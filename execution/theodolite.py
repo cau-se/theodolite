@@ -29,7 +29,9 @@ def load_variables():
     return args
 
 
-def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit, commit_ms, duration, domain_restriction, search_strategy, reset, reset_only, namespace):
+def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
+         commit_ms, duration, domain_restriction, search_strategy,
+         prometheus_base_url ,reset, reset_only, namespace):
 
     print(f"Domain restriction of search space activated: {domain_restriction}")
     print(f"Chosen search strategy: {search_strategy}")
@@ -44,8 +46,8 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit, commit_
     separator = ","
     lines = [
             f"UC={uc}\n",
-            f"DIM_VALUES={separator.join(loads)}\n",
-            f"REPLICAS={separator.join(instances_list)}\n",
+            f"DIM_VALUES={separator.join(map(str, loads))}\n",
+            f"REPLICAS={separator.join(map(str, instances_list))}\n",
             f"PARTITIONS={partitions}\n",
             f"CPU_LIMIT={cpu_limit}\n",
             f"MEMORY_LIMIT={memory_limit}\n",
@@ -174,5 +176,5 @@ if __name__ == '__main__':
     args = load_variables()
     main(args.uc, args.loads, args.instances_list, args.partitions, args.cpu_limit,
          args.memory_limit, args.commit_ms, args.duration,
-         args.domain_restriction, args.search_strategy, args.reset,
-         args.reset_only, args.namespace)
+         args.domain_restriction, args.search_strategy, args.prometheus,
+         args.reset, args.reset_only, args.namespace)
