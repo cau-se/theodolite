@@ -24,7 +24,7 @@ def load_variables():
     parser = execution_parser(description='Run use case Programm')
     args = parser.parse_args()
     print(args)
-    if args.exp_id is None or args.uc is None or args.load is None or args.instances is None :
+    if args.exp_id is None or args.uc is None or args.load is None or args.instances is None:
         print('The options --exp-id, --uc, --load and --instances are mandatory.')
         print('Some might not be set!')
         sys.exit(1)
@@ -132,18 +132,20 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
 
     # Customize workload generator creations
     wg_yaml['spec']['replicas'] = wl_instances
-    # TODO: acces over name of container
     # Set used use case
-    wg_containter = wg_yaml['spec']['template']['spec']['containers'][0]
+    wg_containter = next(filter(
+        lambda x: x['name'] == 'workload-generator', wg_yaml['spec']['template']['spec']['containers']))
     wg_containter['image'] = 'theodolite/theodolite-uc' + uc_id + \
         '-workload-generator:latest'
-    # TODO: acces over name of attribute
     # Set environment variables
-    wg_containter['env'][0]['value'] = str(num_sensors)
-    wg_containter['env'][1]['value'] = str(wl_instances)
-    if uc_id == '2':  # Special configuration for uc2
-        wg_containter['env'][2]['value'] = str(num_nested_groups)
 
+    next(filter(lambda x: x['name'] == 'NUM_SENSORS', wg_containter['env']))[
+        'value'] = str(num_sensors)
+    next(filter(lambda x: x['name'] == 'INSTANCES', wg_containter['env']))[
+        'value'] = str(wl_instances)
+    if uc_id == '2':  # Special configuration for uc2
+        next(filter(lambda x: x['name'] == 'NUM_NESTED_GROUPS', wg_containter['env']))[
+            'value'] = str(num_nested_groups)
     try:
         wg_ss = appsApi.create_namespaced_deployment(
             namespace=namespace,
@@ -211,12 +213,12 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
 
     # Create deployment
     deploy_yaml['spec']['replicas'] = instances
-    # TODO: acces over name of container
-    app_container = deploy_yaml['spec']['template']['spec']['containers'][0]
+    app_container = next(filter(
+        lambda x: x['name'] == 'uc-application', deploy_yaml['spec']['template']['spec']['containers']))
     app_container['image'] = 'theodolite/theodolite-uc' + uc_id \
         + '-kstreams-app:latest'
-    # TODO: acces over name of attribute
-    app_container['env'][0]['value'] = str(commit_interval_ms)
+    next(filter(lambda x: x['name'] == 'COMMIT_INTERVAL_MS', app_container['env']))[
+        'value'] = str(commit_interval_ms)
     app_container['resources']['limits']['memory'] = memory_limit
     app_container['resources']['limits']['cpu'] = cpu_limit
     try:
@@ -403,12 +405,12 @@ def reset_zookeeper():
 
         # Check data is deleted
         client = stream(coreApi.connect_get_namespaced_pod_exec,
-                      "zookeeper-client",
-                      namespace,
-                      command=check_zoo_data_command,
-                      stderr=True, stdin=False,
-                      stdout=True, tty=False,
-                      _preload_content=False)  # Get client for returncode
+                        "zookeeper-client",
+                        namespace,
+                        command=check_zoo_data_command,
+                        stderr=True, stdin=False,
+                        stdout=True, tty=False,
+                        _preload_content=False)  # Get client for returncode
         client.run_forever(timeout=60)  # Start the client
 
         if client.returncode == 1:  # Means data not available anymore
@@ -429,11 +431,13 @@ def stop_lag_exporter():
 
     try:
         # Get lag exporter
-        pod_list = coreApi.list_namespaced_pod(namespace=namespace, label_selector='app.kubernetes.io/name=kafka-lag-exporter')
+        pod_list = coreApi.list_namespaced_pod(
+            namespace=namespace, label_selector='app.kubernetes.io/name=kafka-lag-exporter')
         lag_exporter_pod = pod_list.items[0].metadata.name
 
         # Delete lag exporter pod
-        res = coreApi.delete_namespaced_pod(name=lag_exporter_pod, namespace=namespace)
+        res = coreApi.delete_namespaced_pod(
+            name=lag_exporter_pod, namespace=namespace)
     except ApiException as e:
         logging.error('Exception while stopping lag exporter')
         logging.error(e)
@@ -523,7 +527,8 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
     wait_execution(execution_minutes)
     print('---------------------')
 
-    run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prometheus_base_url)
+    run_evaluation(exp_id, uc_id, dim_value, instances,
+                   execution_minutes, prometheus_base_url)
     print('---------------------')
 
     # Reset cluster regular, therefore abort exit not needed anymore
