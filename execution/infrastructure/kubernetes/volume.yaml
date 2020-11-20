@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: theodolite-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: theodolite
+  capacity:
+    storage: 100m
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "</your/path/to/results/folder>"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: theodolite-pv-claim
+spec:
+  storageClassName: theodolite
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100m
