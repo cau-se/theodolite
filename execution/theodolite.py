@@ -66,110 +66,41 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
     with open(counter_path, mode="w") as write_stream:
         write_stream.write(str(exp_id + 1))
 
-    # domain restriction
+    domain_restriction_strategy = None
+    search_strategy = None
+
+    # Select domain restriction
     if domain_restriction:
-        # domain restriction + linear-search
-        if search_strategy == "linear-search":
-            print(f"Going to execute at most {len(loads)+len(instances_list)-1} subexperiments in total..")
-            experiment_config = ExperimentConfig(
-                use_case=uc,
-                exp_id=exp_id,
-                dim_values=loads,
-                replicass=instances_list,
-                partitions=partitions,
-                cpu_limit=cpu_limit,
-                memory_limit=memory_limit,
-                kafka_streams_commit_interval_ms=commit_ms,
-                execution_minutes=duration,
-                domain_restriction_strategy=lower_bound_strategy,
-                search_strategy=linear_search_strategy,
-                subexperiment_executor=subexperiment_executor,
-                subexperiment_evaluator=subexperiment_evaluator)
-        # domain restriction + binary-search
-        elif search_strategy == "binary-search":
-            experiment_config = ExperimentConfig(
-                use_case=uc,
-                exp_id=exp_id,
-                dim_values=loads,
-                replicass=instances_list,
-                partitions=partitions,
-                cpu_limit=cpu_limit,
-                memory_limit=memory_limit,
-                kafka_streams_commit_interval_ms=commit_ms,
-                execution_minutes=duration,
-                domain_restriction_strategy=lower_bound_strategy,
-                search_strategy=binary_search_strategy,
-                subexperiment_executor=subexperiment_executor,
-                subexperiment_evaluator=subexperiment_evaluator)
-        # domain restriction + check_all
-        else:
-            print(f"Going to execute {len(loads)*len(instances_list)} subexperiments in total..")
-            experiment_config = ExperimentConfig(
-                use_case=uc,
-                exp_id=exp_id,
-                dim_values=loads,
-                replicass=instances_list,
-                partitions=partitions,
-                cpu_limit=cpu_limit,
-                memory_limit=memory_limit,
-                kafka_streams_commit_interval_ms=commit_ms,
-                execution_minutes=duration,
-                domain_restriction_strategy=lower_bound_strategy,
-                search_strategy=check_all_strategy,
-                subexperiment_executor=subexperiment_executor,
-                subexperiment_evaluator=subexperiment_evaluator)
-    # no domain restriction
+        # domain restriction
+        domain_restriction_strategy = lower_bound_strategy
     else:
-        # no domain restriction + linear-search
-        if search_strategy == "linear-search":
-            print(f"Going to execute at most {len(loads)*len(instances_list)} subexperiments in total..")
-            experiment_config = ExperimentConfig(
-                use_case=uc,
-                exp_id=exp_id,
-                dim_values=loads,
-                replicass=instances_list,
-                partitions=partitions,
-                cpu_limit=cpu_limit,
-                memory_limit=memory_limit,
-                kafka_streams_commit_interval_ms=commit_ms,
-                execution_minutes=duration,
-                domain_restriction_strategy=no_lower_bound_strategy,
-                search_strategy=linear_search_strategy,
-                subexperiment_executor=subexperiment_executor,
-                subexperiment_evaluator=subexperiment_evaluator)
-        # no domain restriction + binary-search
-        elif search_strategy == "binary-search":
-            experiment_config = ExperimentConfig(
-                use_case=uc,
-                exp_id=exp_id,
-                dim_values=loads,
-                replicass=instances_list,
-                partitions=partitions,
-                cpu_limit=cpu_limit,
-                memory_limit=memory_limit,
-                kafka_streams_commit_interval_ms=commit_ms,
-                execution_minutes=duration,
-                domain_restriction_strategy=no_lower_bound_strategy,
-                search_strategy=binary_search_strategy,
-                subexperiment_executor=subexperiment_executor,
-                subexperiment_evaluator=subexperiment_evaluator)
-        # no domain restriction + check_all
-        else:
-            print(f"Going to execute {len(loads)*len(instances_list)} subexperiments in total..")
-            experiment_config = ExperimentConfig(
-                use_case=uc,
-                exp_id=exp_id,
-                dim_values=loads,
-                replicass=instances_list,
-                partitions=partitions,
-                cpu_limit=cpu_limit,
-                memory_limit=memory_limit,
-                kafka_streams_commit_interval_ms=commit_ms,
-                execution_minutes=duration,
-                domain_restriction_strategy=no_lower_bound_strategy,
-                search_strategy=check_all_strategy,
-                subexperiment_executor=subexperiment_executor,
-                subexperiment_evaluator=subexperiment_evaluator)
+        # no domain restriction
+        domain_restriction_strategy = no_lower_bound_strategy
+
+    # select search strategy
+    if search_strategy == "linear-search":
+        print(f"Going to execute at most {len(loads)+len(instances_list)-1} subexperiments in total..")
+        search_strategy = linear_search_strategy
+    elif search_strategy == "binary-search":
+        search_strategy = binary_search_strategy
+    else:
+        print(f"Going to execute {len(loads)*len(instances_list)} subexperiments in total..")
+        search_strategy = check_all_strategy
+
+    experiment_config = ExperimentConfig(
+        use_case=uc,
+        exp_id=exp_id,
+        dim_values=loads,
+        replicass=instances_list,
+        partitions=partitions,
+        cpu_limit=cpu_limit,
+        memory_limit=memory_limit,
+        kafka_streams_commit_interval_ms=commit_ms,
+        execution_minutes=duration,
+        domain_restriction_strategy=domain_restriction_strategy,
+        search_strategy=search_strategy,
+        subexperiment_executor=subexperiment_executor,
+        subexperiment_evaluator=subexperiment_evaluator)
 
     executor = ExperimentExecutor(experiment_config)
     executor.execute()
