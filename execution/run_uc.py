@@ -248,7 +248,7 @@ def wait_execution(execution_minutes):
     return
 
 
-def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prometheus_base_url=None):
+def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prometheus_base_url, result_path):
     """
     Runs the evaluation function
     :param string exp_id: ID of the experiment.
@@ -258,12 +258,7 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prome
     :param int execution_minutes: How long the use case where executed.
     """
     print('Run evaluation function')
-    if prometheus_base_url is None and environ.get('PROMETHEUS_BASE_URL') is None:
-        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes)
-    elif prometheus_base_url is not None:
-        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, prometheus_base_url)
-    else:
-        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, environ.get('PROMETHEUS_BASE_URL'))
+    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, prometheus_base_url, result_path)
     return
 
 
@@ -460,7 +455,7 @@ def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
     stop_lag_exporter()
 
 
-def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, prometheus_base_url, reset, reset_only, ns):
+def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, prometheus_base_url, reset, ns, result_path, reset_only=False):
     """
     Main method to execute one time the benchmark for a given use case.
     Start workload generator/application -> execute -> analyse -> stop all
@@ -528,7 +523,7 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
     print('---------------------')
 
     run_evaluation(exp_id, uc_id, dim_value, instances,
-                   execution_minutes, prometheus_base_url)
+                   execution_minutes, prometheus_base_url, result_path)
     print('---------------------')
 
     # Reset cluster regular, therefore abort exit not needed anymore
@@ -543,4 +538,4 @@ if __name__ == '__main__':
     main(args.exp_id, args.uc, args.load, args.instances,
          args.partitions, args.cpu_limit, args.memory_limit,
          args.commit_ms, args.duration, args.prometheus, args.reset,
-         args.reset_only, args.namespace)
+         args.namespace, args.path, args.reset_only)

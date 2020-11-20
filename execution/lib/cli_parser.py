@@ -56,7 +56,7 @@ def default_parser(description):
                         help='Only resets the environment. Ignores all other parameters')
     parser.add_argument('--prometheus',
                         metavar='<URL>',
-                        default=os.environ.get('PROMETHEUS_BASE_URL'),
+                        default=os.environ.get('PROMETHEUS_BASE_URL', 'http://localhost:9090'),
                         help='Defines where to find the prometheus instance')
     parser.add_argument('--path',
                         metavar='<path>',

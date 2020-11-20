@@ -31,7 +31,7 @@ def load_variables():
 
 def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
          commit_ms, duration, domain_restriction, search_strategy,
-         prometheus_base_url ,reset, reset_only, namespace, result_path):
+         prometheus_base_url, reset, namespace, result_path):
 
     print(f"Domain restriction of search space activated: {domain_restriction}")
     print(f"Chosen search strategy: {search_strategy}")
@@ -97,6 +97,10 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
         memory_limit=memory_limit,
         kafka_streams_commit_interval_ms=commit_ms,
         execution_minutes=duration,
+        prometheus_base_url=prometheus_base_url,
+        reset=reset,
+        namespace=namespace,
+        result_path=result_path,
         domain_restriction_strategy=domain_restriction_strategy,
         search_strategy=search_strategy,
         subexperiment_executor=subexperiment_executor,
@@ -112,4 +116,4 @@ if __name__ == '__main__':
     main(args.uc, args.loads, args.instances_list, args.partitions, args.cpu_limit,
          args.memory_limit, args.commit_ms, args.duration,
          args.domain_restriction, args.search_strategy, args.prometheus,
-         args.reset, args.reset_only, args.namespace, args.path)
+         args.reset, args.namespace, args.path)
