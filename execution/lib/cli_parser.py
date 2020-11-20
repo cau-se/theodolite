@@ -58,6 +58,10 @@ def default_parser(description):
                         metavar='<URL>',
                         default=os.environ.get('PROMETHEUS_BASE_URL'),
                         help='Defines where to find the prometheus instance')
+    parser.add_argument('--path',
+                        metavar='<path>',
+                        default=os.environ.get('RESULT_PATH', 'results'),
+                        help='A directory path for the results')
     return parser
 
 def benchmark_parser(description):

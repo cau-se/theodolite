@@ -31,16 +31,20 @@ def load_variables():
 
 def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
          commit_ms, duration, domain_restriction, search_strategy,
-         prometheus_base_url ,reset, reset_only, namespace):
+         prometheus_base_url ,reset, reset_only, namespace, result_path):
 
     print(f"Domain restriction of search space activated: {domain_restriction}")
     print(f"Chosen search strategy: {search_strategy}")
 
-    if os.path.exists("exp_counter.txt"):
-        with open("exp_counter.txt", mode="r") as read_stream:
+    counter_path = f"{result_path}/exp_counter.txt"
+
+    if os.path.exists(counter_path):
+        with open(counter_path, mode="r") as read_stream:
             exp_id = int(read_stream.read())
     else:
         exp_id = 0
+        # Create the directory if not exists
+        os.makedirs(result_path, exist_ok=True)
 
     # Store metadata
     separator = ","
@@ -56,10 +60,10 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
             f"DOMAIN_RESTRICTION={domain_restriction}\n",
             f"SEARCH_STRATEGY={search_strategy}"
             ]
-    with open(f"exp{exp_id}_uc{uc}_meta.txt", "w") as stream:
+    with open(f"{result_path}/exp{exp_id}_uc{uc}_meta.txt", "w") as stream:
         stream.writelines(lines)
 
-    with open("exp_counter.txt", mode="w") as write_stream:
+    with open(counter_path, mode="w") as write_stream:
         write_stream.write(str(exp_id + 1))
 
     # domain restriction
@@ -177,4 +181,4 @@ if __name__ == '__main__':
     main(args.uc, args.loads, args.instances_list, args.partitions, args.cpu_limit,
          args.memory_limit, args.commit_ms, args.duration,
          args.domain_restriction, args.search_strategy, args.prometheus,
-         args.reset, args.reset_only, args.namespace)
+         args.reset, args.reset_only, args.namespace, args.path)
