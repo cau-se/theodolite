@@ -275,7 +275,7 @@ deploy-uc4-workload-generator:
       allow_failure: true
 
 deploy-theodolite:
-  extends: .deploy_theo
+  extends: .deploy_theodolite
   variables:
     IMAGE_NAME: "theodolite"
     PROJECT_PATH: "execution"
