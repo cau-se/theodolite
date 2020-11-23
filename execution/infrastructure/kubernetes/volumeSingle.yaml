@@ -11,7 +11,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "</your/path/to/results/folder>"
+    path: </your/path/to/results/folder>
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
