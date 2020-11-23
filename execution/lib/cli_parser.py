@@ -10,6 +10,36 @@ def env_list_default(env, tf):
         v = [tf(s) for s in v.split(',')]
     return v
 
+
+def key_values_to_dict(kvs):
+    """
+    Given a list with key values in form `Key=Value` it creates a dict from it.
+    """
+    my_dict = {}
+    for kv in kvs:
+        k,v = kv.split("=")
+        my_dict[k] = v
+    return my_dict
+
+
+def env_dict_default(env):
+    """
+    Makes a dict from an environment string.
+    """
+    v = os.environ.get(env)
+    if v is not None:
+        return key_values_to_dict(v.split(','))
+
+
+class StoreDictKeyPair(argparse.Action):
+     def __init__(self, option_strings, dest, nargs=None, **kwargs):
+         self._nargs = nargs
+         super(StoreDictKeyPair, self).__init__(option_strings, dest, nargs=nargs, **kwargs)
+     def __call__(self, parser, namespace, values, option_string=None):
+         my_dict = key_values_to_dict(values)
+         setattr(namespace, self.dest, my_dict)
+
+
 def default_parser(description):
     """
     Returns the default parser that can be used for thodolite and run uc py
@@ -62,6 +92,12 @@ def default_parser(description):
                         metavar='<path>',
                         default=os.environ.get('RESULT_PATH', 'results'),
                         help='A directory path for the results')
+    parser.add_argument("--configurations",
+                        dest="configurations",
+                        action=StoreDictKeyPair,
+                        nargs="+",
+                        default=env_dict_default('CONFIGURATIONS'),
+                        metavar="KEY=VAL")
     return parser
 
 def benchmark_parser(description):

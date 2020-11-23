@@ -36,6 +36,8 @@ spec:
               value: "http://prometheus-operated:9090"
             # - name: NAMESPACE
             #   value: "default"
+            # - name: CONFIGURATIONS
+            #   value: "COMMIT_INTERVAL_MS=100, NUM_STREAM_THREADS=1"
             - name: RESULT_PATH
               value: "results"
             - name: PYTHONUNBUFFERED
