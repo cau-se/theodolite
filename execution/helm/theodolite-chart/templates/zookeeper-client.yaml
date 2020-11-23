@@ -1,0 +1,14 @@
+{{- if .Values.ZookeeperClient.enabled -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-client
+spec:
+  containers:
+  - name: zookeeper-client
+    image: confluentinc/cp-zookeeper:5.4.0
+    command:
+      - sh
+      - -c
+      - "exec tail -f /dev/null"
+{{- end}}
