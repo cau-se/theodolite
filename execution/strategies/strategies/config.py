@@ -13,3 +13,7 @@ class SubexperimentConfig:
     memory_limit: str
     kafka_streams_commit_interval_ms: int
     execution_minutes: int
+    prometheus_base_url: str
+    reset: bool
+    namespace: str
+    result_path: str

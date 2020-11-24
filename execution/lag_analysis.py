@@ -8,7 +8,7 @@ import csv
 import logging
 
 
-def main(exp_id, benchmark, dim_value, instances, execution_minutes, prometheus_base_url = 'http://kube1.se.internal:32529'):
+def main(exp_id, benchmark, dim_value, instances, execution_minutes, prometheus_base_url, result_path):
     print("Main")
     time_diff_ms = int(os.getenv('CLOCK_DIFF_MS', 0))
 
@@ -70,11 +70,11 @@ def main(exp_id, benchmark, dim_value, instances, execution_minutes, prometheus_
     fields = [exp_id, datetime.now(), benchmark, dim_value,
               instances, linear_regressor.coef_]
     print(fields)
-    with open(r'results.csv', 'a') as f:
+    with open(f'{result_path}/results.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
-    filename = f"exp{exp_id}_{benchmark}_{dim_value}_{instances}"
+    filename = f"{result_path}/exp{exp_id}_{benchmark}_{dim_value}_{instances}"
 
     plt.plot(X, Y)
     plt.plot(X, Y_pred, color='red')
@@ -163,4 +163,5 @@ if __name__ == '__main__':
     instances = sys.argv[4]
     execution_minutes = int(sys.argv[5])
 
-    main(exp_id, benchmark, dim_value, instances, execution_minutes)
+    main(exp_id, benchmark, dim_value, instances, execution_minutes,
+        'http://localhost:9090', 'results')
