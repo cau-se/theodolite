@@ -158,7 +158,9 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
         return wg_yaml
 
 
-def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instances, uc_id, commit_interval_ms, memory_limit, cpu_limit):
+def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml,
+                      instances, uc_id, memory_limit, cpu_limit,
+                      configurations):
     """Applies the service, service monitor, jmx config map and start the
     use case application.
 
@@ -168,9 +170,9 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
     :param deploy_yaml: The yaml object for the application.
     :param int instances: Number of instances for use case application.
     :param string uc_id: The id of the use case to execute.
-    :param int commit_interval_ms: The commit interval in ms.
     :param string memory_limit: The memory limit for the application.
     :param string cpu_limit: The CPU limit for the application.
+    :param dict configurations: A dictionary with ENV variables for configurations.
     :return:
         The Service, ServiceMonitor, JMX ConfigMap and Deployment.
         In case the resource already exist/error the yaml object is returned.
@@ -217,10 +219,17 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
         lambda x: x['name'] == 'uc-application', deploy_yaml['spec']['template']['spec']['containers']))
     app_container['image'] = 'theodolite/theodolite-uc' + uc_id \
         + '-kstreams-app:latest'
-    next(filter(lambda x: x['name'] == 'COMMIT_INTERVAL_MS', app_container['env']))[
-        'value'] = str(commit_interval_ms)
+
+    # Set configurations environment parameters for SPE
+    for k,v in configurations.items():
+        conf = {'name': k, 'value': v}
+        app_container['env'].append(conf)
+
+    # Set resources in Kubernetes
     app_container['resources']['limits']['memory'] = memory_limit
     app_container['resources']['limits']['cpu'] = cpu_limit
+
+    # Deploy application
     try:
         app_deploy = appsApi.create_namespaced_deployment(
             namespace=namespace,
@@ -455,7 +464,7 @@ def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
     stop_lag_exporter()
 
 
-def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, prometheus_base_url, reset, ns, result_path, reset_only=False):
+def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, execution_minutes, prometheus_base_url, reset, ns, result_path, configurations, reset_only=False):
     """
     Main method to execute one time the benchmark for a given use case.
     Start workload generator/application -> execute -> analyse -> stop all
@@ -466,9 +475,9 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
     :param int partitions: Number of partitions the kafka topics should have.
     :param string cpu_limit: Max CPU utilazation for application.
     :param string memory_limit: Max memory utilazation for application.
-    :param int commit_interval_ms: Kafka Streams commit interval in milliseconds
     :param int execution_minutes: How long to execute the benchmark.
     :param boolean reset: Flag for reset of cluster before execution.
+    :param dict configurations: Key value pairs for setting env variables of UC.
     :param boolean reset_only: Flag to only reset the application.
     """
     global namespace
@@ -514,9 +523,9 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
         app_deploy,
         instances,
         uc_id,
-        commit_interval_ms,
         memory_limit,
-        cpu_limit)
+        cpu_limit,
+        configurations)
     print('---------------------')
 
     wait_execution(execution_minutes)
@@ -535,7 +544,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     args = load_variables()
     print('---------------------')
-    main(args.exp_id, args.uc, args.load, args.instances,
-         args.partitions, args.cpu_limit, args.memory_limit,
-         args.commit_ms, args.duration, args.prometheus, args.reset,
-         args.namespace, args.path, args.reset_only)
+    main(args.exp_id, args.uc, args.load, args.instances, args.partitions,
+         args.cpu_limit, args.memory_limit, args.duration, args.prometheus,
+         args.reset, args.namespace, args.path, args.configurations,
+         args.reset_only)

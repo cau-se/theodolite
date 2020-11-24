@@ -63,11 +63,6 @@ def default_parser(description):
                         metavar='<memory limit>',
                         default=os.environ.get('MEMORY_LIMIT', '4Gi'),
                         help='Kubernetes memory limit')
-    parser.add_argument('--commit-ms',
-                        metavar='<commit ms>',
-                        type=int,
-                        default=os.environ.get('COMMIT_MS', 100),
-                        help='Kafka Streams commit interval in milliseconds')
     parser.add_argument('--duration', '-d',
                         metavar='<duration>',
                         type=int,
@@ -93,11 +88,12 @@ def default_parser(description):
                         default=os.environ.get('RESULT_PATH', 'results'),
                         help='A directory path for the results')
     parser.add_argument("--configurations",
+                        metavar="KEY=VAL",
                         dest="configurations",
                         action=StoreDictKeyPair,
                         nargs="+",
                         default=env_dict_default('CONFIGURATIONS'),
-                        metavar="KEY=VAL")
+                        help='Defines the environment variables for the UC')
     return parser
 
 def benchmark_parser(description):
