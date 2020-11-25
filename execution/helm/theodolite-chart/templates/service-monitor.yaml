@@ -1,3 +1,4 @@
+{{- if .Values.kafkaClient.enabled -}}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -12,3 +13,4 @@ spec:
   endpoints:
     - port: metrics
       interval: 7s
+{{- end}}
