@@ -17,6 +17,10 @@ Dependencies and sub charts:
 - kafka-client
 - zookeeper
 
+## Configuration
+
+In development environments Kubernetes resources are often low.  To reduce resource consumption, we provide an `one broker-value.yaml` file. This file can be used with `helm install theodolite <path-to-chart> -f one-broker-values.yaml`.
+
 ## Development
 
 ### Sub charts
