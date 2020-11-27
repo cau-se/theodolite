@@ -6,7 +6,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.3"
+    classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.7.1"
   }
 }
 
@@ -65,6 +65,7 @@ configure(useCaseApplications) {
       implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
       implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
       implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
+      implementation 'com.google.code.gson:gson:2.8.2'
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.7.25'
