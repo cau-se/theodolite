@@ -6,7 +6,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.7.1"
+    classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.0"
   }
 }
 
@@ -109,7 +109,7 @@ configure(commonProjects) {
 
 // Per default XML reports for SpotBugs are generated
 // Include this to generate HTML reports
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
   reports {
     // Either HTML or XML reports can be activated
     html.enabled true
@@ -166,7 +166,7 @@ subprojects {
     reportLevel = "low"
     effort = "max"
     ignoreFailures = false
-    toolVersion = '3.1.7'
+    toolVersion = '4.1.4'
   }
 }
 
