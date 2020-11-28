@@ -2,6 +2,7 @@ package theodolite.uc3.streamprocessing;
 
 import java.time.Duration;
 import java.util.Objects;
+import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
@@ -11,13 +12,11 @@ import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
  */
 public class Uc3KafkaStreamsBuilder extends KafkaStreamsBuilder {
 
-  private String inputTopic; // NOPMD
   private String outputTopic; // NOPMD
   private Duration windowDuration; // NOPMD
 
-  public Uc3KafkaStreamsBuilder inputTopic(final String inputTopic) {
-    this.inputTopic = inputTopic;
-    return this;
+  public Uc3KafkaStreamsBuilder(final Configuration config) {
+    super(config);
   }
 
   public Uc3KafkaStreamsBuilder outputTopic(final String outputTopic) {

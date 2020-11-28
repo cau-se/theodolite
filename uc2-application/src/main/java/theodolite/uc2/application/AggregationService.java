@@ -36,26 +36,15 @@ public class AggregationService {
    * @param clusterSession the database session which the application should use.
    */
   private void createKafkaStreamsApplication() {
-    // Use case specific stream configuration
-    final Uc2KafkaStreamsBuilder uc2KafkaStreamsBuilder = new Uc2KafkaStreamsBuilder();
+    final Uc2KafkaStreamsBuilder uc2KafkaStreamsBuilder = new Uc2KafkaStreamsBuilder(this.config);
     uc2KafkaStreamsBuilder
-        .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
         .feedbackTopic(this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC))
         .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
         .configurationTopic(this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC))
         .emitPeriod(Duration.ofMillis(this.config.getLong(ConfigurationKeys.EMIT_PERIOD_MS)))
         .gracePeriod(Duration.ofMillis(this.config.getLong(ConfigurationKeys.GRACE_PERIOD_MS)));
 
-    // Configuration of the stream application
-    final KafkaStreams kafkaStreams = uc2KafkaStreamsBuilder
-        .applicationName(this.config.getString(ConfigurationKeys.APPLICATION_NAME))
-        .applicationVersion(this.config.getString(ConfigurationKeys.APPLICATION_VERSION))
-        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-        .schemaRegistry(this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL))
-        .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
-        .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
-        .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
-        .build();
+    final KafkaStreams kafkaStreams = uc2KafkaStreamsBuilder.build();
 
     this.stopEvent.thenRun(kafkaStreams::close);
     kafkaStreams.start();

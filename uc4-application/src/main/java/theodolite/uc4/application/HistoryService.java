@@ -32,9 +32,8 @@ public class HistoryService {
    */
   private void createKafkaStreamsApplication() {
     // Use case specific stream configuration
-    final Uc4KafkaStreamsBuilder uc4KafkaStreamsBuilder = new Uc4KafkaStreamsBuilder();
+    final Uc4KafkaStreamsBuilder uc4KafkaStreamsBuilder = new Uc4KafkaStreamsBuilder(this.config);
     uc4KafkaStreamsBuilder
-        .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
         .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
         .aggregtionDuration(
             Duration.ofDays(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS)))
@@ -42,15 +41,7 @@ public class HistoryService {
             Duration.ofDays(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS)));
 
     // Configuration of the stream application
-    final KafkaStreams kafkaStreams = uc4KafkaStreamsBuilder
-        .applicationName(this.config.getString(ConfigurationKeys.APPLICATION_NAME))
-        .applicationVersion(this.config.getString(ConfigurationKeys.APPLICATION_VERSION))
-        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-        .schemaRegistry(this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL))
-        .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
-        .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
-        .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
-        .build();
+    final KafkaStreams kafkaStreams = uc4KafkaStreamsBuilder.build();
 
     this.stopEvent.thenRun(kafkaStreams::close);
     kafkaStreams.start();

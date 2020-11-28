@@ -2,6 +2,7 @@ package theodolite.uc4.streamprocessing;
 
 import java.time.Duration;
 import java.util.Objects;
+import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
@@ -11,14 +12,12 @@ import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
  */
 public class Uc4KafkaStreamsBuilder extends KafkaStreamsBuilder {
 
-  private String inputTopic; // NOPMD
   private String outputTopic; // NOPMD
   private Duration aggregtionDuration; // NOPMD
   private Duration aggregationAdvance; // NOPMD
 
-  public Uc4KafkaStreamsBuilder inputTopic(final String inputTopic) {
-    this.inputTopic = inputTopic;
-    return this;
+  public Uc4KafkaStreamsBuilder(final Configuration config) {
+    super(config);
   }
 
   public Uc4KafkaStreamsBuilder outputTopic(final String outputTopic) {
