@@ -24,8 +24,6 @@ spec:
               value: "3"
             - name: PARTITIONS
               value: "30"
-            # - name: COMMIT_MS
-            #   value: ""
             # - name: SEARCH_STRATEGY
             #   value: ""
             # - name: CPU_LIMIT
