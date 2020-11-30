@@ -91,6 +91,9 @@ public abstract class KafkaStreamsBuilder {
     this.setOptionalProperty(propBuilder, StreamsConfig.POLL_MS_CONFIG,
         this.config::getLong,
         p -> p >= 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
+        this.config::getString, p -> StreamsConfig.AT_LEAST_ONCE.equals(p)
+            || StreamsConfig.EXACTLY_ONCE.equals(p) || StreamsConfig.EXACTLY_ONCE_BETA.equals(p));
     this.setOptionalProperty(propBuilder, StreamsConfig.REPLICATION_FACTOR_CONFIG,
         this.config::getInt, p -> p >= 0);
 
