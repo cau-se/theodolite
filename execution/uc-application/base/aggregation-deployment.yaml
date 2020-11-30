@@ -26,6 +26,8 @@ spec:
           value: "http://my-confluent-cp-schema-registry:8081"
         - name: JAVA_OPTS
           value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5555"
+        - name: COMMIT_INTERVAL_MS # Set as default for the applications
+          value: "100"
         resources:
           limits:
             memory: 4Gi
