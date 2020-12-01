@@ -20,10 +20,11 @@ dependencies: # A list of the chart requirements (optional)
   - name: kube-prometheus-stack
     version:  12.0.0
     repository: https://prometheus-community.github.io/helm-charts
+    condition: kube-prometheus-stack.enabled
   - name: cp-helm-charts
     version: 0.5.0
     repository: file://../dependencies/cp-helm-charts/
-    condition: confluent.enabled
+    condition: cp-helm-charts.enabled
   - name: kafka-lag-exporter
     version: 0.6.0
     repository: file://../dependencies/kafka-lag-exporter
