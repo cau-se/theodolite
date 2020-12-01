@@ -1,4 +1,4 @@
-{{- if .Values.ZookeeperClient.enabled -}}
+{{- if .Values.zookeeperClient.enabled -}}
 apiVersion: v1
 kind: Pod
 metadata:
@@ -11,7 +11,7 @@ spec:
       - sh
       - -c
       - "exec tail -f /dev/null"
-  {{- with .Values.nodeSelector }}
+  {{- with .Values.zookeeperClient.nodeSelector }}
   nodeSelector:
     {{- toYaml . | nindent 8 }}
   {{- end }}

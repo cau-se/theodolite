@@ -11,7 +11,7 @@ spec:
       - sh
       - -c
       - "exec tail -f /dev/null"
-  {{- with .Values.nodeSelector }}
+  {{- with .Values.kafkaClient.nodeSelector }}
   nodeSelector:
     {{- toYaml . | nindent 8 }}
   {{- end }}
