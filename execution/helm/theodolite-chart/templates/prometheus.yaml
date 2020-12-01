@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: Prometheus
 metadata:
-  name: prometheus
+  name: {{ template "theodolite.fullname" . }}-prometheus
 spec:
   serviceAccountName: prometheus
   serviceMonitorSelector:
