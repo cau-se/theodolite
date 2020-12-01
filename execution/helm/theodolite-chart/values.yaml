@@ -6,7 +6,7 @@ kafkaClient:
   enabled: true
   nodeSelector: {}
 
-ZookeeperClient:
+zookeeperClient:
   enabled: true
   nodeSelector: {}
 
@@ -125,7 +125,7 @@ cp-helm-charts:
       enabled: true
       type: NodePort
       servicePort: 8081
-      nodePort: 30099 # davor wars 1 konflikt mit kafka 31091
+      nodePort: 30099
       annotations: {}
 
   cp-kafka-rest:
@@ -206,8 +206,8 @@ kube-prometheus-stack:
     enabled: false
   
   prometheusOperator:
-    nodeSelector: {}
     enabled: true
+    nodeSelector: {}
   
   prometheus:
     enabled: false
