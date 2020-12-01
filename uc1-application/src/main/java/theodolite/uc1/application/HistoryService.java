@@ -3,7 +3,6 @@ package theodolite.uc1.application;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
-import theodolite.commons.kafkastreams.ConfigurationKeys;
 import theodolite.uc1.streamprocessing.Uc1KafkaStreamsBuilder;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
@@ -31,18 +30,9 @@ public class HistoryService {
    */
   private void createKafkaStreamsApplication() {
 
-    final Uc1KafkaStreamsBuilder uc1KafkaStreamsBuilder = new Uc1KafkaStreamsBuilder();
-    uc1KafkaStreamsBuilder.inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC));
+    final Uc1KafkaStreamsBuilder uc1KafkaStreamsBuilder = new Uc1KafkaStreamsBuilder(this.config);
 
-    final KafkaStreams kafkaStreams = uc1KafkaStreamsBuilder
-        .applicationName(this.config.getString(ConfigurationKeys.APPLICATION_NAME))
-        .applicationVersion(this.config.getString(ConfigurationKeys.APPLICATION_VERSION))
-        .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
-        .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
-        .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
-        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-        .schemaRegistry(this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL))
-        .build();
+    final KafkaStreams kafkaStreams = uc1KafkaStreamsBuilder.build();
 
     this.stopEvent.thenRun(kafkaStreams::close);
 

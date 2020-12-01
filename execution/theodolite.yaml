@@ -24,8 +24,6 @@ spec:
               value: "3"
             - name: PARTITIONS
               value: "30"
-            # - name: COMMIT_MS
-            #   value: ""
             # - name: SEARCH_STRATEGY
             #   value: ""
             # - name: CPU_LIMIT
@@ -36,6 +34,8 @@ spec:
               value: "http://prometheus-operated:9090"
             # - name: NAMESPACE
             #   value: "default"
+            # - name: CONFIGURATIONS
+            #   value: "COMMIT_INTERVAL_MS=100, NUM_STREAM_THREADS=1"
             - name: RESULT_PATH
               value: "results"
             - name: PYTHONUNBUFFERED

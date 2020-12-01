@@ -1,6 +1,7 @@
 import argparse
 import os
 
+
 def env_list_default(env, tf):
     """
     Makes a list from an environment string.
@@ -9,6 +10,40 @@ def env_list_default(env, tf):
     if v is not None:
         v = [tf(s) for s in v.split(',')]
     return v
+
+
+def key_values_to_dict(kvs):
+    """
+    Given a list with key values in form `Key=Value` it creates a dict from it.
+    """
+    my_dict = {}
+    for kv in kvs:
+        k, v = kv.split("=")
+        my_dict[k] = v
+    return my_dict
+
+
+def env_dict_default(env):
+    """
+    Makes a dict from an environment string.
+    """
+    v = os.environ.get(env)
+    if v is not None:
+        return key_values_to_dict(v.split(','))
+    else:
+        return dict()
+
+
+class StoreDictKeyPair(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        self._nargs = nargs
+        super(StoreDictKeyPair, self).__init__(
+            option_strings, dest, nargs=nargs, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        my_dict = key_values_to_dict(values)
+        setattr(namespace, self.dest, my_dict)
+
 
 def default_parser(description):
     """
@@ -33,11 +68,6 @@ def default_parser(description):
                         metavar='<memory limit>',
                         default=os.environ.get('MEMORY_LIMIT', '4Gi'),
                         help='Kubernetes memory limit')
-    parser.add_argument('--commit-ms',
-                        metavar='<commit ms>',
-                        type=int,
-                        default=os.environ.get('COMMIT_MS', 100),
-                        help='Kafka Streams commit interval in milliseconds')
     parser.add_argument('--duration', '-d',
                         metavar='<duration>',
                         type=int,
@@ -56,13 +86,22 @@ def default_parser(description):
                         help='Only resets the environment. Ignores all other parameters')
     parser.add_argument('--prometheus',
                         metavar='<URL>',
-                        default=os.environ.get('PROMETHEUS_BASE_URL', 'http://localhost:9090'),
+                        default=os.environ.get(
+                            'PROMETHEUS_BASE_URL', 'http://localhost:9090'),
                         help='Defines where to find the prometheus instance')
     parser.add_argument('--path',
                         metavar='<path>',
                         default=os.environ.get('RESULT_PATH', 'results'),
                         help='A directory path for the results')
+    parser.add_argument("--configurations",
+                        metavar="KEY=VAL",
+                        dest="configurations",
+                        action=StoreDictKeyPair,
+                        nargs="+",
+                        default=env_dict_default('CONFIGURATIONS'),
+                        help='Defines the environment variables for the UC')
     return parser
+
 
 def benchmark_parser(description):
     """
@@ -92,6 +131,7 @@ def benchmark_parser(description):
                         default=os.environ.get('SEARCH_STRATEGY', 'default'),
                         help='The benchmarking search strategy. Can be set to default, linear-search or binary-search')
     return parser
+
 
 def execution_parser(description):
     """

@@ -1,7 +1,9 @@
 package theodolite.commons.kafkastreams;
 
-import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
@@ -12,109 +14,95 @@ import titan.ccp.common.kafka.streams.PropertiesBuilder;
  */
 public abstract class KafkaStreamsBuilder {
 
-  // Kafkastreams application specific
-  protected String schemaRegistryUrl; // NOPMD for use in subclass
+  // Kafka Streams application specific
+  protected final String schemaRegistryUrl; // NOPMD for use in subclass
+  protected final String inputTopic; // NOPMD for use in subclass
 
-  private String applicationName; // NOPMD
-  private String applicationVersion; // NOPMD
-  private String bootstrapServers; // NOPMD
-  private int numThreads = -1; // NOPMD
-  private int commitIntervalMs = -1; // NOPMD
-  private int cacheMaxBytesBuff = -1; // NOPMD
+  private final Configuration config;
+
+  private final String applicationName; // NOPMD
+  private final String applicationVersion; // NOPMD
+  private final String bootstrapServers; // NOPMD
 
   /**
-   * Sets the application name for the {@code KafkaStreams} application. It is used to create the
-   * application ID.
+   * Construct a new Build object for a Kafka Streams application.
    *
-   * @param applicationName Name of the application.
-   * @return
+   * @param config Contains the key value pairs for configuration.
    */
-  public KafkaStreamsBuilder applicationName(final String applicationName) {
-    this.applicationName = applicationName;
-    return this;
+  public KafkaStreamsBuilder(final Configuration config) {
+    this.config = config;
+    this.applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
+    this.applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
+    this.bootstrapServers = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
+    this.schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
+    this.inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
   }
 
   /**
-   * Sets the application version for the {@code KafkaStreams} application. It is used to create the
-   * application ID.
+   * Checks if the given key is contained in the configurations and sets it in the properties.
    *
-   * @param applicationVersion Version of the application.
-   * @return
+   * @param <T> Type of the value for given key
+   * @param propBuilder Object where to set this property.
+   * @param key The key to check and set the property.
+   * @param valueGetter Method to get the value from with given key.
+   * @param condition for setting the property.
    */
-  public KafkaStreamsBuilder applicationVersion(final String applicationVersion) {
-    this.applicationVersion = applicationVersion;
-    return this;
-  }
-
-  /**
-   * Sets the bootstrap servers for the {@code KafkaStreams} application.
-   *
-   * @param bootstrapServers String for a bootstrap server.
-   * @return
-   */
-  public KafkaStreamsBuilder bootstrapServers(final String bootstrapServers) {
-    this.bootstrapServers = bootstrapServers;
-    return this;
-  }
-
-  /**
-   * Sets the URL for the schema registry.
-   *
-   * @param url The URL of the schema registry.
-   * @return
-   */
-  public KafkaStreamsBuilder schemaRegistry(final String url) {
-    this.schemaRegistryUrl = url;
-    return this;
-  }
-
-  /**
-   * Sets the Kafka Streams property for the number of threads (num.stream.threads). Can be minus
-   * one for using the default.
-   *
-   * @param numThreads Number of threads. -1 for using the default.
-   * @return
-   */
-  public KafkaStreamsBuilder numThreads(final int numThreads) {
-    if (numThreads < -1 || numThreads == 0) {
-      throw new IllegalArgumentException("Number of threads must be greater 0 or -1.");
+  private <T> void setOptionalProperty(final PropertiesBuilder propBuilder,
+      final String key,
+      final Function<String, T> valueGetter,
+      final Predicate<T> condition) {
+    if (this.config.containsKey(key)) {
+      final T value = valueGetter.apply(key);
+      propBuilder.set(key, value, condition);
     }
-    this.numThreads = numThreads;
-    return this;
   }
 
   /**
-   * Sets the Kafka Streams property for the frequency with which to save the position (offsets in
-   * source topics) of tasks (commit.interval.ms). Must be zero for processing all record, for
-   * example, when processing bulks of records. Can be minus one for using the default.
+   * Build the {@link Properties} for a {@code KafkaStreams} application.
    *
-   * @param commitIntervalMs Frequency with which to save the position of tasks. In ms, -1 for using
-   *        the default.
-   * @return
+   * @return A {@code Properties} object.
    */
-  public KafkaStreamsBuilder commitIntervalMs(final int commitIntervalMs) {
-    if (commitIntervalMs < -1) {
-      throw new IllegalArgumentException("Commit interval must be greater or equal -1.");
-    }
-    this.commitIntervalMs = commitIntervalMs;
-    return this;
-  }
+  protected Properties buildProperties() {
+    // required configuration
+    final PropertiesBuilder propBuilder = PropertiesBuilder
+        .bootstrapServers(this.bootstrapServers)
+        .applicationId(this.applicationName + '-' + this.applicationVersion);
 
-  /**
-   * Sets the Kafka Streams property for maximum number of memory bytes to be used for record caches
-   * across all threads (cache.max.bytes.buffering). Must be zero for processing all record, for
-   * example, when processing bulks of records. Can be minus one for using the default.
-   *
-   * @param cacheMaxBytesBuffering Number of memory bytes to be used for record caches across all
-   *        threads. -1 for using the default.
-   * @return
-   */
-  public KafkaStreamsBuilder cacheMaxBytesBuffering(final int cacheMaxBytesBuffering) {
-    if (cacheMaxBytesBuffering < -1) {
-      throw new IllegalArgumentException("Cache max bytes buffering must be greater or equal -1.");
+    // optional configurations
+    this.setOptionalProperty(propBuilder, StreamsConfig.ACCEPTABLE_RECOVERY_LAG_CONFIG,
+        this.config::getLong,
+        p -> p >= 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.BUFFERED_RECORDS_PER_PARTITION_CONFIG,
+        this.config::getInt, p -> p > 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG,
+        this.config::getInt,
+        p -> p >= 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.COMMIT_INTERVAL_MS_CONFIG,
+        this.config::getInt, p -> p >= 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.MAX_TASK_IDLE_MS_CONFIG,
+        this.config::getLong,
+        p -> p >= 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.MAX_WARMUP_REPLICAS_CONFIG,
+        this.config::getInt, p -> p >= 1);
+    this.setOptionalProperty(propBuilder, StreamsConfig.NUM_STANDBY_REPLICAS_CONFIG,
+        this.config::getInt, p -> p >= 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.NUM_STREAM_THREADS_CONFIG,
+        this.config::getInt, p -> p > 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.POLL_MS_CONFIG,
+        this.config::getLong,
+        p -> p >= 0);
+    this.setOptionalProperty(propBuilder, StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
+        this.config::getString, p -> StreamsConfig.AT_LEAST_ONCE.equals(p)
+            || StreamsConfig.EXACTLY_ONCE.equals(p) || StreamsConfig.EXACTLY_ONCE_BETA.equals(p));
+    this.setOptionalProperty(propBuilder, StreamsConfig.REPLICATION_FACTOR_CONFIG,
+        this.config::getInt, p -> p >= 0);
+
+    if (this.config.containsKey(StreamsConfig.TOPOLOGY_OPTIMIZATION)
+        && this.config.getBoolean(StreamsConfig.TOPOLOGY_OPTIMIZATION)) {
+      propBuilder.set(StreamsConfig.TOPOLOGY_OPTIMIZATION, StreamsConfig.OPTIMIZE);
     }
-    this.cacheMaxBytesBuff = cacheMaxBytesBuffering;
-    return this;
+
+    return propBuilder.build();
   }
 
   /**
@@ -125,30 +113,9 @@ public abstract class KafkaStreamsBuilder {
   protected abstract Topology buildTopology();
 
   /**
-   * Build the {@link Properties} for a {@code KafkaStreams} application.
-   *
-   * @return A {@code Properties} object.
-   */
-  protected Properties buildProperties() {
-    return PropertiesBuilder
-        .bootstrapServers(this.bootstrapServers)
-        .applicationId(this.applicationName + '-' + this.applicationVersion)
-        .set(StreamsConfig.NUM_STREAM_THREADS_CONFIG, this.numThreads, p -> p > 0)
-        .set(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, this.commitIntervalMs, p -> p >= 0)
-        .set(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, this.cacheMaxBytesBuff, p -> p >= 0)
-        .build();
-  }
-
-  /**
    * Builds the {@link KafkaStreams} instance.
    */
   public KafkaStreams build() {
-    // Check for required attributes for building properties.
-    Objects.requireNonNull(this.applicationName, "Application name has not been set.");
-    Objects.requireNonNull(this.applicationVersion, "Application version has not been set.");
-    Objects.requireNonNull(this.bootstrapServers, "Bootstrap server has not been set.");
-    Objects.requireNonNull(this.schemaRegistryUrl, "Schema registry has not been set.");
-
     // Create the Kafka streams instance.
     return new KafkaStreams(this.buildTopology(), this.buildProperties());
   }

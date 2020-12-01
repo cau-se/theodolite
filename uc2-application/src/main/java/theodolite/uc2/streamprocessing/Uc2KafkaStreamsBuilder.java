@@ -2,6 +2,7 @@ package theodolite.uc2.streamprocessing;
 
 import java.time.Duration;
 import java.util.Objects;
+import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
@@ -14,16 +15,14 @@ public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
   private static final Duration EMIT_PERIOD_DEFAULT = Duration.ofSeconds(1);
   private static final Duration GRACE_PERIOD_DEFAULT = Duration.ZERO;
 
-  private String inputTopic; // NOPMD
   private String feedbackTopic; // NOPMD
   private String outputTopic; // NOPMD
   private String configurationTopic; // NOPMD
   private Duration emitPeriod; // NOPMD
   private Duration gracePeriod; // NOPMD
 
-  public Uc2KafkaStreamsBuilder inputTopic(final String inputTopic) {
-    this.inputTopic = inputTopic;
-    return this;
+  public Uc2KafkaStreamsBuilder(final Configuration config) {
+    super(config);
   }
 
   public Uc2KafkaStreamsBuilder feedbackTopic(final String feedbackTopic) {

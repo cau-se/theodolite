@@ -30,8 +30,8 @@ def load_variables():
 
 
 def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
-         commit_ms, duration, domain_restriction, search_strategy,
-         prometheus_base_url, reset, namespace, result_path):
+         duration, domain_restriction, search_strategy, prometheus_base_url,
+         reset, namespace, result_path, configurations):
 
     print(f"Domain restriction of search space activated: {domain_restriction}")
     print(f"Chosen search strategy: {search_strategy}")
@@ -49,16 +49,16 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
     # Store metadata
     separator = ","
     lines = [
-            f"UC={uc}\n",
-            f"DIM_VALUES={separator.join(map(str, loads))}\n",
-            f"REPLICAS={separator.join(map(str, instances_list))}\n",
-            f"PARTITIONS={partitions}\n",
-            f"CPU_LIMIT={cpu_limit}\n",
-            f"MEMORY_LIMIT={memory_limit}\n",
-            f"KAFKA_STREAMS_COMMIT_INTERVAL_MS={commit_ms}\n",
-            f"EXECUTION_MINUTES={duration}\n",
-            f"DOMAIN_RESTRICTION={domain_restriction}\n",
-            f"SEARCH_STRATEGY={search_strategy}"
+            f'UC={uc}\n',
+            f'DIM_VALUES={separator.join(map(str, loads))}\n',
+            f'REPLICAS={separator.join(map(str, instances_list))}\n',
+            f'PARTITIONS={partitions}\n',
+            f'CPU_LIMIT={cpu_limit}\n',
+            f'MEMORY_LIMIT={memory_limit}\n',
+            f'EXECUTION_MINUTES={duration}\n',
+            f'DOMAIN_RESTRICTION={domain_restriction}\n',
+            f'SEARCH_STRATEGY={search_strategy}\n',
+            f'CONFIGURATIONS={configurations}'
             ]
     with open(f"{result_path}/exp{exp_id}_uc{uc}_meta.txt", "w") as stream:
         stream.writelines(lines)
@@ -95,11 +95,11 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
         partitions=partitions,
         cpu_limit=cpu_limit,
         memory_limit=memory_limit,
-        kafka_streams_commit_interval_ms=commit_ms,
         execution_minutes=duration,
         prometheus_base_url=prometheus_base_url,
         reset=reset,
         namespace=namespace,
+        configurations=configurations,
         result_path=result_path,
         domain_restriction_strategy=domain_restriction_strategy,
         search_strategy=search_strategy,
@@ -114,6 +114,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     args = load_variables()
     main(args.uc, args.loads, args.instances_list, args.partitions, args.cpu_limit,
-         args.memory_limit, args.commit_ms, args.duration,
+         args.memory_limit, args.duration,
          args.domain_restriction, args.search_strategy, args.prometheus,
-         args.reset, args.namespace, args.path)
+         args.reset, args.namespace, args.path, args.configurations)

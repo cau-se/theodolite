@@ -34,23 +34,13 @@ public class HistoryService {
    *
    */
   private void createKafkaStreamsApplication() {
-    // Use case specific stream configuration
-    final Uc3KafkaStreamsBuilder uc3KafkaStreamsBuilder = new Uc3KafkaStreamsBuilder();
+    final Uc3KafkaStreamsBuilder uc3KafkaStreamsBuilder = new Uc3KafkaStreamsBuilder(this.config);
     uc3KafkaStreamsBuilder
-        .inputTopic(this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC))
         .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
         .windowDuration(Duration.ofMinutes(this.windowDurationMinutes));
 
-    // Configuration of the stream application
-    final KafkaStreams kafkaStreams = uc3KafkaStreamsBuilder
-        .applicationName(this.config.getString(ConfigurationKeys.APPLICATION_NAME))
-        .applicationVersion(this.config.getString(ConfigurationKeys.APPLICATION_VERSION))
-        .bootstrapServers(this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS))
-        .schemaRegistry(this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL))
-        .numThreads(this.config.getInt(ConfigurationKeys.NUM_THREADS))
-        .commitIntervalMs(this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS))
-        .cacheMaxBytesBuffering(this.config.getInt(ConfigurationKeys.CACHE_MAX_BYTES_BUFFERING))
-        .build();
+    final KafkaStreams kafkaStreams = uc3KafkaStreamsBuilder.build();
+
     this.stopEvent.thenRun(kafkaStreams::close);
     kafkaStreams.start();
   }

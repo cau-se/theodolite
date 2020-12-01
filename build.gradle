@@ -6,7 +6,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.3"
+    classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.0"
   }
 }
 
@@ -65,6 +65,7 @@ configure(useCaseApplications) {
       implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
       implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
       implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
+      implementation 'com.google.code.gson:gson:2.8.2'
       implementation 'com.google.guava:guava:24.1-jre'
       implementation 'org.jctools:jctools-core:2.1.1'
       implementation 'org.slf4j:slf4j-simple:1.7.25'
@@ -100,6 +101,7 @@ configure(commonProjects) {
       implementation 'org.slf4j:slf4j-simple:1.7.25'
       implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
       implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'org.apache.kafka:kafka-streams:2.6.0'
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
@@ -108,7 +110,7 @@ configure(commonProjects) {
 
 // Per default XML reports for SpotBugs are generated
 // Include this to generate HTML reports
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
   reports {
     // Either HTML or XML reports can be activated
     html.enabled true
@@ -165,7 +167,7 @@ subprojects {
     reportLevel = "low"
     effort = "max"
     ignoreFailures = false
-    toolVersion = '3.1.7'
+    toolVersion = '4.1.4'
   }
 }
 
