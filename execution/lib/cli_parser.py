@@ -125,6 +125,8 @@ def benchmark_parser(description):
                         help='[mandatory] List of instances used in benchmarks')
     parser.add_argument('--domain-restriction',
                         action="store_true",
+                        default=eval(
+                            os.environ.get('DOMAIN_RESTRICTION', 'False').capitalize()),
                         help='To use domain restriction. For details see README')
     parser.add_argument('--search-strategy',
                         metavar='<strategy>',
