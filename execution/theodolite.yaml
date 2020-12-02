@@ -44,6 +44,8 @@ spec:
             - mountPath: "/app/results"
               name: theodolite-pv-storage
       restartPolicy: Never
+      # Uncomment if RBAC is enabled and configured
+      # serviceAccountName: theodolite
   backoffLimit: 4
 
 # ---
