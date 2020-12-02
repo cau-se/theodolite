@@ -14,22 +14,24 @@ spec:
           image: bvonheid/theodolite:latest
           # imagePullPolicy: Never # Used to pull "own" local image
           env:
-            - name: UC
+            - name: UC # mandatory
               value: "1"
-            - name: LOADS
-              value: "13206, 19635"
-            - name: INSTANCES
-              value: "1, 2"
-            - name: DURATION
-              value: "3"
-            - name: PARTITIONS
-              value: "30"
+            - name: LOADS # mandatory
+              value: "100000, 200000"
+            - name: INSTANCES # mandatory
+              value: "1, 2, 3"
+            # - name: DURATION
+            #   value: "5"
+            # - name: PARTITIONS
+            #   value: "40"
+            # - name: DOMAIN_RESTRICTION
+            #   value: "True"
             # - name: SEARCH_STRATEGY
-            #   value: ""
+            #   value: "linear-search"
             # - name: CPU_LIMIT
-            #   value: ""
+            #   value: "1000m"
             # - name: MEMORY_LIMIT
-            #   value: ""
+            #   value: "4Gi"
             - name: PROMETHEUS_BASE_URL
               value: "http://prometheus-operated:9090"
             # - name: NAMESPACE
@@ -38,7 +40,7 @@ spec:
             #   value: "COMMIT_INTERVAL_MS=100, NUM_STREAM_THREADS=1"
             - name: RESULT_PATH
               value: "results"
-            - name: PYTHONUNBUFFERED
+            - name: PYTHONUNBUFFERED # Enable logs in Kubernetes
               value: "1"
           volumeMounts:
             - mountPath: "/app/results"
