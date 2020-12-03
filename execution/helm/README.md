@@ -8,6 +8,8 @@ Load all dependencies:
 helm  dependencies update ./theodolite-chart
 ```
 
+Install the chart:
+
 ```sh
 helm install my-confluent ./theodolite-chart
 ```
@@ -33,15 +35,15 @@ Test the installation:
 helm test <release-name>
 ```
 
-Our test files are located [here](./theodlote-chart/templates/../../theodolite-chart/templates/tests). Many subcharts have their own tests, these are also executed and are placed in the respective /templates folders. 
+Our test files are located [here](./theodolite-chart/templates/../../theodolite-chart/templates/tests). Many sub charts have their own tests, these are also executed and are placed in the respective /templates folders. 
 
-Please note: If a test fails, helmet will stop testing.
+Please note: If a test fails, Helm will stop testing.
 
 It is possible that the tests are not running successfully at the moment. This is because the Helm tests of the sub chart cp-confluent receive a timeout exception. There is an [issue](https://github.com/confluentinc/cp-helm-charts/issues/318) for this problem on github.
 
 ## Configuration
 
-In development environments Kubernetes resources are often low.  To reduce resource consumption, we provide an `one broker-value.yaml` file. This file can be used with:
+In development environments Kubernetes resources are often low. To reduce resource consumption, we provide an `one-broker-value.yaml` file. This file can be used with:
 
 ```sh
 helm install theodolite <path-to-chart> -f one-broker-values.yaml
@@ -51,7 +53,7 @@ helm install theodolite <path-to-chart> -f one-broker-values.yaml
 
 ### Sub charts
 
-Sub-diagrams can be added using a repository or a path to a directory containing the diagram files. Currently we cannot add cp-confluent-chart and the kafka-lag-exporter with a repository URL. This might be possible in the future. The folder [dependencies](./dependencies) contains the required files.
+Sub charts can be added using a repository or a path to a directory containing the chart files. Currently we cannot add cp-confluent-chart and the kafka-lag-exporter with a repository URL. This might be possible in the future. The folder [dependencies](./dependencies) contains the required files.
 
 
 **Hints**:
