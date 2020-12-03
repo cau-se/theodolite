@@ -2,6 +2,12 @@
 
 ## Installation
 
+Load all dependencies:
+
+```sh
+helm  dependencies update ./theodolite-chart
+```
+
 ```sh
 helm install my-confluent ./theodolite-chart
 ```
