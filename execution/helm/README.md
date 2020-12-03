@@ -27,8 +27,11 @@ Test the installation:
 helm test <release-name>
 ```
 
-Our test files are located [here](./theodlote-chart/templates/../../theodolite-chart/templates/tests). Many subcharts have their own tests, these are also executed and are placed in the respective /templates folders. Please note: If a test fails, helmet will stop testing.
+Our test files are located [here](./theodlote-chart/templates/../../theodolite-chart/templates/tests). Many subcharts have their own tests, these are also executed and are placed in the respective /templates folders. 
 
+Please note: If a test fails, helmet will stop testing.
+
+It is possible that the tests are not running successfully at the moment. This is because the Helm tests of the sub chart cp-confluent receive a timeout exception. There is an [issue](https://github.com/confluentinc/cp-helm-charts/issues/318) for this problem on github.
 
 ## Configuration
 
