@@ -20,3 +20,6 @@ spec:
         - name: random-scheduler
           image: sehrenstein/random-scheduler:latest
           imagePullPolicy: Always
+          env:
+            - name: TARGET_NAMESPACE
+              value: default
