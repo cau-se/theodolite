@@ -1,9 +1,8 @@
-FROM ubuntu:bionic
+FROM alpine:3.12
 
-RUN apt-get update
-RUN apt-get dist-upgrade
+RUN apk update
 
-RUN apt-get install -y curl jq
+RUN apk add curl jq bash
 
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 
