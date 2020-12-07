@@ -5,6 +5,7 @@ benchmarks:
   stage: triggers
   trigger:
     include: benchmarks/.gitlab-ci.yml
+    strategy: depend
   rules:
     - if: "$CI_COMMIT_TAG"
       when: always
