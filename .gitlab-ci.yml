@@ -1,3 +1,9 @@
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      when: never
+    - when: always
+
 stages:
   - triggers
 
@@ -8,10 +14,8 @@ benchmarks:
     strategy: depend
   rules:
     - if: "$CI_COMMIT_TAG"
-      when: always
     - changes:
       - benchmarks/*
-      when: always
     - when: manual
       allow_failure: true
   
