@@ -12,6 +12,7 @@ cache:
     - .gradle
 
 before_script:
+  - cd benchmarks
   - export GRADLE_USER_HOME=`pwd`/.gradle
 
 stages:
@@ -27,8 +28,8 @@ build:
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "build/libs/*.jar"
-      - "*/build/distributions/*.tar"
+      - "benchmarks/build/libs/*.jar"
+      - "benchmarks/*/build/distributions/*.tar"
     expire_in: 1 day
 
 test:
@@ -39,7 +40,7 @@ test:
   artifacts:
     reports:
       junit:
-        - "**/build/test-results/test/TEST-*.xml"
+        - "benchmarks/**/build/test-results/test/TEST-*.xml"
 
 checkstyle:
   stage: check
@@ -48,7 +49,7 @@ checkstyle:
   script: ./gradlew checkstyle --continue
   artifacts:
     paths:
-      - "*/build/reports/checkstyle/main.html"
+      - "benchmarks/*/build/reports/checkstyle/main.html"
     when: on_failure
     expire_in: 1 day
 
@@ -59,7 +60,7 @@ pmd:
   script: ./gradlew pmd --continue
   artifacts:
     paths:
-      - "*/build/reports/pmd/*.html"
+      - "benchmarks/*/build/reports/pmd/*.html"
     when: on_failure
     expire_in: 1 day
 
@@ -70,7 +71,7 @@ spotbugs:
   script: ./gradlew spotbugs --continue
   artifacts:
     paths:
-      - "*/build/reports/spotbugs/*.html"
+      - "benchmarks/*/build/reports/spotbugs/*.html"
     when: on_failure
     expire_in: 1 day
 
@@ -100,7 +101,7 @@ spotbugs:
       when: always
     - changes:
       # - $JAVA_PROJECT_NAME/**/* # hope this can be simplified soon, see #51
-      - application-kafkastreams-commons/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -116,8 +117,8 @@ deploy-uc1-kstreams-app:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc1-application/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc1-application/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -133,8 +134,8 @@ deploy-uc2-kstreams-app:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc2-application/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc2-application/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -150,8 +151,8 @@ deploy-uc3-kstreams-app:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc3-application/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc3-application/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -167,8 +168,8 @@ deploy-uc4-kstreams-app:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc4-application/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc4-application/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -184,8 +185,8 @@ deploy-uc1-workload-generator:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc1-workload-generator/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc1-workload-generator/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -201,8 +202,8 @@ deploy-uc2-workload-generator:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc2-workload-generator/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc2-workload-generator/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -218,8 +219,8 @@ deploy-uc3-workload-generator:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc3-workload-generator/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc3-workload-generator/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -235,8 +236,8 @@ deploy-uc4-workload-generator:
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - uc4-workload-generator/**/*
-      - application-kafkastreams-commons/**/*
+      - benchmarks/uc4-workload-generator/**/*
+      - benchmarks/application-kafkastreams-commons/**/*
       if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$DOCKERHUB_ORG && $DOCKERHUB_ID && $DOCKERHUB_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
