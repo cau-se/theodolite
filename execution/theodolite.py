@@ -4,6 +4,7 @@ import argparse
 from lib.cli_parser import benchmark_parser
 import logging  # logging
 import os
+import run_uc
 import sys
 from strategies.config import ExperimentConfig
 import strategies.strategies.domain_restriction.lower_bound_strategy as lower_bound_strategy
@@ -22,7 +23,7 @@ def load_variables():
     parser = benchmark_parser("Run theodolite benchmarking")
     args = parser.parse_args()
     print(args)
-    if args.uc is None or args.loads is None or args.instances_list is None:
+    if (args.uc is None or args.loads is None or args.instances_list is None) and not args.reset_only:
         print('The options --uc, --loads and --instances are mandatory.')
         print('Some might not be set!')
         sys.exit(1)
@@ -33,7 +34,8 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
          duration, domain_restriction, search_strategy, prometheus_base_url,
          reset, namespace, result_path, configurations):
 
-    print(f"Domain restriction of search space activated: {domain_restriction}")
+    print(
+        f"Domain restriction of search space activated: {domain_restriction}")
     print(f"Chosen search strategy: {search_strategy}")
 
     counter_path = f"{result_path}/exp_counter.txt"
@@ -49,17 +51,17 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
     # Store metadata
     separator = ","
     lines = [
-            f'UC={uc}\n',
-            f'DIM_VALUES={separator.join(map(str, loads))}\n',
-            f'REPLICAS={separator.join(map(str, instances_list))}\n',
-            f'PARTITIONS={partitions}\n',
-            f'CPU_LIMIT={cpu_limit}\n',
-            f'MEMORY_LIMIT={memory_limit}\n',
-            f'EXECUTION_MINUTES={duration}\n',
-            f'DOMAIN_RESTRICTION={domain_restriction}\n',
-            f'SEARCH_STRATEGY={search_strategy}\n',
-            f'CONFIGURATIONS={configurations}'
-            ]
+        f'UC={uc}\n',
+        f'DIM_VALUES={separator.join(map(str, loads))}\n',
+        f'REPLICAS={separator.join(map(str, instances_list))}\n',
+        f'PARTITIONS={partitions}\n',
+        f'CPU_LIMIT={cpu_limit}\n',
+        f'MEMORY_LIMIT={memory_limit}\n',
+        f'EXECUTION_MINUTES={duration}\n',
+        f'DOMAIN_RESTRICTION={domain_restriction}\n',
+        f'SEARCH_STRATEGY={search_strategy}\n',
+        f'CONFIGURATIONS={configurations}'
+    ]
     with open(f"{result_path}/exp{exp_id}_uc{uc}_meta.txt", "w") as stream:
         stream.writelines(lines)
 
@@ -79,12 +81,14 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
 
     # select search strategy
     if search_strategy == "linear-search":
-        print(f"Going to execute at most {len(loads)+len(instances_list)-1} subexperiments in total..")
+        print(
+            f"Going to execute at most {len(loads)+len(instances_list)-1} subexperiments in total..")
         search_strategy = linear_search_strategy
     elif search_strategy == "binary-search":
         search_strategy = binary_search_strategy
     else:
-        print(f"Going to execute {len(loads)*len(instances_list)} subexperiments in total..")
+        print(
+            f"Going to execute {len(loads)*len(instances_list)} subexperiments in total..")
         search_strategy = check_all_strategy
 
     experiment_config = ExperimentConfig(
@@ -113,7 +117,12 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     args = load_variables()
-    main(args.uc, args.loads, args.instances_list, args.partitions, args.cpu_limit,
-         args.memory_limit, args.duration,
-         args.domain_restriction, args.search_strategy, args.prometheus,
-         args.reset, args.namespace, args.path, args.configurations)
+    if args.reset_only:
+        print('Only reset the cluster')
+        run_uc.main(None, None, None, None, None, None, None, None,
+                    None, None, args.namespace, None, None, reset_only=True)
+    else:
+        main(args.uc, args.loads, args.instances_list, args.partitions,
+             args.cpu_limit, args.memory_limit, args.duration,
+             args.domain_restriction, args.search_strategy, args.prometheus,
+             args.reset, args.namespace, args.path, args.configurations)
