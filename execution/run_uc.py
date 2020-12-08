@@ -126,17 +126,15 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
 
     num_sensors = dim_value
     wl_max_records = 150000
-    wl_instances = int(((num_sensors + (wl_max_records - 1)) / wl_max_records))
+    wl_instances = (num_sensors + wl_max_records - 1) // wl_max_records
 
     # set parameters special for uc 2
     if uc_id == '2':
         print('use uc2 stuff')
         num_nested_groups = dim_value
-        num_sensors = '4'
-        approx_num_sensors = int(num_sensors) ** num_nested_groups
-        wl_instances = int(
-            ((approx_num_sensors + wl_max_records - 1) / wl_max_records)
-        )
+        num_sensors = 4
+        approx_num_sensors = num_sensors ** num_nested_groups
+        wl_instances = (approx_num_sensors + wl_max_records - 1) // wl_max_records
 
     # Customize workload generator creations
     wg_yaml['spec']['replicas'] = wl_instances
