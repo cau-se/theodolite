@@ -80,9 +80,13 @@ def default_parser(description):
                         help='Defines the Kubernetes where the applications should run')
     parser.add_argument('--reset',
                         action="store_true",
+                        default=os.environ.get(
+                            'RESET', 'false').lower() == 'true',
                         help='Resets the environment before execution')
     parser.add_argument('--reset-only',
                         action="store_true",
+                        default=os.environ.get(
+                            'RESET_ONLY', 'false').lower() == 'true',
                         help='Only resets the environment. Ignores all other parameters')
     parser.add_argument('--prometheus',
                         metavar='<URL>',
