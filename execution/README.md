@@ -32,7 +32,7 @@ Further you need to set `path` to the path on the node where the results should 
 After setting the properties you can create the volume with:
 
 ```sh
-kubectl apply -f iinfrastructure/kubernetes/volume(Single|Cluster).yaml
+kubectl apply -f infrastructure/kubernetes/volume(Single|Cluster).yaml
 ```
 
 #### Prometheus
@@ -145,7 +145,7 @@ helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/
 ```
 
 
-### Python 3.7
+### Python 3.7 (Optional for local Execution Control)
 
 For executing benchmarks, a **Python 3.7** installation is required. We suggest
 to use a virtual environment placed in the `.venv` directory (in the Theodolite
@@ -162,8 +162,6 @@ pip install -r requirements.txt
 Depending on your setup, some additional adjustments may be necessary:
 
 * Change Kafka and Zookeeper servers in the Kubernetes deployments (uc1-application etc.) and `run_XX.sh` scripts
-* Change Prometheus' URL in `lag_analysis.py`
-* Change the path to your Python 3.7 virtual environment in the `run_XX.sh` schripts (to find the venv's `bin/activate`)
 * Change the name of your Kubernetes namespace for [Prometheus' ClusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml)
 * *Please let us know if there are further adjustments necessary*
 
@@ -171,26 +169,64 @@ Depending on your setup, some additional adjustments may be necessary:
 
 ## Execution
 
+You can either execute the Execution Control on your machine or also deploy the Execution control in Kubernetes.
+
+### Local Execution
+
 Please note that a **Python 3.7** installation is required for executing Theodolite.
 
-The `./theodolite.py` is the entrypoint for all benchmark executions. Is has to be called as follows:
+The `theodolite.py` is the entrypoint for all benchmark executions. Is has to be called as follows:
 
-```sh
-./theodolite.sh <use-case> <wl-values> <instances> <partitions> <cpu-limit> <memory-limit> <commit-interval> <duration> <domain-restriction> <search-strategy>
+```python
+python theodolite.py --uc <uc> --loads <load> [<load> ...] --instances <instances> [<instances> ...]
 ```
 
-* `<use-case>`: Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`.
-* `<wl-values>`: Values for the workload generator to be tested, separated by commas and sorted in ascending order. For example `100000,200000,300000`.
-* `<instances>`: Numbers of instances to be benchmarked, separated by commas and sorted in ascending order. For example `1,2,3,4`.
-* `<partitions>`: Number of partitions for Kafka topics. Optional. Default `40`.
-* `<cpu-limit>`: Kubernetes CPU limit. Optional. Default `1000m`.
-* `<memory-limit>`: Kubernetes memory limit. Optional. Default `4Gi`.
-* `<commit-interval>`: Kafka Streams' commit interval in milliseconds. Optional. Default `100`.
-* `<duration>`: Duration in minutes subexperiments should be executed for. Optional. Default `5`.
-* `<domain-restriction>`: The domain restriction: `restrict-domain` to use domain restriction, `no-domain-restriction` to not use domain restriction. Default `no-domain-restriction`. For more details see Section _Domain Restriction_.
-* `<search-strategy>`: The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. Default `check-all`. For more details see Section _Benchmarking Search Strategies_.
+The command above is the minimal command for execution.
+Further configurations options are described [below](#configuration) or available via `python theodolite.py -h`
+
+### Kubernetes Execution
+
+The Execution Control will be run by a Kubernetes Job.
+This Job creates a pod that will execute the Executuion Control.
+To configure the parameters, the `theodolite.yaml` need to be changed.
+For the options take a look at [configuration](#configuration).
+
+To start the Benchmark the following command need to be executed:
+```sh
+kubectl apply -f theodolite.yaml
+```
+
+With `kubectl logs -f theodolite-<*>` you can show the log of the execution control.
+
+When the job is finished, your results should be in your mounted [Kubernetes volume](#kubernetes-volume).
+In order to start a new benchmark, the old job needs to be deleted.
+This can be done with:
+```sh
+kubectl delete -f theodolite.yaml
+```
+
+
+### Configuration
+
+| Python               | Kubernetes          | Description                                                  |
+| -------------------- | ------------------- | ------------------------------------------------------------ |
+| --uc                 | UC                  | **[Mandatory]** Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`. |
+| --loads              | LOADS               | **[Mandatory]** Values for the workload generator to be tested, should be sorted in ascending order. |
+| --instances          | INSTANCES           | **[Mandatory]** Numbers of instances to be benchmarked, should be sorted in ascending order. |
+| --duration           | DURATION            | Duration in minutes subexperiments should be executed for. *Default:* `5`. |
+| --partitions         | PARTITIONS          | Number of partitions for Kafka topics. *Default:* `40`.      |
+| --cpu-limit          | CPU_LIMIT           | Kubernetes CPU limit for a single Pod.  *Default:* `1000m`.  |
+| --memory-limiT       | MEMORY_LIMIT        | Kubernetes memory limit for a single Pod. *Default:* `4Gi`.  |
+| --domain-restriction | DOMAIN_RESTRICTION  | A flag that indiciates domain restriction should be used. *Default:* not set. For more details see Section [Domain Restriction](#domain-restriction). |
+| --search-strategy    | SEARCH_STRATEGY     | The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. *Default:* `check-all`. For more details see Section [Benchmarking Search Strategies](#benchmarking-search-strategies). |
+| --reset              | RESET               | Resets the environment before execution of everey subexperiment. Useful if execution was aborted and just one experiment should be executed. |
+| --reset-only         | RESET_ONLY          | Only resets the environment. Ignores all other parameters. Useful if execution was aborted and one want a clean state for new executions. |
+| --prometheus         | PROMETHEUS_BASE_URL | Defines where to find the prometheus instance. *Default:* `http://localhost:9090` |
+| --path               | RESULT_PATH         | A directory path for the results. Relative to the Execution folder. *Default:* `results` |
+| --configurations     | CONFIGURATIONS      | Defines environment variables for the Use Cases and enables with this further configuration options. |
 
 ### Domain Restriction
+
 For dimension value, we have a domain of the amounts of instances. As a consequence, for each dimension value the maximum number of lag experiments is equal to the size of the domain. How the domain is determined is defined by the following domain restriction strategies.
 
 * `no-domain-restriction`: For each dimension value, the domain of instances is equal to the set of all amounts of instances.
