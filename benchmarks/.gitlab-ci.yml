@@ -258,9 +258,9 @@ deploy-uc4-workload-generator:
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $GITHUB_CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $GITHUB_CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $GITHUB_CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME ghcr.io/$GITHUB_CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME ghcr.io/$GITHUB_CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+    - "[ $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME ghcr.io/$GITHUB_CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
     - echo $GITHUB_CR_TOKEN | docker login ghcr.io -u $GITHUB_CR_USER --password-stdin
     - docker push ghcr.io/$GITHUB_CR_ORG/$IMAGE_NAME
     - docker logout
