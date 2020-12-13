@@ -134,7 +134,8 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
         num_nested_groups = dim_value
         num_sensors = 4
         approx_num_sensors = num_sensors ** num_nested_groups
-        wl_instances = (approx_num_sensors + wl_max_records - 1) // wl_max_records
+        wl_instances = (approx_num_sensors +
+                        wl_max_records - 1) // wl_max_records
 
     # Customize workload generator creations
     wg_yaml['spec']['replicas'] = wl_instances
@@ -341,6 +342,24 @@ def stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy):
 
     print('Delete uc application')
     delete_resource(app_deploy, appsApi.delete_namespaced_deployment)
+
+    print('Check all pods deleted.')
+    while True:
+        # Wait bit for deletion
+        time.sleep(2)
+
+        # Count how many pod still need to be deleted
+        no_load = len(coreApi.list_namespaced_pod(
+            namespace, label_selector='app=titan-ccp-load-generator').items)
+        no_uc = len(coreApi.list_namespaced_pod(
+            namespace, label_selector='app=titan-ccp-aggregation').items)
+
+        # Check if all pods deleted
+        if no_load <= 0 and no_uc <= 0:
+            print('All pods deleted.')
+            break
+
+        print(f'#{no_load} load generator and #{no_uc} uc pods needs to be deleted')
     return
 
 
