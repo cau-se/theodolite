@@ -24,7 +24,7 @@ def load_variables():
     parser = execution_parser(description='Run use case Programm')
     args = parser.parse_args()
     print(args)
-    if args.exp_id is None or args.uc is None or args.load is None or args.instances is None:
+    if (args.exp_id is None or args.uc is None or args.load is None or args.instances is None) and not args.reset_only:
         print('The options --exp-id, --uc, --load and --instances are mandatory.')
         print('Some might not be set!')
         sys.exit(1)
@@ -41,8 +41,8 @@ def initialize_kubernetes_api():
         config.load_kube_config()  # try using local config
     except config.config_exception.ConfigException as e:
         # load config from pod, if local config is not available
-        logging.debug('Failed loading local Kubernetes configuration,'
-                      + ' try from cluster')
+        logging.debug(
+            'Failed loading local Kubernetes configuration try from cluster')
         logging.debug(e)
         config.load_incluster_config()
 
@@ -58,8 +58,7 @@ def create_topics(topics):
     # Calling exec and waiting for response
     print('Create topics')
     for (topic, partitions) in topics:
-        print('Create topic ' + topic + ' with #' + str(partitions)
-              + ' partitions')
+        print(f'Create topic {topic} with #{partitions} partitions')
         exec_command = [
             '/bin/sh',
             '-c',
@@ -86,7 +85,7 @@ def load_yaml(file_path):
         with f:
             return yaml.safe_load(f)
     except Exception as e:
-        logging.error('Error opening file %s' % file_path)
+        logging.error('Error opening file %s', file_path)
         logging.error(e)
 
 
@@ -105,6 +104,15 @@ def load_yaml_files():
     return wg, app_svc, app_svc_monitor, app_jmx, app_deploy
 
 
+def replace_env_value(container, key, value):
+    """
+    Special method to replace in a container with kubernetes env values
+    the value of a given parameter.
+    """
+    next(filter(lambda x: x['name'] == key, container))[
+        'value'] = value
+
+
 def start_workload_generator(wg_yaml, dim_value, uc_id):
     """Starts the workload generator.
     :param wg_yaml: The yaml object for the workload generator.
@@ -118,17 +126,15 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
 
     num_sensors = dim_value
     wl_max_records = 150000
-    wl_instances = int(((num_sensors + (wl_max_records - 1)) / wl_max_records))
+    wl_instances = (num_sensors + wl_max_records - 1) // wl_max_records
 
     # set parameters special for uc 2
     if uc_id == '2':
         print('use uc2 stuff')
         num_nested_groups = dim_value
-        num_sensors = '4'
-        approx_num_sensors = int(num_sensors) ** num_nested_groups
-        wl_instances = int(
-            ((approx_num_sensors + wl_max_records - 1) / wl_max_records)
-        )
+        num_sensors = 4
+        approx_num_sensors = num_sensors ** num_nested_groups
+        wl_instances = (approx_num_sensors + wl_max_records - 1) // wl_max_records
 
     # Customize workload generator creations
     wg_yaml['spec']['replicas'] = wl_instances
@@ -139,26 +145,28 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
         '-workload-generator:latest'
     # Set environment variables
 
-    next(filter(lambda x: x['name'] == 'NUM_SENSORS', wg_containter['env']))[
-        'value'] = str(num_sensors)
-    next(filter(lambda x: x['name'] == 'INSTANCES', wg_containter['env']))[
-        'value'] = str(wl_instances)
+    replace_env_value(wg_containter['env'], 'NUM_SENSORS', str(num_sensors))
+    replace_env_value(wg_containter['env'], 'INSTANCES', str(wl_instances))
+
     if uc_id == '2':  # Special configuration for uc2
-        next(filter(lambda x: x['name'] == 'NUM_NESTED_GROUPS', wg_containter['env']))[
-            'value'] = str(num_nested_groups)
+        replace_env_value(
+            wg_containter['env'], 'NUM_NESTED_GROUPS', str(num_nested_groups))
+
     try:
         wg_ss = appsApi.create_namespaced_deployment(
             namespace=namespace,
             body=wg_yaml
         )
-        print("Deployment '%s' created." % wg_ss.metadata.name)
+        print(f'Deployment {wg_ss.metadata.name} created.')
         return wg_ss
     except client.rest.ApiException as e:
-        print("Deployment creation error: %s" % e.reason)
+        print(f'Deployment creation error: {e.reason}')
         return wg_yaml
 
 
-def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instances, uc_id, commit_interval_ms, memory_limit, cpu_limit):
+def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml,
+                      instances, uc_id, memory_limit, cpu_limit,
+                      configurations):
     """Applies the service, service monitor, jmx config map and start the
     use case application.
 
@@ -168,9 +176,9 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
     :param deploy_yaml: The yaml object for the application.
     :param int instances: Number of instances for use case application.
     :param string uc_id: The id of the use case to execute.
-    :param int commit_interval_ms: The commit interval in ms.
     :param string memory_limit: The memory limit for the application.
     :param string cpu_limit: The CPU limit for the application.
+    :param dict configurations: A dictionary with ENV variables for configurations.
     :return:
         The Service, ServiceMonitor, JMX ConfigMap and Deployment.
         In case the resource already exist/error the yaml object is returned.
@@ -183,10 +191,10 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
     try:
         svc = coreApi.create_namespaced_service(
             namespace=namespace, body=svc_yaml)
-        print("Service '%s' created." % svc.metadata.name)
+        print(f'Service {svc.metadata.name} created.')
     except client.rest.ApiException as e:
         svc = svc_yaml
-        logging.error("Service creation error: %s" % e.reason)
+        logging.error("Service creation error: %s", e.reason)
 
     # Create custom object service monitor
     try:
@@ -197,39 +205,54 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml, instanc
             plural="servicemonitors",  # CustomResourceDef of ServiceMonitor
             body=svc_monitor_yaml,
         )
-        print("ServiceMonitor '%s' created." % svc_monitor['metadata']['name'])
+        print(f"ServiceMonitor '{svc_monitor['metadata']['name']}' created.")
     except client.rest.ApiException as e:
         svc_monitor = svc_monitor_yaml
-        logging.error("ServiceMonitor creation error: %s" % e.reason)
+        logging.error("ServiceMonitor creation error: %s", e.reason)
 
     # Apply jmx config map for aggregation service
     try:
         jmx_cm = coreApi.create_namespaced_config_map(
             namespace=namespace, body=jmx_yaml)
-        print("ConfigMap '%s' created." % jmx_cm.metadata.name)
+        print(f"ConfigMap '{jmx_cm.metadata.name}' created.")
     except client.rest.ApiException as e:
         jmx_cm = jmx_yaml
-        logging.error("ConfigMap creation error: %s" % e.reason)
+        logging.error("ConfigMap creation error: %s", e.reason)
 
     # Create deployment
     deploy_yaml['spec']['replicas'] = instances
     app_container = next(filter(
-        lambda x: x['name'] == 'uc-application', deploy_yaml['spec']['template']['spec']['containers']))
+        lambda x: x['name'] == 'uc-application',
+        deploy_yaml['spec']['template']['spec']['containers']))
     app_container['image'] = 'theodolite/theodolite-uc' + uc_id \
         + '-kstreams-app:latest'
-    next(filter(lambda x: x['name'] == 'COMMIT_INTERVAL_MS', app_container['env']))[
-        'value'] = str(commit_interval_ms)
+
+    # Set configurations environment parameters for SPE
+    for k, v in configurations.items():
+        # check if environment variable is already definde in yaml
+        env = next(filter(lambda x: x['name'] == k,
+                          app_container['env']), None)
+        if env is not None:
+            env['value'] = v  # replace value
+        else:
+            # create new environment pair
+            conf = {'name': k, 'value': v}
+            app_container['env'].append(conf)
+
+    # Set resources in Kubernetes
     app_container['resources']['limits']['memory'] = memory_limit
     app_container['resources']['limits']['cpu'] = cpu_limit
+
+    # Deploy application
     try:
         app_deploy = appsApi.create_namespaced_deployment(
             namespace=namespace,
             body=deploy_yaml
         )
-        print("Deployment '%s' created." % app_deploy.metadata.name)
+        print(f"Deployment '{app_deploy.metadata.name}' created.")
     except client.rest.ApiException as e:
         app_deploy = deploy_yaml
-        logging.error("Deployment creation error: %s" % e.reason)
+        logging.error("Deployment creation error: %s", e.reason)
 
     return svc, svc_monitor, jmx_cm, app_deploy
 
@@ -243,12 +266,12 @@ def wait_execution(execution_minutes):
 
     for i in range(execution_minutes):
         time.sleep(60)
-        print(f"Executed: {i+1} minutes")
+        print(f'Executed: {i+1} minutes')
     print('Execution finished')
     return
 
 
-def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prometheus_base_url=None):
+def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prometheus_base_url, result_path):
     """
     Runs the evaluation function
     :param string exp_id: ID of the experiment.
@@ -258,12 +281,8 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prome
     :param int execution_minutes: How long the use case where executed.
     """
     print('Run evaluation function')
-    if prometheus_base_url is None and environ.get('PROMETHEUS_BASE_URL') is None:
-        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes)
-    elif prometheus_base_url is not None:
-        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, prometheus_base_url)
-    else:
-        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances, execution_minutes, environ.get('PROMETHEUS_BASE_URL'))
+    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances,
+                      execution_minutes, prometheus_base_url, result_path)
     return
 
 
@@ -315,7 +334,7 @@ def stop_applications(wg, app_svc, app_svc_monitor, app_jmx, app_deploy):
             name=app_svc_monitor['metadata']['name'])
         print('Resource deleted')
     except Exception as e:
-        print("Error deleting service monitor")
+        print('Error deleting service monitor')
 
     print('Delete jmx config map')
     delete_resource(app_jmx, coreApi.delete_namespaced_config_map)
@@ -368,7 +387,7 @@ def delete_topics(topics):
                       stderr=True, stdin=False,
                       stdout=True, tty=False)
         if resp == '0':
-            print("Topics deleted")
+            print('Topics deleted')
             break
     return
 
@@ -460,7 +479,7 @@ def reset_cluster(wg, app_svc, app_svc_monitor, app_jmx, app_deploy, topics):
     stop_lag_exporter()
 
 
-def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, commit_interval_ms, execution_minutes, prometheus_base_url, reset, reset_only, ns):
+def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limit, execution_minutes, prometheus_base_url, reset, ns, result_path, configurations, reset_only=False):
     """
     Main method to execute one time the benchmark for a given use case.
     Start workload generator/application -> execute -> analyse -> stop all
@@ -471,9 +490,9 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
     :param int partitions: Number of partitions the kafka topics should have.
     :param string cpu_limit: Max CPU utilazation for application.
     :param string memory_limit: Max memory utilazation for application.
-    :param int commit_interval_ms: Kafka Streams commit interval in milliseconds
     :param int execution_minutes: How long to execute the benchmark.
     :param boolean reset: Flag for reset of cluster before execution.
+    :param dict configurations: Key value pairs for setting env variables of UC.
     :param boolean reset_only: Flag to only reset the application.
     """
     global namespace
@@ -519,16 +538,16 @@ def main(exp_id, uc_id, dim_value, instances, partitions, cpu_limit, memory_limi
         app_deploy,
         instances,
         uc_id,
-        commit_interval_ms,
         memory_limit,
-        cpu_limit)
+        cpu_limit,
+        configurations)
     print('---------------------')
 
     wait_execution(execution_minutes)
     print('---------------------')
 
     run_evaluation(exp_id, uc_id, dim_value, instances,
-                   execution_minutes, prometheus_base_url)
+                   execution_minutes, prometheus_base_url, result_path)
     print('---------------------')
 
     # Reset cluster regular, therefore abort exit not needed anymore
@@ -540,7 +559,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     args = load_variables()
     print('---------------------')
-    main(args.exp_id, args.uc, args.load, args.instances,
-         args.partitions, args.cpu_limit, args.memory_limit,
-         args.commit_ms, args.duration, args.prometheus, args.reset,
-         args.reset_only, args.namespace)
+    main(args.exp_id, args.uc, args.load, args.instances, args.partitions,
+         args.cpu_limit, args.memory_limit, args.duration, args.prometheus,
+         args.reset, args.namespace, args.path, args.configurations,
+         args.reset_only)

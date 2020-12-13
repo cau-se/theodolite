@@ -12,9 +12,9 @@ def execute(subexperiment_config):
         partitions=subexperiment_config.partitions,
         cpu_limit=subexperiment_config.cpu_limit,
         memory_limit=subexperiment_config.memory_limit,
-        commit_interval_ms=subexperiment_config.kafka_streams_commit_interval_ms,
         execution_minutes=int(subexperiment_config.execution_minutes),
-        prometheus_base_url=None,
-        reset=False,
-        reset_only=False,
-        ns="default")
+        prometheus_base_url=subexperiment_config.prometheus_base_url,
+        reset=subexperiment_config.reset,
+        ns=subexperiment_config.namespace,
+        result_path=subexperiment_config.result_path,
+        configurations=subexperiment_config.configurations)

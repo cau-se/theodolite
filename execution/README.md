@@ -14,6 +14,27 @@ For executing benchmarks, access to Kubernetes cluster is required. We suggest
 to create a dedicated namespace for executing our benchmarks. The following
 services need to be available as well.
 
+### Kubernetes Volume
+
+For executing the benchmark as a Kubernetes job it is required to use a volume to store the results of the executions.
+In `infrastructure/kubernetes` are two files for creating a volume.
+Either one of them should be used.
+
+The `volumeSingle.yaml` is meant for systems where Kubernetes is run locally (e.g. minikube, kind etc.).
+However, you can also use the other file.
+In `volumeSingle.yaml` you need to set `path` to the path on your machine where the results should be stored.
+
+The `volumeCluster.yaml` should be used when Kubernetes runs in the cloud.
+In the `nodeAffinity` section you need to exchange `<node-name>` to the name of the node where the volume should be created (this node will most likely execute also the job).
+However, you can also set a different `nodeAffinity`.
+Further you need to set `path` to the path on the node where the results should be stored.
+
+After setting the properties you can create the volume with:
+
+```sh
+kubectl apply -f iinfrastructure/kubernetes/volume(Single|Cluster).yaml
+```
+
 #### Prometheus
 
 We suggest to use the [Prometheus Operator](https://github.com/coreos/prometheus-operator)
@@ -34,7 +55,7 @@ After installation, you need to create a Prometheus instance:
 kubectl apply -f infrastructure/prometheus/prometheus.yaml
 ```
 
-You might also need to apply the [ServiceAccount](infrastructure/prometheus/service-account.yaml), [ClusterRole](infrastructure/prometheus/cluster-role.yaml) 
+You might also need to apply the [ServiceAccount](infrastructure/prometheus/service-account.yaml), [ClusterRole](infrastructure/prometheus/cluster-role.yaml)
 and the [CusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml),
 depending on your cluster's security policies.
 
@@ -132,7 +153,7 @@ root directory). As set of requirements is needed. You can install them with the
 command (make sure to be in your virtual environment if you use one):
 
 ```sh
-pip install -r requirements.txt 
+pip install -r requirements.txt
 ```
 
 
@@ -183,4 +204,3 @@ There are the following benchmarking strategies:
 * `check-all`: For each dimension value, execute one lag experiment for all amounts of instances within the current domain.
 * `linear-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is from the lowest number of instances to the highest amount of instances and the execution for each dimension value is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
 * `binary-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is in a binary-search-like manner. The execution is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
-
