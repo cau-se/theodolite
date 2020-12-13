@@ -18,7 +18,7 @@ spec:
       serviceAccount: random-scheduler
       containers:
         - name: random-scheduler
-          image: sehrenstein/random-scheduler:latest
+          image: theodolite/random-scheduler:latest
           imagePullPolicy: Always
           env:
             - name: TARGET_NAMESPACE
