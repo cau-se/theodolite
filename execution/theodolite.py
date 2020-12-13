@@ -69,7 +69,7 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
         write_stream.write(str(exp_id + 1))
 
     domain_restriction_strategy = None
-    search_strategy = None
+    search_strategy_method = None
 
     # Select domain restriction
     if domain_restriction:
@@ -83,13 +83,13 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
     if search_strategy == "linear-search":
         print(
             f"Going to execute at most {len(loads)+len(instances_list)-1} subexperiments in total..")
-        search_strategy = linear_search_strategy
+        search_strategy_method = linear_search_strategy
     elif search_strategy == "binary-search":
-        search_strategy = binary_search_strategy
+        search_strategy_method = binary_search_strategy
     else:
         print(
             f"Going to execute {len(loads)*len(instances_list)} subexperiments in total..")
-        search_strategy = check_all_strategy
+        search_strategy_method = check_all_strategy
 
     experiment_config = ExperimentConfig(
         use_case=uc,
@@ -106,7 +106,7 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
         configurations=configurations,
         result_path=result_path,
         domain_restriction_strategy=domain_restriction_strategy,
-        search_strategy=search_strategy,
+        search_strategy=search_strategy_method,
         subexperiment_executor=subexperiment_executor,
         subexperiment_evaluator=subexperiment_evaluator)
 
