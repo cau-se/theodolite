@@ -142,7 +142,7 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
     # Set used use case
     wg_containter = next(filter(
         lambda x: x['name'] == 'workload-generator', wg_yaml['spec']['template']['spec']['containers']))
-    wg_containter['image'] = 'theodolite/theodolite-uc' + uc_id + \
+    wg_containter['image'] = 'ghcr.io/cau-se/theodolite-uc' + uc_id + \
         '-workload-generator:latest'
     # Set environment variables
 
