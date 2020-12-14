@@ -142,7 +142,7 @@ def start_workload_generator(wg_yaml, dim_value, uc_id):
     # Set used use case
     wg_containter = next(filter(
         lambda x: x['name'] == 'workload-generator', wg_yaml['spec']['template']['spec']['containers']))
-    wg_containter['image'] = 'theodolite/theodolite-uc' + uc_id + \
+    wg_containter['image'] = 'ghcr.io/cau-se/theodolite-uc' + uc_id + \
         '-workload-generator:latest'
     # Set environment variables
 
@@ -225,7 +225,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml,
     app_container = next(filter(
         lambda x: x['name'] == 'uc-application',
         deploy_yaml['spec']['template']['spec']['containers']))
-    app_container['image'] = 'theodolite/theodolite-uc' + uc_id \
+    app_container['image'] = 'ghcr.io/cau-se/theodolite-uc' + uc_id \
         + '-kstreams-app:latest'
 
     # Set configurations environment parameters for SPE
