@@ -6,7 +6,7 @@ Theodolite is a framework for benchmarking the horizontal and vertical scalabili
 
 ## Theodolite Benchmarks
 
-Theodolite contains 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding workload generator is provided. Currently, this repository provides benchmark implementations for Apache Kafka Streams. Benchmark implementation for Apache Flink are currently under development and can be found in the *apache-flink* branch of this repository.
+Theodolite contains 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding workload generator is provided. Currently, this repository provides benchmark implementations for Apache Kafka Streams. Benchmark implementation for Apache Flink are currently under development and can be found in the *apache-flink* branch of this repository. The benchmark sources can be found in [Thedolite benchmarks](benchmarks).
 
 
 ## Theodolite Execution Framework

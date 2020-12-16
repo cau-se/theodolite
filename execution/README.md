@@ -2,16 +2,16 @@
 
 This directory contains the Theodolite framework for executing scalability
 benchmarks in a Kubernetes cluster. As Theodolite aims for executing benchmarks
-in realistic execution environments,, some third-party components are [required](#requirements).
+in realistic execution environments, some third-party components are [required](#installation).
 After everything is installed and configured, you can move on the [execution of
 benchmarks](#execution).
 
-## Requirements
+## Installation
 
 ### Kubernetes Cluster
 
 For executing benchmarks, access to Kubernetes cluster is required. We suggest
-to create a dedicated namespace for executing our benchmarks. The following
+to create a dedicated namespace for executing your benchmarks. The following
 services need to be available as well.
 
 ### Kubernetes Volume
@@ -75,25 +75,19 @@ The official [Grafana Helm Chart repository](https://github.com/helm/charts/tree
 provides further documentation including a table of configuration options.
 
 We provide ConfigMaps for a [Grafana dashboard](infrastructure/grafana/dashboard-config-map.yaml) and a [Grafana data source](infrastructure/grafana/prometheus-datasource-config-map.yaml).
-
-Create the Configmap for the dashboard:
+Create them as follows:
 
 ```sh
 kubectl apply -f infrastructure/grafana/dashboard-config-map.yaml
-```
-
-Create the Configmap for the data source:
-
-```sh
 kubectl apply -f infrastructure/grafana/prometheus-datasource-config-map.yaml
 ```
 
 #### A Kafka cluster
 
-One possible way to set up a Kafka cluster is via [Confluent's Helm Charts](https://github.com/confluentinc/cp-helm-charts).
+We suggest to set up a Kafka cluster via [Confluent's Helm Charts](https://github.com/confluentinc/cp-helm-charts).
 We also provide a [default configuration](infrastructure/kafka/values.yaml). If you do
 not want to deploy 10 Kafka and 3 Zookeeper instances, alter the configuration
-file accordingly. To install Confluent's Kafka and use the configuration:
+file accordingly. To install Confluent's Kafka with our configuration:
 
 ```sh
 helm repo add confluentinc https://confluentinc.github.io/cp-helm-charts/
@@ -106,6 +100,7 @@ To let Prometheus scrape Kafka metrics, deploy a ServiceMonitor:
 ```sh
 kubectl apply -f infrastructure/kafka/service-monitor.yaml
 ```
+
 Other Kafka deployments, for example, using Strimzi, should work in a similar way.
 
 #### A Kafka Client Pod
@@ -135,7 +130,7 @@ helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/
 ```
 
 
-### Python 3.7 (Optional for local Execution Control)
+### Python 3.7 (Only required for local Execution Control)
 
 For executing benchmarks, a **Python 3.7** installation is required. We suggest
 to use a virtual environment placed in the `.venv` directory (in the Theodolite
@@ -209,11 +204,11 @@ kubectl delete -f theodolite.yaml
 | --memory-limiT       | MEMORY_LIMIT        | Kubernetes memory limit for a single Pod. *Default:* `4Gi`.  |
 | --domain-restriction | DOMAIN_RESTRICTION  | A flag that indiciates domain restriction should be used. *Default:* not set. For more details see Section [Domain Restriction](#domain-restriction). |
 | --search-strategy    | SEARCH_STRATEGY     | The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. *Default:* `check-all`. For more details see Section [Benchmarking Search Strategies](#benchmarking-search-strategies). |
-| --reset              | RESET               | Resets the environment before execution of everey subexperiment. Useful if execution was aborted and just one experiment should be executed. |
+| --reset              | RESET               | Resets the environment before each subexperiment. Useful if execution was aborted and just one experiment should be executed. |
 | --reset-only         | RESET_ONLY          | Only resets the environment. Ignores all other parameters. Useful if execution was aborted and one want a clean state for new executions. |
 | --prometheus         | PROMETHEUS_BASE_URL | Defines where to find the prometheus instance. *Default:* `http://localhost:9090` |
 | --path               | RESULT_PATH         | A directory path for the results. Relative to the Execution folder. *Default:* `results` |
-| --configurations     | CONFIGURATIONS      | Defines environment variables for the Use Cases and enables with this further configuration options. |
+| --configurations     | CONFIGURATIONS      | Defines environment variables for the use cases and, thus, enables further configuration options. |
 
 ### Domain Restriction
 
