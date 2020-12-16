@@ -85,14 +85,13 @@ kubectl apply -f infrastructure/grafana/prometheus-datasource-config-map.yaml
 #### A Kafka cluster
 
 We suggest to set up a Kafka cluster via [Confluent's Helm Charts](https://github.com/confluentinc/cp-helm-charts).
+Currently, these charts do not expose all metrics, we would like to display. Thus, we provide a patched version of this chart.
 We also provide a [default configuration](infrastructure/kafka/values.yaml). If you do
 not want to deploy 10 Kafka and 3 Zookeeper instances, alter the configuration
-file accordingly. To install Confluent's Kafka with our configuration:
+file accordingly. To install the patched Confluent's Kafka with our configuration:
 
 ```sh
-helm repo add confluentinc https://confluentinc.github.io/cp-helm-charts/
-helm repo update
-helm install my-confluent confluentinc/cp-helm-charts -f infrastructure/kafka/values.yaml
+helm install my-confluent https://github.com/SoerenHenning/cp-helm-charts/releases/download/v6.0.1-1-JMX-FIX/cp-helm-charts-0.6.0.tgz -f infrastructure/kafka/values.yaml
 ```
 
 To let Prometheus scrape Kafka metrics, deploy a ServiceMonitor:
