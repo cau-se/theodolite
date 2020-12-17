@@ -287,8 +287,10 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prome
                           execution_minutes, prometheus_base_url,
                           result_path)
     except Exception as e:
-        print('Evaluation function failed')
-        logging.exception('Evaluation function failed')
+        err_msg = 'Evaluation function failed'
+        print(err_msg)
+        logging.exception(err_msg)
+        print('Benchmark continuous')
 
     return
 

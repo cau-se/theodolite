@@ -13,8 +13,10 @@ def execute(config):
     try:
         trend_slope = trend_slope_computer.compute(cwd, file, WARMUP_SEC, THRESHOLD)
     except Exception as e:
-        print('Computing trend slope failed.')
-        logging.exception('Computing trend slope failed.')
+        err_msg = 'Computing trend slope failed'
+        print(err_msg)
+        logging.exception(err_msg)
+        print('Mark this subexperiment as not successful and continue benchmark')
         return 0
 
 
