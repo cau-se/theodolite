@@ -17,6 +17,10 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
+
+
+    implementation 'io.fabric8:kubernetes-client:5.0.0-alpha-2'
+    //implementation 'com.fkorotkov:kubernetes-dsl:2.8.1'
 }
 
 group 'theodolite'
