@@ -9,14 +9,14 @@ benchmark execution results and plotting. The following notebooks are provided:
 
 ## Usage
 
-For executing benchmarks and analyzing their results, a **Python 3.7**
-installation is required (e.g., in a virtual environment). Our notebooks require some
-Python libraries, which can be installed via:
+For analyzing and visualizing benchmark results, a Jupyter installation with **Python 3.7** is required (e.g., in a
+virtual environment).
+
+We have tested these notebooks with [Visual Studio Code](https://code.visualstudio.com/docs/python/jupyter-support),
+however, every other server should be fine as well. In particular, you might want to use a Jupyther Docker container.
+
+Our notebooks require some Python libraries, which can be installed by:
 
 ```sh
 pip install -r requirements.txt 
 ```
-
-We have tested these
-notebooks with [Visual Studio Code](https://code.visualstudio.com/docs/python/jupyter-support),
-however, every other server should be fine as well.
