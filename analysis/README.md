@@ -22,6 +22,7 @@ This option requires Docker to be installed. You can build and run a container u
 to set the `results` volume to the directory with your execution results and `results-inst` to a directory where the
 final scalability graphs should be placed. The output of the *run* command gives you an URL of the form
 `http://127.0.0.1:8888/?token=...`, which you should open in your webbrowser. From there you can access all notebooks.
+You can stop the Jupyter server with Crtl + C.
 
 ```sh
 docker build . -t theodolite-analysis
