@@ -282,8 +282,14 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prome
     :param int execution_minutes: How long the use case where executed.
     """
     print('Run evaluation function')
-    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances,
-                      execution_minutes, prometheus_base_url, result_path)
+    try:
+        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances,
+                          execution_minutes, prometheus_base_url,
+                          result_path)
+    except Exception as e:
+        print('Evaluation function failed')
+        logging.exception('Evaluation function failed')
+
     return
 
 
