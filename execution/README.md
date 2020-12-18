@@ -183,7 +183,8 @@ Theodolite locally on your machine see the description below.
 
 `theodolite.yaml` provides a template for your own Theodolite job. To run your own job, create a copy, give it a name
 (`metadata.name`) and adjust configuration parameters as desired. For a description of available configuration options
-see the [Configuration](#configuration) section below.
+see the [Configuration](#configuration) section below. Note, that you might uncomment the `serviceAccountName` line if
+RBAC is enabled on your cluster (see installation of [Theodolite RBAC](#Theodolite-RBAC)).
 
 To start the execution of a benchmark run (with `<your-theodolite-yaml>` being your job definition):
 
