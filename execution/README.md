@@ -236,11 +236,19 @@ For dimension value, we have a domain of the amounts of instances. As a conseque
     * If the dimension value is not the smallest dimension value and N is the amount of minimal amount of instances that was suitable for the last smaller dimension value the domain for this dimension value contains all amounts of instances greater than, or equal to N.
 
 ### Benchmarking Search Strategies
+
 There are the following benchmarking strategies:
 
 * `check-all`: For each dimension value, execute one lag experiment for all amounts of instances within the current domain.
 * `linear-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is from the lowest number of instances to the highest amount of instances and the execution for each dimension value is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
 * `binary-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is in a binary-search-like manner. The execution is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
+
+## Observation
+
+The installed Grafana instance provides a dashboard to observe the benchmark execution. Unless configured otherwise,
+this dashboard can be accessed via `http://<cluster-ip>:31199` or via `http://localhost:31199` if proxied with
+`kubectl port-forward svc/grafana 8080:service`. Default credentials are user *admin* with password *admin*.
+
 
 ## Local Execution (e.g. for Development)
 
