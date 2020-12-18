@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Properties;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -54,7 +55,7 @@ public class TopologyBuilder {
   /**
    * Build the {@link Topology} for the History microservice.
    */
-  public Topology build() {
+  public Topology build(final Properties properties) {
     final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
     final Serde<HourOfDayKey> keySerde = HourOfDayKeySerde.create();
 
@@ -89,6 +90,6 @@ public class TopologyBuilder {
                 Serdes.String()));
     // this.serdes.avroValues()));
 
-    return this.builder.build();
+    return this.builder.build(properties);
   }
 }
