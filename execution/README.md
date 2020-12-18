@@ -38,11 +38,17 @@ After installation, you need to create a Prometheus instance:
 kubectl apply -f infrastructure/prometheus/prometheus.yaml
 ```
 
-You might also need to apply the [ServiceAccount](infrastructure/prometheus/service-account.yaml),
-[ClusterRole](infrastructure/prometheus/cluster-role.yaml) and the
-[CusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml), depending on your cluster's security
+You might also need to apply the [ClusterRole](infrastructure/prometheus/cluster-role.yaml), the
+[CusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml) and the
+[ServiceAccount](infrastructure/prometheus/service-account.yaml), depending on your cluster's security
 policies. If you are not in the *default* namespace, alter the namespace in
 [Prometheus' ClusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml) accordingly.
+
+```sh
+kubectl apply -f infrastructure/prometheus/cluster-role.yaml
+kubectl apply -f infrastructure/prometheus/cluster-role-binding.yaml
+kubectl apply -f infrastructure/prometheus/service-account.yaml
+```
 
 For the individual benchmarking components to be monitored, [ServiceMonitors](https://github.com/coreos/prometheus-operator#customresourcedefinitions)
 are used. See the corresponding sections below for how to install them.
