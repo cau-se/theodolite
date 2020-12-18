@@ -8,32 +8,12 @@ benchmarks](#execution).
 
 ## Installation
 
-### Kubernetes Cluster
+For executing benchmarks, access to a Kubernetes cluster is required. If you already run other applications inside your
+cluster, you might want to consider creating a dedicated namespace for your benchmarks.
 
-For executing benchmarks, access to Kubernetes cluster is required. We suggest
-to create a dedicated namespace for executing your benchmarks. The following
-services need to be available as well.
+### Installing Dependencies
 
-### Kubernetes Volume
-
-For executing the benchmark as a Kubernetes job it is required to use a volume to store the results of the executions.
-In `infrastructure/kubernetes` are two files for creating a volume.
-Either one of them should be used.
-
-The `volumeSingle.yaml` is meant for systems where Kubernetes is run locally (e.g. minikube, kind etc.).
-However, you can also use the other file.
-In `volumeSingle.yaml` you need to set `path` to the path on your machine where the results should be stored.
-
-The `volumeCluster.yaml` should be used when Kubernetes runs in the cloud.
-In the `nodeAffinity` section you need to exchange `<node-name>` to the name of the node where the volume should be created (this node will most likely execute also the job).
-However, you can also set a different `nodeAffinity`.
-Further you need to set `path` to the path on the node where the results should be stored.
-
-After setting the properties you can create the volume with:
-
-```sh
-kubectl apply -f infrastructure/kubernetes/volume(Single|Cluster).yaml
-```
+The following third-party services need to be installed in your cluster.
 
 #### Prometheus
 
@@ -55,9 +35,11 @@ After installation, you need to create a Prometheus instance:
 kubectl apply -f infrastructure/prometheus/prometheus.yaml
 ```
 
-You might also need to apply the [ServiceAccount](infrastructure/prometheus/service-account.yaml), [ClusterRole](infrastructure/prometheus/cluster-role.yaml)
-and the [CusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml),
-depending on your cluster's security policies.
+You might also need to apply the [ServiceAccount](infrastructure/prometheus/service-account.yaml),
+[ClusterRole](infrastructure/prometheus/cluster-role.yaml) and the
+[CusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml), depending on your cluster's security
+policies. If you are not in the *default* namespace, alter the namespace in
+[Prometheus' ClusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml) accordingly.
 
 For the individual benchmarking components to be monitored, [ServiceMonitors](https://github.com/coreos/prometheus-operator#customresourcedefinitions)
 are used. See the corresponding sections below for how to install them.
@@ -74,8 +56,8 @@ helm install grafana stable/grafana -f infrastructure/grafana/values.yaml
 The official [Grafana Helm Chart repository](https://github.com/helm/charts/tree/master/stable/grafana)
 provides further documentation including a table of configuration options.
 
-We provide ConfigMaps for a [Grafana dashboard](infrastructure/grafana/dashboard-config-map.yaml) and a [Grafana data source](infrastructure/grafana/prometheus-datasource-config-map.yaml).
-Create them as follows:
+We provide ConfigMaps for a [Grafana dashboard](infrastructure/grafana/dashboard-config-map.yaml) and a
+[Grafana data source](infrastructure/grafana/prometheus-datasource-config-map.yaml). Create them as follows:
 
 ```sh
 kubectl apply -f infrastructure/grafana/dashboard-config-map.yaml
@@ -101,6 +83,9 @@ kubectl apply -f infrastructure/kafka/service-monitor.yaml
 ```
 
 Other Kafka deployments, for example, using Strimzi, should work in a similar way.
+
+*Please note that currently, even if installed differently, the corresponding services must run at
+*my-confluent-cp-kafka:9092*, *my-confluent-cp-zookeeper:2181* and *my-confluent-cp-schema-registry:8081*.
 
 #### A Kafka Client Pod
 
@@ -128,71 +113,90 @@ To install it:
 helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.3/kafka-lag-exporter-0.6.3.tgz -f infrastructure/kafka-lag-exporter/values.yaml
 ```
 
+### Installing Theodolite
 
-### Python 3.7 (Only required for local Execution Control)
+While Theodolite itself has not be installed as it is loaded at runtime (see [execution](#Execution)), it requires some
+resources to be deployed in your cluster. These resources are grouped under RBAC and Volume in the following paragraphs.
 
-For executing benchmarks, a **Python 3.7** installation is required. We suggest
-to use a virtual environment placed in the `.venv` directory (in the Theodolite
-root directory). As set of requirements is needed. You can install them with the following
-command (make sure to be in your virtual environment if you use one):
+#### Theodolite RBAC
+
+**The following step is only required if RBAC is enabled in your cluster.** If you are not sure whether this is the
+case, you want to simply try it without the following step.
+
+If RBAC is enabled in your cluster, you have to allow Theodolite to start and stop pods etc. To do so, deploy the RBAC
+resources via:
 
 ```sh
-pip install -r requirements.txt
+kubectl apply -f infrastructure/kubernetes/rbac/role.yaml
+kubectl apply -f infrastructure/kubernetes/rbac/role-binding.yaml
+kubectl apply -f infrastructure/kubernetes/rbac/service-account.yaml
 ```
 
+#### Theodolite Volume
 
-### Required Manual Adjustments
+In order to persistently store benchmark results, Theodolite needs a volume mounted. We provide pre-configured
+declarations for different volume types.
 
-Depending on your setup, some additional adjustments may be necessary:
+##### *hostPath* volume
 
-* Change Kafka and Zookeeper servers in the Kubernetes deployments (uc1-application etc.) and `run_XX.sh` scripts
-* Change the name of your Kubernetes namespace for [Prometheus' ClusterRoleBinding](infrastructure/prometheus/cluster-role-binding.yaml)
-* *Please let us know if there are further adjustments necessary*
+Using a [hostPath volume](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) is the easiest option when
+running Theodolite locally, e.g., with minikube or kind.
 
+Just modify `infrastructure/kubernetes/volumeSingle.yaml` by setting `path` to the directory on your host machine where
+all benchmark results should be stored and run:
+
+```sh
+kubectl apply -f infrastructure/kubernetes/volumeSingle.yaml
+```
+
+##### *local* volume
+
+A [local volume](https://kubernetes.io/docs/concepts/storage/volumes/#local) is a simple option to use when having
+access (e.g. via SSH) to one of your cluster nodes.
+
+You first need to create a directory on a selected node where all benchmark results should be stored. Next, modify
+`infrastructure/kubernetes/volumeCluster.yaml` by setting `<node-name>` to your selected node (this node will most
+likely also execute the job). Further, you have to set `path` to the directory on the node you just created. To deploy
+you volume run:
+
+```sh
+kubectl apply -f infrastructure/kubernetes/volumeCluster.yaml
+```
+
+##### Other volumes
+
+To use volumes provided by public cloud providers or network-based file systems, you can use the definitions in
+`infrastructure/kubernetes/` as a starting point. See the offical
+[volumes documentation](https://kubernetes.io/docs/concepts/storage/volumes/) for additional information.
 
 
 ## Execution
 
-You can either execute the Execution Control on your machine or also deploy the Execution control in Kubernetes.
+The preferred way to run scalability benchmarks with Theodolite is to deploy Theodolite
+[Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) in your cluster. For running
+Theodolite locally on your machine see the description below.
 
-### Local Execution
+`theodolite.yaml` provides a template for your own Theodolite job. To run your own job, create a copy, give it a name
+(`metadata.name`) and adjust configuration parameters as desired. For a description of available configuration options
+see the [Configuration](#configuration) section below.
 
-Please note that a **Python 3.7** installation is required for executing Theodolite.
+To start the execution of a benchmark run (with `<your-theodolite-yaml>` being your job definition):
 
-The `theodolite.py` is the entrypoint for all benchmark executions. Is has to be called as follows:
-
-```python
-python theodolite.py --uc <uc> --loads <load> [<load> ...] --instances <instances> [<instances> ...]
-```
-
-The command above is the minimal command for execution.
-Further configurations options are described [below](#configuration) or available via `python theodolite.py -h`
-
-### Kubernetes Execution
-
-The Execution Control will be run by a Kubernetes Job.
-This Job creates a pod that will execute the Executuion Control.
-To configure the parameters, the `theodolite.yaml` need to be changed.
-For the options take a look at [configuration](#configuration).
-
-To start the Benchmark the following command need to be executed:
 ```sh
-kubectl apply -f theodolite.yaml
+kubectl apply -f <your-theodolite-yaml>
 ```
 
-With `kubectl logs -f theodolite-<*>` you can show the log of the execution control.
+This will create a pod with a name such as `your-job-name-xxxxxx`. You can verifiy this via `kubectl get pods`. With
+`kubectl logs -f <your-job-name-xxxxxx>`, you can follow the benchmark execution logs.
 
-When the job is finished, your results should be in your mounted [Kubernetes volume](#kubernetes-volume).
-In order to start a new benchmark, the old job needs to be deleted.
-This can be done with:
-```sh
-kubectl delete -f theodolite.yaml
-```
+Once your job is completed (you can verify via `kubectl get jobs), its results are stored inside your configured
+Kubernetes volume.
 
+**Make sure to always run only one Theodolite job at a time.**
 
 ### Configuration
 
-| Python               | Kubernetes          | Description                                                  |
+| Command line         | Kubernetes          | Description                                                  |
 | -------------------- | ------------------- | ------------------------------------------------------------ |
 | --uc                 | UC                  | **[Mandatory]** Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`. |
 | --loads              | LOADS               | **[Mandatory]** Values for the workload generator to be tested, should be sorted in ascending order. |
@@ -224,3 +228,32 @@ There are the following benchmarking strategies:
 * `check-all`: For each dimension value, execute one lag experiment for all amounts of instances within the current domain.
 * `linear-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is from the lowest number of instances to the highest amount of instances and the execution for each dimension value is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
 * `binary-search`: A heuristic which works as follows: For each dimension value, execute one lag experiment for all number of instances within the current domain. The execution order is in a binary-search-like manner. The execution is stopped, when a suitable amount of instances is found or if all lag experiments for the dimension value were not successful.
+
+## Local Execution (e.g. for Development)
+
+As an alternative to executing Theodolite as a Kubernetes Job, it is also possible to run it from your local system,
+for example, for development purposes. In addition to the generel installation instructions, the following adjustments
+are neccessary.
+
+### Installation
+
+For local execution a **Python 3.7** installation is required. We suggest to use a virtual environment placed in the `.venv`
+directory (in the Theodolite root directory). A set of requirements is needed. You can install them with the following
+command (make sure to be in your virtual environment if you use one):
+
+```sh
+pip install -r requirements.txt
+```
+
+Kubernetes volumes and service accounts, roles, and role bindings for Theodolite are not required in this case.
+
+### Local Execution
+
+The `theodolite.py` is the entrypoint for all benchmark executions. Is has to be called as follows:
+
+```python
+python theodolite.py --uc <uc> --loads <load> [<load> ...] --instances <instances> [<instances> ...]
+```
+
+This command is the minimal command for execution. Further configurations options are described [above](#configuration)
+or available via `python theodolite.py -h`.
