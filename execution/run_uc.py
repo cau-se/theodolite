@@ -282,8 +282,16 @@ def run_evaluation(exp_id, uc_id, dim_value, instances, execution_minutes, prome
     :param int execution_minutes: How long the use case where executed.
     """
     print('Run evaluation function')
-    lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances,
-                      execution_minutes, prometheus_base_url, result_path)
+    try:
+        lag_analysis.main(exp_id, f'uc{uc_id}', dim_value, instances,
+                          execution_minutes, prometheus_base_url,
+                          result_path)
+    except Exception as e:
+        err_msg = 'Evaluation function failed'
+        print(err_msg)
+        logging.exception(err_msg)
+        print('Benchmark execution continues')
+
     return
 
 
