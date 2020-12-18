@@ -13,20 +13,23 @@ cluster, you might want to consider creating a dedicated namespace for your benc
 
 ### Installing Dependencies
 
-The following third-party services need to be installed in your cluster.
+The following third-party services need to be installed in your cluster. For most of them, the suggested way to install
+them is via [Helm](https://helm.sh).
 
 #### Prometheus
 
 We suggest to use the [Prometheus Operator](https://github.com/coreos/prometheus-operator)
 and create a dedicated Prometheus instance for these benchmarks.
 
-If Prometheus Operator is not already available on your cluster, a convenient
-way to install is via the [**unofficial** Prometheus Operator Helm chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator).
-As you may not need an entire cluster monitoring stack, you can use our Helm
-configuration to only install the operator:
+If Prometheus Operator is not already available on your cluster, a convenient way to install it is via the
+[Prometheus community Helm chart](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack).
+As you may not need an entire cluster monitoring stack, you can use our Helm configuration to only install the
+operator:
 
 ```sh
-helm install prometheus-operator stable/prometheus-operator -f infrastructure/prometheus/helm-values.yaml
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus-operator prometheus-community/kube-prometheus-stack -f infrastructure/prometheus/helm-values.yaml
 ```
 
 After installation, you need to create a Prometheus instance:
