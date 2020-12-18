@@ -136,6 +136,11 @@ def benchmark_parser(description):
                         metavar='<strategy>',
                         default=os.environ.get('SEARCH_STRATEGY', 'default'),
                         help='The benchmarking search strategy. Can be set to default, linear-search or binary-search')
+    parser.add_argument('--threshold',
+                        type=int,
+                        metavar='<threshold>',
+                        default=os.environ.get('THRESHOLD', 2000),
+                        help='The threshold for the trend slop that the search strategies use to determine that a load could be handled')
     return parser
 
 

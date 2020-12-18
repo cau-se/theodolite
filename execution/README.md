@@ -208,6 +208,7 @@ kubectl delete -f theodolite.yaml
 | --prometheus         | PROMETHEUS_BASE_URL | Defines where to find the prometheus instance. *Default:* `http://localhost:9090` |
 | --path               | RESULT_PATH         | A directory path for the results. Relative to the Execution folder. *Default:* `results` |
 | --configurations     | CONFIGURATIONS      | Defines environment variables for the use cases and, thus, enables further configuration options. |
+| --threshold          | THRESHOLD           | The threshold for the trend slop that the search strategies use to determine that a load could be handled. *Default:* `2000` |
 
 ### Domain Restriction
 

@@ -31,8 +31,8 @@ def load_variables():
 
 
 def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
-         duration, domain_restriction, search_strategy, prometheus_base_url,
-         reset, namespace, result_path, configurations):
+         duration, domain_restriction, search_strategy, threshold,
+         prometheus_base_url, reset, namespace, result_path, configurations):
 
     print(
         f"Domain restriction of search space activated: {domain_restriction}")
@@ -107,6 +107,7 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
         result_path=result_path,
         domain_restriction_strategy=domain_restriction_strategy,
         search_strategy=search_strategy_method,
+        threshold=threshold,
         subexperiment_executor=subexperiment_executor,
         subexperiment_evaluator=subexperiment_evaluator)
 
@@ -119,10 +120,11 @@ if __name__ == '__main__':
     args = load_variables()
     if args.reset_only:
         print('Only reset the cluster')
-        run_uc.main(None, None, None, None, None, None, None, None,
-                    None, None, args.namespace, None, None, reset_only=True)
+        run_uc.main(None, None, None, None, None, None, None, None, None,
+                    None, args.namespace, None, None, reset_only=True)
     else:
         main(args.uc, args.loads, args.instances_list, args.partitions,
              args.cpu_limit, args.memory_limit, args.duration,
-             args.domain_restriction, args.search_strategy, args.prometheus,
-             args.reset, args.namespace, args.path, args.configurations)
+             args.domain_restriction, args.search_strategy,
+             args.threshold, args.prometheus, args.reset, args.namespace,
+             args.path, args.configurations)
