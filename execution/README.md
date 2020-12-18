@@ -53,7 +53,9 @@ As with Prometheus, we suggest to create a dedicated Grafana instance. Grafana
 with our default configuration can be installed with Helm:
 
 ```sh
-helm install grafana stable/grafana -f infrastructure/grafana/values.yaml
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm install grafana grafana/grafana -f infrastructure/grafana/values.yaml
 ```
 
 The official [Grafana Helm Chart repository](https://github.com/helm/charts/tree/master/stable/grafana)
