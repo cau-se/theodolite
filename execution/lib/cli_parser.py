@@ -140,7 +140,7 @@ def benchmark_parser(description):
                         type=int,
                         metavar='<threshold>',
                         default=os.environ.get('THRESHOLD', 2000),
-                        help='The threshold the trend search strategies use to determine that a load could be handled.')
+                        help='The threshold for the trend slop that the search strategies use to determine that a load could be handled')
     return parser
 
 
