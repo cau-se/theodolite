@@ -29,17 +29,18 @@ The application is now runnable using `java -jar build/theodolite-quarkus-1.0.0-
 
 ## Creating a native executable
 
-You can create a native executable using: 
+You can create a native executable using:
 ```shell script
 ./gradlew build -Dquarkus.package.type=native
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
+Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 ```shell script
 ./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
 ```
 
-You can then execute your native executable with: `./build/theodolite-quarkus-1.0.0-SNAPSHOT-runner`
+You can then execute your native executable with:
+```./build/theodolite-quarkus-1.0.0-SNAPSHOT-runner```
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
@@ -48,3 +49,28 @@ If you want to learn more about building native executables, please consult http
 <p>A Hello World RESTEasy resource</p>
 
 Guide: https://quarkus.io/guides/rest-json
+
+## Build and afterwards run the application in Docker container
+
+```build_jvm.sh```   to build the jvm version
+
+```build_native.sh``` to build the native image graal version 
+
+## Install Detekt Code analysis Plugin
+
+
+Install https://plugins.jetbrains.com/plugin/10761-detekt
+
+- Install the plugin
+- Navigate to Settings/Preferences -> Tools -> Detekt
+- Check Enable Detekt
+- Specify your detekt configuration and baseline file (optional)
+
+
+-> detekt issues will be annotated on-the-fly while coding
+
+**ingore Failures in build:** add
+
+```ignoreFailures = true```
+
+ to build.gradle detekt task
