@@ -60,9 +60,9 @@ public class TopologyBuilder {
       final Duration emitPeriod, final Duration gracePeriod,
       final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory) {
     this.inputTopic = inputTopic;
+    this.outputTopic = outputTopic;
     this.feedbackTopic = feedbackTopic;
     this.configurationTopic = configurationTopic;
-    this.outputTopic = outputTopic;
     this.emitPeriod = emitPeriod;
     this.gracePeriod = gracePeriod;
 

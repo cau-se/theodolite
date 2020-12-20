@@ -60,8 +60,8 @@ public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
 
     final TopologyBuilder topologyBuilder = new TopologyBuilder(
         this.inputTopic,
-        this.feedbackTopic,
         this.outputTopic,
+        this.feedbackTopic,
         this.configurationTopic,
         this.emitPeriod == null ? EMIT_PERIOD_DEFAULT : this.emitPeriod,
         this.gracePeriod == null ? GRACE_PERIOD_DEFAULT : this.gracePeriod,
