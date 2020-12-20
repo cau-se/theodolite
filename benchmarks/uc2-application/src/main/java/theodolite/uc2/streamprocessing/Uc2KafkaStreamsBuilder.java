@@ -2,6 +2,7 @@ package theodolite.uc2.streamprocessing;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
@@ -51,7 +52,7 @@ public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
   }
 
   @Override
-  protected Topology buildTopology() {
+  protected Topology buildTopology(final Properties properties) {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
     Objects.requireNonNull(this.feedbackTopic, "Feedback topic has not been set.");
     Objects.requireNonNull(this.outputTopic, "Output topic has not been set.");
@@ -59,14 +60,14 @@ public class Uc2KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
 
     final TopologyBuilder topologyBuilder = new TopologyBuilder(
         this.inputTopic,
-        this.feedbackTopic,
         this.outputTopic,
+        this.feedbackTopic,
         this.configurationTopic,
         this.emitPeriod == null ? EMIT_PERIOD_DEFAULT : this.emitPeriod,
         this.gracePeriod == null ? GRACE_PERIOD_DEFAULT : this.gracePeriod,
         new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl));
 
-    return topologyBuilder.build();
+    return topologyBuilder.build(properties);
   }
 
 }

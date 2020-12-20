@@ -1,6 +1,7 @@
 package theodolite.uc1.streamprocessing;
 
 import com.google.gson.Gson;
+import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -36,7 +37,7 @@ public class TopologyBuilder {
   /**
    * Build the {@link Topology} for the History microservice.
    */
-  public Topology build() {
+  public Topology build(final Properties properties) {
     this.builder
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),
@@ -44,6 +45,6 @@ public class TopologyBuilder {
         .mapValues(v -> this.gson.toJson(v))
         .foreach((k, v) -> LOGGER.info("Key: " + k + " Value: " + v));
 
-    return this.builder.build();
+    return this.builder.build(properties);
   }
 }
