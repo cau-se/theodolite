@@ -5,26 +5,29 @@ from strategies.strategies.config import SubexperimentConfig
 def binary_search(config, dim_value, lower, upper, subexperiment_counter):
     if lower == upper:
         print(f"Run subexperiment {subexperiment_counter} with config {dim_value} {config.replicass[lower]}")
-        subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[lower], config.partitions, config.cpu_limit, config.memory_limit, config.kafka_streams_commit_interval_ms, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path)
+        subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[lower], config.partitions, config.cpu_limit, config.memory_limit, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path, config.configurations)
         config.subexperiment_executor.execute(subexperiment_config)
-        result = config.subexperiment_evaluator.execute(subexperiment_config)
-        if result==1: # successful, the upper neighbor is assumed to also has been successful
+        success = config.subexperiment_evaluator.execute(subexperiment_config,
+                                                         config.threshold)
+        if success: # successful, the upper neighbor is assumed to also has been successful
             return (lower, subexperiment_counter+1)
         else: # not successful
             return (lower+1, subexperiment_counter)
     elif lower+1==upper:
         print(f"Run subexperiment {subexperiment_counter} with config {dim_value} {config.replicass[lower]}")
-        subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[lower], config.partitions, config.cpu_limit, config.memory_limit, config.kafka_streams_commit_interval_ms, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path)
+        subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[lower], config.partitions, config.cpu_limit, config.memory_limit, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path, config.configurations)
         config.subexperiment_executor.execute(subexperiment_config)
-        result = config.subexperiment_evaluator.execute(subexperiment_config)
-        if result==1: # minimal instances found
+        success = config.subexperiment_evaluator.execute(subexperiment_config,
+                                                         config.threshold)
+        if success: # minimal instances found
             return (lower, subexperiment_counter)
         else: # not successful, check if lower+1 instances are sufficient
             print(f"Run subexperiment {subexperiment_counter} with config {dim_value} {config.replicass[upper]}")
-            subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[upper], config.partitions, config.cpu_limit, config.memory_limit, config.kafka_streams_commit_interval_ms, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path)
+            subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[upper], config.partitions, config.cpu_limit, config.memory_limit, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path, config.configurations)
             config.subexperiment_executor.execute(subexperiment_config)
-            result = config.subexperiment_evaluator.execute(subexperiment_config)
-            if result == 1: # minimal instances found
+            success = config.subexperiment_evaluator.execute(subexperiment_config,
+                                                             config.threshold)
+            if success: # minimal instances found
                 return (upper, subexperiment_counter)
             else:
                 return (upper+1, subexperiment_counter)
@@ -32,10 +35,11 @@ def binary_search(config, dim_value, lower, upper, subexperiment_counter):
         # test mid
         mid=(upper+lower)//2
         print(f"Run subexperiment {subexperiment_counter} with config {dim_value} {config.replicass[mid]}")
-        subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[mid], config.partitions, config.cpu_limit, config.memory_limit, config.kafka_streams_commit_interval_ms, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path)
+        subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, config.replicass[mid], config.partitions, config.cpu_limit, config.memory_limit, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path, config.configurations)
         config.subexperiment_executor.execute(subexperiment_config)
-        result = config.subexperiment_evaluator.execute(subexperiment_config)
-        if result == 1: # success -> search in (lower, mid-1)
+        success = config.subexperiment_evaluator.execute(subexperiment_config,
+                                                         config.threshold)
+        if success: # success -> search in (lower, mid-1)
             return binary_search(config, dim_value, lower, mid-1, subexperiment_counter+1)
         else: # not success -> search in (mid+1, upper)
             return binary_search(config, dim_value, mid+1, upper, subexperiment_counter+1)

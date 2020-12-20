@@ -10,13 +10,14 @@ class ExperimentConfig:
     partitions: int
     cpu_limit: str
     memory_limit: str
-    kafka_streams_commit_interval_ms: int
     execution_minutes: int
     prometheus_base_url: str
     reset: bool
     namespace: str
     result_path: str
+    configurations: dict
     domain_restriction_strategy: object
     search_strategy: object
+    threshold: int
     subexperiment_executor: object
     subexperiment_evaluator: object

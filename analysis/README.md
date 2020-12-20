@@ -9,14 +9,32 @@ benchmark execution results and plotting. The following notebooks are provided:
 
 ## Usage
 
-For executing benchmarks and analyzing their results, a **Python 3.7**
-installation is required (e.g., in a virtual environment). Our notebooks require some
-Python libraries, which can be installed via:
+Basically, the Theodolite Analysis Jupyter notebooks should be runnable by any Jupyter server. To make it a bit easier,
+we provide introductions for running notebooks with Docker and with Visual Studio Code. These intoduction may also be
+a good starting point for using another service.
+
+For analyzing and visualizing benchmark results, either Docker or a Jupyter installation with Python 3.7 or newer is
+required (e.g., in a virtual environment).
+
+### Running with Docker
+
+This option requires Docker to be installed. You can build and run a container using the following commands. Make sure
+to set the `results` volume to the directory with your execution results and `results-inst` to a directory where the
+final scalability graphs should be placed. The output of the *run* command gives you an URL of the form
+`http://127.0.0.1:8888/?token=...`, which you should open in your webbrowser. From there you can access all notebooks.
+You can stop the Jupyter server with Crtl + C.
 
 ```sh
-pip install -r requirements.txt 
+docker build . -t theodolite-analysis
+docker run --rm -p 8888:8888 -v "$PWD/../results":/home/jovyan/results -v "$PWD/../results-inst":/home/jovyan/results-inst theodolite-analysis
 ```
 
-We have tested these
-notebooks with [Visual Studio Code](https://code.visualstudio.com/docs/python/jupyter-support),
-however, every other server should be fine as well.
+### Running with Visual Studio Code
+
+The [Visual Studio Code Documentation](https://code.visualstudio.com/docs/python/jupyter-support) shows to run Jupyter
+notebooks with Visual Studio Code. For our notebooks, Python 3.7 or newer is required (e.g., in a virtual environment).
+Moreover, they require some Python libraries, which can be installed by:
+
+```sh
+pip install -r requirements.txt
+```

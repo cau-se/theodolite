@@ -1,26 +1,53 @@
 version: '2'
 services:
   zookeeper:
-    image: wurstmeister/zookeeper
-    ports:
-      - "2181:2181"
-  kafka:
-    image: wurstmeister/kafka
-    ports:
-      - "9092:9092"
+    image: confluentinc/cp-zookeeper
     expose:
       - "9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: kafka #172.17.0.1 # Replace with docker network
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    image: wurstmeister/kafka
+    expose:
+      - "9092"
+    ports:
+      - 19092:19092
+    environment:
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONNECTIONS_FROM_HOST://:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,CONNECTIONS_FROM_HOST://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONNECTIONS_FROM_HOST:PLAINTEXT
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
-      KAFKA_CREATE_TOPICS: "input:3:1,output:3:1,configuration:3:1,aggregation-feedback:3:1,dayofweek:3:1,hourofday:3:1,hourofweek:3:1"
+      KAFKA_CREATE_TOPICS: "input:3:1,output:3:1,configuration:3:1,aggregation-feedback:3:1"
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.3.1
+    depends_on:
+      - zookeeper
+      - kafka
+    expose:
+      - "8081"
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
   uc-app:
     image: theodolite/theodolite-uc2-kstreams-app:latest
+    depends_on:
+      - schema-registry
+      - kafka
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
   uc-wg: 
     image: theodolite/theodolite-uc2-workload-generator:latest
+    depends_on:
+      - schema-registry
+      - kafka
+      - zookeeper
     environment:
+      ZK_HOST: zookeeper
+      ZK_PORT: 2181
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      INSTANCES: 1
       NUM_SENSORS: 1
