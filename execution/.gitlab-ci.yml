@@ -42,9 +42,9 @@ deploy-ghcr:
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite ./execution
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME ghcr.io/$GITHUB_CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME ghcr.io/$GITHUB_CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME ghcr.io/$GITHUB_CR_ORG/theodolite:$CI_COMMIT_TAG"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite ghcr.io/$GITHUB_CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite ghcr.io/$GITHUB_CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite ghcr.io/$GITHUB_CR_ORG/theodolite:$CI_COMMIT_TAG"
     - echo $GITHUB_CR_TOKEN | docker login ghcr.io -u $GITHUB_CR_USER --password-stdin
     - docker push ghcr.io/$GITHUB_CR_ORG/theodolite
     - docker logout
