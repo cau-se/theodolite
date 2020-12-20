@@ -1,7 +1,7 @@
 stages:
   - deploy
 
-.deploy:
+deploy:
   stage: deploy
   tags:
     - exec-dind
