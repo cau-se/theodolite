@@ -1,6 +1,7 @@
 package theodolite.uc2.streamprocessing;
 
 import java.time.Duration;
+import java.util.Properties;
 import java.util.Set;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -59,9 +60,9 @@ public class TopologyBuilder {
       final Duration emitPeriod, final Duration gracePeriod,
       final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory) {
     this.inputTopic = inputTopic;
+    this.outputTopic = outputTopic;
     this.feedbackTopic = feedbackTopic;
     this.configurationTopic = configurationTopic;
-    this.outputTopic = outputTopic;
     this.emitPeriod = emitPeriod;
     this.gracePeriod = gracePeriod;
 
@@ -71,7 +72,7 @@ public class TopologyBuilder {
   /**
    * Build the {@link Topology} for the Aggregation microservice.
    */
-  public Topology build() {
+  public Topology build(final Properties properties) {
     // 1. Build Parent-Sensor Table
     final KTable<String, Set<String>> parentSensorTable = this.buildParentSensorTable();
 
@@ -92,7 +93,7 @@ public class TopologyBuilder {
     // 5. Expose Aggregations Stream
     this.exposeOutputStream(aggregations);
 
-    return this.builder.build();
+    return this.builder.build(properties);
   }
 
   private KTable<String, ActivePowerRecord> buildInputTable() {

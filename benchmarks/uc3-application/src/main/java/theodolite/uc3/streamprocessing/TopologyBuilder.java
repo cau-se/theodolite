@@ -2,6 +2,7 @@ package theodolite.uc3.streamprocessing;
 
 import com.google.common.math.Stats;
 import java.time.Duration;
+import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -46,7 +47,7 @@ public class TopologyBuilder {
   /**
    * Build the {@link Topology} for the History microservice.
    */
-  public Topology build() {
+  public Topology build(final Properties properties) {
     this.builder
         .stream(this.inputTopic,
             Consumed.with(Serdes.String(),
@@ -68,6 +69,6 @@ public class TopologyBuilder {
         .peek((k, v) -> LOGGER.info(k + ": " + v))
         .to(this.outputTopic, Produced.with(Serdes.String(), Serdes.String()));
 
-    return this.builder.build();
+    return this.builder.build(properties);
   }
 }

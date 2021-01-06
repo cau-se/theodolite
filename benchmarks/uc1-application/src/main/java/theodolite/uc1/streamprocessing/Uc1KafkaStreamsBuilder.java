@@ -1,6 +1,7 @@
 package theodolite.uc1.streamprocessing;
 
 import java.util.Objects;
+import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
@@ -16,9 +17,9 @@ public class Uc1KafkaStreamsBuilder extends KafkaStreamsBuilder {
   }
 
   @Override
-  protected Topology buildTopology() {
+  protected Topology buildTopology(final Properties properties) {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
     return new TopologyBuilder(this.inputTopic,
-        new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl)).build();
+        new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl)).build(properties);
   }
 }

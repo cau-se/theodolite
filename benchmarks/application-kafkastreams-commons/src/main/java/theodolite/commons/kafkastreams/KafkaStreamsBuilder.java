@@ -110,14 +110,15 @@ public abstract class KafkaStreamsBuilder {
    *
    * @return A {@code Topology} for a {@code KafkaStreams} application.
    */
-  protected abstract Topology buildTopology();
+  protected abstract Topology buildTopology(Properties properties);
 
   /**
    * Builds the {@link KafkaStreams} instance.
    */
   public KafkaStreams build() {
     // Create the Kafka streams instance.
-    return new KafkaStreams(this.buildTopology(), this.buildProperties());
+    final Properties properties = this.buildProperties();
+    return new KafkaStreams(this.buildTopology(properties), properties);
   }
 
 }
