@@ -166,8 +166,8 @@ A [local volume](https://kubernetes.io/docs/concepts/storage/volumes/#local) is 
 access (e.g. via SSH) to one of your cluster nodes.
 
 You first need to create a directory on a selected node where all benchmark results should be stored. Next, modify
-`infrastructure/kubernetes/volume-local.yaml` by setting `<node-name>` to your selected node (this node will most
-likely also execute the job). Further, you have to set `path` to the directory on the node you just created. To deploy
+`infrastructure/kubernetes/volume-local.yaml` by setting `<node-name>` to your selected node. (This node will most
+likely also execute the [Theodolite job](#Execution).) Further, you have to set `path` to the directory on the node you just created. To deploy
 you volume run:
 
 ```sh
