@@ -23,6 +23,6 @@ class Run_uc {
     }
 
     fun start_workload_generator(wg: String, dim_value:Integer, uc_id: String){
-        
+
     }
 }

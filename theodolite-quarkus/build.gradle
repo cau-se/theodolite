@@ -23,6 +23,9 @@ dependencies {
 
     implementation 'io.fabric8:kubernetes-client:5.0.0-alpha-2'
     //implementation 'com.fkorotkov:kubernetes-dsl:2.8.1'
+    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.7.0'
+    compile group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.6.2'
+
 }
 
 group 'theodolite'
