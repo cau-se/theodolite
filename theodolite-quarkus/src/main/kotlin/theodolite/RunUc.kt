@@ -4,7 +4,13 @@ import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.ListTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
+import org.apache.zookeeper.Watcher
+import org.apache.zookeeper.ZooKeeper
 import java.util.*
+import org.apache.zookeeper.WatchedEvent
+
+
+
 
 class RunUc (){
     val bootstrapServer = "my-confluent-cp-zookeeper:2181"
@@ -52,11 +58,24 @@ class RunUc (){
 
     fun getTopics(): ListTopicsResult? {
         return kafkaAdmin.listTopics()
-    }
-
-    fun reset_zookeeper(){
 
     }
+
+    fun resetZookeeper(){
+        val watcher :Watcher = startWatcher()
+
+        val zookeeperclient = ZooKeeper(ip,60, watcher)
+        zookeeperclient.delete("/workload-generation", -1)
+        System.out.println("Deletion executed")
+    }
+
+    private fun startWatcher(): Watcher {
+        return Watcher { event ->
+            System.out.println(event.toString())
+            System.out.println(event.state.toString())
+        }
+    }
+
 
     fun start_workload_generator(wg: String, dim_value:Integer, uc_id: String){
 

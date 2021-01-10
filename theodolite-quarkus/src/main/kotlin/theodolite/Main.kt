@@ -15,5 +15,6 @@ object Main {
         run.createTopics(testtopic, 1.toShort())
         run.deleteTopics(listOf("test"))
         //Quarkus.run()
+        run.resetZookeeper()
     }
 }
