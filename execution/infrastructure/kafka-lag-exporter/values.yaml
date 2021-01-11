@@ -1,3 +1,6 @@
+image:
+  pullPolicy: IfNotPresent
+
 clusters:
   - name: "my-confluent-cp-kafka"
     bootstrapBrokers: "my-confluent-cp-kafka:9092"
