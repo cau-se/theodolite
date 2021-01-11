@@ -6,7 +6,6 @@ import org.apache.kafka.clients.admin.ListTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.zookeeper.Watcher
 import org.apache.zookeeper.ZooKeeper
-import java.util.*
 import org.apache.zookeeper.WatchedEvent
 
 
