@@ -33,9 +33,9 @@ class WorkloadGeneratorStateCleaner(ip: String) {
 
             try {
                 val clients = zookeeperClient.getChildren(path, true)
-                /*if (clients.isEmpty()){
+                if (clients.isEmpty()){
                     break;
-                }*/
+                }
             } catch (ex: Exception) {
                 when (ex) {
                     is KeeperException -> { deleted = true }
