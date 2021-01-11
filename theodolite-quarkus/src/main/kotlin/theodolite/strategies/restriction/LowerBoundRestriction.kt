@@ -1,7 +1,6 @@
 package theodolite.strategies.restriction
 
 import theodolite.util.Results
-import theodolite.strategies.searchstrategy.RestrictionStrategy
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 

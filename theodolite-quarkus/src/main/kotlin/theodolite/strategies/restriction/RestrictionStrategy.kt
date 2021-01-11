@@ -1,4 +1,4 @@
-package theodolite.strategies.searchstrategy
+package theodolite.strategies.restriction
 
 import theodolite.util.Results
 import theodolite.util.LoadDimension

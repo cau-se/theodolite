@@ -1,6 +1,7 @@
 package theodolite.strategies.searchstrategy
 
 import theodolite.execution.BenchmarkExecutor
+import theodolite.strategies.restriction.RestrictionStrategy
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
