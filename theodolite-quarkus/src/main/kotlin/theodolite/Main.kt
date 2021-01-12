@@ -6,9 +6,6 @@ import io.quarkus.runtime.annotations.QuarkusMain
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {
-        println("Running main method")
-
         //Quarkus.run()
-
     }
 }
