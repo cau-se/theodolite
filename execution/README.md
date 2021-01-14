@@ -195,7 +195,7 @@ RBAC is enabled on your cluster (see installation of [Theodolite RBAC](#Theodoli
 To start the execution of a benchmark run (with `<your-theodolite-yaml>` being your job definition):
 
 ```sh
-kubectl apply -f <your-theodolite-yaml>
+kubectl create -f <your-theodolite-yaml>
 ```
 
 This will create a pod with a name such as `your-job-name-xxxxxx`. You can verifiy this via `kubectl get pods`. With
