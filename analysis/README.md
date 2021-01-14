@@ -4,7 +4,7 @@ This directory contains Jupyter notebooks for analyzing and visualizing
 benchmark execution results and plotting. The following notebooks are provided:
 
 * [demand-metric.ipynb](demand-metric.ipynb): Create CSV files describing scalability according to the Theodolite `demand` metric.
-* [demand-metric-plot.ipynb](demand-metric-plot.ipynb): Create plots based on such CSV files.
+* [demand-metric-plot.ipynb](demand-metric-plot.ipynb): Create plots based on such CSV files of the `demand` metric.
 
 For legacy reasons, we also provide the following notebooks, which, however, are not documented:
 
