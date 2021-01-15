@@ -15,10 +15,10 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
     }
 
     private fun search (load: LoadDimension, resources: List<Resource>, lower: Int, upper: Int): Int {
-        if (lower + 1 < upper ) {
+        if (lower > upper) {
             throw IllegalArgumentException()
         }
-        if (lower >= upper ) {
+        if (lower == upper ) {
             if (this.benchmarkExecutor.runExperiment(load, resources[upper])) return upper;
             else {
                 if (lower + 1 == resources.size) return - 1
@@ -27,6 +27,9 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         } else {
             val mid = (upper + lower) / 2
             if (this.benchmarkExecutor.runExperiment(load, resources[mid])) {
+                if (mid == lower) {
+                    return search(load, resources, lower, lower );
+                }
                 return search(load, resources, lower, mid - 1 );
             } else {
               return search(load, resources, mid + 1 , upper);
