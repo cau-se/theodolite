@@ -18,8 +18,9 @@ In general, the Theodolite Analysis Jupyter notebooks should be runnable by any 
 we provide introductions for running notebooks with Docker and with Visual Studio Code. These intoduction may also be
 a good starting point for using another service.
 
-For analyzing and visualizing benchmark results, either Docker or a Jupyter installation with Python 3.7 or newer is
-required (e.g., in a virtual environment).
+For analyzing and visualizing benchmark results, either Docker or a Jupyter installation with Python 3.7 or 3.8 is
+required (e.g., in a virtual environment). **Please note that Python 3.9 seems not to be working as not all our
+dependencies are ported to Python 3.9 yet.**
 
 ### Running with Docker
 
