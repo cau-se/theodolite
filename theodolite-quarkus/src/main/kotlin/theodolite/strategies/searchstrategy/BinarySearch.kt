@@ -3,9 +3,10 @@ package theodolite.strategies.searchstrategy
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+import theodolite.util.Results
 import java.lang.IllegalArgumentException
 
-class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
+class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : SearchStrategy(benchmarkExecutor, results) {
     override fun findSuitableResources(load: LoadDimension, resources: List<Resource>): Resource? {
         val result =  search(load, resources, 0, resources.size - 1)
         if( result == -1 ) {

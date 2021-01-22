@@ -1,6 +1,6 @@
 package theodolite.util
 
-class LoadDimension(val number: Int) {
+class LoadDimension(val number: Int) { // data class ?
     public fun get(): Int {
         return this.number;
     }

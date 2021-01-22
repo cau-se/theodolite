@@ -29,10 +29,10 @@ class CompositeStrategyTest {
         val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number)}
         val mockResources: List<Resource> =  (0..6).map{number -> Resource(number)}
         val benchmarkExecutor: TestBenchmarkExecutor = TestBenchmarkExecutor(mockResults)
-        val linearSearch: LinearSearch = LinearSearch(benchmarkExecutor);
         val results: Results = Results();
-        val lowerBoundRestriction: LowerBoundRestriction = LowerBoundRestriction(results, mockLoads);
-        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, linearSearch, listOf(lowerBoundRestriction))
+        val linearSearch: LinearSearch = LinearSearch(benchmarkExecutor, results);
+        val lowerBoundRestriction: LowerBoundRestriction = LowerBoundRestriction(results);
+        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, linearSearch, listOf(lowerBoundRestriction), results)
 
         val actual: ArrayList<Resource?> = ArrayList<Resource?>()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x)})
@@ -59,10 +59,10 @@ class CompositeStrategyTest {
         val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number)}
         val mockResources: List<Resource> =  (0..6).map{number -> Resource(number)}
         val benchmarkExecutor: TestBenchmarkExecutor = TestBenchmarkExecutor(mockResults)
-        val binarySearch: BinarySearch = BinarySearch(benchmarkExecutor);
         val results: Results = Results();
-        val lowerBoundRestriction: LowerBoundRestriction = LowerBoundRestriction(results, mockLoads);
-        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, binarySearch, listOf(lowerBoundRestriction))
+        val binarySearch: BinarySearch = BinarySearch(benchmarkExecutor, results);
+        val lowerBoundRestriction: LowerBoundRestriction = LowerBoundRestriction(results);
+        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, binarySearch, listOf(lowerBoundRestriction), results) // sets instead of lists
 
         val actual: ArrayList<Resource?> = ArrayList<Resource?>()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x)})
