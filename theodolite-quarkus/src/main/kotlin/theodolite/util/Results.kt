@@ -16,8 +16,10 @@ class Results {
         return this.results.get(experiment)
     }
 
-    public fun getRequiredInstances(load: LoadDimension?): Resource? {
-        var requiredInstances: Resource? = null;
+    public fun getMinRequiredInstances(load: LoadDimension?): Resource? {
+        if (this.results.isEmpty()) return Resource(Int.MIN_VALUE)
+
+        var requiredInstances: Resource? = Resource(Int.MAX_VALUE)
         for(experiment in results) {
             if(experiment.key.first == load && experiment.value){
                 if(requiredInstances == null) {
@@ -31,13 +33,13 @@ class Results {
     }
 
     public fun getMaxBenchmarkedLoad(load: LoadDimension): LoadDimension? {
-        var maxBenchmarkedLoad: LoadDimension = LoadDimension(0)
+        var maxBenchmarkedLoad: LoadDimension? = null;
         for(experiment in results) {
             if (experiment.value) {
                 if(experiment.key.first.get() <= load.get()) {
-                    if (experiment.value && maxBenchmarkedLoad == null) {
+                    if (maxBenchmarkedLoad == null) {
                         maxBenchmarkedLoad = experiment.key.first
-                    } else if (experiment.value && maxBenchmarkedLoad.get() < experiment.key.first.get()) {
+                    } else if (maxBenchmarkedLoad.get() < experiment.key.first.get()) {
                         maxBenchmarkedLoad = experiment.key.first
                     }
                 }

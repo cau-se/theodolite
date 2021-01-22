@@ -8,9 +8,7 @@ import theodolite.strategies.searchstrategy.BinarySearch
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.execution.TestBenchmarkExecutor
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
-import theodolite.util.Results
+import theodolite.util.*
 
 @QuarkusTest
 class CompositeStrategyTest {
@@ -28,11 +26,12 @@ class CompositeStrategyTest {
         )
         val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number)}
         val mockResources: List<Resource> =  (0..6).map{number -> Resource(number)}
-        val benchmarkExecutor: TestBenchmarkExecutor = TestBenchmarkExecutor(mockResults)
         val results: Results = Results();
+        val benchmark = TestBenchmark()
+        val benchmarkExecutor: TestBenchmarkExecutor = TestBenchmarkExecutor(mockResults, benchmark, results)
         val linearSearch: LinearSearch = LinearSearch(benchmarkExecutor, results);
         val lowerBoundRestriction: LowerBoundRestriction = LowerBoundRestriction(results);
-        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, linearSearch, listOf(lowerBoundRestriction), results)
+        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction), results)
 
         val actual: ArrayList<Resource?> = ArrayList<Resource?>()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x)})
@@ -58,11 +57,12 @@ class CompositeStrategyTest {
         )
         val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number)}
         val mockResources: List<Resource> =  (0..6).map{number -> Resource(number)}
-        val benchmarkExecutor: TestBenchmarkExecutor = TestBenchmarkExecutor(mockResults)
         val results: Results = Results();
+        val benchmark = TestBenchmark()
+        val benchmarkExecutor: TestBenchmarkExecutor = TestBenchmarkExecutor(mockResults, benchmark, results)
         val binarySearch: BinarySearch = BinarySearch(benchmarkExecutor, results);
         val lowerBoundRestriction: LowerBoundRestriction = LowerBoundRestriction(results);
-        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, binarySearch, listOf(lowerBoundRestriction), results) // sets instead of lists
+        val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, binarySearch, setOf(lowerBoundRestriction), results) // sets instead of lists
 
         val actual: ArrayList<Resource?> = ArrayList<Resource?>()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x)})

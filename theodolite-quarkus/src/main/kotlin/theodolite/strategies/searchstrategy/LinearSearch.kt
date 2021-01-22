@@ -9,12 +9,7 @@ class LinearSearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : Sea
 
     override fun findSuitableResources(load: LoadDimension, resources: List<Resource>): Resource? {
         for (res in resources) {
-            if (this.benchmarkExecutor.runExperiment(load, res)) {
-                this.results.setResult(Pair(load, res), true)
-                return res
-            } else {
-                this.results.setResult(Pair(load, res), false)
-            }
+            if (this.benchmarkExecutor.runExperiment(load, res)) return res
         }
         return null;
     }

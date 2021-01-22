@@ -26,10 +26,11 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : Sea
                 return lower + 1;
             }
         } else {
+            // (true, true), (false, true), (false, false) // (false, false, false, true, false, true, false, true)
             val mid = (upper + lower) / 2
             if (this.benchmarkExecutor.runExperiment(load, resources[mid])) {
                 if (mid == lower) {
-                    return search(load, resources, lower, lower );
+                    return lower
                 }
                 return search(load, resources, lower, mid - 1 );
             } else {
