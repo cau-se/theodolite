@@ -16,7 +16,7 @@ class DeploymentManager {
     val path = "/home/lorenz/git/spesb/theodolite-quarkus/YAML/"
     val theodoliteDeploment = "theodolite.yaml"
     val service = "aggregation-service.yaml"
-    val workload = "workloadGenerator"
+    val workloadFile = "workloadGenerator.yaml"
     val inputStream: InputStream = path.byteInputStream()
     val client = DefaultKubernetesClient().inNamespace("default")
 
@@ -24,14 +24,17 @@ class DeploymentManager {
 
     val dp: Service = client.services().load(path+service).get();
 
+    val workload : Deployment = client.apps().deployments().load(path+workloadFile).get();
+
+    // TODO MAKE YAML LOADING CATCH EXEPTION
+
 
     fun printFile(){
-        
-
-        println()
 
 
-        println(dp.toString())
+        //println(workload)
+        changeWorkloadNumInstances(workload,5000)
+        //println(workload)
 
 
         println(path)
@@ -46,6 +49,20 @@ class DeploymentManager {
         service.metadata.apply {
             name = newName
         }
+    }
+
+    fun changeWorkloadNumInstances (dep: Deployment,num: String){
+
+        val vars = dep.spec.template.spec.containers.get(0).env.filter {
+            it.name == "NUM_SENSORS"
+        }.forEach {
+            x ->
+                    x.value = num
+        }
+
+
+        println(vars)
+
     }
 
 
