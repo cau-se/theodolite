@@ -1,9 +1,8 @@
 package theodolite.util
 
 // todo: needs cluster and resource config
-interface Benchmark {
+abstract class Benchmark(val config: Map<String, Any>) {
+    abstract fun start();
 
-    fun start();
-
-    fun stop();
+    abstract fun stop();
 }

@@ -1,6 +1,6 @@
 package theodolite.util
 
-class KafkaBenchmark: Benchmark {
+class KafkaBenchmark(config: Map<String, Any>): Benchmark(config) {
 
     override fun start() {
         TODO("Not yet implemented")
