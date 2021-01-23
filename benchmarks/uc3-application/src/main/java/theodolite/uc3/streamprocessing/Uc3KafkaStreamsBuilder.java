@@ -2,6 +2,7 @@ package theodolite.uc3.streamprocessing;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.Topology;
 import theodolite.commons.kafkastreams.KafkaStreamsBuilder;
@@ -30,14 +31,14 @@ public class Uc3KafkaStreamsBuilder extends KafkaStreamsBuilder {
   }
 
   @Override
-  protected Topology buildTopology() {
+  protected Topology buildTopology(final Properties properties) {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
     Objects.requireNonNull(this.outputTopic, "Output topic has not been set.");
     Objects.requireNonNull(this.windowDuration, "Window duration has not been set.");
 
     final TopologyBuilder topologyBuilder = new TopologyBuilder(this.inputTopic, this.outputTopic,
         new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl), this.windowDuration);
-    return topologyBuilder.build();
+    return topologyBuilder.build(properties);
   }
 
 }

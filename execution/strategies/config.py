@@ -18,5 +18,6 @@ class ExperimentConfig:
     configurations: dict
     domain_restriction_strategy: object
     search_strategy: object
+    threshold: int
     subexperiment_executor: object
     subexperiment_evaluator: object

@@ -14,8 +14,9 @@ def execute(config, dim_value_index, lower_replicas_bound_index, subexperiment_c
         subexperiment_config = SubexperimentConfig(config.use_case, config.exp_id, subexperiment_counter, dim_value, replicas, config.partitions, config.cpu_limit, config.memory_limit, config.execution_minutes, config.prometheus_base_url, config.reset, config.namespace, config.result_path, config.configurations)
 
         config.subexperiment_executor.execute(subexperiment_config)
-        result = config.subexperiment_evaluator.execute(subexperiment_config)
-        if result == 1:
+        success = config.subexperiment_evaluator.execute(subexperiment_config,
+                                                         config.threshold)
+        if success:
             return (lower_replicas_bound_index, subexperiment_counter)
         else:
             lower_replicas_bound_index+=1
