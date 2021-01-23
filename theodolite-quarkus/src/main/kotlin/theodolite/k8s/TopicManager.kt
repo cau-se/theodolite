@@ -1,4 +1,4 @@
-package theodolite
+package theodolite.k8s
 
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
