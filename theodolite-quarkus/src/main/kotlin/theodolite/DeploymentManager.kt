@@ -23,7 +23,7 @@ class DeploymentManager {
     val inputStream: InputStream = path.byteInputStream()
     val client = DefaultKubernetesClient().inNamespace("default")
 
-    val core  = client.configMaps().
+    val core  = client.configMaps()
 
     //val deployment = client.apps().deployments().load(absolute + path)
 

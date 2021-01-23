@@ -39,7 +39,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
         try {
             service = f(path)
         } catch (e: Exception) {
-            logger.info("You potentially  misspeled the path: $path")
+            logger.info("You potentially  misspelled the path: $path")
             logger.info("$e")
         }
 
