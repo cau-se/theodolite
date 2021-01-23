@@ -1,13 +1,13 @@
 package theodolite
 import io.quarkus.runtime.annotations.QuarkusMain
-
+import mu.KotlinLogging
+private val logger = KotlinLogging.logger {}
 
 @QuarkusMain
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {
-        println("Running main method")
-
+        logger.info("Application started")
 
         //Quarkus.run()
     }
