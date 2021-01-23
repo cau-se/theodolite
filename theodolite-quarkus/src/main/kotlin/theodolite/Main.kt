@@ -7,7 +7,7 @@ import theodolite.execution.TheodoliteExecutor
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {
-        val theodolite = TheodoliteExecutor();
+        val theodolite = TheodoliteExecutor()
         theodolite.run()
     }
 }
