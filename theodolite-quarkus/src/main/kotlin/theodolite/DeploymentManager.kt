@@ -48,7 +48,7 @@ class DeploymentManager {
         Thread.sleep(Duration(java.time.Duration.ofSeconds(30)).duration.toMillis())
         logger.info { "will delete workload now!" }
         delete(workload)
-        logger.info { "workld deletet" }
+        logger.info { "workload deletet" }
 
 
         // logger.debug(config.toString())
