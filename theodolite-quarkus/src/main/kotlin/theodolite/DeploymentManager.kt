@@ -1,14 +1,13 @@
 package theodolite
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
-import io.fabric8.kubernetes.client.dsl.RollableScalableResource
-import java.io.File
+import mu.KotlinLogging
 import java.io.InputStream
 import java.nio.file.Paths
 
+private val logger = KotlinLogging.logger {}
 
 class DeploymentManager {
     val MEMORYLIMIT = "memory"
@@ -20,95 +19,94 @@ class DeploymentManager {
     val service = "aggregation-service.yaml"
     val workloadFile = "workloadGenerator.yaml"
     val usecase = "aggregation-deployment.yaml"
+    val configMap = "jmx-configmap.yaml"
     val inputStream: InputStream = path.byteInputStream()
     val client = DefaultKubernetesClient().inNamespace("default")
 
-    val core  = client.configMaps()
 
-    //val deployment = client.apps().deployments().load(absolute + path)
-
-    val dp: Service = client.services().load(path + service).get();
+    val dp: Service = client.services().load(path + service).get()
 
     val workload: Deployment = client.apps().deployments().load(path + workloadFile).get()
     val use: Deployment = client.apps().deployments().load(path + usecase).get()
 
-    // TODO CHANGE CONFIGURATION ENVIROMENT VARIABLES (DONE)
-    // TODO ASSEMBLE GOOD SEPERATION
-    // TODO ADD SERVICES
-    // TODO ADD CONFIG MAP
-    // TODO DELETE STUFF
-    // TODO MAKE YAML LOADING CATCH EXEPTION
 
-    fun printFile(){
+    val loader = YamlLoader(client)
+    val config: ConfigMap? = loader.loadConfigmap(path + configMap)    // TODO ASSEMBLE GOOD SEPERATION
 
-//
+    // TODO REFACTOR EVErythiNG
+    fun printFile() {
 //        println(workload)
 //        changeEnviromentsInstances(workload,"5000")
 //        println(workload)
 
-        println(use)
-        changeRessourceLimits(use, MEMORYLIMIT,"5Gi")
-        println(use)
-    //        println(path)
+//        logger.debug(use.toString())
+//        changeRessourceLimits(use, MEMORYLIMIT, "5Gi")
+//        logger.debug(use.toString())
+
+        logger.info(workload.toString())
+        val testMap = mapOf<String, String>("NUM_SENSORS" to "5000")
+        val vars =
+            workload.spec.template.spec.containers.filter { it.name == "workload-generator" }.forEach { it: Container ->
+                setContainerEnv(it, testMap)
+            }
+
+        logger.info(workload.toString())
+
+        // logger.debug(config.toString())
+
+        //        println(path)
 //        val f : File = File(path+theodoliteDeploment);
 //        val fileAsString : String = String(f.readBytes())
 //        println(fileAsString.replace("theodolite","spesb"))
     }
 
     /**
-     * TODO REFACTOR
+     * Sets the ContainerEvironmentVariables, creates new if variable don t exist.
+     * @param container - The Container
+     * @param map - Map of k=Name,v =Value of EnviromentVariables
      */
-    fun setContainerEnv (container: Container, map: Map<String,String>){
-        map.forEach{ k,v ->
+    fun setContainerEnv(container: Container, map: Map<String, String>) {
+        map.forEach { k, v ->
+            // filter for mathing name and set value
+            val x = container.env.filter { envvar -> envvar.name == k }
 
-            container.env
-
-            container.env.filter { x -> x.name == k }.forEach {
-                it.value = v
+            if (x.isEmpty()) {
+                val newVar = EnvVar(k, v, EnvVarSource())
+                container.env.add(newVar)
+            } else {
+                x.forEach {
+                    it.value = v
+                }
             }
-            var c = container.env.filter { x -> x.name == k }
+        }
+    }
 
-            if(c.isEmpty()){
-                val y = EnvVar(k,v, EnvVarSource())
-                c = listOf(y)
+    /**
+     * Set the enviroment Variable for a Container
+     */
+    fun setWorkloadEnv(workloadDeployment: Deployment, containerName: String, map: Map<String, String>) {
+        workloadDeployment.spec.template.spec.containers.filter { it.name == containerName }
+            .forEach { it: Container ->
+                setContainerEnv(it, map)
             }
-
-        }
-
     }
 
-
-    // SERVICE
-    fun changeServiceName (service: Service,newName : String){
-
-        service.metadata.apply {
-            name = newName
-        }
-    }
-
-    // WORKLOAD GEN
-    // TODO REFACTOR
-    fun changeEnviromentsInstances (dep: Deployment,num: String) {
-
-        dep.spec.template.spec.containers.get(0).env.filter {
-            it.name == "NUM_SENSORS"
-        }.forEach { x ->
-            x.value = num
-        }
-    }
-
-    // APPLICATION
+    /**
+     *  Change the RessourceLimit of the SUT
+     */
     fun changeRessourceLimits(dep: Deployment, ressource: String, limit: String) {
-
         val vars = dep.spec.template.spec.containers.filter { it.name == "uc-application" }.forEach {
             it.resources.limits.replace(ressource, Quantity(limit))
         }
     }
 
+    /**
+     * Change the image of the SUT and the Worklaodgenerators
+     */
     fun changeImage(dep: Deployment, image: String) {
 
         dep.spec.template.spec.containers.filter { it.name == "uc-application" }.forEach {
-            it.image = image }
+            it.image = image
+        }
     }
-
 }
