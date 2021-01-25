@@ -43,14 +43,13 @@ class DeploymentManager {
 //        changeRessourceLimits(use, MEMORYLIMIT, "5Gi")
 //        logger.debug(use.toString())
 
-        logger.info(workload.toString())
-        val testMap = mapOf<String, String>("NUM_SENSORS" to "5000")
-        val vars =
-            workload.spec.template.spec.containers.filter { it.name == "workload-generator" }.forEach { it: Container ->
-                setContainerEnv(it, testMap)
-            }
+        deploy(workload)
+        logger.info { "Workload deployed" }
+        Thread.sleep(Duration(java.time.Duration.ofSeconds(30)).duration.toMillis())
+        logger.info { "will delete workload now!" }
+        delete(workload)
+        logger.info { "workld deletet" }
 
-        logger.info(workload.toString())
 
         // logger.debug(config.toString())
 
@@ -65,10 +64,10 @@ class DeploymentManager {
      * @param container - The Container
      * @param map - Map of k=Name,v =Value of EnviromentVariables
      */
-    fun setContainerEnv(container: Container, map: Map<String, String>) {
+    private fun setContainerEnv(container: Container, map: Map<String, String>) {
         map.forEach { k, v ->
             // filter for mathing name and set value
-            val x = container.env.filter { envvar -> envvar.name == k }
+            val x = container.env.filter { envVar -> envVar.name == k }
 
             if (x.isEmpty()) {
                 val newVar = EnvVar(k, v, EnvVarSource())
@@ -82,7 +81,7 @@ class DeploymentManager {
     }
 
     /**
-     * Set the enviroment Variable for a Container
+     * Set the enviroment Variable for a container
      */
     fun setWorkloadEnv(workloadDeployment: Deployment, containerName: String, map: Map<String, String>) {
         workloadDeployment.spec.template.spec.containers.filter { it.name == containerName }
@@ -92,21 +91,30 @@ class DeploymentManager {
     }
 
     /**
-     *  Change the RessourceLimit of the SUT
+     *  Change the RessourceLimit of a container (Usally SUT)
      */
-    fun changeRessourceLimits(dep: Deployment, ressource: String, limit: String) {
-        val vars = dep.spec.template.spec.containers.filter { it.name == "uc-application" }.forEach {
+    fun changeRessourceLimits(deployment: Deployment, ressource: String, containerName: String, limit: String) {
+        val vars = deployment.spec.template.spec.containers.filter { it.name == containerName }.forEach {
             it.resources.limits.replace(ressource, Quantity(limit))
         }
     }
 
     /**
-     * Change the image of the SUT and the Worklaodgenerators
+     * Change the image name of a container (SUT and the Worklaodgenerators)
      */
-    fun changeImage(dep: Deployment, image: String) {
-
-        dep.spec.template.spec.containers.filter { it.name == "uc-application" }.forEach {
+    fun setImageName(deployment: Deployment, containerName: String, image: String) {
+        deployment.spec.template.spec.containers.filter { it.name == containerName }.forEach {
             it.image = image
         }
+    }
+
+    //TODO potential add exception handling
+    fun deploy(deployment: Deployment) {
+        client.apps().deployments().create(deployment)
+    }
+
+    //TODO potential add exception handling
+    fun delete(deployment: Deployment) {
+        client.apps().deployments().delete(deployment)
     }
 }
