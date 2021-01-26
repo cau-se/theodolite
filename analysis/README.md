@@ -3,18 +3,24 @@
 This directory contains Jupyter notebooks for analyzing and visualizing
 benchmark execution results and plotting. The following notebooks are provided:
 
+* [demand-metric.ipynb](demand-metric.ipynb): Create CSV files describing scalability according to the Theodolite `demand` metric.
+* [demand-metric-plot.ipynb](demand-metric-plot.ipynb): Create plots based on such CSV files of the `demand` metric.
+
+For legacy reasons, we also provide the following notebooks, which, however, are not documented:
+
 * [scalability-graph.ipynb](scalability-graph.ipynb): Creates a scalability graph for a certain benchmark execution.
 * [scalability-graph-final.ipynb](scalability-graph-final.ipynb): Combines the scalability graphs of multiple benchmarks executions (e.g. for comparing different configuration).
 * [lag-trend-graph.ipynb](lag-trend-graph.ipynb): Visualizes the consumer lag evaluation over time along with the computed trend.
 
 ## Usage
 
-Basically, the Theodolite Analysis Jupyter notebooks should be runnable by any Jupyter server. To make it a bit easier,
+In general, the Theodolite Analysis Jupyter notebooks should be runnable by any Jupyter server. To make it a bit easier,
 we provide introductions for running notebooks with Docker and with Visual Studio Code. These intoduction may also be
 a good starting point for using another service.
 
-For analyzing and visualizing benchmark results, either Docker or a Jupyter installation with Python 3.7 or newer is
-required (e.g., in a virtual environment).
+For analyzing and visualizing benchmark results, either Docker or a Jupyter installation with Python 3.7 or 3.8 is
+required (e.g., in a virtual environment). **Please note that Python 3.9 seems not to be working as not all our
+dependencies are ported to Python 3.9 yet.**
 
 ### Running with Docker
 

@@ -55,6 +55,7 @@ cp-kafka:
     # "min.insync.replicas": 2
     "auto.create.topics.enable": false
     "log.retention.ms": "10000" # 10s
+    #"log.retention.ms": "86400000" # 24h
     "metrics.sample.window.ms": "5000" #5s
 
 ## ------------------------------------------------------
