@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 
 class ServiceManager(client: NamespacedKubernetesClient) {
-    lateinit var client: NamespacedKubernetesClient
+    var client: NamespacedKubernetesClient
 
     init {
         this.client = client
