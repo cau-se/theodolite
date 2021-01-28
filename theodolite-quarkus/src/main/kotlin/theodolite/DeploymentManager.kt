@@ -1,62 +1,20 @@
 package theodolite
 
-import io.fabric8.kubernetes.api.model.*
+import io.fabric8.kubernetes.api.model.Container
+import io.fabric8.kubernetes.api.model.EnvVar
+import io.fabric8.kubernetes.api.model.EnvVarSource
+import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.apps.Deployment
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import java.io.InputStream
-import java.nio.file.Paths
 
 private val logger = KotlinLogging.logger {}
 
-class DeploymentManager {
-    val MEMORYLIMIT = "memory"
-    val CPULIMIT = "memory"
+class DeploymentManager(client: NamespacedKubernetesClient) {
+    var client: NamespacedKubernetesClient
 
-    val absolute = Paths.get("").toAbsolutePath().toString()
-    val path = "/home/lorenz/git/spesb/theodolite-quarkus/YAML/"
-    val theodoliteDeploment = "theodolite.yaml"
-    val service = "aggregation-service.yaml"
-    val workloadFile = "workloadGenerator.yaml"
-    val usecase = "aggregation-deployment.yaml"
-    val configMap = "jmx-configmap.yaml"
-    val inputStream: InputStream = path.byteInputStream()
-    val client = DefaultKubernetesClient().inNamespace("default")
-
-
-    val dp: Service = client.services().load(path + service).get()
-
-    val workload: Deployment = client.apps().deployments().load(path + workloadFile).get()
-    val use: Deployment = client.apps().deployments().load(path + usecase).get()
-
-
-    val loader = YamlLoader(client)
-    val config: ConfigMap? = loader.loadConfigmap(path + configMap)    // TODO ASSEMBLE GOOD SEPERATION
-
-    // TODO REFACTOR EVErythiNG
-    fun printFile() {
-//        println(workload)
-//        changeEnviromentsInstances(workload,"5000")
-//        println(workload)
-
-//        logger.debug(use.toString())
-//        changeRessourceLimits(use, MEMORYLIMIT, "5Gi")
-//        logger.debug(use.toString())
-
-        deploy(workload)
-        logger.info { "Workload deployed" }
-        Thread.sleep(Duration(java.time.Duration.ofSeconds(30)).duration.toMillis())
-        logger.info { "will delete workload now!" }
-        delete(workload)
-        logger.info { "workload deletet" }
-
-
-        // logger.debug(config.toString())
-
-        //        println(path)
-//        val f : File = File(path+theodoliteDeploment);
-//        val fileAsString : String = String(f.readBytes())
-//        println(fileAsString.replace("theodolite","spesb"))
+    init {
+        this.client = client
     }
 
     /**
@@ -94,7 +52,7 @@ class DeploymentManager {
      *  Change the RessourceLimit of a container (Usally SUT)
      */
     fun changeRessourceLimits(deployment: Deployment, ressource: String, containerName: String, limit: String) {
-        val vars = deployment.spec.template.spec.containers.filter { it.name == containerName }.forEach {
+        deployment.spec.template.spec.containers.filter { it.name == containerName }.forEach {
             it.resources.limits.replace(ressource, Quantity(limit))
         }
     }
@@ -108,12 +66,12 @@ class DeploymentManager {
         }
     }
 
-    //TODO potential add exception handling
+    // TODO potential add exception handling
     fun deploy(deployment: Deployment) {
         client.apps().deployments().create(deployment)
     }
 
-    //TODO potential add exception handling
+    // TODO potential add exception handling
     fun delete(deployment: Deployment) {
         client.apps().deployments().delete(deployment)
     }
