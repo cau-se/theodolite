@@ -9,7 +9,7 @@ benchmark execution results and plotting. The following notebooks are provided:
 For legacy reasons, we also provide the following notebooks, which, however, are not documented:
 
 * [scalability-graph.ipynb](scalability-graph.ipynb): Creates a scalability graph for a certain benchmark execution.
-* [scalability-graph-final.ipynb](scalability-graph-final.ipynb): Combines the scalability graphs of multiple benchmarks executions (e.g. for comparing different configuration).
+* [scalability-graph-plotter.ipynb](scalability-graph-plotter.ipynb): Combines the scalability graphs of multiple benchmarks executions (e.g. for comparing different configuration).
 * [lag-trend-graph.ipynb](lag-trend-graph.ipynb): Visualizes the consumer lag evaluation over time along with the computed trend.
 
 ## Usage
