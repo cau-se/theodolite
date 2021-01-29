@@ -1,4 +1,4 @@
-package theodolite
+package theodolite.k8s
 
 import org.apache.zookeeper.KeeperException
 import org.apache.zookeeper.WatchedEvent
@@ -15,7 +15,7 @@ class WorkloadGeneratorStateCleaner(ip: String) {
         try {
             val watcher: Watcher = ZookeperWatcher()  // defined below
             zookeeperClient = ZooKeeper(ip, sessionTimeout, watcher)
-        } catch (e:Exception) {
+        } catch (e: Exception) {
             System.out.println(e.toString())
         }
     }
@@ -33,12 +33,14 @@ class WorkloadGeneratorStateCleaner(ip: String) {
 
             try {
                 val clients = zookeeperClient.getChildren(path, true)
-                if (clients.isEmpty()){
+                if (clients.isEmpty()) {
                     break;
                 }
             } catch (ex: Exception) {
                 when (ex) {
-                    is KeeperException -> { deleted = true }
+                    is KeeperException -> {
+                        deleted = true
+                    }
                     is InterruptedException -> {
                         System.out.println(ex.toString())
                     }

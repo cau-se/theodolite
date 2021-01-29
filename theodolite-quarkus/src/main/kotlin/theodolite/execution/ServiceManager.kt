@@ -1,4 +1,4 @@
-package theodolite
+package theodolite.execution
 
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient

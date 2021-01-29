@@ -2,6 +2,7 @@ package theodolite
 
 import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
+import theodolite.execution.DeploymentManager
 
 private val logger = KotlinLogging.logger {}
 
