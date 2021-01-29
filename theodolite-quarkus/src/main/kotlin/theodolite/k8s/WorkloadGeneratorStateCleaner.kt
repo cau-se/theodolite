@@ -50,9 +50,9 @@ class WorkloadGeneratorStateCleaner(ip: String) {
 
         System.out.println("ZooKeeper reset was successful")
     }
-}
 
-private class ZookeperWatcher : Watcher {
+    private class ZookeperWatcher : Watcher {
 
-    override fun process(event: WatchedEvent) {}
+        override fun process(event: WatchedEvent) {}
+    }
 }

@@ -10,4 +10,8 @@ class KafkaBenchmark(config: Map<String, Any>): Benchmark(config) {
         TODO("Not yet implemented")
     }
 
+    override fun startWorkloadGenerator(wg: String, dimValue: Int, ucId: String) {
+        TODO("Not yet implemented")
+    }
+
 }

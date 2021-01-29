@@ -15,7 +15,7 @@ class KafkaBenchmarkExecutor(benchmark: Benchmark, results: Results, executionDu
         this.waitAndLog()
         benchmark.stop()
         // todo evaluate
-        val result = false // if success else falsew
+        val result = false // if success else false
         this.results.setResult(Pair(load, res), result)
         return result;
     }
