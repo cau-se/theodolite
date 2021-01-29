@@ -20,18 +20,31 @@ class YamlLoader(client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return service from fabric8
      */
-    fun loadService(path: String): Service? {
+    fun loadService(path: String): Service {
 
         val service = loadGenericRessource(path, { x: String -> client.services().load(x).get() })
         return service
     }
+
+
+    /**
+     * Parses a Service from a servive yaml
+     * @param path of the yaml file
+     * @return service from fabric8
+     */
+    fun loadService(path: String): Service {
+
+        val service = loadGenericRessource(path, { x: String -> client.services().load(x).get() })
+        return service
+    }
+
 
     /**
      * Parses a Deployment from a Deployment yaml
      * @param path of the yaml file
      * @return Deployment from fabric8
      */
-    fun loadDeployment(path: String): Deployment? {
+    fun loadDeployment(path: String): Deployment {
         val deployment = loadGenericRessource(path, { x: String -> client.apps().deployments().load(x).get() })
         return deployment
     }
@@ -41,7 +54,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return ConfigMap from fabric8
      */
-    fun loadConfigmap(path: String): ConfigMap? {
+    fun loadConfigmap(path: String): ConfigMap {
         val configMap = loadGenericRessource(path, { x: String -> client.configMaps().load(x).get() })
         return configMap
     }
@@ -51,7 +64,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
      * @param path of the resource
      * @param f fuction that shall be applied to the resource.
      */
-    private fun <T> loadGenericRessource(path: String, f: (String) -> T): T? {
+    private fun <T> loadGenericRessource(path: String, f: (String) -> T): T {
         var resource: T? = null
 
         try {
@@ -60,6 +73,11 @@ class YamlLoader(client: NamespacedKubernetesClient) {
             logger.info("You potentially  misspelled the path: $path")
             logger.info("$e")
         }
+
+        if (resource == null) {
+            throw NullPointerException("The Ressource at path: " + path + " could not be loaded")
+        }
+
         return resource
     }
 }
