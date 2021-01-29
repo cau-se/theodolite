@@ -12,7 +12,7 @@ class TopicManager(boostrapIp: String) {
     init {
         try {
             kafkaAdmin = AdminClient.create(props)
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             System.out.println(e.toString())
         }
     }
@@ -45,7 +45,7 @@ class TopicManager(boostrapIp: String) {
 
         try {
             result.all().get()
-        } catch (ex:Exception) {
+        } catch (ex: Exception) {
             System.out.println(ex.toString())
         }
         System.out.println("Topics deleted")

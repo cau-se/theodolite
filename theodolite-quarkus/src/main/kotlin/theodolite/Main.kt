@@ -1,4 +1,5 @@
 package theodolite
+
 import io.quarkus.runtime.annotations.QuarkusMain
 import theodolite.execution.TheodoliteExecutor
 import mu.KotlinLogging

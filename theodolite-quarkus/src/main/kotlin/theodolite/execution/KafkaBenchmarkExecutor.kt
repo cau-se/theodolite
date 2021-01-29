@@ -11,7 +11,7 @@ private val logger = KotlinLogging.logger {}
 
 class KafkaBenchmarkExecutor(benchmark: Benchmark, results: Results, executionDuration: Duration) : BenchmarkExecutor(benchmark, results, executionDuration) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
-        benchmark.start()
+        benchmark.start(load, res)
         this.waitAndLog()
         benchmark.stop()
         // todo evaluate

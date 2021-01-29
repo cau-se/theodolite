@@ -8,7 +8,7 @@ import java.time.Duration
 
 class TheodoliteExecutor() {
     private fun loadConfig(): Config {
-        val benchmark: Benchmark = KafkaBenchmark(emptyMap())
+        val benchmark: KafkaBenchmark = KafkaBenchmark(emptyMap())
         val results: Results = Results()
         val executionDuration = Duration.ofSeconds(60*5 )
         val executor: BenchmarkExecutor = KafkaBenchmarkExecutor(benchmark, results, executionDuration)

@@ -2,7 +2,7 @@ package theodolite.util
 
 class KafkaBenchmark(config: Map<String, Any>): Benchmark(config) {
 
-    override fun start() {
+    override fun start(load: LoadDimension, resources: Resource) {
         TODO("Not yet implemented")
     }
 
@@ -10,8 +10,7 @@ class KafkaBenchmark(config: Map<String, Any>): Benchmark(config) {
         TODO("Not yet implemented")
     }
 
-    override fun startWorkloadGenerator(wg: String, dimValue: Int, ucId: String) {
+    override fun startWorkloadGenerator(wg: String, load: LoadDimension, ucId: String) {
         TODO("Not yet implemented")
     }
-
 }
