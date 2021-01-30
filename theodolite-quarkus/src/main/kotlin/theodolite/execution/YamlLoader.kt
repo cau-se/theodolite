@@ -2,6 +2,7 @@ package theodolite.execution
 
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.Service
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
@@ -26,18 +27,17 @@ class YamlLoader(client: NamespacedKubernetesClient) {
         return service
     }
 
-
     /**
      * Parses a Service from a servive yaml
      * @param path of the yaml file
      * @return service from fabric8
      */
-    fun loadService(path: String): Service {
+    fun loadServiceMonitor(path: String): CustomResourceDefinition {
 
-        val service = loadGenericRessource(path, { x: String -> client.services().load(x).get() })
-        return service
+        val serviceMonitor =
+            loadGenericRessource(path, { x: String -> client.customResourceDefinitions().load(x).get() })
+        return serviceMonitor
     }
-
 
     /**
      * Parses a Deployment from a Deployment yaml
