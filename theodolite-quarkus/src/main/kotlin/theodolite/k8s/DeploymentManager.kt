@@ -1,4 +1,4 @@
-package theodolite.execution
+package theodolite.k8s
 
 import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.EnvVar
