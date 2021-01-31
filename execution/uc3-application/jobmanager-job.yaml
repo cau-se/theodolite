@@ -13,6 +13,7 @@ spec:
       containers:
         - name: jobmanager
           image: nicobiernat/theodolite-flink-uc3
+          imagePullPolicy: IfNotPresent
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "my-confluent-cp-kafka:9092"

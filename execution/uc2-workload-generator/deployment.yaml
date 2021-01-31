@@ -17,6 +17,7 @@ spec:
       - name: workload-generator
         image: nicobiernat/theodolite-flink-uc2-wg:latest
         #image: theodolite/theodolite-uc2-workload-generator:v0.1.2
+        imagePullPolicy: IfNotPresent
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "my-confluent-cp-kafka:9092"

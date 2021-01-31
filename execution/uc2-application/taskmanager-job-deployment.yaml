@@ -18,6 +18,7 @@ spec:
         - name: taskmanager
           #image: nicobiernat/theodolite-flink-uc2
           image: theodolitebuild/theodolite-flink-uc2:latest
+          imagePullPolicy: IfNotPresent
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "my-confluent-cp-kafka:9092"
