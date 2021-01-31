@@ -23,14 +23,14 @@ spec:
               value: "my-confluent-cp-kafka:9092"
             - name: COMMIT_INTERVAL_MS
               value: "{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}"
-            - name: JOB_MANAGER_RPC_ADDRESS
-              value: "flink-jobmanager"
-            - name: TASK_MANAGER_NUMBER_OF_TASK_SLOTS
-              value: "{{TASKSLOTS}}"
+            #- name: CHECKPOINTING
+            #  value: "false"
             - name: FLINK_STATE_BACKEND
               value: "rocksdb"
             - name: FLINK_STATE_BACKEND_PATH
               value: "file:///opt/flink/statebackend"
+            - name: TASK_MANAGER_NUMBER_OF_TASK_SLOTS
+              value: "{{TASKSLOTS}}"
             - name: FLINK_PROPERTIES
               value: |+
                 blob.server.port: 6124
@@ -40,6 +40,8 @@ spec:
                 jobmanager.memory.process.size: {{MEMORY_LIMIT}}
                 taskmanager.memory.process.size: {{MEMORY_LIMIT}}
                 parallelism.default: {{PARALLELISM}}
+            - name: JOB_MANAGER_RPC_ADDRESS
+              value: "flink-jobmanager"
           resources:
             limits:
               memory: "{{MEMORY_LIMIT}}"
