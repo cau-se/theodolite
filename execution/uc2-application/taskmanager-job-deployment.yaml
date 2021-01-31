@@ -25,9 +25,9 @@ spec:
             - name: COMMIT_INTERVAL_MS
               value: "{{KAFKA_STREAMS_COMMIT_INTERVAL_MS}}"
             - name: CHECKPOINTING
-              value: "true"
-            #- name: "FLINK_STATE_BACKEND"
-            #  value: "rocksdb"
+              value: "false"
+            - name: FLINK_STATE_BACKEND
+              value: "rocksdb"
             - name: JOB_MANAGER_RPC_ADDRESS
               value: "flink-jobmanager"
             - name: TASK_MANAGER_NUMBER_OF_TASK_SLOTS
