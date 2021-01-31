@@ -66,6 +66,13 @@ class DeploymentManager(client: NamespacedKubernetesClient) {
         }
     }
 
+    /**
+     * Change the image name of a container (SUT and the Worklaodgenerators)
+     */
+    fun setReplica(deployment: Deployment, replicas: Int) {
+        deployment.spec.setReplicas(replicas)
+    }
+
     // TODO potential add exception handling
     fun deploy(deployment: Deployment) {
         client.apps().deployments().create(deployment)
