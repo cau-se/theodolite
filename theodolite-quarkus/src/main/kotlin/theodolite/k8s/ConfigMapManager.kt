@@ -11,7 +11,7 @@ class ConfigMapManager(client: NamespacedKubernetesClient) {
     }
 
     fun deploy(configMap: ConfigMap) {
-        client.configMaps().create(configMap)
+        client.configMaps().createOrReplace(configMap)
     }
 
     fun delete(configMap: ConfigMap) {

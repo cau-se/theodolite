@@ -18,7 +18,7 @@ class ServiceManager(client: NamespacedKubernetesClient) {
     }
 
     fun deploy(service: Service) {
-        client.services().create(service)
+        client.services().createOrReplace(service)
     }
 
     fun delete(service: Service) {
