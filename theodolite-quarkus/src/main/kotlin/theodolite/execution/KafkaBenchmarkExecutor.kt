@@ -13,7 +13,7 @@ class KafkaBenchmarkExecutor(benchmark: Benchmark, results: Results, executionDu
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         benchmark.start(load, res)
         this.waitAndLog()
-        benchmark.stop()
+        benchmark.clearClusterEnvironment()
         // todo evaluate
         val result = false // if success else false
         this.results.setResult(Pair(load, res), result)

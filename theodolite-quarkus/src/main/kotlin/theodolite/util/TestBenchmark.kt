@@ -5,7 +5,7 @@ class TestBenchmark: Benchmark(config = emptyMap()) {
         TODO("Not yet implemented")
     }
 
-    override fun stop() {
+    override fun clearClusterEnvironment() {
         TODO("Not yet implemented")
     }
 
