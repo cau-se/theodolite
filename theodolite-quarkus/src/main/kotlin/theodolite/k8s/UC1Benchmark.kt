@@ -29,9 +29,6 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         this.serviceManager = ServiceManager(this.kubernetesClient)
         ucDeployment = this.yamlLoader.loadDeployment(this.config.ucDeploymentPath)
         ucService = this.yamlLoader.loadService(this.config.ucServicePath)
-
-
-
     }
 
     override fun clearClusterEnvironment() {
@@ -48,10 +45,13 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     }
 
     override fun startSUT(resources: Resource) {
+        this.deploymentManager.setImageName(ucDeployment, "uc-application", this.config.ucImageURL)
+
         // set environment variables
         val environmentVariables: MutableMap<String, String> = mutableMapOf()
         environmentVariables.put("KAFKA_BOOTSTRAP_SERVER", this.config.kafkaIPConnectionString)
         environmentVariables.put("SCHEMA_REGISTRY_URL", this.config.schemaRegistryConnectionString)
+
 
         // setup deployment
         this.deploymentManager.setReplica(ucDeployment, resources.get())
@@ -63,12 +63,15 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     }
 
     override fun startWorkloadGenerator(load: LoadDimension) {
+        this.deploymentManager.setImageName(ucDeployment, "workload-generator", this.config.wgImageURL)
         val wgDeployment = this.yamlLoader.loadDeployment(this.config.wgDeploymentPath)
-        val environmentVariables: MutableMap<String, String> = mutableMapOf()
-        environmentVariables.put("NUM_SENSORS", load.get().toString())
+
         // TODO ("calculate number of required instances")
         val requiredInstances: Int = 1
+        val environmentVariables: MutableMap<String, String> = mutableMapOf()
+        environmentVariables.put("NUM_SENSORS", load.get().toString())
         environmentVariables.put("NUM_INSTANCES", requiredInstances.toString())
+
         this.deploymentManager.setWorkloadEnv(wgDeployment, "workload-generator", environmentVariables)
     }
 
@@ -81,6 +84,8 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         val kafkaPartition: Int,
         val ucDeploymentPath: String,
         val ucServicePath: String,
-        val wgDeploymentPath: String
+        val wgDeploymentPath: String,
+        val ucImageURL: String,
+        val wgImageURL: String
         ) {}
 }

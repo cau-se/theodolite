@@ -17,9 +17,12 @@ class TheodoliteExecutor() {
                 kafkaPartition = 40,
                 kafkaReplication = 3,
                 kafkaTopics = listOf("input", "output"),
-                ucDeploymentPath = "",
-                ucServicePath = "",
-                wgDeploymentPath = ""
+                // TODO("handle path in a more nice way (not absolut)")
+                ucDeploymentPath = "src/main/resources/yaml/aggregation-deployment.yaml",
+                ucServicePath = "src/main/resources/yaml/aggregation-service.yaml",
+                wgDeploymentPath = "src/main/resources/yaml/workloadGenerator.yaml",
+                ucImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest",
+                wgImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-workload-generator:latest"
         ))
         val results: Results = Results()
         val executionDuration = Duration.ofSeconds(60*5 )
