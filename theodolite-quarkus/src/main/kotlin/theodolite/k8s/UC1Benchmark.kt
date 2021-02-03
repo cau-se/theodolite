@@ -4,9 +4,12 @@ import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
+import mu.KotlinLogging
 import theodolite.util.Benchmark
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+
+private val logger = KotlinLogging.logger {}
 
 class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     val workloadGeneratorStateCleaner: WorkloadGeneratorStateCleaner
@@ -19,6 +22,7 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     val serviceManager: ServiceManager
     var ucDeployment: Deployment
     var ucService: Service
+    var wgDeployment: Deployment
 
 
     init {
@@ -30,6 +34,7 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         this.serviceManager = ServiceManager(this.kubernetesClient)
         ucDeployment = this.yamlLoader.loadDeployment(this.config.ucDeploymentPath)
         ucService = this.yamlLoader.loadService(this.config.ucServicePath)
+        wgDeployment = this.yamlLoader.loadDeployment(this.config.wgDeploymentPath)
     }
 
     override fun clearClusterEnvironment() {
@@ -37,6 +42,7 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         this.topicManager.deleteTopics(this.config.kafkaTopics)
         this.deploymentManager.delete(this.ucDeployment)
         this.serviceManager.delete(this.ucService)
+        this.deploymentManager.delete(this.wgDeployment)
     }
 
     override fun initializeClusterEnvironment() {
@@ -71,20 +77,23 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
 
     override fun startWorkloadGenerator(load: LoadDimension) {
         this.deploymentManager.setImageName(ucDeployment, "workload-generator", this.config.wgImageURL)
-        val wgDeployment = this.yamlLoader.loadDeployment(this.config.wgDeploymentPath)
+
 
         // TODO ("calculate number of required instances")
         val requiredInstances: Int = 1
         val environmentVariables: MutableMap<String, String> = mutableMapOf()
         environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
-        environmentVariables.put("ZK_HOST", this.config.schemaRegistryConnectionString.split(":")[0])
-        environmentVariables.put("ZK_PORT", this.config.schemaRegistryConnectionString.split(":")[1])
-
-
+        environmentVariables.put("ZK_HOST", this.config.zookeeperConnectionString.split(":")[0])
+        environmentVariables.put("ZK_PORT", this.config.zookeeperConnectionString.split(":")[1])
         environmentVariables.put("NUM_SENSORS", load.get().toString())
         environmentVariables.put("NUM_INSTANCES", requiredInstances.toString())
 
-        this.deploymentManager.setWorkloadEnv(wgDeployment, "workload-generator", environmentVariables)
+
+        logger.info { environmentVariables.toString() }
+        this.deploymentManager.setWorkloadEnv(this.wgDeployment, "workload-generator", environmentVariables)
+
+        logger.info { this.wgDeployment. }
+        this.deploymentManager.deploy(this.wgDeployment)
     }
 
     data class UC1BenchmarkConfig(

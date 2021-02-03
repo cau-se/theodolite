@@ -15,8 +15,8 @@ class TheodoliteExecutor() {
     private fun loadConfig(): Config {
         val benchmark: UC1Benchmark = UC1Benchmark(
             UC1Benchmark.UC1BenchmarkConfig(    // use port forward 2181 -> 2181
-                zookeeperConnectionString = "127.0.0.1:2181", //"my-confluent-cp-zookeeper:2181", //localhost:2181.
-                kafkaIPConnectionString = "localhost:9093",//"my-confluent-cp-kafka:","178.18.0."
+                zookeeperConnectionString = "localhost:2181", //"my-confluent-cp-zookeeper:2181", //localhost:2181.
+                kafkaIPConnectionString = "localhost:9092",//"my-confluent-cp-kafka:","178.18.0."
                 schemaRegistryConnectionString = "http://my-confluent-cp-schema-registry:8081",
                 kafkaPartition = 40,
                 kafkaReplication = 1,
@@ -37,8 +37,8 @@ class TheodoliteExecutor() {
         val searchStrategy = LinearSearch(executor, results)
 
         return Config(
-            loads = (0..6).map { number -> LoadDimension(number) },
-            resources = (0..6).map { number -> Resource(number) },
+            loads = (1..6).map { number -> LoadDimension(number) },
+            resources = (1..6).map { number -> Resource(number) },
             compositeStrategy = CompositeStrategy(
                 executor,
                 searchStrategy,
