@@ -1,11 +1,14 @@
 package theodolite.execution
 
+import mu.KotlinLogging
 import theodolite.k8s.UC1Benchmark
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.strategies.searchstrategy.LinearSearch
 import theodolite.util.*
 import java.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 class TheodoliteExecutor() {
     private fun loadConfig(): Config {

@@ -1,9 +1,12 @@
 package theodolite.k8s
 
+import mu.KotlinLogging
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.ListTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
+
+private val logger = KotlinLogging.logger {}
 
 class TopicManager(boostrapIp: String) {
     val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to boostrapIp)
@@ -13,7 +16,7 @@ class TopicManager(boostrapIp: String) {
         try {
             kafkaAdmin = AdminClient.create(props)
         } catch (e: Exception) {
-            System.out.println(e.toString())
+            logger.error {e.toString()}
         }
     }
 
@@ -25,7 +28,7 @@ class TopicManager(boostrapIp: String) {
             newTopics.add(tops)
         }
         kafkaAdmin.createTopics(newTopics)
-        System.out.println("Topics created")
+        logger.info {"Topics created"}
     }
 
     fun createTopics(topics: List<String>, numPartitions: Int, replicationfactor: Short) {
@@ -36,7 +39,7 @@ class TopicManager(boostrapIp: String) {
             newTopics.add(tops)
         }
         kafkaAdmin.createTopics(newTopics)
-        System.out.println("Creation of $topics started")
+        logger.info {"Creation of $topics started"}
     }
 
     fun deleteTopics(topics: List<String>) {
@@ -46,9 +49,9 @@ class TopicManager(boostrapIp: String) {
         try {
             result.all().get()
         } catch (ex: Exception) {
-            System.out.println(ex.toString())
+            logger.error {ex.toString()}
         }
-        System.out.println("Topics deleted")
+        logger.info {"Topics deleted"}
     }
 
     fun getTopics(): ListTopicsResult? {
