@@ -20,21 +20,20 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : Sea
             throw IllegalArgumentException()
         }
         if (lower == upper ) {
-            if (this.benchmarkExecutor.runExperiment(load, resources[lower])) return lower;
+            if (this.benchmarkExecutor.runExperiment(load, resources[lower])) return lower
             else {
                 if (lower + 1 == resources.size) return - 1
-                return lower + 1;
+                return lower + 1
             }
         } else {
-            // (true, true), (false, true), (false, false) // (false, false, false, true, false, true, false, true)
             val mid = (upper + lower) / 2
             if (this.benchmarkExecutor.runExperiment(load, resources[mid])) {
                 if (mid == lower) {
                     return lower
                 }
-                return search(load, resources, lower, mid - 1 );
+                return search(load, resources, lower, mid - 1 )
             } else {
-              return search(load, resources, mid + 1 , upper);
+              return search(load, resources, mid + 1 , upper)
             }
         }
     }
