@@ -67,8 +67,8 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
 
         // set environment variables
         val environmentVariables: MutableMap<String, String> = mutableMapOf()
-        environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
-        environmentVariables.put("SCHEMA_REGISTRY_URL", this.config.schemaRegistryConnectionString)
+        //environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
+        //environmentVariables.put("SCHEMA_REGISTRY_URL", this.config.schemaRegistryConnectionString)
 
 
         // setup deployment
@@ -89,9 +89,9 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         // TODO ("calculate number of required instances")
         val requiredInstances: Int = 1
         val environmentVariables: MutableMap<String, String> = mutableMapOf()
-        environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
-        environmentVariables.put("ZK_HOST", this.config.zookeeperConnectionString.split(":")[0])
-        environmentVariables.put("ZK_PORT", this.config.zookeeperConnectionString.split(":")[1])
+        //environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
+        //environmentVariables.put("ZK_HOST", this.config.zookeeperConnectionString.split(":")[0])
+        //environmentVariables.put("ZK_PORT", this.config.zookeeperConnectionString.split(":")[1])
         environmentVariables.put("NUM_SENSORS", load.get().toString())
         environmentVariables.put("INSTANCES", requiredInstances.toString())
 

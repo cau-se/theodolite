@@ -1,5 +1,6 @@
 package theodolite.execution
 
+import mu.KotlinLogging
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.Benchmark
 import theodolite.util.LoadDimension
@@ -12,8 +13,6 @@ class TestBenchmarkExecutor(private val mockResults: Array<Array<Boolean>>, benc
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         val result = this.mockResults[load.get()][res.get()]
-
-        System.out.println("load :" + load.get().toString() + ", res: " + res.get().toString() + ", res: " + result)
 
         this.results.setResult(Pair(load, res), result)
         return result;

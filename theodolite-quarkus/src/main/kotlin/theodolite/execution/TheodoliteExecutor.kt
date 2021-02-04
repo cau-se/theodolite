@@ -1,5 +1,6 @@
 package theodolite.execution
 
+import mu.KotlinLogging
 import theodolite.k8s.UC1Benchmark
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.CompositeStrategy
@@ -9,6 +10,8 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 class TheodoliteExecutor() {
     val path = "/home/lorenz/git/spesb/theodolite-quarkus/src/main/resources/yaml"
@@ -31,7 +34,9 @@ class TheodoliteExecutor() {
             )
         )
         val results: Results = Results()
+
         val executionDuration = Duration.ofSeconds(60 * 5)
+
         val executor: BenchmarkExecutor = KafkaBenchmarkExecutor(benchmark, results, executionDuration)
 
         val restrictionStrategy = LowerBoundRestriction(results)
@@ -56,8 +61,7 @@ class TheodoliteExecutor() {
 
         // execute benchmarks for each load
         for (load in config.loads) {
-            config.compositeStrategy.findSuitableResources(load, config.resources)
+            config.compositeStrategy.findSuitableResource(load, config.resources)
         }
-
     }
 }
