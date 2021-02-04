@@ -1,5 +1,6 @@
 package theodolite.k8s
 
+import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
@@ -20,9 +21,11 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     val yamlLoader: YamlLoader
     val deploymentManager: DeploymentManager
     val serviceManager: ServiceManager
+    val configMapManager: ConfigMapManager
     var ucDeployment: Deployment
     var ucService: Service
     var wgDeployment: Deployment
+    var configMap: ConfigMap
 
 
     init {
@@ -32,9 +35,11 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         this.yamlLoader = YamlLoader(this.kubernetesClient)
         this.deploymentManager = DeploymentManager(this.kubernetesClient)
         this.serviceManager = ServiceManager(this.kubernetesClient)
+        this.configMapManager = ConfigMapManager(this.kubernetesClient)
         ucDeployment = this.yamlLoader.loadDeployment(this.config.ucDeploymentPath)
         ucService = this.yamlLoader.loadService(this.config.ucServicePath)
         wgDeployment = this.yamlLoader.loadDeployment(this.config.wgDeploymentPath)
+        configMap = this.yamlLoader.loadConfigmap(this.config.configMapPath)
     }
 
     override fun clearClusterEnvironment() {
@@ -70,13 +75,15 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         this.deploymentManager.setReplica(ucDeployment, resources.get())
         this.deploymentManager.setWorkloadEnv(ucDeployment, "uc-application", environmentVariables)
 
+
         // create kubernetes resources
         this.deploymentManager.deploy(ucDeployment)
         this.serviceManager.deploy(ucService)
+        this.configMapManager.deploy(configMap)
     }
 
     override fun startWorkloadGenerator(load: LoadDimension) {
-        this.deploymentManager.setImageName(ucDeployment, "workload-generator", this.config.wgImageURL)
+        this.deploymentManager.setImageName(wgDeployment, "workload-generator", this.config.wgImageURL)
 
 
         // TODO ("calculate number of required instances")
@@ -86,13 +93,13 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         environmentVariables.put("ZK_HOST", this.config.zookeeperConnectionString.split(":")[0])
         environmentVariables.put("ZK_PORT", this.config.zookeeperConnectionString.split(":")[1])
         environmentVariables.put("NUM_SENSORS", load.get().toString())
-        environmentVariables.put("NUM_INSTANCES", requiredInstances.toString())
+        environmentVariables.put("INSTANCES", requiredInstances.toString())
 
 
-        logger.info { environmentVariables.toString() }
+        logger.info { this.config.toString() }
+        logger.info { this.wgDeployment.toString() }
         this.deploymentManager.setWorkloadEnv(this.wgDeployment, "workload-generator", environmentVariables)
-
-        logger.info { this.wgDeployment. }
+        logger.info { this.wgDeployment.toString() }
         this.deploymentManager.deploy(this.wgDeployment)
     }
 
@@ -105,6 +112,7 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         val kafkaPartition: Int,
         val ucDeploymentPath: String,
         val ucServicePath: String,
+        val configMapPath: String,
         val wgDeploymentPath: String,
         val ucImageURL: String,
         val wgImageURL: String

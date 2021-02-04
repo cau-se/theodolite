@@ -25,8 +25,9 @@ class TheodoliteExecutor() {
                 ucDeploymentPath = path + "/aggregation-deployment.yaml",
                 ucServicePath = path + "/aggregation-service.yaml",
                 wgDeploymentPath = path + "/workloadGenerator.yaml",
+                configMapPath = path + "jmx-configmap",
                 ucImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest",
-                wgImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-workload-generator:latest"
+                wgImageURL = "ghcr.io/cau-se/theodolite-uc1-workload-generator:theodolite-kotlin-latest"
             )
         )
         val results: Results = Results()
