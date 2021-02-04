@@ -10,14 +10,14 @@ private val logger = KotlinLogging.logger {}
 
 
 class WorkloadGeneratorStateCleaner(ip: String) {
-    val path = "/workload-generation"
-    val sessionTimeout = 60
-    val retryTime = 3000L
+    private val path = "/workload-generation"
+    private val sessionTimeout = 60
+    private val retryTime = 3000L
     lateinit var zookeeperClient: ZooKeeper
 
     init {
         try {
-            val watcher: Watcher = ZookeperWatcher()  // defined below
+            val watcher: Watcher = ZookeeperWatcher()  // defined below
             zookeeperClient = ZooKeeper(ip, sessionTimeout, watcher)
         } catch (e: Exception) {
             logger.error {e.toString()}
@@ -57,7 +57,7 @@ class WorkloadGeneratorStateCleaner(ip: String) {
         logger.info {"ZooKeeper reset was successful"}
     }
 
-    private class ZookeperWatcher : Watcher {
+    private class ZookeeperWatcher : Watcher {
 
         override fun process(event: WatchedEvent) {}
     }

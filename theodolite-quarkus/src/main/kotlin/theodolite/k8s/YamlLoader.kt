@@ -9,12 +9,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-class YamlLoader(client: NamespacedKubernetesClient) {
-    var client: NamespacedKubernetesClient
-
-    init {
-        this.client = client
-    }
+class YamlLoader(private val client: NamespacedKubernetesClient) {
 
     /**
      * Parses a Service from a servive yaml
@@ -22,9 +17,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
      * @return service from fabric8
      */
     fun loadService(path: String): Service {
-
-        val service = loadGenericRessource(path, { x: String -> client.services().load(x).get() })
-        return service
+        return loadGenericRessource(path) { x: String -> client.services().load(x).get() }
     }
 
     /**
@@ -33,10 +26,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
      * @return service from fabric8
      */
     fun loadServiceMonitor(path: String): CustomResourceDefinition {
-
-        val serviceMonitor =
-            loadGenericRessource(path, { x: String -> client.customResourceDefinitions().load(x).get() })
-        return serviceMonitor
+        return loadGenericRessource(path) { x: String -> client.customResourceDefinitions().load(x).get() }
     }
 
     /**
@@ -45,8 +35,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
      * @return Deployment from fabric8
      */
     fun loadDeployment(path: String): Deployment {
-        val deployment = loadGenericRessource(path, { x: String -> client.apps().deployments().load(x).get() })
-        return deployment
+        return loadGenericRessource(path) { x: String -> client.apps().deployments().load(x).get() }
     }
 
     /**
@@ -55,8 +44,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
      * @return ConfigMap from fabric8
      */
     fun loadConfigmap(path: String): ConfigMap {
-        val configMap = loadGenericRessource(path, { x: String -> client.configMaps().load(x).get() })
-        return configMap
+        return loadGenericRessource(path) { x: String -> client.configMaps().load(x).get() }
     }
 
     /**
@@ -75,7 +63,7 @@ class YamlLoader(client: NamespacedKubernetesClient) {
         }
 
         if (resource == null) {
-            throw NullPointerException("The Ressource at path: " + path + " could not be loaded")
+            throw NullPointerException("The Ressource at path: $path could not be loaded")
         }
 
         return resource

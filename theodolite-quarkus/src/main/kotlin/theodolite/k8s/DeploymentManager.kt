@@ -10,12 +10,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-class DeploymentManager(client: NamespacedKubernetesClient) {
-    var client: NamespacedKubernetesClient
-
-    init {
-        this.client = client
-    }
+class DeploymentManager(private val client: NamespacedKubernetesClient) {
 
     /**
      * Sets the ContainerEvironmentVariables, creates new if variable don t exist.
@@ -75,11 +70,11 @@ class DeploymentManager(client: NamespacedKubernetesClient) {
 
     // TODO potential add exception handling
     fun deploy(deployment: Deployment) {
-        client.apps().deployments().createOrReplace(deployment)
+        this.client.apps().deployments().createOrReplace(deployment)
     }
 
     // TODO potential add exception handling
     fun delete(deployment: Deployment) {
-        client.apps().deployments().delete(deployment)
+        this.client.apps().deployments().delete(deployment)
     }
 }

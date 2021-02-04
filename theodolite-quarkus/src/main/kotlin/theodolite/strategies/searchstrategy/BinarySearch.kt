@@ -3,19 +3,23 @@ package theodolite.strategies.searchstrategy
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
-import theodolite.util.Results
 import java.lang.IllegalArgumentException
 
-class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : SearchStrategy(benchmarkExecutor, results) {
+/**
+ *  Search for the smallest suitable resource with binary search.
+ *
+ * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
+ */
+class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
-        val result =  search(load, resources, 0, resources.size - 1)
+        val result = binarySearch(load, resources, 0, resources.size - 1)
         if( result == -1 ) {
             return null;
         }
         return resources[result]
     }
 
-    private fun search (load: LoadDimension, resources: List<Resource>, lower: Int, upper: Int): Int {
+    private fun binarySearch (load: LoadDimension, resources: List<Resource>, lower: Int, upper: Int): Int {
         if (lower > upper) {
             throw IllegalArgumentException()
         }
@@ -33,9 +37,9 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : Sea
                 if (mid == lower) {
                     return lower
                 }
-                return search(load, resources, lower, mid - 1 )
+                return binarySearch(load, resources, lower, mid - 1 )
             } else {
-              return search(load, resources, mid + 1 , upper)
+              return binarySearch(load, resources, mid + 1 , upper)
             }
         }
     }

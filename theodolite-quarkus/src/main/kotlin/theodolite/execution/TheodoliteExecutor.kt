@@ -14,7 +14,7 @@ import java.time.Duration
 private val logger = KotlinLogging.logger {}
 
 class TheodoliteExecutor() {
-    val path = "/home/lorenz/git/spesb/theodolite-quarkus/src/main/resources/yaml"
+    private val path = "/home/lorenz/git/spesb/theodolite-quarkus/src/main/resources/yaml"
     private fun loadConfig(): Config {
         val benchmark: UC1Benchmark = UC1Benchmark(
             UC1Benchmark.UC1BenchmarkConfig(    // use port forward 2181 -> 2181
@@ -25,10 +25,10 @@ class TheodoliteExecutor() {
                 kafkaReplication = 1,
                 kafkaTopics = listOf("input", "output"),
                 // TODO("handle path in a more nice way (not absolut)")
-                ucDeploymentPath = path + "/aggregation-deployment.yaml",
-                ucServicePath = path + "/aggregation-service.yaml",
-                wgDeploymentPath = path + "/workloadGenerator.yaml",
-                configMapPath = path + "/jmx-configmap.yaml",
+                ucDeploymentPath = "$path/aggregation-deployment.yaml",
+                ucServicePath = "$path/aggregation-service.yaml",
+                wgDeploymentPath = "$path/workloadGenerator.yaml",
+                configMapPath = "$path/jmx-configmap.yaml",
                 ucImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest",
                 wgImageURL = "ghcr.io/cau-se/theodolite-uc1-workload-generator:theodolite-kotlin-latest"
             )
@@ -37,10 +37,10 @@ class TheodoliteExecutor() {
 
         val executionDuration = Duration.ofSeconds(60 * 5)
 
-        val executor: BenchmarkExecutor = KafkaBenchmarkExecutor(benchmark, results, executionDuration)
+        val executor: BenchmarkExecutor = BenchmarkExecutorImpl(benchmark, results, executionDuration)
 
         val restrictionStrategy = LowerBoundRestriction(results)
-        val searchStrategy = LinearSearch(executor, results)
+        val searchStrategy = LinearSearch(executor)
 
         return Config(
             loads = (1..6).map { number -> LoadDimension(number) },
@@ -48,8 +48,7 @@ class TheodoliteExecutor() {
             compositeStrategy = CompositeStrategy(
                 executor,
                 searchStrategy,
-                restrictionStrategies = setOf(restrictionStrategy),
-                results = results
+                restrictionStrategies = setOf(restrictionStrategy)
             ),
             executionDuration = executionDuration
         )

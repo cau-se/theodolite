@@ -9,7 +9,7 @@ import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
-class KafkaBenchmarkExecutor(benchmark: Benchmark, results: Results, executionDuration: Duration) : BenchmarkExecutor(benchmark, results, executionDuration) {
+class BenchmarkExecutorImpl(benchmark: Benchmark, results: Results, executionDuration: Duration) : BenchmarkExecutor(benchmark, results, executionDuration) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         benchmark.start(load, res)
         this.waitAndLog()

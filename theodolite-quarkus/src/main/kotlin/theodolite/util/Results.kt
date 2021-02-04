@@ -9,11 +9,11 @@ class Results {
     private val results: MutableMap<Pair<LoadDimension, Resource>, Boolean> = mutableMapOf() // multi map guava
 
     public fun setResult(experiment: Pair<LoadDimension, Resource>, successful: Boolean) {
-        this.results.put(experiment, successful)
+        this.results[experiment] = successful
     }
 
     public fun getResult (experiment: Pair<LoadDimension, Resource>): Boolean? {
-        return this.results.get(experiment)
+        return this.results[experiment]
     }
 
     public fun getMinRequiredInstances(load: LoadDimension?): Resource? {

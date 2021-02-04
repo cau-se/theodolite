@@ -13,19 +13,19 @@ import theodolite.util.Resource
 private val logger = KotlinLogging.logger {}
 
 class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
-    val workloadGeneratorStateCleaner: WorkloadGeneratorStateCleaner
-    val topicManager: TopicManager
+    private val workloadGeneratorStateCleaner: WorkloadGeneratorStateCleaner
+    private val topicManager: TopicManager
 
     // TODO("service monitor")
-    val kubernetesClient: NamespacedKubernetesClient
-    val yamlLoader: YamlLoader
-    val deploymentManager: DeploymentManager
-    val serviceManager: ServiceManager
-    val configMapManager: ConfigMapManager
-    var ucDeployment: Deployment
-    var ucService: Service
-    var wgDeployment: Deployment
-    var configMap: ConfigMap
+    private val kubernetesClient: NamespacedKubernetesClient
+    private val yamlLoader: YamlLoader
+    private val deploymentManager: DeploymentManager
+    private val serviceManager: ServiceManager
+    private val configMapManager: ConfigMapManager
+    private var ucDeployment: Deployment
+    private var ucService: Service
+    private var wgDeployment: Deployment
+    private var configMap: ConfigMap
 
 
     init {
@@ -92,8 +92,8 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         //environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
         //environmentVariables.put("ZK_HOST", this.config.zookeeperConnectionString.split(":")[0])
         //environmentVariables.put("ZK_PORT", this.config.zookeeperConnectionString.split(":")[1])
-        environmentVariables.put("NUM_SENSORS", load.get().toString())
-        environmentVariables.put("INSTANCES", requiredInstances.toString())
+        environmentVariables["NUM_SENSORS"] = load.get().toString()
+        environmentVariables["INSTANCES"] = requiredInstances.toString()
 
         this.deploymentManager.setWorkloadEnv(this.wgDeployment, "workload-generator", environmentVariables)
         this.deploymentManager.deploy(this.wgDeployment)

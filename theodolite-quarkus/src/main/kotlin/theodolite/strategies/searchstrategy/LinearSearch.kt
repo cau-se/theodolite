@@ -5,7 +5,7 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 
-class LinearSearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : SearchStrategy(benchmarkExecutor, results) {
+class LinearSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
 
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
         for (res in resources) {

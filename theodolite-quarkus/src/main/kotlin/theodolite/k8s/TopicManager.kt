@@ -9,7 +9,7 @@ import org.apache.kafka.clients.admin.NewTopic
 private val logger = KotlinLogging.logger {}
 
 class TopicManager(boostrapIp: String) {
-    val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to boostrapIp)
+    private val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to boostrapIp)
     lateinit var kafkaAdmin: AdminClient
 
     init {

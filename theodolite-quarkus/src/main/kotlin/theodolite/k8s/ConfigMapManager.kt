@@ -3,18 +3,13 @@ package theodolite.k8s
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 
-class ConfigMapManager(client: NamespacedKubernetesClient) {
-    var client: NamespacedKubernetesClient
-
-    init {
-        this.client = client
-    }
+class ConfigMapManager(private val client: NamespacedKubernetesClient) {
 
     fun deploy(configMap: ConfigMap) {
-        client.configMaps().createOrReplace(configMap)
+        this.client.configMaps().createOrReplace(configMap)
     }
 
     fun delete(configMap: ConfigMap) {
-        client.configMaps().delete(configMap)
+        this.client.configMaps().delete(configMap)
     }
 }

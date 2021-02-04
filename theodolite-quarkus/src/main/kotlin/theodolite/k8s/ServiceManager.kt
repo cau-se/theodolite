@@ -3,12 +3,7 @@ package theodolite.k8s
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 
-class ServiceManager(client: NamespacedKubernetesClient) {
-    var client: NamespacedKubernetesClient
-
-    init {
-        this.client = client
-    }
+class ServiceManager(private val client: NamespacedKubernetesClient) {
 
     fun changeServiceName(service: Service, newName: String) {
 
