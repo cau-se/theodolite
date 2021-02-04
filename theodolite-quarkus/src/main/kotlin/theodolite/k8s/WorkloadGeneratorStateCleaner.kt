@@ -1,9 +1,13 @@
 package theodolite.k8s
 
+import mu.KotlinLogging
 import org.apache.zookeeper.KeeperException
 import org.apache.zookeeper.WatchedEvent
 import org.apache.zookeeper.Watcher
 import org.apache.zookeeper.ZooKeeper
+
+private val logger = KotlinLogging.logger {}
+
 
 class WorkloadGeneratorStateCleaner(ip: String) {
     val path = "/workload-generation"
@@ -16,7 +20,7 @@ class WorkloadGeneratorStateCleaner(ip: String) {
             val watcher: Watcher = ZookeperWatcher()  // defined below
             zookeeperClient = ZooKeeper(ip, sessionTimeout, watcher)
         } catch (e: Exception) {
-            System.out.println(e.toString())
+            logger.error {e.toString()}
         }
     }
 
@@ -28,7 +32,7 @@ class WorkloadGeneratorStateCleaner(ip: String) {
             try {
                 zookeeperClient.delete(path, -1)
             } catch (ex: Exception) {
-                System.out.println(ex.toString())
+                logger.error {ex.toString()}
             }
 
             try {
@@ -42,15 +46,15 @@ class WorkloadGeneratorStateCleaner(ip: String) {
                         deleted = true
                     }
                     is InterruptedException -> {
-                        System.out.println(ex.toString())
+                        logger.error {ex.toString()}
                     }
                 }
             }
             Thread.sleep(retryTime)
-            System.out.println("ZooKeeper reset was not successful. Retrying in 5s")
+            logger.info {"ZooKeeper reset was not successful. Retrying in 5s"}
         }
 
-        System.out.println("ZooKeeper reset was successful")
+        logger.info {"ZooKeeper reset was successful"}
     }
 
     private class ZookeperWatcher : Watcher {

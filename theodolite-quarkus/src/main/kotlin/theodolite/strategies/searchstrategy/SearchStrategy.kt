@@ -6,5 +6,5 @@ import theodolite.util.Resource
 import theodolite.util.Results
 
 abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val results: Results) {
-    abstract fun findSuitableResources(load: LoadDimension, resources: List<Resource>): Resource?;
+    abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource?;
 }
