@@ -28,7 +28,7 @@ class TheodoliteExecutor() {
                 wgImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-workload-generator:latest"
         ))
         val results: Results = Results()
-        val executionDuration = Duration.ofSeconds(60*5 )
+        val executionDuration = Duration.ofSeconds(60*5)
         val executor: BenchmarkExecutor = KafkaBenchmarkExecutor(benchmark, results, executionDuration)
 
         val restrictionStrategy = LowerBoundRestriction(results)

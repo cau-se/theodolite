@@ -20,7 +20,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : Sea
             throw IllegalArgumentException()
         }
         // special case:  length == 1 or 2
-        if (lower == upper ) {
+        if (lower == upper) {
             if (this.benchmarkExecutor.runExperiment(load, resources[lower])) return lower
             else {
                 if (lower + 1 == resources.size) return - 1
