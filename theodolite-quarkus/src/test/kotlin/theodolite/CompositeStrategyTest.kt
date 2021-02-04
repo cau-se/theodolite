@@ -40,7 +40,7 @@ class CompositeStrategyTest {
         expected.add(null)
 
         for(load in mockLoads) {
-            actual.add(strategy.findSuitableResources(load, mockResources))
+            actual.add(strategy.findSuitableResource(load, mockResources))
         }
 
         assertEquals(actual, expected)
@@ -71,7 +71,7 @@ class CompositeStrategyTest {
         expected.add(null)
 
         for(load in mockLoads) {
-            actual.add(strategy.findSuitableResources(load, mockResources))
+            actual.add(strategy.findSuitableResource(load, mockResources))
         }
 
         assertEquals(actual, expected)
@@ -101,7 +101,7 @@ class CompositeStrategyTest {
         val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6,7).map{ x -> Resource(x)})
 
         for(load in mockLoads) {
-            actual.add(strategy.findSuitableResources(load, mockResources))
+            actual.add(strategy.findSuitableResource(load, mockResources))
         }
 
         assertEquals(actual, expected)

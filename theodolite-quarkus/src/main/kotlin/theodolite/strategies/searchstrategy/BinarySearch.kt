@@ -7,7 +7,7 @@ import theodolite.util.Results
 import java.lang.IllegalArgumentException
 
 class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : SearchStrategy(benchmarkExecutor, results) {
-    override fun findSuitableResources(load: LoadDimension, resources: List<Resource>): Resource? {
+    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
         val result =  search(load, resources, 0, resources.size - 1)
         if( result == -1 ) {
             return null;
@@ -19,6 +19,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : Sea
         if (lower > upper) {
             throw IllegalArgumentException()
         }
+        // special case:  length == 1 or 2
         if (lower == upper ) {
             if (this.benchmarkExecutor.runExperiment(load, resources[lower])) return lower
             else {
@@ -26,6 +27,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor, results: Results) : Sea
                 return lower + 1
             }
         } else {
+            // apply binary search for a list with length > 2 and adjust upper and lower depending on the result for `resources[mid]`
             val mid = (upper + lower) / 2
             if (this.benchmarkExecutor.runExperiment(load, resources[mid])) {
                 if (mid == lower) {

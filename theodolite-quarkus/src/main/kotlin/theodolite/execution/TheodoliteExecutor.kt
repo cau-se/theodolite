@@ -48,7 +48,7 @@ class TheodoliteExecutor() {
 
         // execute benchmarks for each load
         for(load in config.loads) {
-            config.compositeStrategy.findSuitableResources(load, config.resources)
+            config.compositeStrategy.findSuitableResource(load, config.resources)
         }
 
     }
