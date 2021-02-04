@@ -95,11 +95,7 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         environmentVariables.put("NUM_SENSORS", load.get().toString())
         environmentVariables.put("INSTANCES", requiredInstances.toString())
 
-
-        logger.info { this.config.toString() }
-        logger.info { this.wgDeployment.toString() }
         this.deploymentManager.setWorkloadEnv(this.wgDeployment, "workload-generator", environmentVariables)
-        logger.info { this.wgDeployment.toString() }
         this.deploymentManager.deploy(this.wgDeployment)
     }
 
