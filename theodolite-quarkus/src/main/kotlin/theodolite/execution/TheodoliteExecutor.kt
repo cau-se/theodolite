@@ -5,39 +5,52 @@ import theodolite.k8s.UC1Benchmark
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.strategies.searchstrategy.LinearSearch
-import theodolite.util.*
+import theodolite.util.Config
+import theodolite.util.LoadDimension
+import theodolite.util.Resource
+import theodolite.util.Results
 import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
 class TheodoliteExecutor() {
+    val path = "/home/lorenz/git/spesb/theodolite-quarkus/src/main/resources/yaml"
     private fun loadConfig(): Config {
         val benchmark: UC1Benchmark = UC1Benchmark(
-            UC1Benchmark.UC1BenchmarkConfig(
-                zookeeperConnectionString = "my-confluent-cp-zookeeper:2181",
-                kafkaIPConnectionString = "my-confluent-cp-kafka:9092",
+            UC1Benchmark.UC1BenchmarkConfig(    // use port forward 2181 -> 2181
+                zookeeperConnectionString = "localhost:2181", //"my-confluent-cp-zookeeper:2181", //localhost:2181.
+                kafkaIPConnectionString = "localhost:9092",//"my-confluent-cp-kafka:","178.18.0."
                 schemaRegistryConnectionString = "http://my-confluent-cp-schema-registry:8081",
                 kafkaPartition = 40,
-                kafkaReplication = 3,
+                kafkaReplication = 1,
                 kafkaTopics = listOf("input", "output"),
                 // TODO("handle path in a more nice way (not absolut)")
-                ucDeploymentPath = "src/main/resources/yaml/aggregation-deployment.yaml",
-                ucServicePath = "src/main/resources/yaml/aggregation-service.yaml",
-                wgDeploymentPath = "src/main/resources/yaml/workloadGenerator.yaml",
+                ucDeploymentPath = path + "/aggregation-deployment.yaml",
+                ucServicePath = path + "/aggregation-service.yaml",
+                wgDeploymentPath = path + "/workloadGenerator.yaml",
+                configMapPath = path + "/jmx-configmap.yaml",
                 ucImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest",
-                wgImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-workload-generator:latest"
-        ))
+                wgImageURL = "ghcr.io/cau-se/theodolite-uc1-workload-generator:theodolite-kotlin-latest"
+            )
+        )
         val results: Results = Results()
-        val executionDuration = Duration.ofSeconds(60*5)
+
+        val executionDuration = Duration.ofSeconds(60 * 5)
+
         val executor: BenchmarkExecutor = KafkaBenchmarkExecutor(benchmark, results, executionDuration)
 
         val restrictionStrategy = LowerBoundRestriction(results)
         val searchStrategy = LinearSearch(executor, results)
 
         return Config(
-            loads = (0..6).map{ number -> LoadDimension(number) },
-            resources = (0..6).map{ number -> Resource(number) },
-            compositeStrategy = CompositeStrategy(executor, searchStrategy, restrictionStrategies = setOf(restrictionStrategy), results = results),
+            loads = (1..6).map { number -> LoadDimension(number) },
+            resources = (1..6).map { number -> Resource(number) },
+            compositeStrategy = CompositeStrategy(
+                executor,
+                searchStrategy,
+                restrictionStrategies = setOf(restrictionStrategy),
+                results = results
+            ),
             executionDuration = executionDuration
         )
     }
@@ -47,9 +60,8 @@ class TheodoliteExecutor() {
         val config = this.loadConfig()
 
         // execute benchmarks for each load
-        for(load in config.loads) {
+        for (load in config.loads) {
             config.compositeStrategy.findSuitableResource(load, config.resources)
         }
-
     }
 }

@@ -75,7 +75,7 @@ class DeploymentManager(client: NamespacedKubernetesClient) {
 
     // TODO potential add exception handling
     fun deploy(deployment: Deployment) {
-        client.apps().deployments().create(deployment)
+        client.apps().deployments().createOrReplace(deployment)
     }
 
     // TODO potential add exception handling
