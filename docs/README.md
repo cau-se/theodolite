@@ -1,3 +1,9 @@
+---
+title: Theodolite
+nav_order: 1
+permalink: /
+---
+
 # Theodolite
 
 > A theodolite is a precision optical instrument for measuring angles between designated visible points in the horizontal and vertical planes.  -- <cite>[Wikipedia](https://en.wikipedia.org/wiki/Theodolite)</cite>
