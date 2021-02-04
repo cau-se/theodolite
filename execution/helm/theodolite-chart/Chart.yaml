@@ -26,8 +26,8 @@ dependencies: # A list of the chart requirements (optional)
     repository: file://../dependencies/cp-helm-charts/
     condition: cp-helm-charts.enabled
   - name: kafka-lag-exporter
-    version: 0.6.0
-    repository: file://../dependencies/kafka-lag-exporter
+    version: 0.6.6
+    repository: https://lightbend.github.io/kafka-lag-exporter/repo/
     condition: kafka-lag-exporter.enabled
 
 # This is the chart version. This version number should be incremented each time you make changes
