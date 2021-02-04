@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: theodolite
+spec:
+  template:
+    spec:
+      volumes:
+      - name: theodolite-pv-storage
+        persistentVolumeClaim:
+          claimName: theodolite-pv-claim
+      containers:
+        - name: theodolite
+          image: ghcr.io/cau-se/theodolite:latest
+          # imagePullPolicy: Never # Used to pull "own" local image
+          env:
+            - name: UC # mandatory
+              value: "1"
+            - name: LOADS # mandatory
+              value: "100000, 200000"
+            - name: INSTANCES # mandatory
+              value: "1, 2, 3"
+            # - name: DURATION
+            #   value: "5"
+            # - name: PARTITIONS
+            #   value: "40"
+            # - name: DOMAIN_RESTRICTION
+            #   value: "True"
+            # - name: SEARCH_STRATEGY
+            #   value: "linear-search"
+            # - name: CPU_LIMIT
+            #   value: "1000m"
+            # - name: MEMORY_LIMIT
+            #   value: "4Gi"
+            - name: PROMETHEUS_BASE_URL
+              value: "http://prometheus-operated:9090"
+            # - name: NAMESPACE
+            #   value: "default"
+            # - name: CONFIGURATIONS
+            #   value: "COMMIT_INTERVAL_MS=100, NUM_STREAM_THREADS=1"
+            - name: RESULT_PATH
+              value: "results"
+            - name: PYTHONUNBUFFERED # Enable logs in Kubernetes
+              value: "1"
+          volumeMounts:
+            - mountPath: "/app/results"
+              name: theodolite-pv-storage
+      restartPolicy: Never
+      # Uncomment if RBAC is enabled and configured
+      # serviceAccountName: theodolite
+  backoffLimit: 4
