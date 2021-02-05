@@ -34,7 +34,7 @@ class DeploymentManager(private val client: NamespacedKubernetesClient) {
     }
 
     /**
-     * Set the enviroment Variable for a container
+     * Set the environment Variable for a container
      */
     fun setWorkloadEnv(workloadDeployment: Deployment, containerName: String, map: Map<String, String>) {
         workloadDeployment.spec.template.spec.containers.filter { it.name == containerName }

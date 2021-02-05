@@ -5,7 +5,8 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
 /**
- * The Lower Bound Restriction
+ * The Lower Bound Restriction sets the lower bound of the resources to be examined to the value
+ * needed to successfully execute the next smaller load.
  *
  * @param results Result object used as a basis to restrict the resources.
  */

@@ -63,7 +63,7 @@ class YamlLoader(private val client: NamespacedKubernetesClient) {
         }
 
         if (resource == null) {
-            throw NullPointerException("The Ressource at path: $path could not be loaded")
+            throw IllegalArgumentException("The Resource at path: $path could not be loaded")
         }
 
         return resource

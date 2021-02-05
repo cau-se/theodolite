@@ -8,8 +8,8 @@ import org.apache.kafka.clients.admin.NewTopic
 
 private val logger = KotlinLogging.logger {}
 
-class TopicManager(boostrapIp: String) {
-    private val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to boostrapIp)
+class TopicManager(bootstrapServers: String) {
+    private val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to bootstrapServers)
     lateinit var kafkaAdmin: AdminClient
 
     init {
@@ -20,22 +20,22 @@ class TopicManager(boostrapIp: String) {
         }
     }
 
-    fun createTopics(topics: Map<String, Int>, replicationfactor: Short) {
+    fun createTopics(topics: Map<String, Int>, replicationFactor: Short) {
 
         val newTopics = mutableSetOf<NewTopic>()
         for (i in topics) {
-            val tops = NewTopic(i.key, i.value, replicationfactor)
+            val tops = NewTopic(i.key, i.value, replicationFactor)
             newTopics.add(tops)
         }
         kafkaAdmin.createTopics(newTopics)
         logger.info {"Topics created"}
     }
 
-    fun createTopics(topics: List<String>, numPartitions: Int, replicationfactor: Short) {
+    fun createTopics(topics: List<String>, numPartitions: Int, replicationFactor: Short) {
 
         val newTopics = mutableSetOf<NewTopic>()
         for (i in topics) {
-            val tops = NewTopic(i, numPartitions, replicationfactor)
+            val tops = NewTopic(i, numPartitions, replicationFactor)
             newTopics.add(tops)
         }
         kafkaAdmin.createTopics(newTopics)

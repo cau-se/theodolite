@@ -51,10 +51,6 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     }
 
     override fun initializeClusterEnvironment() {
-        // this.workloadGeneratorStateCleaner.deleteAll()
-        // since the workloadGenerators are not started they cant be deleted
-
-        this.topicManager.deleteTopics(this.config.kafkaTopics)
         this.topicManager.createTopics(
             this.config.kafkaTopics,
             this.config.kafkaPartition,
