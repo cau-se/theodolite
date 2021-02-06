@@ -25,7 +25,7 @@ abstract class BenchmarkExecutor(val benchmark: Benchmark, val results: Results,
      * @param res resources to be tested.
      * @return True, if the number of resources are suitable for the given load, false otherwise.
      */
-    abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean;
+    abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
 
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.

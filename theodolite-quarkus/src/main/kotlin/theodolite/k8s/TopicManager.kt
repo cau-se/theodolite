@@ -8,6 +8,10 @@ import org.apache.kafka.clients.admin.NewTopic
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ * Manages the topics related tasks
+ * @param bootstrapServers Ip of the kafka server
+ */
 class TopicManager(bootstrapServers: String) {
     private val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to bootstrapServers)
     lateinit var kafkaAdmin: AdminClient
@@ -16,10 +20,15 @@ class TopicManager(bootstrapServers: String) {
         try {
             kafkaAdmin = AdminClient.create(props)
         } catch (e: Exception) {
-            logger.error {e.toString()}
+            logger.error { e.toString() }
         }
     }
 
+    /**
+     * Creates topics.
+     * @param topics Map that holds a numPartition for each topic it should create
+     * @param replicationFactor
+     */
     fun createTopics(topics: Map<String, Int>, replicationFactor: Short) {
 
         val newTopics = mutableSetOf<NewTopic>()
@@ -28,7 +37,7 @@ class TopicManager(bootstrapServers: String) {
             newTopics.add(tops)
         }
         kafkaAdmin.createTopics(newTopics)
-        logger.info {"Topics created"}
+        logger.info { "Topics created" }
     }
 
     fun createTopics(topics: List<String>, numPartitions: Int, replicationFactor: Short) {
@@ -39,9 +48,13 @@ class TopicManager(bootstrapServers: String) {
             newTopics.add(tops)
         }
         kafkaAdmin.createTopics(newTopics)
-        logger.info {"Creation of $topics started"}
+        logger.info { "Creation of $topics started" }
     }
 
+    /**
+     * Deletes topics.
+     * @param topics
+     */
     fun deleteTopics(topics: List<String>) {
 
         val result = kafkaAdmin.deleteTopics(topics)
@@ -49,9 +62,9 @@ class TopicManager(bootstrapServers: String) {
         try {
             result.all().get()
         } catch (ex: Exception) {
-            logger.error {ex.toString()}
+            logger.error { ex.toString() }
         }
-        logger.info {"Topics deleted"}
+        logger.info { "Topics deleted" }
     }
 
     fun getTopics(): ListTopicsResult? {

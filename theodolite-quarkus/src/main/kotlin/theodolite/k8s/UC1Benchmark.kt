@@ -27,9 +27,9 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     private var wgDeployment: Deployment
     private var configMap: ConfigMap
 
-
     init {
-        this.workloadGeneratorStateCleaner = WorkloadGeneratorStateCleaner(this.config.zookeeperConnectionString)
+        this.workloadGeneratorStateCleaner =
+            WorkloadGeneratorStateCleaner(this.config.zookeeperConnectionString, path = "/workload-generation")
         this.topicManager = TopicManager(this.config.kafkaIPConnectionString)
         this.kubernetesClient = DefaultKubernetesClient().inNamespace("default")
         this.yamlLoader = YamlLoader(this.kubernetesClient)
@@ -83,7 +83,7 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
 
 
         // TODO ("calculate number of required instances")
-        val requiredInstances: Int = 1
+        val requiredInstances = 1
         val environmentVariables: MutableMap<String, String> = mutableMapOf()
         //environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
         //environmentVariables.put("ZK_HOST", this.config.zookeeperConnectionString.split(":")[0])
