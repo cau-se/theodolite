@@ -29,8 +29,8 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
 
     init {
         this.workloadGeneratorStateCleaner =
-            WorkloadGeneratorStateCleaner(this.config.zookeeperConnectionString, path = "/workload-generation")
-        this.topicManager = TopicManager(this.config.kafkaIPConnectionString)
+            WorkloadGeneratorStateCleaner(this.config.externalZookeeperConnectionString, path = "/workload-generation")
+        this.topicManager = TopicManager(this.config.externalKafkaConnectionString)
         this.kubernetesClient = DefaultKubernetesClient().inNamespace("default")
         this.yamlLoader = YamlLoader(this.kubernetesClient)
         this.deploymentManager = DeploymentManager(this.kubernetesClient)
@@ -63,8 +63,8 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
 
         // set environment variables
         val environmentVariables: MutableMap<String, String> = mutableMapOf()
-        //environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
-        //environmentVariables.put("SCHEMA_REGISTRY_URL", this.config.schemaRegistryConnectionString)
+        environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.clusterKafkaConnectionString)
+        environmentVariables.put("SCHEMA_REGISTRY_URL", this.config.schemaRegistryConnectionString)
 
 
         // setup deployment
@@ -85,9 +85,9 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         // TODO ("calculate number of required instances")
         val requiredInstances = 1
         val environmentVariables: MutableMap<String, String> = mutableMapOf()
-        //environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.kafkaIPConnectionString)
-        //environmentVariables.put("ZK_HOST", this.config.zookeeperConnectionString.split(":")[0])
-        //environmentVariables.put("ZK_PORT", this.config.zookeeperConnectionString.split(":")[1])
+        environmentVariables.put("KAFKA_BOOTSTRAP_SERVERS", this.config.clusterKafkaConnectionString)
+        environmentVariables.put("ZK_HOST", this.config.clusterZookeeperConnectionString.split(":")[0])
+        environmentVariables.put("ZK_PORT", this.config.clusterZookeeperConnectionString.split(":")[1])
         environmentVariables["NUM_SENSORS"] = load.get().toString()
         environmentVariables["INSTANCES"] = requiredInstances.toString()
 
@@ -96,8 +96,10 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
     }
 
     data class UC1BenchmarkConfig(
-        val zookeeperConnectionString: String,
-        val kafkaIPConnectionString: String,
+        val clusterZookeeperConnectionString: String,
+        val clusterKafkaConnectionString: String,
+        val externalZookeeperConnectionString: String,
+        val externalKafkaConnectionString: String,
         val schemaRegistryConnectionString: String,
         val kafkaTopics: List<String>,
         val kafkaReplication: Short,

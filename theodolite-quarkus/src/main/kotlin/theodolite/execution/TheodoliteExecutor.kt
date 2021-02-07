@@ -20,9 +20,11 @@ class TheodoliteExecutor() {
     private fun loadConfig(): Config {
         logger.info { resourcesPath }
         val benchmark: UC1Benchmark = UC1Benchmark(
-            UC1Benchmark.UC1BenchmarkConfig(    // use port forward 2181 -> 2181
-                zookeeperConnectionString = "localhost:2181", //"my-confluent-cp-zookeeper:2181", //localhost:2181.
-                kafkaIPConnectionString = "localhost:9092",//"my-confluent-cp-kafka:","178.18.0."
+            UC1Benchmark.UC1BenchmarkConfig(
+                clusterZookeeperConnectionString = "my-confluent-cp-zookeeper:2181",
+                clusterKafkaConnectionString = "localhost:9092",
+                externalZookeeperConnectionString = "localhost:2181",
+                externalKafkaConnectionString = "localhost:9092",
                 schemaRegistryConnectionString = "http://my-confluent-cp-schema-registry:8081",
                 kafkaPartition = 40,
                 kafkaReplication = 1,
