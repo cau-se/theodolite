@@ -29,22 +29,27 @@ class WorkloadGeneratorStateCleaner(ip: String, val path: String) {
         }
     }
 
+    fun deleteAll() {
+        deleteRecusiveAll(this.path)
+        logger.info { "ZooKeeper reset was successful" }
+    }
+
     /**
      * Deletes a Zookeeper node and its children with the corresponding path.
      */
-    fun deleteAll() {
+    private fun deleteRecusiveAll(nodePath: String) {
 
         while (true) {
-            var children = emptyList<String>();
+            var children: List<String>
             try {
-                children = zookeeperClient.getChildren(this.path, true)
+                children = zookeeperClient.getChildren(nodePath, true)
             } catch (e: KeeperException.NoNodeException) {
                 break;
             }
-            // delete all children nodes
+            // recursivly delete all children nodes
             for (s: String in children) {
                 try {
-                    zookeeperClient.delete("${this.path}/$s", -1)
+                    deleteRecusiveAll("$nodePath/$s")
                 } catch (ex: Exception) {
                     logger.info { "$ex" }
                 }
@@ -52,7 +57,7 @@ class WorkloadGeneratorStateCleaner(ip: String, val path: String) {
 
             // delete main node
             try {
-                zookeeperClient.delete(this.path, -1)
+                zookeeperClient.delete(nodePath, -1)
                 break;
             } catch (ex: Exception) {
                 // no instance of node found
@@ -65,7 +70,6 @@ class WorkloadGeneratorStateCleaner(ip: String, val path: String) {
             Thread.sleep(retryAfter.toMillis())
             logger.info { "ZooKeeper reset was not successful. Retrying in 5s" }
         }
-        logger.info { "ZooKeeper reset was successful" }
     }
 
     /**
