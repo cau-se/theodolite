@@ -12,7 +12,7 @@ import theodolite.util.Resource
 
 private val logger = KotlinLogging.logger {}
 
-class UC1Benchmark(config: AbstractBenchmarkConfig) : AbstractBenchmark(config) {
+class UC1Benchmark(config: Config) : AbstractBenchmark(config) {
     private val workloadGeneratorStateCleaner: WorkloadGeneratorStateCleaner
     private val topicManager: TopicManager
 

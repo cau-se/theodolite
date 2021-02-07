@@ -5,10 +5,7 @@ import theodolite.k8s.UC1Benchmark
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.strategies.searchstrategy.LinearSearch
-import theodolite.util.Config
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
-import theodolite.util.Results
+import theodolite.util.*
 import java.nio.file.Paths
 import java.time.Duration
 
@@ -20,9 +17,9 @@ class TheodoliteExecutor() {
     private fun loadConfig(): Config {
         logger.info { resourcesPath }
         val benchmark: UC1Benchmark = UC1Benchmark(
-            UC1Benchmark.UC1BenchmarkConfig(
+            AbstractBenchmark.Config(
                 clusterZookeeperConnectionString = "my-confluent-cp-zookeeper:2181",
-                clusterKafkaConnectionString = "localhost:9092",
+                clusterKafkaConnectionString = "my-confluent-cp-kafka:9092",
                 externalZookeeperConnectionString = "localhost:2181",
                 externalKafkaConnectionString = "localhost:9092",
                 schemaRegistryConnectionString = "http://my-confluent-cp-schema-registry:8081",

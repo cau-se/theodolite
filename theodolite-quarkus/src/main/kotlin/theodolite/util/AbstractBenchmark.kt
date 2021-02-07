@@ -1,8 +1,6 @@
 package theodolite.util
 
-import theodolite.k8s.UC1Benchmark
-
-abstract class AbstractBenchmark(val config: AbstractBenchmarkConfig): Benchmark {
+abstract class AbstractBenchmark(val config: Config): Benchmark {
     override fun start(load: LoadDimension, resources: Resource) {
         this.clearClusterEnvironment()
         this.initializeClusterEnvironment()
@@ -10,7 +8,7 @@ abstract class AbstractBenchmark(val config: AbstractBenchmarkConfig): Benchmark
         this.startWorkloadGenerator(load)
     }
 
-    data class AbstractBenchmarkConfig(
+    data class Config(
         val clusterZookeeperConnectionString: String,
         val clusterKafkaConnectionString: String,
         val externalZookeeperConnectionString: String,
