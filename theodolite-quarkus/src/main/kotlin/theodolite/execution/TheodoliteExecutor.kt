@@ -46,7 +46,7 @@ class TheodoliteExecutor() {
         val searchStrategy = LinearSearch(executor)
 
         return Config(
-            loads = (1..6).map { number -> LoadDimension(number) },
+            loads = listOf(5000, 10000).map { number -> LoadDimension(number) },
             resources = (1..6).map { number -> Resource(number) },
             compositeStrategy = CompositeStrategy(
                 executor,
