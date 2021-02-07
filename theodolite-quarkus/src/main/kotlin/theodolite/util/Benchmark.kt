@@ -1,19 +1,12 @@
 package theodolite.util
 
-import theodolite.k8s.UC1Benchmark
-
-abstract class Benchmark(val config: UC1Benchmark.UC1BenchmarkConfig) {
+interface Benchmark {
     fun start(load: LoadDimension, resources: Resource) {
-        this.clearClusterEnvironment()
-        this.initializeClusterEnvironment()
-        this.startSUT(resources)
-        this.startWorkloadGenerator(load)
     }
 
-    abstract fun initializeClusterEnvironment();
-    abstract fun clearClusterEnvironment();
+    fun initializeClusterEnvironment();
+    fun clearClusterEnvironment();
 
-    abstract fun startSUT(resources: Resource);
-
-    abstract fun startWorkloadGenerator(load: LoadDimension)
+    fun startSUT(resources: Resource);
+    fun startWorkloadGenerator(load: LoadDimension)
 }

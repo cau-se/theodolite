@@ -2,7 +2,7 @@ package theodolite.util
 
 import theodolite.k8s.UC1Benchmark
 
-class TestBenchmark : Benchmark(
+class TestBenchmark : AbstractBenchmark(
     UC1Benchmark.UC1BenchmarkConfig(
         zookeeperConnectionString = "",
         kafkaIPConnectionString = "",

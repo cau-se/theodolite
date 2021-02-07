@@ -1,13 +1,12 @@
 package theodolite.execution
 
-import mu.KotlinLogging
-import theodolite.util.Benchmark
+import theodolite.util.AbstractBenchmark
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
 
-class BenchmarkExecutorImpl(benchmark: Benchmark, results: Results, executionDuration: Duration) : BenchmarkExecutor(benchmark, results, executionDuration) {
+class BenchmarkExecutorImpl(benchmark: AbstractBenchmark, results: Results, executionDuration: Duration) : BenchmarkExecutor(benchmark, results, executionDuration) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         benchmark.start(load, res)
         this.waitAndLog()

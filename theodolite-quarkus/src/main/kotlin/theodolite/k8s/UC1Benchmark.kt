@@ -6,13 +6,13 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import theodolite.util.Benchmark
+import theodolite.util.AbstractBenchmark
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
 private val logger = KotlinLogging.logger {}
 
-class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
+class UC1Benchmark(config: AbstractBenchmarkConfig) : AbstractBenchmark(config) {
     private val workloadGeneratorStateCleaner: WorkloadGeneratorStateCleaner
     private val topicManager: TopicManager
 
@@ -94,21 +94,3 @@ class UC1Benchmark(config: UC1BenchmarkConfig) : Benchmark(config) {
         this.deploymentManager.setWorkloadEnv(this.wgDeployment, "workload-generator", environmentVariables)
         this.deploymentManager.deploy(this.wgDeployment)
     }
-
-    data class UC1BenchmarkConfig(
-        val clusterZookeeperConnectionString: String,
-        val clusterKafkaConnectionString: String,
-        val externalZookeeperConnectionString: String,
-        val externalKafkaConnectionString: String,
-        val schemaRegistryConnectionString: String,
-        val kafkaTopics: List<String>,
-        val kafkaReplication: Short,
-        val kafkaPartition: Int,
-        val ucDeploymentPath: String,
-        val ucServicePath: String,
-        val configMapPath: String,
-        val wgDeploymentPath: String,
-        val ucImageURL: String,
-        val wgImageURL: String
-    ) {}
-}
