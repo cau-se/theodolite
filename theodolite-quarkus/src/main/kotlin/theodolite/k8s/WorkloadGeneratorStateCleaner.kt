@@ -10,7 +10,7 @@ import java.time.Duration
 private val logger = KotlinLogging.logger {}
 
 /**
- * Resets the workloadgenerator states in zookeper (and potetially watches for Zookeper events)
+ * Resets the workloadgenerator states in zookeper (and potentially watches for Zookeper events)
  *
  * @param ip of zookeeper
  * @param path path of the zookeeper node
@@ -30,33 +30,36 @@ class WorkloadGeneratorStateCleaner(ip: String, val path: String) {
     }
 
     /**
-     * Deletes all Zookeeper nodes with the corresponding path.
+     * Deletes a Zookeeper node and its children with the corresponding path.
      */
     fun deleteAll() {
-        var deleted = false
-        while (!deleted) {
+
+        while (true) {
+            var children = emptyList<String>();
             try {
-                zookeeperClient.delete(this.path, -1)
-            } catch (ex: Exception) {
-                logger.error { ex.toString() }
+                children = zookeeperClient.getChildren(this.path, true)
+            } catch (e: KeeperException.NoNodeException) {
+                break;
+            }
+            // delete all children nodes
+            for (s: String in children) {
+                try {
+                    zookeeperClient.delete(s, -1)
+                } catch (ex: Exception) {
+                    logger.info { "$ex" }
+                }
             }
 
+            // delete main node
             try {
-                // get list of all nodes of the given path
-                val clients = zookeeperClient.getChildren(this.path, true)
-                if (clients.isEmpty()) {
-                    deleted = true
-                    break
-                }
+                zookeeperClient.delete(this.path, -1)
+                break;
             } catch (ex: Exception) {
-                when (ex) {
-                    // indicates that there are no nodes to delete left
-                    is KeeperException -> {
-                        deleted = true
-                    }
-                    is InterruptedException -> {
-                        logger.error { ex.toString() }
-                    }
+                // no instance of node found
+                if (ex is KeeperException.NoNodeException) {
+                    break;
+                } else {
+                    logger.error { ex.toString() }
                 }
             }
             Thread.sleep(retryAfter.toMillis())
