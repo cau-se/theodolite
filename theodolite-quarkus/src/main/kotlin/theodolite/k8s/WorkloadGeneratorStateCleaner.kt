@@ -44,7 +44,7 @@ class WorkloadGeneratorStateCleaner(ip: String, val path: String) {
             // delete all children nodes
             for (s: String in children) {
                 try {
-                    zookeeperClient.delete(s, -1)
+                    zookeeperClient.delete("${this.path}/$s", -1)
                 } catch (ex: Exception) {
                     logger.info { "$ex" }
                 }
