@@ -9,13 +9,16 @@ import theodolite.util.Config
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
+import java.nio.file.Paths
 import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
 class TheodoliteExecutor() {
-    private val path = "/home/lorenz/git/spesb/theodolite-quarkus/src/main/resources/yaml"
+    val projectDirAbsolutePath = Paths.get("").toAbsolutePath().toString()
+    val resourcesPath = Paths.get(projectDirAbsolutePath, "./../../../resources/main/yaml/")
     private fun loadConfig(): Config {
+        logger.info { resourcesPath }
         val benchmark: UC1Benchmark = UC1Benchmark(
             UC1Benchmark.UC1BenchmarkConfig(    // use port forward 2181 -> 2181
                 zookeeperConnectionString = "localhost:2181", //"my-confluent-cp-zookeeper:2181", //localhost:2181.
@@ -25,10 +28,10 @@ class TheodoliteExecutor() {
                 kafkaReplication = 1,
                 kafkaTopics = listOf("input", "output"),
                 // TODO("handle path in a more nice way (not absolut)")
-                ucDeploymentPath = "$path/aggregation-deployment.yaml",
-                ucServicePath = "$path/aggregation-service.yaml",
-                wgDeploymentPath = "$path/workloadGenerator.yaml",
-                configMapPath = "$path/jmx-configmap.yaml",
+                ucDeploymentPath = "$resourcesPath/aggregation-deployment.yaml",
+                ucServicePath = "$resourcesPath/aggregation-service.yaml",
+                wgDeploymentPath = "$resourcesPath/workloadGenerator.yaml",
+                configMapPath = "$resourcesPath/jmx-configmap.yaml",
                 ucImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest",
                 wgImageURL = "ghcr.io/cau-se/theodolite-uc1-workload-generator:theodolite-kotlin-latest"
             )
