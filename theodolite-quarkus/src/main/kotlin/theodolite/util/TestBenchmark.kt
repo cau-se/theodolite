@@ -1,11 +1,11 @@
 package theodolite.util
 
-import theodolite.k8s.UC1Benchmark
-
 class TestBenchmark : AbstractBenchmark(
-    UC1Benchmark.UC1BenchmarkConfig(
-        zookeeperConnectionString = "",
-        kafkaIPConnectionString = "",
+    AbstractBenchmark.Config(
+        clusterZookeeperConnectionString = "",
+        clusterKafkaConnectionString = "",
+        externalZookeeperConnectionString = "",
+        externalKafkaConnectionString = "",
         schemaRegistryConnectionString = "",
         kafkaTopics = emptyList(),
         kafkaReplication = 0,

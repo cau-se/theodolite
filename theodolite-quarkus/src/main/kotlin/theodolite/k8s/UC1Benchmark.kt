@@ -94,3 +94,5 @@ class UC1Benchmark(config: Config) : AbstractBenchmark(config) {
         this.deploymentManager.setWorkloadEnv(this.wgDeployment, "workload-generator", environmentVariables)
         this.deploymentManager.deploy(this.wgDeployment)
     }
+
+}
