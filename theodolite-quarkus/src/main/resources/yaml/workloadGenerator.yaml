@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: titan-ccp-load-generator
+spec:
+  selector:
+    matchLabels:
+      app: titan-ccp-load-generator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: titan-ccp-load-generator
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload-generator
+          image: workload-generator:latest
+          env:
+            # Order need to be preserved for run_uc.py
+            - name: NUM_SENSORS
+              value: "25000"
+            - name: INSTANCES
+              value: "1"
+            - name: NUM_NESTED_GROUPS
+              value: "5"
+            - name: ZK_HOST
+              value: "my-confluent-cp-zookeeper"
+            - name: ZK_PORT
+              value: "2181"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "my-confluent-cp-kafka:9092"
+            - name: SCHEMA_REGISTRY_URL
+              value: "http://my-confluent-cp-schema-registry:8081"
