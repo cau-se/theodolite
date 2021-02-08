@@ -1,3 +1,9 @@
+---
+title: Release Process
+has_children: false
+nav_order: 2
+---
+
 # Release Process
 
 We assume that we are creating the release `v0.1.1`. Please make sure to adjust
