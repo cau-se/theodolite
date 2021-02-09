@@ -209,6 +209,9 @@ kube-prometheus-stack:
   
   prometheusOperator:
     enabled: true
+    namespaces:
+      releaseNamespace: true
+      additional: []
     nodeSelector: {}
   
   prometheus:
