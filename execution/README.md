@@ -121,7 +121,9 @@ can be installed via Helm. We also provide a [default configuration](infrastruct
 To install it:
 
 ```sh
-helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.3/kafka-lag-exporter-0.6.3.tgz -f infrastructure/kafka-lag-exporter/values.yaml
+helm repo add kafka-lag-exporter https://lightbend.github.io/kafka-lag-exporter/repo/
+helm repo update
+helm install kafka-lag-exporter kafka-lag-exporter/kafka-lag-exporter -f infrastructure/kafka-lag-exporter/values.yaml
 ```
 
 ### Installing Theodolite
