@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: workload-generator:latest
+        image: workload-generator:v0.3.0
         env:
         # Order need to be preserved for run_uc.py
         - name: NUM_SENSORS

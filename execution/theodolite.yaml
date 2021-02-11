@@ -11,7 +11,7 @@ spec:
           claimName: theodolite-pv-claim
       containers:
         - name: theodolite
-          image: ghcr.io/cau-se/theodolite:latest
+          image: ghcr.io/cau-se/theodolite:v0.3.0
           # imagePullPolicy: Never # Used to pull "own" local image
           env:
             - name: UC # mandatory

@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: uc-application
-        image: uc-app:latest
+        image: uc-app:v0.3.0
         ports:
         - containerPort: 5555
           name: jmx

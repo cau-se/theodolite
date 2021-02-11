@@ -32,14 +32,14 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
   uc-app:
-    image: theodolite/theodolite-uc1-kstreams-app:latest
+    image: theodolite/theodolite-uc1-kstreams-app:v0.3.0
     depends_on:
       - schema-registry
       - kafka
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
   uc-wg: 
-    image: theodolite/theodolite-uc1-workload-generator:latest
+    image: theodolite/theodolite-uc1-workload-generator:v0.3.0
     depends_on:
       - schema-registry
       - kafka
