@@ -17,7 +17,7 @@ again be merged into master.
 2. Checkout the `v0.3` branch.
 
 3. Update all references to Theodolite Docker images to tag `v0.3.1`. These are the Kubernetes resource definitions in
-`execution`, the Docker Compose files in `docker-test` and the example `theodolite.yaml` job.
+`execution`, the references to *latest* in `run_uc.py`, the Docker Compose files in `docker-test` and the example `theodolite.yaml` job.
 
 4. Commit these changes.
 
