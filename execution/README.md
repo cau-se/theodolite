@@ -170,17 +170,46 @@ access (e.g. via SSH) to one of your cluster nodes.
 You first need to create a directory on a selected node where all benchmark results should be stored. Next, modify
 `infrastructure/kubernetes/volume-local.yaml` by setting `<node-name>` to your selected node. (This node will most
 likely also execute the [Theodolite job](#Execution).) Further, you have to set `path` to the directory on the node you just created. To deploy
-you volume run:
+your volume run:
 
 ```sh
 kubectl apply -f infrastructure/kubernetes/volume-local.yaml
 ```
 
+##### *Oracle Cloud Infrastructure* volume
+
+When you are running in the Oracle Cloud, you can provision a persistent volume claim by attaching a volume from the
+Oracle Cloud Infrastructure Block Volume service. To create your volume, run: 
+
+```sh
+kubectl apply -f infrastructure/kubernetes/volume-oci.yaml
+```
+
+More information can be found in the official documentation:
+[Oracle Cloud Infrastructure: Creating a Persistent Volume Claim](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengcreatingpersistentvolumeclaim.htm)
+
 ##### Other volumes
 
-To use volumes provided by public cloud providers or network-based file systems, you can use the definitions in
+To use volumes provided by other public cloud providers or network-based file systems, you can use the definitions in
 `infrastructure/kubernetes/` as a starting point. See the offical
 [volumes documentation](https://kubernetes.io/docs/concepts/storage/volumes/) for additional information.
+
+##### Accessing benchmark results via Kubernetes
+
+In cases where you do not have direct access to the underlying storage infrasturcture of your volume (e.g., if your
+admin configures a local or hostPath volume for you and you do not have SSH access to the node), you can deploy our
+Theodolite results access deployment:
+
+```sh
+kubectl apply -f infrastructure/kubernetes/volume-access.yaml
+```
+
+It allows you to browse the benchmark results or copy files your Kubernetes client via the following commands:
+
+```sh
+kubectl exec -it $(kubectl get pods -o=name -l app=theodolite-results-access) -- sh
+kubectl cp $(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l app=theodolite-results-access):app/results <target-dir>
+```
 
 
 ## Execution
