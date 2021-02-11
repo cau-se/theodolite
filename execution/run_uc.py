@@ -94,11 +94,11 @@ def load_yaml_files():
     :return: wg, app_svc, app_svc_monitor ,app_jmx, app_deploy
     """
     print('Load kubernetes yaml files')
-    wg = load_yaml('uc-workload-generator/base/workloadGenerator.yaml')
-    app_svc = load_yaml('uc-application/base/aggregation-service.yaml')
-    app_svc_monitor = load_yaml('uc-application/base/service-monitor.yaml')
-    app_jmx = load_yaml('uc-application/base/jmx-configmap.yaml')
-    app_deploy = load_yaml('uc-application/base/aggregation-deployment.yaml')
+    wg = load_yaml('uc-workload-generator/workloadGenerator.yaml')
+    app_svc = load_yaml('uc-application/aggregation-service.yaml')
+    app_svc_monitor = load_yaml('uc-application/service-monitor.yaml')
+    app_jmx = load_yaml('uc-application/jmx-configmap.yaml')
+    app_deploy = load_yaml('uc-application/aggregation-deployment.yaml')
 
     print('Kubernetes yaml files loaded')
     return wg, app_svc, app_svc_monitor, app_jmx, app_deploy
