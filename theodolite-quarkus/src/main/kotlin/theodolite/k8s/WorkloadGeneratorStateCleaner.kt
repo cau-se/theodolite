@@ -12,24 +12,25 @@ private val logger = KotlinLogging.logger {}
 /**
  * Resets the workloadgenerator states in zookeper (and potentially watches for Zookeper events)
  *
- * @param ip of zookeeper
+ * @param connectionString of zookeeper
  * @param path path of the zookeeper node
  */
-class WorkloadGeneratorStateCleaner(ip: String, val path: String) {
+class WorkloadGeneratorStateCleaner(connectionString: String) {
     private val timeout: Duration = Duration.ofMillis(500)
     private val retryAfter: Duration = Duration.ofSeconds(5)
     lateinit var zookeeperClient: ZooKeeper
+    private val path = "/workload-generation"
 
     init {
         try {
             val watcher: Watcher = ZookeeperWatcher() // defined below
-            zookeeperClient = ZooKeeper(ip, timeout.toMillis().toInt(), watcher)
+            zookeeperClient = ZooKeeper(connectionString, timeout.toMillis().toInt(), watcher)
         } catch (e: Exception) {
             logger.error { e.toString() }
         }
     }
 
-    fun deleteAll() {
+    fun deleteState() {
         deleteRecusiveAll(this.path)
         logger.info { "ZooKeeper reset was successful" }
     }
