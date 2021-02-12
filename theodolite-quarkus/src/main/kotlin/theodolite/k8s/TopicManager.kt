@@ -12,13 +12,12 @@ private val logger = KotlinLogging.logger {}
  * Manages the topics related tasks
  * @param bootstrapServers Ip of the kafka server
  */
-class TopicManager(bootstrapServers: String) {
-    private val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to bootstrapServers)
+class TopicManager(kafkaConfig: HashMap<String, Any>) {
     lateinit var kafkaAdmin: AdminClient
 
     init {
         try {
-            kafkaAdmin = AdminClient.create(props)
+            kafkaAdmin = AdminClient.create(kafkaConfig)
         } catch (e: Exception) {
             logger.error { e.toString() }
         }
@@ -29,19 +28,12 @@ class TopicManager(bootstrapServers: String) {
      * @param topics Map that holds a numPartition for each topic it should create
      * @param replicationFactor
      */
-    fun createTopics(topics: Map<String, Int>, replicationFactor: Short) {
-
-        val newTopics = mutableSetOf<NewTopic>()
-        for (i in topics) {
-            val tops = NewTopic(i.key, i.value, replicationFactor)
-            newTopics.add(tops)
-        }
+    fun createTopics(newTopics: Collection<NewTopic>) {
         kafkaAdmin.createTopics(newTopics)
         logger.info { "Topics created" }
     }
 
     fun createTopics(topics: List<String>, numPartitions: Int, replicationFactor: Short) {
-
         val newTopics = mutableSetOf<NewTopic>()
         for (i in topics) {
             val tops = NewTopic(i, numPartitions, replicationFactor)
@@ -52,10 +44,10 @@ class TopicManager(bootstrapServers: String) {
     }
 
     /**
-     * Deletes topics.
+     * Removes topics.
      * @param topics
      */
-    fun deleteTopics(topics: List<String>) {
+    fun removeTopics(topics: List<String>) {
 
         val result = kafkaAdmin.deleteTopics(topics)
 
@@ -64,7 +56,7 @@ class TopicManager(bootstrapServers: String) {
         } catch (ex: Exception) {
             logger.error { ex.toString() }
         }
-        logger.info { "Topics deleted" }
+        logger.info { "Topics removed" }
     }
 
     fun getTopics(): ListTopicsResult? {

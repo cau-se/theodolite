@@ -29,8 +29,8 @@ class UC1Benchmark(config: Config) : AbstractBenchmark(config) {
 
     init {
         this.workloadGeneratorStateCleaner =
-            WorkloadGeneratorStateCleaner(this.config.externalZookeeperConnectionString, path = "/workload-generation")
-        this.topicManager = TopicManager(this.config.externalKafkaConnectionString)
+            WorkloadGeneratorStateCleaner(this.config.externalZookeeperConnectionString)
+        this.topicManager = TopicManager(hashMapOf("bootstrap.servers" to this.config.externalKafkaConnectionString))
         this.kubernetesClient = DefaultKubernetesClient().inNamespace("default")
         this.yamlLoader = YamlLoader(this.kubernetesClient)
         this.deploymentManager = DeploymentManager(this.kubernetesClient)
@@ -43,8 +43,8 @@ class UC1Benchmark(config: Config) : AbstractBenchmark(config) {
     }
 
     override fun clearClusterEnvironment() {
-        this.workloadGeneratorStateCleaner.deleteAll()
-        this.topicManager.deleteTopics(this.config.kafkaTopics)
+        this.workloadGeneratorStateCleaner.deleteState()
+        this.topicManager.removeTopics(this.config.kafkaTopics)
         this.deploymentManager.delete(this.ucDeployment)
         this.serviceManager.delete(this.ucService)
         this.deploymentManager.delete(this.wgDeployment)
@@ -57,7 +57,6 @@ class UC1Benchmark(config: Config) : AbstractBenchmark(config) {
             this.config.kafkaReplication
         )
     }
-
     override fun startSUT(resources: Resource) {
         this.deploymentManager.setImageName(ucDeployment, "uc-application", this.config.ucImageURL)
 
