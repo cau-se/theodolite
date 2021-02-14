@@ -1,0 +1,34 @@
+image: openjdk:11-jdk
+
+stages:
+  - build
+  - test
+  #- package
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+compile:
+  stage: build
+  script:
+    - ./theodolite-quarkus/gradlew build
+
+test:
+  stage: test
+  script:
+    - ./theodolite-quarkus/gradlew test --stacktrace
+
+# code_style_klint:
+#   stage: test
+#   script:
+#     - ./theodolite-quarkus/gradlew ktlintCheck
+
+codeanalysis_detekt: 
+  stage: test
+  script:
+     - ./theodolite-quarkus/gradlew detekt
