@@ -2,7 +2,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version "1.3.72"
     id "org.jetbrains.kotlin.plugin.allopen" version "1.3.72"
     id 'io.quarkus'
-    id "io.gitlab.arturbosch.detekt" version "1.15.0"
+    id "io.gitlab.arturbosch.detekt" version "1.15.0"   //For code style
+    id "org.jlleitschuh.gradle.ktlint" version "10.0.0" // same as above
 }
 
 repositories {
@@ -52,5 +53,9 @@ compileTestKotlin {
 detekt {
     failFast = true // fail build on any finding
     buildUponDefaultConfig = true
+    ignoreFailures = true
+}
+
+ktlint {
     ignoreFailures = true
 }

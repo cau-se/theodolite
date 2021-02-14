@@ -23,10 +23,10 @@ test:
   script:
     - ./theodolite-quarkus/gradlew test --stacktrace
 
-# code_style_klint:
-#   stage: test
-#   script:
-#     - ./theodolite-quarkus/gradlew ktlintCheck
+code_style_klint:
+  stage: test
+  script:
+    - ./theodolite-quarkus/gradlew ktlintCheck
 
 codeanalysis_detekt: 
   stage: test
