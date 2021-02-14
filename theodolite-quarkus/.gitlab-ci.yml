@@ -6,6 +6,7 @@ stages:
   #- package
 
 before_script:
+  - cd theodolite-quarkus
   - export GRADLE_USER_HOME=`pwd`/.gradle
 
 cache:
@@ -15,20 +16,28 @@ cache:
 
 compile:
   stage: build
+  tags:
+    - exec-docker
   script:
-    - ./theodolite-quarkus/gradlew build
+    - ./gradlew build
 
 test:
   stage: test
+  tags:
+    - exec-docker
   script:
-    - ./theodolite-quarkus/gradlew test --stacktrace
+    - ./gradlew test --stacktrace
 
 code_style_klint:
   stage: test
+  tags:
+    - exec-docker
   script:
-    - ./theodolite-quarkus/gradlew ktlintCheck
+    - ./gradlew ktlintCheck
 
 codeanalysis_detekt: 
   stage: test
+  tags:
+    - exec-docker
   script:
-     - ./theodolite-quarkus/gradlew detekt
+     - ./gradlew detekt
