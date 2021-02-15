@@ -1,5 +1,8 @@
 image: openjdk:11-jdk
 
+include:
+  - template: Code-Quality.gitlab-ci.yml
+
 stages:
   - build
   - test
