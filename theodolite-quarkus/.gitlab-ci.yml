@@ -3,6 +3,7 @@ image: openjdk:11-jdk
 stages:
   - build
   - test
+  - check
   #- package
 
 before_script:
@@ -28,16 +29,16 @@ test:
   script:
     - ./gradlew test --stacktrace
 
-code_style_klint:
-  stage: test
+ktlint:
+  stage: check
   tags:
     - exec-docker
   script:
-    - ./gradlew ktlintCheck
+    - ./gradlew ktlintCheck --continue
 
-codeanalysis_detekt: 
-  stage: test
+.detekt: 
+  stage: check
   tags:
     - exec-docker
   script:
-     - ./gradlew detekt
+     - ./gradlew detekt --continue
