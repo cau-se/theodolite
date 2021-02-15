@@ -25,6 +25,11 @@ compile:
   script:
     - ./gradlew build
 
+code_quality:
+  tags:
+    - exec-docker
+
+
 test:
   stage: test
   tags:
