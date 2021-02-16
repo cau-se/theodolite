@@ -1,6 +1,8 @@
 package theodolite.execution
 
 import mu.KotlinLogging
+import theodolite.benchmark.Benchmark
+import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.AbstractBenchmark
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
@@ -17,7 +19,8 @@ private val logger = KotlinLogging.logger {}
  * @property executionDuration
  * @constructor Create empty Benchmark executor
  */
-abstract class BenchmarkExecutor(val benchmark: AbstractBenchmark, val results: Results, val executionDuration: Duration) {
+abstract class BenchmarkExecutor(val benchmark: Benchmark, val results: Results, val executionDuration: Duration, override: Map<String, String>) {
+
     /**
      * Run a experiment for the given parametrization, evaluate the experiment and save the result.
      *

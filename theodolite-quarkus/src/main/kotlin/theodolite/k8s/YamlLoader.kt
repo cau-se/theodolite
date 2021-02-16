@@ -1,9 +1,11 @@
 package theodolite.k8s
 
 import io.fabric8.kubernetes.api.model.ConfigMap
+import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 
@@ -67,5 +69,15 @@ class YamlLoader(private val client: NamespacedKubernetesClient) {
         }
 
         return resource
+    }
+
+    public fun loadK8sResource(kind: String, path: String): KubernetesResource {
+        return when (kind){
+            "Deployment" -> loadDeployment(path)
+            "Service" -> loadService(path)
+            "ServiceMonitor" -> loadServiceMonitor(path)
+            "ConfigMap" -> loadConfigmap(path)
+            else -> return loadConfigmap(path) // throw java.lang.IllegalArgumentException("Resource typ $kind not known")
+        }
     }
 }

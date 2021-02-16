@@ -1,5 +1,5 @@
 package theodolite.execution
-
+/*
 import mu.KotlinLogging
 import theodolite.k8s.UC1Benchmark
 import theodolite.strategies.restriction.LowerBoundRestriction
@@ -66,3 +66,4 @@ class TheodoliteExecutor() {
         }
     }
 }
+*/

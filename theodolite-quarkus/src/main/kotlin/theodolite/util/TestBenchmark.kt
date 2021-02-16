@@ -1,5 +1,8 @@
 package theodolite.util
 
+import theodolite.benchmark.Benchmark
+import theodolite.benchmark.BenchmarkDeployment
+
 class TestBenchmark : AbstractBenchmark(
     AbstractBenchmark.Config(
         clusterZookeeperConnectionString = "",
@@ -17,7 +20,7 @@ class TestBenchmark : AbstractBenchmark(
         ucImageURL = "",
         wgImageURL = ""
     )
-) {
+), Benchmark  {
 
     override fun initializeClusterEnvironment() {
         TODO("Not yet implemented")
@@ -32,6 +35,14 @@ class TestBenchmark : AbstractBenchmark(
     }
 
     override fun startWorkloadGenerator(load: LoadDimension) {
+        TODO("Not yet implemented")
+    }
+
+    override fun buildDeployment(
+        load: LoadDimension,
+        res: Resource,
+        override: Map<String, String>
+    ): BenchmarkDeployment {
         TODO("Not yet implemented")
     }
 }
