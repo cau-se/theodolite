@@ -1,0 +1,6 @@
+name: "theodolite ist cool"
+appResource:
+  - "aggregation-deployment.yaml"
+  - "aggregation-service.yaml"
+loadGenResource:
+  - "workloadGenerator.yaml"

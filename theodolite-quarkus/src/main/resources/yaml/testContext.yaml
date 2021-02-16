@@ -1,0 +1,19 @@
+name: "Theodolite Test Context"
+benchmark: "benchmarkType"
+loads:
+  - 1000
+  - 2000
+resources:
+  - 1
+  - 2
+slos:
+  - sloType: "slo type"
+    threshold: 1000
+execution:
+  strategy: "LinearSearch"
+  duration: 300
+  repititions: 1
+  restrictions:
+    - "LowerBound"
+configOverrides:
+    key: "value"
