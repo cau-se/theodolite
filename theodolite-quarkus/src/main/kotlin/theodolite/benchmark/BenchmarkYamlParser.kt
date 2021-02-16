@@ -8,10 +8,10 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 
-class BenchmarkYamlParser<T>: Parser<T> {
-    override fun parse(path: String): KubernetesBenchmark? {
+class BenchmarkYamlParser: Parser {
+    override fun <T> parse(path: String, E: Class<T>): T? {
         val input: InputStream = FileInputStream(File(path))
-        val parser = Yaml(Constructor(KubernetesBenchmark::class.java))
-        return parser.loadAs(input, KubernetesBenchmark::class.java)
+        val parser = Yaml(Constructor(E))
+        return parser.loadAs(input, E)
     }
 }
