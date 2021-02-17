@@ -1,8 +1,8 @@
 package theodolite.benchmark
 
 import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.BaseConstructor
 import org.yaml.snakeyaml.constructor.Constructor
+import theodolite.util.Parser
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream

@@ -4,3 +4,8 @@ appResource:
   - "aggregation-service.yaml"
 loadGenResource:
   - "workloadGenerator.yaml"
+resourceTypes:
+  - typeName: "Instances"
+    patchers:
+      - type: "ReplicaPatcher"
+        resource: "aggregation-deployment.yaml"
