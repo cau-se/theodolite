@@ -23,4 +23,4 @@ Theodolite's benchmarking method creates a *scalability graph* allowing to draw 
 
 If you use Theodolite, please cite
 
-> Henning, Sören and Hasselbring, Wilhelm. (2021). Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures. Big Data Research, Volume 25. DOI: [10.1016/j.bdr.2021.100209](https://doi.org/10.1016/j.bdr.2021.100209). [arXiv:2009.00304](https://arxiv.org/abs/2009.00304).
+> Sören Henning and Wilhelm Hasselbring. (2021). Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures. Big Data Research, Volume 25. DOI: [10.1016/j.bdr.2021.100209](https://doi.org/10.1016/j.bdr.2021.100209). [arXiv:2009.00304](https://arxiv.org/abs/2009.00304).
