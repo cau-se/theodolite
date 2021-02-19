@@ -6,6 +6,7 @@ import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.K8sManager
 import theodolite.k8s.TopicManager
 import theodolite.k8s.WorkloadGeneratorStateCleaner
+import java.util.*
 
 class KubernetesBenchmarkDeployment(
     val resources: List<KubernetesResource>, // List of already patched resources

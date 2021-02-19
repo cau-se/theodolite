@@ -2,12 +2,11 @@ package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.YamlLoader
 import theodolite.patcher.PatcherManager
-import theodolite.util.LoadDimension
-import theodolite.util.OverridePatcherDefinition
-import theodolite.util.Resource
-import theodolite.util.TypeName
+import theodolite.util.*
+import java.util.*
 
 class KubernetesBenchmark(): Benchmark {
     lateinit var name: String
@@ -15,6 +14,8 @@ class KubernetesBenchmark(): Benchmark {
     lateinit var loadGenResource: List<String>
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
+    lateinit var kafkaConfig: KafkaConfig
+    lateinit var zookeeperConfig: HashMap<String,String>
 
 
 
@@ -45,9 +46,13 @@ class KubernetesBenchmark(): Benchmark {
 
         // patch overrides
         overrides.forEach {override ->  patcherManager.applyPatcher(override, resources)}
+        println(zookeeperConfig["server"] !! )
 
-        resources.forEach {x -> println(x)}
-
-        return KubernetesBenchmarkDeployment(emptyList(), hashMapOf<String, Any>(), "", emptyList())
+        return KubernetesBenchmarkDeployment(
+            resources.map { r -> r.second },
+            kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapSever),
+            zookeeperConfig = zookeeperConfig["server"].toString() !!,
+            topics = kafkaConfig.topics.map { topic -> NewTopic(topic.name, topic.partition, topic.replication ) })
     }
 }
+
