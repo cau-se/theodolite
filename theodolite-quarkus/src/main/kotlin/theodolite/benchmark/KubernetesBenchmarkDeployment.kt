@@ -9,7 +9,7 @@ import theodolite.k8s.WorkloadGeneratorStateCleaner
 import java.util.*
 
 class KubernetesBenchmarkDeployment(
-    val resources: List<KubernetesResource>, // List of already patched resources
+    val resources: List<KubernetesResource>,
     private val kafkaConfig: HashMap<String, Any>,
     private val zookeeperConfig: String,
     private val topics: Collection<NewTopic>

@@ -1,12 +1,12 @@
-package theodolite.k8s
-
+package theodolite.deprecated
+/*
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import theodolite.util.AbstractBenchmark
+import theodolite.deprecated.AbstractBenchmark
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
@@ -93,5 +93,5 @@ class UC1Benchmark(config: Config) : AbstractBenchmark(config) {
         this.deploymentManager.setWorkloadEnv(this.wgDeployment, "workload-generator", environmentVariables)
         this.deploymentManager.deploy(this.wgDeployment)
     }
-
 }
+ */

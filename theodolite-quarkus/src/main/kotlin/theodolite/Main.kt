@@ -2,7 +2,7 @@ package theodolite
 
 import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
-import theodolite.benchmark.TheodoliteYamlExecutor
+import theodolite.execution.TheodoliteYamlExecutor
 
 private val logger = KotlinLogging.logger {}
 

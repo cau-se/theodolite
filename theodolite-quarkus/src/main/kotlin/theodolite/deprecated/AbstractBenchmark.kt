@@ -1,4 +1,7 @@
-package theodolite.util
+package theodolite.deprecated
+
+import theodolite.util.LoadDimension
+import theodolite.util.Resource
 
 abstract class AbstractBenchmark(val config: Config): Benchmark {
     override fun start(load: LoadDimension, resources: Resource) {
