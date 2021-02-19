@@ -1,0 +1,34 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@type": "SoftwareSourceCode",
+    "license": "https://spdx.org/licenses/Apache-2.0",
+    "codeRepository": "https://github.com/cau-se/theodolite",
+    "dateCreated": "2020-03-13",
+    "datePublished": "2020-07-27",
+    "dateModified": "2021-02-11",
+    "downloadUrl": "https://github.com/cau-se/theodolite/releases",
+    "name": "Theodolite",
+    "version": "0.3.0",
+    "description": "Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines.",
+    "developmentStatus": "active",
+    "referencePublication": "https://doi.org/10.1016/j.bdr.2021.100209",
+    "programmingLanguage": [
+        "Python",
+        "Java"
+    ],
+    "runtimePlatform": [
+        "Kubernetes"
+    ],
+    "author": [
+        {
+            "@type": "Person",
+            "givenName": "Sören",
+            "familyName": "Henning",
+            "email": "soeren.henning@email.uni-kiel.de",
+            "affiliation": {
+                "@type": "Organization",
+                "name": "Department of Computer Science, Kiel University"
+            }
+        }
+    ]
+}
