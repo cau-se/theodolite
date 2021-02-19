@@ -1,8 +1,6 @@
 package theodolite.execution
 
 import theodolite.benchmark.Benchmark
-import theodolite.benchmark.KubernetesBenchmark
-import theodolite.util.AbstractBenchmark
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results

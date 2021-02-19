@@ -3,7 +3,7 @@ package theodolite.benchmark
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import org.apache.kafka.clients.admin.NewTopic
-import theodolite.k8s.YamlLoader
+import theodolite.k8s.K8sResourceLoader
 import theodolite.patcher.PatcherManager
 import theodolite.util.*
 import java.util.*
@@ -21,8 +21,8 @@ class KubernetesBenchmark(): Benchmark {
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val basePath = "./../../../resources/main/yaml/"
-        var parser = theodolite.benchmark.BenchmarkYamlParser()
-        val loader = YamlLoader(DefaultKubernetesClient().inNamespace("default"))
+        var parser = YamlParser()
+        val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace("default"))
         return resources
             .map { resource ->
                 val resourcePath = "$basePath/$resource"
@@ -31,9 +31,6 @@ class KubernetesBenchmark(): Benchmark {
                 Pair<String, KubernetesResource>(resource, k8sResource)
             }
         }
-
-
-
 
     override fun buildDeployment(load: LoadDimension, res: Resource, overrides: List<OverridePatcherDefinition>): BenchmarkDeployment {
         // TODO("set node selector")

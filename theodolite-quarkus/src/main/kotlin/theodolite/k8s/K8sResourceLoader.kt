@@ -11,7 +11,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-class YamlLoader(private val client: NamespacedKubernetesClient) {
+class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
 
     /**
      * Parses a Service from a servive yaml

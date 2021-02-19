@@ -2,7 +2,6 @@ package theodolite.execution
 
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
-import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.*
 import java.time.Duration
 
