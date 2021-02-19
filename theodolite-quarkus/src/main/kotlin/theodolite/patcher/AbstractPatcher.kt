@@ -2,5 +2,5 @@ package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 
-abstract class AbstractPatcher<T>(k8sResource: KubernetesResource): Patcher<T> {
+abstract class AbstractPatcher(k8sResource: KubernetesResource, container: String? = null, variableName: String? = null): Patcher {
 }

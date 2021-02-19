@@ -1,5 +1,5 @@
 package theodolite.patcher
 
-interface Patcher<T> {
-    fun patch(value: T)
+interface Patcher {
+    fun <T> patch(value: T)
 }
