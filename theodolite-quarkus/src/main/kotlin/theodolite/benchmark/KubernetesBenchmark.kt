@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import theodolite.k8s.YamlLoader
 import theodolite.patcher.PatcherManager
 import theodolite.util.LoadDimension
+import theodolite.util.OverridePatcherDefinition
 import theodolite.util.Resource
 import theodolite.util.TypeName
 
@@ -33,7 +34,7 @@ class KubernetesBenchmark(): Benchmark {
 
 
 
-    override fun buildDeployment(load: LoadDimension, res: Resource, override: Map<String, String>): BenchmarkDeployment {
+    override fun buildDeployment(load: LoadDimension, res: Resource, overrides: List<OverridePatcherDefinition>): BenchmarkDeployment {
         // TODO("set node selector")
         val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
         val patcherManager = PatcherManager()
@@ -42,9 +43,10 @@ class KubernetesBenchmark(): Benchmark {
         patcherManager.applyPatcher(res.getType(), this.resourceTypes, resources, res.get())
         patcherManager.applyPatcher(load.getType(), this.loadTypes, resources, load.get().toString())
 
-        resources.forEach {x -> println(x)}
+        // patch overrides
+        overrides.forEach {override ->  patcherManager.applyPatcher(override, resources)}
 
-        // handle overrides (resource, container, variableName, variableValue)
+        resources.forEach {x -> println(x)}
 
         return KubernetesBenchmarkDeployment(emptyList(), hashMapOf<String, Any>(), "", emptyList())
     }

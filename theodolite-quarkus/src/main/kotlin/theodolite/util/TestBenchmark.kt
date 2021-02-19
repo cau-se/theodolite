@@ -41,7 +41,7 @@ class TestBenchmark : AbstractBenchmark(
     override fun buildDeployment(
         load: LoadDimension,
         res: Resource,
-        override: Map<String, String>
+        override: List<OverridePatcherDefinition>
     ): BenchmarkDeployment {
         TODO("Not yet implemented")
     }

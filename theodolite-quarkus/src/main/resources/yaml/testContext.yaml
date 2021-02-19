@@ -16,4 +16,9 @@ execution:
   restrictions:
     - "LowerBound"
 configOverrides:
-    key: "value"
+  - type: "EnvVarPatcher"
+    resource: "workloadGenerator.yaml"
+    container: "workload-generator"
+    overrides:
+      overrideTestA: "8888"
+      overrideTestB: "6666"

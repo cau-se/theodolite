@@ -16,7 +16,3 @@ loadTypes:
         resource: "workloadGenerator.yaml"
         container: "workload-generator"
         variableName: "NUM_SENSORS"
-EnvVars:
-  - typeName: "override"
-    patchers:
-      - type: "EnvVarPatcher"
