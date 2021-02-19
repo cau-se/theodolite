@@ -1,6 +1,7 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import theodolite.util.OverridePatcherDefinition
 import theodolite.util.PatcherDefinition
 import theodolite.util.TypeName
 import java.lang.IllegalArgumentException
@@ -16,17 +17,28 @@ class PatcherManager {
         }
     }
 
-    private fun getPatcherDef(requiredType: String, resourceTypes: List<TypeName>): List<PatcherDefinition> {
-        return resourceTypes
+    private fun getPatcherDef(requiredType: String, patcherTypes: List<TypeName>): List<PatcherDefinition> {
+        return patcherTypes
             .filter { type -> type.typeName == requiredType}
             .flatMap { type -> type.patchers}
     }
 
-    fun applyPatcher(type: String, resourceTypes: List<TypeName>, resources: List<Pair<String, KubernetesResource>>, value: Any) {
-        this.getPatcherDef(type, resourceTypes)
+    fun applyPatcher(type: String, patcherTypes: List<TypeName>, resources: List<Pair<String, KubernetesResource>>, value: Any) {
+        this.getPatcherDef(type, patcherTypes)
             .forEach {patcherDef ->
                 createK8sPatcher(patcherDef, resources).patch(value) }
-
     }
+
+
+   fun applyPatcher(overrides: OverridePatcherDefinition, resources: List<Pair<String, KubernetesResource>>){
+       var pdef = PatcherDefinition()
+       pdef.type = overrides.type
+       pdef.container = overrides.container
+       pdef.resource = overrides.resource
+       overrides.overrides.forEach{ override ->
+           pdef.variableName = override.key
+           this.createK8sPatcher(pdef, resources).patch(override.value)
+       }
+   }
 
 }

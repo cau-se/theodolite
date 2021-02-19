@@ -1,5 +1,7 @@
 package theodolite.benchmark
 
+import theodolite.util.OverridePatcherDefinition
+import theodolite.util.PatcherDefinition
 import kotlin.properties.Delegates
 
 
@@ -10,7 +12,7 @@ class BenchmarkContext() {
     lateinit var resources: List<Int>
     lateinit var slos: List<Slo>
     lateinit var execution: Execution
-    lateinit var configOverrides: Map<String, String>
+    lateinit var configOverrides: List<OverridePatcherDefinition>
 
     class Execution() {
         lateinit var  strategy: String
