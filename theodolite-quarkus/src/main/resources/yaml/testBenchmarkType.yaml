@@ -9,3 +9,14 @@ resourceTypes:
     patchers:
       - type: "ReplicaPatcher"
         resource: "aggregation-deployment.yaml"
+loadTypes:
+  - typeName: "NumSensors"
+    patchers:
+      - type: "EnvVarPatcher"
+        resource: "workloadGenerator.yaml"
+        container: "workload-generator"
+        variableName: "NUM_SENSORS"
+EnvVars:
+  - typeName: "override"
+    patchers:
+      - type: "EnvVarPatcher"
