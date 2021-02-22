@@ -8,4 +8,9 @@ public interface BeforeAction {
 
   public void run();
 
+  public static BeforeAction doNothing() {
+    return () -> {
+    };
+  }
+
 }

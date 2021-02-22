@@ -3,10 +3,10 @@ package theodolite.commons.workloadgeneration.generators;
 import java.time.Duration;
 import java.util.Objects;
 import org.apache.avro.specific.SpecificRecord;
+import theodolite.commons.workloadgeneration.KeySpace;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
-import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
-import theodolite.commons.workloadgeneration.functions.MessageGenerator;
+import theodolite.commons.workloadgeneration.functions.RecordGenerator;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
 /**
@@ -23,7 +23,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> { // 
   private Duration period; // NOPMD
   private Duration duration; // NOPMD
   private BeforeAction beforeAction; // NOPMD
-  private MessageGenerator<T> generatorFunction; // NOPMD
+  private RecordGenerator<T> generatorFunction; // NOPMD
   private KafkaRecordSender<T> kafkaRecordSender; // NOPMD
 
   private KafkaWorkloadGeneratorBuilder() {
@@ -123,7 +123,7 @@ public final class KafkaWorkloadGeneratorBuilder<T extends SpecificRecord> { // 
    * @return the builder.
    */
   public KafkaWorkloadGeneratorBuilder<T> generatorFunction(
-      final MessageGenerator<T> generatorFunction) {
+      final RecordGenerator<T> generatorFunction) {
     this.generatorFunction = generatorFunction;
     return this;
   }

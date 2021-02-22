@@ -11,11 +11,11 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.workloadgeneration.KeySpace;
 import theodolite.commons.workloadgeneration.communication.zookeeper.WorkloadDistributor;
-import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
-import theodolite.commons.workloadgeneration.functions.MessageGenerator;
-import theodolite.commons.workloadgeneration.functions.Transport;
+import theodolite.commons.workloadgeneration.functions.RecordGenerator;
+import theodolite.commons.workloadgeneration.functions.RecordSender;
 import theodolite.commons.workloadgeneration.misc.WorkloadDefinition;
 import theodolite.commons.workloadgeneration.misc.WorkloadEntity;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
@@ -35,8 +35,8 @@ public abstract class AbstractWorkloadGenerator<T>
   private final KeySpace keySpace;// NOPMD keep instance variable instead of local variable
   private final BeforeAction beforeAction; // NOPMD keep instance variable instead of local variable
   private final BiFunction<WorkloadDefinition, Integer, List<WorkloadEntity<T>>> workloadSelector;
-  private final MessageGenerator<T> generatorFunction;
-  private final Transport<T> transport;
+  private final RecordGenerator<T> generatorFunction;
+  private final RecordSender<T> transport;
   private WorkloadDistributor workloadDistributor; // NOPMD keep instance variable instead of local
   private final ScheduledExecutorService executor;
 
@@ -61,8 +61,8 @@ public abstract class AbstractWorkloadGenerator<T>
       final Duration period,
       final Duration duration,
       final BeforeAction beforeAction,
-      final MessageGenerator<T> generatorFunction,
-      final Transport<T> transport) {
+      final RecordGenerator<T> generatorFunction,
+      final RecordSender<T> transport) {
     this.instances = instances;
     this.zooKeeper = zooKeeper;
     this.keySpace = keySpace;
@@ -99,7 +99,7 @@ public abstract class AbstractWorkloadGenerator<T>
 
       entities.forEach(entity -> {
         final long initialDelay = random.nextInt(periodMs);
-        final Runnable task = () -> this.transport.transport(entity.generateMessage());
+        final Runnable task = () -> this.transport.send(entity.generateMessage());
         this.executor.scheduleAtFixedRate(task, initialDelay, periodMs, TimeUnit.MILLISECONDS);
       });
 

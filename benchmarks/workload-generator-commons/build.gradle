@@ -1,3 +1,5 @@
 dependencies {
     implementation 'org.apache.curator:curator-recipes:4.3.0'
+    implementation 'com.hazelcast:hazelcast:4.1.1'
+    // compile group: "com.hazelcast", name: "hazelcast-kubernetes", version: "4.1.1"
 }

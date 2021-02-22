@@ -1,6 +1,6 @@
 package theodolite.commons.workloadgeneration.misc;
 
-import theodolite.commons.workloadgeneration.dimensions.KeySpace;
+import theodolite.commons.workloadgeneration.KeySpace;
 
 /**
  * The central class that contains all information that needs to be exchanged between the nodes for

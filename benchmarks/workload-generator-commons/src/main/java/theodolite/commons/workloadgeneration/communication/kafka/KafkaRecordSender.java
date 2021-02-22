@@ -9,7 +9,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.commons.workloadgeneration.functions.Transport;
+import theodolite.commons.workloadgeneration.functions.RecordSender;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 /**
@@ -17,7 +17,7 @@ import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
  *
  * @param <T> {@link IMonitoringRecord} to send
  */
-public class KafkaRecordSender<T extends SpecificRecord> implements Transport<T> {
+public class KafkaRecordSender<T extends SpecificRecord> implements RecordSender<T> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordSender.class);
 
@@ -47,8 +47,17 @@ public class KafkaRecordSender<T extends SpecificRecord> implements Transport<T>
 
     final SchemaRegistryAvroSerdeFactory avroSerdeFactory =
         new SchemaRegistryAvroSerdeFactory(builder.schemaRegistryUrl);
-    this.producer = new KafkaProducer<>(properties, new StringSerializer(),
+    this.producer = new KafkaProducer<>(
+        properties,
+        new StringSerializer(),
         avroSerdeFactory.<T>forKeys().serializer());
+  }
+
+  public static <T extends SpecificRecord> Builder<T> builder(
+      final String bootstrapServers,
+      final String topic,
+      final String schemaRegistryUrl) {
+    return new Builder<>(bootstrapServers, topic, schemaRegistryUrl);
   }
 
   /**
@@ -72,7 +81,7 @@ public class KafkaRecordSender<T extends SpecificRecord> implements Transport<T>
      * @param topic The topic where to write.
      * @param schemaRegistryUrl URL to the schema registry for avro.
      */
-    public Builder(final String bootstrapServers, final String topic,
+    private Builder(final String bootstrapServers, final String topic,
         final String schemaRegistryUrl) {
       this.bootstrapServers = bootstrapServers;
       this.topic = topic;
@@ -116,7 +125,7 @@ public class KafkaRecordSender<T extends SpecificRecord> implements Transport<T>
   }
 
   @Override
-  public void transport(final T message) {
+  public void send(final T message) {
     this.write(message);
   }
 

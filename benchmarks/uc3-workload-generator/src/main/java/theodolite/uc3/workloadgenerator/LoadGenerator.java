@@ -8,8 +8,8 @@ import java.util.Properties;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.workloadgeneration.KeySpace;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
-import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGenerator;
 import theodolite.commons.workloadgeneration.generators.KafkaWorkloadGeneratorBuilder;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
@@ -72,7 +72,7 @@ public final class LoadGenerator {
     kafkaProperties.compute(ProducerConfig.LINGER_MS_CONFIG, (k, v) -> kafkaLingerMs);
     kafkaProperties.compute(ProducerConfig.BUFFER_MEMORY_CONFIG, (k, v) -> kafkaBufferMemory);
     final KafkaRecordSender<ActivePowerRecord> kafkaRecordSender =
-        new KafkaRecordSender.Builder<ActivePowerRecord>(
+        KafkaRecordSender.<ActivePowerRecord>builder(
             kafkaBootstrapServers,
             kafkaInputTopic,
             schemaRegistryUrl)

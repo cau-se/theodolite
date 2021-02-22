@@ -7,8 +7,8 @@ package theodolite.commons.workloadgeneration.functions;
  * @param <T> the type of records to send as messages.
  */
 @FunctionalInterface
-public interface Transport<T> {
+public interface RecordSender<T> {
 
-  void transport(final T message);
+  void send(final T message);
 
 }

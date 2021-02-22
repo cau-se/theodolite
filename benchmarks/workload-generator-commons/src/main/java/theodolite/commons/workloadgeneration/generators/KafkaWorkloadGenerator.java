@@ -2,10 +2,10 @@ package theodolite.commons.workloadgeneration.generators;
 
 import java.time.Duration;
 import org.apache.avro.specific.SpecificRecord;
+import theodolite.commons.workloadgeneration.KeySpace;
 import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
-import theodolite.commons.workloadgeneration.dimensions.KeySpace;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
-import theodolite.commons.workloadgeneration.functions.MessageGenerator;
+import theodolite.commons.workloadgeneration.functions.RecordGenerator;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
 /**
@@ -41,7 +41,7 @@ public class KafkaWorkloadGenerator<T extends SpecificRecord>
       final Duration period,
       final Duration duration,
       final BeforeAction beforeAction,
-      final MessageGenerator<T> generatorFunction,
+      final RecordGenerator<T> generatorFunction,
       final KafkaRecordSender<T> recordSender) {
     super(instances, zooKeeper, keySpace, threads, period, duration, beforeAction,
         generatorFunction,
