@@ -14,7 +14,7 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.commons.workloadgeneration.dimensions.KeySpace;
+import theodolite.commons.workloadgeneration.KeySpace;
 import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.misc.WorkloadDefinition;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
@@ -22,6 +22,7 @@ import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 /**
  * The central class responsible for distributing the workload through all workload generators.
  */
+@Deprecated
 public class WorkloadDistributor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WorkloadDistributor.class);

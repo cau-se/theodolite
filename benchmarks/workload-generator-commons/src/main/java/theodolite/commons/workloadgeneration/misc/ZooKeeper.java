@@ -3,6 +3,7 @@ package theodolite.commons.workloadgeneration.misc;
 /**
  * Wrapper for connection information for ZooKeeper.
  */
+@Deprecated
 public class ZooKeeper {
 
   private final String host;
