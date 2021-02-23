@@ -32,19 +32,20 @@ class KubernetesBenchmark(): Benchmark {
             }
         }
 
-    override fun buildDeployment(load: LoadDimension, res: Resource, overrides: List<OverridePatcherDefinition>): BenchmarkDeployment {
+    override fun buildDeployment(load: LoadDimension, res: Resource, configurationOverrides: List<ConfigurationOverride>): BenchmarkDeployment {
         // TODO("set node selector")
         val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
         val patcherManager = PatcherManager()
 
+
         // patch res and load
-        patcherManager.applyPatcher(res.getType(), this.resourceTypes, resources, res.get())
-        patcherManager.applyPatcher(load.getType(), this.loadTypes, resources, load.get().toString())
+        patcherManager.createAndApplyPatcher(res.getType(), this.resourceTypes, resources, res.get())
+        patcherManager.createAndApplyPatcher(load.getType(), this.loadTypes, resources, load.get().toString())
 
         // patch overrides
-        overrides.forEach {override ->  patcherManager.applyPatcher(override, resources)}
-        println(zookeeperConfig["server"] !! )
+        configurationOverrides.forEach{ override -> patcherManager.applyPatcher(listOf(override.patcher), resources, override.value)}
 
+        resources.forEach { r -> println(r) }
         return KubernetesBenchmarkDeployment(
             resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapSever),

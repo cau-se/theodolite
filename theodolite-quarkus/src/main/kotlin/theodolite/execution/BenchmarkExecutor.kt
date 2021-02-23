@@ -15,7 +15,7 @@ private val logger = KotlinLogging.logger {}
  * @property executionDuration
  * @constructor Create empty Benchmark executor
  */
-abstract class BenchmarkExecutor(val benchmark: Benchmark, val results: Results, val executionDuration: Duration, overrides: List<OverridePatcherDefinition>) {
+abstract class BenchmarkExecutor(val benchmark: Benchmark, val results: Results, val executionDuration: Duration, configurationOverrides: List<ConfigurationOverride>) {
 
     /**
      * Run a experiment for the given parametrization, evaluate the experiment and save the result.
