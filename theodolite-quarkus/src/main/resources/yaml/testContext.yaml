@@ -29,4 +29,16 @@ configOverrides:
       container: "workload-generator"
       variableName: "KAFKA_SERVER"
     value: "localhost:9192"
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "workloadGenerator.yaml"
+      variableName: "env"
+    value: "prod"
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "aggregation-deployment.yaml"
+      variableName: "env"
+    value: "prod"
+
+
 
