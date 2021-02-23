@@ -26,8 +26,8 @@ class CompositeStrategyTest {
             arrayOf( false, false, false, false, false, false, true),
             arrayOf( false, false, false, false, false, false, false)
         )
-        val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number)}
-        val mockResources: List<Resource> =  (0..6).map{number -> Resource(number)}
+        val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number, "NumSensors")}
+        val mockResources: List<Resource> =  (0..6).map{number -> Resource(number, "Instances")}
         val results: Results = Results();
         val benchmark = TestBenchmark()
         val benchmarkExecutor: TestBenchmarkExecutorImpl = TestBenchmarkExecutorImpl(mockResults, benchmark, results)
@@ -36,7 +36,7 @@ class CompositeStrategyTest {
         val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList<Resource?>()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x)})
+        val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x, "Instances")})
         expected.add(null)
 
         for(load in mockLoads) {
@@ -57,8 +57,8 @@ class CompositeStrategyTest {
             arrayOf( false, false, false, false, false, false, true),
             arrayOf( false, false, false, false, false, false, false)
         )
-        val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number)}
-        val mockResources: List<Resource> =  (0..6).map{number -> Resource(number)}
+        val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number, "NumSensors")}
+        val mockResources: List<Resource> =  (0..6).map{number -> Resource(number, "Instances")}
         val results: Results = Results();
         val benchmark = TestBenchmark()
         val benchmarkExecutorImpl: TestBenchmarkExecutorImpl = TestBenchmarkExecutorImpl(mockResults, benchmark, results)
@@ -67,7 +67,7 @@ class CompositeStrategyTest {
         val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList<Resource?>()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x)})
+        val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6).map{ x -> Resource(x, "Instances")})
         expected.add(null)
 
         for(load in mockLoads) {
@@ -88,8 +88,8 @@ class CompositeStrategyTest {
             arrayOf( false, false, false, false, false, false, true, true),
             arrayOf( false, false, false, false, false, false, false, true)
         )
-        val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number)}
-        val mockResources: List<Resource> =  (0..7).map{number -> Resource(number)}
+        val mockLoads: List<LoadDimension> =  (0..6).map{number -> LoadDimension(number, "NumSensors")}
+        val mockResources: List<Resource> =  (0..7).map{number -> Resource(number, "Instances")}
         val results: Results = Results();
         val benchmark = TestBenchmark()
         val benchmarkExecutor: TestBenchmarkExecutorImpl = TestBenchmarkExecutorImpl(mockResults, benchmark, results)
@@ -98,7 +98,7 @@ class CompositeStrategyTest {
         val strategy: CompositeStrategy = CompositeStrategy(benchmarkExecutor, binarySearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList<Resource?>()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6,7).map{ x -> Resource(x)})
+        val expected: ArrayList<Resource?> = ArrayList(listOf(0,2,2,3,4,6,7).map{ x -> Resource(x, "Instances")})
 
         for(load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))

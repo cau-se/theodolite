@@ -9,7 +9,7 @@ class TestBenchmark : Benchmark {
     override fun buildDeployment(
         load: LoadDimension,
         res: Resource,
-        configurationOverride: List<ConfigurationOverride>
+        configurationOverrides: List<ConfigurationOverride>
     ): BenchmarkDeployment {
         return TestBenchmarkDeployment()
     }

@@ -7,8 +7,8 @@ import kotlin.properties.Delegates
 class BenchmarkContext() {
     lateinit var name: String
     lateinit var benchmark: String
-    lateinit var loads: List<Int>
-    lateinit var resources: List<Int>
+    lateinit var load: LoadDefinition
+    lateinit var resources: ResourceDefinition
     lateinit var slos: List<Slo>
     lateinit var execution: Execution
     lateinit var configOverrides: List<ConfigurationOverride>
@@ -23,5 +23,15 @@ class BenchmarkContext() {
     class Slo(){
         lateinit var sloType: String
         var threshold by Delegates.notNull<Int>()
+    }
+
+    class LoadDefinition() {
+        lateinit var loadType: String
+        lateinit var loadValues: List<Int>
+    }
+
+    class ResourceDefinition() {
+        lateinit var resourceType: String
+        lateinit var resourceValues: List<Int>
     }
 }
