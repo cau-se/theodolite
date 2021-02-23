@@ -12,6 +12,8 @@ class PatcherManager {
             "EnvVarPatcher" -> EnvVarPatcher(k8sResources.filter { it.first == patcherDefinition.resource}.map { resource -> resource.second }[0],
                                 patcherDefinition.container,
                                 patcherDefinition.variableName)
+            "NodeSelectorPatcher" -> NodeSelectorPatcher(k8sResources.filter { it.first == patcherDefinition.resource }.map { resource -> resource.second }[0],
+                                patcherDefinition.variableName)
             else -> throw IllegalArgumentException("Patcher type ${patcherDefinition.type} not found")
         }
     }
