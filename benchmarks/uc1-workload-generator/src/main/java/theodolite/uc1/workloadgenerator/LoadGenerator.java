@@ -65,7 +65,7 @@ public final class LoadGenerator {
     kafkaProperties.compute(ProducerConfig.BUFFER_MEMORY_CONFIG, (k, v) -> kafkaBufferMemory);
 
     final KafkaRecordSender<ActivePowerRecord> kafkaRecordSender =
-        new KafkaRecordSender.Builder<ActivePowerRecord>(
+        KafkaRecordSender.<ActivePowerRecord>builder(
             kafkaBootstrapServers,
             kafkaInputTopic,
             schemaRegistryUrl)
