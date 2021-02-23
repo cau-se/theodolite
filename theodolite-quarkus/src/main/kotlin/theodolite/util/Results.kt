@@ -16,10 +16,10 @@ class Results {
         return this.results[experiment]
     }
 
-    public fun getMinRequiredInstances(load: LoadDimension?): Resource? {
-        if (this.results.isEmpty()) return Resource(Int.MIN_VALUE)
+    public fun getMinRequiredInstances(load: LoadDimension?, resourceTyp: String): Resource? {
+        if (this.results.isEmpty()) return Resource(Int.MIN_VALUE, resourceTyp)
 
-        var requiredInstances: Resource? = Resource(Int.MAX_VALUE)
+        var requiredInstances: Resource? = Resource(Int.MAX_VALUE, resourceTyp)
         for(experiment in results) {
             if(experiment.key.first == load && experiment.value){
                 if(requiredInstances == null) {
