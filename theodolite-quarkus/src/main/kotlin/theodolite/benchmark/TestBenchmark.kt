@@ -1,7 +1,7 @@
 package theodolite.benchmark
 
 import theodolite.util.LoadDimension
-import theodolite.util.OverridePatcherDefinition
+import theodolite.util.ConfigurationOverride
 import theodolite.util.Resource
 
 class TestBenchmark : Benchmark {
@@ -9,7 +9,7 @@ class TestBenchmark : Benchmark {
     override fun buildDeployment(
         load: LoadDimension,
         res: Resource,
-        override: List<OverridePatcherDefinition>
+        configurationOverride: List<ConfigurationOverride>
     ): BenchmarkDeployment {
         return TestBenchmarkDeployment()
     }

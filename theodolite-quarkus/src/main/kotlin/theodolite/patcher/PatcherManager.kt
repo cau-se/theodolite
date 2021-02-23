@@ -1,7 +1,6 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import theodolite.util.OverridePatcherDefinition
 import theodolite.util.PatcherDefinition
 import theodolite.util.TypeName
 import java.lang.IllegalArgumentException
@@ -23,22 +22,29 @@ class PatcherManager {
             .flatMap { type -> type.patchers}
     }
 
-    fun applyPatcher(type: String, patcherTypes: List<TypeName>, resources: List<Pair<String, KubernetesResource>>, value: Any) {
+    /**
+     * This function first creates a patcher definition and then patches the list of resources based on this patcher definition
+     *
+     * @param type Patcher type, for example "EnvVarPatcher"
+     * @param patcherTypes List of patcher types definitions, for example for resources and threads
+     * @param resources List of K8s resources, a patcher takes the resources that are needed
+     * @param value The value to patch
+     */
+    fun createAndApplyPatcher(type: String, patcherTypes: List<TypeName>, resources: List<Pair<String, KubernetesResource>>, value: Any) {
         this.getPatcherDef(type, patcherTypes)
             .forEach {patcherDef ->
                 createK8sPatcher(patcherDef, resources).patch(value) }
     }
 
+    /**
+     * Patch a resource based on the given patcher definition, a list of resources and a value to patch
+     *
+     * @param patcherDefinition The patcher definition
+     * @param resources List of patcher types definitions, for example for resources and threads
+     * @param value The value to patch
+     */
+    fun applyPatcher(patcherDefinition: List<PatcherDefinition>, resources: List<Pair<String, KubernetesResource>>, value: Any) {
+        patcherDefinition.forEach { def ->  this.createK8sPatcher(def, resources).patch(value) }
 
-   fun applyPatcher(overrides: OverridePatcherDefinition, resources: List<Pair<String, KubernetesResource>>){
-       var pdef = PatcherDefinition()
-       pdef.type = overrides.type
-       pdef.container = overrides.container
-       pdef.resource = overrides.resource
-       overrides.overrides.forEach{ override ->
-           pdef.variableName = override.key
-           this.createK8sPatcher(pdef, resources).patch(override.value)
-       }
-   }
-
+    }
 }

@@ -8,7 +8,7 @@ import java.time.Duration
 
 class TestBenchmarkExecutorImpl(private val mockResults: Array<Array<Boolean>>, benchmark: Benchmark, results: Results):
     BenchmarkExecutor(benchmark, results, executionDuration = Duration.ofSeconds(1),
-        overrides = emptyList()
+        configurationOverrides = emptyList()
     ) {
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {

@@ -15,10 +15,18 @@ execution:
   repititions: 1
   restrictions:
     - "LowerBound"
+#configOverrides:
+#  - type: "EnvVarPatcher"
+#    resource: "workloadGenerator.yaml"
+#    container: "workload-generator"
+#    overrides:
+#      overrideTestA: "8888"
+#      overrideTestB: "6666"
 configOverrides:
-  - type: "EnvVarPatcher"
-    resource: "workloadGenerator.yaml"
-    container: "workload-generator"
-    overrides:
-      overrideTestA: "8888"
-      overrideTestB: "6666"
+  - patcher:
+      type: "EnvVarPatcher"
+      resource: "workloadGenerator.yaml"
+      container: "workload-generator"
+      variableName: "KAFKA_SERVER"
+    value: "localhost:9192"
+
