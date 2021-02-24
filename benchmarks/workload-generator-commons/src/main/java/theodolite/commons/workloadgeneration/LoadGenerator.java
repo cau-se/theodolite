@@ -5,6 +5,9 @@ import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
+/**
+ * A Theodolite load generator.
+ */
 public final class LoadGenerator {
 
   private static final String SENSOR_PREFIX_DEFAULT = "s_";
@@ -49,6 +52,9 @@ public final class LoadGenerator {
     return this;
   }
 
+  /**
+   * Run the constructed load generator until cancellation.
+   */
   public void run() {
     Objects.requireNonNull(this.clusterConfig, "No cluster config set.");
     Objects.requireNonNull(this.generatorConfig, "No generator config set.");
@@ -64,6 +70,9 @@ public final class LoadGenerator {
     runner.runBlocking();
   }
 
+  /**
+   * Create a basic {@link LoadGenerator} from its default values.
+   */
   public static LoadGenerator fromDefaults() {
     return new LoadGenerator()
         .setClusterConfig(new ClusterConfig())
@@ -79,6 +88,9 @@ public final class LoadGenerator {
                 .forConstantValue(VALUE_DEFAULT)));
   }
 
+  /**
+   * Create a basic {@link LoadGenerator} from environment variables.
+   */
   public static LoadGenerator fromEnvironment() {
     final String bootstrapServer = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.BOOTSTRAP_SERVER),
@@ -135,11 +147,6 @@ public final class LoadGenerator {
                     schemaRegistryUrl,
                     kafkaProperties)
                 .forConstantValue(value)));
-  }
-
-  public static void main(final String[] args) {
-    LoadGenerator.fromEnvironment()
-        .run();
   }
 
 }

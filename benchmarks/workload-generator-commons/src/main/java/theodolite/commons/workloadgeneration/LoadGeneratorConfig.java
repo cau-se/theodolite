@@ -1,11 +1,9 @@
 package theodolite.commons.workloadgeneration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * Configuration of a load generator.
+ */
 public class LoadGeneratorConfig {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(LoadGeneratorConfig.class);
 
   private final MessageGenerator messageGenerator;
   private BeforeAction beforeAction = BeforeAction.doNothing();
@@ -17,10 +15,8 @@ public class LoadGeneratorConfig {
 
   public LoadGeneratorConfig(
       final MessageGenerator messageGenerator,
-      final BeforeAction beforeAction,
       final int threads) {
     this.messageGenerator = messageGenerator;
-    this.beforeAction = beforeAction;
     this.threads = threads;
   }
 
