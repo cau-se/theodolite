@@ -6,6 +6,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Definition of a workload consisting of a {@link KeySpace} and a period with which messages will
+ * be generated for key of that {@link KeySpace}.
+ */
 public class WorkloadDefinition implements Serializable {
 
   private static final long serialVersionUID = -8337364281221817001L; // NOPMD
@@ -33,6 +37,10 @@ public class WorkloadDefinition implements Serializable {
     return this.period;
   }
 
+  /**
+   * Divide this {@link WorkloadDefinition} into {@code parts} {@link WorkloadDefinition}s by
+   * distributing its {@link KeySpace} (almost) equally among all {@link WorkloadDefinition}s.
+   */
   public Set<WorkloadDefinition> divide(final int parts) {
     final int effParts = Math.min(parts, this.keySpace.getCount());
     final int minSize = this.keySpace.getCount() / effParts;

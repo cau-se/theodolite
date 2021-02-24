@@ -4,11 +4,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import theodolite.commons.workloadgeneration.generators.AbstractWorkloadGenerator;
 
 /**
- * Wrapper class for the definition of the Keys that should be used by the
- * {@link AbstractWorkloadGenerator}.
+ * A set of keys, where each key consists of a prefix and a number.
  */
 public class KeySpace implements Serializable {
 
@@ -20,7 +18,7 @@ public class KeySpace implements Serializable {
 
   /**
    * Create a new key space. All keys will have the prefix {@code prefix}. The remaining part of
-   * each key will be determined by a number of the interval ({@code min}, {@code max}-1).
+   * each key will be determined by a number of the interval ({@code min}, {@code max}).
    *
    * @param prefix the prefix to use for all keys
    * @param min the lower bound (inclusive) to start counting from
@@ -50,10 +48,16 @@ public class KeySpace implements Serializable {
     return this.max;
   }
 
+  /**
+   * Get the amount of keys in this {@link KeySpace}.
+   */
   public int getCount() {
     return this.getMax() - this.getMin() + 1;
   }
 
+  /**
+   * Get all keys in this {@link KeySpace}.
+   */
   public Collection<String> getKeys() {
     return IntStream.rangeClosed(this.min, this.max)
         .mapToObj(id -> this.prefix + id)

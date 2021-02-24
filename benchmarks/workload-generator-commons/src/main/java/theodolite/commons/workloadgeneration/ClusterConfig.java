@@ -1,5 +1,8 @@
 package theodolite.commons.workloadgeneration;
 
+/**
+ * Configuration of a load generator cluster.
+ */
 public class ClusterConfig {
   public static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
   public static final int PORT_DEFAULT = 5701;
@@ -11,6 +14,9 @@ public class ClusterConfig {
   private final boolean portAutoIncrement;
   private final String clusterNamePrefix;
 
+  /**
+   * Create a new {@link ClusterConfig} with its default values.
+   */
   public ClusterConfig() {
     this(
         BOOTSTRAP_SERVER_DEFAULT,
@@ -19,6 +25,9 @@ public class ClusterConfig {
         CLUSTER_NAME_PREFIX_DEFAULT);
   }
 
+  /**
+   * Create a new {@link ClusterConfig} with the given parameter values.
+   */
   public ClusterConfig(final String bootstrapServer, final int port,
       final boolean portAutoIncrement, final String clusterNamePrefix) {
     this.bootstrapServer = bootstrapServer;
