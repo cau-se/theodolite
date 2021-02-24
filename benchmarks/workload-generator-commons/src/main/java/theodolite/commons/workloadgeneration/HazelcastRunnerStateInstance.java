@@ -15,7 +15,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO Reconsider name -> Hazelcast Instance
+/**
+ * An instance of a Hazelcast runner state, that is a load generator cluster with a given set of
+ * members.
+ */
 public class HazelcastRunnerStateInstance {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastRunnerStateInstance.class);
@@ -31,6 +34,9 @@ public class HazelcastRunnerStateInstance {
   private final HazelcastInstance hzInstance;
   private final Set<Member> members;
 
+  /**
+   * Create a new {@link HazelcastRunnerStateInstance}.
+   */
   public HazelcastRunnerStateInstance(
       final LoadGeneratorConfig loadGeneratorConfig,
       final WorkloadDefinition totalLoadDefinition,
@@ -44,6 +50,9 @@ public class HazelcastRunnerStateInstance {
     LOGGER.info("Created new Hazelcast runner instance for member set '{}'", this.members);
   }
 
+  /**
+   * Start and block load generation for the configured member set.
+   */
   public void runBlocking() {
     if (!this.stopAction.isDone()) {
       this.tryPerformBeforeAction();
@@ -175,8 +184,8 @@ public class HazelcastRunnerStateInstance {
   }
 
   private static final class LoadDefPerMember {
-    public final WorkloadDefinition loadDefinition;
-    public final Member member;
+    public final WorkloadDefinition loadDefinition; // NOCS used only internally
+    public final Member member; // NOCS used only internally
 
     public LoadDefPerMember(final WorkloadDefinition loadDefinition, final Member member) {
       this.loadDefinition = loadDefinition;

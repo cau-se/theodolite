@@ -10,6 +10,9 @@ import com.hazelcast.core.HazelcastInstance;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A Theodolite load generator runner that establishes a cluster using Hazelcast.
+ */
 public class HazelcastRunner {
 
   private final HazelcastInstance hzInstance;
@@ -18,6 +21,9 @@ public class HazelcastRunner {
   private final LoadGeneratorConfig loadConfig;
   private final WorkloadDefinition totalLoadDefinition;
 
+  /**
+   * Create a new {@link HazelcastRunner} from the given configuration.
+   */
   public HazelcastRunner(
       final ClusterConfig clusterConfig,
       final LoadGeneratorConfig loadConfig,
@@ -28,6 +34,9 @@ public class HazelcastRunner {
     this.hzInstance.getCluster().addMembershipListener(new RunnerMembershipListener());
   }
 
+  /**
+   * Start the workload generation and blocks until the workload generation is stopped again.
+   */
   public void runBlocking() {
     while (!this.stopAction.isDone()) {
       synchronized (this) {
