@@ -150,8 +150,8 @@ public final class LoadGenerator {
                     kafkaInputTopic,
                     schemaRegistryUrl,
                     kafkaProperties)
-                .forConstantValue(value))
-                    .setThreads(threads));
+                .forConstantValue(value)))
+        .withThreads(threads);
   }
 
 }
