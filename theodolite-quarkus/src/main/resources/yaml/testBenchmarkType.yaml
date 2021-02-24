@@ -20,7 +20,7 @@ loadTypes:
 kafkaConfig:
   bootstrapSever: "localhost:31290"
   topics:
-    - name: "test"
+    - name: "input"
       partition: "1"
       replication: "1"
 zookeeperConfig:

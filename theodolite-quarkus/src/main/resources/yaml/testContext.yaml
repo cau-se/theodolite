@@ -7,24 +7,17 @@ load:
 resources:
   resourceType: "Instances"
   resourceValues:
-    - 1
     - 2
 slos:
   - sloType: "slo type"
     threshold: 1000
 execution:
   strategy: "LinearSearch"
-  duration: 300
+  duration: 120
   repititions: 1
   restrictions:
     - "LowerBound"
 configOverrides:
-  - patcher:
-      type: "EnvVarPatcher"
-      resource: "workloadGenerator.yaml"
-      container: "workload-generator"
-      variableName: "KAFKA_SERVER"
-    value: "localhost:9192"
   - patcher:
       type: "NodeSelectorPatcher"
       resource: "workloadGenerator.yaml"
@@ -35,6 +28,3 @@ configOverrides:
       resource: "aggregation-deployment.yaml"
       variableName: "env"
     value: "prod"
-
-
-
