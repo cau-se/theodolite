@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: workload-generator
-          image: workload-generator:latest
+          image: ghcr.io/cau-se/theodolite-uc1-workload-generator:theodolite-kotlin-latest
           env:
             # Order need to be preserved for run_uc.py
             - name: NUM_SENSORS

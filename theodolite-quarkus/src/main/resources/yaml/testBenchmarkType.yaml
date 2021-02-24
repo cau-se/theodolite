@@ -18,10 +18,10 @@ loadTypes:
         container: "workload-generator"
         variableName: "NUM_SENSORS"
 kafkaConfig:
-  bootstrapSever: "my-confluent-cp-kafka:9092"
+  bootstrapSever: "localhost:31290"
   topics:
     - name: "test"
       partition: "1"
       replication: "1"
 zookeeperConfig:
-  server: "my-confluent-cp-zookeeper:2181"
+  server: "localhost:31953"
