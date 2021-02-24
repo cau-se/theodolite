@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import theodolite.commons.workloadgeneration.functions.BeforeAction;
-import theodolite.commons.workloadgeneration.functions.TitanMessageGeneratorFactory;
 
 public final class LoadGenerator {
 

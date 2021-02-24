@@ -14,8 +14,8 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.workloadgeneration.BeforeAction;
 import theodolite.commons.workloadgeneration.KeySpace;
-import theodolite.commons.workloadgeneration.functions.BeforeAction;
 import theodolite.commons.workloadgeneration.misc.WorkloadDefinition;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 

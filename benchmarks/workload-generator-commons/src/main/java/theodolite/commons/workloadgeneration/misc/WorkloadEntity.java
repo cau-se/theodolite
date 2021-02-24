@@ -1,6 +1,6 @@
 package theodolite.commons.workloadgeneration.misc;
 
-import theodolite.commons.workloadgeneration.functions.RecordGenerator;
+import theodolite.commons.workloadgeneration.RecordGenerator;
 
 /**
  * Representation of a entity of the workload generation that generates load for one fixed key.

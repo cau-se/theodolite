@@ -2,10 +2,10 @@ package theodolite.commons.workloadgeneration.generators;
 
 import java.time.Duration;
 import org.apache.avro.specific.SpecificRecord;
+import theodolite.commons.workloadgeneration.BeforeAction;
+import theodolite.commons.workloadgeneration.KafkaRecordSender;
 import theodolite.commons.workloadgeneration.KeySpace;
-import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
-import theodolite.commons.workloadgeneration.functions.BeforeAction;
-import theodolite.commons.workloadgeneration.functions.RecordGenerator;
+import theodolite.commons.workloadgeneration.RecordGenerator;
 import theodolite.commons.workloadgeneration.misc.ZooKeeper;
 
 /**

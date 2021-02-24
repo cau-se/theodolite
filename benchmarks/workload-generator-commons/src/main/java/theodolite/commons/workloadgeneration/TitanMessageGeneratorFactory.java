@@ -1,7 +1,6 @@
-package theodolite.commons.workloadgeneration.functions;
+package theodolite.commons.workloadgeneration;
 
 import java.util.Properties;
-import theodolite.commons.workloadgeneration.communication.kafka.KafkaRecordSender;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**

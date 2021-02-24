@@ -1,4 +1,4 @@
-package theodolite.commons.workloadgeneration.communication.kafka;
+package theodolite.commons.workloadgeneration;
 
 import java.util.Properties;
 import java.util.function.Function;
@@ -9,7 +9,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.commons.workloadgeneration.functions.RecordSender;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 /**

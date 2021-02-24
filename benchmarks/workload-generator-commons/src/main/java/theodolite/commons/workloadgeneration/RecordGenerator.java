@@ -1,4 +1,4 @@
-package theodolite.commons.workloadgeneration.functions;
+package theodolite.commons.workloadgeneration;
 
 /**
  * This interface describes a function that takes meta information from a string key and produces an

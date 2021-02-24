@@ -1,4 +1,4 @@
-package theodolite.commons.workloadgeneration.functions;
+package theodolite.commons.workloadgeneration;
 
 /**
  * This interface describes a function that consumes a message {@code T}. This function is dedicated

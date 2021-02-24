@@ -1,4 +1,4 @@
-package theodolite.commons.workloadgeneration.functions;
+package theodolite.commons.workloadgeneration;
 
 /**
  * Interface representing a message generator, which sends messages for given keys to some

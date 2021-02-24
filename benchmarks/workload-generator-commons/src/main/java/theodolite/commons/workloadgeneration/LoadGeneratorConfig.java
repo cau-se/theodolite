@@ -2,8 +2,6 @@ package theodolite.commons.workloadgeneration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.commons.workloadgeneration.functions.BeforeAction;
-import theodolite.commons.workloadgeneration.functions.MessageGenerator;
 
 public class LoadGeneratorConfig {
 
