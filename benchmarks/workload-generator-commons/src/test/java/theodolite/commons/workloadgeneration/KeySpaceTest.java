@@ -1,4 +1,4 @@
-package theodolite.commons.workloadgeneration.dimensions;
+package theodolite.commons.workloadgeneration;
 
 import org.junit.Assert;
 import org.junit.Test;

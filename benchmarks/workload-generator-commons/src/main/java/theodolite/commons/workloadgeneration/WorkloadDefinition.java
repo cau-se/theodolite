@@ -1,11 +1,14 @@
 package theodolite.commons.workloadgeneration;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class WorkloadDefinition {
+public class WorkloadDefinition implements Serializable {
+
+  private static final long serialVersionUID = -8337364281221817001L; // NOPMD
 
   private final KeySpace keySpace;
   private final Duration period;
@@ -31,12 +34,21 @@ public class WorkloadDefinition {
   }
 
   public Set<WorkloadDefinition> divide(final int parts) {
-    final int size = (this.keySpace.getCount() + parts - 1) / parts; // = ceil(count/parts)
-    return IntStream.range(0, parts)
-        .mapToObj(part -> new KeySpace(
-            this.keySpace.getPrefix(),
-            this.keySpace.getMin() + part * size,
-            Math.min(this.keySpace.getMin() + (part + 1) * size - 1, this.keySpace.getMax())))
+    final int effParts = Math.min(parts, this.keySpace.getCount());
+    final int minSize = this.keySpace.getCount() / effParts;
+    final int largerParts = this.keySpace.getCount() % effParts;
+    return IntStream.range(0, effParts)
+        .mapToObj(part -> {
+          final int thisSize = part < largerParts ? minSize + 1 : minSize;
+          final int largePartsBefore = Math.min(largerParts, part);
+          final int smallPartsBefore = part - largePartsBefore;
+          final int start = largePartsBefore * (minSize + 1) + smallPartsBefore * minSize;
+          final int end = start + thisSize - 1;
+          return new KeySpace(
+              this.keySpace.getPrefix(),
+              start,
+              end);
+        })
         .map(keySpace -> new WorkloadDefinition(
             keySpace,
             this.period))

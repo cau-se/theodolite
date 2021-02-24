@@ -1,5 +1,6 @@
 package theodolite.commons.workloadgeneration;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -9,7 +10,9 @@ import theodolite.commons.workloadgeneration.generators.AbstractWorkloadGenerato
  * Wrapper class for the definition of the Keys that should be used by the
  * {@link AbstractWorkloadGenerator}.
  */
-public class KeySpace {
+public class KeySpace implements Serializable {
+
+  private static final long serialVersionUID = 7343135392720315515L; // NOPMD
 
   private final String prefix;
   private final int min;
