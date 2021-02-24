@@ -15,7 +15,7 @@ class StrategiesManager {
         return when (searchStrategyString) {
             "LinearSearch" -> LinearSearch(executor)
             "BinarySearch" -> BinarySearch(executor)
-            else -> throw  IllegalArgumentException("Search Strategy $searchStrategyString not found")
+            else -> throw IllegalArgumentException("Search Strategy $searchStrategyString not found")
         }
     }
 
@@ -24,7 +24,7 @@ class StrategiesManager {
             .map { restriction ->
                 when (restriction) {
                     "LowerBound" -> LowerBoundRestriction(results)
-                    else -> throw  IllegalArgumentException("Restriction Strategy $restrictionStrings not found")
+                    else -> throw IllegalArgumentException("Restriction Strategy $restrictionStrings not found")
                 }
             }.toSet()
     }
