@@ -3,8 +3,7 @@ benchmark: "benchmarkType"
 load:
   loadType: "NumSensors"
   loadValues:
-    - 1000
-    - 2000
+    - 10000
 resources:
   resourceType: "Instances"
   resourceValues:
