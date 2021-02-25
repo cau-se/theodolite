@@ -114,8 +114,10 @@ public final class LoadGenerator {
       clusterConfig = ClusterConfig.fromKubernetesDnsName(kubernetesDnsName);
       LOGGER.info("Use Kubernetes DNS name '{}'.", kubernetesDnsName);
     } else {
-      throw new IllegalArgumentException(
-          "Neither a bootstrap server nor a Kubernetes DNS name was provided.");
+      clusterConfig = ClusterConfig.fromBootstrapServer(BOOTSTRAP_SERVER_DEFAULT);
+      LOGGER.info(
+          "Neither a bootstrap server nor a Kubernetes DNS name was provided. Use default bootstrap server '{}'.", // NOCS
+          BOOTSTRAP_SERVER_DEFAULT);
     }
 
     final String port = System.getenv(ConfigurationKeys.PORT);
