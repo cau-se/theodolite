@@ -7,13 +7,13 @@ import java.lang.IllegalArgumentException
 
 class PatcherManager {
     private fun createK8sPatcher(patcherDefinition: PatcherDefinition, k8sResources: List<Pair<String, KubernetesResource>>): Patcher {
+        val resource = k8sResources.filter { it.first == patcherDefinition.resource}.map { resource -> resource.second }[0]
         return when(patcherDefinition.type) {
-            "ReplicaPatcher" -> ReplicaPatcher(k8sResources.filter { it.first == patcherDefinition.resource}.map { resource -> resource.second }[0])
-            "EnvVarPatcher" -> EnvVarPatcher(k8sResources.filter { it.first == patcherDefinition.resource}.map { resource -> resource.second }[0],
-                                patcherDefinition.container,
-                                patcherDefinition.variableName)
-            "NodeSelectorPatcher" -> NodeSelectorPatcher(k8sResources.filter { it.first == patcherDefinition.resource }.map { resource -> resource.second }[0],
-                                patcherDefinition.variableName)
+            "ReplicaPatcher" -> ReplicaPatcher(resource)
+            "EnvVarPatcher" -> EnvVarPatcher(resource, patcherDefinition.container, patcherDefinition.variableName)
+            "NodeSelectorPatcher" -> NodeSelectorPatcher(resource, patcherDefinition.variableName)
+            "ResourceLimitPatcher" -> ResourceLimitPatcher(resource, patcherDefinition.container, patcherDefinition.variableName)
+            "ResourceRequestPatcher" -> ResourceRequestPatcher(resource, patcherDefinition.container, patcherDefinition.variableName)
             else -> throw IllegalArgumentException("Patcher type ${patcherDefinition.type} not found")
         }
     }

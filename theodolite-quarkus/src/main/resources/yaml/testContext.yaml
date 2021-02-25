@@ -28,3 +28,15 @@ configOverrides:
       resource: "aggregation-deployment.yaml"
       variableName: "env"
     value: "prod"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "aggregation-deployment.yaml"
+      container: "uc-application"
+      variableName: "cpu"
+    value: "50m"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "aggregation-deployment.yaml"
+      container: "uc-application"
+      variableName: "memory"
+    value: "2Gi"

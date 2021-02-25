@@ -6,7 +6,6 @@ import theodolite.benchmark.KubernetesBenchmark
 
 class TheodoliteYamlExecutor {
     fun run() {
-
         // load the Benchmark context and the benchmark type
         var parser = YamlParser()
         val benchmarkContext = parser.parse("./../../../resources/main/yaml/testContext.yaml", BenchmarkContext::class.java) !!
