@@ -1,4 +1,4 @@
-package theodolite.k8s
+package theodolite.deprecated
 
 import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.EnvVar

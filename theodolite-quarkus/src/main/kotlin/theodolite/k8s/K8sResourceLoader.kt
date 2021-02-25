@@ -18,7 +18,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return service from fabric8
      */
-    fun loadService(path: String): Service {
+    private fun loadService(path: String): Service {
         return loadGenericRessource(path) { x: String -> client.services().load(x).get() }
     }
 
@@ -27,7 +27,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return service from fabric8
      */
-    fun loadServiceMonitor(path: String): CustomResourceDefinition {
+    private fun loadServiceMonitor(path: String): CustomResourceDefinition {
         return loadGenericRessource(path) { x: String -> client.customResourceDefinitions().load(x).get() }
     }
 
@@ -36,7 +36,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return Deployment from fabric8
      */
-    fun loadDeployment(path: String): Deployment {
+    private fun loadDeployment(path: String): Deployment {
         return loadGenericRessource(path) { x: String -> client.apps().deployments().load(x).get() }
     }
 
@@ -45,7 +45,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return ConfigMap from fabric8
      */
-    fun loadConfigmap(path: String): ConfigMap {
+    private fun loadConfigmap(path: String): ConfigMap {
         return loadGenericRessource(path) { x: String -> client.configMaps().load(x).get() }
     }
 
