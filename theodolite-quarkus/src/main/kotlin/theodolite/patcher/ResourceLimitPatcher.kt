@@ -16,22 +16,19 @@ class ResourceLimitPatcher(
         if (k8sResource is Deployment) {
             k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
                 try {
-                    println("before: " + it.resources.limits.toString())
-                    println("$variableName to : $value")
-                    if (it.resources.limits.isNullOrEmpty()) {
+                    if (it.resources.limits.isEmpty()) {
                         it.resources.limits = mapOf(variableName to Quantity(value as kotlin.String))
                     } else {
-                        val values = Quantity(value as kotlin.String)
-                        it.resources.limits[variableName] = values
+                        val values = mutableMapOf<kotlin.String, Quantity>()
+                        it.resources.limits.forEach { entry -> values.put(entry.key, entry.value) }
+                        values[variableName] = Quantity(value as kotlin.String)
+                        it.resources.limits = values
                     }
                 } catch (e: IllegalStateException) {
                     val resource = ResourceRequirements()
                     resource.limits = mapOf(variableName to Quantity(value as kotlin.String))
                     it.resources = resource
                 }
-
-                println("after " + it.resources.limits.toString())
-
             }
         }
     }
