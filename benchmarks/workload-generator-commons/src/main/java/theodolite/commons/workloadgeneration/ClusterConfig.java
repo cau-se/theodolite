@@ -4,14 +4,9 @@ package theodolite.commons.workloadgeneration;
  * Configuration of a load generator cluster.
  */
 public final class ClusterConfig {
-  /*
-   * public static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701"; public static final int
-   * PORT_DEFAULT = 5701; public static final boolean PORT_AUTO_INCREMENT_DEFAULT = true; public
-   * static final String CLUSTER_NAME_PREFIX_DEFAULT = "theodolite-load-generation";
-   */
 
-  public static final int PORT_DEFAULT = 5701;
-  public static final String CLUSTER_NAME_PREFIX_DEFAULT = "theodolite-load-generation";
+  private static final int PORT_DEFAULT = 5701;
+  private static final String CLUSTER_NAME_PREFIX_DEFAULT = "theodolite-load-generation";
 
   private final String bootstrapServer;
   private final String kubernetesDnsName;
