@@ -247,11 +247,12 @@ Kubernetes volume.
 | --duration           | DURATION            | Duration in minutes subexperiments should be executed for. *Default:* `5`. |
 | --partitions         | PARTITIONS          | Number of partitions for Kafka topics. *Default:* `40`.      |
 | --cpu-limit          | CPU_LIMIT           | Kubernetes CPU limit for a single Pod.  *Default:* `1000m`.  |
-| --memory-limiT       | MEMORY_LIMIT        | Kubernetes memory limit for a single Pod. *Default:* `4Gi`.  |
+| --memory-limit       | MEMORY_LIMIT        | Kubernetes memory limit for a single Pod. *Default:* `4Gi`.  |
 | --domain-restriction | DOMAIN_RESTRICTION  | A flag that indiciates domain restriction should be used. *Default:* not set. For more details see Section [Domain Restriction](#domain-restriction). |
 | --search-strategy    | SEARCH_STRATEGY     | The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. *Default:* `check-all`. For more details see Section [Benchmarking Search Strategies](#benchmarking-search-strategies). |
 | --reset              | RESET               | Resets the environment before each subexperiment. Useful if execution was aborted and just one experiment should be executed. |
 | --reset-only         | RESET_ONLY          | Only resets the environment. Ignores all other parameters. Useful if execution was aborted and one want a clean state for new executions. |
+| --namespace          | NAMESPACE        | Kubernetes namespace. *Default:* `default`.  |
 | --prometheus         | PROMETHEUS_BASE_URL | Defines where to find the prometheus instance. *Default:* `http://localhost:9090` |
 | --path               | RESULT_PATH         | A directory path for the results. Relative to the Execution folder. *Default:* `results` |
 | --configurations     | CONFIGURATIONS      | Defines environment variables for the use cases and, thus, enables further configuration options. |
