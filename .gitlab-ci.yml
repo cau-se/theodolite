@@ -31,7 +31,7 @@ execution:
     - when: manual
       allow_failure: true
 
-check:
+framework:
   stage: triggers
   trigger:
     include: theodolite-quarkus/.gitlab-ci.yml
