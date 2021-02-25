@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Load Generator for UC1.
+ * Load Generator for Theodolite use case UC1.
  */
 public final class LoadGenerator {
 

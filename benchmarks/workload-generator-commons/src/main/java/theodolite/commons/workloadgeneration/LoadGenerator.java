@@ -43,6 +43,11 @@ public final class LoadGenerator {
     return this;
   }
 
+  public LoadGenerator withKeySpace(final KeySpace keySpace) {
+    this.loadDefinition = new WorkloadDefinition(keySpace, this.loadDefinition.getPeriod());
+    return this;
+  }
+
   public LoadGenerator withBeforeAction(final BeforeAction beforeAction) {
     this.generatorConfig.setBeforeAction(beforeAction);
     return this;
