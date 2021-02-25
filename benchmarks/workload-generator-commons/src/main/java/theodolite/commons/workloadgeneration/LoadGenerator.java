@@ -4,12 +4,17 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Theodolite load generator.
  */
 public final class LoadGenerator {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
+
+  private static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
   private static final String SENSOR_PREFIX_DEFAULT = "s_";
   private static final int NUMBER_OF_KEYS_DEFAULT = 10;
   private static final int PERIOD_MS_DEFAULT = 1000;
@@ -17,7 +22,7 @@ public final class LoadGenerator {
   private static final int THREADS_DEFAULT = 4;
   private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   private static final String KAFKA_TOPIC_DEFAULT = "input";
-  private static final String KAFKA_BOOTSTRAP_SERVERS_DEFAULT = "localhost:9092"; // NOPMD
+  private static final String KAFKA_BOOTSTRAP_SERVERS_DEFAULT = "localhost:19092"; // NOPMD
 
   private ClusterConfig clusterConfig;
   private WorkloadDefinition loadDefinition;
@@ -81,7 +86,7 @@ public final class LoadGenerator {
    */
   public static LoadGenerator fromDefaults() {
     return new LoadGenerator()
-        .setClusterConfig(new ClusterConfig())
+        .setClusterConfig(ClusterConfig.fromBootstrapServer(BOOTSTRAP_SERVER_DEFAULT))
         .setLoadDefinition(new WorkloadDefinition(
             new KeySpace(SENSOR_PREFIX_DEFAULT, NUMBER_OF_KEYS_DEFAULT),
             Duration.ofMillis(PERIOD_MS_DEFAULT)))
@@ -98,18 +103,36 @@ public final class LoadGenerator {
    * Create a basic {@link LoadGenerator} from environment variables.
    */
   public static LoadGenerator fromEnvironment() {
-    final String bootstrapServer = Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.BOOTSTRAP_SERVER),
-        ClusterConfig.BOOTSTRAP_SERVER_DEFAULT);
-    final int port = Integer.parseInt(Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.PORT),
-        Integer.toString(ClusterConfig.PORT_DEFAULT)));
-    final boolean portAutoIncrement = Boolean.parseBoolean(Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.PORT_AUTO_INCREMENT),
-        Boolean.toString(ClusterConfig.PORT_AUTO_INCREMENT_DEFAULT)));
-    final String clusterNamePrefix = Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.CLUSTER_NAME_PREFIX),
-        ClusterConfig.CLUSTER_NAME_PREFIX_DEFAULT);
+    final String bootstrapServer = System.getenv(ConfigurationKeys.BOOTSTRAP_SERVER);
+    final String kubernetesDnsName = System.getenv(ConfigurationKeys.KUBERNETES_DNS_NAME);
+
+    ClusterConfig clusterConfig;
+    if (bootstrapServer != null) { // NOPMD
+      clusterConfig = ClusterConfig.fromBootstrapServer(bootstrapServer);
+      LOGGER.info("Use bootstrap server '{}'.", bootstrapServer);
+    } else if (kubernetesDnsName != null) { // NOPMD
+      clusterConfig = ClusterConfig.fromKubernetesDnsName(kubernetesDnsName);
+      LOGGER.info("Use Kubernetes DNS name '{}'.", kubernetesDnsName);
+    } else {
+      throw new IllegalArgumentException(
+          "Neither a bootstrap server nor a Kubernetes DNS name was provided.");
+    }
+
+    final String port = System.getenv(ConfigurationKeys.PORT);
+    if (port != null) {
+      clusterConfig.setPort(Integer.parseInt(port));
+    }
+
+    final String portAutoIncrement = System.getenv(ConfigurationKeys.PORT_AUTO_INCREMENT);
+    if (portAutoIncrement != null) {
+      clusterConfig.setPortAutoIncrement(Boolean.parseBoolean(portAutoIncrement));
+    }
+
+    final String clusterNamePrefix = System.getenv(ConfigurationKeys.CLUSTER_NAME_PREFIX);
+    if (clusterNamePrefix != null) {
+      clusterConfig.setClusterNamePrefix(portAutoIncrement);
+    }
+
     final int numSensors = Integer.parseInt(Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.NUM_SENSORS),
         Integer.toString(NUMBER_OF_KEYS_DEFAULT)));
@@ -140,11 +163,7 @@ public final class LoadGenerator {
         (k, v) -> System.getenv(ConfigurationKeys.KAFKA_BUFFER_MEMORY));
 
     return new LoadGenerator()
-        .setClusterConfig(new ClusterConfig(
-            bootstrapServer,
-            port,
-            portAutoIncrement,
-            clusterNamePrefix))
+        .setClusterConfig(clusterConfig)
         .setLoadDefinition(new WorkloadDefinition(
             new KeySpace(SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))

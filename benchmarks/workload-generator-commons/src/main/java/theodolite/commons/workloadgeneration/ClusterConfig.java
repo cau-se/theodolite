@@ -3,41 +3,44 @@ package theodolite.commons.workloadgeneration;
 /**
  * Configuration of a load generator cluster.
  */
-public class ClusterConfig {
-  public static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
+public final class ClusterConfig {
+  /*
+   * public static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701"; public static final int
+   * PORT_DEFAULT = 5701; public static final boolean PORT_AUTO_INCREMENT_DEFAULT = true; public
+   * static final String CLUSTER_NAME_PREFIX_DEFAULT = "theodolite-load-generation";
+   */
+
   public static final int PORT_DEFAULT = 5701;
-  public static final boolean PORT_AUTO_INCREMENT_DEFAULT = true;
   public static final String CLUSTER_NAME_PREFIX_DEFAULT = "theodolite-load-generation";
 
   private final String bootstrapServer;
-  private final int port;
-  private final boolean portAutoIncrement;
-  private final String clusterNamePrefix;
-
-  /**
-   * Create a new {@link ClusterConfig} with its default values.
-   */
-  public ClusterConfig() {
-    this(
-        BOOTSTRAP_SERVER_DEFAULT,
-        PORT_DEFAULT,
-        PORT_AUTO_INCREMENT_DEFAULT,
-        CLUSTER_NAME_PREFIX_DEFAULT);
-  }
+  private final String kubernetesDnsName;
+  private int port = PORT_DEFAULT;
+  private boolean portAutoIncrement = true;
+  private String clusterNamePrefix = CLUSTER_NAME_PREFIX_DEFAULT;
 
   /**
    * Create a new {@link ClusterConfig} with the given parameter values.
    */
-  public ClusterConfig(final String bootstrapServer, final int port,
-      final boolean portAutoIncrement, final String clusterNamePrefix) {
+  private ClusterConfig(final String bootstrapServer, final String kubernetesDnsName) {
     this.bootstrapServer = bootstrapServer;
-    this.port = port;
-    this.portAutoIncrement = portAutoIncrement;
-    this.clusterNamePrefix = clusterNamePrefix;
+    this.kubernetesDnsName = kubernetesDnsName;
+  }
+
+  public boolean hasBootstrapServer() {
+    return this.bootstrapServer != null;
   }
 
   public String getBootstrapServer() {
     return this.bootstrapServer;
+  }
+
+  public boolean hasKubernetesDnsName() {
+    return this.kubernetesDnsName != null;
+  }
+
+  public String getKubernetesDnsName() {
+    return this.kubernetesDnsName;
   }
 
   public int getPort() {
@@ -48,9 +51,31 @@ public class ClusterConfig {
     return this.portAutoIncrement;
   }
 
+  public ClusterConfig setPortAutoIncrement(final boolean portAutoIncrement) { // NOPMD
+    this.portAutoIncrement = portAutoIncrement;
+    return this;
+  }
+
+  public ClusterConfig setPort(final int port) { // NOPMD
+    this.port = port;
+    return this;
+  }
+
   public String getClusterNamePrefix() {
     return this.clusterNamePrefix;
   }
 
+  public ClusterConfig setClusterNamePrefix(final String clusterNamePrefix) { // NOPMD
+    this.clusterNamePrefix = clusterNamePrefix;
+    return this;
+  }
+
+  public static ClusterConfig fromBootstrapServer(final String bootstrapServer) {
+    return new ClusterConfig(bootstrapServer, null);
+  }
+
+  public static ClusterConfig fromKubernetesDnsName(final String kubernetesDnsName) {
+    return new ClusterConfig(null, kubernetesDnsName);
+  }
 
 }

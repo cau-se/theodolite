@@ -7,6 +7,8 @@ public final class ConfigurationKeys {
 
   public static final String BOOTSTRAP_SERVER = "BOOTSTRAP_SERVER";
 
+  public static final String KUBERNETES_DNS_NAME = "KUBERNETES_DNS_NAME";
+
   public static final String PORT = "PORT";
 
   public static final String PORT_AUTO_INCREMENT = "PORT_AUTO_INCREMENT";

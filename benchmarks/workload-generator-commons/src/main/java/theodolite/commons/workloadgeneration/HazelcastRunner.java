@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class HazelcastRunner {
 
+  private static final String HZ_KUBERNETES_SERVICE_DNS_KEY = "service-dns";
   private final HazelcastInstance hzInstance;
   private volatile HazelcastRunnerStateInstance runnerState;
   private final CompletableFuture<Void> stopAction = new CompletableFuture<>();
@@ -92,8 +93,13 @@ public class HazelcastRunner {
         .setPortAutoIncrement(cluster.isPortAutoIncrement())
         .getJoin();
     joinConfig.getMulticastConfig().setEnabled(false);
-    // joinConfig.getKubernetesConfig().setEnabled(true);
-    joinConfig.getTcpIpConfig().addMember(cluster.getBootstrapServer());
+    if (cluster.hasBootstrapServer()) {
+      joinConfig.getTcpIpConfig().addMember(cluster.getBootstrapServer());
+    } else if (cluster.hasKubernetesDnsName()) {
+      joinConfig.getKubernetesConfig()
+          .setEnabled(true)
+          .setProperty(HZ_KUBERNETES_SERVICE_DNS_KEY, cluster.getKubernetesDnsName());
+    }
 
     return Hazelcast.newHazelcastInstance(config);
   }
