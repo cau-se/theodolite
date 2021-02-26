@@ -9,7 +9,7 @@ import theodolite.strategies.searchstrategy.SearchStrategy
 import theodolite.util.Results
 import java.lang.IllegalArgumentException
 
-class StrategiesManager {
+class StrategyFactory {
 
     fun createSearchStrategy(executor: BenchmarkExecutor, searchStrategyString: String): SearchStrategy {
         return when (searchStrategyString) {
