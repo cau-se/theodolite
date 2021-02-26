@@ -1,16 +1,9 @@
 package theodolite.util
 
-import kotlin.properties.Delegates
-
+import org.apache.kafka.clients.admin.NewTopic
 
 class KafkaConfig() {
     lateinit var bootstrapSever: String
-    lateinit var topics: List<Topic>
+    lateinit var topics: List<NewTopic>
 
-    class Topic() {
-        lateinit var name: String
-        var partition by Delegates.notNull<Int>()
-        var replication by Delegates.notNull<Short>()
-
-    }
 }

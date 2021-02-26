@@ -49,7 +49,6 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
      * @param topics
      */
     fun removeTopics(topics: List<String>) {
-
         val result = kafkaAdmin.deleteTopics(topics)
 
         try {

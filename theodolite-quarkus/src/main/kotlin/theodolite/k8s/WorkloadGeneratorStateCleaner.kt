@@ -10,10 +10,9 @@ import java.time.Duration
 private val logger = KotlinLogging.logger {}
 
 /**
- * Resets the workloadgenerator states in zookeper (and potentially watches for Zookeper events)
+ * Resets the Workloadgenerator states in Zookeeper (and potentially watches for Zookeeper events)
  *
  * @param connectionString of zookeeper
- * @param path path of the zookeeper node
  */
 class WorkloadGeneratorStateCleaner(connectionString: String) {
     private val timeout: Duration = Duration.ofMillis(500)
@@ -31,14 +30,14 @@ class WorkloadGeneratorStateCleaner(connectionString: String) {
     }
 
     fun deleteState() {
-        deleteRecusiveAll(this.path)
+        deleteRecursiveAll(this.path)
         logger.info { "ZooKeeper reset was successful" }
     }
 
     /**
      * Deletes a Zookeeper node and its children with the corresponding path.
      */
-    private fun deleteRecusiveAll(nodePath: String) {
+    private fun deleteRecursiveAll(nodePath: String) {
 
         while (true) {
             var children: List<String>
@@ -47,10 +46,10 @@ class WorkloadGeneratorStateCleaner(connectionString: String) {
             } catch (e: KeeperException.NoNodeException) {
                 break;
             }
-            // recursivly delete all children nodes
+            // recursively delete all children nodes
             for (s: String in children) {
                 try {
-                    deleteRecusiveAll("$nodePath/$s")
+                    deleteRecursiveAll("$nodePath/$s")
                 } catch (ex: Exception) {
                     logger.info { "$ex" }
                 }

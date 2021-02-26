@@ -13,7 +13,6 @@ class KubernetesBenchmarkDeployment(
     private val kafkaConfig: HashMap<String, Any>,
     private val zookeeperConfig: String,
     private val topics: Collection<NewTopic>
-    // Maybe more
 ): BenchmarkDeployment {
     private val workloadGeneratorStateCleaner = WorkloadGeneratorStateCleaner(this.zookeeperConfig)
     private val kafkaController = TopicManager(this.kafkaConfig)

@@ -28,7 +28,7 @@ class KubernetesBenchmark(): Benchmark {
                 val resourcePath = "$basePath/$resource"
                 val kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind") !!
                 val k8sResource = loader.loadK8sResource(kind , resourcePath)
-                Pair<String, KubernetesResource>(resource, k8sResource)
+                Pair(resource, k8sResource)
             }
         }
 
@@ -45,12 +45,11 @@ class KubernetesBenchmark(): Benchmark {
         // patch overrides
         configurationOverrides.forEach{ override -> patcherManager.applyPatcher(listOf(override.patcher), resources, override.value)}
 
-        resources.forEach { r -> println(r) }
         return KubernetesBenchmarkDeployment(
             resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapSever),
             zookeeperConfig = zookeeperConfig["server"].toString(),
-            topics = kafkaConfig.topics.map { topic -> NewTopic(topic.name, topic.partition, topic.replication ) })
+            topics = kafkaConfig.topics)
     }
 }
 
