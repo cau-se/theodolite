@@ -8,8 +8,4 @@ import java.time.Duration
 data class Config(
     val loads: List<LoadDimension>,
     val resources: List<Resource>,
-    val compositeStrategy: CompositeStrategy,
-    val executionDuration: Duration
-) {
-
-}
+    val compositeStrategy: CompositeStrategy) {}
