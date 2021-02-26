@@ -4,7 +4,7 @@ import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
 
-class BenchmarkContext() {
+class BenchmarkExecution() {
     lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition

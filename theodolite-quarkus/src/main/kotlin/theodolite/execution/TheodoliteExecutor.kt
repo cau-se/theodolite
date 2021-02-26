@@ -1,8 +1,8 @@
 package theodolite.execution
 
-import theodolite.benchmark.BenchmarkContext
+import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
-import theodolite.strategies.StrategiesManager
+import theodolite.strategies.StrategyFactory
 import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.util.Config
 import theodolite.util.LoadDimension
@@ -11,14 +11,14 @@ import theodolite.util.Results
 import java.time.Duration
 
 class TheodoliteExecutor(
-    private val config: BenchmarkContext,
+    private val config: BenchmarkExecution,
     private val kubernetesBenchmark: KubernetesBenchmark
 )
 {
 
     private fun buildConfig(): Config{
         val results = Results()
-        val strategyManager = StrategiesManager()
+        val strategyFactory = StrategyFactory()
 
         val executionDuration = Duration.ofSeconds(config.execution.duration)
         val executor = BenchmarkExecutorImpl(kubernetesBenchmark, results, executionDuration, config.configOverrides)
@@ -28,8 +28,8 @@ class TheodoliteExecutor(
            resources = config.resources.resourceValues.map { resource -> Resource(resource, config.load.loadType) },
            compositeStrategy = CompositeStrategy(
                benchmarkExecutor = executor,
-               searchStrategy = strategyManager.createSearchStrategy(executor, config.execution.strategy),
-               restrictionStrategies = strategyManager.createRestrictionStrategy(results, config.execution.restrictions)),
+               searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy),
+               restrictionStrategies = strategyFactory.createRestrictionStrategy(results, config.execution.restrictions)),
            executionDuration = executionDuration)
     }
 
