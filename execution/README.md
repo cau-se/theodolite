@@ -84,7 +84,7 @@ not want to deploy 10 Kafka and 3 Zookeeper instances, alter the configuration
 file accordingly. To install the patched Confluent's Kafka with our configuration:
 
 ```sh
-helm install my-confluent https://github.com/SoerenHenning/cp-helm-charts/releases/download/v6.0.1-1-JMX-FIX/cp-helm-charts-0.6.0.tgz -f infrastructure/kafka/values.yaml
+helm install my-confluent https://github.com/SoerenHenning/cp-helm-charts/releases/download/v6.0.1-1-JMX-FIX-2/cp-helm-charts-0.6.0.tgz -f infrastructure/kafka/values.yaml
 ```
 
 To let Prometheus scrape Kafka metrics, deploy a ServiceMonitor:
