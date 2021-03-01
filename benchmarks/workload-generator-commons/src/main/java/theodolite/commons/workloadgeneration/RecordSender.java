@@ -1,4 +1,4 @@
-package theodolite.commons.workloadgeneration.functions;
+package theodolite.commons.workloadgeneration;
 
 /**
  * This interface describes a function that consumes a message {@code T}. This function is dedicated
@@ -7,8 +7,8 @@ package theodolite.commons.workloadgeneration.functions;
  * @param <T> the type of records to send as messages.
  */
 @FunctionalInterface
-public interface Transport<T> {
+public interface RecordSender<T> {
 
-  void transport(final T message);
+  void send(final T message);
 
 }

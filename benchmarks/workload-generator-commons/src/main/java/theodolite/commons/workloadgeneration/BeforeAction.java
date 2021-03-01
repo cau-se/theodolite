@@ -1,4 +1,4 @@
-package theodolite.commons.workloadgeneration.functions;
+package theodolite.commons.workloadgeneration;
 
 /**
  * Describes the before action which is executed before every sub experiment.
@@ -7,5 +7,10 @@ package theodolite.commons.workloadgeneration.functions;
 public interface BeforeAction {
 
   public void run();
+
+  public static BeforeAction doNothing() {
+    return () -> {
+    };
+  }
 
 }
