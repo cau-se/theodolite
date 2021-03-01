@@ -163,10 +163,10 @@ deploy-theodolite:
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite ./execution
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite ghcr.io/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite ghcr.io/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite ghcr.io/$CR_ORG/theodolite:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login ghcr.io -u $CR_USER --password-stdin
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
+    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
     - docker push $CR_HOST/$CR_ORG/theodolite
     - docker logout
   rules:
