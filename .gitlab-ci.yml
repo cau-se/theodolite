@@ -33,6 +33,8 @@ build-benchmarks:
 test-benchmarks:
   stage: test
   extends: .benchmarks
+  needs:
+    - build-benchmarks
   script: ./gradlew test --continue
   artifacts:
     reports:
@@ -42,6 +44,8 @@ test-benchmarks:
 checkstyle-benchmarks:
   stage: check
   extends: .benchmarks
+  needs:
+    - test-benchmarks
   script: ./gradlew checkstyle --continue
   artifacts:
     paths:
@@ -52,6 +56,8 @@ checkstyle-benchmarks:
 pmd-benchmarks:
   stage: check
   extends: .benchmarks
+  needs:
+    - test-benchmarks
   script: ./gradlew pmd --continue
   artifacts:
     paths:
@@ -62,6 +68,8 @@ pmd-benchmarks:
 spotbugs-benchmarks:
   stage: check
   extends: .benchmarks
+  needs:
+    - test-benchmarks
   script: ./gradlew spotbugs --continue
   artifacts:
     paths:
@@ -72,6 +80,10 @@ spotbugs-benchmarks:
 .deploy-benchmarks:
   stage: deploy
   extends: .benchmarks
+  needs:
+    - checkstyle-benchmarks
+    - pmd-benchmarks
+    - spotbugs-benchmarks
   tags:
     - exec-dind
   # see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
