@@ -60,6 +60,7 @@ spotbugs-benchmarks:
   stage: deploy
   extends: .benchmarks
   needs:
+    - build-benchmarks
     - spotbugs-benchmarks
   tags:
     - exec-dind
