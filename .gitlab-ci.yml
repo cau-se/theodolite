@@ -70,7 +70,9 @@ spotbugs-benchmarks:
   extends: .benchmarks
   needs:
     - test-benchmarks
-  script: ./gradlew spotbugs --continue
+  script:
+    - ls
+    - ./gradlew spotbugs --continue
   artifacts:
     paths:
       - "benchmarks/*/build/reports/spotbugs/*.html"
@@ -94,6 +96,7 @@ spotbugs-benchmarks:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   script:
+    - ls
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
     - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
