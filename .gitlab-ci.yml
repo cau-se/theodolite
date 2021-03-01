@@ -129,6 +129,9 @@ deploy-uc2-kstreams-app:
 
 deploy-uc3-kstreams-app:
   extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-kstreams-app"
+    JAVA_PROJECT_NAME: "uc3-application"
 
 deploy-uc4-kstreams-app:
   extends: .deploy-benchmarks
