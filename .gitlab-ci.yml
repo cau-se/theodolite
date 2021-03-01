@@ -74,6 +74,7 @@ spotbugs-benchmarks:
     - ls
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - echo "docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME"
+    - docker build --pull -t theodolite-uc1-kstreams-app ./uc1-application
     - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
     - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
     - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
