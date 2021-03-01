@@ -94,8 +94,9 @@ spotbugs-benchmarks:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      # - $JAVA_PROJECT_NAME/**/* # hope this can be simplified soon, see #51
+       - $JAVA_PROJECT_NAME/**/*
       - benchmarks/application-kafkastreams-commons/**/*
+      - benchmarks/workload-generator-commons/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -107,136 +108,45 @@ deploy-uc1-kstreams-app:
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-application"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc1-application/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
 
 deploy-uc2-kstreams-app:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
     JAVA_PROJECT_NAME: "uc2-application"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc2-application/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
 
 deploy-uc3-kstreams-app:
   extends: .deploy-benchmarks
-  variables:
-    IMAGE_NAME: "theodolite-uc3-kstreams-app"
-    JAVA_PROJECT_NAME: "uc3-application"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc3-application/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
 
 deploy-uc4-kstreams-app:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-application"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc4-application/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
 
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-workload-generator"
     JAVA_PROJECT_NAME: "uc1-workload-generator"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc1-workload-generator/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
 
 deploy-uc2-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-workload-generator"
     JAVA_PROJECT_NAME: "uc2-workload-generator"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc2-workload-generator/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
 
 deploy-uc3-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-workload-generator"
     JAVA_PROJECT_NAME: "uc3-workload-generator"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc3-workload-generator/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
 
 deploy-uc4-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-workload-generator"
-  rules: # hope this can be simplified soon, see #51
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - benchmarks/uc4-workload-generator/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: manual
-      allow_failure: true
       
 
 # Theodolite Framework
