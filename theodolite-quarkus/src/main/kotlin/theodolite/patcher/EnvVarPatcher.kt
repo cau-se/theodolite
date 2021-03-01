@@ -16,7 +16,7 @@ class EnvVarPatcher(private val k8sResource: KubernetesResource, private val con
     }
 
     /**
-     * Sets the ContainerEvironmentVariables, creates new if variable don t exist.
+     * Sets the ContainerEvironmentVariables, creates new if variable does not exist.
      * @param container - The Container
      * @param map - Map of k=Name,v =Value of EnviromentVariables
      */
