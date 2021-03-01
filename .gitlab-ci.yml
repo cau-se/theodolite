@@ -45,6 +45,7 @@ checkstyle-benchmarks:
   stage: check
   extends: .benchmarks
   needs:
+    - build-benchmarks
     - test-benchmarks
   script: ./gradlew checkstyle --continue
   artifacts:
@@ -57,6 +58,7 @@ pmd-benchmarks:
   stage: check
   extends: .benchmarks
   needs:
+    - build-benchmarks
     - test-benchmarks
   script: ./gradlew pmd --continue
   artifacts:
@@ -69,6 +71,7 @@ spotbugs-benchmarks:
   stage: check
   extends: .benchmarks
   needs:
+    - build-benchmarks
     - test-benchmarks
   script: ./gradlew spotbugs --continue
   artifacts:
@@ -81,6 +84,7 @@ spotbugs-benchmarks:
   stage: deploy
   extends: .benchmarks
   needs:
+    - build-benchmarks
     - checkstyle-benchmarks
     - pmd-benchmarks
     - spotbugs-benchmarks
