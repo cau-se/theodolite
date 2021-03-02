@@ -192,21 +192,20 @@ deploy-uc4-load-generator:
 build-theodolite:
   stage: build
   extends: .theodolite
-  needs:
-    - build-benchmarks
-    - test-benchmarks
-  #script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  # script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "theodolite-quarkus/build/libs/*.jar"
+      - "theodolite-quarkus/build/lib/*"
+      - "theodolite-quarkus/build/*-runner.jar"
+      # - "theodolite-quarkus/build/*-runner" # For native image
     expire_in: 1 day
 
 test-theodolite:
   stage: test
   extends: .theodolite
   needs:
-    - build-benchmarks
+    - build-theodolite
   script: ./gradlew test --stacktrace
 
 # Disabled for now
@@ -214,8 +213,8 @@ test-theodolite:
   stage: check
   extends: .theodolite
   needs:
-    - build-benchmarks
-    - test-benchmarks
+    - build-theodolite
+    - test-theodolite
   script: ./gradlew ktlintCheck --continue
 
 # Disabled for now
@@ -223,8 +222,8 @@ test-theodolite:
   stage: check
   extends: .theodolite
   needs:
-    - build-benchmarks
-    - test-benchmarks
+    - build-theodolite
+    - test-theodolite
   script: ./gradlew detekt --continue
 
 deploy-theodolite:
