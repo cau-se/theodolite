@@ -16,6 +16,33 @@ stages:
     DOCKER_TLS_CERTDIR: "/certs"
 
 
+# Theodolite Framework
+
+deploy-theodolite:
+  stage: deploy
+  extends:
+    - .dind
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t theodolite ./execution
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
+    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
+    - docker push $CR_HOST/$CR_ORG/theodolite
+    - docker logout
+  rules:
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - execution/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: always
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+
 # Theodolite Benchmarks
 
 .benchmarks:
@@ -30,6 +57,14 @@ stages:
   before_script:
     - cd benchmarks
     - export GRADLE_USER_HOME=`pwd`/.gradle
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: always
+    - changes:
+      - benchmarks/**/*
+      when: always
+    - when: manual
+      allow_failure: true
 
 build-benchmarks:
   stage: build
@@ -171,33 +206,6 @@ deploy-uc4-load-generator:
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-workload-generator"
-      
-
-# Theodolite Framework
-
-deploy-theodolite:
-  stage: deploy
-  extends:
-    - .dind
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite ./execution
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite
-    - docker logout
-  rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
-    - changes:
-      - execution/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: manual
-      allow_failure: true
 
 
 # Theodolite Random Scheduler
