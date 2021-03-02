@@ -10,10 +10,13 @@ public final class LoadGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
-  private LoadGenerator() {}
+  private LoadGenerator() {
+    throw new UnsupportedOperationException();
+  }
 
   public static void main(final String[] args) {
     LOGGER.info("Start workload generator for use case UC3");
     theodolite.commons.workloadgeneration.LoadGenerator.fromEnvironment().run();
   }
+
 }
