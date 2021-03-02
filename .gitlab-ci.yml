@@ -175,13 +175,70 @@ deploy-uc4-load-generator:
 
 # Theodolite Framework
 
+.theodolite:
+  image: openjdk:11-jdk
+  tags:
+    - exec-docker
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  before_script:
+    - cd theodolite-quarkus
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+
+build-theodolite:
+  stage: build
+  extends: .theodolite
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  #script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "theodolite-quarkus/build/libs/*.jar"
+    expire_in: 1 day
+
+test-theodolite:
+  stage: test
+  extends: .theodolite
+  needs:
+    - build-benchmarks
+  script: ./gradlew test --stacktrace
+
+# Disabled for now
+.ktlint-theodolite:
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew ktlintCheck --continue
+
+# Disabled for now
+.detekt-theodolite: 
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew detekt --continue
+
 deploy-theodolite:
   stage: deploy
   extends:
+    - .theodolite
     - .dind
+  needs:
+    - build-theodolite
+    - test-theodolite
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite ./execution
+    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
+    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
     - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
@@ -192,21 +249,9 @@ deploy-theodolite:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - execution/**/*
+      - theodolite-quarkus/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
-      allow_failure: true
-
-framework:
-  stage: triggers
-  trigger:
-    include: theodolite-quarkus/.gitlab-ci.yml
-    strategy: depend
-  rules:
-    - if: "$CI_COMMIT_TAG"
-    - changes:
-      - theodolite-quarkus/*
-    - when: manual
       allow_failure: true
