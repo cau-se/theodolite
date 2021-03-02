@@ -114,7 +114,8 @@ spotbugs-benchmarks:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - $JAVA_PROJECT_NAME/**/*
+      - benchmarks/*
+      - benchmarks/$JAVA_PROJECT_NAME/**/*
       - benchmarks/application-kafkastreams-commons/**/*
       - benchmarks/workload-generator-commons/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
