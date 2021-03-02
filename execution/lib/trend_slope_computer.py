@@ -2,7 +2,7 @@ from sklearn.linear_model import LinearRegression
 import pandas as pd
 import os
 
-def compute(directory, filename, warmup_sec, threshold):
+def compute(directory, filename, warmup_sec):
     df = pd.read_csv(os.path.join(directory, filename))
     input = df
     input['sec_start'] = input.loc[0:, 'timestamp'] - input.iloc[0]['timestamp']

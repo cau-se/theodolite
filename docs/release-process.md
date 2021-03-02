@@ -1,17 +1,30 @@
+---
+title: Release Process
+has_children: false
+nav_order: 2
+---
+
 # Release Process
 
-We assume that we are creating the release `v0.1.1`. Please make sure to adjust
+This document describes how to perform a new Theodolite release.
+
+We assume that we are creating the release `v0.3.1`. Please make sure to adjust
 the following steps according to the release, you are actually performing.
 
-1. Create a new branch `v0.1` if not already exists. This branch will never
+1. Update `codemeta.json` to match the new version. In particular, make sure that `version` points to the version you are releasing and `dateModified` points to the date you are relasing this version. [CodeMeata generator](https://codemeta.github.io/codemeta-generator/) may help you in updating the file.
+
+2. Update `CITATION.cff` to match the new version. At least update the `version` field.
+
+3. Create a new branch `v0.3` if it does not already exists. This branch will never
 again be merged into master.
 
-2. Checkout the `v0.1` branch.
+4. Checkout the `v0.3` branch.
 
-3. Update all references to Theodolite Docker images to tag `v0.1.1`. These are
-mainly the Kubernetes resource definitions in `execution` as well as the Docker
-Compose files in `docker-test`.
+5. Update all references to Theodolite Docker images to tag `v0.3.1`. These are the Kubernetes resource definitions in
+`execution`, the references to *latest* in `run_uc.py`, the Docker Compose files in `docker-test` and the example `theodolite.yaml` job.
 
-4. Commit these changes.
+6. Commit these changes.
 
-5. Tag this commit with `v0.1.1`. The corresponding Docker images will be uploaded.
+7. Tag this commit with `v0.3.1`. The corresponding Docker images will be uploaded.
+
+8. Create *releases* for this tag in both, GitLab and GitHub.

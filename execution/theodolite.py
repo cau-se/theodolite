@@ -31,8 +31,8 @@ def load_variables():
 
 
 def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
-         duration, domain_restriction, search_strategy, prometheus_base_url,
-         reset, namespace, result_path, configurations):
+         duration, domain_restriction, search_strategy, threshold,
+         prometheus_base_url, reset, namespace, result_path, configurations):
 
     print(
         f"Domain restriction of search space activated: {domain_restriction}")
@@ -69,7 +69,7 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
         write_stream.write(str(exp_id + 1))
 
     domain_restriction_strategy = None
-    search_strategy = None
+    search_strategy_method = None
 
     # Select domain restriction
     if domain_restriction:
@@ -83,13 +83,13 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
     if search_strategy == "linear-search":
         print(
             f"Going to execute at most {len(loads)+len(instances_list)-1} subexperiments in total..")
-        search_strategy = linear_search_strategy
+        search_strategy_method = linear_search_strategy
     elif search_strategy == "binary-search":
-        search_strategy = binary_search_strategy
+        search_strategy_method = binary_search_strategy
     else:
         print(
             f"Going to execute {len(loads)*len(instances_list)} subexperiments in total..")
-        search_strategy = check_all_strategy
+        search_strategy_method = check_all_strategy
 
     experiment_config = ExperimentConfig(
         use_case=uc,
@@ -106,7 +106,8 @@ def main(uc, loads, instances_list, partitions, cpu_limit, memory_limit,
         configurations=configurations,
         result_path=result_path,
         domain_restriction_strategy=domain_restriction_strategy,
-        search_strategy=search_strategy,
+        search_strategy=search_strategy_method,
+        threshold=threshold,
         subexperiment_executor=subexperiment_executor,
         subexperiment_evaluator=subexperiment_evaluator)
 
@@ -119,10 +120,11 @@ if __name__ == '__main__':
     args = load_variables()
     if args.reset_only:
         print('Only reset the cluster')
-        run_uc.main(None, None, None, None, None, None, None, None,
-                    None, None, args.namespace, None, None, reset_only=True)
+        run_uc.main(None, None, None, None, None, None, None, None, None,
+                    None, args.namespace, None, None, reset_only=True)
     else:
         main(args.uc, args.loads, args.instances_list, args.partitions,
              args.cpu_limit, args.memory_limit, args.duration,
-             args.domain_restriction, args.search_strategy, args.prometheus,
-             args.reset, args.namespace, args.path, args.configurations)
+             args.domain_restriction, args.search_strategy,
+             args.threshold, args.prometheus, args.reset, args.namespace,
+             args.path, args.configurations)
