@@ -208,11 +208,11 @@ deploy-random-scheduler:
     - .dind
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-random-scheduler` execution/infrastructure/random-scheduler
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler` $CR_HOST/$CR_ORG/theodolite-random-scheduler`:${DOCKER_TAG_NAME}latest"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler` $CR_HOST/$CR_ORG/theodolite-random-scheduler`:$CI_COMMIT_TAG"
+    - docker build --pull -t theodolite-random-scheduler execution/infrastructure/random-scheduler
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:${DOCKER_TAG_NAME}latest"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:$CI_COMMIT_TAG"
     - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite-random-scheduler`
+    - docker push $CR_HOST/$CR_ORG/theodolite-random-scheduler
     - docker logout
   rules:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
