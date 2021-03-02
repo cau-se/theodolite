@@ -1,5 +1,5 @@
 # Theodolite Random Scheduler
-This directory contains the theodolite random scheduler that schedules pods on random nodes.
+This directory contains the Theodolite Random Scheduler that schedules pods on random nodes.
 
 ## Build and Push
 Run the following commands
