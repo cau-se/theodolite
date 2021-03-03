@@ -84,7 +84,7 @@ not want to deploy 10 Kafka and 3 Zookeeper instances, alter the configuration
 file accordingly. To install the patched Confluent's Kafka with our configuration:
 
 ```sh
-helm install my-confluent https://github.com/SoerenHenning/cp-helm-charts/releases/download/v6.0.1-1-JMX-FIX/cp-helm-charts-0.6.0.tgz -f infrastructure/kafka/values.yaml
+helm install my-confluent https://github.com/SoerenHenning/cp-helm-charts/releases/download/v6.0.1-1-JMX-FIX-2/cp-helm-charts-0.6.0.tgz -f infrastructure/kafka/values.yaml
 ```
 
 To let Prometheus scrape Kafka metrics, deploy a ServiceMonitor:
@@ -121,7 +121,9 @@ can be installed via Helm. We also provide a [default configuration](infrastruct
 To install it:
 
 ```sh
-helm install kafka-lag-exporter https://github.com/lightbend/kafka-lag-exporter/releases/download/v0.6.3/kafka-lag-exporter-0.6.3.tgz -f infrastructure/kafka-lag-exporter/values.yaml
+helm repo add kafka-lag-exporter https://lightbend.github.io/kafka-lag-exporter/repo/
+helm repo update
+helm install kafka-lag-exporter kafka-lag-exporter/kafka-lag-exporter -f infrastructure/kafka-lag-exporter/values.yaml
 ```
 
 ### Installing Theodolite
@@ -166,19 +168,48 @@ A [local volume](https://kubernetes.io/docs/concepts/storage/volumes/#local) is 
 access (e.g. via SSH) to one of your cluster nodes.
 
 You first need to create a directory on a selected node where all benchmark results should be stored. Next, modify
-`infrastructure/kubernetes/volume-local.yaml` by setting `<node-name>` to your selected node (this node will most
-likely also execute the job). Further, you have to set `path` to the directory on the node you just created. To deploy
-you volume run:
+`infrastructure/kubernetes/volume-local.yaml` by setting `<node-name>` to your selected node. (This node will most
+likely also execute the [Theodolite job](#Execution).) Further, you have to set `path` to the directory on the node you just created. To deploy
+your volume run:
 
 ```sh
 kubectl apply -f infrastructure/kubernetes/volume-local.yaml
 ```
 
+##### *Oracle Cloud Infrastructure* volume
+
+When you are running in the Oracle Cloud, you can provision a persistent volume claim by attaching a volume from the
+Oracle Cloud Infrastructure Block Volume service. To create your volume, run: 
+
+```sh
+kubectl apply -f infrastructure/kubernetes/volume-oci.yaml
+```
+
+More information can be found in the official documentation:
+[Oracle Cloud Infrastructure: Creating a Persistent Volume Claim](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengcreatingpersistentvolumeclaim.htm)
+
 ##### Other volumes
 
-To use volumes provided by public cloud providers or network-based file systems, you can use the definitions in
+To use volumes provided by other public cloud providers or network-based file systems, you can use the definitions in
 `infrastructure/kubernetes/` as a starting point. See the offical
 [volumes documentation](https://kubernetes.io/docs/concepts/storage/volumes/) for additional information.
+
+##### Accessing benchmark results via Kubernetes
+
+In cases where you do not have direct access to the underlying storage infrasturcture of your volume (e.g., if your
+admin configures a local or hostPath volume for you and you do not have SSH access to the node), you can deploy our
+Theodolite results access deployment:
+
+```sh
+kubectl apply -f infrastructure/kubernetes/volume-access.yaml
+```
+
+It allows you to browse the benchmark results or copy files your Kubernetes client via the following commands:
+
+```sh
+kubectl exec -it $(kubectl get pods -o=name -l app=theodolite-results-access) -- sh
+kubectl cp $(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l app=theodolite-results-access):app/results <target-dir>
+```
 
 
 ## Execution
@@ -195,7 +226,7 @@ RBAC is enabled on your cluster (see installation of [Theodolite RBAC](#Theodoli
 To start the execution of a benchmark run (with `<your-theodolite-yaml>` being your job definition):
 
 ```sh
-kubectl apply -f <your-theodolite-yaml>
+kubectl create -f <your-theodolite-yaml>
 ```
 
 This will create a pod with a name such as `your-job-name-xxxxxx`. You can verifiy this via `kubectl get pods`. With
@@ -216,11 +247,12 @@ Kubernetes volume.
 | --duration           | DURATION            | Duration in minutes subexperiments should be executed for. *Default:* `5`. |
 | --partitions         | PARTITIONS          | Number of partitions for Kafka topics. *Default:* `40`.      |
 | --cpu-limit          | CPU_LIMIT           | Kubernetes CPU limit for a single Pod.  *Default:* `1000m`.  |
-| --memory-limiT       | MEMORY_LIMIT        | Kubernetes memory limit for a single Pod. *Default:* `4Gi`.  |
+| --memory-limit       | MEMORY_LIMIT        | Kubernetes memory limit for a single Pod. *Default:* `4Gi`.  |
 | --domain-restriction | DOMAIN_RESTRICTION  | A flag that indiciates domain restriction should be used. *Default:* not set. For more details see Section [Domain Restriction](#domain-restriction). |
 | --search-strategy    | SEARCH_STRATEGY     | The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. *Default:* `check-all`. For more details see Section [Benchmarking Search Strategies](#benchmarking-search-strategies). |
 | --reset              | RESET               | Resets the environment before each subexperiment. Useful if execution was aborted and just one experiment should be executed. |
 | --reset-only         | RESET_ONLY          | Only resets the environment. Ignores all other parameters. Useful if execution was aborted and one want a clean state for new executions. |
+| --namespace          | NAMESPACE        | Kubernetes namespace. *Default:* `default`.  |
 | --prometheus         | PROMETHEUS_BASE_URL | Defines where to find the prometheus instance. *Default:* `http://localhost:9090` |
 | --path               | RESULT_PATH         | A directory path for the results. Relative to the Execution folder. *Default:* `results` |
 | --configurations     | CONFIGURATIONS      | Defines environment variables for the use cases and, thus, enables further configuration options. |

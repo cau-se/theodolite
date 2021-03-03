@@ -36,6 +36,9 @@ nodeExporter:
 
 prometheusOperator:
   enabled: true
+  namespaces:
+    releaseNamespace: true
+    additional: []
 
 prometheus:
   enabled: false

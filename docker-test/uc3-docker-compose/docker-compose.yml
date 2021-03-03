@@ -9,12 +9,10 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
   kafka:
     image: wurstmeister/kafka
-    ports:
-      - "9092:9092"
     expose:
       - "9092"
-    ports:
-      - 19092:19092
+    #ports:
+    #  - 19092:19092
     environment:
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONNECTIONS_FROM_HOST://:19092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,CONNECTIONS_FROM_HOST://localhost:19092
@@ -27,8 +25,8 @@ services:
     depends_on:
       - zookeeper
       - kafka
-    ports:
-      - "8081:8081"
+    #ports:
+    #  - "8081:8081"
     expose:
       - "8081"
     environment:
@@ -42,17 +40,14 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      KAFKA_WINDOW_DURATION_MINUTES: 60
   uc-wg: 
     image: theodolite/theodolite-uc3-workload-generator:latest
     depends_on:
       - schema-registry
       - kafka
-      - zookeeper
     environment:
-      ZK_HOST: zookeeper
-      ZK_PORT: 2181
+      BOOTSTRAP_SERVER: uc-wg:5701
+      PORT: 5701
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      INSTANCES: 1
-      NUM_SENSORS: 1
+      NUM_SENSORS: 10
