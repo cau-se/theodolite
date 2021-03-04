@@ -22,6 +22,7 @@ lint-helm:
   image: alpine/helm:3.5.2
   tags:
     - exec-docker
+  entrypoint: [""]
   script: helm lint execution/helm/theodolite-chart/
 
 
