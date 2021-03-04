@@ -19,10 +19,11 @@ stages:
 
 lint-helm:
   stage: check
-  image: alpine/helm:3.5.2
+  image:
+    name: alpine/helm:3.5.2
+    entrypoint: [""]
   tags:
     - exec-docker
-  entrypoint: [""]
   script: helm lint execution/helm/theodolite-chart/
 
 
