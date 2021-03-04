@@ -16,7 +16,7 @@ helm install my-confluent ./theodolite-chart
 
 **Please note: Theodolite uses hard-coded URLs, to connect to Kafka and Zookeeper. For that reason, the name of this chart must be `my-confluent`.** We will change this behavior soon.
 
-This chart installs requirements to execute benchmarks with theodolite.
+This chart installs requirements to execute benchmarks with Theodolite.
 
 Dependencies and subcharts:
 
@@ -50,11 +50,6 @@ helm install theodolite <path-to-chart> -f one-broker-values.yaml
 ```
 
 ## Development
-
-### Subcharts
-
-Subcharts can be added using a repository or a path to a directory containing the chart files. Currently we cannot add cp-confluent-chart with a repository URL. This might be possible in the future. The folder [dependencies](./dependencies) contains the required files.
-
 
 **Hints**:
 
