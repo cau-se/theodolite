@@ -1,16 +1,21 @@
 rootProject.name = 'theodolite-benchmarks'
 
-include 'workload-generator-commons'
-include 'application-kafkastreams-commons'
+include 'workload-generator-commons' // TODO Rename to load-generator-commons
+include 'application-kafkastreams-commons' // TODO Rename to kstreams-commons
+include 'flink-commons'
 
-include 'uc1-workload-generator'
-include 'uc1-application'
+include 'uc1-workload-generator' // TODO Rename to uc1-load-generator
+include 'uc1-application' // TODO Rename to uc1-kstreams
+include 'uc1-application-flink' // TODO Rename to uc1-flink
 
-include 'uc2-workload-generator'
-include 'uc2-application'
+include 'uc2-workload-generator' // TODO Rename to uc2-load-generator
+include 'uc2-application' // TODO Rename to uc1-kstreams
+//include 'uc2-application-flink' // TODO Rename to uc2-flink
 
-include 'uc3-workload-generator'
-include 'uc3-application'
+include 'uc3-workload-generator' // TODO Rename to uc3-load-generator
+include 'uc3-application' // TODO Rename to uc1-kstreams
+//include 'uc3-application-flink' // TODO Rename to uc3-flink
 
-include 'uc4-workload-generator'
-include 'uc4-application'
+include 'uc4-workload-generator' // TODO Rename to uc4-load-generator
+include 'uc4-application' // TODO Rename to uc4-kstreams
+//include 'uc4-application-flink' // TODO Rename to uc4-flink
