@@ -7,20 +7,20 @@ import theodolite.patcher.PatcherManager
 import theodolite.util.*
 import java.util.*
 
-class KubernetesBenchmark(): Benchmark {
+class KubernetesBenchmark: Benchmark {
     lateinit var name: String
-    lateinit var appResource: List<String>
-    lateinit var loadGenResource: List<String>
-    lateinit var resourceTypes: List<TypeName>
-    lateinit var loadTypes: List<TypeName>
-    lateinit var kafkaConfig: KafkaConfig
-    lateinit var zookeeperConfig: HashMap<String,String>
+    private lateinit var appResource: List<String>
+    private lateinit var loadGenResource: List<String>
+    private lateinit var resourceTypes: List<TypeName>
+    private lateinit var loadTypes: List<TypeName>
+    private lateinit var kafkaConfig: KafkaConfig
+    private lateinit var zookeeperConfig: HashMap<String,String>
 
 
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val basePath = "./../../../resources/main/yaml/"
-        var parser = YamlParser()
+        val parser = YamlParser()
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace("theodolite-she"))
         return resources
             .map { resource ->

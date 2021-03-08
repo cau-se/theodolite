@@ -3,7 +3,6 @@ package theodolite.strategies.searchstrategy
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
-import theodolite.util.Results
 
 abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor) {
     /**
@@ -13,5 +12,5 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor) {
      * @param resources List of all possible resources.
      * @return suitable resource for the specified load, or null if no suitable resource exists.
      */
-    abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource?;
+    abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource?
 }

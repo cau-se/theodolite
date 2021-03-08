@@ -10,14 +10,14 @@ import java.time.Duration
 private val logger = KotlinLogging.logger {}
 
 /**
- * Resets the Workloadgenerator states in Zookeeper (and potentially watches for Zookeeper events)
+ * Resets the WorkloadGenerator states in Zookeeper (and potentially watches for Zookeeper events)
  *
  * @param connectionString of zookeeper
  */
 class WorkloadGeneratorStateCleaner(connectionString: String) {
     private val timeout: Duration = Duration.ofMillis(500)
     private val retryAfter: Duration = Duration.ofSeconds(5)
-    lateinit var zookeeperClient: ZooKeeper
+    private lateinit var zookeeperClient: ZooKeeper
     private val path = "/workload-generation"
 
     init {
@@ -44,7 +44,7 @@ class WorkloadGeneratorStateCleaner(connectionString: String) {
             try {
                 children = zookeeperClient.getChildren(nodePath, true)
             } catch (e: KeeperException.NoNodeException) {
-                break;
+                break
             }
             // recursively delete all children nodes
             for (s: String in children) {
@@ -58,11 +58,11 @@ class WorkloadGeneratorStateCleaner(connectionString: String) {
             // delete main node
             try {
                 zookeeperClient.delete(nodePath, -1)
-                break;
+                break
             } catch (ex: Exception) {
                 // no instance of node found
                 if (ex is KeeperException.NoNodeException) {
-                    break;
+                    break
                 } else {
                     logger.error { ex.toString() }
                 }

@@ -16,5 +16,5 @@ abstract class RestrictionStrategy(val results: Results) {
      * @param resources List of resources to be restricted.
      * @return Returns a list containing only elements that have not been filtered out by the restriction (possibly empty).
      */
-    public abstract fun next(load: LoadDimension, resources: List<Resource>): List<Resource>
+    abstract fun next(load: LoadDimension, resources: List<Resource>): List<Resource>
 }

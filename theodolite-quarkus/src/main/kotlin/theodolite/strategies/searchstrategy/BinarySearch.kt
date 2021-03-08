@@ -14,7 +14,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
         val result = binarySearch(load, resources, 0, resources.size - 1)
         if( result == -1 ) {
-            return null;
+            return null
         }
         return resources[result]
     }
