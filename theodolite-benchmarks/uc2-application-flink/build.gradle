@@ -1,0 +1,13 @@
+allprojects {
+	repositories {
+    	maven {
+    		url 'https://packages.confluent.io/maven/'
+    	}
+	}
+}
+
+dependencies {
+    compile('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT')
+}
+
+mainClassName = "theodolite.uc2.application.HistoryServiceFlinkJob"
