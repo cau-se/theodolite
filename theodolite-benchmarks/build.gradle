@@ -7,7 +7,7 @@ buildscript {
   }
   dependencies {
     classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.0"
-    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    classpath "com.github.jengelman.gradle.plugins:shadow:6.0.0"
   }
 }
 
