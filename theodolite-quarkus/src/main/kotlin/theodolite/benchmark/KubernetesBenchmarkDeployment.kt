@@ -16,7 +16,7 @@ class KubernetesBenchmarkDeployment(
 ): BenchmarkDeployment {
     private val workloadGeneratorStateCleaner = WorkloadGeneratorStateCleaner(this.zookeeperConfig)
     private val kafkaController = TopicManager(this.kafkaConfig)
-    private val kubernetesManager = K8sManager(DefaultKubernetesClient().inNamespace("theodolite-she")) // Maybe per resource type
+    private val kubernetesManager = K8sManager(DefaultKubernetesClient().inNamespace("theodolite-she"))
 
     override fun setup() {
         this.workloadGeneratorStateCleaner.deleteState()

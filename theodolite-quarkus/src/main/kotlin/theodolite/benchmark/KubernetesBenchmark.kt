@@ -2,7 +2,6 @@ package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
-import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.K8sResourceLoader
 import theodolite.patcher.PatcherManager
 import theodolite.util.*
@@ -22,7 +21,7 @@ class KubernetesBenchmark(): Benchmark {
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val basePath = "./../../../resources/main/yaml/"
         var parser = YamlParser()
-        val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace("default"))
+        val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace("theodolite-she"))
         return resources
             .map { resource ->
                 val resourcePath = "$basePath/$resource"
@@ -33,10 +32,8 @@ class KubernetesBenchmark(): Benchmark {
         }
 
     override fun buildDeployment(load: LoadDimension, res: Resource, configurationOverrides: List<ConfigurationOverride>): BenchmarkDeployment {
-        // TODO("set node selector")
         val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
         val patcherManager = PatcherManager()
-
 
         // patch res and load
         patcherManager.createAndApplyPatcher(res.getType(), this.resourceTypes, resources, res.get())
@@ -46,8 +43,8 @@ class KubernetesBenchmark(): Benchmark {
         configurationOverrides.forEach{ override -> patcherManager.applyPatcher(listOf(override.patcher), resources, override.value)}
 
         return KubernetesBenchmarkDeployment(
-            resources.map { r -> r.second },
-            kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapSever),
+            resources = resources.map { r -> r.second },
+            kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             zookeeperConfig = zookeeperConfig["server"].toString(),
             topics = kafkaConfig.topics)
     }
