@@ -14,19 +14,21 @@ class ResourceRequestPatcher(
     override fun <String> patch(value: String) {
         if (k8sResource is Deployment) {
             k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                try {
-                    if (it.resources.requests.isEmpty()) {
+                when {
+                    it.resources == null -> {
+                        val resource = ResourceRequirements()
+                        resource.requests = mapOf(requestedResource to Quantity(value as kotlin.String))
+                        it.resources = resource
+                    }
+                    it.resources.requests.isEmpty() -> {
                         it.resources.requests = mapOf(requestedResource to Quantity(value as kotlin.String))
-                    } else {
+                    }
+                    else -> {
                         val values = mutableMapOf<kotlin.String, Quantity>()
                         it.resources.requests.forEach { entry -> values[entry.key] = entry.value }
                         values[requestedResource] = Quantity(value as kotlin.String)
                         it.resources.requests = values
                     }
-                } catch (e: IllegalStateException) {
-                    val resource = ResourceRequirements()
-                    resource.requests = mapOf(requestedResource to Quantity(value as kotlin.String))
-                    it.resources = resource
                 }
             }
         }
