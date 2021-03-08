@@ -14,7 +14,7 @@ include 'uc2-application-flink' // TODO Rename to uc2-flink
 
 include 'uc3-workload-generator' // TODO Rename to uc3-load-generator
 include 'uc3-application' // TODO Rename to uc1-kstreams
-//include 'uc3-application-flink' // TODO Rename to uc3-flink
+include 'uc3-application-flink' // TODO Rename to uc3-flink
 
 include 'uc4-workload-generator' // TODO Rename to uc4-load-generator
 include 'uc4-application' // TODO Rename to uc4-kstreams
