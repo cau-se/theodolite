@@ -1,6 +1,7 @@
-package theodolite.execution
+package theodolite
 
 import theodolite.benchmark.Benchmark
+import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results

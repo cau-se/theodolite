@@ -3,12 +3,10 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.TestBenchmark
 import theodolite.strategies.searchstrategy.LinearSearch
 import theodolite.strategies.searchstrategy.BinarySearch
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.CompositeStrategy
-import theodolite.execution.TestBenchmarkExecutorImpl
 import theodolite.util.*
 import java.util.*
 

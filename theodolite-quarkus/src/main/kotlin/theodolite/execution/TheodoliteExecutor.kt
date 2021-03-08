@@ -30,8 +30,6 @@ class TheodoliteExecutor(
                restrictionStrategies = strategyFactory.createRestrictionStrategy(results, config.execution.restrictions)))
     }
 
-
-
     fun run() {
         val config = buildConfig()
 

@@ -21,7 +21,7 @@ kafkaConfig:
   bootstrapServer: "localhost:31290"
   topics:
     - name: "input"
-      numPartitions: 1
+      numPartitions: 40
       replicationFactor: 1
 zookeeperConfig:
   server: "localhost:31953"

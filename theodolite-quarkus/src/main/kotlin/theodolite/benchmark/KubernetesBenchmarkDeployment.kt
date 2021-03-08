@@ -21,7 +21,7 @@ class KubernetesBenchmarkDeployment(
     override fun setup() {
         this.workloadGeneratorStateCleaner.deleteState()
         kafkaController.createTopics(this.topics)
-         resources.forEach {
+        resources.forEach {
             kubernetesManager.deploy(it)
         }
     }
