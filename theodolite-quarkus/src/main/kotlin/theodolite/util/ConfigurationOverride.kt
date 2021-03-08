@@ -1,6 +1,6 @@
 package theodolite.util
 
-class ConfigurationOverride() {
+class ConfigurationOverride {
     lateinit var patcher: PatcherDefinition
     lateinit var value: String
 }

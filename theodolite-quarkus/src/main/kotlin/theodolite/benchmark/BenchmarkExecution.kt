@@ -3,7 +3,6 @@ package theodolite.benchmark
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
-
 class BenchmarkExecution {
     lateinit var name: String
     lateinit var benchmark: String
@@ -14,13 +13,13 @@ class BenchmarkExecution {
     lateinit var configOverrides: List<ConfigurationOverride>
 
     class Execution {
-        lateinit var  strategy: String
+        lateinit var strategy: String
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
         lateinit var restrictions: List<String>
     }
 
-    class Slo{
+    class Slo {
         lateinit var sloType: String
         var threshold by Delegates.notNull<Int>()
     }

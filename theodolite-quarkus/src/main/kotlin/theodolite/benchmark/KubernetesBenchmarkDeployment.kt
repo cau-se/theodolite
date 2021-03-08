@@ -13,7 +13,7 @@ class KubernetesBenchmarkDeployment(
     private val kafkaConfig: HashMap<String, Any>,
     private val zookeeperConfig: String,
     private val topics: Collection<NewTopic>
-): BenchmarkDeployment {
+) : BenchmarkDeployment {
     private val workloadGeneratorStateCleaner = WorkloadGeneratorStateCleaner(this.zookeeperConfig)
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(DefaultKubernetesClient().inNamespace("theodolite-she"))
@@ -32,6 +32,5 @@ class KubernetesBenchmarkDeployment(
         resources.forEach {
             kubernetesManager.remove(it)
         }
-
     }
 }

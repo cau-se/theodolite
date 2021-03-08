@@ -7,7 +7,6 @@ import theodolite.strategies.searchstrategy.BinarySearch
 import theodolite.strategies.searchstrategy.LinearSearch
 import theodolite.strategies.searchstrategy.SearchStrategy
 import theodolite.util.Results
-import java.lang.IllegalArgumentException
 
 class StrategyFactory {
 

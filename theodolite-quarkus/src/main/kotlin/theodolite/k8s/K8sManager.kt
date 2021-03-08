@@ -6,7 +6,6 @@ import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
-import java.lang.IllegalArgumentException
 
 class K8sManager(private val client: NamespacedKubernetesClient) {
     fun deploy(resource: KubernetesResource) {

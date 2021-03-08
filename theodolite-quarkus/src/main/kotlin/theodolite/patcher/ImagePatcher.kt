@@ -4,7 +4,8 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 
-class ImagePatcher(private val k8sResource: KubernetesResource, private val container: String): AbstractPatcher(k8sResource, container) {
+class ImagePatcher(private val k8sResource: KubernetesResource, private val container: String) :
+    AbstractPatcher(k8sResource, container) {
 
     override fun <String> patch(imagePath: String) {
         if (k8sResource is Deployment) {

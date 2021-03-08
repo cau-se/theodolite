@@ -59,7 +59,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         try {
             resource = f(path)
         } catch (e: Exception) {
-            logger.warn {"You potentially  misspelled the path: $path"}
+            logger.warn { "You potentially  misspelled the path: $path" }
             logger.warn { e }
         }
 
@@ -70,7 +70,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
     }
 
     fun loadK8sResource(kind: String, path: String): KubernetesResource {
-        return when (kind){
+        return when (kind) {
             "Deployment" -> loadDeployment(path)
             "Service" -> loadService(path)
             "ServiceMonitor" -> loadServiceMonitor(path)

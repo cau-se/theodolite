@@ -7,16 +7,14 @@ import theodolite.patcher.PatcherManager
 import theodolite.util.*
 import java.util.*
 
-class KubernetesBenchmark: Benchmark {
+class KubernetesBenchmark : Benchmark {
     lateinit var name: String
-    private lateinit var appResource: List<String>
-    private lateinit var loadGenResource: List<String>
-    private lateinit var resourceTypes: List<TypeName>
-    private lateinit var loadTypes: List<TypeName>
-    private lateinit var kafkaConfig: KafkaConfig
-    private lateinit var zookeeperConfig: HashMap<String,String>
-
-
+    lateinit var appResource: List<String>
+    lateinit var loadGenResource: List<String>
+    lateinit var resourceTypes: List<TypeName>
+    lateinit var loadTypes: List<TypeName>
+    lateinit var kafkaConfig: KafkaConfig
+    lateinit var zookeeperConfig: HashMap<String, String>
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val basePath = "./../../../resources/main/yaml/"
@@ -25,13 +23,17 @@ class KubernetesBenchmark: Benchmark {
         return resources
             .map { resource ->
                 val resourcePath = "$basePath/$resource"
-                val kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind") !!
-                val k8sResource = loader.loadK8sResource(kind , resourcePath)
+                val kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind")!!
+                val k8sResource = loader.loadK8sResource(kind, resourcePath)
                 Pair(resource, k8sResource)
             }
-        }
+    }
 
-    override fun buildDeployment(load: LoadDimension, res: Resource, configurationOverrides: List<ConfigurationOverride>): BenchmarkDeployment {
+    override fun buildDeployment(
+        load: LoadDimension,
+        res: Resource,
+        configurationOverrides: List<ConfigurationOverride>
+    ): BenchmarkDeployment {
         val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
         val patcherManager = PatcherManager()
 
@@ -40,13 +42,19 @@ class KubernetesBenchmark: Benchmark {
         patcherManager.createAndApplyPatcher(load.getType(), this.loadTypes, resources, load.get().toString())
 
         // patch overrides
-        configurationOverrides.forEach{ override -> patcherManager.applyPatcher(listOf(override.patcher), resources, override.value)}
+        configurationOverrides.forEach { override ->
+            patcherManager.applyPatcher(
+                listOf(override.patcher),
+                resources,
+                override.value
+            )
+        }
 
         return KubernetesBenchmarkDeployment(
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             zookeeperConfig = zookeeperConfig["server"].toString(),
-            topics = kafkaConfig.getKafkaTopics())
+            topics = kafkaConfig.getKafkaTopics()
+        )
     }
 }
-

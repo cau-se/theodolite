@@ -4,9 +4,12 @@ import theodolite.execution.BenchmarkExecutor
 import theodolite.strategies.restriction.RestrictionStrategy
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
-import theodolite.util.Results
 
-class CompositeStrategy(benchmarkExecutor: BenchmarkExecutor, private val searchStrategy: SearchStrategy, val restrictionStrategies: Set<RestrictionStrategy>) : SearchStrategy(benchmarkExecutor) {
+class CompositeStrategy(
+    benchmarkExecutor: BenchmarkExecutor,
+    private val searchStrategy: SearchStrategy,
+    val restrictionStrategies: Set<RestrictionStrategy>
+) : SearchStrategy(benchmarkExecutor) {
 
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
         var restrictedResources = resources.toList()
