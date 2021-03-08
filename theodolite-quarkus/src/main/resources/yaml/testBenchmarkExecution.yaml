@@ -13,7 +13,7 @@ slos:
     threshold: 1000
 execution:
   strategy: "LinearSearch"
-  duration: 120
+  duration: 300
   repititions: 1
   restrictions:
     - "LowerBound"

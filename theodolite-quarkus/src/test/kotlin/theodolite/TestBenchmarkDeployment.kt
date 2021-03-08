@@ -1,4 +1,6 @@
-package theodolite.benchmark
+package theodolite
+
+import theodolite.benchmark.BenchmarkDeployment
 
 class TestBenchmarkDeployment: BenchmarkDeployment {
     override fun setup() {

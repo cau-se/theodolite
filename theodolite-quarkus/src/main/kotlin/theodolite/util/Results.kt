@@ -1,9 +1,5 @@
 package theodolite.util
 
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
-import kotlin.math.exp
-
 class Results {
     private val results: MutableMap<Pair<LoadDimension, Resource>, Boolean> = mutableMapOf()
 
