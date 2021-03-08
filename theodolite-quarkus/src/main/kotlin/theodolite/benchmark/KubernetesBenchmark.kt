@@ -46,7 +46,7 @@ class KubernetesBenchmark(): Benchmark {
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             zookeeperConfig = zookeeperConfig["server"].toString(),
-            topics = kafkaConfig.topics)
+            topics = kafkaConfig.getKafkaTopics())
     }
 }
 
