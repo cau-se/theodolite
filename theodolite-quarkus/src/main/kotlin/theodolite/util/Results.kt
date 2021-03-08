@@ -5,18 +5,17 @@ import theodolite.util.Resource
 import kotlin.math.exp
 
 class Results {
-    // load, instances
-    private val results: MutableMap<Pair<LoadDimension, Resource>, Boolean> = mutableMapOf() // multi map guava
+    private val results: MutableMap<Pair<LoadDimension, Resource>, Boolean> = mutableMapOf()
 
-    public fun setResult(experiment: Pair<LoadDimension, Resource>, successful: Boolean) {
+    fun setResult(experiment: Pair<LoadDimension, Resource>, successful: Boolean) {
         this.results[experiment] = successful
     }
 
-    public fun getResult (experiment: Pair<LoadDimension, Resource>): Boolean? {
+    fun getResult (experiment: Pair<LoadDimension, Resource>): Boolean? {
         return this.results[experiment]
     }
 
-    public fun getMinRequiredInstances(load: LoadDimension?, resourceTyp: String): Resource? {
+    fun getMinRequiredInstances(load: LoadDimension?, resourceTyp: String): Resource? {
         if (this.results.isEmpty()) return Resource(Int.MIN_VALUE, resourceTyp)
 
         var requiredInstances: Resource? = Resource(Int.MAX_VALUE, resourceTyp)
@@ -32,7 +31,7 @@ class Results {
         return requiredInstances
     }
 
-    public fun getMaxBenchmarkedLoad(load: LoadDimension): LoadDimension? {
+    fun getMaxBenchmarkedLoad(load: LoadDimension): LoadDimension? {
         var maxBenchmarkedLoad: LoadDimension? = null;
         for(experiment in results) {
             if (experiment.value) {
