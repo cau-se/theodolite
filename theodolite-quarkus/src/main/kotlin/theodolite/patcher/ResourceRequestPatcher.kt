@@ -1,9 +1,12 @@
 package theodolite.patcher
 
+import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.ResourceRequirements
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
+import java.lang.IllegalArgumentException
 
 class ResourceRequestPatcher(
     private val k8sResource: KubernetesResource,
@@ -12,24 +15,38 @@ class ResourceRequestPatcher(
 ) : AbstractPatcher(k8sResource, container, requestedResource) {
 
     override fun <String> patch(value: String) {
-        if (k8sResource is Deployment) {
-            k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                when {
-                    it.resources == null -> {
-                        val resource = ResourceRequirements()
-                        resource.requests = mapOf(requestedResource to Quantity(value as kotlin.String))
-                        it.resources = resource
-                    }
-                    it.resources.requests.isEmpty() -> {
-                        it.resources.requests = mapOf(requestedResource to Quantity(value as kotlin.String))
-                    }
-                    else -> {
-                        val values = mutableMapOf<kotlin.String, Quantity>()
-                        it.resources.requests.forEach { entry -> values[entry.key] = entry.value }
-                        values[requestedResource] = Quantity(value as kotlin.String)
-                        it.resources.requests = values
-                    }
+        when (k8sResource) {
+            is Deployment -> {
+                k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
+                    setRequests(it, value as kotlin.String)
                 }
+            }
+            is StatefulSet -> {
+                k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
+                    setRequests(it, value as kotlin.String)
+                }
+            }
+            else -> {
+                throw IllegalArgumentException("ResourceRequestPatcher not applicable for $k8sResource")
+            }
+        }
+    }
+
+    private fun setRequests(container: Container, value: String) {
+        when {
+            container.resources == null -> {
+                val resource = ResourceRequirements()
+                resource.requests = mapOf(requestedResource to Quantity(value))
+                container.resources = resource
+            }
+            container.resources.requests.isEmpty() -> {
+                container.resources.requests = mapOf(requestedResource to Quantity(value))
+            }
+            else -> {
+                val values = mutableMapOf<String, Quantity>()
+                container.resources.requests.forEach { entry -> values[entry.key] = entry.value }
+                values[requestedResource] = Quantity(value)
+                container.resources.requests = values
             }
         }
     }
