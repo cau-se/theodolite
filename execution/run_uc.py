@@ -141,9 +141,9 @@ def start_workload_generator(svc_yaml, wg_yaml, dim_value, uc_id):
     wl_max_records = 150000
     wl_instances = (num_sensors + wl_max_records - 1) // wl_max_records
 
-    # set parameters special for uc 2
-    if uc_id == '2':
-        print('use uc2 stuff')
+    # set parameters special for uc 4
+    if uc_id == '4':
+        print('use uc4 stuff')
         num_nested_groups = dim_value
         num_sensors = 4
         approx_num_sensors = num_sensors ** num_nested_groups
@@ -161,7 +161,7 @@ def start_workload_generator(svc_yaml, wg_yaml, dim_value, uc_id):
 
     replace_env_value(wg_containter['env'], 'NUM_SENSORS', str(num_sensors))
 
-    if uc_id == '2':  # Special configuration for uc2
+    if uc_id == '4':  # Special configuration for UC4
         replace_env_value(
             wg_containter['env'], 'NUM_NESTED_GROUPS', str(num_nested_groups))
 

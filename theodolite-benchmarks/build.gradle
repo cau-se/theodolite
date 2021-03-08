@@ -1,0 +1,178 @@
+// Inherited to all subprojects
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.0"
+  }
+}
+
+// Variables used to distinct different subprojects
+def useCaseProjects = subprojects.findAll {it -> it.name.matches('uc(.)*')}
+def useCaseApplications = subprojects.findAll {it -> it.name.matches('uc[0-9]+-application')}
+def useCaseGenerators = subprojects.findAll {it -> it.name.matches('uc[0-9]+-workload-generator*')}
+def commonProjects = subprojects.findAll {it -> it.name.matches('(.)*commons(.)*')}
+
+// Plugins
+allprojects {
+  apply plugin: 'eclipse'
+}
+
+subprojects {
+  apply plugin: 'checkstyle'
+  apply plugin: 'pmd'
+  apply plugin: 'com.github.spotbugs'
+  apply plugin: 'java-library'
+}
+
+configure(useCaseProjects){
+    apply plugin: 'application'
+}
+
+// Java version for all subprojects
+subprojects {
+  java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+}
+
+// Check for updates every build
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+// Repositories for all projects
+allprojects {
+	repositories {
+	    jcenter()
+	    maven {
+	    	url "https://oss.sonatype.org/content/repositories/snapshots/"
+	    }
+      maven {
+        url 'https://packages.confluent.io/maven/'
+    }
+	}
+}
+
+// Dependencies for all use case applications
+configure(useCaseApplications) {
+  dependencies {
+      // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
+      implementation 'com.google.code.gson:gson:2.8.2'
+      implementation 'com.google.guava:guava:24.1-jre'
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
+      implementation project(':application-kafkastreams-commons')
+
+      // Use JUnit test framework
+      testImplementation 'junit:junit:4.12'
+  }
+}
+
+// Dependencies for all use case generators
+configure(useCaseGenerators) {
+  dependencies {
+      // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
+
+      // These dependencies are used for the workload-generator-commmon
+      implementation project(':workload-generator-commons')
+
+      // Use JUnit test framework
+      testImplementation 'junit:junit:4.12'
+  }
+}
+
+// Dependencies for all commons
+configure(commonProjects) {
+  dependencies {
+      // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+      implementation 'org.slf4j:slf4j-simple:1.7.25'
+      implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+      implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+      implementation 'org.apache.kafka:kafka-streams:2.6.0'
+
+      // Use JUnit test framework
+      testImplementation 'junit:junit:4.12'
+  }
+}
+
+// Per default XML reports for SpotBugs are generated
+// Include this to generate HTML reports
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+  reports {
+    // Either HTML or XML reports can be activated
+    html.enabled true
+    xml.enabled false
+  }
+}
+
+// Subprojects quality tools tasks
+subprojects {
+  task pmd {
+    group 'Quality Assurance'
+    description 'Run PMD'
+
+    dependsOn 'pmdMain'
+    dependsOn 'pmdTest'
+  }
+
+  task checkstyle {
+    group 'Quality Assurance'
+    description 'Run Checkstyle'
+
+    dependsOn 'checkstyleMain'
+    dependsOn 'checkstyleTest'
+  }
+
+  task spotbugs {
+    group 'Quality Assurance'
+    description 'Run SpotBugs'
+
+    dependsOn 'spotbugsMain'
+    dependsOn 'spotbugsTest'
+  }
+}
+
+// Subprojects quality tools configuration
+subprojects {
+  pmd {
+    ruleSets = [] // Gradle requires to clean the rule sets first
+    ruleSetFiles = files("$rootProject.projectDir/config/pmd.xml")
+    ignoreFailures = false
+    toolVersion = "6.7.0"
+  }
+
+  checkstyle {
+    configDirectory = file("$rootProject.projectDir/config")
+    configFile = file("$rootProject.projectDir/config/checkstyle.xml")
+    maxWarnings = 0
+    ignoreFailures = false
+    toolVersion = "8.12"
+  }
+
+  spotbugs {
+    excludeFilter = file("$rootProject.projectDir/config/spotbugs-exclude-filter.xml")
+    reportLevel = "low"
+    effort = "max"
+    ignoreFailures = false
+    toolVersion = '4.1.4'
+  }
+}
+
+allprojects {
+  eclipse {
+      classpath {
+         downloadSources=true
+         downloadJavadoc=true
+      }
+  }
+}
