@@ -1,7 +1,6 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 
 class NodeSelectorPatcher(private val k8sResource: KubernetesResource, private val variableName: String): AbstractPatcher(k8sResource, variableName){

@@ -13,6 +13,6 @@ class BenchmarkExecutorImpl(benchmark: Benchmark, results: Results, executionDur
         // todo evaluate
         val result = false // if success else false
         this.results.setResult(Pair(load, res), result)
-        return result;
+        return result
     }
 }

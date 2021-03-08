@@ -2,7 +2,6 @@ package theodolite.k8s
 
 import mu.KotlinLogging
 import org.apache.kafka.clients.admin.AdminClient
-import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.ListTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
 import java.util.*
@@ -11,10 +10,10 @@ private val logger = KotlinLogging.logger {}
 
 /**
  * Manages the topics related tasks
- * @param bootstrapServers Ip of the kafka server
+ * @param kafkaConfig Kafka Configuration as HashMap
  */
 class TopicManager(kafkaConfig: HashMap<String, Any>) {
-    lateinit var kafkaAdmin: AdminClient
+    private lateinit var kafkaAdmin: AdminClient
 
     init {
         try {
@@ -26,8 +25,7 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
 
     /**
      * Creates topics.
-     * @param topics Map that holds a numPartition for each topic it should create
-     * @param replicationFactor
+     * @param newTopics List of all Topic which should be created
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
         kafkaAdmin.createTopics(newTopics)

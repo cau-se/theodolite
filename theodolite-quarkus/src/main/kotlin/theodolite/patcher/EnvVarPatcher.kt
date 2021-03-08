@@ -41,9 +41,7 @@ class EnvVarPatcher(private val k8sResource: KubernetesResource, private val con
      */
     private fun setEnv(workloadDeployment: Deployment, containerName: String, map: Map<String, String>) {
         workloadDeployment.spec.template.spec.containers.filter { it.name == containerName }
-            .forEach { it: Container ->
-                setContainerEnv(it, map)
-            }
+            .forEach { setContainerEnv(it, map) }
     }
 
 
