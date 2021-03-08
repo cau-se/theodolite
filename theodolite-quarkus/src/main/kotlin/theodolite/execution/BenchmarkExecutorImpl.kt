@@ -1,10 +1,18 @@
 package theodolite.execution
 
 import theodolite.benchmark.Benchmark
-import theodolite.util.*
+import theodolite.util.ConfigurationOverride
+import theodolite.util.LoadDimension
+import theodolite.util.Resource
+import theodolite.util.Results
 import java.time.Duration
 
-class BenchmarkExecutorImpl(benchmark: Benchmark, results: Results, executionDuration: Duration, private val configurationOverrides: List<ConfigurationOverride>) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides) {
+class BenchmarkExecutorImpl(
+    benchmark: Benchmark,
+    results: Results,
+    executionDuration: Duration,
+    private val configurationOverrides: List<ConfigurationOverride>
+) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides)
         benchmarkDeployment.setup()

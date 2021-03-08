@@ -6,12 +6,18 @@ import io.fabric8.kubernetes.api.model.EnvVarSource
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 
-class EnvVarPatcher(private val k8sResource: KubernetesResource, private val container: String, private val variableName: String): AbstractPatcher(k8sResource, container, variableName) {
+class EnvVarPatcher(
+    private val k8sResource: KubernetesResource,
+    private val container: String,
+    private val variableName: String
+) : AbstractPatcher(k8sResource, container, variableName) {
 
     override fun <String> patch(value: String) {
         if (k8sResource is Deployment) {
-                this.setEnv(k8sResource, this.container,
-                    mapOf(this.variableName to value) as Map<kotlin.String, kotlin.String>)
+            this.setEnv(
+                k8sResource, this.container,
+                mapOf(this.variableName to value) as Map<kotlin.String, kotlin.String>
+            )
         }
     }
 
@@ -43,6 +49,4 @@ class EnvVarPatcher(private val k8sResource: KubernetesResource, private val con
         workloadDeployment.spec.template.spec.containers.filter { it.name == containerName }
             .forEach { setContainerEnv(it, map) }
     }
-
-
 }

@@ -14,7 +14,7 @@ slos:
 execution:
   strategy: "LinearSearch"
   duration: 300
-  repititions: 1
+  repetitions: 1
   restrictions:
     - "LowerBound"
 configOverrides:

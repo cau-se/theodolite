@@ -2,10 +2,8 @@ package theodolite
 
 import theodolite.benchmark.BenchmarkDeployment
 
-class TestBenchmarkDeployment: BenchmarkDeployment {
-    override fun setup() {
-    }
+class TestBenchmarkDeployment : BenchmarkDeployment {
+    override fun setup() {}
 
-    override fun teardown() {
-    }
+    override fun teardown() {}
 }

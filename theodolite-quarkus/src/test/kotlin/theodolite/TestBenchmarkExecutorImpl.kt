@@ -7,8 +7,13 @@ import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
 
-class TestBenchmarkExecutorImpl(private val mockResults: Array<Array<Boolean>>, benchmark: Benchmark, results: Results):
-    BenchmarkExecutor(benchmark, results, executionDuration = Duration.ofSeconds(1),
+class TestBenchmarkExecutorImpl(
+    private val mockResults: Array<Array<Boolean>>,
+    benchmark: Benchmark,
+    results: Results
+) :
+    BenchmarkExecutor(
+        benchmark, results, executionDuration = Duration.ofSeconds(1),
         configurationOverrides = emptyList()
     ) {
 
@@ -16,6 +21,6 @@ class TestBenchmarkExecutorImpl(private val mockResults: Array<Array<Boolean>>, 
         val result = this.mockResults[load.get()][res.get()]
 
         this.results.setResult(Pair(load, res), result)
-        return result;
+        return result
     }
 }
