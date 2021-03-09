@@ -14,7 +14,6 @@ class KubernetesBenchmark : Benchmark {
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
-    lateinit var zookeeperConfig: HashMap<String, String>
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val basePath = "./../../../resources/main/yaml/"
@@ -53,7 +52,6 @@ class KubernetesBenchmark : Benchmark {
         return KubernetesBenchmarkDeployment(
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
-            zookeeperConfig = zookeeperConfig["server"].toString(),
             topics = kafkaConfig.getKafkaTopics()
         )
     }
