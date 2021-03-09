@@ -12,8 +12,8 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import theodolite.uc4.application.util.SensorParentKey;
-import titan.ccp.models.records.ActivePowerRecord;
-import titan.ccp.models.records.AggregatedActivePowerRecord;
+import titan.ccp.model.records.ActivePowerRecord;
+import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 public class RecordAggregationProcessWindowFunction extends ProcessWindowFunction<Tuple2<SensorParentKey, ActivePowerRecord>, AggregatedActivePowerRecord, String, TimeWindow> {
 
@@ -46,7 +46,7 @@ public class RecordAggregationProcessWindowFunction extends ProcessWindowFunctio
     for (Tuple2<SensorParentKey, ActivePowerRecord> t : elements) {
       AggregatedActivePowerRecord currentAggregate = this.aggregateState.value();
       if (currentAggregate == null) {
-        currentAggregate = new AggregatedActivePowerRecord(key, 0, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, 0, 0);
+        currentAggregate = new AggregatedActivePowerRecord(key, 0L, 0L, 0.0, 0.0);
         this.aggregateState.update(currentAggregate);
       }
       long count = currentAggregate.getCount();
@@ -55,14 +55,14 @@ public class RecordAggregationProcessWindowFunction extends ProcessWindowFunctio
       ActivePowerRecord newRecord = t.f1;
       if (newRecord == null) { // sensor was deleted -> decrease count, set newRecord to zero
         count--;
-        newRecord = new ActivePowerRecord(sensorParentKey.getSensor(), 0, 0.0);
+        newRecord = new ActivePowerRecord(sensorParentKey.getSensor(), 0L, 0.0);
       }
 
       // get last value of this record from state or create 0 valued record
       ActivePowerRecord previousRecord = this.lastValueState.get(sensorParentKey);
       if (previousRecord == null) { // sensor was added -> increase count
         count++;
-        previousRecord = new ActivePowerRecord(sensorParentKey.getSensor(), 0, 0.0);
+        previousRecord = new ActivePowerRecord(sensorParentKey.getSensor(), 0L, 0.0);
       }
 
       // if incoming record is older than the last saved record, skip the record
@@ -78,8 +78,6 @@ public class RecordAggregationProcessWindowFunction extends ProcessWindowFunctio
       AggregatedActivePowerRecord newAggregate = new AggregatedActivePowerRecord(
           sensorParentKey.getParent(),
           timestamp,
-          Math.min(currentAggregate.getMinInW(), newRecord.getValueInW()),
-          Math.max(currentAggregate.getMaxInW(), newRecord.getValueInW()),
           count,
           sumInW,
           avgInW

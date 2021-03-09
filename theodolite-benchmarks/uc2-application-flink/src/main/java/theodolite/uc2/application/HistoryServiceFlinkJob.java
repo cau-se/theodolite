@@ -4,11 +4,16 @@ import com.google.common.math.Stats;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroSerializationSchema;
+import org.apache.flink.formats.avro.typeutils.AvroSerializer;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -18,15 +23,15 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
-import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
 import theodolite.commons.flink.serialization.StatsSerializer;
+import theodolite.uc2.application.ConfigurationKeys;
 import titan.ccp.common.configuration.Configurations;
-import titan.ccp.models.records.ActivePowerRecord;
-import titan.ccp.models.records.ActivePowerRecordFactory;
+import titan.ccp.model.records.ActivePowerRecord;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -49,6 +54,7 @@ public class HistoryServiceFlinkJob {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final int windowDuration = this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES);
     final String stateBackend = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND, "").toLowerCase();
     final String stateBackendPath = this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
@@ -58,12 +64,11 @@ public class HistoryServiceFlinkJob {
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
     kafkaProps.setProperty("group.id", applicationId);
-
-    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> sourceSerde =
-        new FlinkMonitoringRecordSerde<>(
-            inputTopic,
-            ActivePowerRecord.class,
-            ActivePowerRecordFactory.class);
+    
+    final DeserializationSchema<ActivePowerRecord> sourceSerde =
+		        ConfluentRegistryAvroDeserializationSchema.forSpecific(
+		            ActivePowerRecord.class,
+		            schemaRegistryUrl);
 
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource = new FlinkKafkaConsumer<>(
         inputTopic, sourceSerde, kafkaProps);
@@ -73,7 +78,7 @@ public class HistoryServiceFlinkJob {
       kafkaSource.setCommitOffsetsOnCheckpoints(true);
     kafkaSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
 
-    final FlinkKafkaKeyValueSerde<String, String> sinkSerde =
+    final KafkaSerializationSchema<Tuple2<String, String>> sinkSerde =
         new FlinkKafkaKeyValueSerde<>(outputTopic,
             Serdes::String,
             Serdes::String,
@@ -103,11 +108,6 @@ public class HistoryServiceFlinkJob {
       env.setStateBackend(new MemoryStateBackend(memoryStateBackendSize));
     }
 
-    env.getConfig().registerTypeWithKryoSerializer(ActivePowerRecord.class,
-        new FlinkMonitoringRecordSerde<>(
-            inputTopic,
-            ActivePowerRecord.class,
-            ActivePowerRecordFactory.class));
     env.getConfig().registerTypeWithKryoSerializer(Stats.class, new StatsSerializer());
 
     env.getConfig().getRegisteredTypesWithKryoSerializers().forEach((c, s) ->

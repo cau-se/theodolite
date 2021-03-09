@@ -4,11 +4,13 @@ import com.google.common.math.Stats;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -22,15 +24,14 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
-import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
 import theodolite.commons.flink.serialization.StatsSerializer;
+import theodolite.uc3.application.ConfigurationKeys;
 import theodolite.uc3.application.util.HourOfDayKey;
 import theodolite.uc3.application.util.HourOfDayKeyFactory;
 import theodolite.uc3.application.util.HourOfDayKeySerde;
 import theodolite.uc3.application.util.StatsKeyFactory;
 import titan.ccp.common.configuration.Configurations;
-import titan.ccp.models.records.ActivePowerRecord;
-import titan.ccp.models.records.ActivePowerRecordFactory;
+import titan.ccp.model.records.ActivePowerRecord;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -57,6 +58,7 @@ public class HistoryServiceFlinkJob {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String timeZoneString = this.config.getString(ConfigurationKeys.TIME_ZONE);
     final ZoneId timeZone = ZoneId.of(timeZoneString);
     final Time aggregationDuration = Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
@@ -71,12 +73,11 @@ public class HistoryServiceFlinkJob {
     kafkaProps.setProperty("group.id", applicationId);
 
     // Sources and Sinks with Serializer and Deserializer
-
-    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> sourceSerde =
-        new FlinkMonitoringRecordSerde<>(
-            inputTopic,
-            ActivePowerRecord.class,
-            ActivePowerRecordFactory.class);
+    
+    final DeserializationSchema<ActivePowerRecord> sourceSerde =
+		        ConfluentRegistryAvroDeserializationSchema.forSpecific(
+		            ActivePowerRecord.class,
+		            schemaRegistryUrl);
 
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource = new FlinkKafkaConsumer<>(
         inputTopic, sourceSerde, kafkaProps);
@@ -120,11 +121,6 @@ public class HistoryServiceFlinkJob {
 
     // Kryo serializer registration
     env.getConfig().registerTypeWithKryoSerializer(HourOfDayKey.class, new HourOfDayKeySerde());
-    env.getConfig().registerTypeWithKryoSerializer(ActivePowerRecord.class,
-        new FlinkMonitoringRecordSerde<>(
-            inputTopic,
-            ActivePowerRecord.class,
-            ActivePowerRecordFactory.class));
     env.getConfig().registerTypeWithKryoSerializer(Stats.class, new StatsSerializer());
 
     env.getConfig().getRegisteredTypesWithKryoSerializers().forEach((c, s) ->

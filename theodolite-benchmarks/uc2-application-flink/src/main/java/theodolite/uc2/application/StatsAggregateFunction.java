@@ -4,7 +4,7 @@ import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import theodolite.uc2.application.util.StatsFactory;
-import titan.ccp.models.records.ActivePowerRecord;
+import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Statistical aggregation of {@link ActivePowerRecord}s using {@link Stats}.

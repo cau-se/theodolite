@@ -1,13 +1,13 @@
 package theodolite.uc1.application;
 
 import org.apache.commons.configuration2.Configuration;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
 import titan.ccp.common.configuration.Configurations;
-import titan.ccp.models.records.ActivePowerRecord;
-import titan.ccp.models.records.ActivePowerRecordFactory;
+import titan.ccp.model.records.ActivePowerRecord;
 
 import java.util.Properties;
 
@@ -25,16 +25,23 @@ public class HistoryServiceFlinkJob {
     final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
+    final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
     kafkaProps.setProperty("group.id", applicationId);
 
-    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> serde =
-        new FlinkMonitoringRecordSerde<>(inputTopic,
-                                         ActivePowerRecord.class,
-                                         ActivePowerRecordFactory.class);
+    /*
+     * final DeserializationSchema<ActivePowerRecord> serde = new
+     * FlinkMonitoringRecordSerde<>(inputTopic, ActivePowerRecord.class,
+     * ActivePowerRecordFactory.class);
+     */
+
+    final DeserializationSchema<ActivePowerRecord> serde =
+        ConfluentRegistryAvroDeserializationSchema.forSpecific(
+            ActivePowerRecord.class,
+            schemaRegistryUrl);
 
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaConsumer =
         new FlinkKafkaConsumer<>(inputTopic, serde, kafkaProps);

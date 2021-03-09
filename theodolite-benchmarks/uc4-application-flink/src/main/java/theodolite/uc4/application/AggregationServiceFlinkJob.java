@@ -1,13 +1,17 @@
 package theodolite.uc4.application;
 
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroSerializationSchema;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -17,25 +21,24 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
-import theodolite.commons.flink.serialization.FlinkMonitoringRecordSerde;
+import theodolite.uc4.application.ConfigurationKeys;
 import theodolite.uc4.application.util.ImmutableSensorRegistrySerializer;
 import theodolite.uc4.application.util.ImmutableSetSerializer;
 import theodolite.uc4.application.util.SensorParentKey;
 import theodolite.uc4.application.util.SensorParentKeySerializer;
 import titan.ccp.common.configuration.Configurations;
-import titan.ccp.common.kieker.kafka.IMonitoringRecordSerde;
+import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.configuration.events.EventSerde;
 import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 import titan.ccp.model.sensorregistry.SensorRegistry;
-import titan.ccp.models.records.ActivePowerRecord;
-import titan.ccp.models.records.ActivePowerRecordFactory;
-import titan.ccp.models.records.AggregatedActivePowerRecord;
-import titan.ccp.models.records.AggregatedActivePowerRecordFactory;
+import titan.ccp.model.records.ActivePowerRecord;
+import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -60,6 +63,7 @@ public class AggregationServiceFlinkJob {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final Time windowSize = Time.milliseconds(this.config.getLong(ConfigurationKeys.WINDOW_SIZE_MS));
     final Duration windowGrace = Duration.ofMillis(this.config.getLong(ConfigurationKeys.WINDOW_GRACE_MS));
     final String configurationTopic = this.config.getString(ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
@@ -75,11 +79,11 @@ public class AggregationServiceFlinkJob {
 
     // Sources and Sinks with Serializer and Deserializer
 
-    // Source from input topic with ActivePowerRecords
-    final FlinkMonitoringRecordSerde<ActivePowerRecord, ActivePowerRecordFactory> inputSerde =
-        new FlinkMonitoringRecordSerde<>(inputTopic,
-            ActivePowerRecord.class,
-            ActivePowerRecordFactory.class);
+    // Source from input topic with ActivePowerRecords   
+    final DeserializationSchema<ActivePowerRecord> inputSerde =
+		        ConfluentRegistryAvroDeserializationSchema.forSpecific(
+		            ActivePowerRecord.class,
+		            schemaRegistryUrl);
 
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaInputSource = new FlinkKafkaConsumer<>(
         inputTopic, inputSerde, kafkaProps);
@@ -90,10 +94,10 @@ public class AggregationServiceFlinkJob {
     }
 
     // Source from output topic with AggregatedPowerRecords
-    final FlinkMonitoringRecordSerde<AggregatedActivePowerRecord, AggregatedActivePowerRecordFactory> outputSerde =
-        new FlinkMonitoringRecordSerde<>(inputTopic,
-            AggregatedActivePowerRecord.class,
-            AggregatedActivePowerRecordFactory.class);
+    final DeserializationSchema<AggregatedActivePowerRecord> outputSerde =
+		        ConfluentRegistryAvroDeserializationSchema.forSpecific(
+				        AggregatedActivePowerRecord.class,
+		            schemaRegistryUrl);
 
     final FlinkKafkaConsumer<AggregatedActivePowerRecord> kafkaOutputSource = new FlinkKafkaConsumer<>(
         outputTopic, outputSerde, kafkaProps);
@@ -124,7 +128,7 @@ public class AggregationServiceFlinkJob {
         new FlinkKafkaKeyValueSerde<>(
             outputTopic,
             Serdes::String,
-            () -> IMonitoringRecordSerde.serde(new AggregatedActivePowerRecordFactory()),
+            () -> new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl).forValues(),
             TypeInformation.of(new TypeHint<Tuple2<String, AggregatedActivePowerRecord>>() {
             }));
 
@@ -161,12 +165,6 @@ public class AggregationServiceFlinkJob {
     }
 
     // Kryo serializer registration
-    env.getConfig().registerTypeWithKryoSerializer(ActivePowerRecord.class,
-        new FlinkMonitoringRecordSerde<>(
-            inputTopic,
-            ActivePowerRecord.class,
-            ActivePowerRecordFactory.class));
-
     env.getConfig().registerTypeWithKryoSerializer(ImmutableSensorRegistry.class, new ImmutableSensorRegistrySerializer());
     env.getConfig().registerTypeWithKryoSerializer(SensorParentKey.class, new SensorParentKeySerializer());
 
@@ -298,8 +296,6 @@ public class AggregationServiceFlinkJob {
                     "AggregatedActivePowerRecord { "
                         + "identifier: " + value.getIdentifier() + ", "
                         + "timestamp: " + value.getTimestamp() + ", "
-                        + "minInW: " + value.getMinInW() + ", "
-                        + "maxInW: " + value.getMaxInW() + ", "
                         + "count: " + value.getCount() + ", "
                         + "sumInW: " + value.getSumInW() + ", "
                         + "avgInW: " + value.getAverageInW() + " }";
