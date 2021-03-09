@@ -6,10 +6,10 @@ import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
@@ -205,18 +205,7 @@ public class AggregationServiceFlinkJob {
         .union(aggregationsInputStream);
 
     if (debug) {
-      mergedInputStream
-          .map(new MapFunction<ActivePowerRecord, String>() {
-            @Override
-            public String map(final ActivePowerRecord value) throws Exception {
-              return "ActivePowerRecord { "
-                  + "identifier: " + value.getIdentifier() + ", "
-                  + "timestamp: " + value.getTimestamp() + ", "
-                  + "valueInW: " + value.getValueInW() + " }";
-            }
-          })
-          .name("[Map] toString")
-          .print();
+      mergedInputStream.print();
     }
     // Build parent sensor stream from configuration stream
     final DataStream<Tuple2<String, Set<String>>> configurationsStream =
@@ -225,15 +214,8 @@ public class AggregationServiceFlinkJob {
             .filter(tuple -> tuple.f0 == Event.SENSOR_REGISTRY_CHANGED
                 || tuple.f0 == Event.SENSOR_REGISTRY_STATUS)
             .name("[Filter] SensorRegistry changed")
-            .map(new MapFunction<Tuple2<Event, String>, SensorRegistry>() {
-              @Override
-              public SensorRegistry map(final Tuple2<Event, String> tuple) {
-                // Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                // String prettyJsonString = gson.toJson(new JsonParser().parse(tuple.f1));
-                // LOGGER.info("SensorRegistry: " + prettyJsonString);
-                return SensorRegistry.fromJson(tuple.f1);
-              }
-            }).name("[Map] JSON -> SensorRegistry")
+            // Tuple2<Event, String> -> SensorRegistry
+            .map(tuple -> SensorRegistry.fromJson(tuple.f1)).name("[Map] JSON -> SensorRegistry")
             .keyBy(sr -> 1)
             .flatMap(new ChildParentsFlatMapFunction())
             .name("[FlatMap] SensorRegistry -> (ChildSensor, ParentSensor[])");
@@ -263,15 +245,10 @@ public class AggregationServiceFlinkJob {
 
     if (debug) {
       lastValueStream
-          .map(new MapFunction<Tuple2<SensorParentKey, ActivePowerRecord>, String>() {
-            @Override
-            public String map(final Tuple2<SensorParentKey, ActivePowerRecord> t) throws Exception {
-              return "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + "ActivePowerRecord {"
-                  + "identifier: " + t.f1.getIdentifier() + ", "
-                  + "timestamp: " + t.f1.getTimestamp() + ", "
-                  + "valueInW: " + t.f1.getValueInW() + " }";
-            }
-          })
+          .map(t -> "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + "ActivePowerRecord {"
+              + "identifier: " + t.f1.getIdentifier() + ", "
+              + "timestamp: " + t.f1.getTimestamp() + ", "
+              + "valueInW: " + t.f1.getValueInW() + " }")
           .print();
     }
 
@@ -285,40 +262,21 @@ public class AggregationServiceFlinkJob {
 
     // add Kafka Sink
     aggregationStream
-        .map(
-            new MapFunction<AggregatedActivePowerRecord, Tuple2<String, AggregatedActivePowerRecord>>() {
-              @Override
-              public Tuple2<String, AggregatedActivePowerRecord> map(
-                  final AggregatedActivePowerRecord value) throws Exception {
-                return new Tuple2<>(value.getIdentifier(), value);
-              }
-            })
+        // AggregatedActivePowerRecord -> Tuple2<String, AggregatedActivePowerRecord>
+        .map(value -> new Tuple2<>(value.getIdentifier(), value))
         .name("[Map] AggregatedActivePowerRecord -> (Sensor, AggregatedActivePowerRecord)")
+        .returns(Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)))
         .addSink(kafkaAggregationSink).name("[Kafka Producer] Topic: " + outputTopic);
 
     // add stdout sink
     if (debug) {
-      aggregationStream
-          .map(new MapFunction<AggregatedActivePowerRecord, String>() {
-            @Override
-            public String map(final AggregatedActivePowerRecord value) throws Exception {
-              return "AggregatedActivePowerRecord { "
-                  + "identifier: " + value.getIdentifier() + ", "
-                  + "timestamp: " + value.getTimestamp() + ", "
-                  + "count: " + value.getCount() + ", "
-                  + "sumInW: " + value.getSumInW() + ", "
-                  + "avgInW: " + value.getAverageInW() + " }";
-            }
-          })
-          .name("[Map] toString")
-          .print();
+      aggregationStream.print();
     }
-    // Execution plan
 
+    // Execution plan
     LOGGER.info("Execution plan: {}", env.getExecutionPlan());
 
     // Execute Job
-
     try {
       env.execute(applicationId);
     } catch (final Exception e) { // NOPMD Execution thrown by Flink
