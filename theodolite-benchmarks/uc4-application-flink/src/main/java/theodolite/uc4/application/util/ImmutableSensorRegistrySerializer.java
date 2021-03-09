@@ -4,21 +4,22 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import java.io.Serializable;
 import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
-import java.io.Serializable;
+public class ImmutableSensorRegistrySerializer extends Serializer<ImmutableSensorRegistry>
+    implements Serializable {
 
-public class ImmutableSensorRegistrySerializer extends Serializer<ImmutableSensorRegistry> implements Serializable {
-
-  private static final long serialVersionUID = 1806411056006113017L;
+  private static final long serialVersionUID = 1806411056006113017L; // NOPMD
 
   @Override
-  public void write(Kryo kryo, Output output, ImmutableSensorRegistry object) {
+  public void write(final Kryo kryo, final Output output, final ImmutableSensorRegistry object) {
     output.writeString(object.toJson());
   }
 
   @Override
-  public ImmutableSensorRegistry read(Kryo kryo, Input input, Class<ImmutableSensorRegistry> type) {
+  public ImmutableSensorRegistry read(final Kryo kryo, final Input input,
+      final Class<ImmutableSensorRegistry> type) {
     return (ImmutableSensorRegistry) ImmutableSensorRegistry.fromJson(input.readString());
   }
 }

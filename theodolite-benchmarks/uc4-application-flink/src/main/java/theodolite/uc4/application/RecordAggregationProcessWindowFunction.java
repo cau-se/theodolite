@@ -7,43 +7,43 @@ import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
-
 import theodolite.uc4.application.util.SensorParentKey;
 import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
-public class RecordAggregationProcessWindowFunction extends ProcessWindowFunction<Tuple2<SensorParentKey, ActivePowerRecord>, AggregatedActivePowerRecord, String, TimeWindow> {
+public class RecordAggregationProcessWindowFunction extends
+    ProcessWindowFunction<Tuple2<SensorParentKey, ActivePowerRecord>, AggregatedActivePowerRecord, String, TimeWindow> { // NOCS
 
-  private static final long serialVersionUID = 6030159552332624435L;
+  private static final long serialVersionUID = 6030159552332624435L; // NOPMD
 
   private transient MapState<SensorParentKey, ActivePowerRecord> lastValueState;
   private transient ValueState<AggregatedActivePowerRecord> aggregateState;
 
   @Override
-  public void open(org.apache.flink.configuration.Configuration parameters) {
+  public void open(final Configuration parameters) {
     final MapStateDescriptor<SensorParentKey, ActivePowerRecord> lastValueStateDescriptor =
-        new MapStateDescriptor<SensorParentKey, ActivePowerRecord>(
+        new MapStateDescriptor<>(
             "last-value-state",
-            TypeInformation.of(new TypeHint<SensorParentKey>() {
-            }),
-            TypeInformation.of(new TypeHint<ActivePowerRecord>() {
-            }));
-    this.lastValueState = getRuntimeContext().getMapState(lastValueStateDescriptor);
+            TypeInformation.of(new TypeHint<SensorParentKey>() {}),
+            TypeInformation.of(new TypeHint<ActivePowerRecord>() {}));
+    this.lastValueState = this.getRuntimeContext().getMapState(lastValueStateDescriptor);
 
     final ValueStateDescriptor<AggregatedActivePowerRecord> aggregateStateDescriptor =
-        new ValueStateDescriptor<AggregatedActivePowerRecord>(
+        new ValueStateDescriptor<>(
             "aggregation-state",
-            TypeInformation.of(new TypeHint<AggregatedActivePowerRecord>() {
-            }));
-    this.aggregateState = getRuntimeContext().getState(aggregateStateDescriptor);
+            TypeInformation.of(new TypeHint<AggregatedActivePowerRecord>() {}));
+    this.aggregateState = this.getRuntimeContext().getState(aggregateStateDescriptor);
   }
 
   @Override
-  public void process(String key, Context context, Iterable<Tuple2<SensorParentKey, ActivePowerRecord>> elements, Collector<AggregatedActivePowerRecord> out) throws Exception {
-    for (Tuple2<SensorParentKey, ActivePowerRecord> t : elements) {
+  public void process(final String key, final Context context,
+      final Iterable<Tuple2<SensorParentKey, ActivePowerRecord>> elements,
+      final Collector<AggregatedActivePowerRecord> out) throws Exception {
+    for (final Tuple2<SensorParentKey, ActivePowerRecord> t : elements) {
       AggregatedActivePowerRecord currentAggregate = this.aggregateState.value();
       if (currentAggregate == null) {
         currentAggregate = new AggregatedActivePowerRecord(key, 0L, 0L, 0.0, 0.0);
@@ -71,17 +71,18 @@ public class RecordAggregationProcessWindowFunction extends ProcessWindowFunctio
       }
 
       // prefer newer timestamp, but use previous if 0 -> sensor was deleted
-      long timestamp = newRecord.getTimestamp() == 0 ? previousRecord.getTimestamp() : newRecord.getTimestamp();
-      double sumInW = currentAggregate.getSumInW() - previousRecord.getValueInW() + newRecord.getValueInW();
-      double avgInW = count == 0 ? 0 : sumInW / count;
+      final long timestamp =
+          newRecord.getTimestamp() == 0 ? previousRecord.getTimestamp() : newRecord.getTimestamp();
+      final double sumInW =
+          currentAggregate.getSumInW() - previousRecord.getValueInW() + newRecord.getValueInW();
+      final double avgInW = count == 0 ? 0 : sumInW / count;
 
-      AggregatedActivePowerRecord newAggregate = new AggregatedActivePowerRecord(
+      final AggregatedActivePowerRecord newAggregate = new AggregatedActivePowerRecord(
           sensorParentKey.getParent(),
           timestamp,
           count,
           sumInW,
-          avgInW
-      );
+          avgInW);
 
       // update state and aggregateState
       this.lastValueState.put(sensorParentKey, newRecord);

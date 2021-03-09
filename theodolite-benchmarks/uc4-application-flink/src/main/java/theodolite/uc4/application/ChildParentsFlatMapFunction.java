@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  */
 public class ChildParentsFlatMapFunction extends RichFlatMapFunction<SensorRegistry, Tuple2<String, Set<String>>> {
 
-  private static final long serialVersionUID = 3969444219510915221L;
+  private static final long serialVersionUID = 3969444219510915221L; //NOPMD
 
   private transient MapState<String, Set<String>> state;
 
