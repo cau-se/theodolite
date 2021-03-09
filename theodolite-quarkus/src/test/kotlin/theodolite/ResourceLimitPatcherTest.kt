@@ -62,25 +62,25 @@ class ResourceLimitPatcherTest {
     }
 
     @Test
-    fun case1() {
+    fun testWithExistingCpuAndMemoryDeclarations() {
         // Case 1: In the given YAML declaration memory and cpu are defined
         applyTest("cpu-memory-deployment.yaml")
     }
 
     @Test
-    fun case2() {
+    fun testOnlyWithExistingCpuDeclarations() {
         // Case 2:  In the given YAML declaration only cpu is defined
         applyTest("cpu-deployment.yaml")
     }
 
     @Test
-    fun case3() {
+    fun testOnlyWithExistingMemoryDeclarations() {
         //  Case 3:  In the given YAML declaration only memory is defined
         applyTest("memory-deployment.yaml")
     }
 
     @Test
-    fun case4() {
+    fun testWithoutResourceDeclarations() {
         // Case 4: In the given YAML declaration neither `Resource Request` nor `Request Limit` is defined
         applyTest("no-resources-deployment.yaml")
     }

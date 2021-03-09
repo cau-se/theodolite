@@ -20,23 +20,23 @@ execution:
 configOverrides:
   - patcher:
       type: "NodeSelectorPatcher"
-      resource: "workloadGenerator.yaml"
+      resource: "uc1-load-generator-deployment.yaml"
       variableName: "env"
     value: "prod"
   - patcher:
       type: "NodeSelectorPatcher"
-      resource: "aggregation-deployment.yaml"
+      resource: "uc1-kstreams-deployment.yaml"
       variableName: "env"
     value: "prod"
   - patcher:
       type: "ResourceLimitPatcher"
-      resource: "aggregation-deployment.yaml"
+      resource: "uc1-kstreams-deployment.yaml"
       container: "uc-application"
       variableName: "cpu"
     value: "50m"
   - patcher:
       type: "ResourceLimitPatcher"
-      resource: "aggregation-deployment.yaml"
+      resource: "uc1-kstreams-deployment.yaml"
       container: "uc-application"
       variableName: "memory"
     value: "2Gi"

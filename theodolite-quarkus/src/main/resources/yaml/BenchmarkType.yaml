@@ -1,20 +1,20 @@
 name: "theodolite ist cool"
 appResource:
-  - "aggregation-deployment.yaml"
+  - "uc1-kstreams-deployment.yaml"
   - "aggregation-service.yaml"
   - "jmx-configmap.yaml"
 loadGenResource:
-  - "workloadGenerator.yaml"
+  - "uc1-load-generator-deployment.yaml"
 resourceTypes:
   - typeName: "Instances"
     patchers:
       - type: "ReplicaPatcher"
-        resource: "aggregation-deployment.yaml"
+        resource: "uc1-kstreams-deployment.yaml"
 loadTypes:
   - typeName: "NumSensors"
     patchers:
       - type: "EnvVarPatcher"
-        resource: "workloadGenerator.yaml"
+        resource: "uc1-load-generator-deployment.yaml"
         container: "workload-generator"
         variableName: "NUM_SENSORS"
 kafkaConfig:
