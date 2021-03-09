@@ -155,7 +155,7 @@ public class HistoryServiceFlinkJob {
             final String newKey = keyFactory.getSensorId(tuple.f0);
             final String newValue = tuple.f1.toString();
             final int hourOfDay = tuple.f0.getHourOfDay();
-            LOGGER.info(newKey + "|" + hourOfDay + ": " + newValue);
+            LOGGER.info("{}|{}: {}", newKey, hourOfDay, newValue);
             return new Tuple2<>(newKey, newValue);
           }
         }).name("map")

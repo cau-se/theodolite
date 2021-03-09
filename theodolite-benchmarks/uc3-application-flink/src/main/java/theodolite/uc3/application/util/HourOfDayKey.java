@@ -32,15 +32,19 @@ public class HourOfDayKey {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hourOfDay, sensorId);
+    return Objects.hash(this.hourOfDay, this.sensorId);
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == this) return true;
-    if (!(obj instanceof HourOfDayKey)) return false;
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (!(obj instanceof HourOfDayKey)) {
+      return false;
+    }
     final HourOfDayKey k = (HourOfDayKey) obj;
-    return hourOfDay == k.hourOfDay && sensorId.equals(k.sensorId);
+    return this.hourOfDay == k.hourOfDay && this.sensorId.equals(k.sensorId);
   }
 
   public byte[] toByteArray() {
