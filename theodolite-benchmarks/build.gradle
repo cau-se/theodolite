@@ -87,7 +87,7 @@ configure(useCaseApplications) {
 // Dependencies for all Flink benchmarks (use case applications)
 configure(useCaseApplicationsFlink) {
   ext {
-    flinkVersion = '1.12.0'
+    flinkVersion = '1.12.2'
     scalaBinaryVersion = '2.12'
   }
 
