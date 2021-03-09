@@ -133,9 +133,7 @@ public class HistoryServiceFlinkJob {
         }).name("map")
         .addSink(kafkaSink).name("[Kafka Producer] Topic: " + outputTopic);
 
-    if (LOGGER.isInfoEnabled()) {
-      LOGGER.info("Execution Plan: " + env.getExecutionPlan());
-    }
+    LOGGER.info("Execution plan: {}", env.getExecutionPlan());
 
     try {
       env.execute(applicationId);
