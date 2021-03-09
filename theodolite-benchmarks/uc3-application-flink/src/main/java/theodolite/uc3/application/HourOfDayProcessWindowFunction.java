@@ -7,13 +7,16 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import theodolite.uc3.application.util.HourOfDayKey;
 
-public class HourOfDayProcessWindowFunction extends ProcessWindowFunction<Stats, Tuple2<HourOfDayKey, Stats>, HourOfDayKey, TimeWindow> {
+public class HourOfDayProcessWindowFunction
+    extends ProcessWindowFunction<Stats, Tuple2<HourOfDayKey, Stats>, HourOfDayKey, TimeWindow> {
+
+  private static final long serialVersionUID = 7702216563302727315L; // NOPMD
 
   @Override
   public void process(final HourOfDayKey hourOfDayKey,
-                      final Context context,
-                      final Iterable<Stats> elements,
-                      final Collector<Tuple2<HourOfDayKey, Stats>> out) {
+      final Context context,
+      final Iterable<Stats> elements,
+      final Collector<Tuple2<HourOfDayKey, Stats>> out) {
     final Stats stats = elements.iterator().next();
     out.collect(new Tuple2<>(hourOfDayKey, stats));
   }

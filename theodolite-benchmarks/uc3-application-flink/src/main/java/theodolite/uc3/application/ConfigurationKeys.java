@@ -14,7 +14,7 @@ public final class ConfigurationKeys {
   public static final String KAFKA_INPUT_TOPIC = "kafka.input.topic";
 
   public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
-  
+
   public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
 
   public static final String AGGREGATION_DURATION_DAYS = "aggregation.duration.days";
@@ -29,7 +29,8 @@ public final class ConfigurationKeys {
 
   public static final String FLINK_STATE_BACKEND_PATH = "flink.state.backend.path";
 
-  public static final String FLINK_STATE_BACKEND_MEMORY_SIZE = "flink.state.backend.memory.size";
+  public static final String FLINK_STATE_BACKEND_MEMORY_SIZE = // NOPMD
+      "flink.state.backend.memory.size";
 
   public static final String CHECKPOINTING = "checkpointing";
 
