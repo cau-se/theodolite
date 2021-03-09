@@ -2,10 +2,14 @@ package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import mu.KotlinLogging
 import theodolite.k8s.K8sResourceLoader
 import theodolite.patcher.PatcherManager
 import theodolite.util.*
-import java.util.*
+
+private val logger = KotlinLogging.logger {}
+
+private var DEFAULT_NAMESPACE = "theodolite-she"
 
 class KubernetesBenchmark : Benchmark {
     lateinit var name: String
@@ -14,11 +18,19 @@ class KubernetesBenchmark : Benchmark {
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
+    lateinit var namespace: String
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val basePath = "./../../../resources/main/yaml/"
         val parser = YamlParser()
-        val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace("theodolite-she"))
+
+        namespace = System.getenv("NAMESPACE")
+        if (namespace.isNullOrEmpty()) {
+            logger.info("No enviroment variable namespace found. Using default: $DEFAULT_NAMESPACE")
+            namespace = DEFAULT_NAMESPACE
+        }
+
+        val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
             .map { resource ->
                 val resourcePath = "$basePath/$resource"
@@ -50,6 +62,7 @@ class KubernetesBenchmark : Benchmark {
         }
 
         return KubernetesBenchmarkDeployment(
+            namespace = namespace,
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             topics = kafkaConfig.getKafkaTopics()
