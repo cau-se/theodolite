@@ -9,9 +9,9 @@ class TheodoliteYamlExecutor {
         // load the BenchmarkExecution and the BenchmarkType
         val parser = YamlParser()
         val benchmarkExecution =
-            parser.parse("./../../../resources/main/yaml/testBenchmarkExecution.yaml", BenchmarkExecution::class.java)!!
+            parser.parse("./../../../resources/main/yaml/BenchmarkExecution.yaml", BenchmarkExecution::class.java)!!
         val benchmark =
-            parser.parse("./../../../resources/main/yaml/testBenchmarkType.yaml", KubernetesBenchmark::class.java)!!
+            parser.parse("./../../../resources/main/yaml/BenchmarkType.yaml", KubernetesBenchmark::class.java)!!
 
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()

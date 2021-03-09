@@ -5,6 +5,7 @@ appResource:
   - "jmx-configmap.yaml"
 loadGenResource:
   - "uc1-load-generator-deployment.yaml"
+  - "uc1-load-generator-service.yaml"
 resourceTypes:
   - typeName: "Instances"
     patchers:
