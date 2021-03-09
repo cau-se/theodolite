@@ -26,8 +26,8 @@ services:
       - kafka
     expose:
       - "8081"
-    ports:
-      - 8081:8081
+    #ports:
+    #  - 8081:8081
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
@@ -38,16 +38,15 @@ services:
       - kafka
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
   uc-wg: 
     image: theodolite/theodolite-uc1-workload-generator:latest
     depends_on:
       - schema-registry
       - kafka
-      - zookeeper
     environment:
-      ZK_HOST: zookeeper
-      ZK_PORT: 2181
+      BOOTSTRAP_SERVER: uc-wg:5701
+      PORT: 5701
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      INSTANCES: 1
-      NUM_SENSORS: 1
+      NUM_SENSORS: 10

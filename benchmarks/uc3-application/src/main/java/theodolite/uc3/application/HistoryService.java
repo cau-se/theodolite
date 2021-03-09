@@ -1,7 +1,6 @@
 package theodolite.uc3.application;
 
 import java.time.Duration;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
@@ -19,8 +18,6 @@ public class HistoryService {
   private final Configuration config = ServiceConfigurations.createWithDefaults();
 
   private final CompletableFuture<Void> stopEvent = new CompletableFuture<>();
-  private final int windowDurationMinutes = Integer
-      .parseInt(Objects.requireNonNullElse(System.getenv("KAFKA_WINDOW_DURATION_MINUTES"), "60"));
 
   /**
    * Start the service.
@@ -34,11 +31,16 @@ public class HistoryService {
    *
    */
   private void createKafkaStreamsApplication() {
+    // Use case specific stream configuration
     final Uc3KafkaStreamsBuilder uc3KafkaStreamsBuilder = new Uc3KafkaStreamsBuilder(this.config);
     uc3KafkaStreamsBuilder
         .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
-        .windowDuration(Duration.ofMinutes(this.windowDurationMinutes));
+        .aggregtionDuration(
+            Duration.ofDays(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS)))
+        .aggregationAdvance(
+            Duration.ofDays(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS)));
 
+    // Configuration of the stream application
     final KafkaStreams kafkaStreams = uc3KafkaStreamsBuilder.build();
 
     this.stopEvent.thenRun(kafkaStreams::close);
