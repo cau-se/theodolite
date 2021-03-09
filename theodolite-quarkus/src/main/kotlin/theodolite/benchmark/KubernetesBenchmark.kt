@@ -24,11 +24,8 @@ class KubernetesBenchmark : Benchmark {
         val basePath = "./../../../resources/main/yaml/"
         val parser = YamlParser()
 
-        namespace = System.getenv("NAMESPACE")
-        if (namespace.isNullOrEmpty()) {
-            logger.info("No enviroment variable namespace found. Using default: $DEFAULT_NAMESPACE")
-            namespace = DEFAULT_NAMESPACE
-        }
+        namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+        logger.info("Using $namespace as namespace.")
 
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
