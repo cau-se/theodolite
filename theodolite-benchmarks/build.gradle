@@ -112,7 +112,7 @@ configure(useCaseApplicationsFlink) {
       implementation "org.apache.flink:flink-avro-confluent-registry:${flinkVersion}"
       compile group: 'org.apache.flink', name: "flink-runtime-web_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: remove after development
       compile group: 'org.apache.flink', name: "flink-statebackend-rocksdb_${scalaBinaryVersion}", version: "${flinkVersion}"
-      compile group: 'org.apache.flink', name: 'flink-metrics-prometheus_${scalaBinaryVersion}', version: "${flinkVersion}"
+      compile group: 'org.apache.flink', name: "flink-metrics-prometheus_${scalaBinaryVersion}", version: "${flinkVersion}"
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
