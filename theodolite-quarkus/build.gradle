@@ -26,6 +26,7 @@ dependencies {
     implementation 'io.fabric8:kubernetes-client:5.0.0-alpha-2'
     compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.7.0'
     compile group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.6.2'
+    compile "khttp:khttp:1.0.0"
 }
 
 group 'theodolite'

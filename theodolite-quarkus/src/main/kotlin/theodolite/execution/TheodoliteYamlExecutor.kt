@@ -5,6 +5,8 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.YamlParser
+import kotlin.system.exitProcess
+
 private val logger = KotlinLogging.logger {}
 
 @QuarkusMain(name = "TheodoliteYamlExecutor")
@@ -23,5 +25,6 @@ object TheodoliteYamlExecutor {
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()
         logger.info { "Theodolite finished" }
+        exitProcess(0)
     }
 }

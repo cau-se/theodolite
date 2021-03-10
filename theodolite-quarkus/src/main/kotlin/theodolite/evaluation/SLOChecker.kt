@@ -1,3 +1,6 @@
 package theodolite.evaluation
 
-interface SLOChecker {}
+interface SLOChecker {
+    fun  evaluate(start: Long, end: Long): Boolean
+
+}
