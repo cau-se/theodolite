@@ -9,7 +9,7 @@ import theodolite.util.*
 
 private val logger = KotlinLogging.logger {}
 
-private var DEFAULT_NAMESPACE = "theodolite-she"
+private var DEFAULT_NAMESPACE = "default"
 
 class KubernetesBenchmark : Benchmark {
     lateinit var name: String
@@ -25,7 +25,7 @@ class KubernetesBenchmark : Benchmark {
         val parser = YamlParser()
 
         namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-        logger.info("Using $namespace as namespace.")
+        logger.info { "Using $namespace as namespace." }
 
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
