@@ -5,15 +5,15 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.K8sManager
 import theodolite.k8s.TopicManager
-import java.util.*
 
 class KubernetesBenchmarkDeployment(
+    val namespace: String,
     val resources: List<KubernetesResource>,
     private val kafkaConfig: HashMap<String, Any>,
     private val topics: Collection<NewTopic>
 ) : BenchmarkDeployment {
     private val kafkaController = TopicManager(this.kafkaConfig)
-    private val kubernetesManager = K8sManager(DefaultKubernetesClient().inNamespace("theodolite-she"))
+    private val kubernetesManager = K8sManager(DefaultKubernetesClient().inNamespace(namespace))
 
     override fun setup() {
         kafkaController.createTopics(this.topics)
