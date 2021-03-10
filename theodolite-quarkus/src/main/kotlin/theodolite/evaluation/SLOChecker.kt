@@ -1,4 +1,3 @@
 package theodolite.evaluation
 
-interface SLOChecker {
-}
+interface SLOChecker {}

@@ -1,64 +1,44 @@
 package theodolite.execution
 
-import mu.KotlinLogging
-import theodolite.k8s.UC1Benchmark
-import theodolite.strategies.restriction.LowerBoundRestriction
+import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.KubernetesBenchmark
+import theodolite.strategies.StrategyFactory
 import theodolite.strategies.searchstrategy.CompositeStrategy
-import theodolite.strategies.searchstrategy.LinearSearch
-import theodolite.util.*
-import java.nio.file.Paths
+import theodolite.util.Config
+import theodolite.util.LoadDimension
+import theodolite.util.Resource
+import theodolite.util.Results
 import java.time.Duration
 
-private val logger = KotlinLogging.logger {}
+class TheodoliteExecutor(
+    private val config: BenchmarkExecution,
+    private val kubernetesBenchmark: KubernetesBenchmark
+) {
 
-class TheodoliteExecutor() {
-    val projectDirAbsolutePath = Paths.get("").toAbsolutePath().toString()
-    val resourcesPath = Paths.get(projectDirAbsolutePath, "./../../../resources/main/yaml/")
-    private fun loadConfig(): Config {
-        logger.info { resourcesPath }
-        val benchmark: UC1Benchmark = UC1Benchmark(
-            AbstractBenchmark.Config(
-                clusterZookeeperConnectionString = "my-confluent-cp-zookeeper:2181",
-                clusterKafkaConnectionString = "my-confluent-cp-kafka:9092",
-                externalZookeeperConnectionString = "localhost:2181",
-                externalKafkaConnectionString = "localhost:9092",
-                schemaRegistryConnectionString = "http://my-confluent-cp-schema-registry:8081",
-                kafkaPartition = 40,
-                kafkaReplication = 1,
-                kafkaTopics = listOf("input", "output"),
-                // TODO("handle path in a more nice way (not absolut)")
-                ucDeploymentPath = "$resourcesPath/aggregation-deployment.yaml",
-                ucServicePath = "$resourcesPath/aggregation-service.yaml",
-                wgDeploymentPath = "$resourcesPath/workloadGenerator.yaml",
-                configMapPath = "$resourcesPath/jmx-configmap.yaml",
-                ucImageURL = "ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest",
-                wgImageURL = "ghcr.io/cau-se/theodolite-uc1-workload-generator:theodolite-kotlin-latest"
-            )
-        )
-        val results: Results = Results()
+    private fun buildConfig(): Config {
+        val results = Results()
+        val strategyFactory = StrategyFactory()
 
-        val executionDuration = Duration.ofSeconds(60 * 5)
-
-        val executor: BenchmarkExecutor = BenchmarkExecutorImpl(benchmark, results, executionDuration)
-
-        val restrictionStrategy = LowerBoundRestriction(results)
-        val searchStrategy = LinearSearch(executor)
+        val executionDuration = Duration.ofSeconds(config.execution.duration)
+        val executor = BenchmarkExecutorImpl(kubernetesBenchmark, results, executionDuration, config.configOverrides)
 
         return Config(
-            loads = listOf(5000, 10000).map { number -> LoadDimension(number) },
-            resources = (1..6).map { number -> Resource(number) },
+            loads = config.load.loadValues.map { load -> LoadDimension(load, config.load.loadType) },
+            resources = config.resources.resourceValues.map
+            { resource -> Resource(resource, config.resources.resourceType) },
             compositeStrategy = CompositeStrategy(
-                executor,
-                searchStrategy,
-                restrictionStrategies = setOf(restrictionStrategy)
-            ),
-            executionDuration = executionDuration
+                benchmarkExecutor = executor,
+                searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy),
+                restrictionStrategies = strategyFactory.createRestrictionStrategy(
+                    results,
+                    config.execution.restrictions
+                )
+            )
         )
     }
 
     fun run() {
-        // read or get benchmark config
-        val config = this.loadConfig()
+        val config = buildConfig()
 
         // execute benchmarks for each load
         for (load in config.loads) {

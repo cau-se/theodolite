@@ -2,7 +2,6 @@ package theodolite.k8s
 
 import mu.KotlinLogging
 import org.apache.kafka.clients.admin.AdminClient
-import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.ListTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
 
@@ -10,15 +9,14 @@ private val logger = KotlinLogging.logger {}
 
 /**
  * Manages the topics related tasks
- * @param bootstrapServers Ip of the kafka server
+ * @param kafkaConfig Kafka Configuration as HashMap
  */
-class TopicManager(bootstrapServers: String) {
-    private val props = hashMapOf<String, Any>(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to bootstrapServers)
-    lateinit var kafkaAdmin: AdminClient
+class TopicManager(kafkaConfig: HashMap<String, Any>) {
+    private lateinit var kafkaAdmin: AdminClient
 
     init {
         try {
-            kafkaAdmin = AdminClient.create(props)
+            kafkaAdmin = AdminClient.create(kafkaConfig)
         } catch (e: Exception) {
             logger.error { e.toString() }
         }
@@ -26,22 +24,14 @@ class TopicManager(bootstrapServers: String) {
 
     /**
      * Creates topics.
-     * @param topics Map that holds a numPartition for each topic it should create
-     * @param replicationFactor
+     * @param newTopics List of all Topic which should be created
      */
-    fun createTopics(topics: Map<String, Int>, replicationFactor: Short) {
-
-        val newTopics = mutableSetOf<NewTopic>()
-        for (i in topics) {
-            val tops = NewTopic(i.key, i.value, replicationFactor)
-            newTopics.add(tops)
-        }
+    fun createTopics(newTopics: Collection<NewTopic>) {
         kafkaAdmin.createTopics(newTopics)
         logger.info { "Topics created" }
     }
 
     fun createTopics(topics: List<String>, numPartitions: Int, replicationFactor: Short) {
-
         val newTopics = mutableSetOf<NewTopic>()
         for (i in topics) {
             val tops = NewTopic(i, numPartitions, replicationFactor)
@@ -52,11 +42,10 @@ class TopicManager(bootstrapServers: String) {
     }
 
     /**
-     * Deletes topics.
+     * Removes topics.
      * @param topics
      */
-    fun deleteTopics(topics: List<String>) {
-
+    fun removeTopics(topics: List<String>) {
         val result = kafkaAdmin.deleteTopics(topics)
 
         try {
@@ -64,7 +53,7 @@ class TopicManager(bootstrapServers: String) {
         } catch (ex: Exception) {
             logger.error { ex.toString() }
         }
-        logger.info { "Topics deleted" }
+        logger.info { "Topics removed" }
     }
 
     fun getTopics(): ListTopicsResult? {

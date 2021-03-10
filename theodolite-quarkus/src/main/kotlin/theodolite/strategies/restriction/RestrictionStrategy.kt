@@ -1,12 +1,12 @@
 package theodolite.strategies.restriction
 
-import theodolite.util.Results
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
-
+import theodolite.util.Results
 
 /**
- * A "Restriction Strategy" restricts a list of resources based on the current results of all previously performed benchmarks.
+ * A "Restriction Strategy" restricts a list of resources based on the current
+ * results of all previously performed benchmarks.
  */
 abstract class RestrictionStrategy(val results: Results) {
     /**
@@ -14,7 +14,8 @@ abstract class RestrictionStrategy(val results: Results) {
      *
      * @param load Load dimension for which a subset of resources are required.
      * @param resources List of resources to be restricted.
-     * @return Returns a list containing only elements that have not been filtered out by the restriction (possibly empty).
+     * @return Returns a list containing only elements that have not been filtered out by the
+     * restriction (possibly empty).
      */
-    public abstract fun next(load: LoadDimension, resources: List<Resource>): List<Resource>
+    abstract fun next(load: LoadDimension, resources: List<Resource>): List<Resource>
 }

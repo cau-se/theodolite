@@ -3,7 +3,6 @@ package theodolite.strategies.searchstrategy
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
-import theodolite.util.Results
 
 class LinearSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
 
@@ -11,6 +10,6 @@ class LinearSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         for (res in resources) {
             if (this.benchmarkExecutor.runExperiment(load, res)) return res
         }
-        return null;
+        return null
     }
 }
