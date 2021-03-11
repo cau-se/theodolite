@@ -161,7 +161,7 @@ public class AggregationServiceFlinkJob {
       try {
         env.setStateBackend(new RocksDBStateBackend(stateBackendPath, true));
       } catch (final IOException e) {
-        e.printStackTrace();
+        LOGGER.error("Cannot create RocksDB state backend.", e);
       }
     } else {
       env.setStateBackend(new MemoryStateBackend(memoryStateBackendSize));
@@ -177,7 +177,7 @@ public class AggregationServiceFlinkJob {
         new ImmutableSetSerializer());
     env.getConfig().registerTypeWithKryoSerializer(Set.of(1).getClass(),
         new ImmutableSetSerializer());
-    env.getConfig().registerTypeWithKryoSerializer(Set.of(1, 2, 3, 4).getClass(),
+    env.getConfig().registerTypeWithKryoSerializer(Set.of(1, 2, 3, 4).getClass(), // NOCS
         new ImmutableSetSerializer());
 
     env.getConfig().getRegisteredTypesWithKryoSerializers()
@@ -188,14 +188,14 @@ public class AggregationServiceFlinkJob {
 
     // Build input stream
     final DataStream<ActivePowerRecord> inputStream = env.addSource(kafkaInputSource)
-        .name("[Kafka Consumer] Topic: " + inputTopic)
+        .name("[Kafka Consumer] Topic: " + inputTopic)// NOCS
         .rebalance()
         .map(r -> r)
         .name("[Map] Rebalance Forward");
 
     // Build aggregation stream
     final DataStream<ActivePowerRecord> aggregationsInputStream = env.addSource(kafkaOutputSource)
-        .name("[Kafka Consumer] Topic: " + outputTopic)
+        .name("[Kafka Consumer] Topic: " + outputTopic) // NOCS
         .rebalance()
         .map(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()))
         .name("[Map] AggregatedActivePowerRecord -> ActivePowerRecord");
@@ -210,11 +210,10 @@ public class AggregationServiceFlinkJob {
     // Build parent sensor stream from configuration stream
     final DataStream<Tuple2<String, Set<String>>> configurationsStream =
         env.addSource(kafkaConfigSource)
-            .name("[Kafka Consumer] Topic: " + configurationTopic)
+            .name("[Kafka Consumer] Topic: " + configurationTopic) // NOCS
             .filter(tuple -> tuple.f0 == Event.SENSOR_REGISTRY_CHANGED
                 || tuple.f0 == Event.SENSOR_REGISTRY_STATUS)
             .name("[Filter] SensorRegistry changed")
-            // Tuple2<Event, String> -> SensorRegistry
             .map(tuple -> SensorRegistry.fromJson(tuple.f1)).name("[Map] JSON -> SensorRegistry")
             .keyBy(sr -> 1)
             .flatMap(new ChildParentsFlatMapFunction())
@@ -227,28 +226,9 @@ public class AggregationServiceFlinkJob {
             .flatMap(new JoinAndDuplicateCoFlatMapFunction())
             .name("[CoFlatMap] Join input-config, Flatten to ((Sensor, Group), ActivePowerRecord)");
 
-    // KeyedStream<ActivePowerRecord, String> keyedStream =
-    // mergedInputStream.keyBy(ActivePowerRecord::getIdentifier);
-    //
-    // MapStateDescriptor<String, Set<String>> sensorConfigStateDescriptor =
-    // new MapStateDescriptor<>(
-    // "join-and-duplicate-state",
-    // BasicTypeInfo.STRING_TYPE_INFO,
-    // TypeInformation.of(new TypeHint<Set<String>>() {}));
-    //
-    // BroadcastStream<Tuple2<String, Set<String>>> broadcastStream =
-    // configurationsStream.keyBy(t -> t.f0).broadcast(sensorConfigStateDescriptor);
-    //
-    // DataStream<Tuple2<SensorParentKey, ActivePowerRecord>> lastValueStream =
-    // keyedStream.connect(broadcastStream)
-    // .process(new JoinAndDuplicateKeyedBroadcastProcessFunction());
-
     if (debug) {
       lastValueStream
-          .map(t -> "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + "ActivePowerRecord {"
-              + "identifier: " + t.f1.getIdentifier() + ", "
-              + "timestamp: " + t.f1.getTimestamp() + ", "
-              + "valueInW: " + t.f1.getValueInW() + " }")
+          .map(t -> "<" + t.f0.getSensor() + "|" + t.f0.getParent() + ">" + t.f1)
           .print();
     }
 
@@ -262,7 +242,6 @@ public class AggregationServiceFlinkJob {
 
     // add Kafka Sink
     aggregationStream
-        // AggregatedActivePowerRecord -> Tuple2<String, AggregatedActivePowerRecord>
         .map(value -> new Tuple2<>(value.getIdentifier(), value))
         .name("[Map] AggregatedActivePowerRecord -> (Sensor, AggregatedActivePowerRecord)")
         .returns(Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)))

@@ -7,6 +7,9 @@ import com.esotericsoftware.kryo.io.Output;
 import java.io.Serializable;
 import java.util.Set;
 
+/**
+ * A {@link Serializer} for serializing arbitrary {@link Set}s of {@link Object}s.
+ */
 public final class ImmutableSetSerializer extends Serializer<Set<Object>> implements Serializable {
 
   private static final long serialVersionUID = 6919877826110724620L; // NOPMD

@@ -1,5 +1,10 @@
 package theodolite.uc4.application;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -12,36 +17,31 @@ import titan.ccp.model.sensorregistry.AggregatedSensor;
 import titan.ccp.model.sensorregistry.Sensor;
 import titan.ccp.model.sensorregistry.SensorRegistry;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * Transforms a {@link SensorRegistry} into key value pairs of Sensor identifiers and their parents'
  * sensor identifiers. All pairs whose sensor's parents have changed since last iteration are
  * forwarded. A mapping of an identifier to <code>null</code> means that the corresponding sensor
  * does not longer exists in the sensor registry.
  */
-public class ChildParentsFlatMapFunction extends RichFlatMapFunction<SensorRegistry, Tuple2<String, Set<String>>> {
+public class ChildParentsFlatMapFunction
+    extends RichFlatMapFunction<SensorRegistry, Tuple2<String, Set<String>>> {
 
-  private static final long serialVersionUID = 3969444219510915221L; //NOPMD
+  private static final long serialVersionUID = 3969444219510915221L; // NOPMD
 
   private transient MapState<String, Set<String>> state;
 
   @Override
-  public void open(Configuration parameters) {
-    MapStateDescriptor<String, Set<String>> descriptor =
-        new MapStateDescriptor<String, Set<String>>(
+  public void open(final Configuration parameters) {
+    final MapStateDescriptor<String, Set<String>> descriptor =
+        new MapStateDescriptor<>(
             "child-parents-state",
-            TypeInformation.of(new TypeHint<String>(){}),
-            TypeInformation.of(new TypeHint<Set<String>>(){}));
-    this.state = getRuntimeContext().getMapState(descriptor);
+            TypeInformation.of(new TypeHint<String>() {}),
+            TypeInformation.of(new TypeHint<Set<String>>() {}));
+    this.state = this.getRuntimeContext().getMapState(descriptor);
   }
 
   @Override
-  public void flatMap(SensorRegistry value, Collector<Tuple2<String, Set<String>>> out)
+  public void flatMap(final SensorRegistry value, final Collector<Tuple2<String, Set<String>>> out)
       throws Exception {
     final Map<String, Set<String>> childParentsPairs = this.constructChildParentsPairs(value);
     this.updateChildParentsPairs(childParentsPairs);
@@ -71,7 +71,7 @@ public class ChildParentsFlatMapFunction extends RichFlatMapFunction<SensorRegis
   }
 
   private void updateChildParentsPairs(final Map<String, Set<String>> childParentsPairs)
-      throws Exception {
+      throws Exception { // NOPMD General exception thown by Flink
     final Iterator<Map.Entry<String, Set<String>>> oldChildParentsPairs = this.state.iterator();
     while (oldChildParentsPairs.hasNext()) {
       final Map.Entry<String, Set<String>> oldChildParentPair = oldChildParentsPairs.next();
@@ -89,7 +89,8 @@ public class ChildParentsFlatMapFunction extends RichFlatMapFunction<SensorRegis
     }
   }
 
-  private void updateState(final Map<String, Set<String>> childParentsPairs) throws Exception {
+  private void updateState(final Map<String, Set<String>> childParentsPairs)
+      throws Exception { // NOPMD General exception thown by Flink
     for (final Map.Entry<String, Set<String>> childParentPair : childParentsPairs.entrySet()) {
       if (childParentPair.getValue() == null) {
         this.state.remove(childParentPair.getKey());

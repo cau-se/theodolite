@@ -7,6 +7,9 @@ import com.esotericsoftware.kryo.io.Output;
 import java.io.Serializable;
 import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
+/**
+ * A {@link Serializer} for {@link ImmutableSensorRegistry}s.
+ */
 public class ImmutableSensorRegistrySerializer extends Serializer<ImmutableSensorRegistry>
     implements Serializable {
 

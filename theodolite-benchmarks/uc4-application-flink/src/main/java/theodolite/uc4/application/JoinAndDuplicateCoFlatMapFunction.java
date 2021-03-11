@@ -12,6 +12,12 @@ import org.apache.flink.util.Collector;
 import theodolite.uc4.application.util.SensorParentKey;
 import titan.ccp.model.records.ActivePowerRecord;
 
+/**
+ * A {@link RichCoFlatMapFunction} which joins each incoming {@link ActivePowerRecord} with its
+ * corresponding parents. The {@link ActivePowerRecord} is duplicated for each parent. When
+ * receiving a new set of parents for a sensor, this operator updates its internal state and
+ * forwards "tombstone" record if a sensor does no longer have a certain parent.
+ */
 public class JoinAndDuplicateCoFlatMapFunction extends
     RichCoFlatMapFunction<ActivePowerRecord, Tuple2<String, Set<String>>, Tuple2<SensorParentKey, ActivePowerRecord>> { // NOCS
 
@@ -44,17 +50,17 @@ public class JoinAndDuplicateCoFlatMapFunction extends
   @Override
   public void flatMap2(final Tuple2<String, Set<String>> value,
       final Collector<Tuple2<SensorParentKey, ActivePowerRecord>> out) throws Exception {
-    final Set<String> oldParents = this.state.get(value.f0);
-    if (oldParents != null) {
-      final Set<String> newParents = value.f1;
-      if (!newParents.equals(oldParents)) {
-        for (final String oldParent : oldParents) {
-          if (!newParents.contains(oldParent)) {
-            out.collect(new Tuple2<>(new SensorParentKey(value.f0, oldParent), null));
-          }
+    final String sensor = value.f0;
+    final Set<String> oldParents = this.state.get(sensor);
+    final Set<String> newParents = value.f1;
+    if (oldParents != null && !newParents.equals(oldParents)) {
+      for (final String oldParent : oldParents) {
+        if (!newParents.contains(oldParent)) {
+          // Parent was deleted, emit tombstone record
+          out.collect(new Tuple2<>(new SensorParentKey(sensor, oldParent), null));
         }
       }
     }
-    this.state.put(value.f0, value.f1);
+    this.state.put(sensor, newParents);
   }
 }
