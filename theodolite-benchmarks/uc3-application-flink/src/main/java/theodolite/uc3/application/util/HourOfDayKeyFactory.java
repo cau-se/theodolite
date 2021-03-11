@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
  */
 public class HourOfDayKeyFactory implements StatsKeyFactory<HourOfDayKey>, Serializable {
 
+  private static final long serialVersionUID = 4357668496473645043L; // NOPMD
+
   @Override
   public HourOfDayKey createKey(final String sensorId, final LocalDateTime dateTime) {
     final int hourOfDay = dateTime.getHour();

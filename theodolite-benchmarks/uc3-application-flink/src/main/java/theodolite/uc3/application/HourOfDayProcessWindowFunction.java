@@ -7,6 +7,10 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import theodolite.uc3.application.util.HourOfDayKey;
 
+/**
+ * A {@link ProcessWindowFunction} that forwards a computed {@link Stats} object along with its
+ * associated key.
+ */
 public class HourOfDayProcessWindowFunction
     extends ProcessWindowFunction<Stats, Tuple2<HourOfDayKey, Stats>, HourOfDayKey, TimeWindow> {
 
