@@ -2,7 +2,8 @@ from sklearn.linear_model import LinearRegression
 import pandas as pd
 import os
 
-def compute(input, warmup_sec):
+def compute(x, warmup_sec):
+    input = x
     input['sec_start'] = input.loc[0:, 'timestamp'] - input.iloc[0]['timestamp']
     regress = input.loc[input['sec_start'] >= warmup_sec] # Warm-Up
 
