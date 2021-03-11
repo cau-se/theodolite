@@ -1,7 +1,6 @@
 package theodolite.uc2.application;
 
 import com.google.common.math.Stats;
-import java.io.IOException;
 import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -10,10 +9,8 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
-import org.apache.flink.runtime.state.memory.MemoryStateBackend;
+import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
@@ -24,6 +21,7 @@ import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.StateBackends;
 import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
 import theodolite.commons.flink.serialization.StatsSerializer;
 import titan.ccp.common.configuration.ServiceConfigurations;
@@ -49,14 +47,8 @@ public class HistoryServiceFlinkJob {
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final int windowDuration = this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES);
-    final String stateBackend =
-        this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND, "").toLowerCase();
-    final String stateBackendPath = this.config
-        .getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
-    final int memoryStateBackendSize =
-        this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE,
-            MemoryStateBackend.DEFAULT_MAX_STATE_SIZE);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
+    final StateBackend stateBackend = StateBackends.fromConfiguration(this.config);
 
     final Properties kafkaProps = new Properties();
     kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
@@ -69,7 +61,6 @@ public class HistoryServiceFlinkJob {
 
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource = new FlinkKafkaConsumer<>(
         inputTopic, sourceSerde, kafkaProps);
-
     kafkaSource.setStartFromGroupOffsets();
     if (checkpointing) {
       kafkaSource.setCommitOffsetsOnCheckpoints(true);
@@ -81,7 +72,7 @@ public class HistoryServiceFlinkJob {
             Serdes::String,
             Serdes::String,
             TypeInformation.of(new TypeHint<Tuple2<String, String>>() {}));
-    kafkaProps.setProperty("transaction.timeout.ms", "" + 5 * 60 * 1000);
+    kafkaProps.setProperty("transaction.timeout.ms", "" + 5 * 60 * 1000); // TODO necessary?
     final FlinkKafkaProducer<Tuple2<String, String>> kafkaSink = new FlinkKafkaProducer<>(
         outputTopic, sinkSerde, kafkaProps, FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
     kafkaSink.setWriteTimestampToKafka(true);
@@ -94,17 +85,7 @@ public class HistoryServiceFlinkJob {
     }
 
     // State Backend
-    if (stateBackend.equals("filesystem")) {
-      env.setStateBackend(new FsStateBackend(stateBackendPath));
-    } else if (stateBackend.equals("rocksdb")) {
-      try {
-        env.setStateBackend(new RocksDBStateBackend(stateBackendPath, true));
-      } catch (final IOException e) {
-        LOGGER.error("Cannot create RocksDB state backend.", e);
-      }
-    } else {
-      env.setStateBackend(new MemoryStateBackend(memoryStateBackendSize));
-    }
+    env.setStateBackend(stateBackend);
 
     env.getConfig().registerTypeWithKryoSerializer(Stats.class, new StatsSerializer());
     env.getConfig().getRegisteredTypesWithKryoSerializers()

@@ -1,7 +1,6 @@
 package theodolite.uc3.application;
 
 import com.google.common.math.Stats;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,10 +13,8 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
-import org.apache.flink.runtime.state.memory.MemoryStateBackend;
+import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
@@ -27,6 +24,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.StateBackends;
 import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
 import theodolite.commons.flink.serialization.StatsSerializer;
 import theodolite.uc3.application.util.HourOfDayKey;
@@ -62,13 +60,7 @@ public class HistoryServiceFlinkJob {
         Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
     final Time aggregationAdvance =
         Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
-    final String stateBackend =
-        this.config.getString(ConfigurationKeys.FLINK_STATE_BACKEND, "").toLowerCase();
-    final String stateBackendPath = this.config
-        .getString(ConfigurationKeys.FLINK_STATE_BACKEND_PATH, "/opt/flink/statebackend");
-    final int memoryStateBackendSize =
-        this.config.getInt(ConfigurationKeys.FLINK_STATE_BACKEND_MEMORY_SIZE,
-            MemoryStateBackend.DEFAULT_MAX_STATE_SIZE);
+    final StateBackend stateBackend = StateBackends.fromConfiguration(this.config);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final Properties kafkaProps = new Properties();
@@ -110,17 +102,7 @@ public class HistoryServiceFlinkJob {
     }
 
     // State Backend
-    if (stateBackend.equals("filesystem")) {
-      env.setStateBackend(new FsStateBackend(stateBackendPath));
-    } else if (stateBackend.equals("rocksdb")) {
-      try {
-        env.setStateBackend(new RocksDBStateBackend(stateBackendPath, true));
-      } catch (final IOException e) {
-        LOGGER.error("Cannot create RocksDB state backend.", e);
-      }
-    } else {
-      env.setStateBackend(new MemoryStateBackend(memoryStateBackendSize));
-    }
+    env.setStateBackend(stateBackend);
 
     // Kryo serializer registration
     env.getConfig().registerTypeWithKryoSerializer(HourOfDayKey.class, new HourOfDayKeySerde());
