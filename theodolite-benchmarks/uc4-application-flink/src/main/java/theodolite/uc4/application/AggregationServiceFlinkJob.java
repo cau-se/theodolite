@@ -123,7 +123,7 @@ public class AggregationServiceFlinkJob {
             outputTopic,
             Serdes::String,
             () -> new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl).forValues(),
-            TypeInformation.of(new TypeHint<Tuple2<String, AggregatedActivePowerRecord>>() {}));
+            Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
 
     final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaAggregationSink =
         new FlinkKafkaProducer<>(

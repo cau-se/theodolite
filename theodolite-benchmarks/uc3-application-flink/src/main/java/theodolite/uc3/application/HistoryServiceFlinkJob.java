@@ -8,8 +8,6 @@ import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -87,7 +85,7 @@ public class HistoryServiceFlinkJob {
         new FlinkKafkaKeyValueSerde<>(outputTopic,
             Serdes::String,
             Serdes::String,
-            TypeInformation.of(new TypeHint<Tuple2<String, String>>() {}));
+            Types.TUPLE(Types.STRING, Types.STRING));
 
     final FlinkKafkaProducer<Tuple2<String, String>> kafkaSink = new FlinkKafkaProducer<>(
         outputTopic, sinkSerde, kafkaProps, FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
