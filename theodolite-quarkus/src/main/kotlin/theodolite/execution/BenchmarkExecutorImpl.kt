@@ -24,7 +24,7 @@ class BenchmarkExecutorImpl(
         // todo evaluate
         val result = SLOCheckerImpl("http://localhost:32656")
             .evaluate( //TODO FIX HERE
-                Instant.now().toEpochMilli() - 3600 * 2000, //executionDuration.toMillis(),
+                Instant.now().toEpochMilli() - executionDuration.toMillis(),
                 Instant.now().toEpochMilli()
             )
         this.results.setResult(Pair(load, res), result)
