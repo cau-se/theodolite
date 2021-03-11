@@ -39,6 +39,7 @@ abstract class BenchmarkExecutor(
      *
      */
     fun waitAndLog() {
+        logger.info { "Execution of a new benchmark started." }
         for (i in 1.rangeTo(executionDuration.toMinutes())) {
             Thread.sleep(Duration.ofMinutes(1).toMillis())
             logger.info { "Executed: $i minutes" }

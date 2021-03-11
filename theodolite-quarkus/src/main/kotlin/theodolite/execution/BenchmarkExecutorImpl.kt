@@ -1,13 +1,11 @@
 package theodolite.execution
 
 import theodolite.benchmark.Benchmark
-import theodolite.evaluation.SLOChecker
 import theodolite.evaluation.SLOCheckerImpl
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
-import java.sql.Time
 import java.time.Duration
 import java.time.Instant
 
@@ -24,8 +22,10 @@ class BenchmarkExecutorImpl(
         benchmarkDeployment.teardown()
         // todo evaluate
         val result = SLOCheckerImpl("http://localhost:32656")
-            .evaluate(Instant.now().toEpochMilli() - executionDuration.toMillis(),
-                Instant.now().toEpochMilli())
+            .evaluate( //TODO FIX HERE
+                Instant.now().toEpochMilli() - 3600 * 2000, //executionDuration.toMillis(),
+                Instant.now().toEpochMilli()
+            )
         this.results.setResult(Pair(load, res), result)
         return result
     }

@@ -12,10 +12,12 @@ class MetricFetcher(private val prometheusURL: String) {
             "query" to query,
             "start" to toISODate(start),
             "end" to toISODate(end),
-            "step" to "5s")
+            "step" to "5s"
+        )
 
         val response = get("$prometheusURL/api/v1/query_range", params = parameter)
-        return response.jsonObject.getJSONObject("data").getJSONArray("result").getJSONObject(0)["values"]
+        //TODO FIX: NOTHING RECEIVED
+        return response.jsonObject.getJSONObject("data").getJSONArray("result")//.getJSONObject(0)["values"]
     }
 
     private fun toISODate(timestamp: Long): String {
