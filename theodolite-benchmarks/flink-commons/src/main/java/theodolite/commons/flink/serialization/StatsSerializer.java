@@ -9,11 +9,11 @@ import com.google.common.math.Stats;
 import java.io.Serializable;
 
 /**
- * Custom Kryo Serializer for efficient transmission between Flink instances.
+ * Custom Kryo {@link Serializer} for efficient transmission between Flink instances.
  */
 public class StatsSerializer extends Serializer<Stats> implements Serializable {
 
-  private static final long serialVersionUID = -1276866176534267373L;
+  private static final long serialVersionUID = -1276866176534267373L; //NOPMD
 
   @Override
   public void write(final Kryo kryo, final Output output, final Stats object) {
