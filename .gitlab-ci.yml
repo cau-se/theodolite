@@ -176,7 +176,6 @@ deploy-uc4-load-generator:
 # Theodolite Framework
 
 .theodolite:
-  #image: openjdk:11-jdk
   image: ghcr.io/graalvm/graalvm-ce:java11-21.0.0.2
   tags:
     - exec-docker
@@ -204,8 +203,9 @@ build-theodolite-native:
   stage: build
   extends: .theodolite
   before_script:
+  script:
     - gu install native-image # TODO move to image
-  script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
+    - ./gradlew --build-cache assemble -Dquarkus.package.type=native
   artifacts:
     paths:
       - "theodolite-quarkus/build/*-runner"
