@@ -1,4 +1,4 @@
-# Slope Evaluator
+# Lag Trend SLO Evaluator
 
 ## Execution
 
