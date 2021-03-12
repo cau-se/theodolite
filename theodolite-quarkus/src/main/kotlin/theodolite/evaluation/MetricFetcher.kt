@@ -13,7 +13,9 @@ private val logger = KotlinLogging.logger {}
 
 class MetricFetcher(private val prometheusURL: String) {
 
+    // Instant
     fun fetchMetric(start: Long, end: Long, query: String): PrometheusResponse {
+        // TODO handle timeouts
         var trys = 0
         val parameter = mapOf(
             "query" to query,
@@ -40,6 +42,7 @@ class MetricFetcher(private val prometheusURL: String) {
         throw ConnectException("No answer from Prometheus received")
     }
 
+    // TODO required?
     private fun toISODate(timestamp: Long): String {
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'")
         val date = Date(timestamp - (3600 * 1000))//subtract 1h since cluster is in another timezone
