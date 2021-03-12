@@ -1,4 +1,4 @@
-rootProject.name = 'scalability-benchmarking'
+rootProject.name = 'theodolite-benchmarks'
 
 include 'workload-generator-commons'
 include 'application-kafkastreams-commons'
