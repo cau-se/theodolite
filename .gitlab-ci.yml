@@ -203,7 +203,8 @@ build-theodolite-jvm:
 build-theodolite-native:
   stage: build
   extends: .theodolite
-  before_script: gu install native-image # TODO move to image
+  before_script:
+    - gu install native-image # TODO move to image
   script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
   artifacts:
     paths:
@@ -224,7 +225,6 @@ test-theodolite:
   extends: .theodolite
   needs:
     - build-theodolite-jvm
-    - build-theodolite-native
     - test-theodolite
   script: ./gradlew ktlintCheck --continue
 
@@ -234,7 +234,6 @@ test-theodolite:
   extends: .theodolite
   needs:
     - build-theodolite-jvm
-    - build-theodolite-native
     - test-theodolite
   script: ./gradlew detekt --continue
 
@@ -244,7 +243,7 @@ deploy-theodolite:
     - .theodolite
     - .dind
   needs:
-    - build-theodolite
+    - build-theodolite-native
     - test-theodolite
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
