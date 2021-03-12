@@ -12,6 +12,9 @@ dependencies {
     compile group: 'org.apache.flink', name: "flink-statebackend-rocksdb_${scalaBinaryVersion}", version: "${flinkVersion}"
     compile group: 'org.apache.flink', name: "flink-runtime_${scalaBinaryVersion}", version: "${flinkVersion}"
     compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
+    compile group: 'org.apache.flink', name: "flink-streaming-java_${scalaBinaryVersion}", version:"${flinkVersion}"
+    implementation "org.apache.flink:flink-avro:${flinkVersion}"
+    implementation "org.apache.flink:flink-avro-confluent-registry:${flinkVersion}"
     
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
