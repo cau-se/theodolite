@@ -124,29 +124,53 @@ spotbugs-benchmarks:
       when: manual
       allow_failure: true
 
-deploy-uc1-kstreams-app:
+deploy-uc1-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-application"
 
-deploy-uc2-kstreams-app:
+deploy-uc2-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
     JAVA_PROJECT_NAME: "uc2-application"
 
-deploy-uc3-kstreams-app:
+deploy-uc3-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
     JAVA_PROJECT_NAME: "uc3-application"
 
-deploy-uc4-kstreams-app:
+deploy-uc4-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-application"
+
+deploy-uc1-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-flink"
+    JAVA_PROJECT_NAME: "uc1-application-flink"
+
+deploy-uc2-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-flink"
+    JAVA_PROJECT_NAME: "uc2-application-flink"
+
+deploy-uc3-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-flink"
+    JAVA_PROJECT_NAME: "uc3-application-flink"
+
+deploy-uc4-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-flink"
+    JAVA_PROJECT_NAME: "uc4-application-flink"
 
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks
