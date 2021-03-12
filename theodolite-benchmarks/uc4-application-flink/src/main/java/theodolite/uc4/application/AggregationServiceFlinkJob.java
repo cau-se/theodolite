@@ -38,7 +38,7 @@ import titan.ccp.model.sensorregistry.SensorRegistry;
 /**
  * The Aggregation microservice implemented as a Flink job.
  */
-public class AggregationServiceFlinkJob {
+public final class AggregationServiceFlinkJob {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AggregationServiceFlinkJob.class);
 
