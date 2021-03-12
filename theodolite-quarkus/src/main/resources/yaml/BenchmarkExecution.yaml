@@ -11,6 +11,10 @@ resources:
 slos:
   - sloType: "slo type"
     threshold: 1000
+    prometheusUrl: "http://localhost:32656"
+    externalSloUrl: "http://127.0.0.1:8000/evaluate-slope"
+    offset: 0
+    warmup: 0
 execution:
   strategy: "LinearSearch"
   duration: 60

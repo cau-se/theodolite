@@ -6,17 +6,25 @@ import java.net.ConnectException
 import java.time.Duration
 import java.time.Instant
 
-class SLOCheckerImpl(private val prometheusURL: String, private val threshold: Int, private val offset: Duration) :
-    SLOChecker {
+class SloCheckerImpl(
+    private val prometheusURL: String,
+    private val query: String,
+    private val externalSlopeURL: String,
+    private val threshold: Int,
+    private val offset: Duration,
+    private val warmup: Int
+) :
+    SloChecker {
 
     override fun evaluate(start: Instant, end: Instant): Boolean {
         var counter = 0
         val metricFetcher = MetricFetcher(prometheusURL = prometheusURL, offset = offset)
-        val fetchedData = metricFetcher.fetchMetric(start, end, "sum by(group)(kafka_consumergroup_group_lag >= 0)")
-        val data = Gson().toJson(mapOf("total_lag" to fetchedData.data?.result, "threshold" to threshold))
+        val fetchedData = metricFetcher.fetchMetric(start, end, query)
+        val data =
+            Gson().toJson(mapOf("total_lag" to fetchedData.data?.result, "threshold" to threshold, "warmup" to warmup))
 
         while (counter < 2) {
-            val result = post("http://127.0.0.1:8000/evaluate-slope", data = data, timeout = 60.0)
+            val result = post(externalSlopeURL, data = data, timeout = 60.0)
             if (result.statusCode != 200) {
                 counter++
             } else {
