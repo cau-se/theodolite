@@ -2,6 +2,6 @@ package theodolite.evaluation
 
 import java.time.Instant
 
-interface SLOChecker {
+interface SloChecker {
     fun evaluate(start: Instant, end: Instant): Boolean
 }

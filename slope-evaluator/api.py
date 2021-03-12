@@ -14,7 +14,7 @@ logger = logging.getLogger("Api")
 
 logger.setLevel(logging.INFO)
 
-def execute(results, threshold):
+def execute(results, threshold, warmup):
     d = []
     for result in results:
         group = result['metric']['group']
@@ -26,7 +26,7 @@ def execute(results, threshold):
 
     logger.info(df)
     try:
-        trend_slope = trend_slope_computer.compute(df, 0)
+        trend_slope = trend_slope_computer.compute(df, warmup)
     except Exception as e:
         err_msg = 'Computing trend slope failed'
         logger.exception(err_msg)
@@ -41,4 +41,4 @@ def execute(results, threshold):
 async def evaluate_slope(request: Request):
     data = json.loads(await request.body())
     logger.info("Request received")
-    return execute(data['total_lag'], data['threshold'])
+    return execute(data['total_lag'], data['threshold'],data['warmup'])
