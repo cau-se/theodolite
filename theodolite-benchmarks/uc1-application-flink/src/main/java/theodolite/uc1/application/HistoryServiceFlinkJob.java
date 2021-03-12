@@ -13,7 +13,7 @@ import titan.ccp.model.records.ActivePowerRecord;
 /**
  * The History microservice implemented as a Flink job.
  */
-public class HistoryServiceFlinkJob {
+public final class HistoryServiceFlinkJob {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryServiceFlinkJob.class);
 
@@ -24,7 +24,7 @@ public class HistoryServiceFlinkJob {
   /**
    * Create a new instance of the {@link HistoryServiceFlinkJob}.
    */
-  public final HistoryServiceFlinkJob() {
+  public HistoryServiceFlinkJob() {
     final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
     final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
     this.applicationId = applicationName + "-" + applicationVersion;
