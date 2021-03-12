@@ -3,7 +3,7 @@ package theodolite.execution
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
-import theodolite.evaluation.SloCheckerImpl
+import theodolite.evaluation.ExternalSLOChecker
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
@@ -30,7 +30,7 @@ class BenchmarkExecutorImpl(
 
         var result = false
         try {
-            result = SloCheckerImpl(
+            result = ExternalSLOChecker(
                 slo.prometheusUrl,
                 "sum by(group)(kafka_consumergroup_group_lag >= 0)",
                 slo.externalSloUrl,
