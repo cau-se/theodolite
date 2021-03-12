@@ -1,14 +1,12 @@
 package theodolite.uc1.application;
 
-import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.KafkaConnectorFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -31,21 +29,11 @@ public class HistoryServiceFlinkJob {
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
-    final Properties kafkaProps = new Properties();
-    kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
-    kafkaProps.setProperty("group.id", applicationId);
-
-    final DeserializationSchema<ActivePowerRecord> serde =
-        ConfluentRegistryAvroDeserializationSchema.forSpecific(
-            ActivePowerRecord.class,
-            schemaRegistryUrl);
+    final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(
+        applicationId, kafkaBroker, checkpointing, schemaRegistryUrl);
 
     final FlinkKafkaConsumer<ActivePowerRecord> kafkaConsumer =
-        new FlinkKafkaConsumer<>(inputTopic, serde, kafkaProps);
-    kafkaConsumer.setStartFromGroupOffsets();
-    if (checkpointing) {
-      kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
-    }
+        kafkaConnector.createConsumer(inputTopic, ActivePowerRecord.class);
 
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
     if (checkpointing) {

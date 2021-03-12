@@ -4,14 +4,10 @@ import com.google.common.math.Stats;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
 import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -22,8 +18,8 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.KafkaConnectorFactory;
 import theodolite.commons.flink.StateBackends;
-import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
 import theodolite.commons.flink.serialization.StatsSerializer;
 import theodolite.uc3.application.util.HourOfDayKey;
 import theodolite.uc3.application.util.HourOfDayKeyFactory;
@@ -31,7 +27,6 @@ import theodolite.uc3.application.util.HourOfDayKeySerde;
 import theodolite.uc3.application.util.StatsKeyFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 import titan.ccp.model.records.ActivePowerRecord;
-
 
 /**
  * The History microservice implemented as a Flink job.
@@ -52,44 +47,25 @@ public class HistoryServiceFlinkJob {
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
-    final String timeZoneString = this.config.getString(ConfigurationKeys.TIME_ZONE);
-    final ZoneId timeZone = ZoneId.of(timeZoneString);
+    final ZoneId timeZone = ZoneId.of(this.config.getString(ConfigurationKeys.TIME_ZONE));
     final Time aggregationDuration =
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+        Time.seconds(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
     final Time aggregationAdvance =
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+        Time.seconds(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
     final StateBackend stateBackend = StateBackends.fromConfiguration(this.config);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
-    final Properties kafkaProps = new Properties();
-    kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
-    kafkaProps.setProperty("group.id", applicationId);
+    final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(
+        applicationId, kafkaBroker, checkpointing, schemaRegistryUrl);
 
-    // Sources and Sinks with Serializer and Deserializer
-
-    final DeserializationSchema<ActivePowerRecord> sourceSerde =
-        ConfluentRegistryAvroDeserializationSchema.forSpecific(
-            ActivePowerRecord.class,
-            schemaRegistryUrl);
-
-    final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource = new FlinkKafkaConsumer<>(
-        inputTopic, sourceSerde, kafkaProps);
-
-    kafkaSource.setStartFromGroupOffsets();
-    if (checkpointing) {
-      kafkaSource.setCommitOffsetsOnCheckpoints(true);
-    }
-    kafkaSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
-
-    final FlinkKafkaKeyValueSerde<String, String> sinkSerde =
-        new FlinkKafkaKeyValueSerde<>(outputTopic,
+    // Sources and Sinks
+    final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource =
+        kafkaConnector.createConsumer(inputTopic, ActivePowerRecord.class);
+    final FlinkKafkaProducer<Tuple2<String, String>> kafkaSink =
+        kafkaConnector.createProducer(outputTopic,
             Serdes::String,
             Serdes::String,
             Types.TUPLE(Types.STRING, Types.STRING));
-
-    final FlinkKafkaProducer<Tuple2<String, String>> kafkaSink = new FlinkKafkaProducer<>(
-        outputTopic, sinkSerde, kafkaProps, FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
-    kafkaSink.setWriteTimestampToKafka(true);
 
     // Execution environment configuration
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

@@ -1,13 +1,9 @@
 package theodolite.uc2.application;
 
 import com.google.common.math.Stats;
-import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
 import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -15,12 +11,11 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
-import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.KafkaConnectorFactory;
 import theodolite.commons.flink.StateBackends;
-import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
 import theodolite.commons.flink.serialization.StatsSerializer;
 import titan.ccp.common.configuration.ServiceConfigurations;
 import titan.ccp.model.records.ActivePowerRecord;
@@ -48,32 +43,17 @@ public class HistoryServiceFlinkJob {
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
     final StateBackend stateBackend = StateBackends.fromConfiguration(this.config);
 
-    final Properties kafkaProps = new Properties();
-    kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
-    kafkaProps.setProperty("group.id", applicationId);
+    final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(
+        applicationId, kafkaBroker, checkpointing, schemaRegistryUrl);
 
-    final DeserializationSchema<ActivePowerRecord> sourceSerde =
-        ConfluentRegistryAvroDeserializationSchema.forSpecific(
-            ActivePowerRecord.class,
-            schemaRegistryUrl);
+    final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource =
+        kafkaConnector.createConsumer(inputTopic, ActivePowerRecord.class);
 
-    final FlinkKafkaConsumer<ActivePowerRecord> kafkaSource = new FlinkKafkaConsumer<>(
-        inputTopic, sourceSerde, kafkaProps);
-    kafkaSource.setStartFromGroupOffsets();
-    if (checkpointing) {
-      kafkaSource.setCommitOffsetsOnCheckpoints(true);
-    }
-    kafkaSource.assignTimestampsAndWatermarks(WatermarkStrategy.forMonotonousTimestamps());
-
-    final KafkaSerializationSchema<Tuple2<String, String>> sinkSerde =
-        new FlinkKafkaKeyValueSerde<>(outputTopic,
+    final FlinkKafkaProducer<Tuple2<String, String>> kafkaSink =
+        kafkaConnector.createProducer(outputTopic,
             Serdes::String,
             Serdes::String,
             Types.TUPLE(Types.STRING, Types.STRING));
-    kafkaProps.setProperty("transaction.timeout.ms", "" + 5 * 60 * 1000); // TODO necessary?
-    final FlinkKafkaProducer<Tuple2<String, String>> kafkaSink = new FlinkKafkaProducer<>(
-        outputTopic, sinkSerde, kafkaProps, FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
-    kafkaSink.setWriteTimestampToKafka(true);
 
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 

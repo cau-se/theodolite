@@ -1,17 +1,13 @@
 package theodolite.uc4.application;
 
 import java.time.Duration;
-import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
 import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -23,8 +19,9 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import theodolite.commons.flink.KafkaConnectorFactory;
 import theodolite.commons.flink.StateBackends;
-import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
+import theodolite.commons.flink.TupleType;
 import theodolite.uc4.application.util.ImmutableSensorRegistrySerializer;
 import theodolite.uc4.application.util.ImmutableSetSerializer;
 import theodolite.uc4.application.util.SensorParentKey;
@@ -67,71 +64,32 @@ public class AggregationServiceFlinkJob {
     final boolean debug = this.config.getBoolean(ConfigurationKeys.DEBUG, true);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
-    final Properties kafkaProps = new Properties();
-    kafkaProps.setProperty("bootstrap.servers", kafkaBroker);
-    kafkaProps.setProperty("group.id", applicationId);
-
-    // Sources and Sinks with Serializer and Deserializer
+    final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(
+        applicationId, kafkaBroker, checkpointing, schemaRegistryUrl);
 
     // Source from input topic with ActivePowerRecords
-    final DeserializationSchema<ActivePowerRecord> inputSerde =
-        ConfluentRegistryAvroDeserializationSchema.forSpecific(
-            ActivePowerRecord.class,
-            schemaRegistryUrl);
-
-    final FlinkKafkaConsumer<ActivePowerRecord> kafkaInputSource = new FlinkKafkaConsumer<>(
-        inputTopic, inputSerde, kafkaProps);
-
-    kafkaInputSource.setStartFromGroupOffsets();
-    if (checkpointing) {
-      kafkaInputSource.setCommitOffsetsOnCheckpoints(true);
-    }
+    final FlinkKafkaConsumer<ActivePowerRecord> kafkaInputSource =
+        kafkaConnector.createConsumer(inputTopic, ActivePowerRecord.class);
+    // TODO Watermarks?
 
     // Source from output topic with AggregatedPowerRecords
-    final DeserializationSchema<AggregatedActivePowerRecord> outputSerde =
-        ConfluentRegistryAvroDeserializationSchema.forSpecific(
-            AggregatedActivePowerRecord.class,
-            schemaRegistryUrl);
-
     final FlinkKafkaConsumer<AggregatedActivePowerRecord> kafkaOutputSource =
-        new FlinkKafkaConsumer<>(
-            outputTopic, outputSerde, kafkaProps);
+        kafkaConnector.createConsumer(outputTopic, AggregatedActivePowerRecord.class);
 
-    kafkaOutputSource.setStartFromGroupOffsets();
-    if (checkpointing) {
-      kafkaOutputSource.setCommitOffsetsOnCheckpoints(true);
-    }
-
-    // Source from configuration topic with EventSensorRegistry JSON
-    final FlinkKafkaKeyValueSerde<Event, String> configSerde =
-        new FlinkKafkaKeyValueSerde<>(
+    final FlinkKafkaConsumer<Tuple2<Event, String>> kafkaConfigSource =
+        kafkaConnector.createConsumer(
             configurationTopic,
             EventSerde::serde,
             Serdes::String,
-            TypeInformation.of(new TypeHint<Tuple2<Event, String>>() {}));
-
-    final FlinkKafkaConsumer<Tuple2<Event, String>> kafkaConfigSource = new FlinkKafkaConsumer<>(
-        configurationTopic, configSerde, kafkaProps);
-    kafkaConfigSource.setStartFromGroupOffsets();
-    if (checkpointing) {
-      kafkaConfigSource.setCommitOffsetsOnCheckpoints(true);
-    }
+            TupleType.of(TypeInformation.of(Event.class), Types.STRING));
 
     // Sink to output topic with SensorId, AggregatedActivePowerRecord
-    final FlinkKafkaKeyValueSerde<String, AggregatedActivePowerRecord> aggregationSerde =
-        new FlinkKafkaKeyValueSerde<>(
+    final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaAggregationSink =
+        kafkaConnector.createProducer(
             outputTopic,
             Serdes::String,
             () -> new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl).forValues(),
             Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
-
-    final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaAggregationSink =
-        new FlinkKafkaProducer<>(
-            outputTopic,
-            aggregationSerde,
-            kafkaProps,
-            FlinkKafkaProducer.Semantic.AT_LEAST_ONCE);
-    kafkaAggregationSink.setWriteTimestampToKafka(true);
 
     // Execution environment configuration
     // org.apache.flink.configuration.Configuration conf = new
