@@ -176,7 +176,8 @@ deploy-uc4-load-generator:
 # Theodolite Framework
 
 .theodolite:
-  image: openjdk:11-jdk
+  #image: openjdk:11-jdk
+  image: ghcr.io/graalvm/graalvm-ce:java11-21.0.0.2
   tags:
     - exec-docker
   variables:
@@ -192,8 +193,8 @@ deploy-uc4-load-generator:
 build-theodolite:
   stage: build
   extends: .theodolite
-  # script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
-  script: ./gradlew --build-cache assemble
+  script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  # script: ./gradlew --build-cache assemble
   artifacts:
     paths:
       - "theodolite-quarkus/build/lib/*"
@@ -236,8 +237,8 @@ deploy-theodolite:
     - test-theodolite
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
-    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
+    - docker build -f src/main/docker/Dockerfile.native -t theodolite .
+    #- docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
     - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
