@@ -3,9 +3,12 @@ package theodolite.evaluation
 import com.google.gson.Gson
 import khttp.get
 import khttp.responses.Response
+import mu.KotlinLogging
 import theodolite.util.PrometheusResponse
 import java.net.ConnectException
 import java.util.*
+
+private val logger = KotlinLogging.logger {}
 
 
 class MetricFetcher(private val prometheusURL: String) {
@@ -22,8 +25,15 @@ class MetricFetcher(private val prometheusURL: String) {
         while (trys < 2) {
             val response = get("$prometheusURL/api/v1/query_range", params = parameter)
             if (response.statusCode != 200) {
+                val message = response.jsonObject.toString()
+                logger.warn { "Could not connect to Prometheus: $message, retrying now" }
                 trys++
             } else {
+                var values = parseValues(response)
+                if (values.data?.result.isNullOrEmpty()) {
+                    logger.warn { "Empty query result: $values" }
+                    throw NoSuchFieldException()
+                }
                 return parseValues(response)
             }
         }
