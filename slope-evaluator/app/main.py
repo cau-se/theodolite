@@ -42,3 +42,5 @@ async def evaluate_slope(request: Request):
     data = json.loads(await request.body())
     logger.info("Request received")
     return execute(data['total_lag'], data['threshold'],data['warmup'])
+
+logger.info("Slope evaluator is online")
