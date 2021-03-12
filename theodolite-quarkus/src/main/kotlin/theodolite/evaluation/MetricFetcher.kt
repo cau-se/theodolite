@@ -6,47 +6,42 @@ import khttp.responses.Response
 import mu.KotlinLogging
 import theodolite.util.PrometheusResponse
 import java.net.ConnectException
-import java.util.*
+import java.time.Duration
+import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
+class MetricFetcher(private val prometheusURL: String, private val offset: Duration) {
 
-class MetricFetcher(private val prometheusURL: String) {
+    fun fetchMetric(start: Instant, end: Instant, query: String): PrometheusResponse {
 
-    // Instant
-    fun fetchMetric(start: Long, end: Long, query: String): PrometheusResponse {
-        // TODO handle timeouts
+        val offsetStart = start.minus(offset)
+        val offsetEnd = end.minus(offset)
+
         var trys = 0
         val parameter = mapOf(
             "query" to query,
-            "start" to toISODate(start),
-            "end" to toISODate(end),
+            "start" to offsetStart.toString(),
+            "end" to offsetEnd.toString(),
             "step" to "5s"
         )
 
         while (trys < 2) {
-            val response = get("$prometheusURL/api/v1/query_range", params = parameter)
+            val response = get("$prometheusURL/api/v1/query_range", params = parameter, timeout = 60.0)
             if (response.statusCode != 200) {
                 val message = response.jsonObject.toString()
                 logger.warn { "Could not connect to Prometheus: $message, retrying now" }
                 trys++
             } else {
-                var values = parseValues(response)
+                val values = parseValues(response)
                 if (values.data?.result.isNullOrEmpty()) {
-                    logger.warn { "Empty query result: $values" }
+                    logger.error { "Empty query result: $values" }
                     throw NoSuchFieldException()
                 }
                 return parseValues(response)
             }
         }
         throw ConnectException("No answer from Prometheus received")
-    }
-
-    // TODO required?
-    private fun toISODate(timestamp: Long): String {
-        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'")
-        val date = Date(timestamp - (3600 * 1000))//subtract 1h since cluster is in another timezone
-        return sdf.format(date)
     }
 
     private fun parseValues(values: Response): PrometheusResponse {

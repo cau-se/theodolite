@@ -1,5 +1,6 @@
 package theodolite.execution
 
+import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.evaluation.SLOCheckerImpl
 import theodolite.util.ConfigurationOverride
@@ -8,6 +9,8 @@ import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
 import java.time.Instant
+
+private val logger = KotlinLogging.logger {}
 
 class BenchmarkExecutorImpl(
     benchmark: Benchmark,
@@ -22,11 +25,18 @@ class BenchmarkExecutorImpl(
         this.waitAndLog()
         benchmarkDeployment.teardown()
         // todo evaluate
-        val result = SLOCheckerImpl("http://localhost:32656")
-            .evaluate( //TODO FIX HERE, catch exception -> return false
-                Instant.now().toEpochMilli() - executionDuration.toMillis(), // TODO instant.minus(duration)
-                Instant.now().toEpochMilli()
-            )
+
+        var result = false
+        try {
+            result = SLOCheckerImpl("http://localhost:32656", 100, offset = Duration.ofSeconds(0))
+                .evaluate(
+                    Instant.now().minus(executionDuration),
+                    Instant.now()
+                )
+        } catch (e: Exception) {
+            logger.error { "Evaluation failed for resource: ${res.get()} and load: ${load.get()} error: $e" }
+        }
+
         this.results.setResult(Pair(load, res), result)
         return result
     }
