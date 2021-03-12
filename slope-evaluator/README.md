@@ -22,5 +22,5 @@ Run the Docker image:
 
 ## Configuration
 
-You can set the `HOST` and the `PORT`  (and a lot of more parameters) via environment variablen. Default is `0.0.0.0:80`.
+You can set the `HOST` and the `PORT` (and a lot of more parameters) via environment variables. Default is `0.0.0.0:80`.
 For more information see [here](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker#advanced-usage).
