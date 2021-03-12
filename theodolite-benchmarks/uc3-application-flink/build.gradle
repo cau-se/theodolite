@@ -1,3 +1,7 @@
+plugins {
+  id 'theodolite.java-uc'
+}
+
 allprojects {
 	repositories {
     	maven {

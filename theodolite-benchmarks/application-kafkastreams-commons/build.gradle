@@ -1,3 +1,7 @@
+plugins {
+    id 'theodolite.java-commons'
+}
+
 dependencies {
   // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
   // implementation 'org.slf4j:slf4j-simple:1.7.25'
@@ -7,4 +11,4 @@ dependencies {
 
   // Use JUnit test framework
   testImplementation 'junit:junit:4.12'
-  }
+}

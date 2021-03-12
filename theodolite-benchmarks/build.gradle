@@ -6,7 +6,6 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.0"
     classpath "com.github.jengelman.gradle.plugins:shadow:6.0.0"
   }
 }
@@ -23,10 +22,7 @@ allprojects {
 }
 
 subprojects {
-  apply plugin: 'checkstyle'
-  apply plugin: 'pmd'
-  apply plugin: 'com.github.spotbugs'
-  apply plugin: 'java-library'
+  apply plugin: 'theodolite.java-conventions'
 }
 
 configure(useCaseProjects){
@@ -36,14 +32,6 @@ configure(useCaseProjects){
 configure(useCaseApplicationsFlink){
     apply plugin: 'com.github.johnrengelman.shadow'
     applicationDefaultJvmArgs = ["-Dlog4j.configuration=log4j.properties"]
-}
-
-// Java version for all subprojects
-subprojects {
-  java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-  }
 }
 
 // Check for updates every build
@@ -117,7 +105,7 @@ configure(useCaseApplicationsFlink) {
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
   }
-  
+
   run.classpath = sourceSets.main.runtimeClasspath
 
   jar {
@@ -146,69 +134,6 @@ configure(useCaseGenerators) {
 
       // Use JUnit test framework
       testImplementation 'junit:junit:4.12'
-  }
-}
-
-// Per default XML reports for SpotBugs are generated
-// Include this to generate HTML reports
-tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
-  reports {
-    // Either HTML or XML reports can be activated
-    html.enabled true
-    xml.enabled false
-  }
-}
-
-// Subprojects quality tools tasks
-subprojects {
-  task pmd {
-    group 'Quality Assurance'
-    description 'Run PMD'
-
-    dependsOn 'pmdMain'
-    dependsOn 'pmdTest'
-  }
-
-  task checkstyle {
-    group 'Quality Assurance'
-    description 'Run Checkstyle'
-
-    dependsOn 'checkstyleMain'
-    dependsOn 'checkstyleTest'
-  }
-
-  task spotbugs {
-    group 'Quality Assurance'
-    description 'Run SpotBugs'
-
-    dependsOn 'spotbugsMain'
-    dependsOn 'spotbugsTest'
-  }
-}
-
-// Subprojects quality tools configuration
-subprojects {
-  pmd {
-    ruleSets = [] // Gradle requires to clean the rule sets first
-    ruleSetFiles = files("$rootProject.projectDir/config/pmd.xml")
-    ignoreFailures = false
-    toolVersion = "6.7.0"
-  }
-
-  checkstyle {
-    configDirectory = file("$rootProject.projectDir/config")
-    configFile = file("$rootProject.projectDir/config/checkstyle.xml")
-    maxWarnings = 0
-    ignoreFailures = false
-    toolVersion = "8.12"
-  }
-
-  spotbugs {
-    excludeFilter = file("$rootProject.projectDir/config/spotbugs-exclude-filter.xml")
-    reportLevel = "low"
-    effort = "max"
-    ignoreFailures = false
-    toolVersion = '4.1.4'
   }
 }
 
