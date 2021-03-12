@@ -2,6 +2,13 @@ plugins {
     id 'theodolite.java-commons'
 }
 
+repositories {
+  jcenter()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+}
+
 dependencies {
   // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
   // implementation 'org.slf4j:slf4j-simple:1.7.25'

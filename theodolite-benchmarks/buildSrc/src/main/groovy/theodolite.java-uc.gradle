@@ -1,7 +1,0 @@
-plugins {
-  // common java conventions
-  id 'theodolite.java-conventions'
-
-  // make executable
-  id 'application'
-}
