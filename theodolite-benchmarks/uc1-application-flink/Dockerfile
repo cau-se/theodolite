@@ -1,3 +1,3 @@
-FROM nicobiernat/flink:1.11-scala_2.12-java_11
+FROM flink:1.12-scala_2.12-java11
 
-ADD build/libs/uc1-application-all.jar /opt/flink/usrlib/artifacts/uc1-application-all.jar
+ADD build/libs/uc1-application-flink-all.jar /opt/flink/usrlib/artifacts/uc1-application-flink-all.jar
