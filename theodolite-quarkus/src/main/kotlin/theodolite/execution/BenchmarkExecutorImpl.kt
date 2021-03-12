@@ -23,8 +23,8 @@ class BenchmarkExecutorImpl(
         benchmarkDeployment.teardown()
         // todo evaluate
         val result = SLOCheckerImpl("http://localhost:32656")
-            .evaluate( //TODO FIX HERE
-                Instant.now().toEpochMilli() - executionDuration.toMillis(),
+            .evaluate( //TODO FIX HERE, catch exception -> return false
+                Instant.now().toEpochMilli() - executionDuration.toMillis(), // TODO instant.minus(duration)
                 Instant.now().toEpochMilli()
             )
         this.results.setResult(Pair(load, res), result)
