@@ -1,4 +1,5 @@
 from fastapi import FastAPI,Request
+from configuration import Config
 import trend_slope_computer as trend_slope_computer
 import logging
 import os
@@ -10,9 +11,15 @@ app = FastAPI()
 
 logging.basicConfig(stream=sys.stdout,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-logger = logging.getLogger("Api")
+logger = logging.getLogger("API")
 
-logger.setLevel(logging.INFO)
+
+if os.getenv('LOG_LEVEL') == 'INFO':
+    logger.setLevel(logging.INFO)
+elif os.getenv('LOG_LEVEL') == 'WARNING':
+    logger.setLevel(logging.WARNING)
+elif os.getenv('LOG_LEVEL') == 'DEBUG':
+    logger.setLevel((logging.DEBUG))
 
 def execute(results, threshold, warmup):
     d = []
