@@ -16,7 +16,7 @@ class ExternalSloChecker(
 ) :
     SloChecker {
 
-    private val RETRYS = 2
+    private val RETRIES = 2
     private val TIMEOUT = 60.0
 
     override fun evaluate(start: Instant, end: Instant): Boolean {
@@ -26,7 +26,7 @@ class ExternalSloChecker(
         val data =
             Gson().toJson(mapOf("total_lag" to fetchedData.data?.result, "threshold" to threshold, "warmup" to warmup))
 
-        while (counter < RETRYS) {
+        while (counter < RETRIES) {
             val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)
             if (result.statusCode != 200) {
                 counter++

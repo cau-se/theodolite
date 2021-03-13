@@ -12,7 +12,7 @@ import java.time.Instant
 private val logger = KotlinLogging.logger {}
 
 class MetricFetcher(private val prometheusURL: String, private val offset: Duration) {
-    private val RETRYS = 2
+    private val RETRIES = 2
     private val TIMEOUT = 60.0
 
     fun fetchMetric(start: Instant, end: Instant, query: String): PrometheusResponse {
@@ -28,7 +28,7 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
             "step" to "5s"
         )
 
-        while (counter < RETRYS) {
+        while (counter < RETRIES) {
             val response = get("$prometheusURL/api/v1/query_range", params = parameter, timeout = TIMEOUT)
             if (response.statusCode != 200) {
                 val message = response.jsonObject.toString()
