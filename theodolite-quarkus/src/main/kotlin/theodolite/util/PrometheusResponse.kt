@@ -12,7 +12,7 @@ data class PromData(
 
 data class PromResult(
     var metric: PromMetric? = null,
-    var values: List<Object>? = null
+    var values: List<Any>? = null
 )
 
 data class PromMetric(
