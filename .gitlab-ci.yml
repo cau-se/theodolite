@@ -38,6 +38,7 @@ build-benchmarks:
   artifacts:
     paths:
       - "theodolite-benchmarks/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/libs/*.jar"
       - "theodolite-benchmarks/*/build/distributions/*.tar"
     expire_in: 1 day
 
