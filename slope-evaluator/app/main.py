@@ -1,5 +1,4 @@
 from fastapi import FastAPI,Request
-from configuration import Config
 import trend_slope_computer as trend_slope_computer
 import logging
 import os
