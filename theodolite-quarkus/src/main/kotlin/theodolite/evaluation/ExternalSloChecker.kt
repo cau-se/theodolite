@@ -6,7 +6,7 @@ import java.net.ConnectException
 import java.time.Duration
 import java.time.Instant
 
-class ExternalSLOChecker(
+class ExternalSloChecker(
     private val prometheusURL: String,
     private val query: String,
     private val externalSlopeURL: String,

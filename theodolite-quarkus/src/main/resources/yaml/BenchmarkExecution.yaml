@@ -9,7 +9,7 @@ resources:
   resourceValues:
     - 1
 slos:
-  - sloType: "slo type"
+  - sloType: "lag trend"
     threshold: 1000
     prometheusUrl: "http://localhost:32656"
     externalSloUrl: "http://localhost:80/evaluate-slope"
