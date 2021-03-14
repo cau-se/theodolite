@@ -2,6 +2,7 @@ package theodolite.execution
 
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
+import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
@@ -22,7 +23,8 @@ abstract class BenchmarkExecutor(
     val benchmark: Benchmark,
     val results: Results,
     val executionDuration: Duration,
-    configurationOverrides: List<ConfigurationOverride>
+    configurationOverrides: List<ConfigurationOverride>,
+    val slo: BenchmarkExecution.Slo
 ) {
 
     /**
@@ -39,9 +41,13 @@ abstract class BenchmarkExecutor(
      *
      */
     fun waitAndLog() {
-        for (i in 1.rangeTo(executionDuration.toMinutes())) {
-            Thread.sleep(Duration.ofMinutes(1).toMillis())
-            logger.info { "Executed: $i minutes" }
+        logger.info { "Execution of a new benchmark started." }
+        for (i in 1.rangeTo(executionDuration.toSeconds())) {
+
+            Thread.sleep(Duration.ofSeconds(1).toMillis())
+            if ((i % 60) == 0L) {
+                logger.info { "Executed: ${i / 60} minutes" }
+            }
         }
     }
 }
