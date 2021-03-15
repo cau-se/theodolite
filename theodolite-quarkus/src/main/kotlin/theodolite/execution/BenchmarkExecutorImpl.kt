@@ -20,7 +20,6 @@ class BenchmarkExecutorImpl(
     private val configurationOverrides: List<ConfigurationOverride>,
     slo: BenchmarkExecution.Slo
 ) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo) {
-    //TODO ADD SHUTDOWN HOOK HERE
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides)
         benchmarkDeployment.setup()
