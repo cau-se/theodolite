@@ -21,9 +21,17 @@ class TheodoliteExecutor(
         val strategyFactory = StrategyFactory()
 
         val executionDuration = Duration.ofSeconds(config.execution.duration)
-        val executor = BenchmarkExecutorImpl(kubernetesBenchmark, results, executionDuration, config.configOverrides)
         val resourcePatcherDefinition = PatcherDefinitionFactory().createPatcherDefinition(config.resources.resourceType, this.kubernetesBenchmark.resourceTypes)
         val loadDimensionPatcherDefinition = PatcherDefinitionFactory().createPatcherDefinition(config.load.loadType, this.kubernetesBenchmark.loadTypes)
+
+        val executor =
+            BenchmarkExecutorImpl(
+                kubernetesBenchmark,
+                results,
+                executionDuration,
+                config.configOverrides,
+                config.slos[0]
+            )
 
         return Config(
             loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },

@@ -3,17 +3,21 @@ benchmark: "benchmarkType"
 load:
   loadType: "NumSensors"
   loadValues:
-    - 10000
+    - 50000
 resources:
   resourceType: "Instances"
   resourceValues:
-    - 2
+    - 1
 slos:
-  - sloType: "slo type"
+  - sloType: "lag trend"
     threshold: 1000
+    prometheusUrl: "http://localhost:32656"
+    externalSloUrl: "http://localhost:80/evaluate-slope"
+    offset: 0
+    warmup: 0
 execution:
   strategy: "LinearSearch"
-  duration: 300
+  duration: 60
   repetitions: 1
   restrictions:
     - "LowerBound"
@@ -33,7 +37,7 @@ configOverrides:
       resource: "uc1-kstreams-deployment.yaml"
       container: "uc-application"
       variableName: "cpu"
-    value: "50m"
+    value: "1000m"
   - patcher:
       type: "ResourceLimitPatcher"
       resource: "uc1-kstreams-deployment.yaml"
