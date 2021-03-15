@@ -1,9 +1,10 @@
 version: '2'
 services:
   zookeeper:
+    #image: wurstmeister/zookeeper
     image: confluentinc/cp-zookeeper
-    expose:
-      - "2181"
+    ports:
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
   kafka:
@@ -24,23 +25,24 @@ services:
     depends_on:
       - zookeeper
       - kafka
+    #ports:
+    #  - "8081:8081"
     expose:
       - "8081"
-    #ports:
-    #  - 8081:8081
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-  uc-app:
-    image: ghcr.io/cau-se/theodolite-uc4-kstreams-app:latest
+  benchmark:
+    image: ghcr.io/cau-se/theodolite-uc2-kstreams-app:latest
     depends_on:
       - schema-registry
       - kafka
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
-  uc-wg: 
-    image: ghcr.io/cau-se/theodolite-uc4-workload-generator:latest
+      KAFKA_WINDOW_DURATION_MINUTES: 60
+  load-generator: 
+    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:latest
     depends_on:
       - schema-registry
       - kafka
@@ -49,5 +51,4 @@ services:
       PORT: 5701
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      NUM_SENSORS: 4
-      NUM_NESTED_GROUPS: 4
+      NUM_SENSORS: 10
