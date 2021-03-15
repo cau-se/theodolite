@@ -105,7 +105,7 @@ services:
   benchmark-jobmanager:
     image: ghcr.io/cau-se/theodolite-uc1-flink:latest
     ports:
-      - "8082:8081"
+      - "8080:8081"
     command: standalone-job --job-classname theodolite.uc1.application.HistoryServiceFlinkJob
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
