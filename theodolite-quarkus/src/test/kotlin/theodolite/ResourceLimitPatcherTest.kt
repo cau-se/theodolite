@@ -53,7 +53,6 @@ class ResourceLimitPatcherTest {
 
         k8sResource.spec.template.spec.containers.filter { it.name == defCPU.container }
             .forEach {
-                println(it)
                 assertTrue(it.resources.limits["cpu"].toString() == cpuValue)
                 assertTrue(it.resources.limits["memory"].toString() == memValue)
             }

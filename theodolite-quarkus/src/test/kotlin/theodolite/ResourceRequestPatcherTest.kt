@@ -53,7 +53,6 @@ class ResourceRequestPatcherTest {
 
         k8sResource.spec.template.spec.containers.filter { it.name == defCPU.container }
             .forEach {
-                println(it)
                 assertTrue(it.resources.requests["cpu"].toString() == cpuValue)
                 assertTrue(it.resources.requests["memory"].toString() == memValue)
             }
