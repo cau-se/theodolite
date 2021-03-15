@@ -114,6 +114,9 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: benchmark-jobmanager
         parallelism.default: 1
+    depends_on:
+      - schema-registry
+      - kafka
   benchmark-taskmanager:
     image: ghcr.io/cau-se/theodolite-uc1-flink:latest
     command: taskmanager
@@ -121,3 +124,6 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: benchmark-jobmanager
+    depends_on:
+      - schema-registry
+      - kafka    
