@@ -11,7 +11,7 @@ class Results {
         return this.results[experiment]
     }
 
-    fun getMinRequiredInstances(load: LoadDimension?, resourceTyp: String): Resource? {
+    fun getMinRequiredInstances(load: LoadDimension?, resourceTyp: List<PatcherDefinition>): Resource? {
         if (this.results.isEmpty()) return Resource(Int.MIN_VALUE, resourceTyp)
 
         var requiredInstances: Resource? = Resource(Int.MAX_VALUE, resourceTyp)

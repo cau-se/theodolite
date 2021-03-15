@@ -3,6 +3,7 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import theodolite.patcher.PatcherDefinitionFactory
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.BinarySearch
 import theodolite.strategies.searchstrategy.CompositeStrategy
@@ -25,8 +26,9 @@ class CompositeStrategyTest {
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
         )
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, "NumSensors") }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, "Instances") }
+        val emptyPatcherDefinition = PatcherDefinitionFactory().getEmptyPatcherDefinition()
+        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, listOf(emptyPatcherDefinition)) }
+        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, listOf(emptyPatcherDefinition)) }
         val results = Results()
         val benchmark = TestBenchmark()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results)
@@ -36,7 +38,7 @@ class CompositeStrategyTest {
             CompositeStrategy(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, "Instances") })
+        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, listOf(emptyPatcherDefinition)) })
         expected.add(null)
 
         for (load in mockLoads) {
@@ -57,8 +59,9 @@ class CompositeStrategyTest {
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
         )
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, "NumSensors") }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, "Instances") }
+        val emptyPatcherDefinition = PatcherDefinitionFactory().getEmptyPatcherDefinition()
+        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, listOf(emptyPatcherDefinition)) }
+        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, listOf(emptyPatcherDefinition)) }
         val results = Results()
         val benchmark = TestBenchmark()
         val benchmarkExecutorImpl =
@@ -69,7 +72,7 @@ class CompositeStrategyTest {
             CompositeStrategy(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, "Instances") })
+        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, listOf(emptyPatcherDefinition)) })
         expected.add(null)
 
         for (load in mockLoads) {
@@ -90,8 +93,9 @@ class CompositeStrategyTest {
             arrayOf(false, false, false, false, false, false, true, true),
             arrayOf(false, false, false, false, false, false, false, true)
         )
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, "NumSensors") }
-        val mockResources: List<Resource> = (0..7).map { number -> Resource(number, "Instances") }
+        val emptyPatcherDefinition = PatcherDefinitionFactory().getEmptyPatcherDefinition()
+        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, listOf(emptyPatcherDefinition)) }
+        val mockResources: List<Resource> = (0..7).map { number -> Resource(number, listOf(emptyPatcherDefinition)) }
         val results = Results()
         val benchmark = TestBenchmark()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results)
@@ -102,7 +106,7 @@ class CompositeStrategyTest {
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> =
-            ArrayList(listOf(0, 2, 2, 3, 4, 6, 7).map { x -> Resource(x, "Instances") })
+            ArrayList(listOf(0, 2, 2, 3, 4, 6, 7).map { x -> Resource(x, listOf(emptyPatcherDefinition)) })
 
         for (load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))

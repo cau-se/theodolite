@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import mu.KotlinLogging
 import theodolite.k8s.K8sResourceLoader
-import theodolite.patcher.PatcherManager
+import theodolite.patcher.PatcherFactory
 import theodolite.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -43,20 +43,20 @@ class KubernetesBenchmark : Benchmark {
         configurationOverrides: List<ConfigurationOverride>
     ): BenchmarkDeployment {
         val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
-        val patcherManager = PatcherManager()
+        val patcherFactory = PatcherFactory()
 
-        // patch res and load
-        patcherManager.createAndApplyPatcher(res.getType(), this.resourceTypes, resources, res.get())
-        patcherManager.createAndApplyPatcher(load.getType(), this.loadTypes, resources, load.get().toString())
+        // patch the load dimension
+        load.getType().map { patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources) }
+            .forEach { patcher -> patcher.patch(load.get().toString()) }
 
-        // patch overrides
+        // patch the resources
+        res.getType().map { patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources) }
+            .forEach { patcher -> patcher.patch(res.get().toString()) }
+
+        // Patch the given overrides
         configurationOverrides.forEach { override ->
-            patcherManager.applyPatcher(
-                listOf(override.patcher),
-                resources,
-                override.value
-            )
-        }
+          patcherFactory.createPatcher(override.patcher, resources).patch(override.value) }
+
 
         return KubernetesBenchmarkDeployment(
             namespace = namespace,
