@@ -17,11 +17,11 @@ import titan.ccp.model.records.ActivePowerRecord;
 public class TopologyBuilder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
+  private static final Gson GSON = new Gson();
 
   private final String inputTopic;
   private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
 
-  private final Gson gson = new Gson();
   private final StreamsBuilder builder = new StreamsBuilder();
 
 
@@ -42,8 +42,8 @@ public class TopologyBuilder {
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),
             this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
-        .mapValues(v -> this.gson.toJson(v))
-        .foreach((k, v) -> LOGGER.info("Key: " + k + " Value: " + v));
+        .mapValues(v -> GSON.toJson(v))
+        .foreach((k, record) -> LOGGER.info("Record: {}", record));
 
     return this.builder.build(properties);
   }

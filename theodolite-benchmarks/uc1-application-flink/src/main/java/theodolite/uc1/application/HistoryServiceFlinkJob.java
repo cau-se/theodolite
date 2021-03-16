@@ -60,11 +60,8 @@ public final class HistoryServiceFlinkJob {
 
     stream
         .rebalance()
-        .map(v -> "ActivePowerRecord { "
-            + "identifier: " + v.getIdentifier() + ", "
-            + "timestamp: " + v.getTimestamp() + ", "
-            + "valueInW: " + v.getValueInW() + " }")
-        .print();
+        .map(new GsonMapper())
+        .flatMap((record, c) -> LOGGER.info("Record: {}", record));
   }
 
   /**
