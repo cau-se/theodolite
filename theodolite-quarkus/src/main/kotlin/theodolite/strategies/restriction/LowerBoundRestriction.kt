@@ -1,6 +1,5 @@
 package theodolite.strategies.restriction
 
-import theodolite.patcher.PatcherDefinitionFactory
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results

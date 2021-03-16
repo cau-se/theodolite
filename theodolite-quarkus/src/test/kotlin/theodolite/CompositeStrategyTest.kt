@@ -3,7 +3,6 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import theodolite.patcher.PatcherDefinitionFactory
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.BinarySearch
