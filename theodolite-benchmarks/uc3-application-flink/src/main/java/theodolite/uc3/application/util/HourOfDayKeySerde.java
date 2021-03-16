@@ -18,6 +18,8 @@ import titan.ccp.common.kafka.simpleserdes.WriteBuffer;
 public class HourOfDayKeySerde extends Serializer<HourOfDayKey>
     implements BufferSerde<HourOfDayKey>, Serializable {
 
+  private static final long serialVersionUID = 1262778284661945041L; // NOPMD
+
   @Override
   public void serialize(final WriteBuffer buffer, final HourOfDayKey data) {
     buffer.putInt(data.getHourOfDay());

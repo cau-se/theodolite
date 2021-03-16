@@ -47,6 +47,10 @@ public class HourOfDayKey {
     return this.hourOfDay == k.hourOfDay && this.sensorId.equals(k.sensorId);
   }
 
+  /**
+   * Convert this {@link HourOfDayKey} into a byte array. This method is the inverse to
+   * {@code HourOfDayKey#fromByteArray()}.
+   */
   public byte[] toByteArray() {
     final int numBytes = (2 * Integer.SIZE + this.sensorId.length() * Character.SIZE) / Byte.SIZE;
     final ByteBuffer buffer = ByteBuffer.allocate(numBytes).order(ByteOrder.LITTLE_ENDIAN);
@@ -58,6 +62,10 @@ public class HourOfDayKey {
     return buffer.array();
   }
 
+  /**
+   * Construct a new {@link HourOfDayKey} from a byte array. This method is the inverse to
+   * {@code HourOfDayKey#toByteArray()}.
+   */
   public static HourOfDayKey fromByteArray(final byte[] bytes) {
     final ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
     final int hourOfDay = buffer.getInt();

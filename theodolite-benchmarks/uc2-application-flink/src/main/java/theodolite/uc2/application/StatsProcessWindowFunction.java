@@ -6,6 +6,10 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+/**
+ * A {@link ProcessWindowFunction} that forwards a computed {@link Stats} object along with its
+ * associated key.
+ */
 public class StatsProcessWindowFunction
     extends ProcessWindowFunction<Stats, Tuple2<String, Stats>, String, TimeWindow> {
 

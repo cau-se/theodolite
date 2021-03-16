@@ -32,8 +32,8 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-  uc-app:
-    image: theodolite/theodolite-uc2-kstreams-app:latest
+  benchmark:
+    image: ghcr.io/cau-se/theodolite-uc2-kstreams-app:latest
     depends_on:
       - schema-registry
       - kafka
@@ -41,8 +41,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       KAFKA_WINDOW_DURATION_MINUTES: 60
-  uc-wg: 
-    image: theodolite/theodolite-uc2-workload-generator:latest
+  load-generator: 
+    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:latest
     depends_on:
       - schema-registry
       - kafka

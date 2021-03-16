@@ -15,6 +15,11 @@ import theodolite.uc4.application.util.SensorParentKey;
 import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
+/**
+ * A {@link ProcessWindowFunction} which performs the windowed aggregation of all
+ * {@link ActivePowerRecord} for the same {@link SensorParentKey}. Result of this aggregation is an
+ * {@link AggregatedActivePowerRecord}.
+ */
 public class RecordAggregationProcessWindowFunction extends
     ProcessWindowFunction<Tuple2<SensorParentKey, ActivePowerRecord>, AggregatedActivePowerRecord, String, TimeWindow> { // NOCS
 
@@ -40,7 +45,9 @@ public class RecordAggregationProcessWindowFunction extends
   }
 
   @Override
-  public void process(final String key, final Context context,
+  public void process(
+      final String key,
+      final Context context,
       final Iterable<Tuple2<SensorParentKey, ActivePowerRecord>> elements,
       final Collector<AggregatedActivePowerRecord> out) throws Exception {
     for (final Tuple2<SensorParentKey, ActivePowerRecord> t : elements) {
