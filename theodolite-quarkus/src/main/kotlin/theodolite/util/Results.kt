@@ -11,10 +11,10 @@ class Results {
         return this.results[experiment]
     }
 
-    fun getMinRequiredInstances(load: LoadDimension?, resourceTyp: List<PatcherDefinition>): Resource? {
-        if (this.results.isEmpty()) return Resource(Int.MIN_VALUE, resourceTyp)
+    fun getMinRequiredInstances(load: LoadDimension?): Resource? {
+        if (this.results.isEmpty()) return Resource(Int.MIN_VALUE, emptyList())
 
-        var requiredInstances: Resource? = Resource(Int.MAX_VALUE, resourceTyp)
+        var requiredInstances: Resource? = Resource(Int.MAX_VALUE, emptyList())
         for (experiment in results) {
             if (experiment.key.first == load && experiment.value) {
                 if (requiredInstances == null) {

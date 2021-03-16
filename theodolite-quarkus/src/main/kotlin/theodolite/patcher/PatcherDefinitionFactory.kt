@@ -9,13 +9,4 @@ class PatcherDefinitionFactory {
             .filter { type -> type.typeName == requiredType }
             .flatMap { type -> type.patchers }
     }
-
-    fun getEmptyPatcherDefinition(): PatcherDefinition {
-        val emptyDef =  PatcherDefinition()
-        emptyDef.type = ""
-        emptyDef.resource = ""
-        emptyDef.container = ""
-        emptyDef.variableName = ""
-        return emptyDef
-    }
 }

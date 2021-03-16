@@ -27,9 +27,8 @@ class CompositeStrategyTest {
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
         )
-        val emptyPatcherDefinition = PatcherDefinitionFactory().getEmptyPatcherDefinition()
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, listOf(emptyPatcherDefinition)) }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, listOf(emptyPatcherDefinition)) }
+        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
+        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -40,7 +39,7 @@ class CompositeStrategyTest {
             CompositeStrategy(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, listOf(emptyPatcherDefinition)) })
+        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
         expected.add(null)
 
         for (load in mockLoads) {
@@ -61,9 +60,8 @@ class CompositeStrategyTest {
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
         )
-        val emptyPatcherDefinition = PatcherDefinitionFactory().getEmptyPatcherDefinition()
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, listOf(emptyPatcherDefinition)) }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, listOf(emptyPatcherDefinition)) }
+        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
+        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -75,7 +73,7 @@ class CompositeStrategyTest {
             CompositeStrategy(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, listOf(emptyPatcherDefinition)) })
+        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
         expected.add(null)
 
         for (load in mockLoads) {
@@ -96,9 +94,8 @@ class CompositeStrategyTest {
             arrayOf(false, false, false, false, false, false, true, true),
             arrayOf(false, false, false, false, false, false, false, true)
         )
-        val emptyPatcherDefinition = PatcherDefinitionFactory().getEmptyPatcherDefinition()
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, listOf(emptyPatcherDefinition)) }
-        val mockResources: List<Resource> = (0..7).map { number -> Resource(number, listOf(emptyPatcherDefinition)) }
+        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
+        val mockResources: List<Resource> = (0..7).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -110,7 +107,7 @@ class CompositeStrategyTest {
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> =
-            ArrayList(listOf(0, 2, 2, 3, 4, 6, 7).map { x -> Resource(x, listOf(emptyPatcherDefinition)) })
+            ArrayList(listOf(0, 2, 2, 3, 4, 6, 7).map { x -> Resource(x, emptyList()) })
 
         for (load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))
