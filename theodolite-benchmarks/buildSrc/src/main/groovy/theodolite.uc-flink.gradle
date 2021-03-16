@@ -1,0 +1,64 @@
+plugins {
+  id 'theodolite.java-conventions'
+  id 'application' // executable
+  id 'com.github.johnrengelman.shadow' // create fat jar
+}
+
+applicationDefaultJvmArgs = ["-Dlog4j.configuration=log4j.properties"]
+
+ext {
+  flinkVersion = '1.12.2'
+  scalaBinaryVersion = '2.12'
+}
+
+repositories {
+  jcenter()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+    url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+    // Special version required because of https://issues.apache.org/jira/browse/FLINK-13703
+    implementation('org.industrial-devops:titan-ccp-common:0.1.0-flink-ready-SNAPSHOT') { changing = true }
+    implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+
+    // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+    implementation 'org.apache.kafka:kafka-clients:2.2.0'
+    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'org.slf4j:slf4j-simple:1.6.1'
+    compile project(':flink-commons')
+
+    //compile group: 'org.apache.kafka', name: 'kafka-clients', version: "2.2.0"
+    compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
+    compile group: 'org.apache.flink', name: "flink-streaming-java_${scalaBinaryVersion}", version:"${flinkVersion}"
+    compile group: 'org.apache.flink', name: "flink-table-api-java-bridge_${scalaBinaryVersion}", version: "${flinkVersion}"
+    compile group: 'org.apache.flink', name: "flink-table-planner-blink_${scalaBinaryVersion}", version: "${flinkVersion}"
+    compile group: 'org.apache.flink', name: "flink-connector-kafka_${scalaBinaryVersion}", version: "${flinkVersion}"
+    implementation "org.apache.flink:flink-avro:${flinkVersion}"
+    implementation "org.apache.flink:flink-avro-confluent-registry:${flinkVersion}"
+    compile group: 'org.apache.flink', name: "flink-runtime-web_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: remove after development
+    compile group: 'org.apache.flink', name: "flink-statebackend-rocksdb_${scalaBinaryVersion}", version: "${flinkVersion}"
+    compile group: 'org.apache.flink', name: "flink-metrics-prometheus_${scalaBinaryVersion}", version: "${flinkVersion}"
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
+
+run.classpath = sourceSets.main.runtimeClasspath
+
+jar {
+    manifest {
+        attributes 'Built-By': System.getProperty('user.name'),
+                   'Build-Jdk': System.getProperty('java.version')
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.compile]
+    zip64 true
+}

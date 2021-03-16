@@ -39,7 +39,7 @@ lint-helm:
     paths:
       - .gradle
   before_script:
-    - cd benchmarks
+    - cd theodolite-benchmarks
     - export GRADLE_USER_HOME=`pwd`/.gradle
 
 build-benchmarks:
@@ -48,8 +48,9 @@ build-benchmarks:
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "benchmarks/build/libs/*.jar"
-      - "benchmarks/*/build/distributions/*.tar"
+      - "theodolite-benchmarks/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/distributions/*.tar"
     expire_in: 1 day
 
 test-benchmarks:
@@ -61,7 +62,7 @@ test-benchmarks:
   artifacts:
     reports:
       junit:
-        - "benchmarks/**/build/test-results/test/TEST-*.xml"
+        - "theodolite-benchmarks/**/build/test-results/test/TEST-*.xml"
 
 checkstyle-benchmarks:
   stage: check
@@ -72,7 +73,7 @@ checkstyle-benchmarks:
   script: ./gradlew checkstyle --continue
   artifacts:
     paths:
-      - "benchmarks/*/build/reports/checkstyle/main.html"
+      - "theodolite-benchmarks/*/build/reports/checkstyle/main.html"
     when: on_failure
     expire_in: 1 day
 
@@ -85,7 +86,7 @@ pmd-benchmarks:
   script: ./gradlew pmd --continue
   artifacts:
     paths:
-      - "benchmarks/*/build/reports/pmd/*.html"
+      - "theodolite-benchmarks/*/build/reports/pmd/*.html"
     when: on_failure
     expire_in: 1 day
 
@@ -98,7 +99,7 @@ spotbugs-benchmarks:
   script: ./gradlew spotbugs --continue
   artifacts:
     paths:
-      - "benchmarks/*/build/reports/spotbugs/*.html"
+      - "theodolite-benchmarks/*/build/reports/spotbugs/*.html"
     when: on_failure
     expire_in: 1 day
 
@@ -125,39 +126,63 @@ spotbugs-benchmarks:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - benchmarks/*
-      - benchmarks/$JAVA_PROJECT_NAME/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      - benchmarks/workload-generator-commons/**/*
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
+      - theodolite-benchmarks/application-kafkastreams-commons/**/*
+      - theodolite-benchmarks/workload-generator-commons/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual
       allow_failure: true
 
-deploy-uc1-kstreams-app:
+deploy-uc1-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-application"
 
-deploy-uc2-kstreams-app:
+deploy-uc2-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
     JAVA_PROJECT_NAME: "uc2-application"
 
-deploy-uc3-kstreams-app:
+deploy-uc3-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
     JAVA_PROJECT_NAME: "uc3-application"
 
-deploy-uc4-kstreams-app:
+deploy-uc4-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-application"
+
+deploy-uc1-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-flink"
+    JAVA_PROJECT_NAME: "uc1-application-flink"
+
+deploy-uc2-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-flink"
+    JAVA_PROJECT_NAME: "uc2-application-flink"
+
+deploy-uc3-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-flink"
+    JAVA_PROJECT_NAME: "uc3-application-flink"
+
+deploy-uc4-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-flink"
+    JAVA_PROJECT_NAME: "uc4-application-flink"
 
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks

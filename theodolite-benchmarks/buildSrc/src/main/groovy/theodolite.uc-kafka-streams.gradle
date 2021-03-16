@@ -1,0 +1,31 @@
+plugins {
+  // common java conventions
+  id 'theodolite.java-conventions'
+
+  // make executable
+  id 'application'
+}
+
+repositories {
+  jcenter()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+      url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+    // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+    implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+    implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+    implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'org.slf4j:slf4j-simple:1.7.25'
+    implementation project(':application-kafkastreams-commons')
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
