@@ -15,16 +15,18 @@ the following steps according to the release, you are actually performing.
 
 2. Update `CITATION.cff` to match the new version. At least update the `version` field.
 
-3. Create a new branch `v0.3` if it does not already exists. This branch will never
+3. Commit these changes to the `master` branch.
+
+4. Create a new branch `v0.3` if it does not already exists. This branch will never
 again be merged into master.
 
-4. Checkout the `v0.3` branch.
+5. Checkout the `v0.3` branch.
 
-5. Update all references to Theodolite Docker images to tag `v0.3.1`. These are the Kubernetes resource definitions in
+6. Update all references to Theodolite Docker images to tag `v0.3.1`. These are the Kubernetes resource definitions in
 `execution`, the references to *latest* in `run_uc.py`, the Docker Compose files in `docker-test` and the example `theodolite.yaml` job.
 
-6. Commit these changes.
+7. Commit these changes.
 
-7. Tag this commit with `v0.3.1`. The corresponding Docker images will be uploaded.
+8. Tag this commit with `v0.3.1`. The corresponding Docker images will be uploaded.
 
-8. Create *releases* for this tag in both, GitLab and GitHub.
+9. Create *releases* for this tag in both, GitLab and GitHub.
