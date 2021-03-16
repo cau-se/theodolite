@@ -29,6 +29,7 @@ dependencies {
     // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
     implementation 'org.apache.kafka:kafka-clients:2.2.0'
     implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'org.slf4j:slf4j-simple:1.6.1'
     compile project(':flink-commons')
 
