@@ -12,7 +12,9 @@ import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.api.model.HasMetadata
 
 import io.fabric8.kubernetes.internal.KubernetesDeserializer
+import theodolite.util.YamlParser
 import java.io.File
+import java.io.IOException
 import javax.json.Json
 
 
@@ -80,5 +82,23 @@ class CustomRessourceTest {
         val crd = loader.loadK8sResource("ServiceMonitor", path + "uc1-service-monitor.yaml")
 
         println(crd)
+    }
+
+    @Test
+    fun testTypelessAPI() {
+        try {
+            DefaultKubernetesClient().use { client ->
+                val svmAsMap = YamlParser().parse(path + "uc1-service-monitor.yaml", HashMap<String, String>()::class.java)
+                val kind = svmAsMap?.get("kind")
+                val crds = client.apiextensions().v1beta1().customResourceDefinitions().list()
+                crds.items
+                    .filter { crd -> crd.toString().contains("kind=$kind") } // the filtered list should contain exactly 1 element, iff the CRD is known. TODO("Check if there is a case in which the list contains more than 1 element")
+                    .map { crd -> CustomResourceDefinitionContext.fromCrd(crd)}
+                    .forEach {context -> client.customResource(context).createOrReplace("default", svmAsMap as Map<String, Any>?)}
+
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 }
