@@ -1,0 +1,46 @@
+name: "Theodolite Test Context"
+benchmark: "benchmarkType"
+load:
+  loadType: "NumSensors"
+  loadValues:
+    - 50000
+resources:
+  resourceType: "Instances"
+  resourceValues:
+    - 1
+slos:
+  - sloType: "lag trend"
+    threshold: 1000
+    prometheusUrl: "http://localhost:32656"
+    externalSloUrl: "http://localhost:80/evaluate-slope"
+    offset: 0
+    warmup: 0
+execution:
+  strategy: "LinearSearch"
+  duration: 60
+  repetitions: 1
+  restrictions:
+    - "LowerBound"
+configOverrides:
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-load-generator-deployment.yaml"
+      variableName: "env"
+    value: "prod"
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      variableName: "env"
+    value: "prod"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      container: "uc-application"
+      variableName: "cpu"
+    value: "1000m"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      container: "uc-application"
+      variableName: "memory"
+    value: "2Gi"
