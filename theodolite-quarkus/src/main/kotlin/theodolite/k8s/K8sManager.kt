@@ -3,9 +3,11 @@ package theodolite.k8s
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Service
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
+
 
 class K8sManager(private val client: NamespacedKubernetesClient) {
     fun deploy(resource: KubernetesResource) {
@@ -18,6 +20,8 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.configMaps().createOrReplace(resource)
             is StatefulSet ->
                 this.client.apps().statefulSets().createOrReplace(resource)
+            is CustomResourceDefinition ->
+                this.client.customResourceDefinitions().createOrReplace(resource)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
@@ -32,6 +36,8 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.configMaps().delete(resource)
             is StatefulSet ->
                 this.client.apps().statefulSets().delete(resource)
+            is CustomResourceDefinition ->
+                this.client.customResourceDefinitions().delete(resource)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
