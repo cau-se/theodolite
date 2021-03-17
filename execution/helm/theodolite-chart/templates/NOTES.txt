@@ -1,5 +1,3 @@
-Welcome to Theodolite
+Welcome to Theodolite!
 
-Visit https://github.com/cau-se/theodolite for more information
-
-TODO: Add more information
+Visit https://cau-se.github.io/theodolite for getting started and more information.
