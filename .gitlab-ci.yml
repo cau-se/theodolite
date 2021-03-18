@@ -15,6 +15,17 @@ stages:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
+# Theodolite Helm Chart
+
+lint-helm:
+  stage: check
+  image:
+    name: alpine/helm:3.5.2
+    entrypoint: [""]
+  tags:
+    - exec-docker
+  script: helm lint execution/helm/
+
 
 # Theodolite Benchmarks
 
