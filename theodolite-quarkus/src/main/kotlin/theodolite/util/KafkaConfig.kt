@@ -1,8 +1,10 @@
 package theodolite.util
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.apache.kafka.clients.admin.NewTopic
 import kotlin.properties.Delegates
 
+@JsonDeserialize
 class KafkaConfig {
     lateinit var bootstrapServer: String
     lateinit var topics: List<TopicWrapper>

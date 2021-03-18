@@ -2,13 +2,10 @@ package theodolite.execution
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
-import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
 import theodolite.benchmark.*
 import io.fabric8.kubernetes.internal.KubernetesDeserializer
-
-
 
 
 private var DEFAULT_NAMESPACE = "default"
@@ -19,8 +16,8 @@ object TheodoliteCRDExecutor {
     @JvmStatic
     fun main(args: Array<String>) {
 
-//        val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-//        logger.info { "Using $namespace as namespace." }
+        val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+        logger.info { "Using $namespace as namespace." }
 
         val client = DefaultKubernetesClient().inNamespace("default")
 
@@ -31,42 +28,46 @@ object TheodoliteCRDExecutor {
             BenchmarkExecution::class.java
         )
 
+        KubernetesDeserializer.registerCustomKind(
+            "demo.k8s.io/v1alpha1",
+            "Benchmarktype",
+            KubernetesBenchmark::class.java
+        )
 
-        val context = CustomResourceDefinitionContext.Builder()
+        val ExececutionContext = CustomResourceDefinitionContext.Builder()
             .withVersion("v1alpha1")
             .withScope("Namespaced")
             .withGroup("demo.k8s.io")
             .withPlural("benchmarkexecutions")
             .build()
 
+        val TypeContext = CustomResourceDefinitionContext.Builder()
+            .withVersion("v1alpha1")
+            .withScope("Namespaced")
+            .withGroup("demo.k8s.io")
+            .withPlural("benchmarktypes")
+            .build()
+
         val informerFactory = client.informers()
 
 
-        val x = informerFactory.sharedIndexInformerForCustomResource(context, BenchmarkExecution::class.java,
+        val informerBenchmarkExecution = informerFactory.sharedIndexInformerForCustomResource(ExececutionContext, BenchmarkExecution::class.java,
             BenchmarkExecutionList::class.java,10 * 60 * 1000.toLong())
 
+        val informerBenchmarkType = informerFactory.sharedIndexInformerForCustomResource(TypeContext, KubernetesBenchmark::class.java,
+            KubernetesBenchmarkList::class.java,10 * 60 * 1000.toLong())
 
-        x.addEventHandler(object : ResourceEventHandler<BenchmarkExecution> {
-            override fun onAdd(webServer: BenchmarkExecution) {
-                println("hello there add")
-                println(webServer.name)
-            }
 
-            override fun onUpdate(webServer: BenchmarkExecution, newWebServer: BenchmarkExecution) {
-                println("hello there update")
-            }
 
-            override fun onDelete(webServer: BenchmarkExecution, b: Boolean) {
-                println("delted")
-                println(webServer.name)
-            }
-        })
+        val controller = TheodoliteController(client = client,
+            informerBenchmarkExecution = informerBenchmarkExecution,
+            informerBenchmarkType = informerBenchmarkType)
+
+        controller.create()
 
         informerFactory.startAllRegisteredInformers()
 
-
-
-        //println(client.apiextensions().v1beta1().customResourceDefinitions().list())
+        controller.run()
 
         //exitProcess(0)
     }

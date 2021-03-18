@@ -1,0 +1,27 @@
+apiVersion: demo.k8s.io/v1alpha1
+kind: Benchmarkexecutions
+metadata:
+  name: example-webserver
+name: "Theodolite Test Context"
+benchmark: "benchmarkType"
+load:
+  loadType: "NumSensors"
+  loadValues:
+    - 50000
+resources:
+  resourceType: "Instances"
+  resourceValues:
+    - 1
+slos:
+  - sloType: "lag trend"
+    threshold: 1000
+    prometheusUrl: "http://localhost:32656"
+    externalSloUrl: "http://localhost:80/evaluate-slope"
+    offset: 0
+    warmup: 0
+execution:
+  strategy: "LinearSearch"
+  duration: 60
+  repetitions: 1
+  restrictions:
+    - "LowerBound"
