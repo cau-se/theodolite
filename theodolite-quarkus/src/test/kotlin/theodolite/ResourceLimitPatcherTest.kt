@@ -6,7 +6,7 @@ import io.quarkus.test.junit.QuarkusTest
 import io.smallrye.common.constraint.Assert.assertTrue
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sResourceLoader
-import theodolite.patcher.PatcherManager
+import theodolite.patcher.PatcherFactory
 import theodolite.util.PatcherDefinition
 
 /**
@@ -23,7 +23,7 @@ import theodolite.util.PatcherDefinition
 class ResourceLimitPatcherTest {
     val testPath = "./src/main/resources/testYaml/"
     val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(""))
-    val manager = PatcherManager()
+    val patcherFactory = PatcherFactory()
 
     fun applyTest(fileName: String) {
         val cpuValue = "50m"
@@ -42,20 +42,17 @@ class ResourceLimitPatcherTest {
         defMEM.container = "uc-application"
         defMEM.type = "ResourceLimitPatcher"
 
-        manager.applyPatcher(
-            patcherDefinition = listOf(defCPU),
-            resources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource)),
-            value = cpuValue
-        )
-        manager.applyPatcher(
-            patcherDefinition = listOf(defMEM),
-            resources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource)),
-            value = memValue
-        )
+        patcherFactory.createPatcher(
+            patcherDefinition = defCPU,
+            k8sResources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource))
+        ).patch(value = cpuValue)
+        patcherFactory.createPatcher(
+            patcherDefinition = defMEM,
+            k8sResources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource))
+        ).patch(value = memValue)
 
         k8sResource.spec.template.spec.containers.filter { it.name == defCPU.container }
             .forEach {
-                println(it)
                 assertTrue(it.resources.limits["cpu"].toString() == cpuValue)
                 assertTrue(it.resources.limits["memory"].toString() == memValue)
             }

@@ -213,7 +213,7 @@ deploy-uc4-load-generator:
 # Theodolite Framework
 
 .theodolite:
-  image: openjdk:11-jdk
+  image: ghcr.io/graalvm/graalvm-ce:java11-21.0.0.2
   tags:
     - exec-docker
   variables:
@@ -226,23 +226,33 @@ deploy-uc4-load-generator:
     - cd theodolite-quarkus
     - export GRADLE_USER_HOME=`pwd`/.gradle
 
-build-theodolite:
+build-theodolite-jvm:
   stage: build
   extends: .theodolite
-  # script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
       - "theodolite-quarkus/build/lib/*"
       - "theodolite-quarkus/build/*-runner.jar"
-      # - "theodolite-quarkus/build/*-runner" # For native image
+    expire_in: 1 day
+
+build-theodolite-native:
+  stage: build
+  extends: .theodolite
+  script:
+    - gu install native-image # TODO move to image
+    - ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  artifacts:
+    paths:
+      - "theodolite-quarkus/build/*-runner"
     expire_in: 1 day
 
 test-theodolite:
   stage: test
   extends: .theodolite
   needs:
-    - build-theodolite
+    - build-theodolite-jvm
+    - build-theodolite-native
   script: ./gradlew test --stacktrace
 
 # Disabled for now
@@ -250,7 +260,7 @@ test-theodolite:
   stage: check
   extends: .theodolite
   needs:
-    - build-theodolite
+    - build-theodolite-jvm
     - test-theodolite
   script: ./gradlew ktlintCheck --continue
 
@@ -259,7 +269,7 @@ test-theodolite:
   stage: check
   extends: .theodolite
   needs:
-    - build-theodolite
+    - build-theodolite-jvm
     - test-theodolite
   script: ./gradlew detekt --continue
 
@@ -269,12 +279,12 @@ deploy-theodolite:
     - .theodolite
     - .dind
   needs:
-    - build-theodolite
+    - build-theodolite-native
     - test-theodolite
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
-    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
+    - docker build -f src/main/docker/Dockerfile.native -t theodolite .
+    #- docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
     - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
