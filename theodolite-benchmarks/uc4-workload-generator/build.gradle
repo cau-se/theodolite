@@ -1,5 +1,0 @@
-plugins {
-  id 'theodolite.uc-workload'
-}
-
-mainClassName = "theodolite.uc4.workloadgenerator.LoadGenerator"

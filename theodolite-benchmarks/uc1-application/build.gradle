@@ -1,5 +1,0 @@
-plugins {
-  id 'theodolite.uc-kafka-streams'
-}
-
-mainClassName = "theodolite.uc1.application.HistoryService"
