@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "theodolite.fullname" . }}-test-prometheus"
+  labels:
+    {{- include "theodolite.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['http://prometheus-operated:9090']
+  restartPolicy: Never
