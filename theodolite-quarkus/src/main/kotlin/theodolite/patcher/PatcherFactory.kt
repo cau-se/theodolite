@@ -22,6 +22,7 @@ class PatcherFactory {
                 patcherDefinition.container,
                 patcherDefinition.variableName
             )
+            "SchedulerNamePatcher" -> SchedulerNamePatcher(resource)
             else -> throw IllegalArgumentException("Patcher type ${patcherDefinition.type} not found")
         }
     }
