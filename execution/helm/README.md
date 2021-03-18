@@ -2,19 +2,14 @@
 
 ## Installation
 
-Load all dependencies:
+Install the chart via:
 
 ```sh
-helm dependencies update ./theodolite-chart
+helm dependencies update .
+helm install my-confluent .
 ```
 
-Install the chart:
-
-```sh
-helm install my-confluent ./theodolite-chart
-```
-
-**Please note: Theodolite uses hard-coded URLs, to connect to Kafka and Zookeeper. For that reason, the name of this chart must be `my-confluent`.** We will change this behavior soon.
+**Please note: Theodolite currently uses hard-coded URLs, to connect to Kafka and Zookeeper. For that reason, the name of this chart must be `my-confluent`.** We will change this behavior soon.
 
 This chart installs requirements to execute benchmarks with Theodolite.
 
@@ -35,7 +30,7 @@ Test the installation:
 helm test <release-name>
 ```
 
-Our test files are located [here](./theodolite-chart/templates/../../theodolite-chart/templates/tests). Many subcharts have their own tests, these are also executed and are placed in the respective /templates folders. 
+Our test files are located [here](templates/../../theodolite-chart/templates/tests). Many subcharts have their own tests, these are also executed and are placed in the respective /templates folders. 
 
 Please note: If a test fails, Helm will stop testing.
 
@@ -46,7 +41,7 @@ It is possible that the tests are not running successfully at the moment. This i
 In development environments Kubernetes resources are often low. To reduce resource consumption, we provide an `one-broker-value.yaml` file. This file can be used with:
 
 ```sh
-helm install theodolite <path-to-chart> -f one-broker-values.yaml
+helm install theodolite . -f preconfigs/one-broker-values.yaml
 ```
 
 ## Development
