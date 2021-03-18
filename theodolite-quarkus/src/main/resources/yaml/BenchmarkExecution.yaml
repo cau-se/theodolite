@@ -1,3 +1,7 @@
+apiVersion: demo.k8s.io/v1alpha1
+kind: Benchmarkexecutions
+metadata:
+  name: example-webserver
 name: "Theodolite Test Context"
 benchmark: "benchmarkType"
 load:
@@ -21,26 +25,3 @@ execution:
   repetitions: 1
   restrictions:
     - "LowerBound"
-configOverrides:
-  - patcher:
-      type: "NodeSelectorPatcher"
-      resource: "uc1-load-generator-deployment.yaml"
-      variableName: "env"
-    value: "prod"
-  - patcher:
-      type: "NodeSelectorPatcher"
-      resource: "uc1-kstreams-deployment.yaml"
-      variableName: "env"
-    value: "prod"
-  - patcher:
-      type: "ResourceLimitPatcher"
-      resource: "uc1-kstreams-deployment.yaml"
-      container: "uc-application"
-      variableName: "cpu"
-    value: "1000m"
-  - patcher:
-      type: "ResourceLimitPatcher"
-      resource: "uc1-kstreams-deployment.yaml"
-      container: "uc-application"
-      variableName: "memory"
-    value: "2Gi"

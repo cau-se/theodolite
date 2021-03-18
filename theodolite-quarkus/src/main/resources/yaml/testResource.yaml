@@ -1,0 +1,5 @@
+apiVersion: demo.k8s.io/v1alpha1
+kind: Benchmarkexecutions
+metadata:
+  name: example-webserver
+name: "Theodolite Test Context"

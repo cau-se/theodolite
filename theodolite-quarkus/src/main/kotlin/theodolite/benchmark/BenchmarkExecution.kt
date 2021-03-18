@@ -1,9 +1,12 @@
 package theodolite.benchmark
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.client.CustomResource
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
-class BenchmarkExecution {
+class BenchmarkExecution : CustomResource(){
     lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition
@@ -12,14 +15,16 @@ class BenchmarkExecution {
     lateinit var execution: Execution
     lateinit var configOverrides: List<ConfigurationOverride>
 
-    class Execution {
+    @JsonDeserialize
+    class Execution : KubernetesResource {
         lateinit var strategy: String
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
         lateinit var restrictions: List<String>
     }
 
-    class Slo {
+    @JsonDeserialize
+    class Slo : KubernetesResource{
         lateinit var sloType: String
         var threshold by Delegates.notNull<Int>()
         lateinit var prometheusUrl: String
@@ -28,12 +33,14 @@ class BenchmarkExecution {
         var warmup by Delegates.notNull<Int>()
     }
 
-    class LoadDefinition {
+    @JsonDeserialize
+    class LoadDefinition : KubernetesResource{
         lateinit var loadType: String
         lateinit var loadValues: List<Int>
     }
 
-    class ResourceDefinition {
+    @JsonDeserialize
+    class ResourceDefinition : KubernetesResource{
         lateinit var resourceType: String
         lateinit var resourceValues: List<Int>
     }
