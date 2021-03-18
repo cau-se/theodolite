@@ -24,7 +24,7 @@ lint-helm:
     entrypoint: [""]
   tags:
     - exec-docker
-  script: helm lint execution/helm/theodolite-chart/
+  script: helm lint execution/helm/
 
 
 # Theodolite Benchmarks
