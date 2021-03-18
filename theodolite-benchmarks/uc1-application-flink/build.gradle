@@ -1,5 +1,0 @@
-plugins {
-  id 'theodolite.uc-flink'
-}
-
-mainClassName = "theodolite.uc1.application.HistoryServiceFlinkJob"

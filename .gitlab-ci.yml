@@ -128,8 +128,9 @@ spotbugs-benchmarks:
     - changes:
       - theodolite-benchmarks/*
       - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
-      - theodolite-benchmarks/application-kafkastreams-commons/**/*
-      - theodolite-benchmarks/workload-generator-commons/**/*
+      - theodolite-benchmarks/kstreams-commons/**/*
+      - theodolite-benchmarks/flink-commons/**/*
+      - theodolite-benchmarks/load-generator-commons/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
@@ -140,73 +141,73 @@ deploy-uc1-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
-    JAVA_PROJECT_NAME: "uc1-application"
+    JAVA_PROJECT_NAME: "uc1-kstreams"
 
 deploy-uc2-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
-    JAVA_PROJECT_NAME: "uc2-application"
+    JAVA_PROJECT_NAME: "uc2-kstreams"
 
 deploy-uc3-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
-    JAVA_PROJECT_NAME: "uc3-application"
+    JAVA_PROJECT_NAME: "uc3-kstreams"
 
 deploy-uc4-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
-    JAVA_PROJECT_NAME: "uc4-application"
+    JAVA_PROJECT_NAME: "uc4-kstreams"
 
 deploy-uc1-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-flink"
-    JAVA_PROJECT_NAME: "uc1-application-flink"
+    JAVA_PROJECT_NAME: "uc1-flink"
 
 deploy-uc2-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-flink"
-    JAVA_PROJECT_NAME: "uc2-application-flink"
+    JAVA_PROJECT_NAME: "uc2-flink"
 
 deploy-uc3-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-flink"
-    JAVA_PROJECT_NAME: "uc3-application-flink"
+    JAVA_PROJECT_NAME: "uc3-flink"
 
 deploy-uc4-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-flink"
-    JAVA_PROJECT_NAME: "uc4-application-flink"
+    JAVA_PROJECT_NAME: "uc4-flink"
 
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-workload-generator"
-    JAVA_PROJECT_NAME: "uc1-workload-generator"
+    JAVA_PROJECT_NAME: "uc1-load-generator"
 
 deploy-uc2-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-workload-generator"
-    JAVA_PROJECT_NAME: "uc2-workload-generator"
+    JAVA_PROJECT_NAME: "uc2-load-generator"
 
 deploy-uc3-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-workload-generator"
-    JAVA_PROJECT_NAME: "uc3-workload-generator"
+    JAVA_PROJECT_NAME: "uc3-load-generator"
 
 deploy-uc4-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
-    JAVA_PROJECT_NAME: "uc4-workload-generator"
+    JAVA_PROJECT_NAME: "uc4-load-generator"
       
 
 # Theodolite Framework
