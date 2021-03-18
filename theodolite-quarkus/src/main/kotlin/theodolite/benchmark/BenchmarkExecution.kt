@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.client.CustomResource
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
+@JsonDeserialize
 class BenchmarkExecution : CustomResource(){
     lateinit var name: String
     lateinit var benchmark: String
