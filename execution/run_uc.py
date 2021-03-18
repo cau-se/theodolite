@@ -156,7 +156,7 @@ def start_workload_generator(svc_yaml, wg_yaml, dim_value, uc_id):
     wg_containter = next(filter(
         lambda x: x['name'] == 'workload-generator', wg_yaml['spec']['template']['spec']['containers']))
     wg_containter['image'] = 'ghcr.io/cau-se/theodolite-uc' + uc_id + \
-        '-workload-generator:latest'
+        '-workload-generator:v0.4.0'
     # Set environment variables
 
     replace_env_value(wg_containter['env'], 'NUM_SENSORS', str(num_sensors))
@@ -239,7 +239,7 @@ def start_application(svc_yaml, svc_monitor_yaml, jmx_yaml, deploy_yaml,
         lambda x: x['name'] == 'uc-application',
         deploy_yaml['spec']['template']['spec']['containers']))
     app_container['image'] = 'ghcr.io/cau-se/theodolite-uc' + uc_id \
-        + '-kstreams-app:latest'
+        + '-kstreams-app:v0.4.0'
 
     # Set configurations environment parameters for SPE
     for k, v in configurations.items():

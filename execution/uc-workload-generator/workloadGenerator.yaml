@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
       - name: workload-generator
-        image: workload-generator:latest
+        image: workload-generator:v0.4.0
         ports:
         - containerPort: 5701
           name: coordination
