@@ -15,6 +15,9 @@ class KubernetesBenchmarkDeployment(
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(DefaultKubernetesClient().inNamespace(namespace))
 
+    private val LABEL = "app.kubernetes.io/name=kafka-lag-exporter"
+    private val client = DefaultKubernetesClient().inNamespace(namespace)
+
     override fun setup() {
         kafkaController.createTopics(this.topics)
         resources.forEach {
@@ -23,6 +26,7 @@ class KubernetesBenchmarkDeployment(
     }
 
     override fun teardown() {
+        KafkaLagExporterRemover(client).remove(LABEL)
         kafkaController.removeTopics(this.topics.map { topic -> topic.name() })
         resources.forEach {
             kubernetesManager.remove(it)
