@@ -1,5 +1,5 @@
 name: "Theodolite Test Context"
-benchmark: "benchmarkType"
+benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
   loadValues:
@@ -11,7 +11,7 @@ resources:
 slos:
   - sloType: "lag trend"
     threshold: 1000
-    prometheusUrl: "http://localhost:32656"
+    prometheusUrl: "http://prometheus-operated:9090"
     externalSloUrl: "http://localhost:80/evaluate-slope"
     offset: 0
     warmup: 0
