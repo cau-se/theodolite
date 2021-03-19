@@ -44,3 +44,7 @@ configOverrides:
       container: "uc-application"
       variableName: "memory"
     value: "2Gi"
+  - patcher:
+      type: "SchedulerNamePatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+    value: "random-scheduler"
