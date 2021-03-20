@@ -25,7 +25,6 @@ class BenchmarkExecutorImpl(
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides)
         benchmarkDeployment.setup()
         this.waitAndLog()
-        benchmarkDeployment.teardown()
 
         var result = false
         try {
@@ -45,6 +44,8 @@ class BenchmarkExecutorImpl(
         } catch (e: Exception) {
             logger.error { "Evaluation failed for resource: ${res.get()} and load: ${load.get()} error: $e" }
         }
+
+        benchmarkDeployment.teardown()
 
         this.results.setResult(Pair(load, res), result)
         return result
