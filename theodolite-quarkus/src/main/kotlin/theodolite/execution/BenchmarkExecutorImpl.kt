@@ -4,13 +4,11 @@ import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.evaluation.AnalysisExecutor
-import theodolite.evaluation.SloCheckerFactory
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
-import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -26,7 +24,7 @@ class BenchmarkExecutorImpl(
         benchmarkDeployment.setup()
         this.waitAndLog()
 
-        var result = AnalysisExecutor().analyse(load,executionDuration,res,slo)
+        val result = AnalysisExecutor(slo = slo).analyse(load = load, res = res, executionDuration = executionDuration)
 
         benchmarkDeployment.teardown()
 

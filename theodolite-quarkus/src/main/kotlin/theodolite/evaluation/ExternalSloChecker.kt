@@ -9,11 +9,8 @@ import java.time.Duration
 import java.time.Instant
 
 class ExternalSloChecker(
-    private val prometheusURL: String,
-    private val query: String,
     private val externalSlopeURL: String,
     private val threshold: Int,
-    private val offset: Duration,
     private val warmup: Int
 ) :
     SloChecker {
