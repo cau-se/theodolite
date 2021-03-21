@@ -10,86 +10,77 @@ import theodolite.benchmark.KubernetesBenchmark
 private val logger = KotlinLogging.logger {}
 
 
-class TheodoliteController(val client : NamespacedKubernetesClient,
-                           val informerBenchmarkExecution: SharedInformer<BenchmarkExecution>,
-                           val informerBenchmarkType : SharedInformer<KubernetesBenchmark> ) {
+class TheodoliteController(
+    val client: NamespacedKubernetesClient,
+    val informerBenchmarkExecution: SharedInformer<BenchmarkExecution>,
+    val informerBenchmarkType: SharedInformer<KubernetesBenchmark>
+) {
+    var execution: BenchmarkExecution? = null
+    var benchmarkType: KubernetesBenchmark? = null
+    var executor: TheodoliteExecutor? = null
+    var updated: Boolean = true
 
-    var execution : BenchmarkExecution? = null
-    var benchmarkType : KubernetesBenchmark? = null
-
-    var executor : TheodoliteExecutor? = null
-
-    var updated : Boolean = true
-
-     public fun create(){
+    /**
+     * Adds the EventHandler to kubernetes
+     */
+    fun create() {
 
         informerBenchmarkExecution.addEventHandler(object : ResourceEventHandler<BenchmarkExecution> {
-            override fun onAdd(webServer: BenchmarkExecution) {
-                execution = webServer
+            override fun onAdd(benchmarkExecution: BenchmarkExecution) {
+                execution = benchmarkExecution
             }
 
-            override fun onUpdate(webServer: BenchmarkExecution, newWebServer: BenchmarkExecution) {
-                println("hello there update")
-                execution = newWebServer
+            override fun onUpdate(oldExecution: BenchmarkExecution, newExecution: BenchmarkExecution) {
+                execution = newExecution
                 updated = true
                 shutdown()
-
             }
 
-            override fun onDelete(webServer: BenchmarkExecution, b: Boolean) {
-                println("delted")
+            override fun onDelete(benchmarkExecution: BenchmarkExecution, b: Boolean) {
                 shutdown()
             }
         })
 
         informerBenchmarkType.addEventHandler(object : ResourceEventHandler<KubernetesBenchmark> {
-            override fun onAdd(webServer: KubernetesBenchmark) {
-                benchmarkType = webServer
-                println("hello there add")
-                println(webServer.name)
+            override fun onAdd(kubernetesBenchmark: KubernetesBenchmark) {
+                benchmarkType = kubernetesBenchmark
             }
 
-            override fun onUpdate(webServer: KubernetesBenchmark, newWebServer: KubernetesBenchmark) {
-                benchmarkType = newWebServer
-                println("hello there update")
+            override fun onUpdate(oldBenchmark: KubernetesBenchmark, newBenchmark: KubernetesBenchmark) {
+                benchmarkType = newBenchmark
                 updated = true
                 shutdown()
-
-
             }
 
-            override fun onDelete(webServer: KubernetesBenchmark, b: Boolean) {
-                println("delted")
-                println(webServer.name)
+            override fun onDelete(kubernetesBenchmark: KubernetesBenchmark, b: Boolean) {
                 shutdown()
             }
         })
     }
 
-    fun run(){
-        while (true){
+    fun run() {
+        while (true) {
             try {
                 reconcile()
-            }
-            catch (e: InterruptedException){
-                logger.error{"$e "}
+            } catch (e: InterruptedException) {
+                logger.error { "$e" }
             }
         }
     }
 
     @Synchronized
     private fun reconcile() {
-        val localExecution  = this.execution
-        val localType  = this.benchmarkType
-        if(localType is KubernetesBenchmark && localExecution is BenchmarkExecution  && updated){
+        val localExecution = this.execution
+        val localType = this.benchmarkType
 
-            executor = TheodoliteExecutor(config= localExecution,kubernetesBenchmark = localType)
+        if (localType is KubernetesBenchmark && localExecution is BenchmarkExecution && updated) {
+            executor = TheodoliteExecutor(config = localExecution, kubernetesBenchmark = localType)
             executor!!.run()
             updated = false
         }
     }
 
-    private fun shutdown(){
-
+    private fun shutdown() {
+        Shutdown(benchmarkExecution = execution!!, benchmark = benchmarkType!!).run()
     }
 }
