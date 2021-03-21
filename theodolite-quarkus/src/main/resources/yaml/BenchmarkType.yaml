@@ -1,4 +1,4 @@
-name: "theodolite ist cool"
+name: "uc1-kstreams"
 appResource:
   - "uc1-kstreams-deployment.yaml"
   - "aggregation-service.yaml"
@@ -20,7 +20,7 @@ loadTypes:
         container: "workload-generator"
         variableName: "NUM_SENSORS"
 kafkaConfig:
-  bootstrapServer: "localhost:31290"
+  bootstrapServer: "theodolite-cp-kafka:9092"
   topics:
     - name: "input"
       numPartitions: 40

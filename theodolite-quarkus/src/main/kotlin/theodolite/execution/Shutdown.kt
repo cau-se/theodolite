@@ -16,14 +16,12 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
         logger.info { "Received shutdown signal -> Shutting down" }
         val deployment =
             benchmark.buildDeployment(
-                load = LoadDimension(0, "shutdown"),
-                res = Resource(0, "shutdown"),
+                load = LoadDimension(0, emptyList()),
+                res = Resource(0, emptyList()),
                 configurationOverrides = benchmarkExecution.configOverrides
             )
         logger.info { "Teardown the everything deployed" }
         deployment.teardown()
         logger.info { "Teardown completed" }
-
-        // TODO Clear/Reset the kafka lag exporter ?
     }
 }

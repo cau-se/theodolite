@@ -7,7 +7,6 @@ import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.YamlParser
 import kotlin.system.exitProcess
 
-private var DEFAULT_NAMESPACE = "default"
 private val logger = KotlinLogging.logger {}
 
 @QuarkusMain(name = "TheodoliteYamlExecutor")

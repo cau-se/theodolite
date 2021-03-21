@@ -1,0 +1,18 @@
+// Plugins
+allprojects {
+  apply plugin: 'eclipse'
+}
+
+// Check for updates every build
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+allprojects {
+  eclipse {
+      classpath {
+         downloadSources=true
+         downloadJavadoc=true
+      }
+  }
+}

@@ -3,7 +3,7 @@ kind: Benchmarkexecutions
 metadata:
   name: example-webserver
 name: "Theodolite Test Context"
-benchmark: "benchmarkType"
+benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
   loadValues:
@@ -15,7 +15,8 @@ resources:
 slos:
   - sloType: "lag trend"
     threshold: 1000
-    prometheusUrl: "http://localhost:32656"
+    #prometheusUrl: "http://localhost:32656"
+    prometheusUrl: "http://prometheus-operated:9090"
     externalSloUrl: "http://localhost:80/evaluate-slope"
     offset: 0
     warmup: 0
@@ -25,3 +26,30 @@ execution:
   repetitions: 1
   restrictions:
     - "LowerBound"
+configOverrides:
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-load-generator-deployment.yaml"
+      variableName: "env"
+    value: "prod"
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      variableName: "env"
+    value: "prod"
+#  - patcher:
+#      type: "ResourceLimitPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      container: "uc-application"
+#      variableName: "cpu"
+#    value: "1000m"
+#  - patcher:
+#      type: "ResourceLimitPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      container: "uc-application"
+#      variableName: "memory"
+#    value: "2Gi"
+#  - patcher:
+#      type: "SchedulerNamePatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#    value: "random-scheduler"
