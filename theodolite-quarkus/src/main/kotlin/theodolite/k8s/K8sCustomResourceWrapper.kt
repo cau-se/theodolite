@@ -5,14 +5,14 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 
 /**
- * Fabric8 handles custom resources as plain HashMaps. These need to be handled differently than normal
- * Kubernetes resources.  The K8sCustomResourceWrapper class provides a wrapper to deploy and delete
- * custom resources in a uniform way.
- *
- * @property map custom resource as plain hashmap
- * @constructor Create empty K8s custom resource wrapper
- */
-    class K8sCustomResourceWrapper(private val map : Map<String,String>) : CustomResource() {
+* Fabric8 handles custom resources as plain HashMaps. These need to be handled differently than normal
+* Kubernetes resources.  The K8sCustomResourceWrapper class provides a wrapper to deploy and delete
+* custom resources in a uniform way.
+*
+* @property map custom resource as plain hashmap
+* @constructor Create empty K8s custom resource wrapper
+*/
+class K8sCustomResourceWrapper(private val map : Map<String,String>) : CustomResource() {
 
 
     /**
