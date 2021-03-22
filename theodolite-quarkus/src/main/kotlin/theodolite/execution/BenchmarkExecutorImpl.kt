@@ -3,13 +3,12 @@ package theodolite.execution
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
-import theodolite.evaluation.SloCheckerFactory
+import theodolite.evaluation.AnalysisExecutor
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
-import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -24,26 +23,10 @@ class BenchmarkExecutorImpl(
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides)
         benchmarkDeployment.setup()
         this.waitAndLog()
-        benchmarkDeployment.teardown()
 
-        var result = false
-        try {
-            result = SloCheckerFactory().create(
-                slotype = slo.sloType,
-                prometheusURL = slo.prometheusUrl,
-                query = "sum by(group)(kafka_consumergroup_group_lag >= 0)",
-                externalSlopeURL = slo.externalSloUrl,
-                threshold = slo.threshold,
-                offset = Duration.ofHours(slo.offset.toLong()),
-                warmup = slo.warmup
-            )
-                .evaluate(
-                    Instant.now().minus(executionDuration),
-                    Instant.now()
-                )
-        } catch (e: Exception) {
-            logger.error { "Evaluation failed for resource: ${res.get()} and load: ${load.get()} error: $e" }
-        }
+        val result = AnalysisExecutor(slo = slo).analyse(load = load, res = res, executionDuration = executionDuration)
+
+        benchmarkDeployment.teardown()
 
         this.results.setResult(Pair(load, res), result)
         return result
