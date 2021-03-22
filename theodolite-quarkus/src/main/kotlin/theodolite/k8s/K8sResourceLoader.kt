@@ -3,10 +3,10 @@ package theodolite.k8s
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Service
-import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
+import theodolite.util.YamlParser
 
 private val logger = KotlinLogging.logger {}
 
@@ -22,12 +22,12 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
     }
 
     /**
-     * Parses a Service from a service yaml
+     * Parses a CustomResource from a yaml
      * @param path of the yaml file
-     * @return service from fabric8
+     * @return customResource from fabric8
      */
-    private fun loadServiceMonitor(path: String): CustomResourceDefinition {
-        return loadGenericResource(path) { x: String -> client.customResourceDefinitions().load(x).get() }
+    fun loadCustomResource(path: String): K8sCustomResourceWrapper {
+        return loadGenericResource(path) { x: String -> K8sCustomResourceWrapper(YamlParser().parse(path, HashMap<String, String>()::class.java)!!) }
     }
 
     /**
@@ -73,9 +73,17 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         return when (kind) {
             "Deployment" -> loadDeployment(path)
             "Service" -> loadService(path)
-            "ServiceMonitor" -> loadServiceMonitor(path)
+            "ServiceMonitor" -> loadCustomResource(path)
             "ConfigMap" -> loadConfigmap(path)
-            else -> throw IllegalArgumentException("Unknown resource with type $kind located in $path")
+            else -> {
+                    logger.warn { "Try to load $kind from $path as Custom ressource" }
+                    try{
+                        loadCustomResource(path)
+                    } catch (e:Exception){
+                        logger.error { "Error during loading of unspecified CustomResource: $e" }
+                        throw e
+                    }
+            }
         }
     }
 }
