@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import theodolite.util.PrometheusResponse
 import java.io.File
 import java.io.PrintWriter
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
@@ -13,7 +14,7 @@ class CsvExporter {
      * Uses the PrintWriter to transform a PrometheusResponse to Csv
      */
     fun toCsv(name: String, prom: PrometheusResponse) {
-        val responseArray = toArray(prom)
+        val responseArray = promResponseToList(prom)
         val csvOutputFile = File("$name.csv")
 
         PrintWriter(csvOutputFile).use { pw ->
@@ -22,14 +23,13 @@ class CsvExporter {
                 pw.println(it.joinToString())
             }
         }
-        logger.debug { csvOutputFile.absolutePath }
         logger.info { "Wrote csv file: $name to ${csvOutputFile.absolutePath}" }
     }
 
     /**
      * Converts a PrometheusResponse into a List of List of Strings
      */
-    private fun toArray(prom: PrometheusResponse): MutableList<List<String>> {
+    private fun promResponseToList(prom: PrometheusResponse): List<List<String>> {
         val name = prom.data?.result?.get(0)?.metric?.group.toString()
         val values = prom.data?.result?.get(0)?.values
         val dataList = mutableListOf<List<String>>()
@@ -40,6 +40,6 @@ class CsvExporter {
                 dataList.add(listOf(name, "${y[0]}", "${y[1]}"))
             }
         }
-        return dataList
+        return Collections.unmodifiableList(dataList)
     }
 }

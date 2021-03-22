@@ -5,7 +5,6 @@ import khttp.post
 import mu.KotlinLogging
 import theodolite.util.PrometheusResponse
 import java.net.ConnectException
-import java.time.Duration
 import java.time.Instant
 
 class ExternalSloChecker(
@@ -29,7 +28,7 @@ class ExternalSloChecker(
             val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)
             if (result.statusCode != 200) {
                 counter++
-                logger.error{"Could not reach external slope analysis"}
+                logger.error { "Could not reach external slope analysis" }
             } else {
                 return result.text.toBoolean()
             }
