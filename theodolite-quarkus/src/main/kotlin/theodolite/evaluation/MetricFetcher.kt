@@ -37,7 +37,7 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
             } else {
                 val values = parseValues(response)
                 if (values.data?.result.isNullOrEmpty()) {
-                    logger.error { "Empty query result: $values" }
+                    logger.error { "Empty query result: $values between $start and $end for querry $query" }
                     throw NoSuchFieldException()
                 }
                 return parseValues(response)
