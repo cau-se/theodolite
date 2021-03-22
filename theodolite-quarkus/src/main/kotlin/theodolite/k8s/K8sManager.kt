@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 
+
 class K8sManager(private val client: NamespacedKubernetesClient) {
     fun deploy(resource: KubernetesResource) {
         when (resource) {
@@ -18,6 +19,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.configMaps().createOrReplace(resource)
             is StatefulSet ->
                 this.client.apps().statefulSets().createOrReplace(resource)
+            is K8sCustomResourceWrapper -> resource.deploy(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
@@ -32,6 +34,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.configMaps().delete(resource)
             is StatefulSet ->
                 this.client.apps().statefulSets().delete(resource)
+            is K8sCustomResourceWrapper -> resource.delete(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
