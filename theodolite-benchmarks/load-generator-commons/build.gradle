@@ -1,0 +1,26 @@
+plugins {
+    id 'theodolite.java-commons'
+}
+
+repositories {
+  jcenter()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+      url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  implementation 'com.google.guava:guava:30.1-jre'
+  implementation 'com.hazelcast:hazelcast:4.1.1'
+  implementation 'com.hazelcast:hazelcast-kubernetes:2.2.1'
+  implementation 'org.slf4j:slf4j-simple:1.7.25'
+  implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+  implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+  implementation 'org.apache.kafka:kafka-streams:2.6.0' // TODO required?
+
+  // Use JUnit test framework
+  testImplementation 'junit:junit:4.12'
+}

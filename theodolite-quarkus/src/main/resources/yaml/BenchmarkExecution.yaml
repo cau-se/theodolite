@@ -1,5 +1,5 @@
 name: "Theodolite Test Context"
-benchmark: "benchmarkType"
+benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
   loadValues:
@@ -12,6 +12,7 @@ slos:
   - sloType: "lag trend"
     threshold: 1000
     prometheusUrl: "http://localhost:32656"
+    #    prometheusUrl: "http://prometheus-operated:9090"
     externalSloUrl: "http://localhost:80/evaluate-slope"
     offset: 0
     warmup: 0
@@ -44,3 +45,7 @@ configOverrides:
       container: "uc-application"
       variableName: "memory"
     value: "2Gi"
+  - patcher:
+      type: "SchedulerNamePatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+    value: "random-scheduler"

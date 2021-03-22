@@ -6,6 +6,8 @@ in realistic execution environments, some third-party components are [required](
 After everything is installed and configured, you can move on the [execution of
 benchmarks](#execution).
 
+*Note: The currently released version of Theodolite only allows running Kafka Streams benchmarks. With the upcoming release `0.5`, we plan to support arbitrary stream processing engines, in particular, our already available implementations for Apache Flink. To already run them now, please contact us.*
+
 ## Installation
 
 For executing benchmarks, access to a Kubernetes cluster is required. If you already run other applications inside your

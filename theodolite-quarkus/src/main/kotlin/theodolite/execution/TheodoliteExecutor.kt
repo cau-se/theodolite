@@ -2,6 +2,7 @@ package theodolite.execution
 
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
+import theodolite.patcher.PatcherDefinitionFactory
 import theodolite.strategies.StrategyFactory
 import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.util.Config
@@ -20,6 +21,14 @@ class TheodoliteExecutor(
         val strategyFactory = StrategyFactory()
 
         val executionDuration = Duration.ofSeconds(config.execution.duration)
+
+        val resourcePatcherDefinition = PatcherDefinitionFactory().createPatcherDefinition(
+            config.resources.resourceType,
+            this.kubernetesBenchmark.resourceTypes
+        )
+        val loadDimensionPatcherDefinition =
+            PatcherDefinitionFactory().createPatcherDefinition(config.load.loadType, this.kubernetesBenchmark.loadTypes)
+
         val executor =
             BenchmarkExecutorImpl(
                 kubernetesBenchmark,
@@ -30,9 +39,13 @@ class TheodoliteExecutor(
             )
 
         return Config(
-            loads = config.load.loadValues.map { load -> LoadDimension(load, config.load.loadType) },
-            resources = config.resources.resourceValues.map
-            { resource -> Resource(resource, config.resources.resourceType) },
+            loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },
+            resources = config.resources.resourceValues.map { resource ->
+                Resource(
+                    resource,
+                    resourcePatcherDefinition
+                )
+            },
             compositeStrategy = CompositeStrategy(
                 benchmarkExecutor = executor,
                 searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy),

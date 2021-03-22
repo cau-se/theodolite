@@ -15,6 +15,17 @@ stages:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
+# Theodolite Helm Chart
+
+lint-helm:
+  stage: check
+  image:
+    name: alpine/helm:3.5.2
+    entrypoint: [""]
+  tags:
+    - exec-docker
+  script: helm lint execution/helm/
+
 
 # Theodolite Benchmarks
 
@@ -28,7 +39,7 @@ stages:
     paths:
       - .gradle
   before_script:
-    - cd benchmarks
+    - cd theodolite-benchmarks
     - export GRADLE_USER_HOME=`pwd`/.gradle
 
 build-benchmarks:
@@ -37,8 +48,9 @@ build-benchmarks:
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "benchmarks/build/libs/*.jar"
-      - "benchmarks/*/build/distributions/*.tar"
+      - "theodolite-benchmarks/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/distributions/*.tar"
     expire_in: 1 day
 
 test-benchmarks:
@@ -50,7 +62,7 @@ test-benchmarks:
   artifacts:
     reports:
       junit:
-        - "benchmarks/**/build/test-results/test/TEST-*.xml"
+        - "theodolite-benchmarks/**/build/test-results/test/TEST-*.xml"
 
 checkstyle-benchmarks:
   stage: check
@@ -61,7 +73,7 @@ checkstyle-benchmarks:
   script: ./gradlew checkstyle --continue
   artifacts:
     paths:
-      - "benchmarks/*/build/reports/checkstyle/main.html"
+      - "theodolite-benchmarks/*/build/reports/checkstyle/main.html"
     when: on_failure
     expire_in: 1 day
 
@@ -74,7 +86,7 @@ pmd-benchmarks:
   script: ./gradlew pmd --continue
   artifacts:
     paths:
-      - "benchmarks/*/build/reports/pmd/*.html"
+      - "theodolite-benchmarks/*/build/reports/pmd/*.html"
     when: on_failure
     expire_in: 1 day
 
@@ -87,7 +99,7 @@ spotbugs-benchmarks:
   script: ./gradlew spotbugs --continue
   artifacts:
     paths:
-      - "benchmarks/*/build/reports/spotbugs/*.html"
+      - "theodolite-benchmarks/*/build/reports/spotbugs/*.html"
     when: on_failure
     expire_in: 1 day
 
@@ -114,69 +126,94 @@ spotbugs-benchmarks:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - benchmarks/*
-      - benchmarks/$JAVA_PROJECT_NAME/**/*
-      - benchmarks/application-kafkastreams-commons/**/*
-      - benchmarks/workload-generator-commons/**/*
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
+      - theodolite-benchmarks/kstreams-commons/**/*
+      - theodolite-benchmarks/flink-commons/**/*
+      - theodolite-benchmarks/load-generator-commons/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual
       allow_failure: true
 
-deploy-uc1-kstreams-app:
+deploy-uc1-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
-    JAVA_PROJECT_NAME: "uc1-application"
+    JAVA_PROJECT_NAME: "uc1-kstreams"
 
-deploy-uc2-kstreams-app:
+deploy-uc2-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
-    JAVA_PROJECT_NAME: "uc2-application"
+    JAVA_PROJECT_NAME: "uc2-kstreams"
 
-deploy-uc3-kstreams-app:
+deploy-uc3-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
-    JAVA_PROJECT_NAME: "uc3-application"
+    JAVA_PROJECT_NAME: "uc3-kstreams"
 
-deploy-uc4-kstreams-app:
+deploy-uc4-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
-    JAVA_PROJECT_NAME: "uc4-application"
+    JAVA_PROJECT_NAME: "uc4-kstreams"
+
+deploy-uc1-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-flink"
+    JAVA_PROJECT_NAME: "uc1-flink"
+
+deploy-uc2-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-flink"
+    JAVA_PROJECT_NAME: "uc2-flink"
+
+deploy-uc3-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-flink"
+    JAVA_PROJECT_NAME: "uc3-flink"
+
+deploy-uc4-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-flink"
+    JAVA_PROJECT_NAME: "uc4-flink"
 
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-workload-generator"
-    JAVA_PROJECT_NAME: "uc1-workload-generator"
+    JAVA_PROJECT_NAME: "uc1-load-generator"
 
 deploy-uc2-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-workload-generator"
-    JAVA_PROJECT_NAME: "uc2-workload-generator"
+    JAVA_PROJECT_NAME: "uc2-load-generator"
 
 deploy-uc3-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-workload-generator"
-    JAVA_PROJECT_NAME: "uc3-workload-generator"
+    JAVA_PROJECT_NAME: "uc3-load-generator"
 
 deploy-uc4-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
-    JAVA_PROJECT_NAME: "uc4-workload-generator"
+    JAVA_PROJECT_NAME: "uc4-load-generator"
       
 
 # Theodolite Framework
 
 .theodolite:
-  image: openjdk:11-jdk
+  image: ghcr.io/graalvm/graalvm-ce:java11-21.0.0.2
   tags:
     - exec-docker
   variables:
@@ -189,23 +226,33 @@ deploy-uc4-load-generator:
     - cd theodolite-quarkus
     - export GRADLE_USER_HOME=`pwd`/.gradle
 
-build-theodolite:
+build-theodolite-jvm:
   stage: build
   extends: .theodolite
-  # script: ./gradlew --build-cache assemble -Dquarkus.package.type=native
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
       - "theodolite-quarkus/build/lib/*"
       - "theodolite-quarkus/build/*-runner.jar"
-      # - "theodolite-quarkus/build/*-runner" # For native image
+    expire_in: 1 day
+
+build-theodolite-native:
+  stage: build
+  extends: .theodolite
+  script:
+    - gu install native-image # TODO move to image
+    - ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  artifacts:
+    paths:
+      - "theodolite-quarkus/build/*-runner"
     expire_in: 1 day
 
 test-theodolite:
   stage: test
   extends: .theodolite
   needs:
-    - build-theodolite
+    - build-theodolite-jvm
+    - build-theodolite-native
   script: ./gradlew test --stacktrace
 
 # Disabled for now
@@ -213,7 +260,7 @@ test-theodolite:
   stage: check
   extends: .theodolite
   needs:
-    - build-theodolite
+    - build-theodolite-jvm
     - test-theodolite
   script: ./gradlew ktlintCheck --continue
 
@@ -222,7 +269,7 @@ test-theodolite:
   stage: check
   extends: .theodolite
   needs:
-    - build-theodolite
+    - build-theodolite-jvm
     - test-theodolite
   script: ./gradlew detekt --continue
 
@@ -232,12 +279,12 @@ deploy-theodolite:
     - .theodolite
     - .dind
   needs:
-    - build-theodolite
+    - build-theodolite-native
     - test-theodolite
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
-    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
+    - docker build -f src/main/docker/Dockerfile.native -t theodolite .
+    #- docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
     - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
@@ -254,3 +301,30 @@ deploy-theodolite:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
+
+
+# Theodolite Random Scheduler
+
+deploy-random-scheduler:
+  stage: deploy
+  extends:
+    - .dind
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t theodolite-random-scheduler execution/infrastructure/random-scheduler
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:${DOCKER_TAG_NAME}latest"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:$CI_COMMIT_TAG"
+    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
+    - docker push $CR_HOST/$CR_ORG/theodolite-random-scheduler
+    - docker logout
+  rules:
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - execution/infrastructure/random-scheduler/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: always
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+      
