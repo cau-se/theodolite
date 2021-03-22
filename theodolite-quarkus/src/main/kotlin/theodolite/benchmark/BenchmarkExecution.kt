@@ -1,8 +1,10 @@
 package theodolite.benchmark
 
+import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
+@RegisterForReflection
 class BenchmarkExecution {
     lateinit var name: String
     lateinit var benchmark: String
@@ -12,6 +14,7 @@ class BenchmarkExecution {
     lateinit var execution: Execution
     lateinit var configOverrides: List<ConfigurationOverride>
 
+    @RegisterForReflection
     class Execution {
         lateinit var strategy: String
         var duration by Delegates.notNull<Long>()
@@ -19,6 +22,7 @@ class BenchmarkExecution {
         lateinit var restrictions: List<String>
     }
 
+    @RegisterForReflection
     class Slo {
         lateinit var sloType: String
         var threshold by Delegates.notNull<Int>()
@@ -28,11 +32,13 @@ class BenchmarkExecution {
         var warmup by Delegates.notNull<Int>()
     }
 
+    @RegisterForReflection
     class LoadDefinition {
         lateinit var loadType: String
         lateinit var loadValues: List<Int>
     }
 
+    @RegisterForReflection
     class ResourceDefinition {
         lateinit var resourceType: String
         lateinit var resourceValues: List<Int>

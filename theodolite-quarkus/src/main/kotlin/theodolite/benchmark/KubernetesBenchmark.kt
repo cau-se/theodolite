@@ -2,6 +2,7 @@ package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sResourceLoader
 import theodolite.patcher.PatcherManager
@@ -11,6 +12,7 @@ private val logger = KotlinLogging.logger {}
 
 private var DEFAULT_NAMESPACE = "default"
 
+@RegisterForReflection
 class KubernetesBenchmark : Benchmark {
     lateinit var name: String
     lateinit var appResource: List<String>
