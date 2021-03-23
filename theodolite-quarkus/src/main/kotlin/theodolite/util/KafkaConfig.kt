@@ -13,6 +13,7 @@ class KafkaConfig {
         return topics.map { topic -> NewTopic(topic.name, topic.numPartitions, topic.replicationFactor) }
     }
 
+    @RegisterForReflection
     class TopicWrapper {
         lateinit var name: String
         var numPartitions by Delegates.notNull<Int>()
