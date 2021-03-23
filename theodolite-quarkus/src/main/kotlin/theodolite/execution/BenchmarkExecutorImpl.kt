@@ -16,7 +16,7 @@ class BenchmarkExecutorImpl(
     benchmark: Benchmark,
     results: Results,
     executionDuration: Duration,
-    private val configurationOverrides: List<ConfigurationOverride>,
+    private val configurationOverrides: List<ConfigurationOverride?>,
     slo: BenchmarkExecution.Slo
 ) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
