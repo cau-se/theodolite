@@ -1,7 +1,7 @@
 apiVersion: theodolite.com/v1alpha1
 kind: benchmark
 metadata:
-  name: example-webserver
+  name: theodolite-example-benchmark
 name: "theodolite ist cool"
 appResource:
   - "uc1-kstreams-deployment.yaml"
