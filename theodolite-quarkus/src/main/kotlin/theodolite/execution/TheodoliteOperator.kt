@@ -11,7 +11,7 @@ import io.fabric8.kubernetes.internal.KubernetesDeserializer
 private var DEFAULT_NAMESPACE = "default"
 private val logger = KotlinLogging.logger {}
 
-@QuarkusMain(name = "TheodoliteCRDExecutor")
+@QuarkusMain(name = "TheodoliteOperator")
 object TheodoliteCRDExecutor {
     @JvmStatic
     fun main(args: Array<String>) {
@@ -23,29 +23,29 @@ object TheodoliteCRDExecutor {
 
 
         KubernetesDeserializer.registerCustomKind(
-            "demo.k8s.io/v1alpha1",
-            "Benchmarkexecutions",
+            "theodolite.com/v1alpha1",
+            "execution",
             BenchmarkExecution::class.java
         )
 
         KubernetesDeserializer.registerCustomKind(
-            "demo.k8s.io/v1alpha1",
-            "Benchmarktype",
+            "theodolite.com/v1alpha1",
+            "benchmark",
             KubernetesBenchmark::class.java
         )
 
         val ExececutionContext = CustomResourceDefinitionContext.Builder()
             .withVersion("v1alpha1")
             .withScope("Namespaced")
-            .withGroup("demo.k8s.io")
-            .withPlural("benchmarkexecutions")
+            .withGroup("theodolite.com")
+            .withPlural("executions")
             .build()
 
         val TypeContext = CustomResourceDefinitionContext.Builder()
             .withVersion("v1alpha1")
             .withScope("Namespaced")
-            .withGroup("demo.k8s.io")
-            .withPlural("benchmarktypes")
+            .withGroup("theodolite.com")
+            .withPlural("benchmarks")
             .build()
 
         val informerFactory = client.informers()

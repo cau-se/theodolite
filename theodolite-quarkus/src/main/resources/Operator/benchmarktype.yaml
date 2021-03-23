@@ -1,5 +1,5 @@
-apiVersion: demo.k8s.io/v1alpha1
-kind: Benchmarktype
+apiVersion: theodolite.com/v1alpha1
+kind: benchmark
 metadata:
   name: example-webserver
 name: "theodolite ist cool"

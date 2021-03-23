@@ -1,5 +1,5 @@
-apiVersion: demo.k8s.io/v1alpha1
-kind: Benchmarkexecutions
+apiVersion: theodolite.com/v1alpha1
+kind: execution
 metadata:
   name: example-webserver
 name: "Theodolite Test Context"
@@ -25,3 +25,5 @@ execution:
   repetitions: 1
   restrictions:
     - "LowerBound"
+configOverrides:
+  -
