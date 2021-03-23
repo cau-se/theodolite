@@ -8,6 +8,6 @@ interface Benchmark {
     fun buildDeployment(
         load: LoadDimension,
         res: Resource,
-        configurationOverrides: List<ConfigurationOverride>
+        configurationOverrides: List<ConfigurationOverride?>
     ): BenchmarkDeployment
 }
