@@ -16,7 +16,7 @@ object TheodoliteYamlExecutor {
     fun main(args: Array<String>) {
         logger.info { "Theodolite started" }
         val path = Paths.get("").toAbsolutePath().toString()
-        logger.info{ path }
+        logger.info { path }
 
         // load the BenchmarkExecution and the BenchmarkType
         val parser = YamlParser()
@@ -25,7 +25,9 @@ object TheodoliteYamlExecutor {
         val benchmark =
             parser.parse("./config/BenchmarkType.yaml", KubernetesBenchmark::class.java)!!
 
-        logger.info { benchmark.name.toString() }
+        //logger.info { benchmark.name.toString() }
+
+        benchmark.path = "config/"
 
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()
