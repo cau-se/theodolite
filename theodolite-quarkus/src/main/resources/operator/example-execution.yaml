@@ -2,8 +2,7 @@ apiVersion: theodolite.com/v1alpha1
 kind: execution
 metadata:
   name: theodolite-example-execution
-name: "Theodolite Test Context"
-benchmark: "benchmarkType"
+benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
   loadValues:

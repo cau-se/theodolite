@@ -2,12 +2,13 @@ package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
 @JsonDeserialize
-class BenchmarkExecution : CustomResource(){
+class BenchmarkExecution : CustomResource(), Namespaced {
     lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition

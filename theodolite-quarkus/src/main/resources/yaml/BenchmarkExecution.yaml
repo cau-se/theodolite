@@ -1,8 +1,7 @@
 apiVersion: demo.k8s.io/v1alpha1
 kind: Benchmarkexecutions
 metadata:
-  name: example-webserver
-name: "Theodolite Test Context"
+  name: example-execution
 benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"

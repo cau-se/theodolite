@@ -11,17 +11,14 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
-import kotlin.system.exitProcess
-
 
 private val logger = KotlinLogging.logger {}
-
 
 class TheodoliteExecutor(
     private var config: BenchmarkExecution,
     private var kubernetesBenchmark: KubernetesBenchmark
 ) {
-    private val executionThread = Thread {
+    private val executionThread = Thread() {
         if(config == null || kubernetesBenchmark == null) {
             logger.error { "Execution or Benchmark not found" }
         } else {
@@ -93,11 +90,12 @@ class TheodoliteExecutor(
     fun run() {
         isRunning = true
         logger.info { "Start thread" }
-        executionThread.run()
+        executionThread.start()
         logger.info { "Stop Thread" }
     }
 
     fun stop() {
+        // TODO call shutdown hook
         isRunning = false
         executionThread.interrupt()
     }

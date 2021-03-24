@@ -1,13 +1,11 @@
 apiVersion: theodolite.com/v1alpha1
 kind: benchmark
 metadata:
-  name: theodolite-example-benchmark
-name: "theodolite ist cool"
+  name: uc1-kstreams
 appResource:
   - "uc1-kstreams-deployment.yaml"
   - "aggregation-service.yaml"
   - "jmx-configmap.yaml"
-  - "uc1-service-monitor.yaml"
 loadGenResource:
   - "uc1-load-generator-deployment.yaml"
   - "uc1-load-generator-service.yaml"

@@ -12,15 +12,14 @@ private var DEFAULT_NAMESPACE = "default"
 private val logger = KotlinLogging.logger {}
 
 @QuarkusMain(name = "TheodoliteOperator")
-object TheodoliteCRDExecutor {
+object TheodoliteOperator {
     @JvmStatic
     fun main(args: Array<String>) {
 
         val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
         logger.info { "Using $namespace as namespace." }
 
-        val client = DefaultKubernetesClient().inNamespace("default")
-
+        val client = DefaultKubernetesClient().inNamespace(namespace)
 
         KubernetesDeserializer.registerCustomKind(
             "theodolite.com/v1alpha1",
@@ -34,14 +33,14 @@ object TheodoliteCRDExecutor {
             KubernetesBenchmark::class.java
         )
 
-        val ExececutionContext = CustomResourceDefinitionContext.Builder()
+        val executionContext = CustomResourceDefinitionContext.Builder()
             .withVersion("v1alpha1")
             .withScope("Namespaced")
             .withGroup("theodolite.com")
             .withPlural("executions")
             .build()
 
-        val TypeContext = CustomResourceDefinitionContext.Builder()
+        val typeContext = CustomResourceDefinitionContext.Builder()
             .withVersion("v1alpha1")
             .withScope("Namespaced")
             .withGroup("theodolite.com")
@@ -50,25 +49,22 @@ object TheodoliteCRDExecutor {
 
         val informerFactory = client.informers()
 
+        val  informerBenchmarkExecution = informerFactory.sharedIndexInformerForCustomResource(
+            executionContext, BenchmarkExecution::class.java,
+            BenchmarkExecutionList::class.java, 10 * 60 * 1000.toLong()
+        )
 
-        val informerBenchmarkExecution = informerFactory.sharedIndexInformerForCustomResource(ExececutionContext, BenchmarkExecution::class.java,
-            BenchmarkExecutionList::class.java,10 * 60 * 1000.toLong())
-
-        val informerBenchmarkType = informerFactory.sharedIndexInformerForCustomResource(TypeContext, KubernetesBenchmark::class.java,
-            KubernetesBenchmarkList::class.java,10 * 60 * 1000.toLong())
-
-
-
+       val informerBenchmarkType = informerFactory.sharedIndexInformerForCustomResource(
+            typeContext, KubernetesBenchmark::class.java,
+            KubernetesBenchmarkList::class.java, 10 * 60 * 1000.toLong()
+        )
         val controller = TheodoliteController(client = client,
             informerBenchmarkExecution = informerBenchmarkExecution,
-            informerBenchmarkType = informerBenchmarkType)
+            informerBenchmarkType = informerBenchmarkType,
+            executionContext = executionContext)
 
         controller.create()
-
         informerFactory.startAllRegisteredInformers()
-
         controller.run()
-
-        //exitProcess(0)
     }
 }
