@@ -6,6 +6,8 @@ import io.fabric8.kubernetes.client.informers.SharedInformer
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
+import java.util.Queue
+import java.util.LinkedList
 
 private val logger = KotlinLogging.logger {}
 
@@ -15,10 +17,9 @@ class TheodoliteController(
     val informerBenchmarkExecution: SharedInformer<BenchmarkExecution>,
     val informerBenchmarkType: SharedInformer<KubernetesBenchmark>
 ) {
-    var execution: BenchmarkExecution? = null
-    var benchmarkType: KubernetesBenchmark? = null
-    var executor: TheodoliteExecutor? = null
-    var updated: Boolean = true
+    var executor: TheodoliteExecutor = TheodoliteExecutor()
+    val executionsQueue: Queue<BenchmarkExecution> = LinkedList<BenchmarkExecution>()
+    val benchmarks: MutableMap<String, KubernetesBenchmark> = HashMap()
 
     /**
      * Adds the EventHandler to kubernetes
@@ -27,33 +28,48 @@ class TheodoliteController(
 
         informerBenchmarkExecution.addEventHandler(object : ResourceEventHandler<BenchmarkExecution> {
             override fun onAdd(benchmarkExecution: BenchmarkExecution) {
-                execution = benchmarkExecution
+                executionsQueue.add(benchmarkExecution)
             }
 
             override fun onUpdate(oldExecution: BenchmarkExecution, newExecution: BenchmarkExecution) {
-                execution = newExecution
-                updated = true
-                shutdown()
+                if (executor.getExecution().name == newExecution.name) {
+                    executor.stop()
+                    executor.setExecution(newExecution)
+                    executor.run()
+                } else {
+                    executionsQueue.remove(oldExecution)
+                    onAdd(newExecution)
+                }
             }
 
-            override fun onDelete(benchmarkExecution: BenchmarkExecution, b: Boolean) {
-                shutdown()
+            override fun onDelete(execution: BenchmarkExecution, b: Boolean) {
+                if (executor.getExecution().name == execution.name) {
+                    executor.stop()
+                } else {
+                    executionsQueue.remove(execution)
+                }
             }
         })
 
         informerBenchmarkType.addEventHandler(object : ResourceEventHandler<KubernetesBenchmark> {
             override fun onAdd(kubernetesBenchmark: KubernetesBenchmark) {
-                benchmarkType = kubernetesBenchmark
+                benchmarks[kubernetesBenchmark.name] = kubernetesBenchmark
             }
 
             override fun onUpdate(oldBenchmark: KubernetesBenchmark, newBenchmark: KubernetesBenchmark) {
-                benchmarkType = newBenchmark
-                updated = true
-                shutdown()
+                onAdd(newBenchmark)
+                if (executor.getBenchmark().name == oldBenchmark.name) {
+                    executor.stop()
+                    executor.setBenchmark(newBenchmark)
+                    executor.run()
+                }
             }
 
-            override fun onDelete(kubernetesBenchmark: KubernetesBenchmark, b: Boolean) {
-                shutdown()
+            override fun onDelete(benchmark: KubernetesBenchmark, b: Boolean) {
+                benchmarks.remove(benchmark.name)
+                if(executor.getBenchmark().name == benchmark.name) {
+                    executor.stop()
+                }
             }
         })
     }
@@ -70,17 +86,18 @@ class TheodoliteController(
 
     @Synchronized
     private fun reconcile() {
-        val localExecution = this.execution
-        val localType = this.benchmarkType
-
-        if (localType is KubernetesBenchmark && localExecution is BenchmarkExecution && updated) {
-            executor = TheodoliteExecutor(config = localExecution, kubernetesBenchmark = localType)
-            executor!!.run()
-            updated = false
+        while(executionsQueue.isNotEmpty() && !executor.isRunning) {
+            val execution = executionsQueue.poll()
+            val benchmark = benchmarks[execution.name]
+            if (benchmark == null) {
+                logger.error { "No benchmark found for execution ${execution.name}" }
+                executionsQueue.add(execution)
+            } else {
+                executor.setExecution(execution)
+                executor.setBenchmark(benchmark)
+                executor.run()
+            }
         }
     }
 
-    private fun shutdown() {
-        Shutdown(benchmarkExecution = execution!!, benchmark = benchmarkType!!).run()
-    }
 }

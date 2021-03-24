@@ -1,5 +1,6 @@
 package theodolite.execution
 
+import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
@@ -10,11 +11,29 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
+import kotlin.system.exitProcess
+
+
+private val logger = KotlinLogging.logger {}
+
 
 class TheodoliteExecutor(
-    private val config: BenchmarkExecution,
-    private val kubernetesBenchmark: KubernetesBenchmark
+    private var config: BenchmarkExecution,
+    private var kubernetesBenchmark: KubernetesBenchmark
 ) {
+    private val executionThread = Thread {
+        if(config == null || kubernetesBenchmark == null) {
+            logger.error { "Execution or Benchmark not found" }
+        }else {
+            val config = buildConfig()
+            // execute benchmarks for each load
+            for (load in config.loads) {
+                config.compositeStrategy.findSuitableResource(load, config.resources)
+            }
+        }
+    }
+
+    var isRunning = false
 
     private fun buildConfig(): Config {
         val results = Results()
@@ -62,12 +81,31 @@ class TheodoliteExecutor(
         )
     }
 
-    fun run() {
-        val config = buildConfig()
-
-        // execute benchmarks for each load
-        for (load in config.loads) {
-            config.compositeStrategy.findSuitableResource(load, config.resources)
-        }
+    fun getExecution(): BenchmarkExecution {
+        return this.config
     }
-}
+
+    fun getBenchmark(): KubernetesBenchmark {
+        return this.kubernetesBenchmark
+    }
+
+    fun run() {
+        isRunning = true
+        executionThread.run()
+    }
+
+    fun stop() {
+        isRunning = false
+        executionThread.interrupt()
+    }
+
+    fun setExecution(config: BenchmarkExecution) {
+        this.config = config
+    }
+    fun setBenchmark(benchmark: KubernetesBenchmark) {
+        this.kubernetesBenchmark = benchmark
+    }
+
+    constructor() {}
+
+    }
