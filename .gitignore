@@ -33,3 +33,6 @@ tmp/
 
 # Python cache files
 *.pyc
+
+# Helm
+Chart.lock
