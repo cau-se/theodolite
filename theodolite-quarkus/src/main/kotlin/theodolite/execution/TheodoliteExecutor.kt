@@ -24,13 +24,14 @@ class TheodoliteExecutor(
     private val executionThread = Thread {
         if(config == null || kubernetesBenchmark == null) {
             logger.error { "Execution or Benchmark not found" }
-        }else {
+        } else {
             val config = buildConfig()
             // execute benchmarks for each load
             for (load in config.loads) {
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }
+        isRunning = false
     }
 
     var isRunning = false
@@ -91,21 +92,13 @@ class TheodoliteExecutor(
 
     fun run() {
         isRunning = true
+        logger.info { "Start thread" }
         executionThread.run()
+        logger.info { "Stop Thread" }
     }
 
     fun stop() {
         isRunning = false
         executionThread.interrupt()
     }
-
-    fun setExecution(config: BenchmarkExecution) {
-        this.config = config
-    }
-    fun setBenchmark(benchmark: KubernetesBenchmark) {
-        this.kubernetesBenchmark = benchmark
-    }
-
-    constructor() {}
-
-    }
+}

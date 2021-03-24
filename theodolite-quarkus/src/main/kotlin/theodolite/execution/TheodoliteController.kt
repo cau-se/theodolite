@@ -17,7 +17,8 @@ class TheodoliteController(
     val informerBenchmarkExecution: SharedInformer<BenchmarkExecution>,
     val informerBenchmarkType: SharedInformer<KubernetesBenchmark>
 ) {
-    var executor: TheodoliteExecutor = TheodoliteExecutor()
+    lateinit var executor: TheodoliteExecutor
+    val self = this
     val executionsQueue: Queue<BenchmarkExecution> = LinkedList<BenchmarkExecution>()
     val benchmarks: MutableMap<String, KubernetesBenchmark> = HashMap()
 
@@ -34,7 +35,7 @@ class TheodoliteController(
             override fun onUpdate(oldExecution: BenchmarkExecution, newExecution: BenchmarkExecution) {
                 if (executor.getExecution().name == newExecution.name) {
                     executor.stop()
-                    executor.setExecution(newExecution)
+                    executor = TheodoliteExecutor(config = newExecution, kubernetesBenchmark = executor.getBenchmark())
                     executor.run()
                 } else {
                     executionsQueue.remove(oldExecution)
@@ -60,7 +61,7 @@ class TheodoliteController(
                 onAdd(newBenchmark)
                 if (executor.getBenchmark().name == oldBenchmark.name) {
                     executor.stop()
-                    executor.setBenchmark(newBenchmark)
+                    executor = TheodoliteExecutor(config = executor.getExecution(), kubernetesBenchmark = newBenchmark)
                     executor.run()
                 }
             }
@@ -86,16 +87,17 @@ class TheodoliteController(
 
     @Synchronized
     private fun reconcile() {
-        while(executionsQueue.isNotEmpty() && !executor.isRunning) {
+        while(executionsQueue.isNotEmpty()) {
             val execution = executionsQueue.poll()
             val benchmark = benchmarks[execution.name]
             if (benchmark == null) {
                 logger.error { "No benchmark found for execution ${execution.name}" }
                 executionsQueue.add(execution)
             } else {
-                executor.setExecution(execution)
-                executor.setBenchmark(benchmark)
-                executor.run()
+                if ((this::executor.isInitialized && !executor.isRunning) || !this::executor.isInitialized) {
+                    executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
+                    executor.run()
+                }
             }
         }
     }
