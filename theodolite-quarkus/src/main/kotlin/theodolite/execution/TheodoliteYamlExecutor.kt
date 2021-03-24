@@ -5,7 +5,6 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.YamlParser
-import java.nio.file.Paths
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
@@ -15,19 +14,23 @@ object TheodoliteYamlExecutor {
     @JvmStatic
     fun main(args: Array<String>) {
         logger.info { "Theodolite started" }
-        val path = Paths.get("").toAbsolutePath().toString()
-        logger.info { path }
+
+        val executionPath = System.getenv("THEODOLITE_EXECUTION") ?: "./config/BenchmarkExecution.yaml"
+        val benchmarkPath = System.getenv("THEODOLITE_BENCHMARK_TYPE") ?: "./config/BenchmarkType.yaml"
+        val appResource = System.getenv("THEODOLITE_RESOURCES") ?: "./config"
+
+        logger.info { "Using $executionPath for BenchmarkExecution" }
+        logger.info { "Using $benchmarkPath for BenchmarkType" }
+        logger.info { "Using $appResource for Resources" }
+
 
         // load the BenchmarkExecution and the BenchmarkType
         val parser = YamlParser()
         val benchmarkExecution =
-            parser.parse("./config/BenchmarkExecution.yaml", BenchmarkExecution::class.java)!!
+            parser.parse(path = executionPath, E = BenchmarkExecution::class.java)!!
         val benchmark =
-            parser.parse("./config/BenchmarkType.yaml", KubernetesBenchmark::class.java)!!
-
-        //logger.info { benchmark.name.toString() }
-
-        benchmark.path = "config/"
+            parser.parse(path = benchmarkPath, E = KubernetesBenchmark::class.java)!!
+        benchmark.path = appResource
 
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()
