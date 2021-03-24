@@ -12,7 +12,7 @@ class BenchmarkExecution {
     lateinit var resources: ResourceDefinition
     lateinit var slos: List<Slo>
     lateinit var execution: Execution
-    lateinit var configOverrides: List<ConfigurationOverride>
+    lateinit var configOverrides: List<ConfigurationOverride?>
 
     @RegisterForReflection
     class Execution {

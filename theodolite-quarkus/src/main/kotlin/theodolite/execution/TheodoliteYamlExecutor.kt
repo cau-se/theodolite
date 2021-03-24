@@ -32,9 +32,13 @@ object TheodoliteYamlExecutor {
             parser.parse(path = benchmarkPath, E = KubernetesBenchmark::class.java)!!
         benchmark.path = appResource
 
+        val shutdown = Shutdown(benchmarkExecution, benchmark)
+        Runtime.getRuntime().addShutdownHook(shutdown)
+
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()
         logger.info { "Theodolite finished" }
+        Runtime.getRuntime().removeShutdownHook(shutdown)
         exitProcess(0)
     }
 }
