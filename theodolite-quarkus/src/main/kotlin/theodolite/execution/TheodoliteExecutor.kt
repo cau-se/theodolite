@@ -103,11 +103,11 @@ class TheodoliteExecutor(
                 }
             }
             logger.info { "Stop Thread" }
+            isRunning = false
         }
     }
 
     fun stop() {
-        // TODO call shutdown hook
         isRunning = false
         try {
             executor.stop()

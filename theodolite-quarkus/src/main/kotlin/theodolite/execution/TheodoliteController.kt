@@ -42,8 +42,8 @@ class TheodoliteController(
                 if (::executor.isInitialized && executor.getExecution().name == newExecution.metadata.name) {
                     logger.info { "restart current benchmark with new version" }
                     executor.stop()
-                    executor = TheodoliteExecutor(config = newExecution, kubernetesBenchmark = executor.getBenchmark())
-                    executor.run()
+                    sleep(2000)
+                    startBenchmark(execution = newExecution, benchmark = executor.getBenchmark())
                 } else {
                     onDelete(oldExecution, false)
                     onAdd(newExecution)
@@ -70,10 +70,11 @@ class TheodoliteController(
             override fun onUpdate(oldBenchmark: KubernetesBenchmark, newBenchmark: KubernetesBenchmark) {
                 logger.info { "Update benchmark ${newBenchmark.metadata.name}" }
                 if (::executor.isInitialized && executor.getBenchmark().name == oldBenchmark.metadata.name) {
+
                     logger.info { "restart current benchmark with new version" }
                     executor.stop()
-                    executor = TheodoliteExecutor(config = executor.getExecution(), kubernetesBenchmark = newBenchmark)
-                    executor.run()
+                    sleep(2000)
+                    startBenchmark(execution = executor.getExecution(), benchmark = newBenchmark)
                 } else {
                     onAdd(newBenchmark)
                 }
@@ -94,8 +95,10 @@ class TheodoliteController(
         while (true) {
             try {
                 reconcile()
-                logger.info { "Theodolite is waiting for new jobs" }
-                sleep(1000)
+                if (this::executor.isInitialized && !executor.isRunning) {
+                    logger.info { "Theodolite is waiting for new jobs" }
+                    sleep(1000)
+                }
             } catch (e: InterruptedException) {
                 logger.error { "Execution interrupted with error: $e" }
             }
@@ -114,21 +117,29 @@ class TheodoliteController(
                 logger.debug { "No benchmark found for execution ${execution.benchmark}" }
                 sleep(1000)
             } else {
-                logger.info { "Start execution ${execution.name} with benchmark ${benchmark.name}" }
-                executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
-                executor.run()
-                // wait until executions is deleted
-                try {
-                    client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
-                    while (executionsQueue.contains(execution)) {
-                        logger.info { "sleep" }
-                        sleep(1000)
-                    }
-                } catch (e: Exception) {
-                    logger.error { "Error while delete current execution: $e" }
-                }
-                logger.info { "Execution is finally stopped for execution ${execution.name}" }
+                startBenchmark(execution, benchmark)
             }
         }
+    }
+
+
+    fun startBenchmark(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
+
+        logger.info { "Start execution ${execution.name} with benchmark ${benchmark.name}" }
+        executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
+        executor.run()
+        // wait until execution is deleted
+        try {
+            client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
+            sleep(1000)
+            while (executionsQueue.contains(execution)) {
+                sleep(2000)
+                logger.info { "Delete of execution: ${execution.name} failed. Retrying in 2 second." }
+                client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
+            }
+        } catch (e: Exception) {
+            logger.error { "Error while delete current execution: $e" }
+        }
+        logger.info { "Execution of ${execution.name} is finally stopped" }
     }
 }

@@ -61,7 +61,7 @@ abstract class BenchmarkExecutor(
             }
         }
 
-        logger.info { "Exucutor shutdown gracefully" }
+        logger.debug { "Executor shutdown gracefully" }
 
     }
 }
