@@ -1,5 +1,6 @@
 package theodolite.execution
 
+import io.smallrye.mutiny.helpers.Subscriptions.cancel
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
@@ -35,6 +36,10 @@ abstract class BenchmarkExecutor(
      * @return True, if the number of resources are suitable for the given load, false otherwise.
      */
     abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
+
+    fun stop() {
+        throw InterruptedException()
+    }
 
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.

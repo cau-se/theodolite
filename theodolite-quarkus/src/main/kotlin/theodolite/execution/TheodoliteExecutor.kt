@@ -32,6 +32,7 @@ class TheodoliteExecutor(
     }
 
     var isRunning = false
+    lateinit var executor: BenchmarkExecutor
 
     private fun buildConfig(): Config {
         val results = Results()
@@ -51,7 +52,7 @@ class TheodoliteExecutor(
                 this.kubernetesBenchmark.loadTypes
             )
 
-        val executor =
+        executor =
             BenchmarkExecutorImpl(
                 kubernetesBenchmark,
                 results,
@@ -90,13 +91,26 @@ class TheodoliteExecutor(
     fun run() {
         isRunning = true
         logger.info { "Start thread" }
-        executionThread.start()
-        logger.info { "Stop Thread" }
+        // executionThread.start()
+        if (config == null || kubernetesBenchmark == null) {
+            logger.error { "Execution or Benchmark not found" }
+        } else {
+            val config = buildConfig()
+            // execute benchmarks for each load
+            for (load in config.loads) {
+                config.compositeStrategy.findSuitableResource(load, config.resources)
+            }
+            logger.info { "Stop Thread" }
+        }
     }
 
     fun stop() {
         // TODO call shutdown hook
         isRunning = false
-        executionThread.interrupt()
+        try {
+            executor.stop()
+        } catch (e: InterruptedException) {
+            logger.warn { "Execution stopped" }
+        }
     }
 }

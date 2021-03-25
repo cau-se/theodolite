@@ -21,7 +21,6 @@ class TheodoliteController(
     val executionContext: CustomResourceDefinitionContext
 ) {
     lateinit var executor: TheodoliteExecutor
-    val self = this
     val executionsQueue: Queue<BenchmarkExecution> = LinkedList<BenchmarkExecution>()
     val benchmarks: MutableMap<String, KubernetesBenchmark> = HashMap()
 
@@ -94,6 +93,8 @@ class TheodoliteController(
         while (true) {
             try {
                 reconcile()
+                logger.info { "Theodolite is waiting for new jobs" }
+                sleep(1000)
             } catch (e: InterruptedException) {
                 logger.error { "Execution interrupted with error: $e" }
             }
@@ -113,10 +114,16 @@ class TheodoliteController(
                 executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
                 executor.run()
                 // wait until executions is deleted
-                client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
-                while (executionsQueue.contains(execution)) {
-                    sleep(1000)
+                try {
+                    client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
+                    while (executionsQueue.contains(execution)) {
+                        logger.info { "sleep" }
+                        sleep(1000)
+                    }
+                } catch (e: Exception) {
+                    logger.error { "Error while delete current execution" }
                 }
+                logger.info { "Execution is finally stopped for execution ${execution.name}" }
             }
         }
     }

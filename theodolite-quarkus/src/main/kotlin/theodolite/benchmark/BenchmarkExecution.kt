@@ -5,7 +5,10 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
 import theodolite.util.ConfigurationOverride
+import java.lang.System.exit
+import kotlin.concurrent.thread
 import kotlin.properties.Delegates
+import kotlin.system.exitProcess
 
 @JsonDeserialize
 class BenchmarkExecution : CustomResource(), Namespaced {
@@ -16,6 +19,10 @@ class BenchmarkExecution : CustomResource(), Namespaced {
     lateinit var slos: List<Slo>
     lateinit var execution: Execution
     lateinit var configOverrides: List<ConfigurationOverride?>
+
+    fun stop() {
+        throw InterruptedException()
+    }
 
     @JsonDeserialize
     class Execution : KubernetesResource {
