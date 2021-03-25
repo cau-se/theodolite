@@ -8,8 +8,9 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import java.lang.Thread.sleep
-import java.util.Queue
-import java.util.LinkedList
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.set
 
 private val logger = KotlinLogging.logger {}
 
@@ -30,8 +31,8 @@ class TheodoliteController(
     fun create() {
         informerBenchmarkExecution.addEventHandler(object : ResourceEventHandler<BenchmarkExecution> {
             override fun onAdd(execution: BenchmarkExecution) {
-                logger.info { "Add new execution ${execution.metadata.name} to queue" }
                 execution.name = execution.metadata.name
+                logger.info { "Add new execution ${execution.metadata.name} to queue" }
                 executionsQueue.add(execution)
 
             }
@@ -51,7 +52,7 @@ class TheodoliteController(
 
             override fun onDelete(execution: BenchmarkExecution, b: Boolean) {
                 logger.info { "Delete execution ${execution.metadata.name} from queue" }
-                executionsQueue.removeIf{e -> e.name == execution.metadata.name}
+                executionsQueue.removeIf { e -> e.name == execution.metadata.name }
                 if (::executor.isInitialized && executor.getExecution().name == execution.metadata.name) {
                     executor.stop()
                     logger.info { "Current benchmark stopped" }
@@ -61,8 +62,8 @@ class TheodoliteController(
 
         informerBenchmarkType.addEventHandler(object : ResourceEventHandler<KubernetesBenchmark> {
             override fun onAdd(benchmark: KubernetesBenchmark) {
-                logger.info { "Add new benchmark ${benchmark.name}" }
                 benchmark.name = benchmark.metadata.name
+                logger.info { "Add new benchmark ${benchmark.name}" }
                 benchmarks[benchmark.name] = benchmark
             }
 
@@ -81,7 +82,7 @@ class TheodoliteController(
             override fun onDelete(benchmark: KubernetesBenchmark, b: Boolean) {
                 logger.info { "Delete benchmark ${benchmark.metadata.name}" }
                 benchmarks.remove(benchmark.metadata.name)
-                if(::executor.isInitialized && executor.getBenchmark().name == benchmark.metadata.name) {
+                if (::executor.isInitialized && executor.getBenchmark().name == benchmark.metadata.name) {
                     executor.stop()
                     logger.info { "Current benchmark stopped" }
                 }
@@ -100,15 +101,18 @@ class TheodoliteController(
             }
         }
     }
+
     @Synchronized
     private fun reconcile() {
-        while(executionsQueue.isNotEmpty()
-            && ((this::executor.isInitialized && !executor.isRunning) || !this::executor.isInitialized)) {
+        while (executionsQueue.isNotEmpty()
+            && ((this::executor.isInitialized && !executor.isRunning) || !this::executor.isInitialized)
+        ) {
             val execution = executionsQueue.peek()
             val benchmark = benchmarks[execution.benchmark]
 
             if (benchmark == null) {
                 logger.debug { "No benchmark found for execution ${execution.benchmark}" }
+                sleep(1000)
             } else {
                 logger.info { "Start execution ${execution.name} with benchmark ${benchmark.name}" }
                 executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
@@ -121,7 +125,7 @@ class TheodoliteController(
                         sleep(1000)
                     }
                 } catch (e: Exception) {
-                    logger.error { "Error while delete current execution" }
+                    logger.error { "Error while delete current execution: $e" }
                 }
                 logger.info { "Execution is finally stopped for execution ${execution.name}" }
             }
