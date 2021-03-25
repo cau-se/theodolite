@@ -40,7 +40,6 @@ abstract class BenchmarkExecutor(
 
     fun stop() {
         run = false
-        //throw InterruptedException()
     }
 
     /**

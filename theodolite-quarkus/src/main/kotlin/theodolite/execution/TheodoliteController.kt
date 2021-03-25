@@ -22,7 +22,7 @@ class TheodoliteController(
     val executionContext: CustomResourceDefinitionContext
 ) {
     lateinit var executor: TheodoliteExecutor
-    val executionsQueue: Queue<BenchmarkExecution> = LinkedList<BenchmarkExecution>()
+    var executionsQueue: Queue<BenchmarkExecution> = LinkedList<BenchmarkExecution>()
     val benchmarks: MutableMap<String, KubernetesBenchmark> = HashMap()
 
     /**
@@ -38,23 +38,20 @@ class TheodoliteController(
             }
 
             override fun onUpdate(oldExecution: BenchmarkExecution, newExecution: BenchmarkExecution) {
-                logger.info { "Update execution ${oldExecution.metadata.name}" }
+                logger.info { "Add updated execution to queue" }
                 if (::executor.isInitialized && executor.getExecution().name == newExecution.metadata.name) {
-                    logger.info { "restart current benchmark with new version" }
-                    executor.stop()
-                    sleep(2000)
-                    startBenchmark(execution = newExecution, benchmark = executor.getBenchmark())
-                } else {
-                    onDelete(oldExecution, false)
-                    onAdd(newExecution)
+                    executor.executor.run = false
                 }
+                newExecution.name = newExecution.metadata.name
+                executionsQueue.removeIf { e -> e.name == newExecution.metadata.name }
+                executionsQueue.add(newExecution)
             }
 
             override fun onDelete(execution: BenchmarkExecution, b: Boolean) {
                 logger.info { "Delete execution ${execution.metadata.name} from queue" }
                 executionsQueue.removeIf { e -> e.name == execution.metadata.name }
                 if (::executor.isInitialized && executor.getExecution().name == execution.metadata.name) {
-                    executor.stop()
+                    executor.executor.run = false
                     logger.info { "Current benchmark stopped" }
                 }
             }
@@ -69,12 +66,12 @@ class TheodoliteController(
 
             override fun onUpdate(oldBenchmark: KubernetesBenchmark, newBenchmark: KubernetesBenchmark) {
                 logger.info { "Update benchmark ${newBenchmark.metadata.name}" }
+                newBenchmark.name = newBenchmark.metadata.name
                 if (::executor.isInitialized && executor.getBenchmark().name == oldBenchmark.metadata.name) {
-
-                    logger.info { "restart current benchmark with new version" }
-                    executor.stop()
-                    sleep(2000)
-                    startBenchmark(execution = executor.getExecution(), benchmark = newBenchmark)
+                    executor.executor.run = false
+                    val execution =  executor.getExecution()
+                    execution.name = execution.name + System.currentTimeMillis()
+                    executionsQueue.add(execution)
                 } else {
                     onAdd(newBenchmark)
                 }
@@ -84,7 +81,7 @@ class TheodoliteController(
                 logger.info { "Delete benchmark ${benchmark.metadata.name}" }
                 benchmarks.remove(benchmark.metadata.name)
                 if (::executor.isInitialized && executor.getBenchmark().name == benchmark.metadata.name) {
-                    executor.stop()
+                    executor.executor.run = false
                     logger.info { "Current benchmark stopped" }
                 }
             }
@@ -95,9 +92,9 @@ class TheodoliteController(
         while (true) {
             try {
                 reconcile()
+                logger.info { "Theodolite is waiting for new jobs" }
+                sleep(2000)
                 if (this::executor.isInitialized && !executor.isRunning) {
-                    logger.info { "Theodolite is waiting for new jobs" }
-                    sleep(1000)
                 }
             } catch (e: InterruptedException) {
                 logger.error { "Execution interrupted with error: $e" }
@@ -108,8 +105,7 @@ class TheodoliteController(
     @Synchronized
     private fun reconcile() {
         while (executionsQueue.isNotEmpty()
-            && ((this::executor.isInitialized && !executor.isRunning) || !this::executor.isInitialized)
-        ) {
+            && ((this::executor.isInitialized && !executor.isRunning) || !this::executor.isInitialized)) {
             val execution = executionsQueue.peek()
             val benchmark = benchmarks[execution.benchmark]
 
@@ -117,28 +113,19 @@ class TheodoliteController(
                 logger.debug { "No benchmark found for execution ${execution.benchmark}" }
                 sleep(1000)
             } else {
-                startBenchmark(execution, benchmark)
+                runExecution(execution, benchmark)
             }
         }
     }
 
-
-    fun startBenchmark(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
-
+    @Synchronized
+    fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         logger.info { "Start execution ${execution.name} with benchmark ${benchmark.name}" }
         executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
         executor.run()
-        // wait until execution is deleted
-        try {
+
+        if (executionsQueue.contains(execution)) {
             client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
-            sleep(1000)
-            while (executionsQueue.contains(execution)) {
-                sleep(2000)
-                logger.info { "Delete of execution: ${execution.name} failed. Retrying in 2 second." }
-                client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
-            }
-        } catch (e: Exception) {
-            logger.error { "Error while delete current execution: $e" }
         }
         logger.info { "Execution of ${execution.name} is finally stopped" }
     }

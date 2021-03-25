@@ -25,4 +25,13 @@ execution:
   restrictions:
     - "LowerBound"
 configOverrides:
-  -
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-load-generator-deployment.yaml"
+      variableName: "env"
+    value: "prod"
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      variableName: "env"
+    value: "prod"

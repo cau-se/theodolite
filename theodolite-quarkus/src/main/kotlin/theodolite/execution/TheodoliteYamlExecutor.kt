@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.YamlParser
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
@@ -23,12 +24,12 @@ object TheodoliteYamlExecutor {
             parser.parse("./../../../resources/main/yaml/BenchmarkType.yaml", KubernetesBenchmark::class.java)!!
 
         val shutdown = Shutdown(benchmarkExecution, benchmark)
-        Runtime.getRuntime().addShutdownHook(shutdown)
+        Runtime.getRuntime().addShutdownHook(thread { shutdown.run()})
 
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()
         logger.info { "Theodolite finished" }
-        Runtime.getRuntime().removeShutdownHook(shutdown)
+        Runtime.getRuntime().removeShutdownHook(thread { shutdown.run()})
         exitProcess(0)
     }
 }

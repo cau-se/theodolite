@@ -20,10 +20,6 @@ class BenchmarkExecution : CustomResource(), Namespaced {
     lateinit var execution: Execution
     lateinit var configOverrides: List<ConfigurationOverride?>
 
-    fun stop() {
-        throw InterruptedException()
-    }
-
     @JsonDeserialize
     class Execution : KubernetesResource {
         lateinit var strategy: String
