@@ -20,15 +20,19 @@ class BenchmarkExecutorImpl(
     slo: BenchmarkExecution.Slo
 ) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
+        var result = false
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides)
         benchmarkDeployment.setup()
         this.waitAndLog()
 
-        val result = AnalysisExecutor(slo = slo).analyse(load = load, res = res, executionDuration = executionDuration)
+        if (this.run) {
+            result =
+                AnalysisExecutor(slo = slo).analyse(load = load, res = res, executionDuration = executionDuration)
 
-        benchmarkDeployment.teardown()
+            benchmarkDeployment.teardown()
 
-        this.results.setResult(Pair(load, res), result)
+            this.results.setResult(Pair(load, res), result)
+        }
         return result
     }
 }

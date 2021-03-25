@@ -1,6 +1,5 @@
 package theodolite.execution
 
-import io.smallrye.mutiny.helpers.Subscriptions.cancel
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
@@ -28,6 +27,8 @@ abstract class BenchmarkExecutor(
     val slo: BenchmarkExecution.Slo
 ) {
 
+    var run = true
+
     /**
      * Run a experiment for the given parametrization, evaluate the experiment and save the result.
      *
@@ -38,7 +39,8 @@ abstract class BenchmarkExecutor(
     abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
 
     fun stop() {
-        throw InterruptedException()
+        run = false
+        //throw InterruptedException()
     }
 
     /**
@@ -47,12 +49,19 @@ abstract class BenchmarkExecutor(
      */
     fun waitAndLog() {
         logger.info { "Execution of a new benchmark started." }
-        for (i in 1.rangeTo(executionDuration.toSeconds())) {
 
+        var secondsRunning = 0L
+
+        while (run && secondsRunning < executionDuration.toSeconds()) {
+            secondsRunning++
             Thread.sleep(Duration.ofSeconds(1).toMillis())
-            if ((i % 60) == 0L) {
-                logger.info { "Executed: ${i / 60} minutes" }
+
+            if ((secondsRunning % 60) == 0L) {
+                logger.info { "Executed: ${secondsRunning / 60} minutes" }
             }
         }
+
+        logger.info { "Exucutor shutdown gracefully" }
+
     }
 }
