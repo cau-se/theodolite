@@ -16,8 +16,8 @@ object TheodoliteYamlExecutor {
         logger.info { "Theodolite started" }
 
         val executionPath = System.getenv("THEODOLITE_EXECUTION") ?: "./config/BenchmarkExecution.yaml"
-        val benchmarkPath = System.getenv("THEODOLITE_BENCHMARK_TYPE") ?: "./config/BenchmarkType.yaml"
-        val appResource = System.getenv("THEODOLITE_RESOURCES") ?: "./config"
+        val benchmarkPath = System.getenv("THEODOLITE_BENCHMARK") ?: "./config/BenchmarkType.yaml"
+        val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
 
         logger.info { "Using $executionPath for BenchmarkExecution" }
         logger.info { "Using $benchmarkPath for BenchmarkType" }
