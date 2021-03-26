@@ -1,6 +1,5 @@
 package theodolite.execution
 
-import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
@@ -12,13 +11,10 @@ import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
 
-private val logger = KotlinLogging.logger {}
-
 class TheodoliteExecutor(
     private var config: BenchmarkExecution,
     private var kubernetesBenchmark: KubernetesBenchmark
 ) {
-    var isRunning = false
     lateinit var executor: BenchmarkExecutor
 
     private fun buildConfig(): Config {
@@ -76,18 +72,12 @@ class TheodoliteExecutor(
     }
 
     fun run() {
-        isRunning = true
-        logger.info { "Start thread" }
-
         val config = buildConfig()
         // execute benchmarks for each load
         for (load in config.loads) {
-            if (isRunning) {
+            if (executor.run) {
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }
-        logger.info { "Stop Thread" }
-        isRunning = false
-
     }
 }
