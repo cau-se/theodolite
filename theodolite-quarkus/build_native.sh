@@ -1,6 +1,5 @@
 
-./gradlew build -Dquarkus.package.type=native
-
+./gradlew build -Dquarkus.package.type=native -x test
 
 docker build -f src/main/docker/Dockerfile.native -t quarkus/theodolite-quarkus .
 

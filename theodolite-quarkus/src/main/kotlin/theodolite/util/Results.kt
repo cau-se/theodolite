@@ -1,5 +1,8 @@
 package theodolite.util
 
+import io.quarkus.runtime.annotations.RegisterForReflection
+
+@RegisterForReflection
 class Results {
     private val results: MutableMap<Pair<LoadDimension, Resource>, Boolean> = mutableMapOf()
 

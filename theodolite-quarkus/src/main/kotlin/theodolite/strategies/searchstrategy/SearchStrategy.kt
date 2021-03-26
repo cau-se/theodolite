@@ -1,9 +1,11 @@
 package theodolite.strategies.searchstrategy
 
+import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
+@RegisterForReflection
 abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor) {
     /**
      * Find smallest suitable resource from the specified resource list for the given load.
