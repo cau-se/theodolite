@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
+import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ConfigurationOverride
-import java.lang.System.exit
-import kotlin.concurrent.thread
 import kotlin.properties.Delegates
-import kotlin.system.exitProcess
 
 @JsonDeserialize
+@RegisterForReflection
 class BenchmarkExecution : CustomResource(), Namespaced {
     lateinit var name: String
     lateinit var benchmark: String
@@ -21,6 +20,7 @@ class BenchmarkExecution : CustomResource(), Namespaced {
     lateinit var configOverrides: List<ConfigurationOverride?>
 
     @JsonDeserialize
+    @RegisterForReflection
     class Execution : KubernetesResource {
         lateinit var strategy: String
         var duration by Delegates.notNull<Long>()
@@ -29,7 +29,8 @@ class BenchmarkExecution : CustomResource(), Namespaced {
     }
 
     @JsonDeserialize
-    class Slo : KubernetesResource{
+    @RegisterForReflection
+    class Slo : KubernetesResource {
         lateinit var sloType: String
         var threshold by Delegates.notNull<Int>()
         lateinit var prometheusUrl: String
@@ -38,14 +39,17 @@ class BenchmarkExecution : CustomResource(), Namespaced {
         var warmup by Delegates.notNull<Int>()
     }
 
+
     @JsonDeserialize
-    class LoadDefinition : KubernetesResource{
+    @RegisterForReflection
+    class LoadDefinition : KubernetesResource {
         lateinit var loadType: String
         lateinit var loadValues: List<Int>
     }
 
     @JsonDeserialize
-    class ResourceDefinition : KubernetesResource{
+    @RegisterForReflection
+    class ResourceDefinition : KubernetesResource {
         lateinit var resourceType: String
         lateinit var resourceValues: List<Int>
     }

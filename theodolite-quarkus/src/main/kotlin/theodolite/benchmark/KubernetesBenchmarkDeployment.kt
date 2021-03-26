@@ -2,10 +2,12 @@ package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.quarkus.runtime.annotations.RegisterForReflection
 import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.K8sManager
 import theodolite.k8s.TopicManager
 
+@RegisterForReflection
 class KubernetesBenchmarkDeployment(
     val namespace: String,
     val resources: List<KubernetesResource>,

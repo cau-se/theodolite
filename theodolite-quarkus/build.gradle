@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.29'
     implementation 'io.github.microutils:kotlin-logging:1.12.0'
     implementation 'io.fabric8:kubernetes-client:5.0.0-alpha-2'
+    implementation 'io.quarkus:quarkus-kubernetes-client'
     implementation 'org.apache.kafka:kafka-clients:2.7.0'
     implementation 'khttp:khttp:1.0.0'
 }

@@ -1,6 +1,6 @@
 package theodolite.execution
 
-import mu.KotlinLogging
+import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.evaluation.AnalysisExecutor
@@ -10,8 +10,7 @@ import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
 
-private val logger = KotlinLogging.logger {}
-
+@RegisterForReflection
 class BenchmarkExecutorImpl(
     benchmark: Benchmark,
     results: Results,
