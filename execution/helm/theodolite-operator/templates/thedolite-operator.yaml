@@ -1,0 +1,26 @@
+{{- if .Values.operator.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "theodolite-operator.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: theodolite
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: theodolite
+    spec:
+      terminationGracePeriodSeconds: 0
+      serviceAccountName:  {{ include "theodolite-operator.serviceAccountName" . }}
+      containers:
+        - name: thedolite
+          image: lorenzboguhn/thedolite:latest
+          env:
+            - name: KUBECONFIG
+              value: "~/.kube/config"
+            - name: NAMESPACE
+              value: {{ .Values.operator.namespace}}
+{{- end }}

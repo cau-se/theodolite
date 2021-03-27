@@ -1,0 +1,15 @@
+{{- if .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name:  {{ include "theodolite-operator.fullname" . }}
+  labels:
+    app:  {{ include "theodolite-operator.name" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "theodolite-operator.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "theodolite-operator.serviceAccountName" . }}
+{{- end }}
