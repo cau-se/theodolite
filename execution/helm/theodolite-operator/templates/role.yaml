@@ -13,6 +13,7 @@ rules:
     - list
     - get
     - create
+    - update
   - apiGroups:
     - ""
     resources:
@@ -21,6 +22,7 @@ rules:
     - servicemonitors
     - configmaps
     verbs:
+    - update
     - delete
     - list
     - get
@@ -37,6 +39,7 @@ rules:
     resources:
     - servicemonitors
     verbs:
+    - update
     - delete
     - list
     - create

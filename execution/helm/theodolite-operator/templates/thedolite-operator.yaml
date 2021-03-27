@@ -6,12 +6,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: theodolite
+      app: {{ include "theodolite-operator.fullname" . }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: theodolite
+        app: {{ include "theodolite-operator.fullname" . }}
     spec:
       terminationGracePeriodSeconds: 0
       serviceAccountName:  {{ include "theodolite-operator.serviceAccountName" . }}
@@ -23,4 +23,11 @@ spec:
               value: {{ .Values.operator.namespace}}
         - name: lag-analysis
           image: benediktwetzel/lag-analysis
+          env:
+            - name: PORT
+              value: "8080"
+          ports:
+          - containerPort: 8080
+            name: analysis 
+          
 {{- end }}
