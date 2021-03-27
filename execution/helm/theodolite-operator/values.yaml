@@ -13,3 +13,7 @@ serviceAccount:
 
 rbac: 
   create: true
+
+serviceAnalysis:
+  type: ClusterIP
+  port: 80

@@ -1,0 +1,15 @@
+{{- if .Values.operator.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "theodolite-operator.fullname" . }}
+  labels:
+    {{- include "theodolite-operator.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.serviceAnalysis.type }}
+  ports:
+    - port: {{ .Values.serviceAnalysis.port }}
+      protocol: TCP
+  selector:
+    {{- include "theodolite-operator.fullname" . | nindent 4 }}
+{{- end }}

@@ -16,11 +16,11 @@ spec:
       terminationGracePeriodSeconds: 0
       serviceAccountName:  {{ include "theodolite-operator.serviceAccountName" . }}
       containers:
-        - name: thedolite
+        - name: theodolite
           image: lorenzboguhn/thedolite:latest
           env:
-            - name: KUBECONFIG
-              value: "~/.kube/config"
             - name: NAMESPACE
               value: {{ .Values.operator.namespace}}
+        - name: lag-analysis
+          image: benediktwetzel/lag-analysis
 {{- end }}
