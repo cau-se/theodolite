@@ -30,6 +30,10 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
         namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
         logger.info { "Using $namespace as namespace." }
 
+        path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+        logger.info { "Using $path as path for resources." }
+
+
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
             .map { resource ->
@@ -62,7 +66,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
                 patcherFactory.createPatcher(it.patcher, resources).patch(override.value)
             }
         }
-        
+
         return KubernetesBenchmarkDeployment(
             namespace = namespace,
             resources = resources.map { r -> r.second },

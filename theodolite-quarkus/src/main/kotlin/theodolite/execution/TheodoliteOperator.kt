@@ -2,10 +2,13 @@ package theodolite.execution
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
+import io.fabric8.kubernetes.internal.KubernetesDeserializer
 import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
-import theodolite.benchmark.*
-import io.fabric8.kubernetes.internal.KubernetesDeserializer
+import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.BenchmarkExecutionList
+import theodolite.benchmark.KubernetesBenchmark
+import theodolite.benchmark.KubernetesBenchmarkList
 
 
 private var DEFAULT_NAMESPACE = "default"
@@ -18,6 +21,7 @@ object TheodoliteOperator {
 
         val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
         logger.info { "Using $namespace as namespace." }
+
 
         val client = DefaultKubernetesClient().inNamespace(namespace)
 
@@ -49,19 +53,21 @@ object TheodoliteOperator {
 
         val informerFactory = client.informers()
 
-        val  informerBenchmarkExecution = informerFactory.sharedIndexInformerForCustomResource(
+        val informerBenchmarkExecution = informerFactory.sharedIndexInformerForCustomResource(
             executionContext, BenchmarkExecution::class.java,
             BenchmarkExecutionList::class.java, 10 * 60 * 1000.toLong()
         )
 
-       val informerBenchmarkType = informerFactory.sharedIndexInformerForCustomResource(
+        val informerBenchmarkType = informerFactory.sharedIndexInformerForCustomResource(
             typeContext, KubernetesBenchmark::class.java,
             KubernetesBenchmarkList::class.java, 10 * 60 * 1000.toLong()
         )
-        val controller = TheodoliteController(client = client,
+        val controller = TheodoliteController(
+            client = client,
             informerBenchmarkExecution = informerBenchmarkExecution,
             informerBenchmarkType = informerBenchmarkType,
-            executionContext = executionContext)
+            executionContext = executionContext
+        )
 
         controller.create()
         informerFactory.startAllRegisteredInformers()
