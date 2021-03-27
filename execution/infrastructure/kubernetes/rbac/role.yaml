@@ -39,3 +39,17 @@ rules:
     - delete
     - list
     - create
+  - apiGroups:
+    - theodolite.com
+    resources: 
+    - executions
+    - benchmarks
+    verbs:
+    - delete
+    - list
+    - get
+    - create
+    - watch
+    - update
+    - patch
+    

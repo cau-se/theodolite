@@ -20,17 +20,14 @@ class KubernetesBenchmark : Benchmark {
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
-    lateinit var namespace: String
-    lateinit var path: String
+    val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    val path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+    val client = DefaultKubernetesClient().inNamespace(namespace)
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
-        //val path = "./../../../resources/main/yaml/"
         val parser = YamlParser()
 
-        namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-        logger.info { "Using $namespace as namespace." }
-
-        val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
+        val loader = K8sResourceLoader(client)
         return resources
             .map { resource ->
                 val resourcePath = "$path/$resource"
@@ -45,22 +42,32 @@ class KubernetesBenchmark : Benchmark {
         res: Resource,
         configurationOverrides: List<ConfigurationOverride?>
     ): BenchmarkDeployment {
+        logger.info { "Using $namespace as namespace." }
+        logger.info { "Using $path as resource path." }
+
         val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
         val patcherFactory = PatcherFactory()
 
         // patch the load dimension the resources
-        load.getType().forEach { patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString()) }
-        res.getType().forEach{ patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString()) }
+        load.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString())
+        }
+        res.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString())
+        }
 
         // Patch the given overrides
-        configurationOverrides.forEach { override -> override?.let { patcherFactory.createPatcher(it.patcher, resources).patch(override.value) } }
-
-
+        configurationOverrides.forEach { override ->
+            override?.let {
+                patcherFactory.createPatcher(it.patcher, resources).patch(override.value)
+            }
+        }
         return KubernetesBenchmarkDeployment(
             namespace = namespace,
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
-            topics = kafkaConfig.getKafkaTopics()
+            topics = kafkaConfig.getKafkaTopics(),
+            client = client
         )
     }
 }

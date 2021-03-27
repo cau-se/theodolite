@@ -1,7 +1,7 @@
 package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.K8sManager
@@ -12,13 +12,12 @@ class KubernetesBenchmarkDeployment(
     val namespace: String,
     val resources: List<KubernetesResource>,
     private val kafkaConfig: HashMap<String, Any>,
-    private val topics: Collection<NewTopic>
+    private val topics: Collection<NewTopic>,
+    private val client: NamespacedKubernetesClient
 ) : BenchmarkDeployment {
     private val kafkaController = TopicManager(this.kafkaConfig)
-    private val kubernetesManager = K8sManager(DefaultKubernetesClient().inNamespace(namespace))
-
+    private val kubernetesManager = K8sManager(client)
     private val LABEL = "app.kubernetes.io/name=kafka-lag-exporter"
-    private val client = DefaultKubernetesClient().inNamespace(namespace)
 
     override fun setup() {
         kafkaController.createTopics(this.topics)
