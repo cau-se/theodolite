@@ -23,11 +23,7 @@ spec:
               value: {{ .Values.operator.namespace}}
         - name: lag-analysis
           image: benediktwetzel/lag-analysis
-          env:
-            - name: PORT
-              value: "8080"
           ports:
-          - containerPort: 8080
+          - containerPort: 80
             name: analysis 
-          
 {{- end }}

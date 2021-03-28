@@ -15,5 +15,5 @@ rbac:
   create: true
 
 serviceAnalysis:
-  type: NodePort
-  port: 8080
+  type: ClusterIP
+  port: 80
