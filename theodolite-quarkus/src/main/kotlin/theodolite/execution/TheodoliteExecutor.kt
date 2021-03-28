@@ -1,5 +1,6 @@
 package theodolite.execution
 
+import com.google.gson.GsonBuilder
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
@@ -9,6 +10,7 @@ import theodolite.util.Config
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
+import java.io.PrintWriter
 import java.time.Duration
 
 class TheodoliteExecutor(
@@ -59,11 +61,22 @@ class TheodoliteExecutor(
     }
 
     fun run() {
+        saveConfiguration()
         val config = buildConfig()
-
         // execute benchmarks for each load
         for (load in config.loads) {
             config.compositeStrategy.findSuitableResource(load, config.resources)
+        }
+    }
+
+    fun saveConfiguration() {
+        val gson = GsonBuilder().setPrettyPrinting().create()
+
+        PrintWriter("${this.config.prefix}-execution-configuration").use { pw ->
+            pw.println(gson.toJson(this.config))
+        }
+        PrintWriter("${this.config.prefix}-benchmark-configuration").use { pw ->
+            pw.println(gson.toJson(kubernetesBenchmark))
         }
     }
 }
