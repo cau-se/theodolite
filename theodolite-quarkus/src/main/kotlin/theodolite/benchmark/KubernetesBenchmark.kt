@@ -21,7 +21,7 @@ class KubernetesBenchmark : Benchmark {
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
     val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-    val path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+    var path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
     val client = DefaultKubernetesClient().inNamespace(namespace)
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
