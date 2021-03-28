@@ -19,7 +19,6 @@ rules:
     resources:
     - services
     - pods
-    - servicemonitors
     - configmaps
     verbs:
     - update
