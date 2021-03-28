@@ -35,7 +35,8 @@ class TheodoliteExecutor(
                 results,
                 executionDuration,
                 config.configOverrides,
-                config.slos[0]
+                config.slos[0],
+                prefix = config.prefix
             )
 
         return Config(

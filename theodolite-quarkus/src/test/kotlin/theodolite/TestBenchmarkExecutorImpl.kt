@@ -12,14 +12,16 @@ class TestBenchmarkExecutorImpl(
     private val mockResults: Array<Array<Boolean>>,
     benchmark: Benchmark,
     results: Results,
-    slo: BenchmarkExecution.Slo
+    slo: BenchmarkExecution.Slo,
+    prefix: Int
 ) :
     BenchmarkExecutor(
         benchmark,
         results,
         executionDuration = Duration.ofSeconds(1),
         configurationOverrides = emptyList(),
-        slo = slo
+        slo = slo,
+        prefix = prefix
     ) {
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
