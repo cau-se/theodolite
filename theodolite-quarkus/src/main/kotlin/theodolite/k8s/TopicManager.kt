@@ -28,7 +28,13 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
      * @param newTopics List of all Topic which should be created
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
-        kafkaAdmin.createTopics(newTopics)
+        val result = kafkaAdmin.createTopics(newTopics)
+
+        try {
+            result.all().get()
+        } catch (ex: Exception) {
+            logger.error { ex.toString() }
+        }
         logger.info { "Topics created" }
     }
 
