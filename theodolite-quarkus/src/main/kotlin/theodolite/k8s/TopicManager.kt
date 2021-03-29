@@ -4,17 +4,21 @@ import mu.KotlinLogging
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.ListTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
-import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
 /**
  * Manages the topics related tasks
  * @param kafkaConfig Kafka Configuration as HashMap
+ * @constructor creates a KafkaAdminClient
  */
 class TopicManager(kafkaConfig: HashMap<String, Any>) {
     private lateinit var kafkaAdmin: AdminClient
 
+    /**
+     * Creates a KafkaAdminClient.
+     * Logs exception if kafkaConfig was incorrect.
+     */
     init {
         try {
             kafkaAdmin = AdminClient.create(kafkaConfig)
@@ -25,7 +29,7 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
 
     /**
      * Creates topics.
-     * @param newTopics List of all Topic which should be created
+     * @param newTopics List of all Topic that should be created
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
         val result = kafkaAdmin.createTopics(newTopics)
@@ -63,6 +67,9 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
         logger.info { "Topics removed" }
     }
 
+    /**
+     * Returns all currently available topics.
+     */
     fun getTopics(): ListTopicsResult? {
         return kafkaAdmin.listTopics()
     }

@@ -10,6 +10,11 @@ import theodolite.util.YamlParser
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ * Used to load different k8s resources.
+ * Supports: Deployments, Services, ConfigMaps, and CustomResources.
+ * @param client - KubernetesClient used to deploy or remove.
+ */
 class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
 
     /**
@@ -26,8 +31,10 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return customResource from fabric8
      */
-    fun loadCustomResource(path: String): K8sCustomResourceWrapper {
-        return loadGenericResource(path) { x: String -> K8sCustomResourceWrapper(YamlParser().parse(path, HashMap<String, String>()::class.java)!!) }
+    private fun loadCustomResource(path: String): K8sCustomResourceWrapper {
+        return loadGenericResource(path) { x: String ->
+            K8sCustomResourceWrapper(YamlParser().parse(path, HashMap<String, String>()::class.java)!!)
+        }
     }
 
     /**
@@ -69,6 +76,13 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         return resource
     }
 
+    /**
+     * Factory function used to load different k8s resources from a path.
+     * Supported kinds are: deployments,Services, ServiceMonitors,ConfigMaps and CustomResources.
+     * Uses CustomResource as default if Kind is not supported.
+     * @param kind - kind of the resource. CustomResource as default.
+     * @param path - path of the resource to be loaded.
+     */
     fun loadK8sResource(kind: String, path: String): KubernetesResource {
         return when (kind) {
             "Deployment" -> loadDeployment(path)
@@ -76,13 +90,13 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
             "ServiceMonitor" -> loadCustomResource(path)
             "ConfigMap" -> loadConfigmap(path)
             else -> {
-                    logger.warn { "Try to load $kind from $path as Custom ressource" }
-                    try{
-                        loadCustomResource(path)
-                    } catch (e:Exception){
-                        logger.error { "Error during loading of unspecified CustomResource: $e" }
-                        throw e
-                    }
+                logger.warn { "Try to load $kind from $path as Custom ressource" }
+                try {
+                    loadCustomResource(path)
+                } catch (e: Exception) {
+                    logger.error { "Error during loading of unspecified CustomResource: $e" }
+                    throw e
+                }
             }
         }
     }
