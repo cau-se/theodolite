@@ -11,7 +11,7 @@ private val logger = KotlinLogging.logger {}
 
 class AnalysisExecutor(
     private val slo: BenchmarkExecution.Slo,
-    private val prefix: Int
+    private val executionId: Int
 ) {
 
     private val fetcher = MetricFetcher(
@@ -29,7 +29,7 @@ class AnalysisExecutor(
                 query = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
             )
 
-            CsvExporter().toCsv(name = "$prefix-${load.get()}-${res.get()}-${slo.sloType}", prom = prometheusData)
+            CsvExporter().toCsv(name = "$executionId-${load.get()}-${res.get()}-${slo.sloType}", prom = prometheusData)
             val sloChecker = SloCheckerFactory().create(
                 slotype = slo.sloType,
                 externalSlopeURL = slo.externalSloUrl,

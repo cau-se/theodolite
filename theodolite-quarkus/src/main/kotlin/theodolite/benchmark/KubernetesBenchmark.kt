@@ -49,12 +49,17 @@ class KubernetesBenchmark : Benchmark {
         val patcherFactory = PatcherFactory()
 
         // patch the load dimension the resources
-        load.getType().forEach { patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString()) }
-        res.getType().forEach{ patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString()) }
+        load.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString())
+        }
+        res.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString())
+        }
 
         // Patch the given overrides
-        configurationOverrides.forEach { override -> override?.let { patcherFactory.createPatcher(it.patcher, resources).patch(override.value) } }
-
+        configurationOverrides.forEach { override ->
+            override?.let { patcherFactory.createPatcher(it.patcher, resources).patch(override.value) }
+        }
 
         return KubernetesBenchmarkDeployment(
             namespace = namespace,

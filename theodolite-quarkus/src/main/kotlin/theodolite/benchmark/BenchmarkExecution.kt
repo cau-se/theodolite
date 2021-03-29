@@ -6,7 +6,7 @@ import kotlin.properties.Delegates
 
 @RegisterForReflection
 class BenchmarkExecution {
-    var prefix: Int = 0
+    var executionId: Int = 0
     lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition

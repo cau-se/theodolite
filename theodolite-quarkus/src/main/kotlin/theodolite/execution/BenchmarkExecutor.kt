@@ -25,7 +25,7 @@ abstract class BenchmarkExecutor(
     val executionDuration: Duration,
     configurationOverrides: List<ConfigurationOverride?>,
     val slo: BenchmarkExecution.Slo,
-    val prefix: Int
+    val executionId: Int
 ) {
 
     /**
