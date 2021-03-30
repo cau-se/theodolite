@@ -8,6 +8,7 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
 
 private val logger = KotlinLogging.logger {}
 
@@ -27,7 +28,7 @@ abstract class BenchmarkExecutor(
     val slo: BenchmarkExecution.Slo
 ) {
 
-    var run = true
+    var run: AtomicBoolean = AtomicBoolean(true)
 
     /**
      * Run a experiment for the given parametrization, evaluate the experiment and save the result.
@@ -37,11 +38,7 @@ abstract class BenchmarkExecutor(
      * @return True, if the number of resources are suitable for the given load, false otherwise.
      */
     abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
-
-    fun stop() {
-        run = false
-    }
-
+    
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.
      *
@@ -51,16 +48,16 @@ abstract class BenchmarkExecutor(
 
         var secondsRunning = 0L
 
-        while (run && secondsRunning < executionDuration.toSeconds()) {
+        while (run.get() && secondsRunning < executionDuration.toSeconds()) {
             secondsRunning++
             Thread.sleep(Duration.ofSeconds(1).toMillis())
 
             if ((secondsRunning % 60) == 0L) {
-                logger.info { "Executed: ${secondsRunning / 60} minutes" }
+                logger.info { "Executed: ${secondsRunning / 60} minutes." }
             }
         }
 
-        logger.debug { "Executor shutdown gracefully" }
+        logger.debug { "Executor shutdown gracefully." }
 
     }
 }

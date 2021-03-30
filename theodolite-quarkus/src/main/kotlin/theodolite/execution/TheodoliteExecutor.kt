@@ -12,8 +12,8 @@ import theodolite.util.Results
 import java.time.Duration
 
 class TheodoliteExecutor(
-    private var config: BenchmarkExecution,
-    private var kubernetesBenchmark: KubernetesBenchmark
+    private val config: BenchmarkExecution,
+    private val kubernetesBenchmark: KubernetesBenchmark
 ) {
     lateinit var executor: BenchmarkExecutor
 
@@ -75,7 +75,7 @@ class TheodoliteExecutor(
         val config = buildConfig()
         // execute benchmarks for each load
         for (load in config.loads) {
-            if (executor.run) {
+            if (executor.run.get()) {
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }

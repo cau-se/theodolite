@@ -47,7 +47,7 @@ class TheodoliteController(
 
                 if (::executor.isInitialized && executor.getExecution().name == newExecution.metadata.name) {
                     isUpdated = true
-                    executor.executor.run = false
+                    executor.executor.run.compareAndSet(true, false)
                 }
             }
 
@@ -56,7 +56,7 @@ class TheodoliteController(
                 executionsQueue.removeIf { e -> e.name == execution.metadata.name }
                 if (::executor.isInitialized && executor.getExecution().name == execution.metadata.name) {
                     isUpdated = true
-                    executor.executor.run = false
+                    executor.executor.run.compareAndSet(true, false)
                     logger.info { "Current benchmark stopped" }
                 }
             }
@@ -74,7 +74,7 @@ class TheodoliteController(
                 newBenchmark.name = newBenchmark.metadata.name
                 if (::executor.isInitialized && executor.getBenchmark().name == oldBenchmark.metadata.name) {
                     isUpdated = true
-                    executor.executor.run = false
+                    executor.executor.run.compareAndSet(true, false)
                 } else {
                     onAdd(newBenchmark)
                 }
@@ -85,7 +85,7 @@ class TheodoliteController(
                 benchmarks.remove(benchmark.metadata.name)
                 if (::executor.isInitialized && executor.getBenchmark().name == benchmark.metadata.name) {
                     isUpdated = true
-                    executor.executor.run = false
+                    executor.executor.run.compareAndSet(true, false)
                     logger.info { "Current benchmark stopped" }
                 }
             }
@@ -96,7 +96,15 @@ class TheodoliteController(
         while (true) {
             try {
                 reconcile()
-                logger.info { "Theodolite is waiting for new jobs" }
+                logger.info { "Theodolite is waiting for new matching benchmark and execution" }
+                logger.info { "Currently available executions: " }
+                executionsQueue.forEach {
+                    logger.info { "${it.name} : waiting for : ${it.benchmark}" }
+                }
+                logger.info { "Currently available benchmarks: " }
+                benchmarks.forEach {
+                    logger.info { it.key }
+                }
                 sleep(2000)
             } catch (e: InterruptedException) {
                 logger.error { "Execution interrupted with error: $e" }

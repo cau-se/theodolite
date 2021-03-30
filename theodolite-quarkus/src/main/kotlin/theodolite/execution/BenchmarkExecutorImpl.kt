@@ -24,9 +24,9 @@ class BenchmarkExecutorImpl(
         benchmarkDeployment.setup()
         this.waitAndLog()
 
-        if (this.run) {
+        if (this.run.get()) {
             result =
-                AnalysisExecutor(slo = slo).analyse(load = load, res = res, executionDuration = executionDuration)
+                AnalysisExecutor(slo = slo).analyze(load = load, res = res, executionDuration = executionDuration)
             this.results.setResult(Pair(load, res), result)
         }
         benchmarkDeployment.teardown()
