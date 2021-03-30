@@ -9,6 +9,8 @@ import theodolite.util.Results
  * needed to successfully execute the next smaller load.
  *
  * @param results Result object used as a basis to restrict the resources.
+ *
+ * @see Results
  */
 class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
     override fun next(load: LoadDimension, resources: List<Resource>): List<Resource> {
