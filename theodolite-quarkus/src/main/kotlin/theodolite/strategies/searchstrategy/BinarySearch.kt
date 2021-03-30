@@ -5,7 +5,7 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
 /**
- *  Search for the smallest suitable resource with binary search.
+ *  Binary search-like implementation of determining the smallest suitable number of instances.
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */
