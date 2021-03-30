@@ -11,7 +11,6 @@ import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
 
-private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 class BenchmarkExecutorImpl(
@@ -27,8 +26,6 @@ class BenchmarkExecutorImpl(
         this.waitAndLog()
 
         val result = AnalysisExecutor(slo = slo).analyse(load = load, res = res, executionDuration = executionDuration)
-
-        benchmarkDeployment.teardown()
 
         benchmarkDeployment.teardown()
 
