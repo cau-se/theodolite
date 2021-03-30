@@ -15,16 +15,30 @@ object TheodoliteYamlExecutor {
     fun main(args: Array<String>) {
         logger.info { "Theodolite started" }
 
+        val executionPath = System.getenv("THEODOLITE_EXECUTION") ?: "./config/BenchmarkExecution.yaml"
+        val benchmarkPath = System.getenv("THEODOLITE_BENCHMARK") ?: "./config/BenchmarkType.yaml"
+        val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+
+        logger.info { "Using $executionPath for BenchmarkExecution" }
+        logger.info { "Using $benchmarkPath for BenchmarkType" }
+        logger.info { "Using $appResource for Resources" }
+
+
         // load the BenchmarkExecution and the BenchmarkType
         val parser = YamlParser()
         val benchmarkExecution =
-            parser.parse("./../../../resources/main/yaml/BenchmarkExecution.yaml", BenchmarkExecution::class.java)!!
+            parser.parse(path = executionPath, E = BenchmarkExecution::class.java)!!
         val benchmark =
-            parser.parse("./../../../resources/main/yaml/BenchmarkType.yaml", KubernetesBenchmark::class.java)!!
+            parser.parse(path = benchmarkPath, E = KubernetesBenchmark::class.java)!!
+        benchmark.path = appResource
+
+        val shutdown = Shutdown(benchmarkExecution, benchmark)
+        Runtime.getRuntime().addShutdownHook(shutdown)
 
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()
         logger.info { "Theodolite finished" }
+        Runtime.getRuntime().removeShutdownHook(shutdown)
         exitProcess(0)
     }
 }

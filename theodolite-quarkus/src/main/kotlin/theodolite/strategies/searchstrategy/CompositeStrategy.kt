@@ -1,10 +1,12 @@
 package theodolite.strategies.searchstrategy
 
+import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.execution.BenchmarkExecutor
 import theodolite.strategies.restriction.RestrictionStrategy
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
+@RegisterForReflection
 class CompositeStrategy(
     benchmarkExecutor: BenchmarkExecutor,
     private val searchStrategy: SearchStrategy,

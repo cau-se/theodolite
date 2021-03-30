@@ -1,5 +1,6 @@
 package theodolite.strategies.restriction
 
+import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
@@ -8,6 +9,7 @@ import theodolite.util.Results
  * A "Restriction Strategy" restricts a list of resources based on the current
  * results of all previously performed benchmarks.
  */
+@RegisterForReflection
 abstract class RestrictionStrategy(val results: Results) {
     /**
      * Next Restrict the given resource list for the given load based on the result object.
