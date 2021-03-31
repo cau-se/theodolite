@@ -10,7 +10,7 @@ private val logger = KotlinLogging.logger {}
 /**
  * Manages the topics related tasks
  * @param kafkaConfig Kafka Configuration as HashMap
- * @constructor creates a KafkaAdminClient
+ * @constructor Creates a KafkaAdminClient
  */
 class TopicManager(kafkaConfig: HashMap<String, Any>) {
     private lateinit var kafkaAdmin: AdminClient
@@ -42,7 +42,7 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
         logger.info { "Topics created" }
     }
 
-    fun createTopics(topics: List<String>, numPartitions: Int, replicationFactor: Short) {
+    private fun createTopics(topics: List<String>, numPartitions: Int, replicationFactor: Short) {
         val newTopics = mutableSetOf<NewTopic>()
         for (i in topics) {
             val tops = NewTopic(i, numPartitions, replicationFactor)
@@ -54,7 +54,7 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
 
     /**
      * Removes topics.
-     * @param topics
+     * @param topics List of names with the topics to remove.
      */
     fun removeTopics(topics: List<String>) {
         val result = kafkaAdmin.deleteTopics(topics)

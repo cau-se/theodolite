@@ -36,8 +36,7 @@ class K8sCustomResourceWrapper(private val map: Map<String, String>) : CustomRes
 
     /**
      * Delete a custom resource
-     *
-     * @param client a namespaced Kubernetes client which are used to delete the CR object.
+     * @param client KubernetesClient which is used to delete the CR object.
      */
     fun delete(client: NamespacedKubernetesClient) {
         val kind = this.map["kind"]

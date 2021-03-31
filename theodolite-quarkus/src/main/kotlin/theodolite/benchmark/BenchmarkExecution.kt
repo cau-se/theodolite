@@ -4,6 +4,22 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
+/**
+ * This Class represents the configuration for an Execution of a Benchmark.
+ * An example for this is the BenchmarkExecution.yaml
+ * A BenchmarkExecution consists of:
+ *  - A [name].
+ *  - The [benchmark] (a BenchmarkType) that should be executed.
+ *  - The [laod] that should be checked in the benchmark.
+ *  - The [resources] that should be checked in the benchmark.
+ *  - A List of [slos] that are used for the evaluation of the experiments
+ *  - An [execution] that encapsulates: the [strategy], the [duration], the [repetitions], and the [restrictions]
+ *  for the execution of the benchmark.
+ *  - [configOverrides] additional configurations.
+ *  This class is used for the parsing(in the [TheodoliteYamlExecutor]) and
+ *  for the deserializing in the [TheodoliteOperator].
+ *  @constructor construct an empty BenchmarkExecution.
+ */
 @RegisterForReflection
 class BenchmarkExecution {
     lateinit var name: String
@@ -14,6 +30,10 @@ class BenchmarkExecution {
     lateinit var execution: Execution
     lateinit var configOverrides: List<ConfigurationOverride?>
 
+    /**
+     * This execution encapsulates the [strategy], the [duration], the [repetitions], and the [restrictions]
+     *  which are used for the concrete benchmark experiments.
+     */
     @RegisterForReflection
     class Execution {
         lateinit var strategy: String
@@ -22,6 +42,13 @@ class BenchmarkExecution {
         lateinit var restrictions: List<String>
     }
 
+    /**
+     * Measurable Metric.
+     * It is evaluated using the [ExternalSloChecker] by data measured by Prometheus.
+     * The evaluation checks if a [threshold] is reached or not.
+     * It has a [offset] by which the start and end points of the Metric can be shifted.
+     * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.
+     */
     @RegisterForReflection
     class Slo {
         lateinit var sloType: String
@@ -32,12 +59,19 @@ class BenchmarkExecution {
         var warmup by Delegates.notNull<Int>()
     }
 
+    /**
+     * Represents a Load that should be created and checked.
+     * It can be set to [loadValues].
+     */
     @RegisterForReflection
     class LoadDefinition {
         lateinit var loadType: String
         lateinit var loadValues: List<Int>
     }
 
+    /**
+     * Represents a resource that can be scaled to [resourceValues].
+     */
     @RegisterForReflection
     class ResourceDefinition {
         lateinit var resourceType: String

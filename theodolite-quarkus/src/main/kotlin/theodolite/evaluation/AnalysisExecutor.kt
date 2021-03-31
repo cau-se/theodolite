@@ -9,13 +9,24 @@ import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
+ * @param slo that is used for the analysis.
+ */
 class AnalysisExecutor(private val slo: BenchmarkExecution.Slo) {
-
     private val fetcher = MetricFetcher(
         prometheusURL = slo.prometheusUrl,
         offset = Duration.ofHours(slo.offset.toLong())
     )
 
+    /**
+     *  Analyses an experiment via prometheus data.
+     *  First fetches data from prometheus, then documents them and afterwards evaluate it via a [slo].
+     *  @param load [LoadDimension] of the experiment.
+     *  @param res [Resource] of the experiment.
+     *  @param executionDuration [Duration] of the experiment.
+     *  @return [true] if the experiment succeeded.
+     */
     fun analyse(load: LoadDimension, res: Resource, executionDuration: Duration): Boolean {
         var result = false
 

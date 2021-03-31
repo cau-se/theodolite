@@ -10,8 +10,25 @@ import theodolite.util.*
 
 private val logger = KotlinLogging.logger {}
 
+// default kubernetes namespace
 private var DEFAULT_NAMESPACE = "default"
 
+/**
+ * Represents a Benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
+ * Contains a of:
+ * - [name] of the benchmark,
+ * - [appResource] list of the resources that have to be deployed for the benchmark,
+ * - [loadGenResource] resource that generates the load,
+ * - [resourceTypes] types of scaling resources,
+ * - [loadTypes] types of loads that can be scaled for the benchmark,
+ * - [kafkaConfig] for the [TopicManager],
+ * - [namespace] for the client,
+ * - [path] under which the resource yamls can be found.
+ *
+ *  This class is used for the parsing(in the [TheodoliteYamlExecutor]) and
+ *  for the deserializing in the [TheodoliteOperator].
+ * @constructor construct an empty Benchmark.
+ */
 @RegisterForReflection
 class KubernetesBenchmark : Benchmark {
     lateinit var name: String
@@ -23,6 +40,11 @@ class KubernetesBenchmark : Benchmark {
     lateinit var namespace: String
     lateinit var path: String
 
+    /**
+     * Loads KubernetsResources.
+     * It first loads them via the [YamlParser] to check for their concrete type and afterwards initializes them using
+     * the [K8sResourceLoader]
+     */
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         //val path = "./../../../resources/main/yaml/"
         val parser = YamlParser()
@@ -40,6 +62,15 @@ class KubernetesBenchmark : Benchmark {
             }
     }
 
+    /**
+     * Builds a Deployment.
+     * First loads all required resources and then patches them to the concrete load and resources for the experiment.
+     * Afterwards patches additional configurations(cluster depending) into the resources.
+     * @param load concrete load that will be benchmarked in this experiment.
+     * @param res concrete resoruce that will be scaled for this experiment.
+     * @param configurationOverrides
+     * @return a [BenchmarkDeployment]
+     */
     override fun buildDeployment(
         load: LoadDimension,
         res: Resource,
@@ -49,12 +80,19 @@ class KubernetesBenchmark : Benchmark {
         val patcherFactory = PatcherFactory()
 
         // patch the load dimension the resources
-        load.getType().forEach { patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString()) }
-        res.getType().forEach{ patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString()) }
+        load.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString())
+        }
+        res.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString())
+        }
 
         // Patch the given overrides
-        configurationOverrides.forEach { override -> override?.let { patcherFactory.createPatcher(it.patcher, resources).patch(override.value) } }
-
+        configurationOverrides.forEach { override ->
+            override?.let {
+                patcherFactory.createPatcher(it.patcher, resources).patch(override.value)
+            }
+        }
 
         return KubernetesBenchmarkDeployment(
             namespace = namespace,

@@ -8,10 +8,16 @@ import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ *  Used to document the data received from prometheus for additional offline analysis.
+ */
 class CsvExporter {
 
     /**
-     * Uses the PrintWriter to transform a PrometheusResponse to Csv
+     * Uses the PrintWriter to transform a PrometheusResponse to a Csv file.
+     * @param name of the file.
+     * @param prom Response that is documented.
+     *
      */
     fun toCsv(name: String, prom: PrometheusResponse) {
         val responseArray = promResponseToList(prom)
