@@ -1,8 +1,8 @@
-{{- if .Values.rbac.create -}}
+{{- if .Values.theodolite.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "theodolite-operator.fullname" . }}
+  name: {{ include "theodolite.fullname" . }}
 rules:
   - apiGroups:
     - apps

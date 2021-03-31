@@ -227,3 +227,23 @@ prometheus:
     enabled: true
   clusterRoleBinding:
     enabled: true
+
+###
+# Theodolite Operator
+###
+theodolite:
+  operator:
+    enabled: true
+    namespace: "default"
+
+  executionCRD:
+    create: true
+
+  benchmarkCRD:
+    create: true
+
+  serviceAccount:
+    create: true
+
+  rbac: 
+    create: true

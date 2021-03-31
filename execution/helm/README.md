@@ -44,6 +44,21 @@ In development environments Kubernetes resources are often low. To reduce resour
 helm install theodolite . -f preconfigs/one-broker-values.yaml
 ```
 
+## Uninstall this Chart
+
+To uninstall/delete the `my-release` deployment:
+
+```sh
+helm delete my-release
+```
+
+This command does not remove the CRDs which are created by this Chart. Remove this CRDs with:
+
+```sh
+kubectl delete crd execution
+kubectl delete crd benchmark
+```
+
 ## Development
 
 **Hints**:

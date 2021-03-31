@@ -1,5 +1,0 @@
-Welcome to Theodolite!
-
-This is the Theodolite operator. Deploy executions and benchmarks to start benchmarks.
-
-Visit https://cau-se.github.io/theodolite for getting started and more information.

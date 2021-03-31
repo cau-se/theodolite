@@ -1,26 +1,26 @@
-{{- if .Values.operator.enabled -}}
+{{- if .Values.theodolite.operator.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "theodolite-operator.fullname" . }}
+  name: {{ include "theodolite.fullname" . }}
 spec:
   selector:
     matchLabels:
-      app: {{ include "theodolite-operator.fullname" . }}
+      app: {{ include "theodolite.fullname" . }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ include "theodolite-operator.fullname" . }}
+        app: {{ include "theodolite.fullname" . }}
     spec:
       terminationGracePeriodSeconds: 0
-      serviceAccountName:  {{ include "theodolite-operator.serviceAccountName" . }}
+      serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
       containers:
         - name: theodolite
-          image: lorenzboguhn/thedolite:latest
+          image: lorenzboguhn/theodolite:latest
           env:
             - name: NAMESPACE
-              value: {{ .Values.operator.namespace}}
+              value: {{ .Values.theodolite.operator.namespace}}
         - name: lag-analysis
           image: benediktwetzel/lag-analysis
           ports:
