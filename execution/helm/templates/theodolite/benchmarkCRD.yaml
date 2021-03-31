@@ -1,4 +1,4 @@
-{{- if .Values.theodolite.benchmarkCRD.create -}}
+{{- if .Values.benchmarkCRD.create -}}
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:

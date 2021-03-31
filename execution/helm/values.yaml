@@ -231,19 +231,18 @@ prometheus:
 ###
 # Theodolite Operator
 ###
-theodolite:
-  operator:
-    enabled: true
-    namespace: "default"
+operator:
+  enabled: true
+  namespace: "default"
 
-  executionCRD:
-    create: true
+executionCRD:
+  create: true
 
-  benchmarkCRD:
-    create: true
+benchmarkCRD:
+  create: true
 
-  serviceAccount:
-    create: true
+serviceAccount:
+  create: false
 
-  rbac: 
-    create: true
+rbac:
+  create: true

@@ -1,4 +1,4 @@
-{{- if .Values.theodolite.executionCRD.create -}}
+{{- if .Values.executionCRD.create -}}
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:

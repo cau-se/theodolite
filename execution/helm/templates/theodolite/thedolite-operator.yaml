@@ -1,8 +1,8 @@
-{{- if .Values.theodolite.operator.enabled -}}
+{{- if .Values.operator.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "theodolite.fullname" . }}
+  name: {{ include "theodolite.fullname" . }}-operator
 spec:
   selector:
     matchLabels:
@@ -17,10 +17,10 @@ spec:
       serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
       containers:
         - name: theodolite
-          image: lorenzboguhn/theodolite:latest
+          image: lorenzboguhn/thedolite:latest
           env:
             - name: NAMESPACE
-              value: {{ .Values.theodolite.operator.namespace}}
+              value: {{ .Values.operator.namespace}}
         - name: lag-analysis
           image: benediktwetzel/lag-analysis
           ports:
