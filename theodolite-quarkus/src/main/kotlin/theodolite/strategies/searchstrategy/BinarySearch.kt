@@ -18,6 +18,14 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         return resources[result]
     }
 
+    /**
+     * Apply binary search.
+     *
+     * @param load the load dimension to perform experiments for
+     * @param resources the list in which binary search is performed
+     * @param lower lower bound for binary search (inclusive)
+     * @param upper upper bound for binary search (inclusive)
+     */
     private fun binarySearch(load: LoadDimension, resources: List<Resource>, lower: Int, upper: Int): Int {
         if (lower > upper) {
             throw IllegalArgumentException()

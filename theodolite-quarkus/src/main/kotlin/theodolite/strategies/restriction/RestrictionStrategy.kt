@@ -8,11 +8,15 @@ import theodolite.util.Results
 /**
  * A 'Restriction Strategy' restricts a list of resources based on the current
  * results of all previously performed benchmarks.
+ *
+ * @param results the result object
+ *
+ * @see Results
  */
 @RegisterForReflection
 abstract class RestrictionStrategy(val results: Results) {
     /**
-     * Restrict the given resource list for the given load based on the result object.
+     * Apply the restriction of the given resource list for the given load based on the results object.
      *
      * @param load Load dimension for which a subset of resources are required.
      * @param resources List of resources to be restricted.
@@ -21,6 +25,7 @@ abstract class RestrictionStrategy(val results: Results) {
      *
      * @see LoadDimension
      * @see Resource
+     * @see Results
      */
-    abstract fun next(load: LoadDimension, resources: List<Resource>): List<Resource>
+    abstract fun apply(load: LoadDimension, resources: List<Resource>): List<Resource>
 }

@@ -13,7 +13,7 @@ import theodolite.util.Results
  * @see Results
  */
 class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
-    override fun next(load: LoadDimension, resources: List<Resource>): List<Resource> {
+    override fun apply(load: LoadDimension, resources: List<Resource>): List<Resource> {
         val maxLoad: LoadDimension? = this.results.getMaxBenchmarkedLoad(load)
         var lowerBound: Resource? = this.results.getMinRequiredInstances(maxLoad)
         if (lowerBound == null) {

@@ -7,14 +7,18 @@ import kotlin.properties.Delegates
 /**
  * Configuration of Kafka connection.
  *
- * @param bootstrapServer the bootstrap server connection string
- * @param topics the list of topics
- *
  * @see TopicWrapper
  */
 @RegisterForReflection
 class KafkaConfig {
+    /**
+     * The bootstrap server connection string
+     */
     lateinit var bootstrapServer: String
+
+    /**
+     * The list of topics
+     */
     lateinit var topics: List<TopicWrapper>
 
     /**
@@ -28,15 +32,22 @@ class KafkaConfig {
 
     /**
      * Wrapper for a topic definition.
-     *
-     * @param name the topic name
-     * @param numPartitions the number of partitions
-     * @param replicationFactor the replication factor of this topic
      */
     @RegisterForReflection
     class TopicWrapper {
+        /**
+         * The topic name
+         */
         lateinit var name: String
+
+        /**
+         * The number of partitions
+         */
         var numPartitions by Delegates.notNull<Int>()
+
+        /**
+         * The replication factor of this topic
+         */
         var replicationFactor by Delegates.notNull<Short>()
     }
 }
