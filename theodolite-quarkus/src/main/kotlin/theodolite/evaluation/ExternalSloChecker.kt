@@ -7,6 +7,12 @@ import theodolite.util.PrometheusResponse
 import java.net.ConnectException
 import java.time.Instant
 
+/**
+ * SloChecker that uses an external source for the concrete evaluation.
+ * @param externalSlopeURL The url under which the external evaluation can be reached.
+ * @param threshold threshold that should not be ... to evaluate to true.
+ * @param warmup time that is not taken into consideration for the evaluation.
+ */
 class ExternalSloChecker(
     private val externalSlopeURL: String,
     private val threshold: Int,
@@ -19,6 +25,17 @@ class ExternalSloChecker(
 
     private val logger = KotlinLogging.logger {}
 
+    /**
+     * Evaluates an experiment using an external service.
+     * Will try to reach the external service until success or [RETRIES] times.
+     * Each request will timeout after [TIMEOUT].
+     *
+     * @param start point of the experiment.
+     * @param end point of the experiment.
+     * @param fetchedData that should be evaluated
+     * @return [true] if the expirment was successful(the threshold was not exceeded.
+     * @throws ConnectException if the external service could not be reached.
+     */
     override fun evaluate(start: Instant, end: Instant, fetchedData: PrometheusResponse): Boolean {
         var counter = 0
         val data =
