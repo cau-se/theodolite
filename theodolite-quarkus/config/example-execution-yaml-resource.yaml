@@ -1,7 +1,4 @@
-apiVersion: demo.k8s.io/v1alpha1
-kind: Benchmarkexecutions
-metadata:
-  name: example-execution
+name: example-execution
 benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
