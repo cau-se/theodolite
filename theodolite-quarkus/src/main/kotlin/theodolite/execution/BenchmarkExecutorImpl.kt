@@ -1,6 +1,7 @@
 package theodolite.execution
 
 import io.quarkus.runtime.annotations.RegisterForReflection
+import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.evaluation.AnalysisExecutor
@@ -9,6 +10,8 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 class BenchmarkExecutorImpl(
@@ -21,8 +24,15 @@ class BenchmarkExecutorImpl(
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         var result = false
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides)
-        benchmarkDeployment.setup()
-        this.waitAndLog()
+
+        try {
+            benchmarkDeployment.setup()
+            this.waitAndLog()
+        } catch(e: Exception) {
+            logger.error { "Error while setup experiment." }
+            logger.error { "Error is: $e" }
+            this.run.set(false)
+        }
 
         if (this.run.get()) {
             result =
