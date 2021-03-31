@@ -9,9 +9,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 data class Resource(private val number: Int, private val type: List<PatcherDefinition>) {
 
     /**
-     * @return the value of this load dimension.
-     *
-     * @see LoadDimension
+     * @return the value of this resource.
      */
     fun get(): Int {
         return this.number
