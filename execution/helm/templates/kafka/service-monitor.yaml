@@ -5,7 +5,7 @@ metadata:
   labels:
     app: cp-kafka
     appScope: titan-ccp
-  name: kafka
+  name: {{ template "theodolite.fullname" . }}-cp-kafka
 spec:
   selector:
     matchLabels:
