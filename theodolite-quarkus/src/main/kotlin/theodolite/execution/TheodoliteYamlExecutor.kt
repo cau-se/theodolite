@@ -1,18 +1,18 @@
 package theodolite.execution
 
-import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.YamlParser
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
 
-@QuarkusMain(name = "TheodoliteYamlExecutor")
-object TheodoliteYamlExecutor {
-    @JvmStatic
-    fun main(args: Array<String>) {
+class TheodoliteYamlExecutor {
+    private val parser = YamlParser()
+
+    fun start() {
         logger.info { "Theodolite started" }
 
         val executionPath = System.getenv("THEODOLITE_EXECUTION") ?: "./config/BenchmarkExecution.yaml"
@@ -25,7 +25,6 @@ object TheodoliteYamlExecutor {
 
 
         // load the BenchmarkExecution and the BenchmarkType
-        val parser = YamlParser()
         val benchmarkExecution =
             parser.parse(path = executionPath, E = BenchmarkExecution::class.java)!!
         val benchmark =
@@ -33,12 +32,12 @@ object TheodoliteYamlExecutor {
         benchmark.path = appResource
 
         val shutdown = Shutdown(benchmarkExecution, benchmark)
-        Runtime.getRuntime().addShutdownHook(shutdown)
+        Runtime.getRuntime().addShutdownHook(thread { shutdown.run()})
 
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
         executor.run()
         logger.info { "Theodolite finished" }
-        Runtime.getRuntime().removeShutdownHook(shutdown)
+        Runtime.getRuntime().removeShutdownHook(thread { shutdown.run()})
         exitProcess(0)
     }
 }

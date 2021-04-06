@@ -1,6 +1,8 @@
 package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.Namespaced
+import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
@@ -9,11 +11,10 @@ import theodolite.patcher.PatcherFactory
 import theodolite.util.*
 
 private val logger = KotlinLogging.logger {}
-
 private var DEFAULT_NAMESPACE = "default"
 
 @RegisterForReflection
-class KubernetesBenchmark : Benchmark {
+class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var name: String
     lateinit var appResource: List<String>
     lateinit var loadGenResource: List<String>
@@ -24,11 +25,14 @@ class KubernetesBenchmark : Benchmark {
     lateinit var path: String
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
-        //val path = "./../../../resources/main/yaml/"
         val parser = YamlParser()
 
         namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
         logger.info { "Using $namespace as namespace." }
+
+        path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+        logger.info { "Using $path as path for resources." }
+
 
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
@@ -49,12 +53,19 @@ class KubernetesBenchmark : Benchmark {
         val patcherFactory = PatcherFactory()
 
         // patch the load dimension the resources
-        load.getType().forEach { patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString()) }
-        res.getType().forEach{ patcherDefinition -> patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString()) }
+        load.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString())
+        }
+        res.getType().forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString())
+        }
 
         // Patch the given overrides
-        configurationOverrides.forEach { override -> override?.let { patcherFactory.createPatcher(it.patcher, resources).patch(override.value) } }
-
+        configurationOverrides.forEach { override ->
+            override?.let {
+                patcherFactory.createPatcher(it.patcher, resources).patch(override.value)
+            }
+        }
 
         return KubernetesBenchmarkDeployment(
             namespace = namespace,
