@@ -42,6 +42,7 @@ rules:
     - delete
     - list
     - create
+  {{- if .Values.operator.enabled -}}
   - apiGroups:
     - theodolite.com
     resources: 
@@ -55,4 +56,5 @@ rules:
     - watch
     - update
     - patch
+  {{- end }}
 {{- end }}
