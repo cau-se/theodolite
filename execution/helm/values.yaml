@@ -145,8 +145,8 @@ kafka-lag-exporter:
   enabled: true
   nodeSelector: {}
   clusters:
-    - name: "my-confluent-cp-kafka"
-      bootstrapBrokers: "my-confluent-cp-kafka:9092"
+    - name: "theodolite-cp-kafka"
+      bootstrapBrokers: "theodolite-cp-kafka:9092"
 
   ## The interval between refreshing metrics
   pollIntervalSeconds: 15
