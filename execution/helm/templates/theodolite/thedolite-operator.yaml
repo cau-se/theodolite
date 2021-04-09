@@ -21,6 +21,8 @@ spec:
           env:
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: MODE
+              value: operator
         - name: lag-analysis
           image: benediktwetzel/lag-analysis
           ports:
