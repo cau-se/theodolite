@@ -1,4 +1,4 @@
-# theodolite-quarkus project
+# Theodolite-quarkus project
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -6,7 +6,7 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 ## Running the application in dev mode
 
-You can run your application in dev mode that enables live coding using:
+You can run your application in dev mode using:
 ```shell script
 ./gradlew quarkusDev
 ```
@@ -44,19 +44,73 @@ You can then execute your native executable with:
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
-# RESTEasy JAX-RS
+## Build docker images
 
-<p>A Hello World RESTEasy resource</p>
+For the jvm version use:
+```shell script
+./gradlew build
+docker build -f src/main/docker/Dockerfile.jvm -t theodolite-quarkus-jvm .
+```
 
-Guide: https://quarkus.io/guides/rest-json
+For the native image version use:
+```shell script
+./gradlew build -Dquarkus.package.type=native
+docker build -f src/main/docker/Dockerfile.native -t theodolite-quarkus-native .
+```
+## Execute docker images:
+Remember to set the environment variables first.
 
-## Build and afterwards run the application in Docker container
+Jvm version:
+```shell script
+docker run -i --rm theodolite-quarkus-jvm
+```
 
-```build_jvm.sh```   to build the jvm version
+Native image version:
+```shell script
+docker run -i --rm theodolite-quarkus-native
+```
 
-```build_native.sh``` to build the native image graal version 
+## Environment variables
 
-## Install Detekt Code analysis Plugin
+**Production:**
+
+| Variables name               | Default value                      |Usage         |
+| -----------------------------|:----------------------------------:| ------------:|
+| `NAMESPACE`                  | `default`                          |Determines the namesspace of the KubernetesClient. Used in the KubernetesBenchmark|
+| `THEODOLITE_EXECUTION`       |  `./config/BenchmarkExecution.yaml`|The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
+| `THEODOLITE_BENCHMARK_TYPE`  |  `./config/BenchmarkType.yaml`     |The complete path to the benchmarkType file. Used in the TheodoliteYamlExecutor.|
+| `THEODOLITE_APP_RESOURCES`   |  `./config`                        |The path under which the yamls for the ressources for the subexperiments are found. Used in the KubernetesBenchmark|
+| `MODE`                       | `yaml-executor`                    |  Defines the mode of operation: either `yaml-executor` or `operator`|
+
+**Development:**
+
+| Variables name               | Default value                      |Usage         |
+| -----------------------------|:----------------------------------:| ------------:|
+| `NAMESPACE`                  | `default`                          |Determines the namesspace of the KubernetesClient. Used in the KubernetesBenchmark|
+| `THEODOLITE_EXECUTION`       |  `./../../../../config/BenchmarkExecution.yaml`|The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
+| `THEODOLITE_BENCHMARK_TYPE`  |  `./../../../../config/BenchmarkType.yaml`     |The complete path to the benchmarkType file. Used in the TheodoliteYamlExecutor.|
+| `THEODOLITE_APP_RESOURCES`   |  `./../../../../config/`                        |The path under which the yamls for the ressources for the subexperiments are found. Used in the KubernetesBenchmark|
+| `MODE`                       | `yaml-executor`                    |  Defines the mode of operation: either `yaml-executor` or `operator`|
+
+For Development gradle.run configuration:
+
+```
+NAMESPACE=default;THEODOLITE_BENCHMARK=./../../../../config/BenchmarkType.yaml;THEODOLITE_APP_RESOURCES=./../../../../config;THEODOLITE_EXECUTION=./../../../../config/BenchmarkExecution.yaml;MODE=operator
+```
+
+Alternative:
+
+``` sh
+export NAMESPACE=default
+export THEODOLITE_BENCHMARK=./../../../../config/BenchmarkType.yaml
+export THEODOLITE_APP_RESOURCES=./../../../../config
+export THEODOLITE_EXECUTION=./../../../../config/BenchmarkExecution.yaml
+export MODE=operator
+./gradlew quarkusDev
+
+```
+
+#### Install Detekt Code analysis Plugin
 
 
 Install https://plugins.jetbrains.com/plugin/10761-detekt
