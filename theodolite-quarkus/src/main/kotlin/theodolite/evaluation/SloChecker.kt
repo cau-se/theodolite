@@ -16,7 +16,7 @@ interface SloChecker {
      * @param start of the experiment
      * @param end of the experiment
      * @param fetchedData from Prometheus that will be evaluated.
-     * @return [true] if experiment was successful. Otherwise [false].
+     * @return true if experiment was successful. Otherwise false.
      */
     fun evaluate(start: Instant, end: Instant, fetchedData: PrometheusResponse): Boolean
 }

@@ -12,9 +12,9 @@ import java.time.Instant
 private val logger = KotlinLogging.logger {}
 
 /**
- * Used to fetch Metrics from Prometheus.
- * @param prometheusURL - URL to the Prometheus server.
- * @param offset - Duration of time that the start and end points of the queries
+ * Used to fetch metrics from Prometheus.
+ * @param prometheusURL URL to the Prometheus server.
+ * @param offset Duration of time that the start and end points of the queries
  * should be shifted. (for different timezones, etc..)
  */
 class MetricFetcher(private val prometheusURL: String, private val offset: Duration) {
@@ -22,13 +22,13 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
     private val TIMEOUT = 60.0
 
     /**
-     * Tries to fetch a metric by a query to a PrometheusServer.
+     * Tries to fetch a metric by a query to a Prometheus server.
      * Retries to fetch the metric [RETRIES] times.
      * Connects to the server via [prometheusURL].
      *
-     * @param start - start point of the query.
-     * @param end - end point of the query.
-     * @param query -  query for the prometheus server.
+     * @param start start point of the query.
+     * @param end end point of the query.
+     * @param query query for the prometheus server.
      * @throws ConnectException - if the prometheus server timed out/was not reached.
      */
     fun fetchMetric(start: Instant, end: Instant, query: String): PrometheusResponse {
@@ -64,8 +64,8 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
 
     /**
      * Deserializes a response from Prometheus.
-     * @param values - Response from Prometheus.
-     * @return a PrometheusResponse.
+     * @param values Response from Prometheus.
+     * @return a [PrometheusResponse]
      */
     private fun parseValues(values: Response): PrometheusResponse {
         return Gson().fromJson<PrometheusResponse>(
