@@ -20,9 +20,17 @@ private const val RESYNC_PERIOD = 10 * 60 * 1000.toLong()
 private const val GROUP = "theodolite.com"
 private val logger = KotlinLogging.logger {}
 
+/**
+ * Implementation of the Operator pattern for K8s.
+ *
+ * **See Also:** [Kubernetes Operator Pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
+ */
 class TheodoliteOperator {
     private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
+    /**
+     * Start the operator.
+     */
     fun start() {
         logger.info { "Using $namespace as namespace." }
         val client = DefaultKubernetesClient().inNamespace(namespace)
