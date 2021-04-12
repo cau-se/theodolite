@@ -233,7 +233,6 @@ prometheus:
 ###
 operator:
   enabled: true
-  namespace: "default"
 
 executionCRD:
   create: true
@@ -242,7 +241,7 @@ benchmarkCRD:
   create: true
 
 serviceAccount:
-  create: false
+  create: true
 
 rbac:
   create: true

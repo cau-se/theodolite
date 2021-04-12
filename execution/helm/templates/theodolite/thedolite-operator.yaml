@@ -20,7 +20,9 @@ spec:
           image: lorenzboguhn/thedolite:latest
           env:
             - name: NAMESPACE
-              value: {{ .Values.operator.namespace}}
+              value: {{ .Release.Namespace }}
+            - name: MODE
+              value: operator
         - name: lag-analysis
           image: benediktwetzel/lag-analysis
           ports:
