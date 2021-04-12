@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sResourceLoader
@@ -13,6 +14,9 @@ import theodolite.util.*
 private val logger = KotlinLogging.logger {}
 private var DEFAULT_NAMESPACE = "default"
 
+val namespace: String = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+
 @RegisterForReflection
 class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var name: String
@@ -21,16 +25,12 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
-    lateinit var namespace: String
     lateinit var path: String
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val parser = YamlParser()
 
-        namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
         logger.info { "Using $namespace as namespace." }
-
-        path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
         logger.info { "Using $path as path for resources." }
 
 
