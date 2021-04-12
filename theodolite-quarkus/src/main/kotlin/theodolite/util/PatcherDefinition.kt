@@ -1,10 +1,12 @@
 package theodolite.util
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
  * Definition of the structure of a patcher.
  */
+@JsonDeserialize
 @RegisterForReflection
 class PatcherDefinition {
     /**

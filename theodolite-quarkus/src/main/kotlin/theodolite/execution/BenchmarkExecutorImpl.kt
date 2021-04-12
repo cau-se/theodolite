@@ -11,6 +11,7 @@ import theodolite.util.Resource
 import theodolite.util.Results
 import java.time.Duration
 
+private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 class BenchmarkExecutorImpl(
@@ -21,15 +22,25 @@ class BenchmarkExecutorImpl(
     slo: BenchmarkExecution.Slo
 ) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
+        var result = false
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides)
-        benchmarkDeployment.setup()
-        this.waitAndLog()
 
-        val result = AnalysisExecutor(slo = slo).analyse(load = load, res = res, executionDuration = executionDuration)
+        try {
+            benchmarkDeployment.setup()
+            this.waitAndLog()
+        } catch(e: Exception) {
+            logger.error { "Error while setup experiment." }
+            logger.error { "Error is: $e" }
+            this.run.set(false)
+        }
 
+        if (this.run.get()) {
+            result =
+                AnalysisExecutor(slo = slo).analyze(load = load, res = res, executionDuration = executionDuration)
+            this.results.setResult(Pair(load, res), result)
+        }
         benchmarkDeployment.teardown()
 
-        this.results.setResult(Pair(load, res), result)
         return result
     }
 }

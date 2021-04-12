@@ -12,44 +12,17 @@ private val logger = KotlinLogging.logger {}
  * @param kafkaConfig Kafka Configuration as HashMap
  * @constructor Creates a KafkaAdminClient
  */
-class TopicManager(kafkaConfig: HashMap<String, Any>) {
-    private lateinit var kafkaAdmin: AdminClient
-
-    /**
-     * Creates a KafkaAdminClient.
-     * Logs exception if kafkaConfig was incorrect.
-     */
-    init {
-        try {
-            kafkaAdmin = AdminClient.create(kafkaConfig)
-        } catch (e: Exception) {
-            logger.error { e.toString() }
-        }
-    }
+class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
 
     /**
      * Creates topics.
      * @param newTopics List of all Topic that should be created
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
-        val result = kafkaAdmin.createTopics(newTopics)
-
-        try {
-            result.all().get()
-        } catch (ex: Exception) {
-            logger.error { ex.toString() }
-        }
-        logger.info { "Topics created" }
-    }
-
-    private fun createTopics(topics: List<String>, numPartitions: Int, replicationFactor: Short) {
-        val newTopics = mutableSetOf<NewTopic>()
-        for (i in topics) {
-            val tops = NewTopic(i, numPartitions, replicationFactor)
-            newTopics.add(tops)
-        }
+        var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
         kafkaAdmin.createTopics(newTopics)
-        logger.info { "Creation of $topics started" }
+        kafkaAdmin.close()
+        logger.info { "Topics created" }
     }
 
     /**
@@ -57,20 +30,16 @@ class TopicManager(kafkaConfig: HashMap<String, Any>) {
      * @param topics List of names with the topics to remove.
      */
     fun removeTopics(topics: List<String>) {
+        var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
         val result = kafkaAdmin.deleteTopics(topics)
 
         try {
             result.all().get()
-        } catch (ex: Exception) {
-            logger.error { ex.toString() }
+        } catch (e: Exception) {
+            logger.error { "Error while removing topics: $e"  }
+            logger.debug { "Existing topics are: ${kafkaAdmin.listTopics()}."  }
         }
+        kafkaAdmin.close()
         logger.info { "Topics removed" }
-    }
-
-    /**
-     * Returns all currently available topics.
-     */
-    fun getTopics(): ListTopicsResult? {
-        return kafkaAdmin.listTopics()
     }
 }

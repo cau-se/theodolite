@@ -1,5 +1,9 @@
 package theodolite.benchmark
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.Namespaced
+import io.fabric8.kubernetes.client.CustomResource
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
@@ -20,8 +24,9 @@ import kotlin.properties.Delegates
  *  for the deserializing in the [TheodoliteOperator].
  *  @constructor construct an empty BenchmarkExecution.
  */
+@JsonDeserialize
 @RegisterForReflection
-class BenchmarkExecution {
+class BenchmarkExecution : CustomResource(), Namespaced {
     lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition
@@ -34,8 +39,9 @@ class BenchmarkExecution {
      * This execution encapsulates the [strategy], the [duration], the [repetitions], and the [restrictions]
      *  which are used for the concrete benchmark experiments.
      */
+    @JsonDeserialize
     @RegisterForReflection
-    class Execution {
+    class Execution : KubernetesResource {
         lateinit var strategy: String
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
@@ -49,8 +55,9 @@ class BenchmarkExecution {
      * It has a [offset] by which the start and end points of the Metric can be shifted.
      * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.
      */
+    @JsonDeserialize
     @RegisterForReflection
-    class Slo {
+    class Slo : KubernetesResource {
         lateinit var sloType: String
         var threshold by Delegates.notNull<Int>()
         lateinit var prometheusUrl: String
@@ -63,8 +70,9 @@ class BenchmarkExecution {
      * Represents a Load that should be created and checked.
      * It can be set to [loadValues].
      */
+    @JsonDeserialize
     @RegisterForReflection
-    class LoadDefinition {
+    class LoadDefinition : KubernetesResource {
         lateinit var loadType: String
         lateinit var loadValues: List<Int>
     }
@@ -72,8 +80,9 @@ class BenchmarkExecution {
     /**
      * Represents a resource that can be scaled to [resourceValues].
      */
+    @JsonDeserialize
     @RegisterForReflection
-    class ResourceDefinition {
+    class ResourceDefinition : KubernetesResource {
         lateinit var resourceType: String
         lateinit var resourceValues: List<Int>
     }

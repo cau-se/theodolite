@@ -1,4 +1,4 @@
-package theodolite.benchmark;
+package theodolite.benchmark
 
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging

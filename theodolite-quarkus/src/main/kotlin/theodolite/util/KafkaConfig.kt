@@ -1,5 +1,6 @@
 package theodolite.util
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.quarkus.runtime.annotations.RegisterForReflection
 import org.apache.kafka.clients.admin.NewTopic
 import kotlin.properties.Delegates
@@ -10,6 +11,7 @@ import kotlin.properties.Delegates
  * @see TopicWrapper
  */
 @RegisterForReflection
+@JsonDeserialize
 class KafkaConfig {
     /**
      * The bootstrap server connection string

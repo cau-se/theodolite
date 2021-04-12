@@ -98,7 +98,7 @@ kubectl apply -f infrastructure/kafka/service-monitor.yaml
 Other Kafka deployments, for example, using Strimzi, should work in a similar way.
 
 *Please note that currently, even if installed differently, the corresponding services must run at
-*my-confluent-cp-kafka:9092*, *my-confluent-cp-zookeeper:2181* and *my-confluent-cp-schema-registry:8081*.
+`my-confluent-cp-kafka:9092`, `my-confluent-cp-zookeeper:2181` and `my-confluent-cp-schema-registry:8081`.*
 
 #### A Kafka Client Pod
 

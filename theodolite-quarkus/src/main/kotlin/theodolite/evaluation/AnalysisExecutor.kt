@@ -27,7 +27,7 @@ class AnalysisExecutor(private val slo: BenchmarkExecution.Slo) {
      *  @param executionDuration [Duration] of the experiment.
      *  @return [true] if the experiment succeeded.
      */
-    fun analyse(load: LoadDimension, res: Resource, executionDuration: Duration): Boolean {
+    fun analyze(load: LoadDimension, res: Resource, executionDuration: Duration): Boolean {
         var result = false
 
         try {

@@ -1,6 +1,8 @@
 package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.Namespaced
+import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
@@ -10,7 +12,6 @@ import theodolite.util.*
 
 private val logger = KotlinLogging.logger {}
 
-// default kubernetes namespace
 private var DEFAULT_NAMESPACE = "default"
 
 /**
@@ -30,7 +31,7 @@ private var DEFAULT_NAMESPACE = "default"
  * @constructor construct an empty Benchmark.
  */
 @RegisterForReflection
-class KubernetesBenchmark : Benchmark {
+class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var name: String
     lateinit var appResource: List<String>
     lateinit var loadGenResource: List<String>
@@ -46,11 +47,14 @@ class KubernetesBenchmark : Benchmark {
      * the [K8sResourceLoader]
      */
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
-        //val path = "./../../../resources/main/yaml/"
         val parser = YamlParser()
 
         namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
         logger.info { "Using $namespace as namespace." }
+
+        path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+        logger.info { "Using $path as path for resources." }
+
 
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources

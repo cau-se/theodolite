@@ -22,6 +22,11 @@ class TheodoliteExecutor(
     private val config: BenchmarkExecution,
     private val kubernetesBenchmark: KubernetesBenchmark
 ) {
+    /**
+     * A executor object, configured with the specified benchmark, evaluation method, experiment duration
+     * and overrides which are given in the execution.
+     */
+    lateinit var executor: BenchmarkExecutor
 
     /**
      * Creates all required components to start Theodolite.
@@ -35,18 +40,19 @@ class TheodoliteExecutor(
 
         val executionDuration = Duration.ofSeconds(config.execution.duration)
 
-        val resourcePatcherDefinition = PatcherDefinitionFactory().createPatcherDefinition(
-            config.resources.resourceType,
-            this.kubernetesBenchmark.resourceTypes
-        )
-        val loadDimensionPatcherDefinition =
-            PatcherDefinitionFactory().createPatcherDefinition(config.load.loadType, this.kubernetesBenchmark.loadTypes)
+        val resourcePatcherDefinition =
+            PatcherDefinitionFactory().createPatcherDefinition(
+                config.resources.resourceType,
+                this.kubernetesBenchmark.resourceTypes
+            )
 
-        /**
-         * A executor object, configured with the specified benchmark, evaluation method, experiment duration
-         * and overrides which are given in the execution.
-         */
-        val executor =
+        val loadDimensionPatcherDefinition =
+            PatcherDefinitionFactory().createPatcherDefinition(
+                config.load.loadType,
+                this.kubernetesBenchmark.loadTypes
+            )
+
+        executor =
             BenchmarkExecutorImpl(
                 kubernetesBenchmark,
                 results,
@@ -74,16 +80,25 @@ class TheodoliteExecutor(
         )
     }
 
+    fun getExecution(): BenchmarkExecution {
+        return this.config
+    }
+
+    fun getBenchmark(): KubernetesBenchmark {
+        return this.kubernetesBenchmark
+    }
+
     /**
      * Run all experiments which are specified in the corresponding
      * execution and benchmark objects.
      */
     fun run() {
         val config = buildConfig()
-
         // execute benchmarks for each load
         for (load in config.loads) {
-            config.compositeStrategy.findSuitableResource(load, config.resources)
+            if (executor.run.get()) {
+                config.compositeStrategy.findSuitableResource(load, config.resources)
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package theodolite.util
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
@@ -9,6 +10,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  *
  * @see PatcherDefinition
  */
+@JsonDeserialize
 @RegisterForReflection
 class ConfigurationOverride {
     /**

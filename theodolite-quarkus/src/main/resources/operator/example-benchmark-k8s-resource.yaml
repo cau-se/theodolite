@@ -1,0 +1,29 @@
+apiVersion: theodolite.com/v1alpha1
+kind: benchmark
+metadata:
+  name: uc1-kstreams
+appResource:
+  - "uc1-kstreams-deployment.yaml"
+  - "aggregation-service.yaml"
+  - "jmx-configmap.yaml"
+loadGenResource:
+  - "uc1-load-generator-deployment.yaml"
+  - "uc1-load-generator-service.yaml"
+resourceTypes:
+  - typeName: "Instances"
+    patchers:
+      - type: "ReplicaPatcher"
+        resource: "uc1-kstreams-deployment.yaml"
+loadTypes:
+  - typeName: "NumSensors"
+    patchers:
+      - type: "EnvVarPatcher"
+        resource: "uc1-load-generator-deployment.yaml"
+        container: "workload-generator"
+        variableName: "NUM_SENSORS"
+kafkaConfig:
+  bootstrapServer: "localhost:31290"
+  topics:
+    - name: "input"
+      numPartitions: 40
+      replicationFactor: 1
