@@ -34,6 +34,9 @@ class BenchmarkExecutorImpl(
             this.run.set(false)
         }
 
+        /**
+         * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
+         */
         if (this.run.get()) {
             result =
                 AnalysisExecutor(slo = slo).analyze(load = load, res = res, executionDuration = executionDuration)
