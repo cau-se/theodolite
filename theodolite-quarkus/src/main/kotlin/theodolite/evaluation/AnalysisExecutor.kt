@@ -19,7 +19,7 @@ class AnalysisExecutor(
         offset = Duration.ofHours(slo.offset.toLong())
     )
 
-    fun analyse(load: LoadDimension, res: Resource, executionDuration: Duration): Boolean {
+    fun analyze(load: LoadDimension, res: Resource, executionDuration: Duration): Boolean {
         var result = false
 
         try {

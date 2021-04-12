@@ -17,6 +17,7 @@ class TheodoliteExecutor(
     private val config: BenchmarkExecution,
     private val kubernetesBenchmark: KubernetesBenchmark
 ) {
+    lateinit var executor: BenchmarkExecutor
 
     private fun buildConfig(): Config {
         val results = Results()
@@ -24,14 +25,19 @@ class TheodoliteExecutor(
 
         val executionDuration = Duration.ofSeconds(config.execution.duration)
 
-        val resourcePatcherDefinition = PatcherDefinitionFactory().createPatcherDefinition(
-            config.resources.resourceType,
-            this.kubernetesBenchmark.resourceTypes
-        )
-        val loadDimensionPatcherDefinition =
-            PatcherDefinitionFactory().createPatcherDefinition(config.load.loadType, this.kubernetesBenchmark.loadTypes)
+        val resourcePatcherDefinition =
+            PatcherDefinitionFactory().createPatcherDefinition(
+                config.resources.resourceType,
+                this.kubernetesBenchmark.resourceTypes
+            )
 
-        val executor =
+        val loadDimensionPatcherDefinition =
+            PatcherDefinitionFactory().createPatcherDefinition(
+                config.load.loadType,
+                this.kubernetesBenchmark.loadTypes
+            )
+
+        executor =
             BenchmarkExecutorImpl(
                 benchmark = kubernetesBenchmark,
                 results = results,
@@ -60,6 +66,14 @@ class TheodoliteExecutor(
         )
     }
 
+    fun getExecution(): BenchmarkExecution {
+        return this.config
+    }
+
+    fun getBenchmark(): KubernetesBenchmark {
+        return this.kubernetesBenchmark
+    }
+
     fun run() {
         storeAsFile(this.config, "${this.config.executionId}-execution-configuration")
         storeAsFile(kubernetesBenchmark, "${this.config.executionId}-benchmark-configuration")
@@ -67,7 +81,9 @@ class TheodoliteExecutor(
         val config = buildConfig()
         // execute benchmarks for each load
         for (load in config.loads) {
-            config.compositeStrategy.findSuitableResource(load, config.resources)
+            if (executor.run.get()) {
+                config.compositeStrategy.findSuitableResource(load, config.resources)
+            }
         }
         storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "${this.config.executionId}-result")
     }
