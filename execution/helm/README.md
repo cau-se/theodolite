@@ -52,11 +52,21 @@ To uninstall/delete the `my-release` deployment:
 helm delete my-release
 ```
 
-This command does not remove the CRDs which are created by this Chart. Remove this CRDs with:
+This command does not remove the CRDs which are created by this chart. Remove them manually with:
 
 ```sh
+# CRDs from Theodolite
 kubectl delete crd execution
 kubectl delete crd benchmark
+# CRDs from Prometheus operator (see https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#uninstall-chart)
+kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
+kubectl delete crd podmonitors.monitoring.coreos.com
+kubectl delete crd probes.monitoring.coreos.com
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd thanosrulers.monitoring.coreos.com
 ```
 
 ## Development
