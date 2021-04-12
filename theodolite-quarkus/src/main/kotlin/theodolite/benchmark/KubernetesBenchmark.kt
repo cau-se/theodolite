@@ -15,7 +15,7 @@ private val logger = KotlinLogging.logger {}
 private var DEFAULT_NAMESPACE = "default"
 
 /**
- * Represents a Benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
+ * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
  * Contains a of:
  * - [name] of the benchmark,
  * - [appResource] list of the resources that have to be deployed for the benchmark,
@@ -26,8 +26,8 @@ private var DEFAULT_NAMESPACE = "default"
  * - [namespace] for the client,
  * - [path] under which the resource yamls can be found.
  *
- *  This class is used for the parsing(in the [TheodoliteYamlExecutor]) and
- *  for the deserializing in the [TheodoliteOperator].
+ *  This class is used for the parsing(in the [theodolite.execution.TheodoliteYamlExecutor]) and
+ *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  * @constructor construct an empty Benchmark.
  */
 @RegisterForReflection
@@ -42,7 +42,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var path: String
 
     /**
-     * Loads KubernetsResources.
+     * Loads [KubernetesResource]s.
      * It first loads them via the [YamlParser] to check for their concrete type and afterwards initializes them using
      * the [K8sResourceLoader]
      */
@@ -67,7 +67,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     }
 
     /**
-     * Builds a Deployment.
+     * Builds a deployment.
      * First loads all required resources and then patches them to the concrete load and resources for the experiment.
      * Afterwards patches additional configurations(cluster depending) into the resources.
      * @param load concrete load that will be benchmarked in this experiment.

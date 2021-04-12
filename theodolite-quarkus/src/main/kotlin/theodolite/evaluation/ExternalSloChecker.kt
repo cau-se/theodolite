@@ -8,9 +8,9 @@ import java.net.ConnectException
 import java.time.Instant
 
 /**
- * SloChecker that uses an external source for the concrete evaluation.
+ * [SloChecker] that uses an external source for the concrete evaluation.
  * @param externalSlopeURL The url under which the external evaluation can be reached.
- * @param threshold threshold that should not be ... to evaluate to true.
+ * @param threshold threshold that should not be exceeded to evaluate to true.
  * @param warmup time that is not taken into consideration for the evaluation.
  */
 class ExternalSloChecker(
@@ -33,7 +33,7 @@ class ExternalSloChecker(
      * @param start point of the experiment.
      * @param end point of the experiment.
      * @param fetchedData that should be evaluated
-     * @return [true] if the expirment was successful(the threshold was not exceeded.
+     * @return true if the experiment was successful(the threshold was not exceeded.
      * @throws ConnectException if the external service could not be reached.
      */
     override fun evaluate(start: Instant, end: Instant, fetchedData: PrometheusResponse): Boolean {

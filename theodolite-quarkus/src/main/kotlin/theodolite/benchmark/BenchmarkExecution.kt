@@ -9,19 +9,19 @@ import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
 /**
- * This Class represents the configuration for an Execution of a Benchmark.
+ * This class represents the configuration for an execution of a benchmark.
  * An example for this is the BenchmarkExecution.yaml
  * A BenchmarkExecution consists of:
  *  - A [name].
  *  - The [benchmark] (a BenchmarkType) that should be executed.
- *  - The [laod] that should be checked in the benchmark.
+ *  - The [load] that should be checked in the benchmark.
  *  - The [resources] that should be checked in the benchmark.
  *  - A List of [slos] that are used for the evaluation of the experiments
- *  - An [execution] that encapsulates: the [strategy], the [duration], the [repetitions], and the [restrictions]
+ *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
  *  for the execution of the benchmark.
  *  - [configOverrides] additional configurations.
- *  This class is used for the parsing(in the [TheodoliteYamlExecutor]) and
- *  for the deserializing in the [TheodoliteOperator].
+ *  This class is used for the parsing(in the [theodolite.execution.TheodoliteYamlExecutor]) and
+ *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  *  @constructor construct an empty BenchmarkExecution.
  */
 @JsonDeserialize
@@ -49,8 +49,8 @@ class BenchmarkExecution : CustomResource(), Namespaced {
     }
 
     /**
-     * Measurable Metric.
-     * It is evaluated using the [ExternalSloChecker] by data measured by Prometheus.
+     * Measurable metric.
+     * It is evaluated using the [theodolite.evaluation.ExternalSloChecker] by data measured by Prometheus.
      * The evaluation checks if a [threshold] is reached or not.
      * It has a [offset] by which the start and end points of the Metric can be shifted.
      * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.

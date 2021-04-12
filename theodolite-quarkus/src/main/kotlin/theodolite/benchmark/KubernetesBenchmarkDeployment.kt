@@ -43,9 +43,9 @@ class KubernetesBenchmarkDeployment(
 
     /**
      * Tears a [KubernetesBenchmark] down:
-     *  - Reset the KafkaLagExporter.
+     *  - Reset the Kafka Lag Exporter.
      *  - Remove the used topics.
-     *  - Remove the KubernetesResources.
+     *  - Remove the [KubernetesResource]s.
      */
     override fun teardown() {
         KafkaLagExporterRemover(client).remove(LABEL)
