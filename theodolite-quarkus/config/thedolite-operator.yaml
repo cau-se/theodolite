@@ -16,7 +16,7 @@ spec:
       serviceAccountName: theodolite
       containers:
         - name: thedolite
-          image: lorenzboguhn/thedolite:latest
+          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
           env:
             - name: KUBECONFIG
               value: "~/.kube/config"
