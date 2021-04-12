@@ -8,10 +8,9 @@ import theodolite.util.Resource
 
 private val logger = KotlinLogging.logger {}
 
-class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val benchmark: KubernetesBenchmark) :
-    Thread() {
+class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val benchmark: KubernetesBenchmark) {
 
-    override fun run() {
+    fun run() {
         // Build Configuration to teardown
         logger.info { "Received shutdown signal -> Shutting down" }
         val deployment =
@@ -20,7 +19,7 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
                 res = Resource(0, emptyList()),
                 configurationOverrides = benchmarkExecution.configOverrides
             )
-        logger.info { "Teardown the everything deployed" }
+        logger.info { "Teardown everything deployed" }
         deployment.teardown()
         logger.info { "Teardown completed" }
     }
