@@ -3,11 +3,9 @@ package theodolite.util
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Central class that saves the state of a execution of theodolite. For an execution, it is used to save the result of
+ * Central class that saves the state of a execution of Theodolite. For an execution, it is used to save the result of
  * individual experiments. Further, it is used by the RestrictionStrategy to
- * perform the restrictions.
- *
- * @see theodolite.strategies.restriction.RestrictionStrategy
+ * perform the [theodolite.strategies.restriction.RestrictionStrategy].
  */
 @RegisterForReflection
 class Results {
@@ -16,7 +14,7 @@ class Results {
     /**
      * Set the result for an experiment.
      *
-     * @param experiment A pair that identifies the experiment by the @see LoadDimension and @see Resource.
+     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resource].
      * @param successful the result of the experiment. Successful == true and Unsuccessful == false.
      */
     fun setResult(experiment: Pair<LoadDimension, Resource>, successful: Boolean) {
@@ -26,7 +24,7 @@ class Results {
     /**
      * Get the result for an experiment.
      *
-     * @param experiment A pair that identifies the experiment by the @see LoadDimension and Resource.
+     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resource].
      * @return true if the experiment was successful and false otherwise. If the result has not been reported so far,
      * null is returned.
      *
@@ -37,16 +35,13 @@ class Results {
     }
 
     /**
-     * Get the smallest suitable number of instances for a specified LoadDimension.
+     * Get the smallest suitable number of instances for a specified [LoadDimension].
      *
-     * @param load the @see LoadDimension
+     * @param load the [LoadDimension]
      *
      * @return the smallest suitable number of resources. If the experiment was not executed yet,
      * a @see Resource with the constant Int.MAX_VALUE as value is returned. If no experiments have been marked as either successful or unsuccessful
      * yet, a Resource with the constant value Int.MIN_VALUE is returned.
-     *
-     * @see LoadDimension
-     * @see Resource
      */
     fun getMinRequiredInstances(load: LoadDimension?): Resource? {
         if (this.results.isEmpty()) return Resource(Int.MIN_VALUE, emptyList())
@@ -65,14 +60,12 @@ class Results {
     }
 
     /**
-     * Get the largest LoadDimension that has been reported executed successfully (or unsuccessfully) so far, for a
-     * LoadDimension and is smaller than the given LoadDimension.
+     * Get the largest [LoadDimension] that has been reported executed successfully (or unsuccessfully) so far, for a
+     * [LoadDimension] and is smaller than the given [LoadDimension].
      *
-     * @param load the LoadDimension
+     * @param load the [LoadDimension]
      *
-     * @return the largest LoadDimension or null, if there is none for this LoadDimension
-     *
-     * @see LoadDimension
+     * @return the largest [LoadDimension] or null, if there is none for this [LoadDimension]
      */
     fun getMaxBenchmarkedLoad(load: LoadDimension): LoadDimension? {
         var maxBenchmarkedLoad: LoadDimension? = null

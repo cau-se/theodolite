@@ -6,13 +6,9 @@ import theodolite.strategies.searchstrategy.CompositeStrategy
 /**
  * Config class that represents a configuration of a theodolite run.
  *
- * @param loads the LoadDimensions of the execution
- * @param resources the Resources of the execution
- * @param compositeStrategy the CompositeStrategy of the execution
- *
- * @see LoadDimension
- * @see Resource
- * @see CompositeStrategy
+ * @param loads the [LoadDimension] of the execution
+ * @param resources the [Resource] of the execution
+ * @param compositeStrategy the [CompositeStrategy] of the execution
  */
 @RegisterForReflection
 data class Config(

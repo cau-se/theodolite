@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Definition of the structure of a patcher.
+ * Definition of the structure of a [theodolite.patcher.AbstractPatcher] which implements the [theodolite.patcher.Patcher] interface.
  */
 @JsonDeserialize
 @RegisterForReflection

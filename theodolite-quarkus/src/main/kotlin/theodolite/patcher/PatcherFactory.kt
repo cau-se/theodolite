@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import theodolite.util.PatcherDefinition
 
 /**
- * The Patcher factory creates Patchers
+ * The Patcher factory creates [Patcher]s
  *
  * @constructor Create empty Patcher factory
  */

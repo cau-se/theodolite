@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 
 /**
- * The Replica patcher modifies the number of replicas for the given Kubernetes Deployment.
+ * The Replica [Patcher] modifies the number of replicas for the given Kubernetes deployment.
  *
  * @param k8sResource  Kubernetes resource to be patched.
  */

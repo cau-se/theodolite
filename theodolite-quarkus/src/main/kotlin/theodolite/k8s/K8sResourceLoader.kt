@@ -11,7 +11,7 @@ import theodolite.util.YamlParser
 private val logger = KotlinLogging.logger {}
 
 /**
- * Used to load different k8s resources.
+ * Used to load different Kubernetes resources.
  * Supports: Deployments, Services, ConfigMaps, and CustomResources.
  * @param client KubernetesClient used to deploy or remove.
  */

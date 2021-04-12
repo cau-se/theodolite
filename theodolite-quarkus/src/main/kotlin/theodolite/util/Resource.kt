@@ -3,7 +3,7 @@ package theodolite.util
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Representation of the resources for a execution of theodolite.
+ * Representation of the resources for a execution of Theodolite.
  */
 @RegisterForReflection
 data class Resource(private val number: Int, private val type: List<PatcherDefinition>) {
@@ -16,9 +16,7 @@ data class Resource(private val number: Int, private val type: List<PatcherDefin
     }
 
     /**
-     * @return the list of patcher definitions.
-     *
-     * @see PatcherDefinition
+     * @return the list of [PatcherDefinition]
      */
     fun getType(): List<PatcherDefinition> {
         return this.type

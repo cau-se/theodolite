@@ -5,10 +5,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
  * Representation of a configuration override.
- *
- * @param value the value of the configuration override
- *
- * @see PatcherDefinition
  */
 @JsonDeserialize
 @RegisterForReflection

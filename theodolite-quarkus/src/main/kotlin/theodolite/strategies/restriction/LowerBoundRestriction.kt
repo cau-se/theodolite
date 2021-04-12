@@ -8,9 +8,7 @@ import theodolite.util.Results
  * The Lower Bound Restriction sets the lower bound of the resources to be examined to the value
  * needed to successfully execute the next smaller load.
  *
- * @param results Result object used as a basis to restrict the resources.
- *
- * @see Results
+ * @param results [Result] object used as a basis to restrict the resources.
  */
 class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
     override fun apply(load: LoadDimension, resources: List<Resource>): List<Resource> {

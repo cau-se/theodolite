@@ -5,9 +5,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 /**
  * Representation of the load dimensions for a execution of theodolite.
  *
- * @param number the value of this LoadDimension
- *
- * @see PatcherDefinition
+ * @param number the value of this [LoadDimension]
+ * @param type [PatcherDefinition] of this [LoadDimension]
  */
 @RegisterForReflection
 data class LoadDimension(private val number: Int, private val type: List<PatcherDefinition>) {
@@ -19,9 +18,7 @@ data class LoadDimension(private val number: Int, private val type: List<Patcher
     }
 
     /**
-     * @return the list of patcher definitions.
-     *
-     * @see PatcherDefinition
+     * @return the list of [PatcherDefinition]
      */
     fun getType(): List<PatcherDefinition> {
         return this.type

@@ -8,7 +8,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 
 /**
- * This class is used to deploy or remove different k8s resources.
+ * This class is used to deploy or remove different Kubernetes resources.
  * Supports: Deployments, Services, ConfigMaps, StatefulSets, and CustomResources.
  * @param client KubernetesClient used to deploy or remove.
  */

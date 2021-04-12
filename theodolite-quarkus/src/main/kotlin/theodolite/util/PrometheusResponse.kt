@@ -3,9 +3,9 @@ package theodolite.util
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Description of a prometheus response.
+ * Description of a Prometheus response.
  *
- * @see PromData
+ * Based on [PromData]
  */
 @RegisterForReflection
 data class PrometheusResponse(
@@ -14,9 +14,9 @@ data class PrometheusResponse(
 )
 
 /**
- * Description of prometheus data.
+ * Description of Prometheus data.
  *
- * @see PromResult
+ * Based on [PromResult]
  */
 @RegisterForReflection
 data class PromData(
@@ -25,9 +25,9 @@ data class PromData(
 )
 
 /**
- * Description of a prometheus result.
+ * Description of a Prometheus result.
  *
- * @see PromMetric
+ * Based on [PromMetric]
  */
 @RegisterForReflection
 data class PromResult(

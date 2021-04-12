@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 
 /**
- * The Node selector patcher make it possible to set the NodeSelector of a Kubernetes Deployment.
+ * The Node selector patcher make it possible to set the NodeSelector of a Kubernetes deployment.
  *
  * @param k8sResource Kubernetes resource to be patched.
  * @param variableName The `label-key` of the node for which the `label-value` is to be patched.
