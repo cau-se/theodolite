@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: theodolite
+spec:
+  selector:
+    matchLabels:
+      app: theodolite
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: theodolite
+    spec:
+      terminationGracePeriodSeconds: 0
+      serviceAccountName: theodolite
+      containers:
+        - name: thedolite
+          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          env:
+            - name: KUBECONFIG
+              value: "~/.kube/config"
+            - name: NAMESPACE
+              value: "default"

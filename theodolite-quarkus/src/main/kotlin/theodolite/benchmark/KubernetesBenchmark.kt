@@ -21,18 +21,11 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
-    lateinit var namespace: String
-    lateinit var path: String
+    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    var path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val parser = YamlParser()
-
-        namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-        logger.info { "Using $namespace as namespace." }
-
-        path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
-        logger.info { "Using $path as path for resources." }
-
 
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
@@ -49,6 +42,9 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
         res: Resource,
         configurationOverrides: List<ConfigurationOverride?>
     ): BenchmarkDeployment {
+        logger.info { "Using $namespace as namespace." }
+        logger.info { "Using $path as resource path." }
+
         val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
         val patcherFactory = PatcherFactory()
 
@@ -66,12 +62,12 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
                 patcherFactory.createPatcher(it.patcher, resources).patch(override.value)
             }
         }
-
         return KubernetesBenchmarkDeployment(
             namespace = namespace,
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
-            topics = kafkaConfig.getKafkaTopics()
+            topics = kafkaConfig.getKafkaTopics(),
+            client = DefaultKubernetesClient().inNamespace(namespace)
         )
     }
 }
