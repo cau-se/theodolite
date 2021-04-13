@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sResourceLoader
@@ -15,7 +14,6 @@ private val logger = KotlinLogging.logger {}
 private var DEFAULT_NAMESPACE = "default"
 
 val namespace: String = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
 @RegisterForReflection
 class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
