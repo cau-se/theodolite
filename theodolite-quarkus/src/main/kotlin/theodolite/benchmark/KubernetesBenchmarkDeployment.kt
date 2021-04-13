@@ -40,7 +40,7 @@ class KubernetesBenchmarkDeployment(
     }
 
     /**
-     * Tears a [KubernetesBenchmark] down:
+     * Tears down a [KubernetesBenchmark]:
      *  - Reset the Kafka Lag Exporter.
      *  - Remove the used topics.
      *  - Remove the [KubernetesResource]s.

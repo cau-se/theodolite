@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 /**
  * A Patcher is able to modify values of a Kubernetes resource, see [Patcher].
  *
- * A AbstractPatcher is created with up to three parameters.
+ * An AbstractPatcher is created with up to three parameters.
  *
  * @param k8sResource The Kubernetes resource to be patched.
  * @param container *(optional)* The name of the container to be patched

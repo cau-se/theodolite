@@ -13,14 +13,14 @@ import kotlin.properties.Delegates
  * An example for this is the BenchmarkExecution.yaml
  * A BenchmarkExecution consists of:
  *  - A [name].
- *  - The [benchmark] (a BenchmarkType) that should be executed.
+ *  - The [benchmark] that should be executed.
  *  - The [load] that should be checked in the benchmark.
  *  - The [resources] that should be checked in the benchmark.
- *  - A List of [slos] that are used for the evaluation of the experiments
+ *  - A list of [slos] that are used for the evaluation of the experiments.
  *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
  *  for the execution of the benchmark.
  *  - [configOverrides] additional configurations.
- *  This class is used for the parsing(in the [theodolite.execution.TheodoliteYamlExecutor]) and
+ *  This class is used for parsing(in [theodolite.execution.TheodoliteYamlExecutor]) and
  *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  *  @constructor construct an empty BenchmarkExecution.
  */
@@ -50,10 +50,12 @@ class BenchmarkExecution : CustomResource(), Namespaced {
 
     /**
      * Measurable metric.
+     * [sloType] determines the type of the metric.
      * It is evaluated using the [theodolite.evaluation.ExternalSloChecker] by data measured by Prometheus.
      * The evaluation checks if a [threshold] is reached or not.
-     * It has a [offset] by which the start and end points of the Metric can be shifted.
+     * [offset] determines the shift in hours by which the start and end timestamps should be shifted.
      * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.
+     * The [warmup] time unit depends on the Slo: for the lag trend it is in seconds.
      */
     @JsonDeserialize
     @RegisterForReflection

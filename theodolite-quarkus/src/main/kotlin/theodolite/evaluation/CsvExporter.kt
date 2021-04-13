@@ -14,7 +14,7 @@ private val logger = KotlinLogging.logger {}
 class CsvExporter {
 
     /**
-     * Uses the [PrintWriter] to transform a [PrometheusResponse] to a Csv file.
+     * Uses the [PrintWriter] to transform a [PrometheusResponse] to a CSV file.
      * @param name of the file.
      * @param prom Response that is documented.
      *
@@ -33,7 +33,7 @@ class CsvExporter {
     }
 
     /**
-     * Converts a [PrometheusResponse] into a [List] of [List] of [String]s
+     * Converts a [PrometheusResponse] into a [List] of [List]s of [String]s
      */
     private fun promResponseToList(prom: PrometheusResponse): List<List<String>> {
         val name = prom.data?.result?.get(0)?.metric?.group.toString()

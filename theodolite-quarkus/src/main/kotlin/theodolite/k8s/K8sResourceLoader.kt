@@ -79,7 +79,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
 
     /**
      * Factory function used to load different k8s resources from a path.
-     * Supported kinds are: deployments,Services, ServiceMonitors,ConfigMaps and CustomResources.
+     * Supported kinds are: Deployments, Services, ServiceMonitors, ConfigMaps and CustomResources.
      * Uses CustomResource as default if Kind is not supported.
      * @param kind of the resource. CustomResource as default.
      * @param path of the resource to be loaded.

@@ -1,7 +1,7 @@
 package theodolite.util
 
 /**
- * Interface for parsing files.
+ * Interface for parsers.
  */
 interface Parser {
     /**

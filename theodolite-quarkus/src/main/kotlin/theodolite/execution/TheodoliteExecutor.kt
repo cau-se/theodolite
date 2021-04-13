@@ -23,7 +23,7 @@ class TheodoliteExecutor(
     private val kubernetesBenchmark: KubernetesBenchmark
 ) {
     /**
-     * A executor object, configured with the specified benchmark, evaluation method, experiment duration
+     * An executor object, configured with the specified benchmark, evaluation method, experiment duration
      * and overrides which are given in the execution.
      */
     lateinit var executor: BenchmarkExecutor
@@ -31,8 +31,9 @@ class TheodoliteExecutor(
     /**
      * Creates all required components to start Theodolite.
      *
-     * @return a configuration object that contains the loads, the resources and the compositeStrategy.
-     * The compositeStrategy is configured and able to find the minimum required resource for the given load.
+     * @return a [Config], that contains a list of [LoadDimension]s,
+     *          a list of [Resource]s , and the [CompositeStrategy].
+     * The [CompositeStrategy] is configured and able to find the minimum required resource for the given load.
      */
     private fun buildConfig(): Config {
         val results = Results()

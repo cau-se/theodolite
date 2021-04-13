@@ -4,9 +4,9 @@ import theodolite.util.PatcherDefinition
 import theodolite.util.TypeName
 
 /**
- * The PatcherDefinition Factory creates a PatcherDefinitions, see [PatcherDefinition]
+ * The PatcherDefinition Factory creates a [PatcherDefinition]s.
  *
- * @constructor Create empty Patcher definition factory
+ * @constructor Create empty Patcher definition factory.
  */
 class PatcherDefinitionFactory {
     /**
@@ -20,7 +20,7 @@ class PatcherDefinitionFactory {
      * @return A list of PatcherDefinitions which corresponds to the
      *     value of the requiredType.
      */
-    fun createPatcherDefinition(requiredType: String, patcherTypes: List<TypeName>) : List<PatcherDefinition> {
+    fun createPatcherDefinition(requiredType: String, patcherTypes: List<TypeName>): List<PatcherDefinition> {
         return patcherTypes
             .filter { type -> type.typeName == requiredType }
             .flatMap { type -> type.patchers }
