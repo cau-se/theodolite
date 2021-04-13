@@ -16,17 +16,13 @@ class AnalysisExecutor(private val slo: BenchmarkExecution.Slo) {
         offset = Duration.ofHours(slo.offset.toLong())
     )
 
-    fun analyze(load: LoadDimension, res: Resource, executionDuration: Duration): Boolean {
+    fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
         var result = false
-
+        val exporter = CsvExporter()
+        val prometheusData = executionIntervals.map { interval -> fetcher.fetchMetric( start = interval.first, end = interval.second, query = "sum by(group)(kafka_consumergroup_group_lag >= 0)") }
+        var repetitionCounter = 0
+        prometheusData.forEach{ data -> exporter.toCsv(name = "${load.get()}_${res.get()}_${slo.sloType}_rep_${repetitionCounter++}", prom = data) }
         try {
-            val prometheusData = fetcher.fetchMetric(
-                start = Instant.now().minus(executionDuration),
-                end = Instant.now(),
-                query = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
-            )
-
-            CsvExporter().toCsv(name = "${load.get()}_${res.get()}_${slo.sloType}", prom = prometheusData)
 
             val sloChecker = SloCheckerFactory().create(
                 slotype = slo.sloType,
@@ -35,10 +31,7 @@ class AnalysisExecutor(private val slo: BenchmarkExecution.Slo) {
                 warmup = slo.warmup
             )
 
-            result = sloChecker.evaluate(
-                start = Instant.now().minus(executionDuration),
-                end = Instant.now(), fetchedData = prometheusData
-            )
+            result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
             logger.error { "Evaluation failed for resource: ${res.get()} and load: ${load.get()} error: $e" }

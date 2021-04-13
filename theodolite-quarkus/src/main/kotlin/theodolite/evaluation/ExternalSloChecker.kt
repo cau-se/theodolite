@@ -19,13 +19,15 @@ class ExternalSloChecker(
 
     private val logger = KotlinLogging.logger {}
 
-    override fun evaluate(start: Instant, end: Instant, fetchedData: PrometheusResponse): Boolean {
+    override fun evaluate(fetchedData: List<PrometheusResponse>): Boolean {
         var counter = 0
-        val data =
-            Gson().toJson(mapOf("total_lag" to fetchedData.data?.result, "threshold" to threshold, "warmup" to warmup))
+        var requestData = fetchedData.map { entry -> Gson().toJson(mapOf("total_lag" to entry.data?.result)) }.toMutableList()
+        requestData.add(mapOf("threshold" to threshold).toString())
+        requestData.add(mapOf("warmup" to warmup).toString())
+
 
         while (counter < RETRIES) {
-            val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)
+            val result = post(externalSlopeURL, data = requestData, timeout = TIMEOUT)
             if (result.statusCode != 200) {
                 counter++
                 logger.error { "Could not reach external slope analysis" }

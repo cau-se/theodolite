@@ -19,7 +19,8 @@ class TestBenchmarkExecutorImpl(
         results,
         executionDuration = Duration.ofSeconds(1),
         configurationOverrides = emptyList(),
-        slo = slo
+        slo = slo,
+        repetitions = 1
     ) {
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
