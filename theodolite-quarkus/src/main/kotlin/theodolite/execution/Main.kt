@@ -13,7 +13,7 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val mode = System.getenv("MODE") ?: "operator"
+        val mode = System.getenv("MODE") ?: "yaml-executor"
         logger.info { "Start Theodolite with mode $mode" }
 
         when(mode) {
