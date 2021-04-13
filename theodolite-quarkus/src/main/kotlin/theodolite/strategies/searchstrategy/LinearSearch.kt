@@ -5,7 +5,7 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
 /**
- *  Linear search-like implementation of determining the smallest suitable number of instances.
+ *  Linear-search-like implementation for determining the smallest suitable number of instances.
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */
