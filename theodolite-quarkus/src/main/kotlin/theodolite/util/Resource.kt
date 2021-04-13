@@ -3,7 +3,7 @@ package theodolite.util
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Representation of the resources for a execution of Theodolite.
+ * Representation of the resources for an execution of Theodolite.
  */
 @RegisterForReflection
 data class Resource(private val number: Int, private val type: List<PatcherDefinition>) {
