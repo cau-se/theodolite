@@ -21,14 +21,13 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
-    val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
     var path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
-    val client = DefaultKubernetesClient().inNamespace(namespace)
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val parser = YamlParser()
 
-        val loader = K8sResourceLoader(client)
+        val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
             .map { resource ->
                 val resourcePath = "$path/$resource"
@@ -68,7 +67,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             topics = kafkaConfig.getKafkaTopics(),
-            client = client
+            client = DefaultKubernetesClient().inNamespace(namespace)
         )
     }
 }
