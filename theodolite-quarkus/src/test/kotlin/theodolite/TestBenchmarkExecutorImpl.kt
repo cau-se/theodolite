@@ -13,7 +13,7 @@ class TestBenchmarkExecutorImpl(
     benchmark: Benchmark,
     results: Results,
     slo: BenchmarkExecution.Slo,
-    prefix: Int
+    executionId: Int
 ) :
     BenchmarkExecutor(
         benchmark,
@@ -21,7 +21,7 @@ class TestBenchmarkExecutorImpl(
         executionDuration = Duration.ofSeconds(1),
         configurationOverrides = emptyList(),
         slo = slo,
-        prefix = prefix
+        executionId = executionId
     ) {
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
