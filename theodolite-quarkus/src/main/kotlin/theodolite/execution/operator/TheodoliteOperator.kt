@@ -7,6 +7,7 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.BenchmarkExecutionList
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.benchmark.KubernetesBenchmarkList
+import theodolite.k8s.K8sContextFactory
 
 
 private const val DEFAULT_NAMESPACE = "default"
