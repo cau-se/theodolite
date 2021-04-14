@@ -229,7 +229,11 @@ To start the execution of a benchmark run (with `<your-theodolite-yaml>` being y
 
 ```sh
 kubectl create -f <your-theodolite-yaml>
+kubectl create configmap app-resources-configmap --from-file=<folder-with-all-required-k8s-resources>
+kubectl create configmap execution-configmap --from-file=<execution.yaml>
+kubectl create configmap benchmark-configmap --from-file=<benchmark.yaml>
 ```
+
 
 This will create a pod with a name such as `your-job-name-xxxxxx`. You can verifiy this via `kubectl get pods`. With
 `kubectl logs -f <your-job-name-xxxxxx>`, you can follow the benchmark execution logs.
@@ -241,24 +245,7 @@ Kubernetes volume.
 
 ### Configuration
 
-| Command line         | Kubernetes          | Description                                                  |
-| -------------------- | ------------------- | ------------------------------------------------------------ |
-| --uc                 | UC                  | **[Mandatory]** Stream processing use case to be benchmarked. Has to be one of `1`, `2`, `3` or `4`. |
-| --loads              | LOADS               | **[Mandatory]** Values for the workload generator to be tested, should be sorted in ascending order. |
-| --instances          | INSTANCES           | **[Mandatory]** Numbers of instances to be benchmarked, should be sorted in ascending order. |
-| --duration           | DURATION            | Duration in minutes subexperiments should be executed for. *Default:* `5`. |
-| --partitions         | PARTITIONS          | Number of partitions for Kafka topics. *Default:* `40`.      |
-| --cpu-limit          | CPU_LIMIT           | Kubernetes CPU limit for a single Pod.  *Default:* `1000m`.  |
-| --memory-limit       | MEMORY_LIMIT        | Kubernetes memory limit for a single Pod. *Default:* `4Gi`.  |
-| --domain-restriction | DOMAIN_RESTRICTION  | A flag that indiciates domain restriction should be used. *Default:* not set. For more details see Section [Domain Restriction](#domain-restriction). |
-| --search-strategy    | SEARCH_STRATEGY     | The benchmarking search strategy. Can be set to `check-all`, `linear-search` or `binary-search`. *Default:* `check-all`. For more details see Section [Benchmarking Search Strategies](#benchmarking-search-strategies). |
-| --reset              | RESET               | Resets the environment before each subexperiment. Useful if execution was aborted and just one experiment should be executed. |
-| --reset-only         | RESET_ONLY          | Only resets the environment. Ignores all other parameters. Useful if execution was aborted and one want a clean state for new executions. |
-| --namespace          | NAMESPACE        | Kubernetes namespace. *Default:* `default`.  |
-| --prometheus         | PROMETHEUS_BASE_URL | Defines where to find the prometheus instance. *Default:* `http://localhost:9090` |
-| --path               | RESULT_PATH         | A directory path for the results. Relative to the Execution folder. *Default:* `results` |
-| --configurations     | CONFIGURATIONS      | Defines environment variables for the use cases and, thus, enables further configuration options. |
-| --threshold          | THRESHOLD           | The threshold for the trend slop that the search strategies use to determine that a load could be handled. *Default:* `2000` |
+Be sure, that the names of the configmap corresponds correctly to the specifications of the mounted `configmaps`, `volumes`, `mountPath`.
 
 ### Domain Restriction
 
