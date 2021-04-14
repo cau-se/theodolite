@@ -26,7 +26,6 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
 
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val parser = YamlParser()
-
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
             .map { resource ->
