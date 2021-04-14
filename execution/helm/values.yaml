@@ -24,6 +24,9 @@ grafana:
   # Administrator credentials when not using an existing secret (see below)
   adminUser: admin
   adminPassword: admin
+  grafana.ini:
+    users:
+      default_theme: light
   ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
