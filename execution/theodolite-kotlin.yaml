@@ -6,9 +6,9 @@ spec:
   template:
     spec:
       volumes:
-      - name: theodolite-pv-storage
-        persistentVolumeClaim:
-          claimName: theodolite-pv-claim
+        - name: theodolite-pv-storage
+          persistentVolumeClaim:
+            claimName: theodolite-pv-claim
       containers:
         - name: lag-analysis
           image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
@@ -30,14 +30,14 @@ spec:
             - name: THEODOLITE_APP_RESOURCES
               value: /etc/app-resources
           volumeMounts:
-          - name: app-resources
-            mountPath: /etc/app-resources
-          - name: benchmark
-            mountPath: /etc/benchmark
-          - name: execution
-            mountPath: /etc/execution
-        #  -  name: theodolite-pv-storage
-        #     mountPath: "/deployments"
+            - mountPath: "/etc/app-resources"
+              name: app-resources
+            - mountPath: "/etc/benchmark" 
+              name: benchmark
+            - mountPath: "/etc/execution"
+              name: execution
+            - mountPath: "/deployments/results"
+              name: theodolite-pv-storage
       restartPolicy: Never
       # Uncomment if RBAC is enabled and configured
       serviceAccountName: theodolite
