@@ -1,0 +1,41 @@
+{{- if .Values.operator.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "theodolite.fullname" . }}-operator
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "theodolite.fullname" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "theodolite.fullname" . }}
+    spec:
+      terminationGracePeriodSeconds: 0
+      serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
+      containers:
+        - name: theodolite
+          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          env:
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: MODE
+              value: operator
+            - name: THEODOLITE_APP_RESOURCES
+              value: "./benchmark-resources"
+          volumeMounts:
+            - name: benchmark-resources
+              mountPath: /work/benchmark-resources
+        - name: lag-analysis
+          image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
+          ports:
+          - containerPort: 80
+            name: analysis
+      volumes:
+      - name: benchmark-resources
+        configMap:
+          name: benchmark-resources
+          optional: true
+{{- end }}

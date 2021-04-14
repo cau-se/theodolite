@@ -51,7 +51,7 @@ build-benchmarks:
       - "theodolite-benchmarks/build/libs/*.jar"
       - "theodolite-benchmarks/*/build/libs/*.jar"
       - "theodolite-benchmarks/*/build/distributions/*.tar"
-    expire_in: 1 day
+    expire_in: 6 hours
 
 test-benchmarks:
   stage: test
@@ -234,7 +234,7 @@ build-theodolite-jvm:
     paths:
       - "theodolite-quarkus/build/lib/*"
       - "theodolite-quarkus/build/*-runner.jar"
-    expire_in: 1 day
+    expire_in: 6 hours
 
 build-theodolite-native:
   stage: build
@@ -245,7 +245,7 @@ build-theodolite-native:
   artifacts:
     paths:
       - "theodolite-quarkus/build/*-runner"
-    expire_in: 1 day
+    expire_in: 6 hours
 
 test-theodolite:
   stage: test
@@ -296,6 +296,32 @@ deploy-theodolite:
       when: always
     - changes:
       - theodolite-quarkus/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: always
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+
+# Theodolite SLO Checker: Lag Trend
+
+deploy-slo-checker-lag-trend:
+  stage: deploy
+  extends:
+    - .dind
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t theodolite-slo-checker-lag-trend slope-evaluator
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:${DOCKER_TAG_NAME}latest"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:$CI_COMMIT_TAG"
+    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
+    - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend
+    - docker logout
+  rules:
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - slope-evaluator/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"

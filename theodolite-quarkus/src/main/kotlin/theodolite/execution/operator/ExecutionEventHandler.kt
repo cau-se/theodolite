@@ -3,6 +3,7 @@ package theodolite.execution.operator
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
+import java.lang.NullPointerException
 
 private val logger = KotlinLogging.logger {}
 
@@ -16,17 +17,25 @@ class ExecutionHandler(private val controller: TheodoliteController): ResourceEv
     override fun onUpdate(oldExecution: BenchmarkExecution, newExecution: BenchmarkExecution) {
         logger.info { "Add updated execution to queue." }
         newExecution.name = newExecution.metadata.name
-        this.controller.executionsQueue.removeIf { e -> e.name == newExecution.metadata.name }
+        try {
+            this.controller.executionsQueue.removeIf { e -> e.name == newExecution.metadata.name }
+        } catch(e: NullPointerException) {
+            logger.warn { "No execution found for deletion" }
+        }
         this.controller.executionsQueue.addFirst(newExecution)
-        if (this.controller.isInitialized() &&  this.controller.executor.getExecution().name == newExecution.metadata.name) {
+        if (this.controller.isInitialized() && this.controller.executor.getExecution().name == newExecution.metadata.name) {
             this.controller.isUpdated.set(true)
             this.controller.executor.executor.run.compareAndSet(true, false)
         }
     }
 
     override fun onDelete(execution: BenchmarkExecution, b: Boolean) {
-        logger.info { "Delete execution ${execution.metadata.name} from queue." }
-        this.controller.executionsQueue.removeIf { e -> e.name == execution.metadata.name }
+        try {
+            this.controller.executionsQueue.removeIf { e -> e.name == execution.metadata.name }
+            logger.info { "Delete execution ${execution.metadata.name} from queue." }
+        } catch(e: NullPointerException) {
+            logger.warn { "No execution found for deletion" }
+        }
         if (this.controller.isInitialized() && this.controller.executor.getExecution().name == execution.metadata.name) {
             this.controller.isUpdated.set(true)
             this.controller.executor.executor.run.compareAndSet(true, false)

@@ -1,7 +1,8 @@
+{{- if .Values.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: theodolite
+  name: {{ include "theodolite.fullname" . }}
 rules:
   - apiGroups:
     - apps
@@ -12,14 +13,15 @@ rules:
     - list
     - get
     - create
+    - update
   - apiGroups:
     - ""
     resources:
     - services
     - pods
-    - servicemonitors
     - configmaps
     verbs:
+    - update
     - delete
     - list
     - get
@@ -36,9 +38,11 @@ rules:
     resources:
     - servicemonitors
     verbs:
+    - update
     - delete
     - list
     - create
+  {{- if .Values.operator.enabled }}
   - apiGroups:
     - theodolite.com
     resources: 
@@ -52,4 +56,5 @@ rules:
     - watch
     - update
     - patch
-    
+  {{- end }}
+{{- end }}

@@ -6,10 +6,8 @@ Install the chart via:
 
 ```sh
 helm dependencies update .
-helm install my-confluent .
+helm install theodolite .
 ```
-
-**Please note: Theodolite currently uses hard-coded URLs, to connect to Kafka and Zookeeper. For that reason, the name of this chart must be `my-confluent`.** We will change this behavior soon.
 
 This chart installs requirements to execute benchmarks with Theodolite.
 
@@ -27,7 +25,7 @@ Dependencies and subcharts:
 Test the installation:
 
 ```sh
-helm test <release-name>
+helm test theodolite
 ```
 
 Our test files are located [here](templates/../../theodolite-chart/templates/tests). Many subcharts have their own tests, these are also executed and are placed in the respective /templates folders. 
@@ -42,6 +40,31 @@ In development environments Kubernetes resources are often low. To reduce resour
 
 ```sh
 helm install theodolite . -f preconfigs/one-broker-values.yaml
+```
+
+## Uninstall this Chart
+
+To uninstall/delete the `theodolite` deployment:
+
+```sh
+helm delete theodolite
+```
+
+This command does not remove the CRDs which are created by this chart. Remove them manually with:
+
+```sh
+# CRDs from Theodolite
+kubectl delete crd executions.theodolite.com
+kubectl delete crd benchmarks.theodolite.com
+# CRDs from Prometheus operator (see https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#uninstall-chart)
+kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
+kubectl delete crd podmonitors.monitoring.coreos.com
+kubectl delete crd probes.monitoring.coreos.com
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd thanosrulers.monitoring.coreos.com
 ```
 
 ## Development
