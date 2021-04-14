@@ -20,9 +20,9 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
         var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
-        kafkaAdmin.createTopics(newTopics)
+        val result = kafkaAdmin.createTopics(newTopics)
+        logger.info { "Topics created finished with result: ${result.all().get()}" }
         kafkaAdmin.close()
-        logger.info { "Topics created" }
     }
 
 
@@ -32,10 +32,10 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
      */
     fun removeTopics(topics: List<String>) {
         var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
-        val result = kafkaAdmin.deleteTopics(topics)
 
         try {
-            result.all().get()
+            val result = kafkaAdmin.deleteTopics(topics)
+            logger.info { "Topics deletion finished with result: ${result.all().get()}" }
         } catch (e: Exception) {
             logger.error { "Error while removing topics: $e"  }
             logger.debug { "Existing topics are: ${kafkaAdmin.listTopics()}."  }
