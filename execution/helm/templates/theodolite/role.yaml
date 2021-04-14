@@ -42,7 +42,7 @@ rules:
     - delete
     - list
     - create
-  {{- if .Values.operator.enabled -}}
+  {{- if .Values.operator.enabled }}
   - apiGroups:
     - theodolite.com
     resources: 
