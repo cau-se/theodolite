@@ -2,7 +2,6 @@ package theodolite.k8s
 
 import mu.KotlinLogging
 import org.apache.kafka.clients.admin.AdminClient
-import org.apache.kafka.clients.admin.ListTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
 import java.util.*
 
@@ -21,7 +20,13 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
     fun createTopics(newTopics: Collection<NewTopic>) {
         var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
         val result = kafkaAdmin.createTopics(newTopics)
-        logger.info { "Topics created finished with result: ${result.all().get()}" }
+        result.all().get()// wait for the future object
+        logger.info {
+            "Topics created finished with result: ${
+                result.values().map { it -> it.key + ": " + it.value.isDone }
+                    .joinToString(separator = ",")
+            } "
+        }
         kafkaAdmin.close()
     }
 
@@ -32,15 +37,19 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
      */
     fun removeTopics(topics: List<String>) {
         var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
-
         try {
             val result = kafkaAdmin.deleteTopics(topics)
-            logger.info { "Topics deletion finished with result: ${result.all().get()}" }
+            result.all().get() // wait for the future object
+            logger.info {
+                "\"Topics deletion finished with result: ${
+                    result.values().map { it -> it.key + ": " + it.value.isDone }
+                        .joinToString(separator = ",")
+                } "
+            }
         } catch (e: Exception) {
-            logger.error { "Error while removing topics: $e"  }
-            logger.debug { "Existing topics are: ${kafkaAdmin.listTopics()}."  }
+            logger.error { "Error while removing topics: $e" }
+            logger.debug { "Existing topics are: ${kafkaAdmin.listTopics()}." }
         }
         kafkaAdmin.close()
-        logger.info { "Topics removed" }
     }
 }
