@@ -5,6 +5,8 @@ metadata:
 spec:
   template:
     spec:
+      securityContext:
+        runAsUser: 0
       containers:
         - name: lag-analysis
           image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
@@ -12,8 +14,9 @@ spec:
           - containerPort: 80
             name: analysis
         - name: theodolite
-          image: lorenzboguhn/thedolite #ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          image: benediktwetzel/theodolite-test #ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
           imagePullPolicy: Always
+          # command: ["/bin/sh", "-ec", "while :; do echo '.'; sleep 5 ; done"]
           env:
             - name: NAMESPACE
               value: theodolite-she
