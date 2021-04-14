@@ -27,6 +27,7 @@ import kotlin.properties.Delegates
 @JsonDeserialize
 @RegisterForReflection
 class BenchmarkExecution : CustomResource(), Namespaced {
+    var executionId: Int = 0
     lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition

@@ -28,7 +28,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.configMaps().createOrReplace(resource)
             is StatefulSet ->
                 this.client.apps().statefulSets().createOrReplace(resource)
-            is K8sCustomResourceWrapper -> resource.deploy(client)
+            is ServiceMonitorWrapper -> resource.deploy(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
@@ -47,7 +47,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.configMaps().delete(resource)
             is StatefulSet ->
                 this.client.apps().statefulSets().delete(resource)
-            is K8sCustomResourceWrapper -> resource.delete(client)
+            is ServiceMonitorWrapper -> resource.delete(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }

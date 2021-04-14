@@ -7,6 +7,7 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.BenchmarkExecutionList
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.benchmark.KubernetesBenchmarkList
+import theodolite.k8s.K8sContextFactory
 
 
 private const val DEFAULT_NAMESPACE = "default"
@@ -51,7 +52,8 @@ class TheodoliteOperator {
         val executionContext = contextFactory.create(API_VERSION, SCOPE, GROUP, EXECUTION_PLURAL)
         val benchmarkContext = contextFactory.create(API_VERSION, SCOPE, GROUP, BENCHMARK_PLURAL)
 
-        val controller = TheodoliteController(client = client, executionContext = executionContext)
+        val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+        val controller = TheodoliteController(client = client, executionContext = executionContext, path = appResource)
 
         val informerFactory = client.informers()
         val informerExecution = informerFactory.sharedIndexInformerForCustomResource(

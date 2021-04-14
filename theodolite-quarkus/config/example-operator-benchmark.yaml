@@ -1,4 +1,8 @@
-name: "uc1-kstreams"
+apiVersion: theodolite.com/v1alpha1
+kind: benchmark
+metadata:
+  name: uc1-kstreams
+#name: "uc1-kstreams"
 appResource:
   - "uc1-kstreams-deployment.yaml"
   - "aggregation-service.yaml"

@@ -1,5 +1,6 @@
 package theodolite.execution
 
+import com.google.gson.GsonBuilder
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
@@ -9,6 +10,7 @@ import theodolite.util.Config
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
+import java.io.PrintWriter
 import java.time.Duration
 
 /**
@@ -55,11 +57,12 @@ class TheodoliteExecutor(
 
         executor =
             BenchmarkExecutorImpl(
-                kubernetesBenchmark,
-                results,
-                executionDuration,
-                config.configOverrides,
-                config.slos[0]
+                benchmark = kubernetesBenchmark,
+                results = results,
+                executionDuration = executionDuration,
+                configurationOverrides = config.configOverrides,
+                slo = config.slos[0],
+                executionId = config.executionId
             )
 
         return Config(
@@ -94,12 +97,24 @@ class TheodoliteExecutor(
      * execution and benchmark objects.
      */
     fun run() {
+        storeAsFile(this.config, "${this.config.executionId}-execution-configuration")
+        storeAsFile(kubernetesBenchmark, "${this.config.executionId}-benchmark-configuration")
+
         val config = buildConfig()
         // execute benchmarks for each load
         for (load in config.loads) {
             if (executor.run.get()) {
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
+        }
+        storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "${this.config.executionId}-result")
+    }
+
+    private fun <T> storeAsFile(saveObject: T, filename: String) {
+        val gson = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create()
+
+        PrintWriter(filename).use { pw ->
+            pw.println(gson.toJson(saveObject))
         }
     }
 }
