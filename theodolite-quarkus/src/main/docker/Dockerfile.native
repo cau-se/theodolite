@@ -18,6 +18,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
 WORKDIR /deployments
 RUN chown 1001 /deployments \
     && mkdir results \
+    && chown 777 deployments/results \
     && chmod "g+rwX" /deployments \
     && chown 1001:root /deployments
 COPY --chown=1001:root build/*-runner /deployments/application
