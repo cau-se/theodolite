@@ -14,9 +14,10 @@ spec:
           image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
           ports:
           - containerPort: 80
-            name: analysis 
+            name: analysis
         - name: theodolite
-          image: benediktwetzel/theodolite-test #  ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          imagePullPolicy: Always
           env:
             - name: NAMESPACE
               value: theodolite-she
@@ -43,9 +44,9 @@ spec:
           configMap:
             name: app-resources-configmap
         - name: benchmark
-          configMap: 
+          configMap:
             name: benchmark-configmap
         - name: execution
-          configMap: 
+          configMap:
             name: execution-configmap
   backoffLimit: 4
