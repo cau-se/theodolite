@@ -2,36 +2,34 @@ name: example-execution
 benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
-  loadValues:
-    - 50000
+  loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
 resources:
   resourceType: "Instances"
-  resourceValues:
-    - 1
+  resourceValues: [1, 2, 3, 4, 5]
 slos:
   - sloType: "lag trend"
-    threshold: 1000
+    threshold: 2000
     prometheusUrl: "http://prometheus-operated:9090"
     externalSloUrl: "http://localhost:80/evaluate-slope"
     offset: 0
-    warmup: 0
+    warmup: 60 # in seconds
 execution:
   strategy: "LinearSearch"
-  duration: 60
+  duration: 300 # in seconds
   repetitions: 1
   restrictions:
     - "LowerBound"
-configOverrides:
-  - patcher:
-      type: "NodeSelectorPatcher"
-      resource: "uc1-load-generator-deployment.yaml"
-      variableName: "env"
-    value: "prod"
-  - patcher:
-      type: "NodeSelectorPatcher"
-      resource: "uc1-kstreams-deployment.yaml"
-      variableName: "env"
-    value: "prod"
+configOverrides: []
+#  - patcher:
+#      type: "NodeSelectorPatcher"
+#      resource: "uc1-load-generator-deployment.yaml"
+#      variableName: "env"
+#    value: "prod"
+#  - patcher:
+#      type: "NodeSelectorPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      variableName: "env"
+#    value: "prod"
 #  - patcher:
 #      type: "ResourceLimitPatcher"
 #      resource: "uc1-kstreams-deployment.yaml"
