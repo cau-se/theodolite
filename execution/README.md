@@ -245,7 +245,7 @@ Kubernetes volume.
 
 ### Configuration
 
-Be sure, that the names of the configmap corresponds correctly to the specifications of the mounted `configmaps`, `volumes`, `mountPath`.
+Be sure, that the names of the configmap corresponds correctly to the specifications of the mounted `configmaps`, `volumes`, `mountPath`. In particular: The name of the execution file and the benchmark file must match the value of the corresponding environment variable.
 
 ### Domain Restriction
 
