@@ -51,7 +51,7 @@ build-benchmarks:
       - "theodolite-benchmarks/build/libs/*.jar"
       - "theodolite-benchmarks/*/build/libs/*.jar"
       - "theodolite-benchmarks/*/build/distributions/*.tar"
-    expire_in: 1 day
+    expire_in: 6 hours
 
 test-benchmarks:
   stage: test
