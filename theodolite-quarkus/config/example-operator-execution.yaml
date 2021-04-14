@@ -1,4 +1,8 @@
-name: example-execution
+apiVersion: theodolite.com/v1alpha1
+kind: execution
+metadata:
+  name: example-execution
+#name: example-execution
 benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
