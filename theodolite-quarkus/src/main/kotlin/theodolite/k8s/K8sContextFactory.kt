@@ -1,4 +1,4 @@
-package theodolite.execution.operator
+package theodolite.k8s
 
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 

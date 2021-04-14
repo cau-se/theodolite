@@ -2,6 +2,7 @@ package theodolite.execution.operator
 
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
+import khttp.patch
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
@@ -10,17 +11,20 @@ import java.lang.Thread.sleep
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
 class TheodoliteController(
     val client: NamespacedKubernetesClient,
-    val executionContext: CustomResourceDefinitionContext
+    val executionContext: CustomResourceDefinitionContext,
+    val path: String
 ) {
     lateinit var executor: TheodoliteExecutor
     val executionsQueue: ConcurrentLinkedDeque<BenchmarkExecution> = ConcurrentLinkedDeque()
     val benchmarks: ConcurrentHashMap<String, KubernetesBenchmark> = ConcurrentHashMap()
     var isUpdated = AtomicBoolean(false)
+    var executionID = AtomicInteger(0)
 
     fun run() {
         while (true) {
@@ -59,7 +63,9 @@ class TheodoliteController(
 
     @Synchronized
     fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
+        execution.executionId = executionID.getAndSet(executionID.get() + 1)
         isUpdated.set(false)
+        benchmark.path = path
         logger.info { "Start execution ${execution.name} with benchmark ${benchmark.name}." }
         executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
         executor.run()
