@@ -97,8 +97,8 @@ class TheodoliteExecutor(
      * execution and benchmark objects.
      */
     fun run() {
-        storeAsFile(this.config, "${this.config.executionId}-execution-configuration")
-        storeAsFile(kubernetesBenchmark, "${this.config.executionId}-benchmark-configuration")
+        storeAsFile(this.config, "results/${this.config.executionId}-execution-configuration")
+        storeAsFile(kubernetesBenchmark, "results/${this.config.executionId}-benchmark-configuration")
 
         val config = buildConfig()
         // execute benchmarks for each load
@@ -107,7 +107,7 @@ class TheodoliteExecutor(
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }
-        storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "${this.config.executionId}-result")
+        storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "results/${this.config.executionId}-result")
     }
 
     private fun <T> storeAsFile(saveObject: T, filename: String) {
