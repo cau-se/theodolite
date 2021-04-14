@@ -4,7 +4,7 @@ kind: Prometheus
 metadata:
   name: {{ template "theodolite.fullname" . }}-prometheus
 spec:
-  serviceAccountName: prometheus
+  serviceAccountName: {{ template "theodolite.fullname" . }}-prometheus
   serviceMonitorSelector:
     matchLabels:
       #app: cp-kafka

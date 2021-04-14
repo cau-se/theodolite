@@ -1,4 +1,4 @@
-name: "Theodolite Test Context"
+name: example-execution
 benchmark: "uc1-kstreams"
 load:
   loadType: "NumSensors"
@@ -32,19 +32,19 @@ configOverrides:
       resource: "uc1-kstreams-deployment.yaml"
       variableName: "env"
     value: "prod"
-  - patcher:
-      type: "ResourceLimitPatcher"
-      resource: "uc1-kstreams-deployment.yaml"
-      container: "uc-application"
-      variableName: "cpu"
-    value: "1000m"
-  - patcher:
-      type: "ResourceLimitPatcher"
-      resource: "uc1-kstreams-deployment.yaml"
-      container: "uc-application"
-      variableName: "memory"
-    value: "2Gi"
-  - patcher:
-      type: "SchedulerNamePatcher"
-      resource: "uc1-kstreams-deployment.yaml"
-    value: "random-scheduler"
+#  - patcher:
+#      type: "ResourceLimitPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      container: "uc-application"
+#      variableName: "cpu"
+#    value: "1000m"
+#  - patcher:
+#      type: "ResourceLimitPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      container: "uc-application"
+#      variableName: "memory"
+#    value: "2Gi"
+#  - patcher:
+#      type: "SchedulerNamePatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#    value: "random-scheduler"

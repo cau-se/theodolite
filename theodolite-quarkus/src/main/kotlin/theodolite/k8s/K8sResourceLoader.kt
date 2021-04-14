@@ -26,8 +26,8 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @param path of the yaml file
      * @return customResource from fabric8
      */
-    fun loadCustomResource(path: String): K8sCustomResourceWrapper {
-        return loadGenericResource(path) { x: String -> K8sCustomResourceWrapper(YamlParser().parse(path, HashMap<String, String>()::class.java)!!) }
+    private fun loadServiceMonitor(path: String): ServiceMonitorWrapper {
+        return loadGenericResource(path) { x: String -> ServiceMonitorWrapper(YamlParser().parse(path, HashMap<String, String>()::class.java)!!) }
     }
 
     /**
@@ -73,16 +73,11 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         return when (kind) {
             "Deployment" -> loadDeployment(path)
             "Service" -> loadService(path)
-            "ServiceMonitor" -> loadCustomResource(path)
+            "ServiceMonitor" -> loadServiceMonitor(path)
             "ConfigMap" -> loadConfigmap(path)
             else -> {
-                    logger.warn { "Try to load $kind from $path as Custom ressource" }
-                    try{
-                        loadCustomResource(path)
-                    } catch (e:Exception){
-                        logger.error { "Error during loading of unspecified CustomResource: $e" }
-                        throw e
-                    }
+                logger.error { "Error during loading of unspecified resource Kind" }
+                throw java.lang.IllegalArgumentException("error while loading resource with kind: $kind")
             }
         }
     }

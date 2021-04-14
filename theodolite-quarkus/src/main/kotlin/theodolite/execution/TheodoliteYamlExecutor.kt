@@ -1,38 +1,36 @@
 package theodolite.execution
 
-import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.YamlParser
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
 
-@QuarkusMain(name = "TheodoliteYamlExecutor")
-object TheodoliteYamlExecutor {
-    @JvmStatic
-    fun main(args: Array<String>) {
+class TheodoliteYamlExecutor {
+    private val parser = YamlParser()
+
+    fun start() {
         logger.info { "Theodolite started" }
 
         val executionPath = System.getenv("THEODOLITE_EXECUTION") ?: "./config/BenchmarkExecution.yaml"
         val benchmarkPath = System.getenv("THEODOLITE_BENCHMARK") ?: "./config/BenchmarkType.yaml"
-        val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
 
         logger.info { "Using $executionPath for BenchmarkExecution" }
         logger.info { "Using $benchmarkPath for BenchmarkType" }
-        logger.info { "Using $appResource for Resources" }
 
 
         // load the BenchmarkExecution and the BenchmarkType
-        val parser = YamlParser()
         val benchmarkExecution =
             parser.parse(path = executionPath, E = BenchmarkExecution::class.java)!!
         val benchmark =
             parser.parse(path = benchmarkPath, E = KubernetesBenchmark::class.java)!!
-        benchmark.path = appResource
 
-        val shutdown = Shutdown(benchmarkExecution, benchmark)
+        // Add shutdown hook
+        // Use thread{} with start = false, else the thread will start right away
+        val shutdown = thread(start = false) { Shutdown(benchmarkExecution, benchmark).run() }
         Runtime.getRuntime().addShutdownHook(shutdown)
 
         val executor = TheodoliteExecutor(benchmarkExecution, benchmark)
