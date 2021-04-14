@@ -234,7 +234,7 @@ build-theodolite-jvm:
     paths:
       - "theodolite-quarkus/build/lib/*"
       - "theodolite-quarkus/build/*-runner.jar"
-    expire_in: 1 day
+    expire_in: 6 hours
 
 build-theodolite-native:
   stage: build
@@ -245,7 +245,7 @@ build-theodolite-native:
   artifacts:
     paths:
       - "theodolite-quarkus/build/*-runner"
-    expire_in: 1 day
+    expire_in: 6 hours
 
 test-theodolite:
   stage: test
