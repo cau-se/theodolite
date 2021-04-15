@@ -13,12 +13,30 @@ import theodolite.util.Results
 import java.io.PrintWriter
 import java.time.Duration
 
+/**
+ * The Theodolite executor runs all the experiments defined with the given execution and benchmark configuration.
+ *
+ * @property config Configuration of a execution
+ * @property kubernetesBenchmark Configuration of a benchmark
+ * @constructor Create empty Theodolite executor
+ */
 class TheodoliteExecutor(
     private val config: BenchmarkExecution,
     private val kubernetesBenchmark: KubernetesBenchmark
 ) {
+    /**
+     * An executor object, configured with the specified benchmark, evaluation method, experiment duration
+     * and overrides which are given in the execution.
+     */
     lateinit var executor: BenchmarkExecutor
 
+    /**
+     * Creates all required components to start Theodolite.
+     *
+     * @return a [Config], that contains a list of [LoadDimension]s,
+     *          a list of [Resource]s , and the [CompositeStrategy].
+     * The [CompositeStrategy] is configured and able to find the minimum required resource for the given load.
+     */
     private fun buildConfig(): Config {
         val results = Results()
         val strategyFactory = StrategyFactory()
@@ -74,6 +92,10 @@ class TheodoliteExecutor(
         return this.kubernetesBenchmark
     }
 
+    /**
+     * Run all experiments which are specified in the corresponding
+     * execution and benchmark objects.
+     */
     fun run() {
         storeAsFile(this.config, "results/${this.config.executionId}-execution-configuration")
         storeAsFile(kubernetesBenchmark, "results/${this.config.executionId}-benchmark-configuration")

@@ -8,8 +8,20 @@ import theodolite.strategies.searchstrategy.LinearSearch
 import theodolite.strategies.searchstrategy.SearchStrategy
 import theodolite.util.Results
 
+/**
+ * Factory for creating [SearchStrategy] and [RestrictionStrategy] Strategies.
+ */
 class StrategyFactory {
 
+    /**
+     * Create a [SearchStrategy].
+     *
+     * @param executor The [theodolite.execution.BenchmarkExecutor] that executes individual experiments.
+     * @param searchStrategyString Specifies the [SearchStrategy]. Must either be the string 'LinearSearch',
+     * or 'BinarySearch'.
+     *
+     * @throws IllegalArgumentException if the [SearchStrategy] was not one of the allowed options.
+     */
     fun createSearchStrategy(executor: BenchmarkExecutor, searchStrategyString: String): SearchStrategy {
         return when (searchStrategyString) {
             "LinearSearch" -> LinearSearch(executor)
@@ -18,6 +30,16 @@ class StrategyFactory {
         }
     }
 
+    /**
+     * Create a [RestrictionStrategy].
+     *
+     * @param results The [Results] saves the state of the Theodolite benchmark run.
+     * @param restrictionStrings Specifies the list of [RestrictionStrategy] that are used to restrict the amount
+     * of [theodolite.util.Resource] for a fixed LoadDimension. Must equal the string
+     * 'LowerBound'.
+     *
+     * @throws IllegalArgumentException if param searchStrategyString was not one of the allowed options.
+     */
     fun createRestrictionStrategy(results: Results, restrictionStrings: List<String>): Set<RestrictionStrategy> {
         return restrictionStrings
             .map { restriction ->
