@@ -6,6 +6,13 @@ import io.fabric8.kubernetes.api.model.EnvVarSource
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 
+/**
+ * The EnvVarPatcher allows to modify the value of an environment variable
+ *
+ * @property k8sResource Kubernetes resource to be patched.
+ * @property container Container to be patched.
+ * @property variableName Name of the environment variable to be patched.
+ */
 class EnvVarPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,

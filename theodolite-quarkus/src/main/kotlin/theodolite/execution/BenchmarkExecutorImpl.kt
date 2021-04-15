@@ -35,12 +35,16 @@ class BenchmarkExecutorImpl(
             this.run.set(false)
         }
 
+        /**
+         * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
+         */
         if (this.run.get()) {
             result =
                 AnalysisExecutor(slo = slo, executionId = executionId).analyze(load = load, res = res, executionDuration = executionDuration)
             this.results.setResult(Pair(load, res), result)
         }
         benchmarkDeployment.teardown()
+
         return result
     }
 }

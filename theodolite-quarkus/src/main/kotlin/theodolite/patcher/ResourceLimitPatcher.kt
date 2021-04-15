@@ -8,6 +8,13 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import java.lang.IllegalArgumentException
 
+/**
+ * The Resource limit [Patcher] set resource limits for deployments and statefulSets.
+ *
+ * @param k8sResource Kubernetes resource to be patched.
+ * @param container Container to be patched.
+ * @param limitedResource The resource to be limited (e.g. **cpu or memory**)
+ */
 class ResourceLimitPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,

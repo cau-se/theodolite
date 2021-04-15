@@ -15,6 +15,20 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ * The controller implementation for Theodolite.
+ *
+ * Maintains a Dequeue, based on ConcurrentLinkedDequeue, of executions to be executed for a benchmark.
+ *
+ * @param client The NamespacedKubernetesClient
+ * @param executionContext The CustomResourceDefinitionContext
+ *
+ * @see NamespacedKubernetesClient
+ * @see CustomResourceDefinitionContext
+ * @see BenchmarkExecution
+ * @see KubernetesBenchmark
+ * @see ConcurrentLinkedDeque
+ */
 class TheodoliteController(
     val client: NamespacedKubernetesClient,
     val executionContext: CustomResourceDefinitionContext,
@@ -26,6 +40,9 @@ class TheodoliteController(
     var isUpdated = AtomicBoolean(false)
     var executionID = AtomicInteger(0)
 
+    /**
+     * Runs the TheodoliteController forever.
+     */
     fun run() {
         while (true) {
             try {
@@ -46,6 +63,12 @@ class TheodoliteController(
         }
     }
 
+    /**
+     * Ensures that the application state corresponds to the defined KubernetesBenchmarks and BenchmarkExecutions.
+     *
+     * @see KubernetesBenchmark
+     * @see BenchmarkExecution
+     */
     @Synchronized
     private fun reconcile() {
         while (executionsQueue.isNotEmpty()) {
@@ -61,6 +84,12 @@ class TheodoliteController(
         }
     }
 
+    /**
+     * Execute a benchmark with a defined KubernetesBenchmark and BenchmarkExecution
+     *
+     * @see KubernetesBenchmark
+     * @see BenchmarkExecution
+     */
     @Synchronized
     fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         execution.executionId = executionID.getAndSet(executionID.get() + 1)
@@ -82,6 +111,11 @@ class TheodoliteController(
         logger.info { "Execution of ${execution.name} is finally stopped." }
     }
 
+    /**
+     * @return true if the TheodoliteExecutor of this controller is initialized. Else returns false.
+     *
+     * @see TheodoliteExecutor
+     */
     @Synchronized
     fun isInitialized(): Boolean {
         return ::executor.isInitialized
