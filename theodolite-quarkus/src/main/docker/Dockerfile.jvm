@@ -33,8 +33,6 @@ RUN microdnf install curl ca-certificates ${JAVA_PACKAGE} \
     && microdnf clean all \
     && mkdir /deployments \
     && chown 1001 /deployments \
-    && mkdir deployments/results \
-    && chown 777 deployments/results \
     && chmod "g+rwX" /deployments \
     && chown 1001:root /deployments \
     && curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh -o /deployments/run-java.sh \

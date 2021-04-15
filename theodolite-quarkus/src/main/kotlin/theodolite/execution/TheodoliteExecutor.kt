@@ -1,6 +1,7 @@
 package theodolite.execution
 
 import com.google.gson.GsonBuilder
+import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
@@ -10,8 +11,16 @@ import theodolite.util.Config
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
+import java.io.File
 import java.io.PrintWriter
+import java.lang.IllegalArgumentException
+import java.lang.Thread.sleep
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Duration
+
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * The Theodolite executor runs all the experiments defined with the given execution and benchmark configuration.
@@ -92,13 +101,37 @@ class TheodoliteExecutor(
         return this.kubernetesBenchmark
     }
 
+    private fun getResultFolderString(): String {
+        var resultsFolder: String = System.getenv("RESULTS_FOLDER")
+        val createResultsFolder = System.getenv("CREATE_RESULTS_FOLDER") ?: "false"
+
+        logger.info { "RESULT_FOLDER: $resultsFolder" }
+
+        if (resultsFolder.isNotEmpty()){
+            resultsFolder += "/"
+        }
+
+        val directory = File(resultsFolder)
+        if (!directory.exists()) {
+            logger.error { "Folder $resultsFolder does not exist" }
+            if (createResultsFolder.toBoolean()) {
+                directory.mkdirs()
+            } else {
+                throw IllegalArgumentException("Result folder not found")
+            }
+        }
+        logger.info { "RESULT_FOLDER: $resultsFolder" }
+        return  resultsFolder
+    }
+
     /**
      * Run all experiments which are specified in the corresponding
      * execution and benchmark objects.
      */
     fun run() {
-        storeAsFile(this.config, "results/${this.config.executionId}-execution-configuration")
-        storeAsFile(kubernetesBenchmark, "results/${this.config.executionId}-benchmark-configuration")
+        val resultsFolder = getResultFolderString()
+        storeAsFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
+        storeAsFile(kubernetesBenchmark, "$resultsFolder/${this.config.executionId}-benchmark-configuration")
 
         val config = buildConfig()
         // execute benchmarks for each load
@@ -107,7 +140,7 @@ class TheodoliteExecutor(
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }
-        storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "results/${this.config.executionId}-result")
+        storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "$resultsFolder${this.config.executionId}-result")
     }
 
     private fun <T> storeAsFile(saveObject: T, filename: String) {

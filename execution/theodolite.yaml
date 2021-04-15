@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: theodolite
+  name: bw-theodolite
 spec:
   template:
     spec:
@@ -14,7 +14,7 @@ spec:
           - containerPort: 80
             name: analysis
         - name: theodolite
-          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          image: benediktwetzel/theodolite-test #ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
           imagePullPolicy: Always
           env:
             - name: NAMESPACE
@@ -27,6 +27,10 @@ spec:
               value: /etc/benchmark/example-benchmark-yaml-resource.yaml
             - name: THEODOLITE_APP_RESOURCES
               value: /etc/app-resources
+            - name: RESULTS_FOLDER
+              value: results
+            - name: CREATE_RESULTS_FOLDER
+              value: "true"
           volumeMounts:
             - mountPath: "/deployments/results"
               name: theodolite-pv-storage
