@@ -2,6 +2,7 @@ package theodolite.util
 
 /**
  * Interface for parsers.
+ * A parser allows the reading of files and creates a corresponding object from them.
  */
 interface Parser {
     /**
