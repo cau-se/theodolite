@@ -30,7 +30,7 @@ class PatcherFactory {
             k8sResources.filter { it.first == patcherDefinition.resource }.map { resource -> resource.second }[0]
         return when (patcherDefinition.type) {
             "ReplicaPatcher" -> ReplicaPatcher(resource)
-            "NumNestedGroupsLoadGeneratorReplicaPatcher" ->NumNestedGroupsLoadGeneratorReplicaPatcher(resource)
+            "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(resource)
             "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(resource)
             "EnvVarPatcher" -> EnvVarPatcher(resource, patcherDefinition.container, patcherDefinition.variableName)
             "NodeSelectorPatcher" -> NodeSelectorPatcher(resource, patcherDefinition.variableName)
