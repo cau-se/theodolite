@@ -40,7 +40,7 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
             val result = kafkaAdmin.deleteTopics(topics)
             result.all().get() // wait for the future object
             logger.info {
-                "\"Topics deletion finished with result: ${
+                "Topics deletion finished with result: ${
                     result.values().map { it -> it.key + ": " + it.value.isDone }
                         .joinToString(separator = ",")
                 } "
