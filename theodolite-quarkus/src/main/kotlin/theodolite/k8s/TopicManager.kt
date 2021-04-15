@@ -3,19 +3,19 @@ package theodolite.k8s
 import mu.KotlinLogging
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.NewTopic
-import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
 /**
  * Manages the topics related tasks
  * @param kafkaConfig Kafka Configuration as HashMap
+ * @constructor Creates a KafkaAdminClient
  */
 class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
 
     /**
      * Creates topics.
-     * @param newTopics List of all Topic which should be created
+     * @param newTopics List of all Topic that should be created
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
         var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
@@ -30,10 +30,9 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
         kafkaAdmin.close()
     }
 
-
     /**
      * Removes topics.
-     * @param topics
+     * @param topics List of names with the topics to remove.
      */
     fun removeTopics(topics: List<String>) {
         var kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
