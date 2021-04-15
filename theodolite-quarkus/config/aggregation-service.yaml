@@ -14,4 +14,4 @@ spec:
     targetPort: 80
     protocol: TCP
   - name: metrics
-    port: 9980
+    port: 5556

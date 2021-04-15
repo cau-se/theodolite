@@ -70,9 +70,15 @@ class TheodoliteController(
         executor = TheodoliteExecutor(config = execution, kubernetesBenchmark = benchmark)
         executor.run()
 
-        if (!isUpdated.get()) {
-            client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
+        try {
+            if (!isUpdated.get()) {
+                this.executionsQueue.removeIf { e -> e.name == execution.name }
+                client.customResource(executionContext).delete(client.namespace, execution.metadata.name)
+            }
+        } catch (e: Exception) {
+            logger.warn { "Deletion skipped." }
         }
+
         logger.info { "Execution of ${execution.name} is finally stopped." }
     }
 
