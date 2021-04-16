@@ -46,10 +46,10 @@ class KubernetesBenchmarkDeployment(
      *  - Remove the [KubernetesResource]s.
      */
     override fun teardown() {
-        KafkaLagExporterRemover(client).remove(LABEL)
         resources.forEach {
             kubernetesManager.remove(it)
         }
         kafkaController.removeTopics(this.topics.map { topic -> topic.name() })
+        KafkaLagExporterRemover(client).remove(LABEL)
     }
 }
