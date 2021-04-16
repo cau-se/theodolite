@@ -225,15 +225,21 @@ Theodolite locally on your machine see the description below.
 see the [Configuration](#configuration) section below. Note, that you might uncomment the `serviceAccountName` line if
 RBAC is enabled on your cluster (see installation of [Theodolite RBAC](#Theodolite-RBAC)).
 
-To start the execution of a benchmark run (with `<your-theodolite-yaml>` being your job definition):
+To start the execution of a benchmark create a ConfigMap which containts all required Kubernetes resource files for the SUT and the load generator, a ConfigMap for the execution and a ConfigMap for the benchmark.
 
 ```sh
-kubectl create -f <your-theodolite-yaml>
 kubectl create configmap app-resources-configmap --from-file=<folder-with-all-required-k8s-resources>
 kubectl create configmap execution-configmap --from-file=<execution.yaml>
 kubectl create configmap benchmark-configmap --from-file=<benchmark.yaml>
 ```
 
+This will create three ConfigMaps. You can verify this via `kubectl get configmaps`.
+
+Start the Theodolite job (with `<your-theodolite-yaml>` being your job definition):
+
+```sh
+kubectl create -f <your-theodolite-yaml>
+```
 
 This will create a pod with a name such as `your-job-name-xxxxxx`. You can verifiy this via `kubectl get pods`. With
 `kubectl logs -f <your-job-name-xxxxxx>`, you can follow the benchmark execution logs.
