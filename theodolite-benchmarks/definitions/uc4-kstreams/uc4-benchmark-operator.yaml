@@ -30,3 +30,10 @@ kafkaConfig:
     - name: "input"
       numPartitions: 40
       replicationFactor: 1
+   - name: "output"
+      numPartitions: 40
+      replicationFactor: 1
+    - name: "aggregation"
+      numPartitions: 40
+      replicationFactor: 1
+    - name: "feedback"
