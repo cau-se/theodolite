@@ -30,7 +30,9 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
                 result.all().get()// wait for the future object
 
             } catch (e: Exception) {
+                removeTopics(newTopics.map { topic -> topic.name() })
                 logger.warn { "Error during topic creation." }
+                logger.debug { e }
                 logger.warn { "Will retry the topic creation after 2 seconds" }
                 sleep(RETRY_TIME)
                 retryCreation = true
@@ -53,7 +55,7 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
     fun removeTopics(topics: List<String>) {
         val kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
         var deleted = false
-        
+
         while (!deleted) {
             try {
                 val result = kafkaAdmin.deleteTopics(topics)
