@@ -13,13 +13,13 @@ resourceTypes:
       - type: "ReplicaPatcher"
         resource: "uc4-kstreams-deployment.yaml"
 loadTypes:
-  - typeName: "NumSensors"
+  - typeName: "NumNestedGroups"
     patchers:
       - type: "EnvVarPatcher"
         resource: "uc4-load-generator-deployment.yaml"
         container: "workload-generator"
         variableName: "NUM_NESTED_GROUPS"
-      - type: NumNestedGroupsLoadGeneratorReplicaPatcher
+      - type: "NumNestedGroupsLoadGeneratorReplicaPatcher"
         resource: "uc4-load-generator-deployment.yaml"
 kafkaConfig:
   bootstrapServer: "theodolite-cp-kafka:9092"

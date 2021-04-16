@@ -30,3 +30,5 @@ spec:
               value: "theodolite-cp-kafka:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-cp-schema-registry:8081"
+            - name: NUM_NESTED_GROUPS
+              value: "5"
