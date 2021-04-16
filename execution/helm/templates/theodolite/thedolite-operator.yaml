@@ -17,7 +17,8 @@ spec:
       serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
       containers:
         - name: theodolite
-          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          image: "{{ .Values.operator.image }}:{{ .Values.operator.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.imagePullPolicy }}"
           env:
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
