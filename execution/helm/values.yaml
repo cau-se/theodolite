@@ -236,12 +236,15 @@ prometheus:
 ###
 operator:
   enabled: true
+  
+  image: ghcr.io/cau-se/theodolite
+  imageTag: theodolite-kotlin-latest
+  imagePullPolicy: Always
 
-executionCRD:
-  create: true
-
-benchmarkCRD:
-  create: true
+  executionCRD:
+    create: true
+  benchmarkCRD:
+    create: true
 
 serviceAccount:
   create: true
