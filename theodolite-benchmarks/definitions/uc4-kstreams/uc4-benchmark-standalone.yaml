@@ -1,0 +1,29 @@
+name: "uc4-kstreams"
+appResource:
+  - "uc4-kstreams-deployment.yaml"
+  - "uc4-kstreams-service.yaml"
+  - "uc4-jmx-configmap.yaml"
+  - "uc4-service-monitor.yaml"
+loadGenResource:
+  - "uc4-load-generator-deployment.yaml"
+  - "uc4-load-generator-service.yaml"
+resourceTypes:
+  - typeName: "Instances"
+    patchers:
+      - type: "ReplicaPatcher"
+        resource: "uc4-kstreams-deployment.yaml"
+loadTypes:
+  - typeName: "NumSensors"
+    patchers:
+      - type: "EnvVarPatcher"
+        resource: "uc4-load-generator-deployment.yaml"
+        container: "workload-generator"
+        variableName: "NUM_NESTED_GROUPS"
+      - type: NumNestedGroupsLoadGeneratorReplicaPatcher
+        resource: "uc4-load-generator-deployment.yaml"
+kafkaConfig:
+  bootstrapServer: "theodolite-cp-kafka:9092"
+  topics:
+    - name: "input"
+      numPartitions: 40
+      replicationFactor: 1

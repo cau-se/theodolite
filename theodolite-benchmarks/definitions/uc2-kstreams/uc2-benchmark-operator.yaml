@@ -1,0 +1,32 @@
+apiVersion: theodolite.com/v1alpha1
+kind: benchmark
+metadata:
+  name: uc2-kstreams
+appResource:
+  - "uc2-kstreams-deployment.yaml"
+  - "uc2-kstreams-service.yaml"
+  - "uc2-jmx-configmap.yaml"
+  - "uc2-service-monitor.yaml"
+loadGenResource:
+  - "uc2-load-generator-deployment.yaml"
+  - "uc2-load-generator-service.yaml"
+resourceTypes:
+  - typeName: "Instances"
+    patchers:
+      - type: "ReplicaPatcher"
+        resource: "uc2-kstreams-deployment.yaml"
+loadTypes:
+  - typeName: "NumSensors"
+    patchers:
+      - type: "EnvVarPatcher"
+        resource: "uc2-load-generator-deployment.yaml"
+        container: "workload-generator"
+        variableName: "NUM_SENSORS"
+      - type: NumSensorsLoadGeneratorReplicaPatcher
+        resource: "uc2-load-generator-deployment.yaml"
+kafkaConfig:
+  bootstrapServer: "theodolite-cp-kafka:9092"
+  topics:
+    - name: "input"
+      numPartitions: 40
+      replicationFactor: 1
