@@ -102,25 +102,22 @@ class TheodoliteExecutor(
     }
 
     private fun getResultFolderString(): String {
-        var resultsFolder: String = System.getenv("RESULTS_FOLDER")
+        var resultsFolder: String = System.getenv("RESULTS_FOLDER") ?: ""
         val createResultsFolder = System.getenv("CREATE_RESULTS_FOLDER") ?: "false"
 
-        logger.info { "RESULT_FOLDER: $resultsFolder" }
-
-        if (resultsFolder.isNotEmpty()){
+        if (resultsFolder != ""){
+            logger.info { "RESULT_FOLDER: $resultsFolder" }
+            val directory = File(resultsFolder)
+            if (!directory.exists()) {
+                logger.error { "Folder $resultsFolder does not exist" }
+                if (createResultsFolder.toBoolean()) {
+                    directory.mkdirs()
+                } else {
+                    throw IllegalArgumentException("Result folder not found")
+                }
+            }
             resultsFolder += "/"
         }
-
-        val directory = File(resultsFolder)
-        if (!directory.exists()) {
-            logger.error { "Folder $resultsFolder does not exist" }
-            if (createResultsFolder.toBoolean()) {
-                directory.mkdirs()
-            } else {
-                throw IllegalArgumentException("Result folder not found")
-            }
-        }
-        logger.info { "RESULT_FOLDER: $resultsFolder" }
         return  resultsFolder
     }
 
