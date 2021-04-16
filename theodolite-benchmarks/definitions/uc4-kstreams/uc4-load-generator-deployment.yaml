@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: workload-generator
-          image: ghcr.io/cau-se/theodolite-uc3-workload-generator:latest
+          image: ghcr.io/cau-se/theodolite-uc4-workload-generator:latest
           ports:
             - containerPort: 5701
               name: coordination
@@ -30,3 +30,5 @@ spec:
               value: "theodolite-cp-kafka:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-cp-schema-registry:8081"
+            - name: NUM_NESTED_GROUPS
+              value: "5"
