@@ -86,7 +86,7 @@ docker run -i --rm theodolite-quarkus-native
 
 **Production:** (Docker-Container)
 
-| Variables name               | Default value                      |Usage         |
+| Variables name               | If not set:                         |Usage         |
 | -----------------------------|:----------------------------------:| ------------:|
 | `NAMESPACE`                  | `default`                          |Determines the namespace of the Theodolite will be executed in. Used in the KubernetesBenchmark|
 | `THEODOLITE_EXECUTION`       |  `./config/BenchmarkExecution.yaml`|The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
@@ -94,17 +94,11 @@ docker run -i --rm theodolite-quarkus-native
 | `THEODOLITE_APP_RESOURCES`   |  `./config`                        |The path under which the yamls for the resources for the subexperiments are found. Used in the KubernetesBenchmark|
 | `MODE`                       | `yaml-executor`                    |  Defines the mode of operation: either `yaml-executor` or `operator`|
 
-**Development:** (local)
+**Development:** (local via Intellij)
 
-| Variables name               | Default value                      |Usage         |
-| -----------------------------|:----------------------------------:| ------------:|
-| `NAMESPACE`                  | `default`                          |Determines the namespace of the Theodolite will be executed in. Used in the KubernetesBenchmark|
-| `THEODOLITE_EXECUTION`       |  `./../../../../config/BenchmarkExecution.yaml`|The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
-| `THEODOLITE_BENCHMARK_TYPE`  |  `./../../../../config/BenchmarkType.yaml`     |The complete path to the benchmarkType file. Used in the TheodoliteYamlExecutor.|
-| `THEODOLITE_APP_RESOURCES`   |  `./../../../../config/`                        |The path under which the yamls for the resources for the subexperiments are found. Used in the KubernetesBenchmark|
-| `MODE`                       | `yaml-executor`                    |  Defines the mode of operation: either `yaml-executor` or `operator`|
-
-For the development gradle run configuration in intelij:
+When running Theodolite from within IntelliJ via
+[Run Configurations](https://www.jetbrains.com/help/idea/work-with-gradle-tasks.html#gradle_run_config), set the *
+Environment variables* field to:
 
 ```
 NAMESPACE=default;THEODOLITE_BENCHMARK=./../../../../config/BenchmarkType.yaml;THEODOLITE_APP_RESOURCES=./../../../../config;THEODOLITE_EXECUTION=./../../../../config/BenchmarkExecution.yaml;MODE=operator
