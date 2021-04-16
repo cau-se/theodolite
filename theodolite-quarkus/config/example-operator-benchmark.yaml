@@ -23,6 +23,8 @@ loadTypes:
         resource: "uc1-load-generator-deployment.yaml"
         container: "workload-generator"
         variableName: "NUM_SENSORS"
+      - type: "NumSensorsLoadGeneratorReplicaPatcher"
+        resource: "uc1-load-generator-deployment.yaml"
 kafkaConfig:
   bootstrapServer: "theodolite-cp-kafka:9092"
   topics:
