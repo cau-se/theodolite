@@ -45,7 +45,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
             is Deployment -> {
                 val label = resource.spec.selector.matchLabels["app"]!!
                 this.client.apps().deployments().delete(resource)
-                blockUntilPodDeleted(label)
+                blockUntilPodsDeleted(label)
                 logger.info { "Deployment '${resource.metadata.name}' deleted." }
             }
             is Service ->
@@ -55,7 +55,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
             is StatefulSet -> {
                 val label = resource.spec.selector.matchLabels["app"]!!
                 this.client.apps().statefulSets().delete(resource)
-                blockUntilPodDeleted(label)
+                blockUntilPodsDeleted(label)
                 logger.info { "StatefulSet '$resource.metadata.name' deleted." }
             }
             is ServiceMonitorWrapper -> resource.delete(client)
@@ -63,17 +63,11 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
         }
     }
 
-
-    private fun blockUntilPodDeleted(podLabel: String) {
-        var deleted = false
-        do {
-            val pods = this.client.pods().withLabel(podLabel).list().items
-            if (pods.isNullOrEmpty()) {
-                deleted = true
-            }
+    private fun blockUntilPodsDeleted(podLabel: String) {
+        while (!this.client.pods().withLabel(podLabel).list().items.isNullOrEmpty()) {
             logger.info { "Wait for pods with label '$podLabel' to be deleted." }
             Thread.sleep(1000)
-        } while (!deleted)
+        }
     }
 
 }
