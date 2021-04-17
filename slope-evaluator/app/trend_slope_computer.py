@@ -2,10 +2,12 @@ from sklearn.linear_model import LinearRegression
 import pandas as pd
 import os
 
-def compute(x, warmup_sec):
-    input = x
-    input['sec_start'] = input.loc[0:, 'timestamp'] - input.iloc[0]['timestamp']
-    regress = input.loc[input['sec_start'] >= warmup_sec] # Warm-Up
+def compute(data, warmup_sec):
+    data['sec_start'] = data.loc[0:, 'timestamp'] - data.iloc[0]['timestamp']
+    print(data)
+    regress = data.loc[data['sec_start'] >= warmup_sec] # Warm-Up
+
+    print(regress)
 
     X = regress.iloc[:, 2].values.reshape(-1, 1)  # values converts it into a numpy array
     Y = regress.iloc[:, 3].values.reshape(-1, 1)  # -1 means that calculate the dimension of rows, but have 1 column
