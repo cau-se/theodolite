@@ -29,7 +29,7 @@ class CsvExporter {
                 pw.println(it.joinToString())
             }
         }
-        logger.info { "Wrote csv file: $name to ${csvOutputFile.absolutePath}" }
+        logger.info { "Wrote CSV file: $name to ${csvOutputFile.absolutePath}." }
     }
 
     /**

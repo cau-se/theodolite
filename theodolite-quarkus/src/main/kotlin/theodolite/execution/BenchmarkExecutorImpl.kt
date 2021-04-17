@@ -30,7 +30,7 @@ class BenchmarkExecutorImpl(
             benchmarkDeployment.setup()
             this.waitAndLog()
         } catch (e: Exception) {
-            logger.error { "Error while setup experiment." }
+            logger.error { "Error while setting up experiment with id ${this.executionId}." }
             logger.error { "Error is: $e" }
             this.run.set(false)
         }
@@ -51,8 +51,8 @@ class BenchmarkExecutorImpl(
         try {
             benchmarkDeployment.teardown()
         } catch (e: Exception) {
-            logger.warn { "Error while teardown of deplyoment" }
-            logger.debug { "The Teardowm failed cause of: $e " }
+            logger.warn { "Error while tearing down the benchmark deployment." }
+            logger.debug { "Teardown failed, caused by: $e " }
         }
 
         return result

@@ -55,7 +55,7 @@ class AnalysisExecutor(
             )
 
         } catch (e: Exception) {
-            logger.error { "Evaluation failed for resource: ${res.get()} and load: ${load.get()} error: $e" }
+            logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: $e" }
         }
         return result
     }

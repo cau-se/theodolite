@@ -46,7 +46,7 @@ class ExternalSloChecker(
             val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)
             if (result.statusCode != 200) {
                 counter++
-                logger.error { "Could not reach external slope analysis" }
+                logger.error { "Could not reach external SLO checker" }
             } else {
                 val booleanResult = result.text.toBoolean()
                 logger.info { "SLO checker result is: $booleanResult" }
@@ -54,6 +54,6 @@ class ExternalSloChecker(
             }
         }
 
-        throw ConnectException("Could not reach slope evaluation")
+        throw ConnectException("Could not reach external SLO checker")
     }
 }
