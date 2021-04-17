@@ -253,7 +253,7 @@ test-theodolite:
   extends: .theodolite
   needs:
     - build-theodolite-jvm
-    - build-theodolite-native
+    #- build-theodolite-native
   script: ./gradlew test --stacktrace
 
 # Disabled for now
