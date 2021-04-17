@@ -9,8 +9,10 @@ def compute(data, warmup_sec):
 
     print(regress)
 
-    X = regress.iloc[:, 2].values.reshape(-1, 1)  # values converts it into a numpy array
-    Y = regress.iloc[:, 3].values.reshape(-1, 1)  # -1 means that calculate the dimension of rows, but have 1 column
+    X = regress.iloc[:, 'timestamp'].values.reshape(-1, 1)  # values converts it into a numpy array
+    print(X)
+    Y = regress.iloc[:, 'value'].values.reshape(-1, 1)  # -1 means that calculate the dimension of rows, but have 1 column
+    print(Y)
     linear_regressor = LinearRegression()  # create object for the class
     linear_regressor.fit(X, Y)  # perform linear regression
     Y_pred = linear_regressor.predict(X)  # make predictions
