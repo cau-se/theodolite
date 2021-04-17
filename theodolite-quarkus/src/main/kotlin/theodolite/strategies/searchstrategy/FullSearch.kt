@@ -8,18 +8,24 @@ import theodolite.util.Resource
 private val logger = KotlinLogging.logger {}
 
 /**
- *  Linear-search-like implementation for determining the smallest suitable number of instances.
+ * [SearchStrategy] that executes experiment for provides resources in a linear-search-like fashion, but **without
+ * stopping** once a suitable resource amount is found.
+ *
+ * @see LinearSearch for a SearchStrategy that stops once a suitable resource amount is found.
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */
-class LinearSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
+class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
 
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
+        var minimalSuitableResources: Resource? = null;
         for (res in resources) {
-
             logger.info { "Running experiment with load '$load' and resources '$res'" }
-            if (this.benchmarkExecutor.runExperiment(load, res)) return res
+            val result = this.benchmarkExecutor.runExperiment(load, res)
+            if (result && minimalSuitableResources != null) {
+                minimalSuitableResources = res
+            }
         }
-        return null
+        return minimalSuitableResources
     }
 }
