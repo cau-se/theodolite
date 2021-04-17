@@ -31,10 +31,11 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
                 result.all().get() // wait for the future to be completed
 
             } catch (e: Exception) {
+                logger.warn(e) { "Error during topic creation." }
+                logger.debug { e } // TODO remove?
+                logger.info { "Remove existing topics." }
                 delete(newTopics.map { topic -> topic.name() }, kafkaAdmin)
-                logger.warn { "Error during topic creation." }
-                logger.debug { e }
-                logger.warn { "Will retry the topic creation after 2 seconds" }
+                logger.info { "Will retry the topic creation in $RETRY_TIME seconds." }
                 sleep(RETRY_TIME)
                 retryCreation = true
             }
@@ -73,8 +74,8 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
                     }"
                 }
             } catch (e: Exception) {
-                logger.error { "Error while removing topics: $e" }
-                logger.debug { "Existing topics are: ${kafkaAdmin.listTopics()}." }
+                logger.error(e) { "Error while removing topics: $e" }
+                logger.info { "Existing topics are: ${kafkaAdmin.listTopics()}." }
             }
 
             val toDelete = topics.filter { topic ->
@@ -84,7 +85,7 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
             if (toDelete.isNullOrEmpty()) {
                 deleted = true
             } else {
-                logger.info { "Deletion of kafka topics failed retrying in 2 seconds" }
+                logger.info { "Deletion of kafka topics failed, will retry in $RETRY_TIME seconds." }
                 sleep(RETRY_TIME)
             }
         }

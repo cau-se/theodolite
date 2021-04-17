@@ -1,0 +1,144 @@
+{
+  "executionId": 0,
+  "name": "example-execution-3",
+  "benchmark": "uc1-kstreams",
+  "load": {
+    "loadType": "NumSensors",
+    "loadValues": [
+      100000,
+      200000,
+      300000,
+      400000,
+      500000,
+      600000
+    ]
+  },
+  "resources": {
+    "resourceType": "Instances",
+    "resourceValues": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ]
+  },
+  "slos": [
+    {
+      "sloType": "lag trend",
+      "threshold$delegate": {
+        "value": 2000
+      },
+      "prometheusUrl": "http://prometheus-operated:9090",
+      "externalSloUrl": "http://localhost:80/evaluate-slope",
+      "offset$delegate": {
+        "value": 0
+      },
+      "warmup$delegate": {
+        "value": 60
+      }
+    }
+  ],
+  "execution": {
+    "strategy": "LinearSearch",
+    "duration$delegate": {
+      "value": 300
+    },
+    "repetitions$delegate": {
+      "value": 1
+    },
+    "restrictions": [
+      "LowerBound"
+    ]
+  },
+  "configOverrides": [
+    {
+      "patcher": {
+        "type": "NodeSelectorPatcher",
+        "resource": "uc1-load-generator-deployment.yaml",
+        "variableName": "env"
+      },
+      "value": "dev"
+    },
+    {
+      "patcher": {
+        "type": "NodeSelectorPatcher",
+        "resource": "uc1-kstreams-deployment.yaml",
+        "variableName": "env"
+      },
+      "value": "dev"
+    }
+  ],
+  "kind": "execution",
+  "apiVersion": "theodolite.com/v1alpha1",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"theodolite.com/v1alpha1\",\"benchmark\":\"uc1-kstreams\",\"configOverrides\":[{\"patcher\":{\"resource\":\"uc1-load-generator-deployment.yaml\",\"type\":\"NodeSelectorPatcher\",\"variableName\":\"env\"},\"value\":\"dev\"},{\"patcher\":{\"resource\":\"uc1-kstreams-deployment.yaml\",\"type\":\"NodeSelectorPatcher\",\"variableName\":\"env\"},\"value\":\"dev\"}],\"execution\":{\"duration\":300,\"repetitions\":1,\"restrictions\":[\"LowerBound\"],\"strategy\":\"LinearSearch\"},\"kind\":\"execution\",\"load\":{\"loadType\":\"NumSensors\",\"loadValues\":[100000,200000,300000,400000,500000,600000]},\"metadata\":{\"annotations\":{},\"name\":\"example-execution-3\",\"namespace\":\"titan-she\"},\"resources\":{\"resourceType\":\"Instances\",\"resourceValues\":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},\"slos\":[{\"externalSloUrl\":\"http://localhost:80/evaluate-slope\",\"offset\":0,\"prometheusUrl\":\"http://prometheus-operated:9090\",\"sloType\":\"lag trend\",\"threshold\":2000,\"warmup\":60}]}\n"
+    },
+    "creationTimestamp": "2021-04-17T18:09:25Z",
+    "finalizers": [],
+    "generation": 1,
+    "managedFields": [
+      {
+        "apiVersion": "theodolite.com/v1alpha1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "additionalProperties": {
+            "f:metadata": {
+              "f:annotations": {
+                ".": {},
+                "f:kubectl.kubernetes.io/last-applied-configuration": {}
+              }
+            },
+            "f:slos": {},
+            "f:load": {
+              ".": {},
+              "f:loadType": {},
+              "f:loadValues": {}
+            },
+            "f:benchmark": {},
+            "f:configOverrides": {},
+            "f:resources": {
+              ".": {},
+              "f:resourceType": {},
+              "f:resourceValues": {}
+            },
+            "f:execution": {
+              ".": {},
+              "f:duration": {},
+              "f:repetitions": {},
+              "f:restrictions": {},
+              "f:strategy": {}
+            }
+          }
+        },
+        "manager": "kubectl-client-side-apply",
+        "operation": "Update",
+        "time": "2021-04-17T18:09:25Z",
+        "additionalProperties": {}
+      }
+    ],
+    "name": "example-execution-3",
+    "namespace": "titan-she",
+    "ownerReferences": [],
+    "resourceVersion": "82932660",
+    "selfLink": "/apis/theodolite.com/v1alpha1/namespaces/titan-she/executions/example-execution-3",
+    "uid": "1aea99f5-0584-49c8-8541-45307af38a16",
+    "additionalProperties": {}
+  }
+}
