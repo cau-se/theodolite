@@ -11,13 +11,14 @@ private const val RETRY_TIME = 2000L
 
 /**
  * Manages the topics related tasks
- * @param kafkaConfig Kafka Configuration as HashMap
+ * @param kafkaConfig Kafka configuration as a Map
  * @constructor Creates a KafkaAdminClient
  */
-class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
+class TopicManager(private val kafkaConfig: Map<String, Any>) {
+
     /**
-     * Creates topics.
-     * @param newTopics List of all Topic that should be created
+     * Create topics.
+     * @param newTopics Collection of all topic that should be created
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
         val kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
@@ -27,7 +28,7 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
             var retryCreation = false
             try {
                 result = kafkaAdmin.createTopics(newTopics)
-                result.all().get()// wait for the future object
+                result.all().get() // wait for the future to be completed
 
             } catch (e: Exception) {
                 delete(newTopics.map { topic -> topic.name() }, kafkaAdmin)
@@ -49,8 +50,8 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
     }
 
     /**
-     * Removes topics.
-     * @param topics List of names with the topics to remove.
+     * Remove topics.
+     * @param topics Collection of names for the topics to remove.
      */
     fun removeTopics(topics: List<String>) {
         val kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
@@ -64,7 +65,7 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
         while (!deleted) {
             try {
                 val result = kafkaAdmin.deleteTopics(topics)
-                result.all().get() // wait for the future object
+                result.all().get() // wait for the future to be completed
                 logger.info {
                     "Topics deletion finished with result: ${
                         result.values().map { it -> it.key + ": " + it.value.isDone }
