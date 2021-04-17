@@ -41,9 +41,11 @@ class CsvExporter {
         val dataList = mutableListOf<List<String>>()
 
         if (values != null) {
-            for (x in values) {
-                val y = x as List<*>
-                dataList.add(listOf(name, "${y[0]}", "${y[1]}"))
+            for (maybeValuePair in values) {
+                val valuePair = maybeValuePair as List<*>
+                val timestamp = (valuePair[0] as Double).toLong().toString()
+                val value = valuePair[1].toString()
+                dataList.add(listOf(name, timestamp, value))
             }
         }
         return Collections.unmodifiableList(dataList)
