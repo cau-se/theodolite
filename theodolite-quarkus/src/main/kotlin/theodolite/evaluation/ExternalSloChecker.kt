@@ -17,8 +17,7 @@ class ExternalSloChecker(
     private val externalSlopeURL: String,
     private val threshold: Int,
     private val warmup: Int
-) :
-    SloChecker {
+) : SloChecker {
 
     private val RETRIES = 2
     private val TIMEOUT = 60.0
@@ -38,8 +37,10 @@ class ExternalSloChecker(
      */
     override fun evaluate(start: Instant, end: Instant, fetchedData: PrometheusResponse): Boolean {
         var counter = 0
-        val data =
-            Gson().toJson(mapOf("total_lag" to fetchedData.data?.result, "threshold" to threshold, "warmup" to warmup))
+        val data = Gson().toJson(mapOf(
+            "total_lag" to fetchedData.data?.result,
+            "threshold" to threshold,
+            "warmup" to warmup))
 
         while (counter < RETRIES) {
             val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)
@@ -47,7 +48,9 @@ class ExternalSloChecker(
                 counter++
                 logger.error { "Could not reach external slope analysis" }
             } else {
-                return result.text.toBoolean()
+                val booleanResult = result.text.toBoolean()
+                logger.info { "SLO checker result is: $booleanResult" }
+                return booleanResult
             }
         }
 
