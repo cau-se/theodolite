@@ -39,12 +39,11 @@ class BenchmarkExecutorImpl(
          * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
          */
         if (this.run.get()) {
-            result =
-                AnalysisExecutor(slo = slo, executionId = executionId).analyze(
-                    load = load,
-                    res = res,
-                    executionDuration = executionDuration
-                )
+            result = AnalysisExecutor(slo = slo, executionId = executionId).analyze(
+                load = load,
+                res = res,
+                executionDuration = executionDuration
+            )
             this.results.setResult(Pair(load, res), result)
         }
 
@@ -52,7 +51,7 @@ class BenchmarkExecutorImpl(
             benchmarkDeployment.teardown()
         } catch (e: Exception) {
             logger.warn { "Error while tearing down the benchmark deployment." }
-            logger.debug { "Teardown failed, caused by: $e " }
+            logger.debug { "Teardown failed, caused by: $e" }
         }
 
         return result

@@ -46,7 +46,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 val label = resource.spec.selector.matchLabels["app"]!!
                 this.client.apps().deployments().delete(resource)
                 blockUntilPodDeleted(label)
-                logger.info { "Deployment '$resource' deleted." }
+                logger.info { "Deployment '${resource.metadata.name}' deleted." }
             }
             is Service ->
                 this.client.services().delete(resource)
@@ -56,7 +56,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 val label = resource.spec.selector.matchLabels["app"]!!
                 this.client.apps().statefulSets().delete(resource)
                 blockUntilPodDeleted(label)
-                logger.info { "StatefulSet '$resource' deleted." }
+                logger.info { "StatefulSet '$resource.metadata.name' deleted." }
             }
             is ServiceMonitorWrapper -> resource.delete(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
