@@ -18,7 +18,7 @@ if os.getenv('LOG_LEVEL') == 'INFO':
 elif os.getenv('LOG_LEVEL') == 'WARNING':
     logger.setLevel(logging.WARNING)
 elif os.getenv('LOG_LEVEL') == 'DEBUG':
-    logger.setLevel((logging.DEBUG))
+    logger.setLevel(logging.DEBUG)
 
 def execute(results, threshold, warmup):
     d = []
@@ -34,14 +34,14 @@ def execute(results, threshold, warmup):
     try:
         trend_slope = trend_slope_computer.compute(df, warmup)
     except Exception as e:
-        err_msg = 'Computing trend slope failed'
+        err_msg = 'Computing trend slope failed.'
         logger.exception(err_msg)
-        logger.error('Mark this subexperiment as not successful and continue benchmark')
+        logger.error('Mark this subexperiment as not successful and continue benchmark.')
         return False
 
-    logger.info("Trend Slope: %s", trend_slope)
-
-    return trend_slope < threshold
+    result = trend_slope < threshold
+    logger.info("Computed lag trend slope is '%s'. Result is: %s", trend_slope, result)
+    return result
 
 @app.post("/evaluate-slope",response_model=bool)
 async def evaluate_slope(request: Request):
