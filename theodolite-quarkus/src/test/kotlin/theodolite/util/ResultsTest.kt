@@ -12,8 +12,8 @@ internal class ResultsTest {
     fun testMinRequiredInstancesWhenSuccessful() {
         val results = Results()
         results.setResult(10000, 1, true)
-        results.setResult(20000, 2, true)
-        results.setResult(10000, 1, false)
+        results.setResult(10000, 2, true)
+        results.setResult(20000, 1, false)
         results.setResult(20000, 2, true)
 
         val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
@@ -28,8 +28,8 @@ internal class ResultsTest {
         // This test is currently not implemented this way, but might later be the desired behavior.
         val results = Results()
         results.setResult(10000, 1, true)
-        results.setResult(20000, 2, true)
-        results.setResult(10000, 1, false)
+        results.setResult(10000, 2, true)
+        results.setResult(20000, 1, false)
         results.setResult(20000, 2, false)
 
         val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
