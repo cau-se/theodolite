@@ -30,7 +30,7 @@ def execute(results, threshold, warmup):
 
     df = pd.DataFrame(d)
 
-    logger.info("Calculating trend slope for data frame:\n %s", df)
+    logger.info("Calculating trend slope with warmup of %s seconds for data frame:\n %s", warmup, df)
     try:
         trend_slope = trend_slope_computer.compute(df, warmup)
     except Exception as e:
