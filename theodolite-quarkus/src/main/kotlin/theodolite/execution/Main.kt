@@ -13,13 +13,17 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val mode = System.getenv("MODE") ?: "yaml-executor"
+        val mode = System.getenv("MODE") ?: "standalone"
         logger.info { "Start Theodolite with mode $mode" }
 
         when(mode) {
-           "yaml-executor" -> TheodoliteYamlExecutor().start()
+            "standalone" -> TheodoliteYamlExecutor().start()
+            "yaml-executor" -> TheodoliteYamlExecutor().start() // TODO remove (#209)
             "operator" -> TheodoliteOperator().start()
-            else ->  {logger.error { "MODE $mode not found" }; exitProcess(1)}
+            else ->  {
+                logger.error { "MODE $mode not found" }
+                exitProcess(1)
+            }
         }
     }
 }

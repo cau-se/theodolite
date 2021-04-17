@@ -11,13 +11,14 @@ private const val RETRY_TIME = 2000L
 
 /**
  * Manages the topics related tasks
- * @param kafkaConfig Kafka Configuration as HashMap
+ * @param kafkaConfig Kafka configuration as a Map
  * @constructor Creates a KafkaAdminClient
  */
-class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
+class TopicManager(private val kafkaConfig: Map<String, Any>) {
+
     /**
-     * Creates topics.
-     * @param newTopics List of all Topic that should be created
+     * Create topics.
+     * @param newTopics Collection of all topic that should be created
      */
     fun createTopics(newTopics: Collection<NewTopic>) {
         val kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
@@ -27,13 +28,14 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
             var retryCreation = false
             try {
                 result = kafkaAdmin.createTopics(newTopics)
-                result.all().get()// wait for the future object
+                result.all().get() // wait for the future to be completed
 
             } catch (e: Exception) {
+                logger.warn(e) { "Error during topic creation." }
+                logger.debug { e } // TODO remove?
+                logger.info { "Remove existing topics." }
                 delete(newTopics.map { topic -> topic.name() }, kafkaAdmin)
-                logger.warn { "Error during topic creation." }
-                logger.debug { e }
-                logger.warn { "Will retry the topic creation after 2 seconds" }
+                logger.info { "Will retry the topic creation in $RETRY_TIME seconds." }
                 sleep(RETRY_TIME)
                 retryCreation = true
             }
@@ -49,8 +51,8 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
     }
 
     /**
-     * Removes topics.
-     * @param topics List of names with the topics to remove.
+     * Remove topics.
+     * @param topics Collection of names for the topics to remove.
      */
     fun removeTopics(topics: List<String>) {
         val kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
@@ -64,7 +66,7 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
         while (!deleted) {
             try {
                 val result = kafkaAdmin.deleteTopics(topics)
-                result.all().get() // wait for the future object
+                result.all().get() // wait for the future to be completed
                 logger.info {
                     "Topics deletion finished with result: ${
                         result.values().map { it -> it.key + ": " + it.value.isDone }
@@ -72,8 +74,8 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
                     }"
                 }
             } catch (e: Exception) {
-                logger.error { "Error while removing topics: $e" }
-                logger.debug { "Existing topics are: ${kafkaAdmin.listTopics()}." }
+                logger.error(e) { "Error while removing topics: $e" }
+                logger.info { "Existing topics are: ${kafkaAdmin.listTopics()}." }
             }
 
             val toDelete = topics.filter { topic ->
@@ -83,7 +85,7 @@ class TopicManager(private val kafkaConfig: HashMap<String, Any>) {
             if (toDelete.isNullOrEmpty()) {
                 deleted = true
             } else {
-                logger.info { "Deletion of kafka topics failed retrying in 2 seconds" }
+                logger.info { "Deletion of kafka topics failed, will retry in $RETRY_TIME seconds." }
                 sleep(RETRY_TIME)
             }
         }

@@ -6,6 +6,9 @@ import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * This class is used to deploy or remove different Kubernetes resources.
@@ -42,7 +45,8 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
             is Deployment -> {
                 val label = resource.spec.selector.matchLabels["app"]!!
                 this.client.apps().deployments().delete(resource)
-                blockUntilDeleted(label)
+                blockUntilPodsDeleted(label)
+                logger.info { "Deployment '${resource.metadata.name}' deleted." }
             }
             is Service ->
                 this.client.services().delete(resource)
@@ -51,23 +55,19 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
             is StatefulSet -> {
                 val label = resource.spec.selector.matchLabels["app"]!!
                 this.client.apps().statefulSets().delete(resource)
-                blockUntilDeleted(label)
+                blockUntilPodsDeleted(label)
+                logger.info { "StatefulSet '$resource.metadata.name' deleted." }
             }
             is ServiceMonitorWrapper -> resource.delete(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
 
-
-    private fun blockUntilDeleted(label: String) {
-        var deleted = false
-        do {
-            val pods = this.client.pods().withLabel(label).list().items
-            if (pods.isNullOrEmpty()) {
-                deleted = true
-            }
+    private fun blockUntilPodsDeleted(podLabel: String) {
+        while (!this.client.pods().withLabel(podLabel).list().items.isNullOrEmpty()) {
+            logger.info { "Wait for pods with label '$podLabel' to be deleted." }
             Thread.sleep(1000)
-        } while (!deleted)
+        }
     }
 
 }
