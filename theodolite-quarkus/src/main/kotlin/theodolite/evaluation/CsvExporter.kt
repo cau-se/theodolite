@@ -24,7 +24,7 @@ class CsvExporter {
         val csvOutputFile = File("$name.csv")
 
         PrintWriter(csvOutputFile).use { pw ->
-            pw.println(listOf("name", "time", "value").joinToString())
+            pw.println(listOf("group", "timestamp", "value").joinToString())
             responseArray.forEach {
                 pw.println(it.joinToString())
             }
