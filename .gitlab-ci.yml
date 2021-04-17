@@ -311,6 +311,7 @@ deploy-slo-checker-lag-trend:
   stage: deploy
   extends:
     - .dind
+  needs: []
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite-slo-checker-lag-trend slope-evaluator
@@ -337,6 +338,7 @@ deploy-random-scheduler:
   stage: deploy
   extends:
     - .dind
+  needs: []
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite-random-scheduler execution/infrastructure/random-scheduler
