@@ -40,7 +40,8 @@ class Results {
      * @param load the [LoadDimension]
      *
      * @return the smallest suitable number of resources. If the experiment was not executed yet,
-     * a @see Resource with the constant Int.MAX_VALUE as value is returned. If no experiments have been marked as either successful or unsuccessful
+     * a @see Resource with the constant Int.MAX_VALUE as value is returned.
+     * If no experiments have been marked as either successful or unsuccessful
      * yet, a Resource with the constant value Int.MIN_VALUE is returned.
      */
     fun getMinRequiredInstances(load: LoadDimension?): Resource? {
@@ -72,13 +73,11 @@ class Results {
     fun getMaxBenchmarkedLoad(load: LoadDimension): LoadDimension? {
         var maxBenchmarkedLoad: LoadDimension? = null
         for (experiment in results) {
-            if (experiment.value) {
-                if (experiment.key.first.get() <= load.get()) {
-                    if (maxBenchmarkedLoad == null) {
-                        maxBenchmarkedLoad = experiment.key.first
-                    } else if (maxBenchmarkedLoad.get() < experiment.key.first.get()) {
-                        maxBenchmarkedLoad = experiment.key.first
-                    }
+            if (experiment.key.first.get() <= load.get()) {
+                if (maxBenchmarkedLoad == null) {
+                    maxBenchmarkedLoad = experiment.key.first
+                } else if (maxBenchmarkedLoad.get() < experiment.key.first.get()) {
+                    maxBenchmarkedLoad = experiment.key.first
                 }
             }
         }
