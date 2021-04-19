@@ -70,7 +70,7 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
      */
     private fun matchRegex(existingTopic: String, topics: List<String>): Boolean {
         for (t in topics) {
-            val regex = ("$t.*").toRegex()
+                val regex = t.toRegex()
             if (regex.matches(existingTopic)) {
                 return true
             }
