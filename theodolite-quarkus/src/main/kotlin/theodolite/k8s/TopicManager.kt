@@ -56,8 +56,26 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
      */
     fun removeTopics(topics: List<String>) {
         val kafkaAdmin: AdminClient = AdminClient.create(this.kafkaConfig)
-        delete(topics, kafkaAdmin)
+        val currentTopics = kafkaAdmin.listTopics().names().get()
+        delete(currentTopics.filter{matchRegex(it, topics)}, kafkaAdmin)
         kafkaAdmin.close()
+    }
+
+    /**
+     * This function checks whether one string in `topics` can be used as prefix of a regular expression to create the string `existingTopic`
+     *
+     * @param existingTopic string for which should be checked if it could be created
+     * @param topics list of string which are used as possible prefixes to create `existingTopic`
+     * @return true, `existingTopics` matches a created regex, else false
+     */
+    private fun matchRegex(existingTopic: String, topics: List<String>): Boolean {
+        for (t in topics) {
+                val regex = t.toRegex()
+            if (regex.matches(existingTopic)) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun delete(topics: List<String>, kafkaAdmin: AdminClient) {

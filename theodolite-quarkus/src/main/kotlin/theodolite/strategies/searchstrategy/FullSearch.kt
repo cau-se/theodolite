@@ -20,7 +20,7 @@ class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmar
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
         var minimalSuitableResources: Resource? = null;
         for (res in resources) {
-            logger.info { "Running experiment with load '$load' and resources '$res'" }
+            logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
             val result = this.benchmarkExecutor.runExperiment(load, res)
             if (result && minimalSuitableResources != null) {
                 minimalSuitableResources = res
