@@ -96,7 +96,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
             namespace = namespace,
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
-            topics = kafkaConfig.getKafkaTopics(),
+            topics = kafkaConfig.topics,
             client = DefaultKubernetesClient().inNamespace(namespace)
         )
     }
