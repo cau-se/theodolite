@@ -22,7 +22,7 @@ private var DEFAULT_NAMESPACE = "default"
  * - [loadGenResource] resource that generates the load,
  * - [resourceTypes] types of scaling resources,
  * - [loadTypes] types of loads that can be scaled for the benchmark,
- * - [kafkaConfig] for the [TopicManager],
+ * - [kafkaConfig] for the [theodolite.k8s.TopicManager],
  * - [namespace] for the client,
  * - [path] under which the resource yamls can be found.
  *
@@ -63,7 +63,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
      * First loads all required resources and then patches them to the concrete load and resources for the experiment.
      * Afterwards patches additional configurations(cluster depending) into the resources.
      * @param load concrete load that will be benchmarked in this experiment.
-     * @param res concrete resoruce that will be scaled for this experiment.
+     * @param res concrete resource that will be scaled for this experiment.
      * @param configurationOverrides
      * @return a [BenchmarkDeployment]
      */

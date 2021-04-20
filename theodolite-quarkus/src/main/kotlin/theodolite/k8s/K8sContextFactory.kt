@@ -21,8 +21,8 @@ class K8sContextFactory {
      *
      * @see CustomResourceDefinitionContext
      */
-    fun create(api: String, scope: String, group: String, plural: String  ) : CustomResourceDefinitionContext {
-       return CustomResourceDefinitionContext.Builder()
+    fun create(api: String, scope: String, group: String, plural: String): CustomResourceDefinitionContext {
+        return CustomResourceDefinitionContext.Builder()
             .withVersion(api)
             .withScope(scope)
             .withGroup(group)
