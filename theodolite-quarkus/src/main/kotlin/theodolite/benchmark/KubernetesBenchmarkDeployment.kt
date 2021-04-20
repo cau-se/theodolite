@@ -30,7 +30,7 @@ class KubernetesBenchmarkDeployment(
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(client)
     private val LAG_EXPORTER_POD_LABEL = "app.kubernetes.io/name=kafka-lag-exporter"
-    private val SLEEP_AFTER_K8S_DELETION_MS = 2000L
+    private val SLEEP_AFTER_TEARDOWN = 5000L
 
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
@@ -41,9 +41,7 @@ class KubernetesBenchmarkDeployment(
         val kafkaTopics = this.topics.filter { !it.removeOnly }
             .map{ NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
-        resources.forEach {
-            kubernetesManager.deploy(it)
-        }
+        resources.forEach { kubernetesManager.deploy(it) }
     }
 
     /**
@@ -56,9 +54,9 @@ class KubernetesBenchmarkDeployment(
         resources.forEach {
             kubernetesManager.remove(it)
         }
-        logger.info { "Kubernetes resources deleted. Allow for short pause before continuing." }
-        Thread.sleep(SLEEP_AFTER_K8S_DELETION_MS)
         kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         KafkaLagExporterRemover(client).remove(LAG_EXPORTER_POD_LABEL)
+        logger.info { "Teardown complete. Wait $SLEEP_AFTER_TEARDOWN ms to let everything come down." }
+        Thread.sleep(SLEEP_AFTER_TEARDOWN)
     }
 }
