@@ -3,7 +3,6 @@ package theodolite.execution.operator
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
-import java.lang.NullPointerException
 
 private val logger = KotlinLogging.logger {}
 
@@ -15,7 +14,7 @@ private val logger = KotlinLogging.logger {}
  * @see TheodoliteController
  * @see BenchmarkExecution
  */
-class ExecutionHandler(private val controller: TheodoliteController): ResourceEventHandler<BenchmarkExecution> {
+class ExecutionHandler(private val controller: TheodoliteController) : ResourceEventHandler<BenchmarkExecution> {
 
     /**
      * Add an execution to the end of the queue of the TheodoliteController.
@@ -29,17 +28,19 @@ class ExecutionHandler(private val controller: TheodoliteController): ResourceEv
     }
 
     /**
-     * Update an execution. If this execution is running at the time this function is called, it is stopped and added to
-     * the beginning of the queue of the TheodoliteController. Otherwise, it is just added to the beginning of the queue.
+     * Updates an execution. If this execution is running at the time this function is called, it is stopped and
+     * added to the beginning of the queue of the TheodoliteController.
+     * Otherwise, it is just added to the beginning of the queue.
      *
-     * @param execution the execution to update
+     * @param oldExecution the old execution
+     * @param newExecution the new execution
      */
     override fun onUpdate(oldExecution: BenchmarkExecution, newExecution: BenchmarkExecution) {
         logger.info { "Add updated execution to queue." }
         newExecution.name = newExecution.metadata.name
         try {
             this.controller.executionsQueue.removeIf { e -> e.name == newExecution.metadata.name }
-        } catch(e: NullPointerException) {
+        } catch (e: NullPointerException) {
             logger.warn { "No execution found for deletion" }
         }
         this.controller.executionsQueue.addFirst(newExecution)
@@ -58,7 +59,7 @@ class ExecutionHandler(private val controller: TheodoliteController): ResourceEv
         try {
             this.controller.executionsQueue.removeIf { e -> e.name == execution.metadata.name }
             logger.info { "Delete execution ${execution.metadata.name} from queue." }
-        } catch(e: NullPointerException) {
+        } catch (e: NullPointerException) {
             logger.warn { "No execution found for deletion" }
         }
         if (this.controller.isInitialized() && this.controller.executor.getExecution().name == execution.metadata.name) {
