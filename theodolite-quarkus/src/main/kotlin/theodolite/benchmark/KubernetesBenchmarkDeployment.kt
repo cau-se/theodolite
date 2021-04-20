@@ -30,7 +30,7 @@ class KubernetesBenchmarkDeployment(
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(client)
     private val LAG_EXPORTER_POD_LABEL = "app.kubernetes.io/name=kafka-lag-exporter"
-    private val SLEEP_AFTER_K8S_DELETION_MS = 2000L
+    private val SLEEP_AFTER_K8S_DELETION_MS = 10_000L
 
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
