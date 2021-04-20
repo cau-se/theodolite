@@ -30,3 +30,5 @@ kafkaConfig:
     - name: "output"
       numPartitions: 40
       replicationFactor: 1
+    - name: "theodolite-.*"
+      removeOnly: True
