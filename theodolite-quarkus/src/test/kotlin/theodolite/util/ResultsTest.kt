@@ -1,7 +1,8 @@
 package theodolite.util
 
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -44,7 +45,31 @@ internal class ResultsTest {
                 LoadDimension(load, emptyList()),
                 Resource(resources, emptyList())
             ),
-            successful)
+            successful
+        )
     }
 
+
+    @Test
+    fun testGetMaxBenchmarkedLoadWhenAllSuccessful() {
+        val results = Results()
+        results.setResult(10000, 1, true)
+        results.setResult(10000, 2, true)
+
+        val test1 = results.getMaxBenchmarkedLoad(LoadDimension(100000, emptyList()))!!.get()
+
+        assertEquals(10000, test1)
+    }
+
+    @Test
+    fun testGetMaxBenchmarkedLoadWhenLargestNotSuccessful() {
+        val results = Results()
+        results.setResult(10000, 1, true)
+        results.setResult(10000, 2, true)
+        results.setResult(20000, 1, false)
+
+        val test2 = results.getMaxBenchmarkedLoad(LoadDimension(100000, emptyList()))!!.get()
+
+        assertEquals(20000, test2)
+    }
 }
