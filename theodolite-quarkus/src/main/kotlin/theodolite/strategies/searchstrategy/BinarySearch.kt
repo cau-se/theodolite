@@ -1,8 +1,11 @@
 package theodolite.strategies.searchstrategy
 
+import mu.KotlinLogging
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+
+private val logger = KotlinLogging.logger {}
 
 /**
  *  Binary-search-like implementation for determining the smallest suitable number of instances.
@@ -32,6 +35,8 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         }
         // special case:  length == 1 or 2
         if (lower == upper) {
+            val res = resources[lower]
+            logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
             if (this.benchmarkExecutor.runExperiment(load, resources[lower])) return lower
             else {
                 if (lower + 1 == resources.size) return -1
@@ -41,6 +46,8 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
             // apply binary search for a list with
             // length > 2 and adjust upper and lower depending on the result for `resources[mid]`
             val mid = (upper + lower) / 2
+            val res = resources[mid]
+            logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
             if (this.benchmarkExecutor.runExperiment(load, resources[mid])) {
                 if (mid == lower) {
                     return lower

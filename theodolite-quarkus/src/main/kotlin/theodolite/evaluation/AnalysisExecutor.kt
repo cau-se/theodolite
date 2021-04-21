@@ -4,8 +4,11 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+import java.text.Normalizer
 import java.time.Duration
 import java.time.Instant
+import java.util.*
+import java.util.regex.Pattern
 
 private val logger = KotlinLogging.logger {}
 
@@ -46,7 +49,10 @@ class AnalysisExecutor(
                 resultsFolder += "/"
             }
 
-            CsvExporter().toCsv(name = "$resultsFolder$executionId-${load.get()}-${res.get()}-${slo.sloType}", prom = prometheusData)
+            CsvExporter().toCsv(
+                name = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}",
+                prom = prometheusData
+            )
             val sloChecker = SloCheckerFactory().create(
                 sloType = slo.sloType,
                 externalSlopeURL = slo.externalSloUrl,
@@ -60,8 +66,18 @@ class AnalysisExecutor(
             )
 
         } catch (e: Exception) {
-            logger.error { "Evaluation failed for resource: ${res.get()} and load: ${load.get()} error: $e" }
+            logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: $e" }
         }
         return result
+    }
+
+    private val NONLATIN: Pattern = Pattern.compile("[^\\w-]")
+    private val WHITESPACE: Pattern = Pattern.compile("[\\s]")
+
+    fun String.toSlug(): String {
+        val noWhitespace: String = WHITESPACE.matcher(this).replaceAll("-")
+        val normalized: String = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD)
+        val slug: String = NONLATIN.matcher(normalized).replaceAll("")
+        return slug.toLowerCase(Locale.ENGLISH)
     }
 }

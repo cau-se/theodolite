@@ -242,6 +242,7 @@ build-theodolite-native:
   script:
     - gu install native-image # TODO move to image
     - ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  when: manual
   artifacts:
     paths:
       - "theodolite-quarkus/build/*-runner"
@@ -252,7 +253,7 @@ test-theodolite:
   extends: .theodolite
   needs:
     - build-theodolite-jvm
-    - build-theodolite-native
+    #- build-theodolite-native
   script: ./gradlew test --stacktrace
 
 # Disabled for now
@@ -279,12 +280,13 @@ deploy-theodolite:
     - .theodolite
     - .dind
   needs:
-    - build-theodolite-native
+    #- build-theodolite-native
+    - build-theodolite-jvm
     - test-theodolite
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build -f src/main/docker/Dockerfile.native -t theodolite .
-    #- docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
+    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
+    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
     - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
@@ -309,6 +311,7 @@ deploy-slo-checker-lag-trend:
   stage: deploy
   extends:
     - .dind
+  needs: []
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite-slo-checker-lag-trend slope-evaluator
@@ -335,6 +338,7 @@ deploy-random-scheduler:
   stage: deploy
   extends:
     - .dind
+  needs: []
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite-random-scheduler execution/infrastructure/random-scheduler
