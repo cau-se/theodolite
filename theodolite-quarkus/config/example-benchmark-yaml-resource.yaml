@@ -22,7 +22,7 @@ loadTypes:
       - type: "NumSensorsLoadGeneratorReplicaPatcher"
         resource: "uc1-load-generator-deployment.yaml"
 kafkaConfig:
-  bootstrapServer: "theodolite-cp-kafka:9092"
+  bootstrapServer: "localhost:31290"
   topics:
     - name: "input"
       numPartitions: 40

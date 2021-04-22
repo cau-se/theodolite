@@ -8,6 +8,7 @@ import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.K8sManager
 import theodolite.k8s.TopicManager
 import theodolite.util.KafkaConfig
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -22,7 +23,9 @@ private val logger = KotlinLogging.logger {}
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
     val namespace: String,
-    val resources: List<KubernetesResource>,
+    val appResources: List<KubernetesResource>,
+    val loadGenResources: List<KubernetesResource>,
+    private val loadGenerationDelay: Long,
     private val kafkaConfig: HashMap<String, Any>,
     private val topics: List<KafkaConfig.TopicWrapper>,
     private val client: NamespacedKubernetesClient
@@ -41,7 +44,10 @@ class KubernetesBenchmarkDeployment(
         val kafkaTopics = this.topics.filter { !it.removeOnly }
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
-        resources.forEach { kubernetesManager.deploy(it) }
+        appResources.forEach { kubernetesManager.deploy(it) }
+        logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
+        Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
+        loadGenResources.forEach { kubernetesManager.deploy(it) }
     }
 
     /**
@@ -51,9 +57,8 @@ class KubernetesBenchmarkDeployment(
      *  - Remove the [KubernetesResource]s.
      */
     override fun teardown() {
-        resources.forEach {
-            kubernetesManager.remove(it)
-        }
+        loadGenResources.forEach { kubernetesManager.remove(it) }
+        appResources.forEach { kubernetesManager.remove(it) }
         kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         KafkaLagExporterRemover(client).remove(LAG_EXPORTER_POD_LABEL)
         logger.info { "Teardown complete. Wait $SLEEP_AFTER_TEARDOWN ms to let everything come down." }
