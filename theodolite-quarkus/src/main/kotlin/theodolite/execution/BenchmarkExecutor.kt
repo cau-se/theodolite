@@ -47,7 +47,7 @@ abstract class BenchmarkExecutor(
      *
      */
     fun waitAndLog() {
-        logger.info { "Execution of a new benchmark started." }
+        logger.info { "Execution of a new experiment started." }
 
         var secondsRunning = 0L
 
