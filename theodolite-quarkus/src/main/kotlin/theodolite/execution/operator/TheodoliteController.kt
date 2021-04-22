@@ -37,7 +37,6 @@ class TheodoliteController(
     val executionsQueue: ConcurrentLinkedDeque<BenchmarkExecution> = ConcurrentLinkedDeque()
     val benchmarks: ConcurrentHashMap<String, KubernetesBenchmark> = ConcurrentHashMap()
     var isUpdated = AtomicBoolean(false)
-    var executionID = AtomicInteger(0)
 
     /**
      * Runs the TheodoliteController forever.
@@ -91,7 +90,6 @@ class TheodoliteController(
      */
     @Synchronized
     fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
-        execution.executionId = executionID.getAndSet(executionID.get() + 1)
         isUpdated.set(false)
         benchmark.path = path
         logger.info { "Start execution ${execution.name} with benchmark ${benchmark.name}." }
