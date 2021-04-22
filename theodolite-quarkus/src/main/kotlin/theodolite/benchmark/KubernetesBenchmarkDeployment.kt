@@ -25,7 +25,7 @@ class KubernetesBenchmarkDeployment(
     val namespace: String,
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
-    private val delay: Long,
+    private val loadGenerationDelay: Long,
     private val kafkaConfig: HashMap<String, Any>,
     private val topics: List<KafkaConfig.TopicWrapper>,
     private val client: NamespacedKubernetesClient
@@ -45,8 +45,8 @@ class KubernetesBenchmarkDeployment(
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
         appResources.forEach { kubernetesManager.deploy(it) }
-        logger.info { "Wait ${this.delay} seconds before starting the workload generator." }
-        Thread.sleep(Duration.ofSeconds(this.delay).toMillis())
+        logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the workload generator." }
+        Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
         loadGenResources.forEach { kubernetesManager.deploy(it) }
     }
 

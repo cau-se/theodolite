@@ -27,7 +27,7 @@ abstract class BenchmarkExecutor(
     val configurationOverrides: List<ConfigurationOverride?>,
     val slo: BenchmarkExecution.Slo,
     val executionId: Int,
-    val delay: Long
+    val loadGenerationDelay: Long
 ) {
 
     var run: AtomicBoolean = AtomicBoolean(true)
