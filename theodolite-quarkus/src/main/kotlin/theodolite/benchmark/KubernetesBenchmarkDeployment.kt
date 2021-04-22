@@ -45,7 +45,7 @@ class KubernetesBenchmarkDeployment(
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
         appResources.forEach { kubernetesManager.deploy(it) }
-        logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the workload generator." }
+        logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
         Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
         loadGenResources.forEach { kubernetesManager.deploy(it) }
     }
