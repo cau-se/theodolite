@@ -20,7 +20,7 @@ class AnalysisExecutor(private val slo: BenchmarkExecution.Slo) {
         var result = false
         val exporter = CsvExporter()
         val prometheusData = executionIntervals.map { interval -> fetcher.fetchMetric( start = interval.first, end = interval.second, query = "sum by(group)(kafka_consumergroup_group_lag >= 0)") }
-        var repetitionCounter = 0
+        var repetitionCounter = 1
         prometheusData.forEach{ data -> exporter.toCsv(name = "${load.get()}_${res.get()}_${slo.sloType}_rep_${repetitionCounter++}", prom = data) }
         prometheusData.forEach { logger.info { "prom-data: $it" }}
 

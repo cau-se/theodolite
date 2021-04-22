@@ -46,6 +46,13 @@ def execute(results, threshold, warmup):
 @app.post("/evaluate-slope",response_model=bool)
 async def evaluate_slope(request: Request):
     data = json.loads(await request.body())
-    return execute(data['total_lag'], data['threshold'], data['warmup'])
+    results = []
+    for total_lag in data['total_lags']:
+        results.append(execute(total_lag, data['threshold'], data['warmup'] ))
+    
+    for result in results:
+        if not result:
+            return False
+    return True 
 
 logger.info("Slope evaluator is online")

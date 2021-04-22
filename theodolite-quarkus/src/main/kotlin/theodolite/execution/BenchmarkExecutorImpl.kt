@@ -25,6 +25,7 @@ class BenchmarkExecutorImpl(
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList(repetitions)
 
         for (i in 1.rangeTo(repetitions)) {
+            logger.info { "Run repetition $i/$repetitions" }
             if (this.run.get()) {
                 executionIntervals.add(runSingleExperiment(load,res))
             } else {
@@ -33,7 +34,6 @@ class BenchmarkExecutorImpl(
         }
 
         if (this.run.get()) {
-            executionIntervals.forEach{ logger.info { "interval for evaluation; from: ${it.first}, to: ${it.second}"}}
             result =AnalysisExecutor(slo = slo)
                     .analyze(load = load, res = res, executionIntervals = executionIntervals)
             this.results.setResult(Pair(load, res), result)
