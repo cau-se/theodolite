@@ -25,7 +25,7 @@ class BenchmarkExecutorImpl(
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         var result = false
-        val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList(repetitions)
+        val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList()
 
         for (i in 1.rangeTo(repetitions)) {
             logger.info { "Run repetition $i/$repetitions" }

@@ -40,11 +40,10 @@ class AnalysisExecutor(
         var repetitionCounter = 1
 
         try {
-            var resultsFolder: String = System.getenv("RESULTS_FOLDER")
+            var resultsFolder: String = System.getenv("RESULTS_FOLDER") ?: ""
             if (resultsFolder.isNotEmpty()){
                 resultsFolder += "/"
             }
-
             val prometheusData = executionIntervals
                 .map { interval -> fetcher.fetchMetric(
                         start = interval.first,
