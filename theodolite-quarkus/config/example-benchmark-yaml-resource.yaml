@@ -20,7 +20,7 @@ loadTypes:
         container: "workload-generator"
         variableName: "NUM_SENSORS"
 kafkaConfig:
-  bootstrapServer: "my-confluent-cp-kafka:9092"
+  bootstrapServer: "localhost:31290" # "my-confluent-cp-kafka:9092"
   topics:
     - name: "input"
       numPartitions: 40

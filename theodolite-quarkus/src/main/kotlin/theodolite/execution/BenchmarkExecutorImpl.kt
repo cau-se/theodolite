@@ -23,16 +23,19 @@ class BenchmarkExecutorImpl(
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         var result = false
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList(repetitions)
-        executionIntervals
+
         for (i in 1.rangeTo(repetitions)) {
             if (this.run.get()) {
                 executionIntervals.add(runSingleExperiment(load,res))
+            } else {
+                break
             }
         }
 
         if (this.run.get()) {
-            result =
-                AnalysisExecutor(slo = slo).analyze(load = load, res = res, executionIntervals = executionIntervals)
+            executionIntervals.forEach{ logger.info { "interval for evaluation; from: ${it.first}, to: ${it.second}"}}
+            result =AnalysisExecutor(slo = slo)
+                    .analyze(load = load, res = res, executionIntervals = executionIntervals)
             this.results.setResult(Pair(load, res), result)
         }
         return result
