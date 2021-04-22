@@ -128,7 +128,7 @@ class TheodoliteExecutor(
     fun run() {
         val resultsFolder = getResultFolderString()
         storeAsFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
-        storeAsFile(kubernetesBenchmark, "$resultsFolder/${this.config.executionId}-benchmark-configuration")
+        storeAsFile(kubernetesBenchmark, "$resultsFolder${this.config.executionId}-benchmark-configuration")
 
         val config = buildConfig()
         // execute benchmarks for each load
