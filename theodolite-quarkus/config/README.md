@@ -1,6 +1,10 @@
 ## The Benchmark Object
 
 The *benchmark* object defines all static components of an execution of a benchmark with Theodolite.
+An exapmle for a benchmark object is given in [example-benchmark-yaml-resource](example-benchmark-yaml-resource.yaml).
+
+
+A **Benchmark** is a [*standard tool for the competitive evaluation and comparison of competing systems or components according to specific characteristics, such as performance, dependability, or security*](https://doi.org/10.1145/2668930.2688819). In Theodolite, we have [specification-based benchmarks](https://doi.org/10.1145/2668930.2688819), or at least something very close to that. That is, our benchmarks are architectural descriptions---in our case---[of typical use cases of stream processing in microservices](https://doi.org/10.1016/j.bdr.2021.100209) (e.g. our UC1). Hence, we don't really have a piece of software, which represents a benchmark. We only have implementations of benchmarks, e.g. an implementation of UC1 with Kafka Streams. For simplification, we call these *benchmark implementations* simply *benchmarks*.
 
 ```yaml
 name: String
@@ -30,6 +34,8 @@ kafkaConfig:
     - name: String
       numPartitions: UnsignedInt
       replicationFactor: UnsignedInt
+    - name: String
+      removeOnly: bool
     ...
 ```
 
@@ -40,11 +46,11 @@ The properties have the following definitions:
 * **loadGenResources**: A list of file names that reference Kubernetes resources that are deployed on the cluster for the load generator.
 * **resourceTypes**: A list of resource types that can be scaled for this *benchmark*. For each resource type the concrete values are defined in the *execution* object. Each resource type has the following structure:
     * **typeName**: Name of the resource type.
-    * **patchers**: List of patchers used to scale this resource type. Each patcher has the following structure:
-        * **type**: Type of the Patcher. The concrete types can be looked up in the list of patchers. 
+    * **patchers**: List of [patchers](#Patchers) used to scale this resource type. Each patcher has the following structure:
+        * **type**: Type of the [patcher](#Patchers). The concrete types can be looked up in the list of [patchers](#Patchers). 
         * **resources**: Specifies the Kubernetes resource to be patched.
         * **Patcher Arguments**: (Optional) Patcher specific additional arguments.
-* **resourceTypes**: A list of load types that can be scaled for this *benchmark*. For each load type the concrete values are defined in the *execution* object. Each load type has the following structure:
+* **loadTypes**: A list of load types that can be scaled for this *benchmark*. For each load type the concrete values are defined in the *execution* object. Each load type has the following structure:
     * **typeName**: Name of the load type.
     * **patchers**: List of patchers used to scale * **resourceTypes**: A list of resource types that can be scaled for this *benchmark*. For each resource type the concrete values are defined in the *execution* resource object.Each resource type has the following structure:
     * **typeName**: Name of the resource type.
@@ -54,15 +60,17 @@ The properties have the following definitions:
         * **Patcher Arguments**: (Optional) Patcher specific additional arguments.
 * **kafkaConfig**: Contains the Kafka configuration.
     * **bootstrapServers**: The bootstrap servers connection string.
-    * **topics**: List of topics to be created for each experiment.
+    * **topics**: List of topics to be created for each [experiment](#Experiment). Alternative theodolite offers the possibility to remove certain topics after each experiment.
         * **name**: The name of the topic.
         * **numPartitions**: The number of partitions of the topic.
         * **replicationFactor**: The replication factor of the topic.
+        * **removeOnly**: determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.
     
 
 ## The Execution Object
 
 A benchmark can be executed for different SUTs, by different users and multiple times. We call such an execution of a benchmark simply an *execution*. The *execution* object defines all conrete values of an Execution.
+An exapmle for an execution object is given in [example-execution-yaml-resource](example-benchmark-yaml-resource.yaml).
 
 
 ```yaml
@@ -101,7 +109,7 @@ configurationOverrides:
   ...
 ```
 
-The properties have the following meaning:
+The properties have the following definitions:
 
 * **name**: The name of the *execution*
 * **benchmark**: The name of the *benchmark* this *execution* is referring to.
@@ -118,18 +126,17 @@ The properties have the following meaning:
   * **externalSloUrl**: Connection string for a external slo analysis.
   * **offset**: Hours by which the start and end timestamp will be shifted (for different timezones).
   * **warmup**: Seconds of time that are ignored in the analysis.
-* **executions**: defines the overall parameter for the execution.
-  * **strategy**: defines the used straegy for the execution: either 'LinearSearch' or 'BinarySearch'
-  * **duration**: defines the duration of each experiment in seconds.
+* **executions**: Defines the overall parameter for the execution.
+  * **strategy**: Defines the used strategy for the execution: either 'LinearSearch' or 'BinarySearch'
+  * **duration**: Defines the duration of each [experiment](#Experiment) in seconds.
   * **repetition**: Unused.
   * **restrictions**: List of restriction strategys used to delimit the search space.
-    **- LowerBound**: currently only supported restriction strategy.
+    **- LowerBound**: Currently only supported *restriction strategy*.
 * **configurationOverrides**: List of patchers that are used to override existing configurations.
-  * **patcher**: patcher used to patch a resource . Each patcher has the following structure:
+  * **patcher**: Patcher used to patch a resource. Each patcher has the following structure:
         * **type**: Type of the Patcher. The concrete types can be looked up in the list of patchers. 
         * **resources**: Specifies the Kubernetes resource to be patched.
         * **Patcher Arguments**: (Optional) Patcher specific additional arguments.
-  ...
 
 ## Patchers
 
@@ -177,6 +184,11 @@ The properties have the following meaning:
   * **resource**: "uc1-kstreams-deployment.yaml"
   * **container**: "uc-application"
   * **value**: "dockerhubrepo/imagename"
+
+
+
+## Experiment
+According to [our benchmarking method](https://doi.org/10.1016/j.bdr.2021.100209), the execution of a benchmark requires performing multiple **Experiments**. I think what is actually done within/during an experiment is another level of detail. (But just for the sake of completeness: In an experiment, the benchmark implementation is deployed, load is generated according to the benchmark specification, some SLOs are monitored continuously, etc.)
 
 
 
