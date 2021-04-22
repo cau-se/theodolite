@@ -15,12 +15,12 @@
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
-WORKDIR /work/
-RUN chown 1001 /work \
-    && chmod "g+rwX" /work \
-    && chown 1001:root /work
-COPY --chown=1001:root build/*-runner /work/application
-COPY config/ /work/config/
+WORKDIR /deployments
+RUN chown 1001 /deployments \
+    && chmod "g+rwX" /deployments \
+    && chown 1001:root /deployments
+COPY --chown=1001:root build/*-runner /deployments/application
+COPY config/ /deployments/config/
 
 EXPOSE 8080
 USER 1001
