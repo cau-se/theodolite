@@ -44,8 +44,13 @@ class AnalysisExecutor(
                 query = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
             )
 
+            var resultsFolder: String = System.getenv("RESULTS_FOLDER")
+            if (resultsFolder.isNotEmpty()){
+                resultsFolder += "/"
+            }
+
             CsvExporter().toCsv(
-                name = "exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}",
+                name = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}",
                 prom = prometheusData
             )
             val sloChecker = SloCheckerFactory().create(

@@ -5,6 +5,7 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+import java.lang.Exception
 
 private val logger = KotlinLogging.logger {}
 
@@ -23,6 +24,7 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
      */
     override fun run() {
         // Build Configuration to teardown
+        try {
         logger.info { "Received shutdown signal -> Shutting down" }
         val deployment =
             benchmark.buildDeployment(
@@ -30,8 +32,13 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
                 res = Resource(0, emptyList()),
                 configurationOverrides = benchmarkExecution.configOverrides
             )
+            deployment.teardown()
+        } catch (e: Exception) {
+            logger.warn { "Could not delete all specified resources from Kubernetes. " +
+                    "This could be the case, if not all resources are deployed and running." }
+
+        }
         logger.info { "Teardown everything deployed" }
-        deployment.teardown()
         logger.info { "Teardown completed" }
     }
 }
