@@ -2,6 +2,7 @@ package theodolite.evaluation
 
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.util.IOHandler
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import java.text.Normalizer
@@ -44,15 +45,14 @@ class AnalysisExecutor(
                 query = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
             )
 
-            var resultsFolder: String = System.getenv("RESULTS_FOLDER")
-            if (resultsFolder.isNotEmpty()){
-                resultsFolder += "/"
-            }
+            val ioHandler = IOHandler()
+            val resultsFolder: String = ioHandler.getResultFolderURL()
+            val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
+            ioHandler.writeToCSVFile(
+                fileURL = fileURL,
+                data = prometheusData.getResultAsList(),
+                columns = listOf("group", "timestamp", "value"))
 
-            CsvExporter().toCsv(
-                name = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}",
-                prom = prometheusData
-            )
             val sloChecker = SloCheckerFactory().create(
                 sloType = slo.sloType,
                 externalSlopeURL = slo.externalSloUrl,

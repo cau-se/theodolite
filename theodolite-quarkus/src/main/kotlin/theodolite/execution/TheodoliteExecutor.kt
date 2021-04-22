@@ -7,10 +7,7 @@ import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
 import theodolite.strategies.StrategyFactory
 import theodolite.strategies.searchstrategy.CompositeStrategy
-import theodolite.util.Config
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
-import theodolite.util.Results
+import theodolite.util.*
 import java.io.File
 import java.io.PrintWriter
 import java.lang.IllegalArgumentException
@@ -102,34 +99,17 @@ class TheodoliteExecutor(
         return this.kubernetesBenchmark
     }
 
-    private fun getResultFolderString(): String {
-        var resultsFolder: String = System.getenv("RESULTS_FOLDER") ?: ""
-        val createResultsFolder = System.getenv("CREATE_RESULTS_FOLDER") ?: "false"
-
-        if (resultsFolder != ""){
-            logger.info { "RESULT_FOLDER: $resultsFolder" }
-            val directory = File(resultsFolder)
-            if (!directory.exists()) {
-                logger.error { "Folder $resultsFolder does not exist" }
-                if (createResultsFolder.toBoolean()) {
-                    directory.mkdirs()
-                } else {
-                    throw IllegalArgumentException("Result folder not found")
-                }
-            }
-            resultsFolder += "/"
-        }
-        return  resultsFolder
-    }
 
     /**
      * Run all experiments which are specified in the corresponding
      * execution and benchmark objects.
      */
     fun run() {
-        val resultsFolder = getResultFolderString()
-        storeAsFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
-        storeAsFile(kubernetesBenchmark, "$resultsFolder${this.config.executionId}-benchmark-configuration")
+        val ioHandler = IOHandler()
+        val resultsFolder = ioHandler.getResultFolderURL()
+        this.config.executionId = getAndIncrementExecutionID(resultsFolder+"expID.txt")
+        ioHandler.writeToJSONFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
+        ioHandler.writeToJSONFile(kubernetesBenchmark, "$resultsFolder${this.config.executionId}-benchmark-configuration")
 
         val config = buildConfig()
         // execute benchmarks for each load
@@ -138,14 +118,17 @@ class TheodoliteExecutor(
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }
-        storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "$resultsFolder${this.config.executionId}-result")
+        ioHandler.writeToJSONFile(config.compositeStrategy.benchmarkExecutor.results, "$resultsFolder${this.config.executionId}-result")
     }
 
-    private fun <T> storeAsFile(saveObject: T, filename: String) {
-        val gson = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create()
-
-        PrintWriter(filename).use { pw ->
-            pw.println(gson.toJson(saveObject))
-        }
+   private fun getAndIncrementExecutionID(fileURL: String): Int {
+       val ioHandler = IOHandler()
+       var executionID = 0
+       if (File(fileURL).exists()) {
+           executionID = ioHandler.readFileAsString(fileURL).toInt() + 1
+       }
+       ioHandler.writeStringToTextFile(fileURL, (executionID).toString())
+       return executionID
     }
+
 }
