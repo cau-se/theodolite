@@ -9,6 +9,22 @@ import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
 
+
+/**
+ * The Theodolite yaml executor loads the required configurations
+ * of the executions and the benchmark from yaml files and run the
+ * corresponding experiments.
+ *
+ * The location of the execution, benchmarks and Kubernetes resource
+ * files can be configured via the following environment variables:
+ * `THEODOLITE_EXECUTION`
+ *
+ * `THEODOLITE_BENCHMARK`
+ *
+ * `THEODOLITE_APP_RESOURCES`
+ *
+ * @constructor Create empty Theodolite yaml executor
+ */
 class TheodoliteYamlExecutor {
     private val parser = YamlParser()
 

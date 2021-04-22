@@ -18,8 +18,11 @@ class BenchmarkExecutorImpl(
     executionDuration: Duration,
     private val configurationOverrides: List<ConfigurationOverride?>,
     slo: BenchmarkExecution.Slo,
-    repetitions: Int
-) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo, repetitions) {
+    repetitions: Int,
+    executionId: Int
+
+) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo, repetitions, executionId) {
+
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         var result = false
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList(repetitions)
@@ -33,9 +36,15 @@ class BenchmarkExecutorImpl(
             }
         }
 
+        /**
+         * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
+         */
         if (this.run.get()) {
-            result =AnalysisExecutor(slo = slo)
-                    .analyze(load = load, res = res, executionIntervals = executionIntervals)
+            result =AnalysisExecutor(slo = slo, executionId = executionId)
+                    .analyze(
+                        load = load,
+                        res = res,
+                        executionIntervals = executionIntervals)
             this.results.setResult(Pair(load, res), result)
         }
         return result
@@ -53,7 +62,12 @@ class BenchmarkExecutorImpl(
             this.run.set(false)
         }
         val to = Instant.now()
-        benchmarkDeployment.teardown()
+        try {
+            benchmarkDeployment.teardown()
+        } catch (e: Exception) {
+            logger.warn { "Error while tearing down the benchmark deployment." }
+            logger.debug { "Teardown failed, caused by: $e" }
+        }
         return Pair(from,to)
     }
 }

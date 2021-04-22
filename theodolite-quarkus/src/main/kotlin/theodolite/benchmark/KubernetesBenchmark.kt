@@ -11,8 +11,25 @@ import theodolite.patcher.PatcherFactory
 import theodolite.util.*
 
 private val logger = KotlinLogging.logger {}
+
 private var DEFAULT_NAMESPACE = "default"
 
+/**
+ * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
+ * Contains a of:
+ * - [name] of the benchmark,
+ * - [appResource] list of the resources that have to be deployed for the benchmark,
+ * - [loadGenResource] resource that generates the load,
+ * - [resourceTypes] types of scaling resources,
+ * - [loadTypes] types of loads that can be scaled for the benchmark,
+ * - [kafkaConfig] for the [TopicManager],
+ * - [namespace] for the client,
+ * - [path] under which the resource yamls can be found.
+ *
+ *  This class is used for the parsing(in the [theodolite.execution.TheodoliteYamlExecutor]) and
+ *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
+ * @constructor construct an empty Benchmark.
+ */
 @RegisterForReflection
 class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     lateinit var name: String
@@ -24,9 +41,13 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
     var path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
 
+    /**
+     * Loads [KubernetesResource]s.
+     * It first loads them via the [YamlParser] to check for their concrete type and afterwards initializes them using
+     * the [K8sResourceLoader]
+     */
     private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val parser = YamlParser()
-
         val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(namespace))
         return resources
             .map { resource ->
@@ -37,6 +58,15 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
             }
     }
 
+    /**
+     * Builds a deployment.
+     * First loads all required resources and then patches them to the concrete load and resources for the experiment.
+     * Afterwards patches additional configurations(cluster depending) into the resources.
+     * @param load concrete load that will be benchmarked in this experiment.
+     * @param res concrete resoruce that will be scaled for this experiment.
+     * @param configurationOverrides
+     * @return a [BenchmarkDeployment]
+     */
     override fun buildDeployment(
         load: LoadDimension,
         res: Resource,
@@ -66,7 +96,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
             namespace = namespace,
             resources = resources.map { r -> r.second },
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
-            topics = kafkaConfig.getKafkaTopics(),
+            topics = kafkaConfig.topics,
             client = DefaultKubernetesClient().inNamespace(namespace)
         )
     }

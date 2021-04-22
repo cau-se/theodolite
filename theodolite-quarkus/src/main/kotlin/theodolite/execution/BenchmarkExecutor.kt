@@ -26,17 +26,20 @@ abstract class BenchmarkExecutor(
     val executionDuration: Duration,
     configurationOverrides: List<ConfigurationOverride?>,
     val slo: BenchmarkExecution.Slo,
-    val repetitions: Int
+    val repetitions: Int,
+    val executionId: Int
 ) {
 
     var run: AtomicBoolean = AtomicBoolean(true)
 
     /**
-     * Run a experiment for the given parametrization, evaluate the experiment and save the result.
+     * Run a experiment for the given parametrization, evaluate the
+     * experiment and save the result.
      *
      * @param load load to be tested.
      * @param res resources to be tested.
-     * @return True, if the number of resources are suitable for the given load, false otherwise.
+     * @return True, if the number of resources are suitable for the
+     *     given load, false otherwise.
      */
     abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
     
@@ -45,7 +48,7 @@ abstract class BenchmarkExecutor(
      *
      */
     fun waitAndLog() {
-        logger.info { "Execution of a new benchmark started." }
+        logger.info { "Execution of a new experiment started." }
 
         var secondsRunning = 0L
 

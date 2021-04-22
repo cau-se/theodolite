@@ -4,30 +4,60 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+import java.text.Normalizer
 import java.time.Duration
 import java.time.Instant
+import java.util.*
+import java.util.regex.Pattern
 
 private val logger = KotlinLogging.logger {}
 
-class AnalysisExecutor(private val slo: BenchmarkExecution.Slo) {
+/**
+ * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
+ * @param slo Slo that is used for the analysis.
+ */
+class AnalysisExecutor(
+    private val slo: BenchmarkExecution.Slo,
+    private val executionId: Int
+) {
 
     private val fetcher = MetricFetcher(
         prometheusURL = slo.prometheusUrl,
         offset = Duration.ofHours(slo.offset.toLong())
     )
 
+    /**
+     *  Analyses an experiment via prometheus data.
+     *  First fetches data from prometheus, then documents them and afterwards evaluate it via a [slo].
+     *  @param load of the experiment.
+     *  @param res of the experiment.
+     *  @param executionDuration of the experiment.
+     *  @return true if the experiment succeeded.
+     */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
         var result = false
         val exporter = CsvExporter()
-        val prometheusData = executionIntervals.map { interval -> fetcher.fetchMetric( start = interval.first, end = interval.second, query = "sum by(group)(kafka_consumergroup_group_lag >= 0)") }
         var repetitionCounter = 1
-        prometheusData.forEach{ data -> exporter.toCsv(name = "${load.get()}_${res.get()}_${slo.sloType}_rep_${repetitionCounter++}", prom = data) }
-        prometheusData.forEach { logger.info { "prom-data: $it" }}
 
         try {
+            var resultsFolder: String = System.getenv("RESULTS_FOLDER")
+            if (resultsFolder.isNotEmpty()){
+                resultsFolder += "/"
+            }
+
+            val prometheusData = executionIntervals
+                .map { interval -> fetcher.fetchMetric(
+                        start = interval.first,
+                        end = interval.second,
+                        query = "sum by(group)(kafka_consumergroup_group_lag >= 0)") }
+
+            val fileName= "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
+            prometheusData.forEach{ data ->
+                exporter.toCsv(name = "${fileName}_rep_${repetitionCounter++}", prom = data) }
+
 
             val sloChecker = SloCheckerFactory().create(
-                slotype = slo.sloType,
+                sloType = slo.sloType,
                 externalSlopeURL = slo.externalSloUrl,
                 threshold = slo.threshold,
                 warmup = slo.warmup
@@ -36,8 +66,18 @@ class AnalysisExecutor(private val slo: BenchmarkExecution.Slo) {
             result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            logger.error { "Evaluation failed for resource: ${res.get()} and load: ${load.get()} error: $e" }
+            logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: $e" }
         }
         return result
+    }
+
+    private val NONLATIN: Pattern = Pattern.compile("[^\\w-]")
+    private val WHITESPACE: Pattern = Pattern.compile("[\\s]")
+
+    fun String.toSlug(): String {
+        val noWhitespace: String = WHITESPACE.matcher(this).replaceAll("-")
+        val normalized: String = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD)
+        val slug: String = NONLATIN.matcher(normalized).replaceAll("")
+        return slug.toLowerCase(Locale.ENGLISH)
     }
 }

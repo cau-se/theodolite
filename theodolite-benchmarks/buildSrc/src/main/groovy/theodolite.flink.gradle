@@ -6,6 +6,23 @@ plugins {
 
 applicationDefaultJvmArgs = ["-Dlog4j.configuration=log4j.properties"]
 
+
+run.classpath = sourceSets.main.runtimeClasspath
+
+jar {
+    manifest {
+        attributes 'Built-By': System.getProperty('user.name'),
+                   'Build-Jdk': System.getProperty('java.version')
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.compile]
+    zip64 true
+}
+
+tasks.distZip.enabled = false
+
 ext {
   flinkVersion = '1.12.2'
   scalaBinaryVersion = '2.12'
@@ -47,18 +64,4 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
-}
-
-run.classpath = sourceSets.main.runtimeClasspath
-
-jar {
-    manifest {
-        attributes 'Built-By': System.getProperty('user.name'),
-                   'Build-Jdk': System.getProperty('java.version')
-    }
-}
-
-shadowJar {
-    configurations = [project.configurations.compile]
-    zip64 true
 }

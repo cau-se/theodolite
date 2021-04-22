@@ -6,6 +6,8 @@ plugins {
   id 'application'
 }
 
+tasks.distZip.enabled = false
+
 repositories {
   jcenter()
   maven {

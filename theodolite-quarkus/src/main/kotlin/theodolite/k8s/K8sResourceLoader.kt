@@ -10,12 +10,17 @@ import theodolite.util.YamlParser
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ * Used to load different Kubernetes resources.
+ * Supports: Deployments, Services, ConfigMaps, and CustomResources.
+ * @param client KubernetesClient used to deploy or remove.
+ */
 class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
 
     /**
      * Parses a Service from a service yaml
      * @param path of the yaml file
-     * @return service from fabric8
+     * @return Service from fabric8
      */
     private fun loadService(path: String): Service {
         return loadGenericResource(path) { x: String -> client.services().load(x).get() }
@@ -24,7 +29,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
     /**
      * Parses a CustomResource from a yaml
      * @param path of the yaml file
-     * @return customResource from fabric8
+     * @return CustomResource from fabric8
      */
     private fun loadServiceMonitor(path: String): ServiceMonitorWrapper {
         return loadGenericResource(path) { x: String -> ServiceMonitorWrapper(YamlParser().parse(path, HashMap<String, String>()::class.java)!!) }
@@ -51,7 +56,8 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
     /**
      * Generic helper function to load a resource.
      * @param path of the resource
-     * @param f function that shall be applied to the resource.
+     * @param f function that is applied to the resource.
+     * @throws IllegalArgumentException If the resource could not be loaded.
      */
     private fun <T> loadGenericResource(path: String, f: (String) -> T): T {
         var resource: T? = null
@@ -69,6 +75,14 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         return resource
     }
 
+    /**
+     * Factory function used to load different k8s resources from a path.
+     * Supported kinds are: Deployments, Services, ServiceMonitors, ConfigMaps and CustomResources.
+     * Uses CustomResource as default if Kind is not supported.
+     * @param kind of the resource. CustomResource as default.
+     * @param path of the resource to be loaded.
+     * @throws Exception if the resource could not be loaded.
+     */
     fun loadK8sResource(kind: String, path: String): KubernetesResource {
         return when (kind) {
             "Deployment" -> loadDeployment(path)

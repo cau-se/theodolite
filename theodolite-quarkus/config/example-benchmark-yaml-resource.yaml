@@ -19,9 +19,13 @@ loadTypes:
         resource: "uc1-load-generator-deployment.yaml"
         container: "workload-generator"
         variableName: "NUM_SENSORS"
+      - type: "NumSensorsLoadGeneratorReplicaPatcher"
+        resource: "uc1-load-generator-deployment.yaml"
 kafkaConfig:
-  bootstrapServer: "localhost:31290" # "my-confluent-cp-kafka:9092"
+  bootstrapServer: "theodolite-cp-kafka:9092"
   topics:
     - name: "input"
       numPartitions: 40
       replicationFactor: 1
+    - name: "theodolite-.*"
+      removeOnly: True
