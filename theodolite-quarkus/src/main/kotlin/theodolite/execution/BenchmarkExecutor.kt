@@ -24,9 +24,10 @@ abstract class BenchmarkExecutor(
     val benchmark: Benchmark,
     val results: Results,
     val executionDuration: Duration,
-    configurationOverrides: List<ConfigurationOverride?>,
+    val configurationOverrides: List<ConfigurationOverride?>,
     val slo: BenchmarkExecution.Slo,
-    val executionId: Int
+    val executionId: Int,
+    val loadGenerationDelay: Long
 ) {
 
     var run: AtomicBoolean = AtomicBoolean(true)
@@ -41,7 +42,7 @@ abstract class BenchmarkExecutor(
      *     given load, false otherwise.
      */
     abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
-    
+
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.
      *

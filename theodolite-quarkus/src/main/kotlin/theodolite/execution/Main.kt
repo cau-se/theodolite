@@ -16,11 +16,11 @@ object Main {
         val mode = System.getenv("MODE") ?: "standalone"
         logger.info { "Start Theodolite with mode $mode" }
 
-        when(mode) {
+        when (mode) {
             "standalone" -> TheodoliteYamlExecutor().start()
             "yaml-executor" -> TheodoliteYamlExecutor().start() // TODO remove (#209)
             "operator" -> TheodoliteOperator().start()
-            else ->  {
+            else -> {
                 logger.error { "MODE $mode not found" }
                 exitProcess(1)
             }

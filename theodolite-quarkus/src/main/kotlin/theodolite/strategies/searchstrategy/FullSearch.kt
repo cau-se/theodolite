@@ -18,7 +18,7 @@ private val logger = KotlinLogging.logger {}
 class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
 
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
-        var minimalSuitableResources: Resource? = null;
+        var minimalSuitableResources: Resource? = null
         for (res in resources) {
             logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
             val result = this.benchmarkExecutor.runExperiment(load, res)
