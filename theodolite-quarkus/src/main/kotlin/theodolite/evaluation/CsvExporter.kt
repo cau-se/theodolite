@@ -24,9 +24,9 @@ class CsvExporter {
         val csvOutputFile = File("$name.csv")
 
         PrintWriter(csvOutputFile).use { pw ->
-            pw.println(listOf("group", "timestamp", "value").joinToString())
+            pw.println(listOf("group", "timestamp", "value").joinToString(separator=","))
             responseArray.forEach {
-                pw.println(it.joinToString())
+                pw.println(it.joinToString(separator=","))
             }
         }
         logger.info { "Wrote CSV file: $name to ${csvOutputFile.absolutePath}." }
