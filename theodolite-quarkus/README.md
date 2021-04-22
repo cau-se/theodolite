@@ -86,7 +86,7 @@ docker run -i --rm theodolite-quarkus-native
 
 **Production:** (Docker-Container)
 
-| Variables name               | If not set:                         |Usage         |
+| Variables name               | Default value                      |Usage         |
 | -----------------------------|:----------------------------------:| ------------:|
 | `NAMESPACE`                  | `default`                          |Determines the namespace of the Theodolite will be executed in. Used in the KubernetesBenchmark|
 | `THEODOLITE_EXECUTION`       |  `./config/BenchmarkExecution.yaml`|The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
