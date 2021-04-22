@@ -41,7 +41,7 @@ abstract class BenchmarkExecutor(
      *     given load, false otherwise.
      */
     abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
-    
+
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.
      *

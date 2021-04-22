@@ -39,7 +39,7 @@ class KubernetesBenchmarkDeployment(
      */
     override fun setup() {
         val kafkaTopics = this.topics.filter { !it.removeOnly }
-            .map{ NewTopic(it.name, it.numPartitions, it.replicationFactor) }
+            .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
         resources.forEach { kubernetesManager.deploy(it) }
     }
