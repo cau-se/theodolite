@@ -47,6 +47,7 @@ class BenchmarkExecution : CustomResource(), Namespaced {
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
         lateinit var restrictions: List<String>
+        var delay by Delegates.notNull<Long>()
     }
 
     /**

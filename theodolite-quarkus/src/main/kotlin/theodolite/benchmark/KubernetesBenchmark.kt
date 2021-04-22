@@ -70,31 +70,36 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
     override fun buildDeployment(
         load: LoadDimension,
         res: Resource,
-        configurationOverrides: List<ConfigurationOverride?>
+        configurationOverrides: List<ConfigurationOverride?>,
+        delay: Long
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
         logger.info { "Using $path as resource path." }
 
-        val resources = loadKubernetesResources(this.appResource + this.loadGenResource)
+        val appResources = loadKubernetesResources(this.appResource)
+        val loadGenResources = loadKubernetesResources(this.loadGenResource)
+
         val patcherFactory = PatcherFactory()
 
         // patch the load dimension the resources
         load.getType().forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, resources).patch(load.get().toString())
+            patcherFactory.createPatcher(patcherDefinition, loadGenResources).patch(load.get().toString())
         }
         res.getType().forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, resources).patch(res.get().toString())
+            patcherFactory.createPatcher(patcherDefinition, appResources).patch(res.get().toString())
         }
 
         // Patch the given overrides
         configurationOverrides.forEach { override ->
             override?.let {
-                patcherFactory.createPatcher(it.patcher, resources).patch(override.value)
+                patcherFactory.createPatcher(it.patcher, appResources + loadGenResources).patch(override.value)
             }
         }
         return KubernetesBenchmarkDeployment(
             namespace = namespace,
-            resources = resources.map { r -> r.second },
+            appResources = appResources.map { it.second },
+            loadGenResources = loadGenResources.map { it.second },
+            delay = delay,
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             topics = kafkaConfig.topics,
             client = DefaultKubernetesClient().inNamespace(namespace)
