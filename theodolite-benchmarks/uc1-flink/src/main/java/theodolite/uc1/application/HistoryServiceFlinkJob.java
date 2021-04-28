@@ -43,6 +43,14 @@ public final class HistoryServiceFlinkJob {
     if (checkpointing) {
       this.env.enableCheckpointing(commitIntervalMs);
     }
+
+    // Parallelism
+    final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
+    if (parallelism != null) {
+      LOGGER.error("Set parallelism: {}.", parallelism);
+      this.env.setParallelism(parallelism);
+    }
+
   }
 
   private void buildPipeline() {
