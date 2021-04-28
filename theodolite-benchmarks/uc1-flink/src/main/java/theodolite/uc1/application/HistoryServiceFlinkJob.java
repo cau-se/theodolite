@@ -1,6 +1,7 @@
 package theodolite.uc1.application;
 
 import org.apache.commons.configuration2.Configuration;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -61,7 +62,8 @@ public final class HistoryServiceFlinkJob {
     stream
         .rebalance()
         .map(new GsonMapper())
-        .flatMap((record, c) -> LOGGER.info("Record: {}", record));
+        .flatMap((record, c) -> LOGGER.info("Record: {}", record))
+        .returns(Types.GENERIC(Object.class)); // Will never be used
   }
 
   /**
