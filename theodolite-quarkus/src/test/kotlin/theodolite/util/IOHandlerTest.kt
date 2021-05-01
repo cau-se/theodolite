@@ -6,6 +6,7 @@ import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.rules.TemporaryFolder
 import org.junitpioneer.jupiter.ClearEnvironmentVariable
@@ -91,15 +92,18 @@ internal class IOHandlerTest {
 
     @Test()
     @SetEnvironmentVariable.SetEnvironmentVariables(
-        SetEnvironmentVariable(key = "RESULTS_FOLDER", value = FOLDER_URL),
+        SetEnvironmentVariable(key = "RESULTS_FOLDER", value = "$FOLDER_URL-0"),
         SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "false")
     )
     fun testGetResultFolderURL_FolderNotExist() {
-      try {
-          IOHandler().getResultFolderURL()
-      } catch (e: Exception){
-          assertThat(e.toString(), containsString("Folder not found"));
-      }
+        var exceptionWasThrown = false
+        try {
+            IOHandler().getResultFolderURL()
+          } catch (e: Exception){
+              exceptionWasThrown = true
+              assertThat(e.toString(), containsString("Result folder not found"));
+          }
+        assertTrue(exceptionWasThrown)
     }
 
     @Test()
