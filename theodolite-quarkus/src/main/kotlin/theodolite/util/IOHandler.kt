@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder
 import mu.KotlinLogging
 import java.io.File
 import java.io.PrintWriter
-import java.lang.IllegalArgumentException
 
 private val logger = KotlinLogging.logger {}
 
