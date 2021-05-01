@@ -2,10 +2,14 @@ package theodolite.util
 
 import com.google.gson.GsonBuilder
 import io.quarkus.test.junit.QuarkusTest
+import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.rules.TemporaryFolder
+import org.junitpioneer.jupiter.ClearEnvironmentVariable
+import org.junitpioneer.jupiter.SetEnvironmentVariable
 
 
 const val FOLDER_URL = "Test-Folder"
@@ -13,7 +17,7 @@ const val FOLDER_URL = "Test-Folder"
 internal class IOHandlerTest {
 
     @Rule
-    var temporaryFolder = TemporaryFolder()
+    private var temporaryFolder = TemporaryFolder()
 
     @Test
     fun testWriteStringToText() {
@@ -72,5 +76,45 @@ internal class IOHandlerTest {
             expected,
             IOHandler().readFileAsString("${folder.absolutePath}/test-file.json")
         )
+    }
+
+    // Test the function `getResultFolderString
+
+    @Test
+    @ClearEnvironmentVariable.ClearEnvironmentVariables(
+        ClearEnvironmentVariable(key = "RESULTS_FOLDER"),
+        ClearEnvironmentVariable(key = "CREATE_RESULTS_FOLDER")
+    )
+    fun testGetResultFolderURL_emptyEnvironmentVars() {
+        assertEquals("",IOHandler().getResultFolderURL())
+    }
+
+    @Test()
+    @SetEnvironmentVariable.SetEnvironmentVariables(
+        SetEnvironmentVariable(key = "RESULTS_FOLDER", value = FOLDER_URL),
+        SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "false")
+    )
+    fun testGetResultFolderURL_FolderNotExist() {
+      try {
+          IOHandler().getResultFolderURL()
+      } catch (e: Exception){
+          assertThat(e.toString(), containsString("Folder not found"));
+      }
+    }
+
+    @Test()
+    @SetEnvironmentVariable.SetEnvironmentVariables(
+        SetEnvironmentVariable(key = "RESULTS_FOLDER", value = FOLDER_URL),
+        SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "true")
+    )
+    fun testGetResultFolderURL_CreateFolderIfNotExist() {
+        assertEquals("$FOLDER_URL/",  IOHandler().getResultFolderURL())
+    }
+
+    @Test()
+    @ClearEnvironmentVariable(key = "RESULTS_FOLDER" )
+    @SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "true")
+    fun testGetResultFolderURL_CreateFolderButNoFolderGiven() {
+        assertEquals("",  IOHandler().getResultFolderURL())
     }
 }
