@@ -79,7 +79,7 @@ internal class IOHandlerTest {
         )
     }
 
-    // Test the function `getResultFolderString
+    // Test the function `getResultFolderString`
 
     @Test
     @ClearEnvironmentVariable.ClearEnvironmentVariables(
@@ -88,6 +88,16 @@ internal class IOHandlerTest {
     )
     fun testGetResultFolderURL_emptyEnvironmentVars() {
         assertEquals("",IOHandler().getResultFolderURL())
+    }
+
+
+    @Test()
+    @SetEnvironmentVariable.SetEnvironmentVariables(
+        SetEnvironmentVariable(key = "RESULTS_FOLDER", value = "./src/test/resources"),
+        SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "false")
+    )
+    fun testGetResultFolderURL_FolderExist() {
+        assertEquals("./src/test/resources/", IOHandler().getResultFolderURL())
     }
 
     @Test()
