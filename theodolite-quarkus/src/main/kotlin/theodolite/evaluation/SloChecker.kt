@@ -1,10 +1,9 @@
 package theodolite.evaluation
 
 import theodolite.util.PrometheusResponse
-import java.time.Instant
 
 /**
- * A SloChecker can be used to evaluate data from Promehteus.
+ * A SloChecker can be used to evaluate data from Prometheus.
  * @constructor Creates an empty SloChecker
  */
 interface SloChecker {

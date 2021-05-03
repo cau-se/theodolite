@@ -8,7 +8,7 @@ For development:
 uvicorn main:app --reload # run this command inside the app/ folder
 ```
 
-Build the docker image:
+## Build the docker image:
 
 ```sh
 docker build . -t theodolite-evaluator

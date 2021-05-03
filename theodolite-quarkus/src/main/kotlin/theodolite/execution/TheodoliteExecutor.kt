@@ -72,8 +72,9 @@ class TheodoliteExecutor(
                 configurationOverrides = config.configOverrides,
                 slo = config.slos[0],
                 repetitions = config.execution.repetitions,
-                executionId = config.executionId
-                )
+                executionId = config.executionId,
+                loadGenerationDelay = config.execution.loadGenerationDelay
+            )
 
         return Config(
             loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },
@@ -129,7 +130,7 @@ class TheodoliteExecutor(
     fun run() {
         val resultsFolder = getResultFolderString()
         storeAsFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
-        storeAsFile(kubernetesBenchmark, "$resultsFolder/${this.config.executionId}-benchmark-configuration")
+        storeAsFile(kubernetesBenchmark, "$resultsFolder${this.config.executionId}-benchmark-configuration")
 
         val config = buildConfig()
         // execute benchmarks for each load
