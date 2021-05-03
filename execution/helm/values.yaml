@@ -248,3 +248,10 @@ serviceAccount:
 
 rbac:
   create: true
+
+randomScheduler:
+  enabled: true
+  rbac:
+    create: true
+  serviceAccount:
+    create: true
