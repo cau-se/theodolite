@@ -52,7 +52,7 @@ class AnalysisExecutor(
 
             val fileName= "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
             prometheusData.forEach{ data ->
-                exporter.toCsv(name = "${fileName}_rep_${repetitionCounter++}", prom = data) }
+                exporter.toCsv(name = "${fileName}_${repetitionCounter++}", prom = data) }
 
 
             val sloChecker = SloCheckerFactory().create(
