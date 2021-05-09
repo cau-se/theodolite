@@ -71,7 +71,8 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
         load: LoadDimension,
         res: Resource,
         configurationOverrides: List<ConfigurationOverride?>,
-        loadGenerationDelay: Long
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
         logger.info { "Using $path as resource path." }
@@ -100,6 +101,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
             appResources = appResources.map { it.second },
             loadGenResources = loadGenResources.map { it.second },
             loadGenerationDelay = loadGenerationDelay,
+            afterTeardownDelay = afterTeardownDelay,
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             topics = kafkaConfig.topics,
             client = DefaultKubernetesClient().inNamespace(namespace)
