@@ -22,6 +22,7 @@ execution:
   strategy: "LinearSearch"
   duration: 60
   repetitions: 1
+  delay: 30 # in seconds
   restrictions:
     - "LowerBound"
 configOverrides:
