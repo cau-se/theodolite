@@ -25,6 +25,11 @@ grafana:
   adminUser: admin
   adminPassword: admin
   grafana.ini:
+    #org_name: Theodolite
+    auth.anonymous:
+      # enable anonymous access
+      enabled: true
+      org_role: Admin # Role for unauthenticated users, other valid values are `Viewer`, `Editor` and `Admin`
     users:
       default_theme: light
   ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
