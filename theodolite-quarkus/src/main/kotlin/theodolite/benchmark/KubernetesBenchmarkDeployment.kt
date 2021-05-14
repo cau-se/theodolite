@@ -26,6 +26,7 @@ class KubernetesBenchmarkDeployment(
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
     private val loadGenerationDelay: Long,
+    private val afterTeardownDelay: Long,
     private val kafkaConfig: HashMap<String, Any>,
     private val topics: List<KafkaConfig.TopicWrapper>,
     private val client: NamespacedKubernetesClient
@@ -33,7 +34,6 @@ class KubernetesBenchmarkDeployment(
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(client)
     private val LAG_EXPORTER_POD_LABEL = "app.kubernetes.io/name=kafka-lag-exporter"
-    private val SLEEP_AFTER_TEARDOWN = 5000L
 
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
@@ -61,7 +61,7 @@ class KubernetesBenchmarkDeployment(
         appResources.forEach { kubernetesManager.remove(it) }
         kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         KafkaLagExporterRemover(client).remove(LAG_EXPORTER_POD_LABEL)
-        logger.info { "Teardown complete. Wait $SLEEP_AFTER_TEARDOWN ms to let everything come down." }
-        Thread.sleep(SLEEP_AFTER_TEARDOWN)
+        logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything come down." }
+        Thread.sleep(Duration.ofSeconds(afterTeardownDelay).toMillis())
     }
 }

@@ -20,12 +20,12 @@ class BenchmarkExecutorImpl(
     slo: BenchmarkExecution.Slo,
     repetitions: Int,
     executionId: Int,
-    loadGenerationDelay: Long
-) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo, repetitions, executionId, loadGenerationDelay) {
+    loadGenerationDelay: Long,
+    afterTeardownDelay: Long
+) : BenchmarkExecutor(benchmark, results, executionDuration, configurationOverrides, slo, repetitions, executionId, loadGenerationDelay, afterTeardownDelay) {
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         var result = false
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList()
-
 
         for (i in 1.rangeTo(repetitions)) {
             logger.info { "Run repetition $i/$repetitions" }
@@ -51,7 +51,7 @@ class BenchmarkExecutorImpl(
     }
 
     private fun runSingleExperiment(load: LoadDimension, res: Resource): Pair<Instant, Instant> {
-        val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides, this.loadGenerationDelay)
+        val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides, this.loadGenerationDelay, this.afterTeardownDelay)
         val from = Instant.now()
         try {
             benchmarkDeployment.setup()

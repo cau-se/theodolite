@@ -1,0 +1,30 @@
+{{- if .Values.randomScheduler.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "theodolite.fullname" . }}-random-scheduler
+  labels:
+    app: {{ include "theodolite.fullname" . }}
+    component: random-scheduler
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "theodolite.fullname" . }}
+      component: random-scheduler
+  template:
+    metadata:
+      labels:
+        app: {{ include "theodolite.fullname" . }}
+        component: random-scheduler
+    spec:
+      serviceAccount: {{ include "theodolite.fullname" . }}-random-scheduler
+      containers:
+        - name: random-scheduler
+          image: ghcr.io/cau-se/theodolite-random-scheduler:theodolite-kotlin-latest
+          #imagePullPolicy: Always
+          env:
+            - name: TARGET_NAMESPACE
+              value: {{ .Release.Namespace }}
+{{- end }}
