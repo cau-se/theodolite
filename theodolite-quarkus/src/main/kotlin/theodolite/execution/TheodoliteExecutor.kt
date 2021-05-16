@@ -71,6 +71,7 @@ class TheodoliteExecutor(
                 executionDuration = executionDuration,
                 configurationOverrides = config.configOverrides,
                 slo = config.slos[0],
+                repetitions = config.execution.repetitions,
                 executionId = config.executionId,
                 loadGenerationDelay = config.execution.loadGenerationDelay,
                 afterTeardownDelay = config.execution.afterTeardownDelay
