@@ -1,8 +1,11 @@
 package theodolite.execution.operator
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.model.crd.*
 
 private val logger = KotlinLogging.logger {}
 
@@ -14,17 +17,30 @@ private val logger = KotlinLogging.logger {}
  * @see TheodoliteController
  * @see BenchmarkExecution
  */
-class ExecutionHandler(private val controller: TheodoliteController) : ResourceEventHandler<BenchmarkExecution> {
+class ExecutionHandler(
+    private val controller: TheodoliteController,
+    private val stateHandler: ExecutionStateHandler
+) : ResourceEventHandler<ExecutionCRD> {
+    private val gson: Gson = GsonBuilder().enableComplexMapKeySerialization().create()
 
     /**
      * Add an execution to the end of the queue of the TheodoliteController.
      *
-     * @param execution the execution to add
+     * @param ExecutionCRD the execution to add
      */
-    override fun onAdd(execution: BenchmarkExecution) {
-        execution.name = execution.metadata.name
-        logger.info { "Add new execution ${execution.metadata.name} to queue." }
-        this.controller.executionsQueue.add(execution)
+    @Synchronized
+    override fun onAdd(execution: ExecutionCRD) {
+        logger.info { "Add execution ${execution.metadata.name}" }
+        execution.spec.name = execution.metadata.name
+        when (this.stateHandler.getExecutionState(execution.metadata.name)) {
+            null -> this.stateHandler.setExecutionState(execution.spec.name, STATES.Pending)
+            STATES.Running -> {
+                this.stateHandler.setExecutionState(execution.spec.name, STATES.Restart)
+                if(this.controller.isExecutionRunning(execution.spec.name)){
+                    this.controller.stop(restart=true)
+                    }
+                }
+        }
     }
 
     /**
@@ -32,40 +48,39 @@ class ExecutionHandler(private val controller: TheodoliteController) : ResourceE
      * added to the beginning of the queue of the TheodoliteController.
      * Otherwise, it is just added to the beginning of the queue.
      *
-     * @param oldExecution the old execution
-     * @param newExecution the new execution
+     * @param oldExecutionCRD the old execution
+     * @param newExecutionCRD the new execution
      */
-    override fun onUpdate(oldExecution: BenchmarkExecution, newExecution: BenchmarkExecution) {
-        logger.info { "Add updated execution to queue." }
-        newExecution.name = newExecution.metadata.name
-        try {
-            this.controller.executionsQueue.removeIf { e -> e.name == newExecution.metadata.name }
-        } catch (e: NullPointerException) {
-            logger.warn { "No execution found for deletion" }
+    @Synchronized
+    override fun onUpdate(oldExecution: ExecutionCRD, newExecution: ExecutionCRD) {
+        logger.info { "Receive update event for execution ${oldExecution.metadata.name}" }
+        newExecution.spec.name = newExecution.metadata.name
+        oldExecution.spec.name = oldExecution.metadata.name
+        if(gson.toJson(oldExecution.spec) != gson.toJson(newExecution.spec)) {
+            when(this.stateHandler.getExecutionState(newExecution.metadata.name)) {
+                STATES.Running -> {
+                        this.stateHandler.setExecutionState(newExecution.spec.name, STATES.Restart)
+                         if (this.controller.isExecutionRunning(newExecution.spec.name)){
+                            this.controller.stop(restart=true)
+                            }
+                        }
+                STATES.Restart -> {} // should this set to pending?
+                else -> this.stateHandler.setExecutionState(newExecution.spec.name, STATES.Pending)
+                }
+            }
         }
-        this.controller.executionsQueue.addFirst(newExecution)
-        if (this.controller.isInitialized() && this.controller.executor.getExecution().name == newExecution.metadata.name) {
-            this.controller.isUpdated.set(true)
-            this.controller.executor.executor.run.compareAndSet(true, false)
-        }
-    }
 
     /**
      * Delete an execution from the queue of the TheodoliteController.
      *
-     * @param execution the execution to delete
+     * @param ExecutionCRD the execution to delete
      */
-    override fun onDelete(execution: BenchmarkExecution, b: Boolean) {
-        try {
-            this.controller.executionsQueue.removeIf { e -> e.name == execution.metadata.name }
-            logger.info { "Delete execution ${execution.metadata.name} from queue." }
-        } catch (e: NullPointerException) {
-            logger.warn { "No execution found for deletion" }
-        }
-        if (this.controller.isInitialized() && this.controller.executor.getExecution().name == execution.metadata.name) {
-            this.controller.isUpdated.set(true)
-            this.controller.executor.executor.run.compareAndSet(true, false)
-            logger.info { "Current benchmark stopped." }
+    @Synchronized
+    override fun onDelete(execution: ExecutionCRD, b: Boolean) {
+        logger.info { "Delete execution ${execution.metadata.name}" }
+         if(execution.status.executionState == STATES.Running.value
+             && this.controller.isExecutionRunning(execution.spec.name)) {
+            this.controller.stop()
         }
     }
 }
