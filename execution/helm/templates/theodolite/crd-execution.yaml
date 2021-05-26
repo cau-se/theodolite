@@ -128,5 +128,5 @@ spec:
     subresources:
       status: {}
   scope: Namespaced
-    status: {}
+  status: {}
 {{- end }}
