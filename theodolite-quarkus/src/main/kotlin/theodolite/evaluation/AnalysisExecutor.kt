@@ -2,6 +2,7 @@ package theodolite.evaluation
 
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.util.IOHandler
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import java.text.Normalizer
@@ -36,24 +37,25 @@ class AnalysisExecutor(
      */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
         var result = false
-        val exporter = CsvExporter()
         var repetitionCounter = 1
 
         try {
-            var resultsFolder: String = System.getenv("RESULTS_FOLDER") ?: ""
-            if (resultsFolder.isNotEmpty()){
-                resultsFolder += "/"
-            }
+            val ioHandler = IOHandler()
+            val resultsFolder: String = ioHandler.getResultFolderURL()
+            val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
+
             val prometheusData = executionIntervals
                 .map { interval -> fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
                         query = "sum by(group)(kafka_consumergroup_group_lag >= 0)") }
 
-            val fileName= "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
             prometheusData.forEach{ data ->
-                exporter.toCsv(name = "${fileName}_${repetitionCounter++}", prom = data) }
-
+                ioHandler.writeToCSVFile(
+                    fileURL = "${fileURL}_${repetitionCounter++}",
+                    data = data.getResultAsList(),
+                    columns = listOf("group", "timestamp", "value"))
+            }
 
             val sloChecker = SloCheckerFactory().create(
                 sloType = slo.sloType,

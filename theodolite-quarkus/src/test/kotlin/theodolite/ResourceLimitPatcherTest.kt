@@ -21,7 +21,7 @@ import theodolite.util.PatcherDefinition
  */
 @QuarkusTest
 class ResourceLimitPatcherTest {
-    val testPath = "./src/main/resources/testYaml/"
+    val testPath = "./src/test/resources/"
     val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(""))
     val patcherFactory = PatcherFactory()
 
