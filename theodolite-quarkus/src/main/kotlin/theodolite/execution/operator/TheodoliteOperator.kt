@@ -28,13 +28,22 @@ private val logger = KotlinLogging.logger {}
  */
 class TheodoliteOperator {
     private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    val client = DefaultKubernetesClient().inNamespace(namespace)
+
+
+    fun start() {
+        LeaderElector(
+            client = client,
+            name = "theodolite-operator"
+        )
+            .getLeadership(::startOperator)
+    }
 
     /**
      * Start the operator.
      */
-    fun start() {
+   private fun startOperator() {
         logger.info { "Using $namespace as namespace." }
-        val client = DefaultKubernetesClient().inNamespace(namespace)
 
         KubernetesDeserializer.registerCustomKind(
             "$GROUP/$API_VERSION",
