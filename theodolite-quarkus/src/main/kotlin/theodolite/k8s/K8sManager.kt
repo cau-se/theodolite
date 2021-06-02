@@ -63,12 +63,6 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
         }
     }
 
-    fun setLabel(resource: KubernetesResource) {
-        when(resource) {
-            is Deployment -> this.client
-        }
-    }
-
     private fun blockUntilPodsDeleted(podLabel: String) {
         while (!this.client.pods().withLabel(podLabel).list().items.isNullOrEmpty()) {
             logger.info { "Wait for pods with label '$podLabel' to be deleted." }

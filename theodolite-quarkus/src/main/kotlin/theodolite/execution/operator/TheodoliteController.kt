@@ -78,23 +78,23 @@ class TheodoliteController(
             benchmark.appResource + benchmark.loadGenResource,
             execution)
 
-        executionStateHandler.setExecutionState(execution.name, STATES.Running)
+        executionStateHandler.setExecutionState(execution.name, States.RUNNING)
         executionStateHandler.startDurationStateTimer(execution.name)
 
         try {
             executor = TheodoliteExecutor(execution, benchmark)
             executor.run()
             when (executionStateHandler.getExecutionState(execution.name)) {
-                STATES.Restart -> runExecution(execution, benchmark)
-                STATES.Running -> {
-                    executionStateHandler.setExecutionState(execution.name, STATES.Finished)
+                States.RESTART -> runExecution(execution, benchmark)
+                States.RUNNING -> {
+                    executionStateHandler.setExecutionState(execution.name, States.FINISHED)
                     logger.info { "Execution of ${execution.name} is finally stopped." }
                 }
             }
         } catch (e: Exception) {
             logger.error { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
             logger.error { "Problem is: $e" }
-            executionStateHandler.setExecutionState(execution.name, STATES.Failure)
+            executionStateHandler.setExecutionState(execution.name, States.FAILURE)
         }
         executionStateHandler.stopDurationStateTimer()
     }
@@ -103,9 +103,9 @@ class TheodoliteController(
     fun stop(restart: Boolean = false) {
         if (!::executor.isInitialized) return
         if (restart) {
-            executionStateHandler.setExecutionState(this.executor.getExecution().name, STATES.Restart)
+            executionStateHandler.setExecutionState(this.executor.getExecution().name, States.RESTART)
         } else {
-            executionStateHandler.setExecutionState(this.executor.getExecution().name, STATES.Interrupted)
+            executionStateHandler.setExecutionState(this.executor.getExecution().name, States.INTERRUPTED)
             logger.warn { "Execution ${executor.getExecution().name} unexpected interrupted" }
         }
         this.executor.executor.run.set(false)
@@ -129,8 +129,8 @@ class TheodoliteController(
      * is selected for the next execution depends on three points:
      *
      * 1. Only executions are considered for which a matching benchmark is available on the cluster
-     * 2. The Status of the execution must be [STATES.Pending] or [STATES.Restart]
-     * 3. Of the remaining [BenchmarkCRD], those with status [STATES.Restart] are preferred,
+     * 2. The Status of the execution must be [States.PENDING] or [States.RESTART]
+     * 3. Of the remaining [BenchmarkCRD], those with status [States.RESTART] are preferred,
      * then, if there is more than one, the oldest execution is chosen.
      *
      * @return the next execution or null
@@ -146,8 +146,8 @@ class TheodoliteController(
             .asSequence()
             .map { it.spec.name = it.metadata.name; it }
             .filter {
-                it.status.executionState == STATES.Pending.value ||
-                        it.status.executionState == STATES.Restart.value
+                it.status.executionState == States.PENDING.value ||
+                        it.status.executionState == States.RESTART.value
             }
             .filter { availableBenchmarkNames.contains(it.spec.benchmark) }
             .sortedWith(stateComparator().thenBy { it.metadata.creationTimestamp })
@@ -157,12 +157,12 @@ class TheodoliteController(
 
     /**
      * Simple comparator which can be used to order a list of [ExecutionCRD] such that executions with
-     * status [STATES.Restart] are before all other executions.
+     * status [States.RESTART] are before all other executions.
      */
     private fun stateComparator() = Comparator<ExecutionCRD> { a, b ->
         when {
             (a == null && b == null) -> 0
-            (a.status.executionState == STATES.Restart.value) -> -1
+            (a.status.executionState == States.RESTART.value) -> -1
             else -> 1
         }
     }

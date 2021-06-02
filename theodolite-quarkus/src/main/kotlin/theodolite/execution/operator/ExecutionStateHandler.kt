@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.STATES
+import theodolite.model.crd.States
 import java.lang.Thread.sleep
 import java.time.Duration
 import java.time.Instant
@@ -33,14 +33,14 @@ class ExecutionStateHandler(context: CustomResourceDefinitionContext, val client
         execState
     }
 
-    fun setExecutionState(resourceName: String, status: STATES): Boolean {
+    fun setExecutionState(resourceName: String, status: States): Boolean {
         setState(resourceName) {cr -> if(cr is ExecutionCRD) cr.status.executionState = status.value; cr}
         return blockUntilStateIsSet(resourceName, status.value, getExecutionLambda())
     }
 
-    fun getExecutionState(resourceName: String) : STATES? {
+    fun getExecutionState(resourceName: String) : States? {
         val status = this.getState(resourceName, getExecutionLambda())
-        return  STATES.values().firstOrNull { it.value == status }
+        return  States.values().firstOrNull { it.value == status }
     }
 
     fun setDurationState(resourceName: String, duration: Duration) {

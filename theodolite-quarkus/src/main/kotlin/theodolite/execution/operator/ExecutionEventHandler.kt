@@ -33,9 +33,9 @@ class ExecutionHandler(
         logger.info { "Add execution ${execution.metadata.name}" }
         execution.spec.name = execution.metadata.name
         when (this.stateHandler.getExecutionState(execution.metadata.name)) {
-            null -> this.stateHandler.setExecutionState(execution.spec.name, STATES.Pending)
-            STATES.Running -> {
-                this.stateHandler.setExecutionState(execution.spec.name, STATES.Restart)
+            null -> this.stateHandler.setExecutionState(execution.spec.name, States.PENDING)
+            States.RUNNING -> {
+                this.stateHandler.setExecutionState(execution.spec.name, States.RESTART)
                 if(this.controller.isExecutionRunning(execution.spec.name)){
                     this.controller.stop(restart=true)
                     }
@@ -58,14 +58,14 @@ class ExecutionHandler(
         oldExecution.spec.name = oldExecution.metadata.name
         if(gson.toJson(oldExecution.spec) != gson.toJson(newExecution.spec)) {
             when(this.stateHandler.getExecutionState(newExecution.metadata.name)) {
-                STATES.Running -> {
-                        this.stateHandler.setExecutionState(newExecution.spec.name, STATES.Restart)
+                States.RUNNING -> {
+                        this.stateHandler.setExecutionState(newExecution.spec.name, States.RESTART)
                          if (this.controller.isExecutionRunning(newExecution.spec.name)){
                             this.controller.stop(restart=true)
                             }
                         }
-                STATES.Restart -> {} // should this set to pending?
-                else -> this.stateHandler.setExecutionState(newExecution.spec.name, STATES.Pending)
+                States.RESTART -> {} // should this set to pending?
+                else -> this.stateHandler.setExecutionState(newExecution.spec.name, States.PENDING)
                 }
             }
         }
@@ -78,7 +78,7 @@ class ExecutionHandler(
     @Synchronized
     override fun onDelete(execution: ExecutionCRD, b: Boolean) {
         logger.info { "Delete execution ${execution.metadata.name}" }
-         if(execution.status.executionState == STATES.Running.value
+         if(execution.status.executionState == States.RUNNING.value
              && this.controller.isExecutionRunning(execution.spec.name)) {
             this.controller.stop()
         }

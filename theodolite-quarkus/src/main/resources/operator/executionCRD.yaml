@@ -8,7 +8,7 @@ spec:
     kind: execution
     plural: executions
     shortNames:
-      - ex
+      - exec
   versions:
   - name: v1
     served: true
