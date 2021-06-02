@@ -45,6 +45,7 @@ class PatcherFactory {
                 patcherDefinition.variableName
             )
             "SchedulerNamePatcher" -> SchedulerNamePatcher(resource)
+            "LabelPatcher" -> LabelPatcher(resource, patcherDefinition.variableName)
             else -> throw IllegalArgumentException("Patcher type ${patcherDefinition.type} not found")
         }
     }
