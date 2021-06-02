@@ -19,6 +19,8 @@ public final class ConfigurationKeys {
 
   public static final String CHECKPOINTING = "checkpointing";
 
+  public static final String PARALLELISM = "parallelism";
+
   private ConfigurationKeys() {}
 
 }

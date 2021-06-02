@@ -1,14 +1,12 @@
 package theodolite.evaluation
 
 import theodolite.util.PrometheusResponse
-import java.time.Instant
 
 /**
  * A SloChecker can be used to evaluate data from Prometheus.
  * @constructor Creates an empty SloChecker
  */
 interface SloChecker {
-
     /**
      * Evaluates [fetchedData] and returns if the experiment was successful.
      * Returns if the evaluated experiment was successful.
@@ -18,5 +16,5 @@ interface SloChecker {
      * @param fetchedData from Prometheus that will be evaluated.
      * @return true if experiment was successful. Otherwise false.
      */
-    fun evaluate(start: Instant, end: Instant, fetchedData: PrometheusResponse): Boolean
+    fun evaluate(fetchedData: List<PrometheusResponse>): Boolean
 }

@@ -1,6 +1,5 @@
 package theodolite.execution
 
-import com.google.gson.GsonBuilder
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
@@ -9,11 +8,6 @@ import theodolite.strategies.StrategyFactory
 import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.util.*
 import java.io.File
-import java.io.PrintWriter
-import java.lang.IllegalArgumentException
-import java.lang.Thread.sleep
-import java.nio.file.Files
-import java.nio.file.Path
 import java.time.Duration
 
 
@@ -68,8 +62,10 @@ class TheodoliteExecutor(
                 executionDuration = executionDuration,
                 configurationOverrides = config.configOverrides,
                 slo = config.slos[0],
+                repetitions = config.execution.repetitions,
                 executionId = config.executionId,
-                loadGenerationDelay = config.execution.loadGenerationDelay
+                loadGenerationDelay = config.execution.loadGenerationDelay,
+                afterTeardownDelay = config.execution.afterTeardownDelay
             )
 
         return Config(

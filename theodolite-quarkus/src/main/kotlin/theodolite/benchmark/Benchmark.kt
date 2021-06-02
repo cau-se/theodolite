@@ -22,6 +22,7 @@ interface Benchmark {
         load: LoadDimension,
         res: Resource,
         configurationOverrides: List<ConfigurationOverride?>,
-        delay: Long
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long
     ): BenchmarkDeployment
 }

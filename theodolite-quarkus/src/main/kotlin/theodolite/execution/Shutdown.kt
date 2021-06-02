@@ -31,7 +31,8 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
                 load = LoadDimension(0, emptyList()),
                 res = Resource(0, emptyList()),
                 configurationOverrides = benchmarkExecution.configOverrides,
-                loadGenerationDelay = 0L
+                loadGenerationDelay = 0L,
+                afterTeardownDelay = 5L
             )
             deployment.teardown()
         } catch (e: Exception) {
