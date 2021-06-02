@@ -1,53 +1,53 @@
-apiVersion: theodolite.com/v1alpha1
+apiVersion: theodolite.com/v1
 kind: execution
 metadata:
   name: example-execution
-#name: example-execution
-benchmark: "uc1-kstreams"
-load:
-  loadType: "NumSensors"
-  loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
-resources:
-  resourceType: "Instances"
-  resourceValues: [1, 2, 3, 4, 5]
-slos:
-  - sloType: "lag trend"
-    threshold: 2000
-    prometheusUrl: "http://prometheus-operated:9090"
-    externalSloUrl: "http://localhost:80/evaluate-slope"
-    offset: 0
-    warmup: 60 # in seconds
-execution:
-  strategy: "LinearSearch"
-  duration: 300 # in seconds
-  repetitions: 1
-  delay: 30 # in seconds
-  restrictions:
-    - "LowerBound"
-configOverrides: []
-#  - patcher:
-#      type: "NodeSelectorPatcher"
-#      resource: "uc1-load-generator-deployment.yaml"
-#      variableName: "env"
-#    value: "prod"
-#  - patcher:
-#      type: "NodeSelectorPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      variableName: "env"
-#    value: "prod"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      container: "uc-application"
-#      variableName: "cpu"
-#    value: "1000m"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      container: "uc-application"
-#      variableName: "memory"
-#    value: "2Gi"
-#  - patcher:
-#      type: "SchedulerNamePatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#    value: "random-scheduler"
+spec:
+  benchmark: "uc1-kstreams"
+  load:
+    loadType: "NumSensors"
+    loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
+  resources:
+    resourceType: "Instances"
+    resourceValues: [1, 2, 3, 4, 5]
+  slos:
+    - sloType: "lag trend"
+      threshold: 2000
+      prometheusUrl: "http://prometheus-operated:9090"
+      externalSloUrl: "http://localhost:80/evaluate-slope"
+      offset: 0
+      warmup: 60 # in seconds
+  execution:
+    strategy: "LinearSearch"
+    duration: 300 # in seconds
+    repetitions: 1
+    delay: 30 # in seconds
+    restrictions:
+      - "LowerBound"
+  configOverrides: []
+  #  - patcher:
+  #      type: "NodeSelectorPatcher"
+  #      resource: "uc1-load-generator-deployment.yaml"
+  #      variableName: "env"
+  #    value: "prod"
+  #  - patcher:
+  #      type: "NodeSelectorPatcher"
+  #      resource: "uc1-kstreams-deployment.yaml"
+  #      variableName: "env"
+  #    value: "prod"
+  #  - patcher:
+  #      type: "ResourceLimitPatcher"
+  #      resource: "uc1-kstreams-deployment.yaml"
+  #      container: "uc-application"
+  #      variableName: "cpu"
+  #    value: "1000m"
+  #  - patcher:
+  #      type: "ResourceLimitPatcher"
+  #      resource: "uc1-kstreams-deployment.yaml"
+  #      container: "uc-application"
+  #      variableName: "memory"
+  #    value: "2Gi"
+  #  - patcher:
+  #      type: "SchedulerNamePatcher"
+  #      resource: "uc1-kstreams-deployment.yaml"
+  #    value: "random-scheduler"

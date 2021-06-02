@@ -95,7 +95,6 @@ class TheodoliteExecutor(
         return this.kubernetesBenchmark
     }
 
-
     /**
      * Run all experiments which are specified in the corresponding
      * execution and benchmark objects.
