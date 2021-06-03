@@ -68,6 +68,18 @@ class TheodoliteExecutor(
                 afterTeardownDelay = config.execution.afterTeardownDelay
             )
 
+        if (config.load.loadValues != config.load.loadValues.sorted()) {
+            config.load.loadValues = config.load.loadValues.sorted()
+            logger.info { "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
+                    "New order is: ${config.load.loadValues}" }
+        }
+
+        if (config.resources.resourceValues != config.resources.resourceValues.sorted()) {
+            config.resources.resourceValues = config.resources.resourceValues.sorted()
+            logger.info { "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
+                    "New order is: ${config.resources.resourceValues}" }
+        }
+
         return Config(
             loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },
             resources = config.resources.resourceValues.map { resource ->
