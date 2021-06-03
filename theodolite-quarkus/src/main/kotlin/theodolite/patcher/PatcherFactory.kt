@@ -1,6 +1,7 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import theodolite.util.DeploymentFailedException
 import theodolite.util.PatcherDefinition
 
 /**
@@ -27,7 +28,9 @@ class PatcherFactory {
         k8sResources: List<Pair<String, KubernetesResource>>
     ): Patcher {
         val resource =
-            k8sResources.filter { it.first == patcherDefinition.resource }.map { resource -> resource.second }[0]
+            k8sResources.filter { it.first == patcherDefinition.resource }.map { resource -> resource.second }.firstOrNull()
+                ?: throw DeploymentFailedException("Could not find resource ${patcherDefinition.resource}")
+
         return when (patcherDefinition.type) {
             "ReplicaPatcher" -> ReplicaPatcher(resource)
             "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(resource)
