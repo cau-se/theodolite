@@ -29,13 +29,8 @@ spec:
   configOverrides:
     - patcher:
         type: "NodeSelectorPatcher"
-        resource: "uc1-load-generator-deployment.yaml"
-        container: ""
-        variableName: "env"
-      value: "prod"
-    - patcher:
-        type: "NodeSelectorPatcher"
         resource: "uc1-kstreams-deployment.yaml"
-        container: ""
-        variableName: "env"
+        config: 
+          - key: variableName
+            value: env
       value: "prod"

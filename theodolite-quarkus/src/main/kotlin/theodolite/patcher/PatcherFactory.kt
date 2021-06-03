@@ -28,27 +28,50 @@ class PatcherFactory {
         k8sResources: List<Pair<String, KubernetesResource>>
     ): Patcher {
         val resource =
-            k8sResources.filter { it.first == patcherDefinition.resource }.map { resource -> resource.second }.firstOrNull()
+            k8sResources.filter { it.first == patcherDefinition.resource }
+                .map { resource -> resource.second }
+                .firstOrNull()
                 ?: throw DeploymentFailedException("Could not find resource ${patcherDefinition.resource}")
 
+
         return when (patcherDefinition.type) {
-            "ReplicaPatcher" -> ReplicaPatcher(resource)
-            "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(resource)
-            "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(resource)
-            "EnvVarPatcher" -> EnvVarPatcher(resource, patcherDefinition.container, patcherDefinition.variableName)
-            "NodeSelectorPatcher" -> NodeSelectorPatcher(resource, patcherDefinition.variableName)
+            "ReplicaPatcher" -> ReplicaPatcher(
+                k8sResource = resource
+            )
+            "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
+                k8sResource = resource,
+                loadGenMaxRecords = patcherDefinition.getValueByKey("loadGenMaxRecords"),
+                numSensors = patcherDefinition.getValueByKey("numSensors")
+            )
+            "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
+                k8sResource = resource,
+                loadGenMaxRecords = patcherDefinition.getValueByKey("loadGenMaxRecords")
+            )
+            "EnvVarPatcher" -> EnvVarPatcher(
+                k8sResource = resource,
+                container = patcherDefinition.getValueByKey("container"),
+                variableName = patcherDefinition.getValueByKey("variableName")
+            )
+            "NodeSelectorPatcher" -> NodeSelectorPatcher(
+                k8sResource = resource,
+                variableName = patcherDefinition.getValueByKey("variableName"))
             "ResourceLimitPatcher" -> ResourceLimitPatcher(
-                resource,
-                patcherDefinition.container,
-                patcherDefinition.variableName
+                k8sResource = resource,
+                container = patcherDefinition.getValueByKey("container"),
+                limitedResource = patcherDefinition.getValueByKey("limitedResource")
             )
             "ResourceRequestPatcher" -> ResourceRequestPatcher(
-                resource,
-                patcherDefinition.container,
-                patcherDefinition.variableName
+                k8sResource = resource,
+                container = patcherDefinition.getValueByKey("container"),
+                requestedResource = patcherDefinition.getValueByKey("requestedResource")
             )
-            "SchedulerNamePatcher" -> SchedulerNamePatcher(resource)
-            "LabelPatcher" -> LabelPatcher(resource, patcherDefinition.variableName)
+            "SchedulerNamePatcher" -> SchedulerNamePatcher(
+                k8sResource = resource
+            )
+            "LabelPatcher" -> LabelPatcher(
+                k8sResource = resource,
+                variableName = patcherDefinition.getValueByKey("variableName")
+            )
             else -> throw IllegalArgumentException("Patcher type ${patcherDefinition.type} not found")
         }
     }

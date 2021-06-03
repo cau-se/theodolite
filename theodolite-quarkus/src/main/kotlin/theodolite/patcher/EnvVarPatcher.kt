@@ -16,7 +16,7 @@ class EnvVarPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,
     private val variableName: String
-) : AbstractPatcher(k8sResource, container, variableName) {
+) : AbstractPatcher(k8sResource) {
 
     override fun <String> patch(value: String) {
         if (k8sResource is Deployment) {

@@ -95,12 +95,17 @@ spec:
                         resource:
                           type: string
                           default: ""
-                        container:
-                          type: string
-                          default: ""
-                        variableName:
-                          type: string
-                          default: ""
+                        config:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                                default: ""
+                              value:
+                                type: string
+                                default: ""
                     value:
                       type: string
           status:
