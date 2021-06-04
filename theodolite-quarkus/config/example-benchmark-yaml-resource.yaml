@@ -23,12 +23,12 @@ loadTypes:
           - key: "container"
             value: "workload-generator"
       - type: "NumSensorsLoadGeneratorReplicaPatcher"
-        resource: "uc1-load-generator-deployment.yaml"
+        resource: "uc1-load-generator-deploym ent.yaml"
         config:
           - key: "loadGenMaxRecords"
             value: "15000"
 kafkaConfig:
-  bootstrapServer: "localhost:9092"
+  bootstrapServer: "localhost:31290"
   topics:
     - name: "input"
       numPartitions: 40

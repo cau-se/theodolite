@@ -5,7 +5,7 @@ load:
   loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
 resources:
   resourceType: "Instances"
-  resourceValues: [7, 1, 2, 3, 4, 5]
+  resourceValues: [1, 2, 3, 4, 5]
 slos:
   - sloType: "lag trend"
     threshold: 2000
