@@ -31,16 +31,32 @@ class ResourceRequestPatcherTest {
         val k8sResource = loader.loadK8sResource("Deployment", testPath + fileName) as Deployment
 
         val defCPU = PatcherDefinition()
-        defCPU.variableName = "cpu"
         defCPU.resource = "cpu-memory-deployment.yaml"
-        defCPU.container = "uc-application"
         defCPU.type = "ResourceRequestPatcher"
+        defCPU.config = mutableListOf(
+            hashMapOf(
+                "key" to "requestedResource",
+                "value" to "cpu"
+            ),
+            hashMapOf(
+                "key" to "container",
+                "value" to "uc-application"
+            )
+        )
 
         val defMEM = PatcherDefinition()
-        defMEM.variableName = "memory"
         defMEM.resource = "cpu-memory-deployment.yaml"
-        defMEM.container = "uc-application"
         defMEM.type = "ResourceRequestPatcher"
+        defMEM.config = mutableListOf(
+            hashMapOf(
+                "key" to "requestedResource",
+                "value" to "memory"
+            ),
+            hashMapOf(
+                "key" to "container",
+                "value" to "uc-application"
+            )
+        )
 
         patcherFactory.createPatcher(
             patcherDefinition = defCPU,
@@ -51,7 +67,7 @@ class ResourceRequestPatcherTest {
             k8sResources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource))
         ).patch(value = memValue)
 
-        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.container }
+        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.getValueByKey("container") }
             .forEach {
                 assertTrue(it.resources.requests["cpu"].toString() == cpuValue)
                 assertTrue(it.resources.requests["memory"].toString() == memValue)

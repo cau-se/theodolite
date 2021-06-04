@@ -25,29 +25,37 @@ spec:
     restrictions:
       - "LowerBound"
   configOverrides: []
-  #  - patcher:
-  #      type: "NodeSelectorPatcher"
-  #      resource: "uc1-load-generator-deployment.yaml"
-  #      variableName: "env"
-  #    value: "prod"
-  #  - patcher:
-  #      type: "NodeSelectorPatcher"
-  #      resource: "uc1-kstreams-deployment.yaml"
-  #      variableName: "env"
-  #    value: "prod"
-  #  - patcher:
-  #      type: "ResourceLimitPatcher"
-  #      resource: "uc1-kstreams-deployment.yaml"
-  #      container: "uc-application"
-  #      variableName: "cpu"
-  #    value: "1000m"
-  #  - patcher:
-  #      type: "ResourceLimitPatcher"
-  #      resource: "uc1-kstreams-deployment.yaml"
-  #      container: "uc-application"
-  #      variableName: "memory"
-  #    value: "2Gi"
-  #  - patcher:
-  #      type: "SchedulerNamePatcher"
-  #      resource: "uc1-kstreams-deployment.yaml"
-  #    value: "random-scheduler"
+#   - patcher:
+#       type: "NodeSelectorPatcher"
+#       resource: "uc1-load-generator-deployment123.yaml"
+#       variableName: "env"
+#     value: "prod"
+#  - patcher:
+#      type: "NodeSelectorPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      config:
+#       - key: "variableName"
+#         value: "env"
+#    value: "prod"
+#  - patcher:
+#      type: "ResourceLimitPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      config: 
+#       - key: "container" 
+#         value: "uc-application"
+#       - key: "variableName"
+#         value:  "cpu"
+#    value: "1000m"
+#  - patcher:
+#      type: "ResourceLimitPatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#      config:
+#       - key: "container"
+#         value: "uc-application"
+#       - key: "variableName"
+#         value: "memory"
+#    value: "2Gi"
+#  - patcher:
+#      type: "SchedulerNamePatcher"
+#      resource: "uc1-kstreams-deployment.yaml"
+#    value: "random-scheduler"

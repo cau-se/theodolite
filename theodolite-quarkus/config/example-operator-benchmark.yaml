@@ -9,7 +9,7 @@ spec:
     - "jmx-configmap.yaml"
     - "uc1-service-monitor.yaml"
   loadGenResource:
-    - "uc1-load-generator-deployment.yaml"
+      - "uc1-load-generator-deployment.yaml"
     - "uc1-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
@@ -17,14 +17,20 @@ spec:
         - type: "ReplicaPatcher"
           resource: "uc1-kstreams-deployment.yaml"
   loadTypes:
-    - typeName: "NumSensors"
-      patchers:
-        - type: "EnvVarPatcher"
-          resource: "uc1-load-generator-deployment.yaml"
-          container: "workload-generator"
-          variableName: "NUM_SENSORS"
-        - type: "NumSensorsLoadGeneratorReplicaPatcher"
-          resource: "uc1-load-generator-deployment.yaml"
+      - typeName: "NumSensors"
+        patchers:
+          - type: "EnvVarPatcher"
+            resource: "uc1-load-generator-deployment.yaml"
+            config:
+              - key: "variableName"
+                value: "NUM_SENSORS"
+              - key: "container"
+                value: "workload-generator"
+          - type: "NumSensorsLoadGeneratorReplicaPatcher"
+            resource: "uc1-load-generator-deployment.yaml"
+            config:
+              - key: "loadGenMaxRecords"
+                value: "15000"
   kafkaConfig:
     bootstrapServer: "theodolite-cp-kafka:9092"
     topics:

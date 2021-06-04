@@ -5,7 +5,7 @@ load:
   loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
 resources:
   resourceType: "Instances"
-  resourceValues: [1, 2, 3, 4, 5]
+  resourceValues: [7, 1, 2, 3, 4, 5]
 slos:
   - sloType: "lag trend"
     threshold: 2000
@@ -20,29 +20,39 @@ execution:
   loadGenerationDelay: 30 # in seconds, optional field, default is 0 seconds
   restrictions:
     - "LowerBound"
-configOverrides: []
-#  - patcher:
-#      type: "NodeSelectorPatcher"
-#      resource: "uc1-load-generator-deployment.yaml"
-#      variableName: "env"
-#    value: "prod"
-#  - patcher:
-#      type: "NodeSelectorPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      variableName: "env"
-#    value: "prod"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      container: "uc-application"
-#      variableName: "cpu"
-#    value: "1000m"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      container: "uc-application"
-#      variableName: "memory"
-#    value: "2Gi"
+configOverrides:
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-load-generator-deployment.yaml"
+      config:
+        - key: "variableName"
+          value: "env"
+    value: "prod"
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      config:
+        - key: "variableName"
+          value: "env"
+    value: "prod"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      config: 
+        - key: "container" 
+          value: "uc-application"
+        - key: "limitedResource"
+          value:  "cpu"
+    value: "1000m"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      config:
+        - key: "container"
+          value: "uc-application"
+        - key: "limitedResource"
+          value: "memory"
+    value: "2Gi"
 #  - patcher:
 #      type: "SchedulerNamePatcher"
 #      resource: "uc1-kstreams-deployment.yaml"
