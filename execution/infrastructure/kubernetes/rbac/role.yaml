@@ -52,4 +52,17 @@ rules:
     - watch
     - update
     - patch
+  - apiGroups:
+    - coordination.k8s.io
+    resources:
+    - leases
+    verbs:
+    - delete
+    - list
+    - get
+    - create
+    - watch
+    - update
+    - patch
+
     
