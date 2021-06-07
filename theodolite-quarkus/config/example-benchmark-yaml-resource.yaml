@@ -23,7 +23,7 @@ loadTypes:
           - key: "container"
             value: "workload-generator"
       - type: "NumSensorsLoadGeneratorReplicaPatcher"
-        resource: "uc1-load-generator-deploym ent.yaml"
+        resource: "uc1-load-generator-deployment.yaml"
         config:
           - key: "loadGenMaxRecords"
             value: "15000"
