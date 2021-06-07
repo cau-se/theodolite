@@ -55,12 +55,12 @@ spec:
                           resource:
                             type: string
                             default: ""
-                          container:
-                            type: string
-                            default: ""
-                          variableName:
-                            type: string
-                            default: ""
+                          config:
+                            type: object
+                            additionalProperties: true
+                            x-kubernetes-map-type: "granular"
+                            default: 
+                              "": ""
               loadTypes:
                 type: array
                 minItems: 1
@@ -81,12 +81,12 @@ spec:
                           resource:
                             type: string
                             default: ""
-                          container:
-                            type: string
-                            default: ""
-                          variableName:
-                            type: string
-                            default: ""
+                          config:
+                            type: object
+                            additionalProperties: true
+                            x-kubernetes-map-type: "granular"
+                            default: 
+                              "": ""
               kafkaConfig:
                 type: object
                 properties:

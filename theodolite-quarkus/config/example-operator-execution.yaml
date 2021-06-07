@@ -21,41 +21,37 @@ spec:
     strategy: "LinearSearch"
     duration: 300 # in seconds
     repetitions: 1
-    delay: 30 # in seconds
+    loadGenerationDelay: 30 # in seconds
     restrictions:
       - "LowerBound"
-  configOverrides: []
-#   - patcher:
-#       type: "NodeSelectorPatcher"
-#       resource: "uc1-load-generator-deployment123.yaml"
-#       variableName: "env"
-#     value: "prod"
-#  - patcher:
-#      type: "NodeSelectorPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      config:
-#       - key: "variableName"
-#         value: "env"
-#    value: "prod"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      config: 
-#       - key: "container" 
-#         value: "uc-application"
-#       - key: "variableName"
-#         value:  "cpu"
-#    value: "1000m"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      config:
-#       - key: "container"
-#         value: "uc-application"
-#       - key: "variableName"
-#         value: "memory"
-#    value: "2Gi"
-#  - patcher:
-#      type: "SchedulerNamePatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#    value: "random-scheduler"
+  configOverrides:
+    # - patcher:
+    #     type: "NodeSelectorPatcher"
+    #     resource: "uc1-load-generator-deployment.yaml"
+    #     config:
+    #       variableName: "env"
+    #     value: "prod"
+    # - patcher:
+    #     type: "NodeSelectorPatcher"
+    #     resource: "uc1-kstreams-deployment.yaml"
+    #     config:
+    #       variableName: "env"
+    #   value: "prod"
+    # - patcher:
+    #     type: "ResourceLimitPatcher"
+    #     resource: "uc1-kstreams-deployment.yaml"
+    #     config:
+    #       container: "uc-application"
+    #       limitedResource: "cpu"
+    #   value: "1000m"
+    # - patcher:
+    #     type: "ResourceLimitPatcher"
+    #     resource: "uc1-kstreams-deployment.yaml"
+    #     config:
+    #       container: "uc-application"
+    #       limitedResource: "memory"
+    #   value: "2Gi"
+    #  - patcher:
+    #      type: "SchedulerNamePatcher"
+    #      resource: "uc1-kstreams-deployment.yaml"
+    #    value: "random-scheduler"

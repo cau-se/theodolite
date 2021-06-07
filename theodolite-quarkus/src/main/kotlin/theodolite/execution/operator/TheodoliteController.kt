@@ -183,7 +183,7 @@ class TheodoliteController(
                 val configurationOverride = ConfigurationOverride()
                 configurationOverride.patcher = PatcherDefinition()
                 configurationOverride.patcher.type = "LabelPatcher"
-                configurationOverride.patcher.config = mutableListOf(hashMapOf("key" to "variableName",  "value" to labelName))
+                configurationOverride.patcher.config = mapOf("variableName" to labelName)
                 configurationOverride.patcher.resource = it
                 configurationOverride.value = labelValue
                 additionalConfigOverrides.add(configurationOverride)

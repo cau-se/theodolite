@@ -96,16 +96,11 @@ spec:
                           type: string
                           default: ""
                         config:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              key:
-                                type: string
-                                default: ""
-                              value:
-                                type: string
-                                default: ""
+                          type: object
+                          additionalProperties: true
+                          x-kubernetes-map-type: "granular"
+                          default:
+                            "": ""
                     value:
                       type: string
           status:

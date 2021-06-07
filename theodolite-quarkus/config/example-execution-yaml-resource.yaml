@@ -25,33 +25,27 @@ configOverrides:
       type: "NodeSelectorPatcher"
       resource: "uc1-load-generator-deployment.yaml"
       config:
-        - key: "variableName"
-          value: "env"
+        variableName: "env"
     value: "prod"
   - patcher:
       type: "NodeSelectorPatcher"
       resource: "uc1-kstreams-deployment.yaml"
       config:
-        - key: "variableName"
-          value: "env"
+        variableName: "env"
     value: "prod"
   - patcher:
       type: "ResourceLimitPatcher"
       resource: "uc1-kstreams-deployment.yaml"
-      config: 
-        - key: "container" 
-          value: "uc-application"
-        - key: "limitedResource"
-          value:  "cpu"
+      config:
+        container: "uc-application"
+        limitedResource: "cpu"
     value: "1000m"
   - patcher:
       type: "ResourceLimitPatcher"
       resource: "uc1-kstreams-deployment.yaml"
       config:
-        - key: "container"
-          value: "uc-application"
-        - key: "limitedResource"
-          value: "memory"
+        container: "uc-application"
+        limitedResource: "memory"
     value: "2Gi"
 #  - patcher:
 #      type: "SchedulerNamePatcher"

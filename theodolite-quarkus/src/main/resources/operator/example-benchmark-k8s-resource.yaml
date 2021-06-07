@@ -23,10 +23,12 @@ spec:
         - type: "EnvVarPatcher"
           resource: "uc1-load-generator-deployment.yaml"
           config:
-            - key: "container"
-              value: "workload-generator"
-            - key: "variableName"
-              value: "NUM_SENSORS"
+            container: "workload-generator"
+            variableName: "NUM_SENSORS"
+        - type: "NumSensorsLoadGeneratorReplicaPatcher"
+          resource: "uc1-load-generator-deployment.yaml"
+          config:
+            loadGenMaxRecords: "15000"
   kafkaConfig:
     bootstrapServer: "localhost:31290"
     topics:
