@@ -19,14 +19,16 @@ resourceTypes:
     patchers:
       - type: String
         resources: String
-        <Patcher Arguments> ...
+        config:
+          <Patcher Arguments> ...
       ...
 loadTypes:
   - typeName: String
   patchers:
     - type: String
       resources: String
-      <Patcher Arguments> ...
+      config:
+        <Patcher Arguments> ...
     ...
 kafkaConfig:
   bootstrapServer: String
@@ -49,7 +51,7 @@ The properties have the following definitions:
     * **patchers**: List of [patchers](#Patchers) used to scale this resource type. Each patcher has the following structure:
         * **type**: Type of the [patcher](#Patchers). The concrete types can be looked up in the list of [patchers](#Patchers). 
         * **resources**: Specifies the Kubernetes resource to be patched.
-        * **Patcher Arguments**: (Optional) Patcher specific additional arguments.
+        *  **config**: *Patcher Arguments*: (Optional) Patcher specific additional arguments.
 * **loadTypes**: A list of load types that can be scaled for this *benchmark*. For each load type the concrete values are defined in the *execution* object. Each load type has the following structure:
     * **typeName**: Name of the load type.
     * **patchers**: List of patchers used to scale * **resourceTypes**: A list of resource types that can be scaled for this *benchmark*. For each resource type the concrete values are defined in the *execution* resource object.Each resource type has the following structure:
@@ -57,7 +59,7 @@ The properties have the following definitions:
     * **patchers**: List of patchers used to scale this resource type. Each patcher has the following structure:
         * **type**: Type of the Patcher. The concrete types can be looked up in the list of patchers. 
         * **resources**: Specifies the Kubernetes resource to be patched.
-        * **Patcher Arguments**: (Optional) Patcher specific additional arguments.
+        * **config**: *Patcher Arguments*: (Optional) Patcher specific additional arguments as Map<String, String>.
 * **kafkaConfig**: Contains the Kafka configuration.
     * **bootstrapServers**: The bootstrap servers connection string.
     * **topics**: List of topics to be created for each [experiment](#Experiment). Alternative theodolite offers the possibility to remove certain topics after each experiment.
@@ -105,7 +107,8 @@ configurationOverrides:
   - patcher:
       type: String
       resource: String
-      <Patcher Arguments> ...
+      config:
+        <Patcher Arguments> ...
   ...
 ```
 
@@ -136,7 +139,7 @@ The properties have the following definitions:
   * **patcher**: Patcher used to patch a resource. Each patcher has the following structure:
         * **type**: Type of the Patcher. The concrete types can be looked up in the list of patchers. 
         * **resources**: Specifies the Kubernetes resource to be patched.
-        * **Patcher Arguments**: (Optional) Patcher specific additional arguments.
+        * **config**: *Patcher Arguments*: (Optional) Patcher specific additional arguments.
 
 ## Patchers
 
@@ -159,19 +162,22 @@ The properties have the following definitions:
 * **EnvVarPatcher**: Allows to modify the value of an environment variable for a container in a kubernetes deployment. 
   * **type**: "EnvVarPatcher"
   * **resource**: "uc1-load-generator-deployment.yaml"
-  * **container**: "workload-generator"
-  * **variableName**: "NUM_SENSORS"
+  * **config**:
+    * container: "workload-generator"
+    * variableName: "NUM_SENSORS"
 
 * **NodeSelectorPatcher**: Changes the node selection field in kubernetes resources.
   * **type**: "NodeSelectorPatcher"
   * **resource**: "uc1-load-generator-deployment.yaml"
-  * **variableName**: "env"
+  * **config**:
+    * variableName: "env"
   * **value**: "prod"
 
 * **ResourceLimitPatcher**: Changes the resource limit for a kubernetes resource.
   * **resource**: "uc1-kstreams-deployment.yaml"
-  * **container**: "uc-application"
-  * **variableName**: "cpu" or "memory"
+  * **config**:
+    * container: "uc-application"
+    * variableName: "cpu" or "memory"
   * **value**:"1000m" or "2Gi"
   
 * **SchedulerNamePatcher**: Changes the sheduler for kubernetes resources.
@@ -182,7 +188,8 @@ The properties have the following definitions:
 * **ImagePatcher**: Changes the image of a kubernetes resource. Currently not fully implemented.
   * **type**: "ImagePatcher"
   * **resource**: "uc1-kstreams-deployment.yaml"
-  * **container**: "uc-application"
+  * **config**: 
+    * container: "uc-application"
   * **value**: "dockerhubrepo/imagename"
 
 
