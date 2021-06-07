@@ -58,11 +58,6 @@ rules:
     - leases
     verbs:
     - delete
-    - list
     - get
     - create
-    - watch
     - update
-    - patch
-
-    
