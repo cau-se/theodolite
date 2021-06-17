@@ -31,27 +31,32 @@ class ResourceLimitPatcherTest {
         val k8sResource = loader.loadK8sResource("Deployment", testPath + fileName) as Deployment
 
         val defCPU = PatcherDefinition()
-        defCPU.variableName = "cpu"
         defCPU.resource = "cpu-memory-deployment.yaml"
-        defCPU.container = "uc-application"
         defCPU.type = "ResourceLimitPatcher"
+        defCPU.properties = mutableMapOf(
+            "limitedResource" to "cpu",
+            "container" to "application"
+        )
 
         val defMEM = PatcherDefinition()
-        defMEM.variableName = "memory"
         defMEM.resource = "cpu-memory-deployment.yaml"
-        defMEM.container = "uc-application"
         defMEM.type = "ResourceLimitPatcher"
+        defMEM.properties = mutableMapOf(
+            "limitedResource" to "memory",
+            "container" to "uc-application"
+        )
 
         patcherFactory.createPatcher(
             patcherDefinition = defCPU,
             k8sResources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource))
         ).patch(value = cpuValue)
+
         patcherFactory.createPatcher(
             patcherDefinition = defMEM,
             k8sResources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource))
         ).patch(value = memValue)
 
-        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.container }
+        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"] !! }
             .forEach {
                 assertTrue(it.resources.limits["cpu"].toString() == cpuValue)
                 assertTrue(it.resources.limits["memory"].toString() == memValue)

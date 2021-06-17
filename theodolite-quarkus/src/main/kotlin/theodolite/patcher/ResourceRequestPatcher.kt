@@ -18,7 +18,7 @@ class ResourceRequestPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,
     private val requestedResource: String
-) : AbstractPatcher(k8sResource, container, requestedResource) {
+) : AbstractPatcher(k8sResource) {
 
     override fun <String> patch(value: String) {
         when (k8sResource) {

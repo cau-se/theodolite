@@ -2,6 +2,7 @@ package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import theodolite.util.DeploymentFailedException
+import theodolite.util.InvalidPatcherConfigurationException
 import theodolite.util.PatcherDefinition
 
 /**
@@ -28,28 +29,56 @@ class PatcherFactory {
         k8sResources: List<Pair<String, KubernetesResource>>
     ): Patcher {
         val resource =
-            k8sResources.filter { it.first == patcherDefinition.resource }.map { resource -> resource.second }.firstOrNull()
+            k8sResources.filter { it.first == patcherDefinition.resource }
+                .map { resource -> resource.second }
+                .firstOrNull()
                 ?: throw DeploymentFailedException("Could not find resource ${patcherDefinition.resource}")
 
-        return when (patcherDefinition.type) {
-            "ReplicaPatcher" -> ReplicaPatcher(resource)
-            "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(resource)
-            "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(resource)
-            "EnvVarPatcher" -> EnvVarPatcher(resource, patcherDefinition.container, patcherDefinition.variableName)
-            "NodeSelectorPatcher" -> NodeSelectorPatcher(resource, patcherDefinition.variableName)
-            "ResourceLimitPatcher" -> ResourceLimitPatcher(
-                resource,
-                patcherDefinition.container,
-                patcherDefinition.variableName
-            )
-            "ResourceRequestPatcher" -> ResourceRequestPatcher(
-                resource,
-                patcherDefinition.container,
-                patcherDefinition.variableName
-            )
-            "SchedulerNamePatcher" -> SchedulerNamePatcher(resource)
-            "LabelPatcher" -> LabelPatcher(resource, patcherDefinition.variableName)
-            else -> throw IllegalArgumentException("Patcher type ${patcherDefinition.type} not found")
+        return try {
+            when (patcherDefinition.type) {
+                "ReplicaPatcher" -> ReplicaPatcher(
+                    k8sResource = resource
+                )
+                "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
+                    k8sResource = resource,
+                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"] !!,
+                    numSensors = patcherDefinition.properties["numSensors"] !!
+                )
+                "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
+                    k8sResource = resource,
+                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"] !!
+                )
+                "EnvVarPatcher" -> EnvVarPatcher(
+                    k8sResource = resource,
+                    container = patcherDefinition.properties["container"] !!,
+                    variableName = patcherDefinition.properties["variableName"] !!
+                )
+                "NodeSelectorPatcher" -> NodeSelectorPatcher(
+                    k8sResource = resource,
+                    variableName = patcherDefinition.properties["variableName"] !!
+                )
+                "ResourceLimitPatcher" -> ResourceLimitPatcher(
+                    k8sResource = resource,
+                    container = patcherDefinition.properties["container"] !!,
+                    limitedResource = patcherDefinition.properties["limitedResource"] !!
+                )
+                "ResourceRequestPatcher" -> ResourceRequestPatcher(
+                    k8sResource = resource,
+                    container = patcherDefinition.properties["container"] !!,
+                    requestedResource = patcherDefinition.properties["requestedResource"] !!
+                )
+                "SchedulerNamePatcher" -> SchedulerNamePatcher(
+                    k8sResource = resource
+                )
+                "LabelPatcher" -> LabelPatcher(
+                    k8sResource = resource,
+                    variableName = patcherDefinition.properties["variableName"] !!
+                )
+                else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
+            }
+        } catch (e: Exception) {
+            throw InvalidPatcherConfigurationException("Could not create patcher with type ${patcherDefinition.type}" +
+                    " Probably a required patcher argument was not specified." )
         }
     }
 }

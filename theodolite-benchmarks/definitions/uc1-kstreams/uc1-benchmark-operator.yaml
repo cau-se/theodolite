@@ -24,7 +24,7 @@ spec:
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
-        - type: NumSensorsLoadGeneratorReplicaPatcher
+        - type: "NumSensorsLoadGeneratorReplicaPatcher"
           resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "15000"
