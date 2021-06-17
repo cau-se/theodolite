@@ -8,10 +8,9 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.CustomResource
 
 class LabelPatcher(private val k8sResource: KubernetesResource, val variableName: String) :
-    AbstractPatcher(k8sResource, variableName) {
+    AbstractPatcher(k8sResource) {
 
     override fun <String> patch(labelValue: String) {
-        println("call patcher for resource $k8sResource !")
         if(labelValue is kotlin.String){
             when(k8sResource){
                 is Deployment -> {
