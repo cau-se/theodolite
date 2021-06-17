@@ -10,7 +10,7 @@ import theodolite.util.Resource
  *  Composite strategy that combines a SearchStrategy and a set of RestrictionStrategy.
  *
  * @param searchStrategy the [SearchStrategy] that is executed as part of this [CompositeStrategy].
- * @param restrictionStrategies the set of [RestrictionStrategy] that are connected conjuntively to restrict the [Resource]
+ * @param restrictionStrategies the set of [RestrictionStrategy] that are connected conjunctive to restrict the [Resource]
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */
 @RegisterForReflection

@@ -5,10 +5,10 @@
 For development:
 
 ```sh
-uvicorn main:app --reload
+uvicorn main:app --reload # run this command inside the app/ folder
 ```
 
-Build the docker image:
+## Build the docker image:
 
 ```sh
 docker build . -t theodolite-evaluator
@@ -32,7 +32,7 @@ The running webserver provides a REST API with the following route:
 * /evaluate-slope
     * Method: POST
     * Body:
-        * total_lag
+        * total_lags
         * threshold
         * warmup
 
@@ -40,14 +40,16 @@ The body of the request must be a JSON string that satisfies the following condi
 
 * **total_lag**: This property is based on the [Range Vector type](https://www.prometheus.io/docs/prometheus/latest/querying/api/#range-vectors) from Prometheus and must have the following JSON structure:
     ```
-        {
-            "metric": {
-                "group": "<label_value>"
-            },
-            "values": [
-                [
-                    <unix_timestamp>,
-                    "<sample_value>"
+        { 
+            [
+                "metric": {
+                    "group": "<label_value>"
+                },
+                "values": [
+                    [
+                        <unix_timestamp>,
+                        "<sample_value>"
+                    ]
                 ]
             ]
         }

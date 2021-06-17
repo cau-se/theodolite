@@ -25,9 +25,12 @@ dependencies {
     implementation 'io.quarkus:quarkus-kubernetes-client'
     implementation 'org.apache.kafka:kafka-clients:2.7.0'
     implementation 'khttp:khttp:1.0.0'
+    compile 'junit:junit:4.12'
+
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.junit-pioneer:junit-pioneer:1.4.0'
 }
 
 group 'theodolite'

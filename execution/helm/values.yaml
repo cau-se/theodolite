@@ -25,8 +25,16 @@ grafana:
   adminUser: admin
   adminPassword: admin
   grafana.ini:
+    #org_name: Theodolite
+    auth.anonymous:
+      # enable anonymous access
+      enabled: true
+      org_role: Admin # Role for unauthenticated users, other valid values are `Viewer`, `Editor` and `Admin`
     users:
       default_theme: light
+    #dashboards: # the following doesn't work but is planed
+      # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
+      #default_home_dashboard_path: "/tmp/dashboards/k8s-dashboard.json"
   ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
@@ -92,8 +100,9 @@ cp-helm-charts:
       "replica.fetch.max.bytes": "134217728" # 128 MB
       #default.replication.factor: 1
       # "min.insync.replicas": 2
-      # "auto.create.topics.enable": false
-      "log.retention.ms": "10000" # 10s
+      "auto.create.topics.enable": false
+      #"log.retention.ms": "10000" # 10s
+      "log.retention.ms": "7200000" # 2h
       "metrics.sample.window.ms": "5000" #5s
       "advertised.listeners": |-
         EXTERNAL://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}))
@@ -248,3 +257,10 @@ serviceAccount:
 
 rbac:
   create: true
+
+randomScheduler:
+  enabled: true
+  rbac:
+    create: true
+  serviceAccount:
+    create: true

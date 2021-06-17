@@ -2,7 +2,7 @@ package theodolite.util
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.quarkus.runtime.annotations.RegisterForReflection
-import org.apache.kafka.clients.admin.NewTopic
+import theodolite.util.KafkaConfig.TopicWrapper
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -28,6 +28,7 @@ class KafkaConfig {
      * Wrapper for a topic definition.
      */
     @RegisterForReflection
+    @JsonDeserialize
     class TopicWrapper {
         /**
          * The topic name
@@ -60,6 +61,7 @@ class DelegatesFalse {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Boolean {
         return state
     }
+
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Boolean) {
         state = value
     }

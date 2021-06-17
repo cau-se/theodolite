@@ -2,6 +2,7 @@ package theodolite.evaluation
 
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.util.IOHandler
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import java.text.Normalizer
@@ -34,20 +35,28 @@ class AnalysisExecutor(
      *  @param executionDuration of the experiment.
      *  @return true if the experiment succeeded.
      */
-    fun analyze(load: LoadDimension, res: Resource, executionDuration: Duration): Boolean {
+    fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
         var result = false
+        var repetitionCounter = 1
 
         try {
-            val prometheusData = fetcher.fetchMetric(
-                start = Instant.now().minus(executionDuration),
-                end = Instant.now(),
-                query = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
-            )
+            val ioHandler = IOHandler()
+            val resultsFolder: String = ioHandler.getResultFolderURL()
+            val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
 
-            CsvExporter().toCsv(
-                name = "exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}",
-                prom = prometheusData
-            )
+            val prometheusData = executionIntervals
+                .map { interval -> fetcher.fetchMetric(
+                        start = interval.first,
+                        end = interval.second,
+                        query = "sum by(group)(kafka_consumergroup_group_lag >= 0)") }
+
+            prometheusData.forEach{ data ->
+                ioHandler.writeToCSVFile(
+                    fileURL = "${fileURL}_${repetitionCounter++}",
+                    data = data.getResultAsList(),
+                    columns = listOf("group", "timestamp", "value"))
+            }
+
             val sloChecker = SloCheckerFactory().create(
                 sloType = slo.sloType,
                 externalSlopeURL = slo.externalSloUrl,
@@ -55,10 +64,7 @@ class AnalysisExecutor(
                 warmup = slo.warmup
             )
 
-            result = sloChecker.evaluate(
-                start = Instant.now().minus(executionDuration),
-                end = Instant.now(), fetchedData = prometheusData
-            )
+            result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
             logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: $e" }

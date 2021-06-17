@@ -32,7 +32,14 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return CustomResource from fabric8
      */
     private fun loadServiceMonitor(path: String): ServiceMonitorWrapper {
-        return loadGenericResource(path) { x: String -> ServiceMonitorWrapper(YamlParser().parse(path, HashMap<String, String>()::class.java)!!) }
+        return loadGenericResource(path) { x: String ->
+            ServiceMonitorWrapper(
+                YamlParser().parse(
+                    path,
+                    HashMap<String, String>()::class.java
+                )!!
+            )
+        }
     }
 
     /**

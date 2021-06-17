@@ -1,6 +1,7 @@
 package theodolite.strategies.restriction
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import theodolite.util.LoadDimension
@@ -41,7 +42,7 @@ internal class LowerBoundRestrictionTest {
         val restriction = strategy.apply(load, resources)
 
         assertEquals(2, restriction.size)
-        assertEquals(resources.subList(1,3), restriction)
+        assertEquals(resources.subList(1, 3), restriction)
     }
 
     @Test
@@ -111,6 +112,7 @@ internal class LowerBoundRestrictionTest {
                 buildLoadDimension(load),
                 buildResourcesDimension(resources)
             ),
-            successful)
+            successful
+        )
     }
 }
