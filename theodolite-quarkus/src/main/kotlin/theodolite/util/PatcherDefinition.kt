@@ -21,5 +21,5 @@ class PatcherDefinition {
     lateinit var resource: String
 
     @JsonSerialize
-    lateinit var config: MutableMap<String, String>
+    lateinit var properties: MutableMap<String, String>
 }

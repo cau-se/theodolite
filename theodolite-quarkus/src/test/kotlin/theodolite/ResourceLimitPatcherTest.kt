@@ -33,7 +33,7 @@ class ResourceLimitPatcherTest {
         val defCPU = PatcherDefinition()
         defCPU.resource = "cpu-memory-deployment.yaml"
         defCPU.type = "ResourceLimitPatcher"
-        defCPU.config = mutableMapOf(
+        defCPU.properties = mutableMapOf(
             "limitedResource" to "cpu",
             "container" to "application"
         )
@@ -41,7 +41,7 @@ class ResourceLimitPatcherTest {
         val defMEM = PatcherDefinition()
         defMEM.resource = "cpu-memory-deployment.yaml"
         defMEM.type = "ResourceLimitPatcher"
-        defMEM.config = mutableMapOf(
+        defMEM.properties = mutableMapOf(
             "limitedResource" to "memory",
             "container" to "uc-application"
         )
@@ -56,7 +56,7 @@ class ResourceLimitPatcherTest {
             k8sResources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource))
         ).patch(value = memValue)
 
-        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.config["container"] !! }
+        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"] !! }
             .forEach {
                 assertTrue(it.resources.limits["cpu"].toString() == cpuValue)
                 assertTrue(it.resources.limits["memory"].toString() == memValue)

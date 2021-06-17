@@ -41,38 +41,38 @@ class PatcherFactory {
                 )
                 "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
                     k8sResource = resource,
-                    loadGenMaxRecords = patcherDefinition.config["loadGenMaxRecords"] !!,
-                    numSensors = patcherDefinition.config["numSensors"] !!
+                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"] !!,
+                    numSensors = patcherDefinition.properties["numSensors"] !!
                 )
                 "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
                     k8sResource = resource,
-                    loadGenMaxRecords = patcherDefinition.config["loadGenMaxRecords"] !!
+                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"] !!
                 )
                 "EnvVarPatcher" -> EnvVarPatcher(
                     k8sResource = resource,
-                    container = patcherDefinition.config["container"] !!,
-                    variableName = patcherDefinition.config["variableName"] !!
+                    container = patcherDefinition.properties["container"] !!,
+                    variableName = patcherDefinition.properties["variableName"] !!
                 )
                 "NodeSelectorPatcher" -> NodeSelectorPatcher(
                     k8sResource = resource,
-                    variableName = patcherDefinition.config["variableName"] !!
+                    variableName = patcherDefinition.properties["variableName"] !!
                 )
                 "ResourceLimitPatcher" -> ResourceLimitPatcher(
                     k8sResource = resource,
-                    container = patcherDefinition.config["container"] !!,
-                    limitedResource = patcherDefinition.config["limitedResource"] !!
+                    container = patcherDefinition.properties["container"] !!,
+                    limitedResource = patcherDefinition.properties["limitedResource"] !!
                 )
                 "ResourceRequestPatcher" -> ResourceRequestPatcher(
                     k8sResource = resource,
-                    container = patcherDefinition.config["container"] !!,
-                    requestedResource = patcherDefinition.config["requestedResource"] !!
+                    container = patcherDefinition.properties["container"] !!,
+                    requestedResource = patcherDefinition.properties["requestedResource"] !!
                 )
                 "SchedulerNamePatcher" -> SchedulerNamePatcher(
                     k8sResource = resource
                 )
                 "LabelPatcher" -> LabelPatcher(
                     k8sResource = resource,
-                    variableName = patcherDefinition.config["variableName"] !!
+                    variableName = patcherDefinition.properties["variableName"] !!
                 )
                 else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
             }
