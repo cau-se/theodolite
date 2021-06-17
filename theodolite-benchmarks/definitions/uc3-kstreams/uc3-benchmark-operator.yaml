@@ -1,37 +1,41 @@
-apiVersion: theodolite.com/v1alpha1
+apiVersion: theodolite.com/v1
 kind: benchmark
-metadata:
-  name: uc3-kstreams
-appResource:
-  - "uc3-kstreams-deployment.yaml"
-  - "uc3-kstreams-service.yaml"
-  - "uc3-jmx-configmap.yaml"
-  - "uc3-service-monitor.yaml"
-loadGenResource:
-  - "uc3-load-generator-deployment.yaml"
-  - "uc3-load-generator-service.yaml"
-resourceTypes:
-  - typeName: "Instances"
-    patchers:
-      - type: "ReplicaPatcher"
-        resource: "uc3-kstreams-deployment.yaml"
-loadTypes:
-  - typeName: "NumSensors"
-    patchers:
-      - type: "EnvVarPatcher"
-        resource: "uc3-load-generator-deployment.yaml"
-        container: "workload-generator"
-        variableName: "NUM_SENSORS"
-      - type: NumSensorsLoadGeneratorReplicaPatcher
-        resource: "uc3-load-generator-deployment.yaml"
-kafkaConfig:
-  bootstrapServer: "theodolite-cp-kafka:9092"
-  topics:
-    - name: "input"
-      numPartitions: 40
-      replicationFactor: 1
-    - name: "output"
-      numPartitions: 40
-      replicationFactor: 1
-    - name: "theodolite-.*"
-      removeOnly: True
+spec:
+  metadata:
+    name: uc3-kstreams
+  appResource:
+    - "uc3-kstreams-deployment.yaml"
+    - "uc3-kstreams-service.yaml"
+    - "uc3-jmx-configmap.yaml"
+    - "uc3-service-monitor.yaml"
+  loadGenResource:
+    - "uc3-load-generator-deployment.yaml"
+    - "uc3-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc3-kstreams-deployment.yaml"
+  loadTypes:
+    - typeName: "NumSensors"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc3-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_SENSORS"
+        - type: NumSensorsLoadGeneratorReplicaPatcher
+          resource: "uc3-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "15000"
+  kafkaConfig:
+    bootstrapServer: "theodolite-cp-kafka:9092"
+    topics:
+      - name: "input"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "output"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "theodolite-.*"
+        removeOnly: True

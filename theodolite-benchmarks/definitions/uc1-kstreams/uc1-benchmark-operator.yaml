@@ -26,6 +26,8 @@ spec:
             variableName: "NUM_SENSORS"
         - type: NumSensorsLoadGeneratorReplicaPatcher
           resource: "uc1-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "15000"
   kafkaConfig:
     bootstrapServer: "theodolite-cp-kafka:9092"
     topics:
