@@ -33,8 +33,22 @@ spec:
           volumeMounts:
             - name: theodolite-pv-storage
               mountPath: "/deployments/results"
-            - name: benchmark-resources
-              mountPath: /work/benchmark-resources
+            - name: benchmark-resources-uc1-kstreams
+              mountPath: /deployments/benchmark-resources/uc1-kstreams
+            - name: benchmark-resources-uc2-kstreams
+              mountPath: /deployments/benchmark-resources/uc2-kstreams
+            - name: benchmark-resources-uc3-kstreams
+              mountPath: /deployments/benchmark-resources/uc3-kstreams
+            - name: benchmark-resources-uc4-kstreams
+              mountPath: /deployments/benchmark-resources/uc4-kstreams
+            - name: benchmark-resources-uc1-flink
+              mountPath: /deployments/benchmark-resources/uc1-flink
+            - name: benchmark-resources-uc2-flink
+              mountPath: /deployments/benchmark-resources/uc2-flink
+            - name: benchmark-resources-uc3-flink
+              mountPath: /deployments/benchmark-resources/uc3-flink
+            - name: benchmark-resources-uc4-flink
+              mountPath: /deployments/benchmark-resources/uc4-flink
         - name: lag-analysis
           image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
           imagePullPolicy: Always
@@ -57,8 +71,36 @@ spec:
       - name: theodolite-pv-storage
         persistentVolumeClaim:
           claimName: theodolite-pv-claim
-      - name: benchmark-resources
+      - name: benchmark-resources-uc1-kstreams
         configMap:
-          name: benchmark-resources
+          name: benchmark-resources-uc1-kstreams
+          optional: true
+      - name: benchmark-resources-uc2-kstreams
+        configMap:
+          name: benchmark-resources-uc2-kstreams
+          optional: true
+      - name: benchmark-resources-uc3-kstreams
+        configMap:
+          name: benchmark-resources-uc3-kstreams
+          optional: true
+      - name: benchmark-resources-uc4-kstreams
+        configMap:
+          name: benchmark-resources-uc4-kstreams
+          optional: true
+      - name: benchmark-resources-uc1-flink
+        configMap:
+          name: benchmark-resources-uc1-flink
+          optional: true
+      - name: benchmark-resources-uc2-flink
+        configMap:
+          name: benchmark-resources-uc2-flink
+          optional: true
+      - name: benchmark-resources-uc3-flink
+        configMap:
+          name: benchmark-resources-uc3-flink
+          optional: true
+      - name: benchmark-resources-uc4-flink
+        configMap:
+          name: benchmark-resources-uc4-flink
           optional: true
 {{- end }}
