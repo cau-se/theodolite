@@ -35,6 +35,9 @@ spec:
           ports:
           - containerPort: 80
             name: analysis
+          env:
+          - name: LOG_LEVEL
+            value: INFO
       volumes:
       - name: benchmark-resources
         configMap:
