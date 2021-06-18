@@ -18,6 +18,7 @@ spec:
       containers:
         - name: theodolite
           image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          imagePullPolicy: Always
           env:
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
@@ -30,6 +31,7 @@ spec:
               mountPath: /work/benchmark-resources
         - name: lag-analysis
           image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
+          imagePullPolicy: Always
           ports:
           - containerPort: 80
             name: analysis
