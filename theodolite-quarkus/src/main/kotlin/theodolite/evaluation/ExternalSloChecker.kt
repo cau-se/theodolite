@@ -35,10 +35,10 @@ class ExternalSloChecker(
      * @return true if the experiment was successful(the threshold was not exceeded.
      * @throws ConnectException if the external service could not be reached.
      */
-    override fun evaluate(start: Instant, end: Instant, fetchedData: PrometheusResponse): Boolean {
+    override fun evaluate(fetchedData: List<PrometheusResponse>): Boolean {
         var counter = 0
         val data = Gson().toJson(mapOf(
-            "total_lag" to fetchedData.data?.result,
+            "total_lags" to fetchedData.map { it.data?.result},
             "threshold" to threshold,
             "warmup" to warmup))
 

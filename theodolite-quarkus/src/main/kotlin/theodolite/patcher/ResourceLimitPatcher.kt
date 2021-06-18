@@ -18,7 +18,7 @@ class ResourceLimitPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,
     private val limitedResource: String
-) : AbstractPatcher(k8sResource, container, limitedResource) {
+) : AbstractPatcher(k8sResource) {
 
     override fun <String> patch(value: String) {
         when (k8sResource) {

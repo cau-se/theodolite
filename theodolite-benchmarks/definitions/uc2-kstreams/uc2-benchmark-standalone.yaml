@@ -17,10 +17,13 @@ loadTypes:
     patchers:
       - type: "EnvVarPatcher"
         resource: "uc2-load-generator-deployment.yaml"
-        container: "workload-generator"
-        variableName: "NUM_SENSORS"
+        properties:
+          container: "workload-generator"
+          variableName: "NUM_SENSORS"
       - type: NumSensorsLoadGeneratorReplicaPatcher
         resource: "uc2-load-generator-deployment.yaml"
+        properties:
+          loadGenMaxRecords: "15000"
 kafkaConfig:
   bootstrapServer: "theodolite-cp-kafka:9092"
   topics:

@@ -17,10 +17,14 @@ loadTypes:
     patchers:
       - type: "EnvVarPatcher"
         resource: "uc4-load-generator-deployment.yaml"
-        container: "workload-generator"
-        variableName: "NUM_NESTED_GROUPS"
+        properties:
+          container: "workload-generator"
+          variableName: "NUM_NESTED_GROUPS"
       - type: "NumNestedGroupsLoadGeneratorReplicaPatcher"
         resource: "uc4-load-generator-deployment.yaml"
+        properties:
+          loadGenMaxRecords: "15000"
+          numSensors: "4.0"
 kafkaConfig:
   bootstrapServer: "theodolite-cp-kafka:9092"
   topics:

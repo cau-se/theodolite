@@ -53,4 +53,9 @@ class ServiceMonitorWrapper(private val serviceMonitor: Map<String, String>) : C
         val smAsMap = this.serviceMonitor["metadata"]!! as Map<String, String>
         return smAsMap["name"]!!
     }
+
+    fun getLabels(): Map<String, String>{
+        val smAsMap = this.serviceMonitor["metadata"]!! as Map<String, String>
+        return smAsMap["labels"]!! as Map<String, String>
+    }
 }
