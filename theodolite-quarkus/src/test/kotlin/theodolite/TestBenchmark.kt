@@ -12,7 +12,8 @@ class TestBenchmark : Benchmark {
         load: LoadDimension,
         res: Resource,
         configurationOverrides: List<ConfigurationOverride?>,
-        loadGenerationDelay: Long
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long
     ): BenchmarkDeployment {
         return TestBenchmarkDeployment()
     }

@@ -1,6 +1,7 @@
 package theodolite.util
 
 import io.quarkus.runtime.annotations.RegisterForReflection
+import java.util.*
 
 /**
  * This class corresponds to the JSON response format of a Prometheus
@@ -17,6 +18,27 @@ data class PrometheusResponse(
      */
     var data: PromData? = null
 )
+{
+    /**
+     * Return the data of the PrometheusResponse as [List] of [List]s of [String]s
+     * The format of the returned list is: `[[ group, timestamp, value ], [ group, timestamp, value ], ... ]`
+     */
+    fun getResultAsList(): List<List<String>> {
+        val group = data?.result?.get(0)?.metric?.group.toString()
+        val values = data?.result?.get(0)?.values
+        val result = mutableListOf<List<String>>()
+
+        if (values != null) {
+            for (value in values) {
+                val valueList = value as List<*>
+                val timestamp = (valueList[0] as Double).toLong().toString()
+                val value = valueList[1].toString()
+                result.add(listOf(group, timestamp, value))
+            }
+        }
+        return Collections.unmodifiableList(result)
+    }
+}
 
 /**
  * Description of Prometheus data.
@@ -57,3 +79,4 @@ data class PromResult(
 data class PromMetric(
     var group: String? = null
 )
+

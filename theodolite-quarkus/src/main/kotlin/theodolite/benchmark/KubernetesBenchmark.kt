@@ -1,5 +1,6 @@
 package theodolite.benchmark
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
@@ -30,16 +31,18 @@ private var DEFAULT_NAMESPACE = "default"
  *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  * @constructor construct an empty Benchmark.
  */
+@JsonDeserialize
 @RegisterForReflection
-class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
+class KubernetesBenchmark: KubernetesResource, Benchmark{
     lateinit var name: String
     lateinit var appResource: List<String>
     lateinit var loadGenResource: List<String>
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
-    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-    var path = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+    var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    var path =  System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+
 
     /**
      * Loads [KubernetesResource]s.
@@ -71,7 +74,8 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
         load: LoadDimension,
         res: Resource,
         configurationOverrides: List<ConfigurationOverride?>,
-        loadGenerationDelay: Long
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
         logger.info { "Using $path as resource path." }
@@ -100,6 +104,7 @@ class KubernetesBenchmark : Benchmark, CustomResource(), Namespaced {
             appResources = appResources.map { it.second },
             loadGenResources = loadGenResources.map { it.second },
             loadGenerationDelay = loadGenerationDelay,
+            afterTeardownDelay = afterTeardownDelay,
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             topics = kafkaConfig.topics,
             client = DefaultKubernetesClient().inNamespace(namespace)

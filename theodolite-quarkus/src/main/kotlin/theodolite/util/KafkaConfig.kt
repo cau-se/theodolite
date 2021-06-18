@@ -28,6 +28,7 @@ class KafkaConfig {
      * Wrapper for a topic definition.
      */
     @RegisterForReflection
+    @JsonDeserialize
     class TopicWrapper {
         /**
          * The topic name
