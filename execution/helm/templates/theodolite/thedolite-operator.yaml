@@ -15,6 +15,8 @@ spec:
     spec:
       terminationGracePeriodSeconds: 0
       serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
+      securityContext:
+        runAsUser: 0 # Set the permissions for write access to the volumes.
       containers:
         - name: theodolite
           image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
@@ -26,7 +28,11 @@ spec:
               value: operator
             - name: THEODOLITE_APP_RESOURCES
               value: "./benchmark-resources"
+            - name: RESULTS_FOLDER
+              value: "results"
           volumeMounts:
+            - name: theodolite-pv-storage
+              mountPath: "/deployments/results"
             - name: benchmark-resources
               mountPath: /work/benchmark-resources
         - name: lag-analysis
@@ -38,7 +44,19 @@ spec:
           env:
           - name: LOG_LEVEL
             value: INFO
+        - name: results-access
+          image: busybox:stable
+          command:
+          - sh
+          - -c
+          - exec tail -f /dev/null
+          volumeMounts:
+          - mountPath: /results
+            name: theodolite-pv-storage
       volumes:
+      - name: theodolite-pv-storage
+        persistentVolumeClaim:
+          claimName: theodolite-pv-claim
       - name: benchmark-resources
         configMap:
           name: benchmark-resources
