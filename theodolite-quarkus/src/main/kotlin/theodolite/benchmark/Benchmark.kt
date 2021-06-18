@@ -1,5 +1,8 @@
 package theodolite.benchmark
 
+import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.Namespaced
+import io.fabric8.kubernetes.client.CustomResource
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension

@@ -307,11 +307,23 @@ deploy-theodolite:
 
 # Theodolite SLO Checker: Lag Trend
 
+test-slo-checker-lag-trend:
+  stage: test
+  image: python:3.7-slim
+  tags:
+    - exec-docker
+  script:
+    - cd slope-evaluator
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+
 deploy-slo-checker-lag-trend:
   stage: deploy
   extends:
     - .dind
-  needs: []
+  needs:
+    - test-slo-checker-lag-trend
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite-slo-checker-lag-trend slope-evaluator

@@ -23,6 +23,7 @@ class TestBenchmarkExecutorImpl(
         executionDuration = Duration.ofSeconds(1),
         configurationOverrides = emptyList(),
         slo = slo,
+        repetitions = 1,
         executionId = executionId,
         loadGenerationDelay = loadGenerationDelay,
         afterTeardownDelay = afterTeardownDelay
