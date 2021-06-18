@@ -95,12 +95,11 @@ spec:
                         resource:
                           type: string
                           default: ""
-                        config:
+                        properties:
                             type: object
                             additionalProperties: true
                             x-kubernetes-map-type: "granular"
-                            default: 
-                              "": ""
+                            default: {}
                     value:
                       type: string
           status:
