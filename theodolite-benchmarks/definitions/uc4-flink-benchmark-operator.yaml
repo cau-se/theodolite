@@ -1,0 +1,54 @@
+apiVersion: theodolite.com/v1alpha1
+kind: benchmark
+metadata:
+  name: uc4-flink
+appResource:
+  - "uc4-flink/flink-configuration-configmap.yaml"
+  - "uc4-flink/taskmanager-deployment.yaml"
+  - "uc4-flink/taskmanager-service.yaml"
+  - "uc4-flink/service-monitor.yaml"
+  - "uc4-flink/jobmanager-service.yaml"
+  - "uc4-flink/jobmanager-deployment.yaml"
+  #- "uc4-flink/jobmanager-rest-service.yaml"
+loadGenResource:
+  - "uc4-kstreams/uc4-load-generator-deployment.yaml"
+  - "uc4-kstreams/uc4-load-generator-service.yaml"
+resourceTypes:
+  - typeName: "Instances"
+    patchers:
+      - type: "ReplicaPatcher"
+        resource: "uc4-flink/taskmanager-deployment.yaml"
+      - type: "EnvVarPatcher"
+        resource: "uc4-flink/jobmanager-deployment.yaml"
+        container: "jobmanager"
+        variableName: "PARALLELISM"
+      - type: "EnvVarPatcher" # required?
+        resource: "uc4-flink/taskmanager-deployment.yaml"
+        container: "taskmanager"
+        variableName: "PARALLELISM"
+loadTypes:
+  - typeName: "NumNestedGroups"
+    patchers:
+      - type: "EnvVarPatcher"
+        resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+        container: "workload-generator"
+        variableName: "NUM_NESTED_GROUPS"
+      - type: "NumNestedGroupsLoadGeneratorReplicaPatcher"
+        resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+kafkaConfig:
+  bootstrapServer: "theodolite-cp-kafka:9092"
+  topics:
+    - name: "input"
+      numPartitions: 40
+      replicationFactor: 1
+    - name: "output"
+      numPartitions: 40
+      replicationFactor: 1
+    - name: "configuration"
+      numPartitions: 40
+      replicationFactor: 1
+    - name: "aggregation-feedback"
+      numPartitions: 40
+      replicationFactor: 1
+    - name: "theodolite-.*"
+      removeOnly: True
