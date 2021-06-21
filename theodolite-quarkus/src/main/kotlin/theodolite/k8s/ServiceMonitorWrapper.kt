@@ -49,7 +49,7 @@ class ServiceMonitorWrapper(private val serviceMonitor: Map<String, String>) : C
     /**
      * @throws NullPointerException if name or metadata is null
      */
-    private fun getServiceMonitorName(): String {
+    fun getServiceMonitorName(): String {
         val smAsMap = this.serviceMonitor["metadata"]!! as Map<String, String>
         return smAsMap["name"]!!
     }

@@ -31,6 +31,10 @@ dependencies {
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.junit-pioneer:junit-pioneer:1.4.0'
+    testImplementation group: 'io.fabric8', name: 'kubernetes-server-mock', version: '4.6.0'
+
+
+
 }
 
 group 'theodolite'

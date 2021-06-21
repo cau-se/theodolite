@@ -61,6 +61,16 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
     }
 
     /**
+     * Parses a StatefulSet from a StatefulSet yaml
+     * @param path of the yaml file
+     * @return StatefulSet from fabric8
+     */
+    private fun loadStatefulSet(path: String): KubernetesResource {
+        return loadGenericResource(path) { x: String -> client.apps().statefulSets().load(x).get() }
+
+    }
+
+    /**
      * Generic helper function to load a resource.
      * @param path of the resource
      * @param f function that is applied to the resource.
@@ -96,6 +106,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
             "Service" -> loadService(path)
             "ServiceMonitor" -> loadServiceMonitor(path)
             "ConfigMap" -> loadConfigmap(path)
+            "StatefulSet" -> loadStatefulSet(path)
             else -> {
                 logger.error { "Error during loading of unspecified resource Kind" }
                 throw java.lang.IllegalArgumentException("error while loading resource with kind: $kind")
