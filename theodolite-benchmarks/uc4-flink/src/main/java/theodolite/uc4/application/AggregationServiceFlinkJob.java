@@ -76,6 +76,13 @@ public final class AggregationServiceFlinkJob {
       this.env.enableCheckpointing(commitIntervalMs);
     }
 
+    // Parallelism
+    final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
+    if (parallelism != null) {
+      LOGGER.info("Set parallelism: {}.", parallelism);
+      this.env.setParallelism(parallelism);
+    }
+
     // State Backend
     final StateBackend stateBackend = StateBackends.fromConfiguration(this.config);
     this.env.setStateBackend(stateBackend);
@@ -145,7 +152,7 @@ public final class AggregationServiceFlinkJob {
     // Build input stream
     final DataStream<ActivePowerRecord> inputStream = this.env.addSource(kafkaInputSource)
         .name("[Kafka Consumer] Topic: " + inputTopic)// NOCS
-        .rebalance()
+        // .rebalance()
         .map(r -> r)
         .name("[Map] Rebalance Forward");
 
@@ -153,7 +160,7 @@ public final class AggregationServiceFlinkJob {
     final DataStream<ActivePowerRecord> aggregationsInputStream =
         this.env.addSource(kafkaOutputSource)
             .name("[Kafka Consumer] Topic: " + outputTopic) // NOCS
-            .rebalance()
+            // .rebalance()
             .map(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()))
             .name("[Map] AggregatedActivePowerRecord -> ActivePowerRecord");
 

@@ -1,6 +1,7 @@
 package theodolite.uc1.application;
 
 import org.apache.commons.configuration2.Configuration;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -42,6 +43,14 @@ public final class HistoryServiceFlinkJob {
     if (checkpointing) {
       this.env.enableCheckpointing(commitIntervalMs);
     }
+
+    // Parallelism
+    final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
+    if (parallelism != null) {
+      LOGGER.info("Set parallelism: {}.", parallelism);
+      this.env.setParallelism(parallelism);
+    }
+
   }
 
   private void buildPipeline() {
@@ -59,9 +68,10 @@ public final class HistoryServiceFlinkJob {
     final DataStream<ActivePowerRecord> stream = this.env.addSource(kafkaConsumer);
 
     stream
-        .rebalance()
+        // .rebalance()
         .map(new GsonMapper())
-        .flatMap((record, c) -> LOGGER.info("Record: {}", record));
+        .flatMap((record, c) -> LOGGER.info("Record: {}", record))
+        .returns(Types.GENERIC(Object.class)); // Will never be used
   }
 
   /**

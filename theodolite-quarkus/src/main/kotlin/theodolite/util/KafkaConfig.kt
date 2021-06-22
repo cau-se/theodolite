@@ -2,8 +2,9 @@ package theodolite.util
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.quarkus.runtime.annotations.RegisterForReflection
-import org.apache.kafka.clients.admin.NewTopic
+import theodolite.util.KafkaConfig.TopicWrapper
 import kotlin.properties.Delegates
+import kotlin.reflect.KProperty
 
 /**
  * Configuration of Kafka connection.
@@ -24,18 +25,10 @@ class KafkaConfig {
     lateinit var topics: List<TopicWrapper>
 
     /**
-     * Get all current Kafka topics.
-     *
-     * @return the list of topics.
-     */
-    fun getKafkaTopics(): List<NewTopic> {
-        return topics.map { topic -> NewTopic(topic.name, topic.numPartitions, topic.replicationFactor) }
-    }
-
-    /**
      * Wrapper for a topic definition.
      */
     @RegisterForReflection
+    @JsonDeserialize
     class TopicWrapper {
         /**
          * The topic name
@@ -51,5 +44,26 @@ class KafkaConfig {
          * The replication factor of this topic
          */
         var replicationFactor by Delegates.notNull<Short>()
+
+        /**
+         * If remove only, this topic would only used to delete all topics, which has the name of the topic as a prefix.
+         */
+        var removeOnly by DelegatesFalse()
     }
+}
+
+/**
+ * Delegates to initialize a lateinit boolean to false
+ */
+@RegisterForReflection
+class DelegatesFalse {
+    private var state = false
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): Boolean {
+        return state
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Boolean) {
+        state = value
+    }
+
 }

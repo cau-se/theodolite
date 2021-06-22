@@ -4,12 +4,13 @@ import theodolite.execution.BenchmarkExecutor
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.restriction.RestrictionStrategy
 import theodolite.strategies.searchstrategy.BinarySearch
+import theodolite.strategies.searchstrategy.FullSearch
 import theodolite.strategies.searchstrategy.LinearSearch
 import theodolite.strategies.searchstrategy.SearchStrategy
 import theodolite.util.Results
 
 /**
- * Factory for creating [SearchStrategy] and [RestrictionStrategy] Strategies.
+ * Factory for creating [SearchStrategy] and [RestrictionStrategy] strategies.
  */
 class StrategyFactory {
 
@@ -24,6 +25,7 @@ class StrategyFactory {
      */
     fun createSearchStrategy(executor: BenchmarkExecutor, searchStrategyString: String): SearchStrategy {
         return when (searchStrategyString) {
+            "FullSearch" -> FullSearch(executor)
             "LinearSearch" -> LinearSearch(executor)
             "BinarySearch" -> BinarySearch(executor)
             else -> throw IllegalArgumentException("Search Strategy $searchStrategyString not found")

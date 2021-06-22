@@ -5,47 +5,60 @@ metadata:
 spec:
   template:
     spec:
-      volumes:
-      - name: theodolite-pv-storage
-        persistentVolumeClaim:
-          claimName: theodolite-pv-claim
+      securityContext:
+        runAsUser: 0 # Set the permissions for write access to the volumes.
       containers:
+        - name: lag-analysis
+          image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
+          ports:
+          - containerPort: 80
+            name: analysis
         - name: theodolite
-          image: ghcr.io/cau-se/theodolite:latest
-          # imagePullPolicy: Never # Used to pull "own" local image
+          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          imagePullPolicy: Always
           env:
-            - name: UC # mandatory
-              value: "1"
-            - name: LOADS # mandatory
-              value: "100000, 200000"
-            - name: INSTANCES # mandatory
-              value: "1, 2, 3"
-            # - name: DURATION
-            #   value: "5"
-            # - name: PARTITIONS
-            #   value: "40"
-            # - name: DOMAIN_RESTRICTION
-            #   value: "True"
-            # - name: SEARCH_STRATEGY
-            #   value: "linear-search"
-            # - name: CPU_LIMIT
-            #   value: "1000m"
-            # - name: MEMORY_LIMIT
-            #   value: "4Gi"
-            - name: PROMETHEUS_BASE_URL
-              value: "http://prometheus-operated:9090"
-            # - name: NAMESPACE
-            #   value: "default"
-            # - name: CONFIGURATIONS
-            #   value: "COMMIT_INTERVAL_MS=100, NUM_STREAM_THREADS=1"
-            - name: RESULT_PATH
-              value: "results"
-            - name: PYTHONUNBUFFERED # Enable logs in Kubernetes
-              value: "1"
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+            # - name: MODE
+            #   value: yaml-executor # Default is `yaml-executor`
+            - name: THEODOLITE_EXECUTION
+              value: /etc/execution/example-execution-yaml-resource.yaml # The name of this file must correspond to the filename of the execution, from which the config map is created.
+            - name: THEODOLITE_BENCHMARK
+              value: /etc/benchmark/example-benchmark-yaml-resource.yaml # The name of this file must correspond to the filename of the benchmark, from which the config map is created.
+            - name: THEODOLITE_APP_RESOURCES
+              value: /etc/app-resources
+            - name: RESULTS_FOLDER # Folder for saving results
+              value: results # Default is the pwd (/deployments)
+            # - name: CREATE_RESULTS_FOLDER # Specify whether the specified result folder should be created if it does not exist.
+            #   value: "false" # Default is false.
           volumeMounts:
-            - mountPath: "/app/results"
+            - mountPath: "/deployments/results" # the mounted path must corresponds to the value of `RESULT_FOLDER`.
               name: theodolite-pv-storage
+            - mountPath: "/etc/app-resources" # must be corresponds to the value of `THEODOLITE_APP_RESOURCES`.
+              name: app-resources
+            - mountPath: "/etc/benchmark"  # must be corresponds to the value of `THEODOLITE_BENCHMARK`.
+              name: benchmark
+            - mountPath: "/etc/execution" # must be corresponds to the value of `THEODOLITE_EXECUTION`.
+              name: execution
       restartPolicy: Never
       # Uncomment if RBAC is enabled and configured
-      # serviceAccountName: theodolite
+      serviceAccountName: theodolite
+      # Multiple volumes are needed to provide the corresponding files.
+      # The names must correspond to the created configmaps and the volumeMounts.
+      volumes:
+        - name: theodolite-pv-storage
+          persistentVolumeClaim:
+            claimName: theodolite-pv-claim
+        - name: app-resources
+          configMap:
+            name: app-resources-configmap
+        - name: benchmark
+          configMap:
+            name: benchmark-configmap
+        - name: execution
+          configMap:
+            name: execution-configmap
   backoffLimit: 4

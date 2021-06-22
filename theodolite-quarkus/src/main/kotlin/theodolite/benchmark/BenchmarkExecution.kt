@@ -2,8 +2,6 @@ package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.api.model.Namespaced
-import io.fabric8.kubernetes.client.CustomResource
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
@@ -26,7 +24,7 @@ import kotlin.properties.Delegates
  */
 @JsonDeserialize
 @RegisterForReflection
-class BenchmarkExecution : CustomResource(), Namespaced {
+class BenchmarkExecution : KubernetesResource {
     var executionId: Int = 0
     lateinit var name: String
     lateinit var benchmark: String
@@ -34,7 +32,7 @@ class BenchmarkExecution : CustomResource(), Namespaced {
     lateinit var resources: ResourceDefinition
     lateinit var slos: List<Slo>
     lateinit var execution: Execution
-    lateinit var configOverrides: List<ConfigurationOverride?>
+    lateinit var configOverrides: MutableList<ConfigurationOverride?>
 
     /**
      * This execution encapsulates the [strategy], the [duration], the [repetitions], and the [restrictions]
@@ -47,6 +45,8 @@ class BenchmarkExecution : CustomResource(), Namespaced {
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
         lateinit var restrictions: List<String>
+        var loadGenerationDelay = 0L
+        var afterTeardownDelay = 5L
     }
 
     /**

@@ -17,31 +17,36 @@ execution:
   strategy: "LinearSearch"
   duration: 300 # in seconds
   repetitions: 1
+  loadGenerationDelay: 30 # in seconds, optional field, default is 0 seconds
   restrictions:
     - "LowerBound"
-configOverrides: []
-#  - patcher:
-#      type: "NodeSelectorPatcher"
-#      resource: "uc1-load-generator-deployment.yaml"
-#      variableName: "env"
-#    value: "prod"
-#  - patcher:
-#      type: "NodeSelectorPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      variableName: "env"
-#    value: "prod"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      container: "uc-application"
-#      variableName: "cpu"
-#    value: "1000m"
-#  - patcher:
-#      type: "ResourceLimitPatcher"
-#      resource: "uc1-kstreams-deployment.yaml"
-#      container: "uc-application"
-#      variableName: "memory"
-#    value: "2Gi"
+configOverrides:
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-load-generator-deployment.yaml"
+      properties:
+        variableName: "env"
+    value: "prod"
+  - patcher:
+      type: "NodeSelectorPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      properties:
+        variableName: "env"
+    value: "prod"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      properties:
+        container: "uc-application"
+        limitedResource: "cpu"
+    value: "1000m"
+  - patcher:
+      type: "ResourceLimitPatcher"
+      resource: "uc1-kstreams-deployment.yaml"
+      properties:
+        container: "uc-application"
+        limitedResource: "memory"
+    value: "2Gi"
 #  - patcher:
 #      type: "SchedulerNamePatcher"
 #      resource: "uc1-kstreams-deployment.yaml"

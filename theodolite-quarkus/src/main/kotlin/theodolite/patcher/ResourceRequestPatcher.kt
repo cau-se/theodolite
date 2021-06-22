@@ -6,7 +6,6 @@ import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.ResourceRequirements
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
-import java.lang.IllegalArgumentException
 
 /**
  * The Resource request [Patcher] set resource limits for deployments and statefulSets.
@@ -19,7 +18,7 @@ class ResourceRequestPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,
     private val requestedResource: String
-) : AbstractPatcher(k8sResource, container, requestedResource) {
+) : AbstractPatcher(k8sResource) {
 
     override fun <String> patch(value: String) {
         when (k8sResource) {

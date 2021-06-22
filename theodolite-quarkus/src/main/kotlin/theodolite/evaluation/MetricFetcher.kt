@@ -48,18 +48,18 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
             val response = get("$prometheusURL/api/v1/query_range", params = parameter, timeout = TIMEOUT)
             if (response.statusCode != 200) {
                 val message = response.jsonObject.toString()
-                logger.warn { "Could not connect to Prometheus: $message, retrying now" }
+                logger.warn { "Could not connect to Prometheus: $message. Retrying now." }
                 counter++
             } else {
                 val values = parseValues(response)
                 if (values.data?.result.isNullOrEmpty()) {
-                    logger.error { "Empty query result: $values between $start and $end for querry $query" }
+                    logger.error { "Empty query result: $values between $start and $end for query $query." }
                     throw NoSuchFieldException()
                 }
                 return parseValues(response)
             }
         }
-        throw ConnectException("No answer from Prometheus received")
+        throw ConnectException("No answer from Prometheus received.")
     }
 
     /**

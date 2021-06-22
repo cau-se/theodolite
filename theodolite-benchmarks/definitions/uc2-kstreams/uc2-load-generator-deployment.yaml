@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: titan-ccp-load-generator
+spec:
+  selector:
+    matchLabels:
+      app: titan-ccp-load-generator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: titan-ccp-load-generator
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload-generator
+          image: ghcr.io/cau-se/theodolite-uc2-workload-generator:latest
+          ports:
+            - containerPort: 5701
+              name: coordination
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: KUBERNETES_DNS_NAME
+              value: "titan-ccp-load-generator.$(KUBERNETES_NAMESPACE).svc.cluster.local"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "theodolite-cp-kafka:9092"
+            - name: SCHEMA_REGISTRY_URL
+              value: "http://theodolite-cp-schema-registry:8081"

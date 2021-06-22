@@ -40,23 +40,26 @@ class Results {
      * @param load the [LoadDimension]
      *
      * @return the smallest suitable number of resources. If the experiment was not executed yet,
-     * a @see Resource with the constant Int.MAX_VALUE as value is returned. If no experiments have been marked as either successful or unsuccessful
+     * a @see Resource with the constant Int.MAX_VALUE as value is returned.
+     * If no experiments have been marked as either successful or unsuccessful
      * yet, a Resource with the constant value Int.MIN_VALUE is returned.
      */
     fun getMinRequiredInstances(load: LoadDimension?): Resource? {
-        if (this.results.isEmpty()) return Resource(Int.MIN_VALUE, emptyList())
+        if (this.results.isEmpty()) {
+            return Resource(Int.MIN_VALUE, emptyList())
+        }
 
-        var requiredInstances: Resource? = Resource(Int.MAX_VALUE, emptyList())
+        var minRequiredInstances: Resource? = Resource(Int.MAX_VALUE, emptyList())
         for (experiment in results) {
+            // Get all successful experiments for requested load
             if (experiment.key.first == load && experiment.value) {
-                if (requiredInstances == null) {
-                    requiredInstances = experiment.key.second
-                } else if (experiment.key.second.get() < requiredInstances.get()) {
-                    requiredInstances = experiment.key.second
+                if (minRequiredInstances == null || experiment.key.second.get() < minRequiredInstances.get()) {
+                    // Found new smallest resources
+                    minRequiredInstances = experiment.key.second
                 }
             }
         }
-        return requiredInstances
+        return minRequiredInstances
     }
 
     /**
@@ -70,13 +73,11 @@ class Results {
     fun getMaxBenchmarkedLoad(load: LoadDimension): LoadDimension? {
         var maxBenchmarkedLoad: LoadDimension? = null
         for (experiment in results) {
-            if (experiment.value) {
-                if (experiment.key.first.get() <= load.get()) {
-                    if (maxBenchmarkedLoad == null) {
-                        maxBenchmarkedLoad = experiment.key.first
-                    } else if (maxBenchmarkedLoad.get() < experiment.key.first.get()) {
-                        maxBenchmarkedLoad = experiment.key.first
-                    }
+            if (experiment.key.first.get() <= load.get()) {
+                if (maxBenchmarkedLoad == null) {
+                    maxBenchmarkedLoad = experiment.key.first
+                } else if (maxBenchmarkedLoad.get() < experiment.key.first.get()) {
+                    maxBenchmarkedLoad = experiment.key.first
                 }
             }
         }

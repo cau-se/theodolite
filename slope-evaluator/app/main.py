@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import json
 import sys
+from statistics import median
 
 app = FastAPI()
 
@@ -18,9 +19,9 @@ if os.getenv('LOG_LEVEL') == 'INFO':
 elif os.getenv('LOG_LEVEL') == 'WARNING':
     logger.setLevel(logging.WARNING)
 elif os.getenv('LOG_LEVEL') == 'DEBUG':
-    logger.setLevel((logging.DEBUG))
+    logger.setLevel(logging.DEBUG)
 
-def execute(results, threshold, warmup):
+def calculate_slope_trend(results, warmup):
     d = []
     for result in results:
         group = result['metric']['group']
@@ -30,22 +31,25 @@ def execute(results, threshold, warmup):
 
     df = pd.DataFrame(d)
 
-    logger.info(df)
+    logger.info("Calculating trend slope with warmup of %s seconds for data frame:\n %s", warmup, df)
     try:
         trend_slope = trend_slope_computer.compute(df, warmup)
     except Exception as e:
-        err_msg = 'Computing trend slope failed'
+        err_msg = 'Computing trend slope failed.'
         logger.exception(err_msg)
-        logger.error('Mark this subexperiment as not successful and continue benchmark')
+        logger.error('Mark this subexperiment as not successful and continue benchmark.')
         return False
 
-    logger.info("Trend Slope: %s", trend_slope)
+    logger.info("Computed lag trend slope is '%s'", trend_slope)
+    return trend_slope
 
-    return trend_slope < threshold
+def check_service_level_objective(results, threshold):
+    return median(results) < threshold
 
 @app.post("/evaluate-slope",response_model=bool)
 async def evaluate_slope(request: Request):
     data = json.loads(await request.body())
-    return execute(data['total_lag'], data['threshold'], data['warmup'])
+    results = [calculate_slope_trend(total_lag, data['warmup']) for total_lag in data['total_lags']]
+    return check_service_level_objective(results=results, threshold=data["threshold"])
 
-logger.info("Slope evaluator is online")
+logger.info("SLO evaluator is online")

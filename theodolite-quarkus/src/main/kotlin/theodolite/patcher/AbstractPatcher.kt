@@ -12,7 +12,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
  * @param variableName *(optional)* The variable name to be patched
  *
  *
- * **For example** to patch the load dimension of a workload generator, the Patcher should be created as follow:
+ * **For example** to patch the load dimension of a load generator, the patcher should be created as follow:
  *
  * k8sResource: `uc-1-workload-generator.yaml`
  * container: `workload`
@@ -20,7 +20,5 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
  *
  */
 abstract class AbstractPatcher(
-    k8sResource: KubernetesResource,
-    container: String? = null,
-    variableName: String? = null
+    k8sResource: KubernetesResource
 ) : Patcher
