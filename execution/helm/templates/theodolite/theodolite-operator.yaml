@@ -29,15 +29,17 @@ spec:
           volumeMounts:
             - name: benchmark-resources
               mountPath: /work/benchmark-resources
-        - name: lag-analysis
-          image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
-          imagePullPolicy: Always
+        {{- if .Values.operator.slo-checker.lag-trend.enabled }}
+        - name: lag-trend-slo-checker
+          image: "{{ .Values.operator.slo-checker.lag-trend.image }}:{{ .Values.operator.slo-checker.lag-trend.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.slo-checker.lag-trend.imagePullPolicy }}"
           ports:
           - containerPort: 80
             name: analysis
           env:
           - name: LOG_LEVEL
             value: INFO
+        {{- end }}
       volumes:
       - name: benchmark-resources
         configMap:

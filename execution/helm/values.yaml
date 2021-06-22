@@ -255,6 +255,13 @@ operator:
   benchmarkCRD:
     create: true
 
+  slo-checker:
+    lag-trend:
+      enabled: true
+      image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
+      imageTag: theodolite-kotlin-latest
+      imagePullPolicy: Always
+
 serviceAccount:
   create: true
 
