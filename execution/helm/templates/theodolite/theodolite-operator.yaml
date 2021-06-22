@@ -29,10 +29,10 @@ spec:
           volumeMounts:
             - name: benchmark-resources
               mountPath: /work/benchmark-resources
-        {{- if .Values.operator.slo-checker.lag-trend.enabled }}
+        {{- if .Values.operator.sloChecker.lagTrend.enabled }}
         - name: lag-trend-slo-checker
-          image: "{{ .Values.operator.slo-checker.lag-trend.image }}:{{ .Values.operator.slo-checker.lag-trend.imageTag }}"
-          imagePullPolicy: "{{ .Values.operator.slo-checker.lag-trend.imagePullPolicy }}"
+          image: "{{ .Values.operator.sloChecker.lagTrend.image }}:{{ .Values.operator.sloChecker.lagTrend.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.sloChecker.lagTrend.imagePullPolicy }}"
           ports:
           - containerPort: 80
             name: analysis
