@@ -31,10 +31,10 @@ spec:
             - name: RESULTS_FOLDER
               value: "results"
           volumeMounts:
-          {{- if .Values.operator.resultsVolume.enabled }}
+            {{- if .Values.operator.resultsVolume.enabled }}
             - name: theodolite-pv-storage
               mountPath: "/deployments/results"
-          {{- end }}
+            {{- end }}
             - name: benchmark-resources
               mountPath: /work/benchmark-resources
         {{- if .Values.operator.sloChecker.lagTrend.enabled }}
@@ -65,7 +65,7 @@ spec:
       {{- if .Values.operator.resultsVolume.enabled }}
       - name: theodolite-pv-storage
         persistentVolumeClaim:
-          claimName: theodolite-pv-claim
+          claimName: {{ .Values.operator.resultsVolume.persistentVolumeClaim.name | quote }}
       {{- end }}
       - name: benchmark-resources
         configMap:

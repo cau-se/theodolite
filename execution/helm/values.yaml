@@ -264,6 +264,8 @@ operator:
 
   resultsVolume:
     enabled: true
+    persistentVolumeClaim:
+      name: theodolite-pv-claim
     accessSidecar:
       enabled: true
       image: busybox
