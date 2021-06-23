@@ -262,6 +262,15 @@ operator:
       imageTag: theodolite-kotlin-latest
       imagePullPolicy: Always
 
+  resultsVolume:
+    enabled: true
+    accessSidecar:
+      enabled: true
+      image: busybox
+      imageTag: stable
+      imagePullPolicy: IfNotPresent
+
+
 serviceAccount:
   create: true
 
