@@ -29,7 +29,7 @@ class ExecutionStateHandler(context: CustomResourceDefinitionContext, val client
 
     private fun getDurationLambda() = { cr: CustomResource ->
         var execState = ""
-        if (cr is ExecutionCRD) { execState = cr.status.executionState }
+        if (cr is ExecutionCRD) { execState = cr.status.executionDuration }
         execState
     }
 
@@ -43,9 +43,9 @@ class ExecutionStateHandler(context: CustomResourceDefinitionContext, val client
         return  States.values().firstOrNull { it.value == status }
     }
 
-    fun setDurationState(resourceName: String, duration: Duration) {
+    fun setDurationState(resourceName: String, duration: Duration): Boolean {
         setState(resourceName) { cr -> if (cr is ExecutionCRD) cr.status.executionDuration = durationToK8sString(duration); cr }
-        blockUntilStateIsSet(resourceName, durationToK8sString(duration), getDurationLambda())
+        return blockUntilStateIsSet(resourceName, durationToK8sString(duration), getDurationLambda())
     }
 
     fun getDurationState(resourceName: String): String? {

@@ -2,12 +2,11 @@ package theodolite.k8s
 
 import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
-
-class ServiceMonitorWrapper(private val serviceMonitor: Map<String, String>) : CustomResource() {
-
+class CustomResourceWrapper(val crAsMap: Map<String, String>, private val context: CustomResourceDefinitionContext) : CustomResource() {
     /**
      * Deploy a service monitor
      *
@@ -16,14 +15,9 @@ class ServiceMonitorWrapper(private val serviceMonitor: Map<String, String>) : C
      * @throws java.io.IOException if the resource could not be deployed.
      */
     fun deploy(client: NamespacedKubernetesClient) {
-        val serviceMonitorContext = K8sContextFactory().create(
-            api = "v1",
-            scope = "Namespaced",
-            group = "monitoring.coreos.com",
-            plural = "servicemonitors"
-        )
-        client.customResource(serviceMonitorContext)
-            .createOrReplace(client.configuration.namespace, this.serviceMonitor as Map<String, Any>)
+
+        client.customResource(this.context)
+            .createOrReplace(client.configuration.namespace, this.crAsMap as Map<String, Any>)
     }
 
     /**
@@ -32,14 +26,8 @@ class ServiceMonitorWrapper(private val serviceMonitor: Map<String, String>) : C
      * @param client a namespaced Kubernetes client which are used to delete the CR object.
      */
     fun delete(client: NamespacedKubernetesClient) {
-        val serviceMonitorContext = K8sContextFactory().create(
-            api = "v1",
-            scope = "Namespaced",
-            group = "monitoring.coreos.com",
-            plural = "servicemonitors"
-        )
         try {
-            client.customResource(serviceMonitorContext)
+            client.customResource(this.context)
                 .delete(client.configuration.namespace, this.getServiceMonitorName())
         } catch (e: Exception) {
             logger.warn { "Could not delete service monitor" }
@@ -50,12 +38,12 @@ class ServiceMonitorWrapper(private val serviceMonitor: Map<String, String>) : C
      * @throws NullPointerException if name or metadata is null
      */
     fun getServiceMonitorName(): String {
-        val smAsMap = this.serviceMonitor["metadata"]!! as Map<String, String>
-        return smAsMap["name"]!!
+        val metadataAsMap = this.crAsMap["metadata"]!! as Map<String, String>
+        return metadataAsMap["name"]!!
     }
 
     fun getLabels(): Map<String, String>{
-        val smAsMap = this.serviceMonitor["metadata"]!! as Map<String, String>
-        return smAsMap["labels"]!! as Map<String, String>
+        val metadataAsMap = this.crAsMap["metadata"]!! as Map<String, String>
+        return metadataAsMap["labels"]!! as Map<String, String>
     }
 }

@@ -1,0 +1,28 @@
+apiVersion: theodolite.com/v1
+kind: execution
+metadata:
+  name: example-execution
+spec:
+  name: test
+  benchmark: "uc1-kstreams"
+  load:
+    loadType: "NumSensors"
+    loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
+  resources:
+    resourceType: "Instances"
+    resourceValues: [1, 2, 3, 4, 5]
+  slos:
+    - sloType: "lag trend"
+      threshold: 2000
+      prometheusUrl: "http://prometheus-operated:9090"
+      externalSloUrl: "http://localhost:80/evaluate-slope"
+      offset: 0
+      warmup: 60 # in seconds
+  execution:
+    strategy: "LinearSearch"
+    duration: 300 # in seconds
+    repetitions: 1
+    loadGenerationDelay: 30 # in seconds
+    restrictions:
+      - "LowerBound"
+  configOverrides: []

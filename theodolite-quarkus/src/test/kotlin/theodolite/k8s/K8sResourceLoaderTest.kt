@@ -21,13 +21,11 @@ class K8sResourceLoaderTest {
     @BeforeEach
     fun setUp() {
         server.before()
-
     }
 
     @AfterEach
     fun tearDown() {
         server.after()
-
     }
 
     @Test
@@ -76,8 +74,8 @@ class K8sResourceLoaderTest {
         val loader = K8sResourceLoader(server.client)
         val resource = loader.loadK8sResource("ServiceMonitor", testResourcePath + "test-service-monitor.yaml")
 
-        assertTrue(resource is ServiceMonitorWrapper)
-        if (resource is ServiceMonitorWrapper) {
+        assertTrue(resource is CustomResourceWrapper)
+        if (resource is CustomResourceWrapper) {
             assertEquals(resource.getServiceMonitorName(),"test-service-monitor")
 
         }

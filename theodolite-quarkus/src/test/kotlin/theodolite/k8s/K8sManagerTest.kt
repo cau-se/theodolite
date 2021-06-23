@@ -1,5 +1,6 @@
 package theodolite.k8s
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
@@ -19,7 +20,9 @@ import org.junit.jupiter.api.Test
 private val logger = KotlinLogging.logger {}
 
 @QuarkusTest
+@JsonIgnoreProperties(ignoreUnknown = true)
 class K8sManagerTest {
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private final val server = KubernetesServer(false,true)
     private final val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
@@ -147,5 +150,34 @@ class K8sManagerTest {
         assertEquals(0,serviceMonitors.length())
     }
 
+    @Test
+    @DisplayName("Test handling of Executions")
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    fun handleExecutionTest() {
+        val manager = K8sManager(server.client)
+        val servicemonitor = K8sResourceLoader(server.client)
+            .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
 
+        manager.deploy(servicemonitor)
+
+        val context = K8sContextFactory().create(
+            api = "v1",
+            scope = "Namespaced",
+            group = "theodolite.com",
+            plural = "executions"
+        )
+
+        var serviceMonitors = JSONObject(server.client.customResource(context).list())
+            .getJSONArray("items")
+
+        assertEquals(1,serviceMonitors.length())
+        assertEquals("example-execution", serviceMonitors.getJSONObject(0).getJSONObject("metadata").getString("name"))
+
+        manager.remove(servicemonitor)
+
+        serviceMonitors = JSONObject(server.client.customResource(context).list())
+            .getJSONArray("items")
+
+        assertEquals(0,serviceMonitors.length())
+    }
 }

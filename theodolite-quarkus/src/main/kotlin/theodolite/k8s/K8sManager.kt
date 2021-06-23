@@ -31,7 +31,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.configMaps().createOrReplace(resource)
             is StatefulSet ->
                 this.client.apps().statefulSets().createOrReplace(resource)
-            is ServiceMonitorWrapper -> resource.deploy(client)
+            is CustomResourceWrapper -> resource.deploy(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
@@ -58,7 +58,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 blockUntilPodsDeleted(label)
                 logger.info { "StatefulSet '$resource.metadata.name' deleted." }
             }
-            is ServiceMonitorWrapper -> resource.delete(client)
+            is CustomResourceWrapper -> resource.delete(client)
             else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
         }
     }
