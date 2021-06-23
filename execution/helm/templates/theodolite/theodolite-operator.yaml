@@ -17,8 +17,8 @@ spec:
       serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
       containers:
         - name: theodolite
-          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
-          imagePullPolicy: Always
+          image: "{{ .Values.operator.image }}:{{ .Values.operator.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.imagePullPolicy }}"
           env:
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
@@ -29,15 +29,17 @@ spec:
           volumeMounts:
             - name: benchmark-resources
               mountPath: /work/benchmark-resources
-        - name: lag-analysis
-          image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
-          imagePullPolicy: Always
+        {{- if .Values.operator.sloChecker.lagTrend.enabled }}
+        - name: lag-trend-slo-checker
+          image: "{{ .Values.operator.sloChecker.lagTrend.image }}:{{ .Values.operator.sloChecker.lagTrend.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.sloChecker.lagTrend.imagePullPolicy }}"
           ports:
           - containerPort: 80
             name: analysis
           env:
           - name: LOG_LEVEL
             value: INFO
+        {{- end }}
       volumes:
       - name: benchmark-resources
         configMap:
