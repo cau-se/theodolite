@@ -76,7 +76,33 @@ class K8sResourceLoaderTest {
 
         assertTrue(resource is CustomResourceWrapper)
         if (resource is CustomResourceWrapper) {
-            assertEquals(resource.getServiceMonitorName(),"test-service-monitor")
+            assertEquals("test-service-monitor", resource.getName())
+
+        }
+    }
+
+    @Test
+    @DisplayName("Test loading of ServiceMonitors")
+    fun loadExecutionTest() {
+        val loader = K8sResourceLoader(server.client)
+        val resource = loader.loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
+
+        assertTrue(resource is CustomResourceWrapper)
+        if (resource is CustomResourceWrapper) {
+            assertEquals("example-execution", resource.getName())
+
+        }
+    }
+
+    @Test
+    @DisplayName("Test loading of ServiceMonitors")
+    fun loadBenchmarkTest() {
+        val loader = K8sResourceLoader(server.client)
+        val resource = loader.loadK8sResource("Benchmark", testResourcePath + "test-benchmark.yaml")
+
+        assertTrue(resource is CustomResourceWrapper)
+        if (resource is CustomResourceWrapper) {
+            assertEquals("example-benchmark", resource.getName())
 
         }
     }

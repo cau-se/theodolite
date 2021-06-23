@@ -28,7 +28,7 @@ class CustomResourceWrapper(val crAsMap: Map<String, String>, private val contex
     fun delete(client: NamespacedKubernetesClient) {
         try {
             client.customResource(this.context)
-                .delete(client.configuration.namespace, this.getServiceMonitorName())
+                .delete(client.configuration.namespace, this.getName())
         } catch (e: Exception) {
             logger.warn { "Could not delete service monitor" }
         }
@@ -37,7 +37,7 @@ class CustomResourceWrapper(val crAsMap: Map<String, String>, private val contex
     /**
      * @throws NullPointerException if name or metadata is null
      */
-    fun getServiceMonitorName(): String {
+    fun getName(): String {
         val metadataAsMap = this.crAsMap["metadata"]!! as Map<String, String>
         return metadataAsMap["name"]!!
     }

@@ -48,12 +48,11 @@ class StateHandlerTest {
     }
 
     @Test
-    @DisplayName("Test set and get of the execution duration state")
+    @DisplayName("Test set and get of the duration state")
     fun durationStatusTest() {
         val handler = ExecutionStateHandler(client = server.client, context = context)
 
         assertTrue(handler.setDurationState("example-execution", Duration.ofMillis(100)))
         assertEquals("0s",handler.getDurationState("example-execution") )
     }
-
 }

@@ -122,8 +122,8 @@ class K8sManagerTest {
     }
 
     @Test
-    @DisplayName("Test handling of ServiceMontors")
-    fun handleServiceMonitorTest() {
+    @DisplayName("Test handling of custom resources")
+    fun handleCustomResourcesTest() {
         val manager = K8sManager(server.client)
         val servicemonitor = K8sResourceLoader(server.client)
             .loadK8sResource("ServiceMonitor", testResourcePath + "test-service-monitor.yaml")
@@ -145,37 +145,6 @@ class K8sManagerTest {
         manager.remove(servicemonitor)
 
         serviceMonitors = JSONObject(server.client.customResource(serviceMonitorContext).list())
-            .getJSONArray("items")
-
-        assertEquals(0,serviceMonitors.length())
-    }
-
-    @Test
-    @DisplayName("Test handling of Executions")
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    fun handleExecutionTest() {
-        val manager = K8sManager(server.client)
-        val servicemonitor = K8sResourceLoader(server.client)
-            .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
-
-        manager.deploy(servicemonitor)
-
-        val context = K8sContextFactory().create(
-            api = "v1",
-            scope = "Namespaced",
-            group = "theodolite.com",
-            plural = "executions"
-        )
-
-        var serviceMonitors = JSONObject(server.client.customResource(context).list())
-            .getJSONArray("items")
-
-        assertEquals(1,serviceMonitors.length())
-        assertEquals("example-execution", serviceMonitors.getJSONObject(0).getJSONObject("metadata").getString("name"))
-
-        manager.remove(servicemonitor)
-
-        serviceMonitors = JSONObject(server.client.customResource(context).list())
             .getJSONArray("items")
 
         assertEquals(0,serviceMonitors.length())
