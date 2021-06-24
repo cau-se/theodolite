@@ -2,8 +2,8 @@ package theodolite
 
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkDeployment
-import theodolite.util.LoadDimension
 import theodolite.util.ConfigurationOverride
+import theodolite.util.LoadDimension
 import theodolite.util.Resource
 
 class TestBenchmark : Benchmark {
