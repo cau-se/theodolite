@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger {}
 @JsonIgnoreProperties(ignoreUnknown = true)
 class K8sManagerTest {
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private final val server = KubernetesServer(false,true)
+    private final val server = KubernetesServer(false, true)
     private final val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
     private final val resourceName = "test-resource"
@@ -33,18 +33,18 @@ class K8sManagerTest {
     val defaultDeployment: Deployment = DeploymentBuilder()
         .withMetadata(metadata)
         .withNewSpec()
-            .editOrNewSelector()
-                .withMatchLabels(mapOf("app" to "test"))
-            .endSelector()
+        .editOrNewSelector()
+        .withMatchLabels(mapOf("app" to "test"))
+        .endSelector()
         .endSpec()
         .build()
 
     val defaultStatefulSet: StatefulSet = StatefulSetBuilder()
         .withMetadata(metadata)
         .withNewSpec()
-            .editOrNewSelector()
-                .withMatchLabels(mapOf("app" to "test"))
-            .endSelector()
+        .editOrNewSelector()
+        .withMatchLabels(mapOf("app" to "test"))
+        .endSelector()
         .endSpec()
         .build()
 
@@ -139,14 +139,17 @@ class K8sManagerTest {
         var serviceMonitors = JSONObject(server.client.customResource(serviceMonitorContext).list())
             .getJSONArray("items")
 
-        assertEquals(1,serviceMonitors.length())
-        assertEquals("test-service-monitor", serviceMonitors.getJSONObject(0).getJSONObject("metadata").getString("name"))
+        assertEquals(1, serviceMonitors.length())
+        assertEquals(
+            "test-service-monitor",
+            serviceMonitors.getJSONObject(0).getJSONObject("metadata").getString("name")
+        )
 
         manager.remove(servicemonitor)
 
         serviceMonitors = JSONObject(server.client.customResource(serviceMonitorContext).list())
             .getJSONArray("items")
 
-        assertEquals(0,serviceMonitors.length())
+        assertEquals(0, serviceMonitors.length())
     }
 }

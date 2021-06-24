@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 @QuarkusTest
 class K8sResourceLoaderTest {
-    private final val server = KubernetesServer(false,true)
+    private final val server = KubernetesServer(false, true)
     private final val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
     @BeforeEach

@@ -39,15 +39,18 @@ class ExecutionEventHandlerTest {
         this.factory = server.client.informers()
         val informerExecution = factory
             .sharedIndexInformerForCustomResource(
-            controllerDummy.executionContext,
-            ExecutionCRD::class.java,
-            BenchmarkExecutionList::class.java,
-            RESYNC_PERIOD
-        )
+                controllerDummy.executionContext,
+                ExecutionCRD::class.java,
+                BenchmarkExecutionList::class.java,
+                RESYNC_PERIOD
+            )
 
-        informerExecution.addEventHandler(ExecutionHandler(
-            controller = controllerDummy.getController(),
-            stateHandler = controllerDummy.executionStateHandler))
+        informerExecution.addEventHandler(
+            ExecutionHandler(
+                controller = controllerDummy.getController(),
+                stateHandler = controllerDummy.executionStateHandler
+            )
+        )
 
         this.executionVersion1 = K8sResourceLoader(server.client)
             .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
@@ -61,14 +64,14 @@ class ExecutionEventHandlerTest {
     }
 
     @AfterEach
-    fun tearDown(){
+    fun tearDown() {
         server.after()
         factory.stopAllRegisteredInformers()
     }
 
     @Test
     @DisplayName("Test onAdd method for executions without execution state")
-    fun testWithoutState(){
+    fun testWithoutState() {
         manager.deploy(executionVersion1)
         factory.startAllRegisteredInformers()
         sleep(500)
@@ -82,7 +85,7 @@ class ExecutionEventHandlerTest {
 
     @Test
     @DisplayName("Test onAdd method for executions with execution state `RUNNING`")
-    fun testWithStateIsRunning(){
+    fun testWithStateIsRunning() {
         manager.deploy(executionVersion1)
         stateHandler
             .setExecutionState(
@@ -156,7 +159,8 @@ class ExecutionEventHandlerTest {
 
         stateHandler.setExecutionState(
             resourceName = executionName,
-            status = States.FAILURE        )
+            status = States.FAILURE
+        )
 
         manager.deploy(executionVersion2)
         sleep(500)
@@ -188,7 +192,8 @@ class ExecutionEventHandlerTest {
         assertEquals(
             States.RESTART,
             stateHandler.getExecutionState(
-                resourceName = executionName)
+                resourceName = executionName
+            )
         )
     }
 
@@ -210,7 +215,8 @@ class ExecutionEventHandlerTest {
         assertEquals(
             States.RESTART,
             stateHandler.getExecutionState(
-                resourceName = executionName)
+                resourceName = executionName
+            )
         )
     }
 }

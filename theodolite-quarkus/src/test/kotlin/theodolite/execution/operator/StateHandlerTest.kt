@@ -15,7 +15,7 @@ import java.time.Duration
 
 class StateHandlerTest {
     private val testResourcePath = "./src/test/resources/k8s-resource-files/"
-    private val server = KubernetesServer(false,true)
+    private val server = KubernetesServer(false, true)
     private val context = K8sContextFactory().create(
         api = "v1",
         scope = "Namespaced",
@@ -44,7 +44,7 @@ class StateHandlerTest {
         val handler = ExecutionStateHandler(client = server.client, context = context)
 
         assertTrue(handler.setExecutionState("example-execution", States.INTERRUPTED))
-        assertEquals(States.INTERRUPTED,handler.getExecutionState("example-execution") )
+        assertEquals(States.INTERRUPTED, handler.getExecutionState("example-execution"))
     }
 
     @Test
@@ -53,6 +53,6 @@ class StateHandlerTest {
         val handler = ExecutionStateHandler(client = server.client, context = context)
 
         assertTrue(handler.setDurationState("example-execution", Duration.ofMillis(100)))
-        assertEquals("0s",handler.getDurationState("example-execution") )
+        assertEquals("0s", handler.getDurationState("example-execution"))
     }
 }

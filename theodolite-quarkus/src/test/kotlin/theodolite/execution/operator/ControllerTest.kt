@@ -38,7 +38,7 @@ class ControllerTest {
         benchmarkResourceList.items = listOf(benchmark1.getCR(), benchmark2.getCR())
 
         // execution
-        val execution1 = ExecutionCRDummy(name = "matching-execution", benchmark =  "Test-Benchmark")
+        val execution1 = ExecutionCRDummy(name = "matching-execution", benchmark = "Test-Benchmark")
         val execution2 = ExecutionCRDummy(name = "non-matching-execution", benchmark = "Test-Benchmark-456")
         val execution3 = ExecutionCRDummy(name = "second-matching-execution", benchmark = "Test-Benchmark")
         executionResourceList.items = listOf(execution1.getCR(), execution2.getCR(), execution3.getCR())
@@ -78,7 +78,8 @@ class ControllerTest {
         assertEquals(2, result.size)
         assertEquals(
             gson.toJson(benchmark),
-            gson.toJson(result.firstOrNull()))
+            gson.toJson(result.firstOrNull())
+        )
     }
 
     @Test
@@ -92,23 +93,27 @@ class ControllerTest {
 
         assertEquals(
             gson.toJson(this.execution),
-            gson.toJson(result))
+            gson.toJson(result)
+        )
     }
 
     @Test
     fun setAdditionalLabelsTest() {
         val method = controller
             .javaClass
-            .getDeclaredMethod("setAdditionalLabels",
+            .getDeclaredMethod(
+                "setAdditionalLabels",
                 String::class.java,
                 String::class.java,
                 List::class.java,
-                BenchmarkExecution::class.java)
+                BenchmarkExecution::class.java
+            )
         method.isAccessible = true
 
         this.benchmark.appResource = listOf("test-resource.yaml")
 
-        method.invoke(controller,
+        method.invoke(
+            controller,
             "test-value",
             "test-name",
             this.benchmark.appResource,
@@ -127,6 +132,7 @@ class ControllerTest {
             "test-value",
             this.execution
                 .configOverrides.firstOrNull()
-                ?.value)
+                ?.value
+        )
     }
 }
