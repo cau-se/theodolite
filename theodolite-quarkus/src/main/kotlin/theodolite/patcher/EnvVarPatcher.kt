@@ -2,7 +2,6 @@ package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.EnvVar
-import io.fabric8.kubernetes.api.model.EnvVarSource
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 
@@ -17,7 +16,7 @@ class EnvVarPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,
     private val variableName: String
-) : AbstractPatcher(k8sResource, container, variableName) {
+) : AbstractPatcher(k8sResource) {
 
     override fun <String> patch(value: String) {
         if (k8sResource is Deployment) {
@@ -39,7 +38,9 @@ class EnvVarPatcher(
             val x = container.env.filter { envVar -> envVar.name == k }
 
             if (x.isEmpty()) {
-                val newVar = EnvVar(k, v, EnvVarSource())
+                val newVar = EnvVar()
+                newVar.name = k
+                newVar.value = v
                 container.env.add(newVar)
             } else {
                 x.forEach {

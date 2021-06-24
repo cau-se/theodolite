@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment
+spec:
+  selector:
+    matchLabels:
+      app: titan-ccp-aggregation
+  template:
+    metadata:
+      labels:
+        app: titan-ccp-aggregation
+    spec:
+      containers:
+        - name: uc-application
+          image: ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest
+

@@ -63,6 +63,13 @@ public final class HistoryServiceFlinkJob {
       this.env.enableCheckpointing(commitIntervalMs);
     }
 
+    // Parallelism
+    final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
+    if (parallelism != null) {
+      LOGGER.error("Set parallelism: {}.", parallelism);
+      this.env.setParallelism(parallelism);
+    }
+
     // State Backend
     final StateBackend stateBackend = StateBackends.fromConfiguration(this.config);
     this.env.setStateBackend(stateBackend);
@@ -110,9 +117,8 @@ public final class HistoryServiceFlinkJob {
     // Streaming topology
     final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
     this.env
-        .addSource(kafkaSource)
-        .name("[Kafka Consumer] Topic: " + inputTopic)
-        .rebalance()
+        .addSource(kafkaSource).name("[Kafka Consumer] Topic: " + inputTopic)
+        // .rebalance()
         .keyBy((KeySelector<ActivePowerRecord, HourOfDayKey>) record -> {
           final Instant instant = Instant.ofEpochMilli(record.getTimestamp());
           final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, timeZone);

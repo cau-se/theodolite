@@ -1,6 +1,7 @@
 package theodolite.util
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
@@ -19,13 +20,6 @@ class PatcherDefinition {
      */
     lateinit var resource: String
 
-    /**
-     * The container which the patcher is applied to
-     */
-    lateinit var container: String
-
-    /**
-     * The variable name for the patcher
-     */
-    lateinit var variableName: String
+    @JsonSerialize
+    lateinit var properties: MutableMap<String, String>
 }

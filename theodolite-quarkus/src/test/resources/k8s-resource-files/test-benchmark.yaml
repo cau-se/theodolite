@@ -1,0 +1,38 @@
+apiVersion: theodolite.com/v1
+kind: benchmark
+metadata:
+  name: example-benchmark
+spec:
+  appResource:
+    - "uc1-kstreams-deployment.yaml"
+    - "aggregation-service.yaml"
+    - "jmx-configmap.yaml"
+    - "uc1-service-monitor.yaml"
+  loadGenResource:
+    - "uc1-load-generator-deployment.yaml"
+    - "uc1-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc1-kstreams-deployment.yaml"
+  loadTypes:
+    - typeName: "NumSensors"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc1-load-generator-deployment.yaml"
+          properties:
+            variableName: "NUM_SENSORS"
+            container: "workload-generator"
+        - type: "NumSensorsLoadGeneratorReplicaPatcher"
+          resource: "uc1-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "15000"
+  kafkaConfig:
+    bootstrapServer: "theodolite-cp-kafka:9092"
+    topics:
+      - name: "input"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "theodolite-.*"
+        removeOnly: True

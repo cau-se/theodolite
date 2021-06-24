@@ -1,17 +1,17 @@
 package theodolite.execution
 
-import com.google.gson.GsonBuilder
+import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
 import theodolite.strategies.StrategyFactory
 import theodolite.strategies.searchstrategy.CompositeStrategy
-import theodolite.util.Config
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
-import theodolite.util.Results
-import java.io.PrintWriter
+import theodolite.util.*
+import java.io.File
 import java.time.Duration
+
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * The Theodolite executor runs all the experiments defined with the given execution and benchmark configuration.
@@ -62,8 +62,23 @@ class TheodoliteExecutor(
                 executionDuration = executionDuration,
                 configurationOverrides = config.configOverrides,
                 slo = config.slos[0],
-                executionId = config.executionId
+                repetitions = config.execution.repetitions,
+                executionId = config.executionId,
+                loadGenerationDelay = config.execution.loadGenerationDelay,
+                afterTeardownDelay = config.execution.afterTeardownDelay
             )
+
+        if (config.load.loadValues != config.load.loadValues.sorted()) {
+            config.load.loadValues = config.load.loadValues.sorted()
+            logger.info { "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
+                    "New order is: ${config.load.loadValues}" }
+        }
+
+        if (config.resources.resourceValues != config.resources.resourceValues.sorted()) {
+            config.resources.resourceValues = config.resources.resourceValues.sorted()
+            logger.info { "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
+                    "New order is: ${config.resources.resourceValues}" }
+        }
 
         return Config(
             loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },
@@ -97,8 +112,11 @@ class TheodoliteExecutor(
      * execution and benchmark objects.
      */
     fun run() {
-        storeAsFile(this.config, "${this.config.executionId}-execution-configuration")
-        storeAsFile(kubernetesBenchmark, "${this.config.executionId}-benchmark-configuration")
+        val ioHandler = IOHandler()
+        val resultsFolder = ioHandler.getResultFolderURL()
+        this.config.executionId = getAndIncrementExecutionID(resultsFolder+"expID.txt")
+        ioHandler.writeToJSONFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
+        ioHandler.writeToJSONFile(kubernetesBenchmark, "$resultsFolder${this.config.executionId}-benchmark-configuration")
 
         val config = buildConfig()
         // execute benchmarks for each load
@@ -107,14 +125,17 @@ class TheodoliteExecutor(
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }
-        storeAsFile(config.compositeStrategy.benchmarkExecutor.results, "${this.config.executionId}-result")
+        ioHandler.writeToJSONFile(config.compositeStrategy.benchmarkExecutor.results, "$resultsFolder${this.config.executionId}-result")
     }
 
-    private fun <T> storeAsFile(saveObject: T, filename: String) {
-        val gson = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create()
-
-        PrintWriter(filename).use { pw ->
-            pw.println(gson.toJson(saveObject))
-        }
+   private fun getAndIncrementExecutionID(fileURL: String): Int {
+       val ioHandler = IOHandler()
+       var executionID = 0
+       if (File(fileURL).exists()) {
+           executionID = ioHandler.readFileAsString(fileURL).toInt() + 1
+       }
+       ioHandler.writeStringToTextFile(fileURL, (executionID).toString())
+       return executionID
     }
+
 }
