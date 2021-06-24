@@ -262,6 +262,17 @@ operator:
       imageTag: theodolite-kotlin-latest
       imagePullPolicy: Always
 
+  resultsVolume:
+    enabled: true
+    persistentVolumeClaim:
+      name: theodolite-pv-claim
+    accessSidecar:
+      enabled: true
+      image: busybox
+      imageTag: stable
+      imagePullPolicy: IfNotPresent
+
+
 serviceAccount:
   create: true
 
