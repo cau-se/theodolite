@@ -252,7 +252,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by(group, topic) (kafka_consumergroup_group_lag > 0)",
+            "expr": "sum by(group, topic) (kafka_consumergroup_group_lag >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",

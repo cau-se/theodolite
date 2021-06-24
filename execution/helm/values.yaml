@@ -245,12 +245,33 @@ prometheus:
 ###
 operator:
   enabled: true
+  
+  image: ghcr.io/cau-se/theodolite
+  imageTag: theodolite-kotlin-latest
+  imagePullPolicy: Always
 
-executionCRD:
-  create: true
+  executionCRD:
+    create: true
+  benchmarkCRD:
+    create: true
 
-benchmarkCRD:
-  create: true
+  sloChecker:
+    lagTrend:
+      enabled: true
+      image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
+      imageTag: theodolite-kotlin-latest
+      imagePullPolicy: Always
+
+  resultsVolume:
+    enabled: true
+    persistentVolumeClaim:
+      name: theodolite-pv-claim
+    accessSidecar:
+      enabled: true
+      image: busybox
+      imageTag: stable
+      imagePullPolicy: IfNotPresent
+
 
 serviceAccount:
   create: true
