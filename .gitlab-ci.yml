@@ -258,7 +258,7 @@ test-theodolite:
   artifacts:
     reports:
       junit:
-        - "theodolite-benchmarks/**/build/test-results/test/TEST-*.xml"
+        - "theodolite-quarkus/**/build/test-results/test/TEST-*.xml"
 
 # Disabled for now
 .ktlint-theodolite:
