@@ -255,6 +255,10 @@ test-theodolite:
     - build-theodolite-jvm
     #- build-theodolite-native
   script: ./gradlew test --stacktrace
+  artifacts:
+    reports:
+      junit:
+        - "theodolite-quarkus/**/build/test-results/test/TEST-*.xml"
 
 # Disabled for now
 .ktlint-theodolite:

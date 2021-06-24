@@ -14,6 +14,7 @@ import org.junitpioneer.jupiter.SetEnvironmentVariable
 
 
 const val FOLDER_URL = "Test-Folder"
+
 @QuarkusTest
 internal class IOHandlerTest {
 
@@ -28,10 +29,11 @@ internal class IOHandlerTest {
 
         IOHandler().writeStringToTextFile(
             fileURL = "${folder.absolutePath}/test-file.txt",
-            data = testContent)
+            data = testContent
+        )
 
         assertEquals(
-           testContent,
+            testContent,
             IOHandler().readFileAsString("${folder.absolutePath}/test-file.txt")
         )
     }
@@ -42,18 +44,20 @@ internal class IOHandlerTest {
         val folder = temporaryFolder.newFolder(FOLDER_URL)
 
         val testContent = listOf(
-            listOf("apples","red"),
-            listOf("bananas","yellow"),
-            listOf("avocado","brown"))
+            listOf("apples", "red"),
+            listOf("bananas", "yellow"),
+            listOf("avocado", "brown")
+        )
         val columns = listOf("Fruit", "Color")
 
         IOHandler().writeToCSVFile(
             fileURL = "${folder.absolutePath}/test-file",
             data = testContent,
-            columns = columns)
+            columns = columns
+        )
 
         var expected = "Fruit,Color\n"
-        testContent.forEach { expected += it[0] + "," +  it[1] + "\n" }
+        testContent.forEach { expected += it[0] + "," + it[1] + "\n" }
 
         assertEquals(
             expected.trim(),
@@ -68,8 +72,9 @@ internal class IOHandlerTest {
         val testContent = Resource(0, emptyList())
 
         IOHandler().writeToJSONFile(
-            fileURL =  "${folder.absolutePath}/test-file.json",
-            objectToSave = testContent)
+            fileURL = "${folder.absolutePath}/test-file.json",
+            objectToSave = testContent
+        )
 
         val expected = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create().toJson(testContent)
 
@@ -87,7 +92,7 @@ internal class IOHandlerTest {
         ClearEnvironmentVariable(key = "CREATE_RESULTS_FOLDER")
     )
     fun testGetResultFolderURL_emptyEnvironmentVars() {
-        assertEquals("",IOHandler().getResultFolderURL())
+        assertEquals("", IOHandler().getResultFolderURL())
     }
 
 
@@ -109,10 +114,10 @@ internal class IOHandlerTest {
         var exceptionWasThrown = false
         try {
             IOHandler().getResultFolderURL()
-          } catch (e: Exception){
-              exceptionWasThrown = true
-              assertThat(e.toString(), containsString("Result folder not found"));
-          }
+        } catch (e: Exception) {
+            exceptionWasThrown = true
+            assertThat(e.toString(), containsString("Result folder not found"))
+        }
         assertTrue(exceptionWasThrown)
     }
 
@@ -122,13 +127,13 @@ internal class IOHandlerTest {
         SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "true")
     )
     fun testGetResultFolderURL_CreateFolderIfNotExist() {
-        assertEquals("$FOLDER_URL/",  IOHandler().getResultFolderURL())
+        assertEquals("$FOLDER_URL/", IOHandler().getResultFolderURL())
     }
 
     @Test()
-    @ClearEnvironmentVariable(key = "RESULTS_FOLDER" )
+    @ClearEnvironmentVariable(key = "RESULTS_FOLDER")
     @SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "true")
     fun testGetResultFolderURL_CreateFolderButNoFolderGiven() {
-        assertEquals("",  IOHandler().getResultFolderURL())
+        assertEquals("", IOHandler().getResultFolderURL())
     }
 }

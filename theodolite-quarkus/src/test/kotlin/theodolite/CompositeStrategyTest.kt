@@ -98,7 +98,7 @@ class CompositeStrategyTest {
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, sloChecker, 0, 0,0)
+        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, sloChecker, 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
