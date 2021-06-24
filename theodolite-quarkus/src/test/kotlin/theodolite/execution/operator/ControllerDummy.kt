@@ -13,12 +13,30 @@ private const val EXECUTION_PLURAL = "executions"
 private const val BENCHMARK_SINGULAR = "benchmark"
 private const val BENCHMARK_PLURAL = "benchmarks"
 private const val API_VERSION = "v1"
-private const val RESYNC_PERIOD = 10 * 60 * 1000.toLong()
 private const val GROUP = "theodolite.com"
 
 class ControllerDummy(val client: NamespacedKubernetesClient) {
 
-    private lateinit var controller: TheodoliteController
+    private var controller: TheodoliteController
+    val executionContext = K8sContextFactory()
+            .create(
+                API_VERSION,
+                SCOPE,
+                GROUP,
+                EXECUTION_PLURAL
+            )
+    val benchmarkContext = K8sContextFactory()
+            .create(
+                API_VERSION,
+                SCOPE,
+                GROUP,
+                BENCHMARK_PLURAL
+            )
+
+    val executionStateHandler = ExecutionStateHandler(
+        context = executionContext,
+        client = client
+    )
 
     fun getController(): TheodoliteController {
         return this.controller
@@ -37,24 +55,6 @@ class ControllerDummy(val client: NamespacedKubernetesClient) {
             BenchmarkCRD::class.java
         )
 
-        val contextFactory = K8sContextFactory()
-        val executionContext =
-            contextFactory
-                .create(
-                    API_VERSION,
-                    SCOPE,
-                    GROUP,
-                    EXECUTION_PLURAL
-                )
-        val benchmarkContext =
-            contextFactory
-                .create(
-                    API_VERSION,
-                    SCOPE,
-                    GROUP,
-                    BENCHMARK_PLURAL
-                )
-
         val executionCRDClient: MixedOperation<
                 ExecutionCRD,
                 BenchmarkExecutionList,
@@ -71,11 +71,6 @@ class ControllerDummy(val client: NamespacedKubernetesClient) {
             BenchmarkCRD::class.java,
             KubernetesBenchmarkList::class.java,
             DoneableBenchmark::class.java
-        )
-
-        val executionStateHandler = ExecutionStateHandler(
-            context = executionContext,
-            client = client
         )
 
         val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
