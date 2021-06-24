@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-service
+  labels:
+    app: titan-ccp-aggregation
+spec:
+  selector:
+    app: titan-ccp-aggregation

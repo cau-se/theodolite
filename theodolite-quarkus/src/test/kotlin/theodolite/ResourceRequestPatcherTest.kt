@@ -55,7 +55,7 @@ class ResourceRequestPatcherTest {
             k8sResources = listOf(Pair("cpu-memory-deployment.yaml", k8sResource))
         ).patch(value = memValue)
 
-        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"] !! }
+        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"]!! }
             .forEach {
                 assertTrue(it.resources.requests["cpu"].toString() == cpuValue)
                 assertTrue(it.resources.requests["memory"].toString() == memValue)
