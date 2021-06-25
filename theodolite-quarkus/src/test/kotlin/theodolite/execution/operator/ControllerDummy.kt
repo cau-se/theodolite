@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.internal.KubernetesDeserializer
-import theodolite.k8s.K8sContextFactory
 import theodolite.model.crd.BenchmarkCRD
 import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
@@ -18,24 +17,9 @@ private const val BENCHMARK_PLURAL = "benchmarks"
 private const val API_VERSION = "v1"
 private const val GROUP = "theodolite.com"
 
-class ControllerDummy(val client: NamespacedKubernetesClient) {
+class ControllerDummy(client: NamespacedKubernetesClient) {
 
     private var controller: TheodoliteController
-    val executionContext = K8sContextFactory()
-        .create(
-            API_VERSION,
-            SCOPE,
-            GROUP,
-            EXECUTION_PLURAL
-        )
-    val benchmarkContext = K8sContextFactory()
-        .create(
-            API_VERSION,
-            SCOPE,
-            GROUP,
-            BENCHMARK_PLURAL
-        )
-
     val executionStateHandler = ExecutionStateHandler(
         client = client
     )
@@ -61,13 +45,11 @@ class ControllerDummy(val client: NamespacedKubernetesClient) {
                 ExecutionCRD,
                 BenchmarkExecutionList,
                 Resource<ExecutionCRD>> = client.customResources(
-            executionContext,
             ExecutionCRD::class.java,
             BenchmarkExecutionList::class.java
         )
 
         val benchmarkCRDClient = client.customResources(
-            benchmarkContext,
             BenchmarkCRD::class.java,
             KubernetesBenchmarkList::class.java
         )
