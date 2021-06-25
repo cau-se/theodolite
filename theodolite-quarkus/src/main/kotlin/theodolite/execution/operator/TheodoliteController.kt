@@ -168,6 +168,7 @@ class TheodoliteController(
     }
 
     fun isExecutionRunning(executionName: String): Boolean {
+        if (!::executor.isInitialized) return false
         return this.executor.getExecution().name == executionName
     }
 
