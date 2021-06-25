@@ -27,8 +27,8 @@ private val logger = KotlinLogging.logger {}
 class TheodoliteController(
     private val namespace: String,
     val path: String,
-    private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, DoneableExecution, Resource<ExecutionCRD, DoneableExecution>>,
-    private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, DoneableBenchmark, Resource<BenchmarkCRD, DoneableBenchmark>>,
+    private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
+    private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
     private val executionStateHandler: ExecutionStateHandler
 ) {
     lateinit var executor: TheodoliteExecutor

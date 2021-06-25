@@ -1,55 +1,54 @@
 package theodolite.execution.operator
 
-import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.KubernetesClient
-import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
+import theodolite.model.crd.ExecutionStatus
 import theodolite.model.crd.States
 import java.lang.Thread.sleep
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 
-class ExecutionStateHandler(context: CustomResourceDefinitionContext, val client: KubernetesClient):
-    AbstractStateHandler<ExecutionCRD, BenchmarkExecutionList, DoneableExecution>(
-        context = context,
+class ExecutionStateHandler(val client: KubernetesClient):
+    AbstractStateHandler<ExecutionCRD, BenchmarkExecutionList, ExecutionStatus >(
         client = client,
         crd = ExecutionCRD::class.java,
-        crdList = BenchmarkExecutionList::class.java,
-        donableCRD = DoneableExecution::class.java) {
+        crdList = BenchmarkExecutionList::class.java
+    ) {
 
     private var runExecutionDurationTimer: AtomicBoolean = AtomicBoolean(false)
 
-    private fun getExecutionLambda() = { cr: CustomResource ->
-        var execState = ""
-        if (cr is ExecutionCRD) { execState = cr.status.executionState }
-        execState
-    }
+    private fun getExecutionLambda() = { cr: ExecutionCRD -> cr.status.executionState }
 
-    private fun getDurationLambda() = { cr: CustomResource ->
-        var execState = ""
-        if (cr is ExecutionCRD) { execState = cr.status.executionDuration }
-        execState
-    }
+    private fun getDurationLambda() = { cr: ExecutionCRD -> cr.status.executionDuration }
 
     fun setExecutionState(resourceName: String, status: States): Boolean {
-        setState(resourceName) {cr -> if(cr is ExecutionCRD) cr.status.executionState = status.value; cr}
+        setState(resourceName) {cr -> cr.status.executionState = status.value; cr}
         return blockUntilStateIsSet(resourceName, status.value, getExecutionLambda())
     }
 
-    fun getExecutionState(resourceName: String) : States? {
+    fun getExecutionState(resourceName: String) : States {
         val status = this.getState(resourceName, getExecutionLambda())
-        return  States.values().firstOrNull { it.value == status }
+        return if(status.isNullOrBlank()){
+            States.NO_STATE
+        } else {
+            States.values().first { it.value == status }
+        }
     }
 
     fun setDurationState(resourceName: String, duration: Duration): Boolean {
-        setState(resourceName) { cr -> if (cr is ExecutionCRD) cr.status.executionDuration = durationToK8sString(duration); cr }
+        setState(resourceName) { cr -> cr.status.executionDuration = durationToK8sString(duration); cr }
         return blockUntilStateIsSet(resourceName, durationToK8sString(duration), getDurationLambda())
     }
 
-    fun getDurationState(resourceName: String): String? {
-        return this.getState(resourceName, getDurationLambda())
+    fun getDurationState(resourceName: String): String {
+        val status = getState(resourceName, getDurationLambda())
+        return if (status.isNullOrBlank()) {
+            "-"
+        } else {
+            status
+        }
     }
 
     private fun durationToK8sString(duration: Duration): String {

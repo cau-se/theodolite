@@ -1,12 +1,13 @@
 package theodolite.k8s
 
-import io.fabric8.kubernetes.client.CustomResource
+import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
-class CustomResourceWrapper(val crAsMap: Map<String, String>, private val context: CustomResourceDefinitionContext) : CustomResource() {
+
+class CustomResourceWrapper(val crAsMap: Map<String, String>, private val context: CustomResourceDefinitionContext) : KubernetesResource {
     /**
      * Deploy a service monitor
      *
@@ -15,7 +16,6 @@ class CustomResourceWrapper(val crAsMap: Map<String, String>, private val contex
      * @throws java.io.IOException if the resource could not be deployed.
      */
     fun deploy(client: NamespacedKubernetesClient) {
-
         client.customResource(this.context)
             .createOrReplace(client.configuration.namespace, this.crAsMap as Map<String, Any>)
     }

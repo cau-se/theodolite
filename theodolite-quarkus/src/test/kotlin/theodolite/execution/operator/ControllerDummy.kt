@@ -5,7 +5,10 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.internal.KubernetesDeserializer
 import theodolite.k8s.K8sContextFactory
-import theodolite.model.crd.*
+import theodolite.model.crd.BenchmarkCRD
+import theodolite.model.crd.BenchmarkExecutionList
+import theodolite.model.crd.ExecutionCRD
+import theodolite.model.crd.KubernetesBenchmarkList
 
 private const val SCOPE = "Namespaced"
 private const val EXECUTION_SINGULAR = "execution"
@@ -34,7 +37,6 @@ class ControllerDummy(val client: NamespacedKubernetesClient) {
         )
 
     val executionStateHandler = ExecutionStateHandler(
-        context = executionContext,
         client = client
     )
 
@@ -58,19 +60,16 @@ class ControllerDummy(val client: NamespacedKubernetesClient) {
         val executionCRDClient: MixedOperation<
                 ExecutionCRD,
                 BenchmarkExecutionList,
-                DoneableExecution,
-                Resource<ExecutionCRD, DoneableExecution>> = client.customResources(
+                Resource<ExecutionCRD>> = client.customResources(
             executionContext,
             ExecutionCRD::class.java,
-            BenchmarkExecutionList::class.java,
-            DoneableExecution::class.java
+            BenchmarkExecutionList::class.java
         )
 
         val benchmarkCRDClient = client.customResources(
             benchmarkContext,
             BenchmarkCRD::class.java,
-            KubernetesBenchmarkList::class.java,
-            DoneableBenchmark::class.java
+            KubernetesBenchmarkList::class.java
         )
 
         val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
