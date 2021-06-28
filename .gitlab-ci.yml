@@ -214,7 +214,10 @@ deploy-uc4-load-generator:
 
 .theodolite:
   #image: ghcr.io/graalvm/graalvm-ce:java11-21.0.0.2
-  image: ghcr.io/graalvm/native-image:java11-21.1.0
+  #image: ghcr.io/graalvm/native-image:java11-21.1.0
+  image:
+    name: ghcr.io/graalvm/native-image:java11-21.1.0
+    entrypoint: [""]
   tags:
     - exec-docker
   variables:
