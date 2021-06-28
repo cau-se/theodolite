@@ -6,16 +6,15 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.internal.KubernetesDeserializer
 import mu.KotlinLogging
-import theodolite.k8s.K8sContextFactory
-import theodolite.model.crd.*
+import theodolite.model.crd.BenchmarkCRD
+import theodolite.model.crd.BenchmarkExecutionList
+import theodolite.model.crd.ExecutionCRD
+import theodolite.model.crd.KubernetesBenchmarkList
 
 
 private const val DEFAULT_NAMESPACE = "default"
-private const val SCOPE = "Namespaced"
 private const val EXECUTION_SINGULAR = "execution"
-private const val EXECUTION_PLURAL = "executions"
 private const val BENCHMARK_SINGULAR = "benchmark"
-private const val BENCHMARK_PLURAL = "benchmarks"
 private const val API_VERSION = "v1"
 private const val RESYNC_PERIOD = 10 * 60 * 1000.toLong()
 private const val GROUP = "theodolite.com"
@@ -57,34 +56,25 @@ class TheodoliteOperator {
                 BenchmarkCRD::class.java
             )
 
-            val contextFactory = K8sContextFactory()
-            val executionContext = contextFactory.create(API_VERSION, SCOPE, GROUP, EXECUTION_PLURAL)
-            val benchmarkContext = contextFactory.create(API_VERSION, SCOPE, GROUP, BENCHMARK_PLURAL)
-
             val executionCRDClient: MixedOperation<
                     ExecutionCRD,
                     BenchmarkExecutionList,
-                    DoneableExecution,
-                    Resource<ExecutionCRD, DoneableExecution>>
+                    Resource<ExecutionCRD>>
                 = client.customResources(
-                    executionContext,
                     ExecutionCRD::class.java,
-                    BenchmarkExecutionList::class.java,
-                    DoneableExecution::class.java)
+                    BenchmarkExecutionList::class.java
+            )
 
             val benchmarkCRDClient: MixedOperation<
                     BenchmarkCRD,
                     KubernetesBenchmarkList,
-                    DoneableBenchmark,
-                    Resource<BenchmarkCRD, DoneableBenchmark>>
+                    Resource<BenchmarkCRD>>
                 = client.customResources(
-                    benchmarkContext,
                     BenchmarkCRD::class.java,
-                    KubernetesBenchmarkList::class.java,
-                    DoneableBenchmark::class.java)
+                    KubernetesBenchmarkList::class.java
+            )
 
             val executionStateHandler = ExecutionStateHandler(
-                context = executionContext,
                 client = client)
 
             val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
@@ -98,7 +88,6 @@ class TheodoliteOperator {
 
             val informerFactory = client.informers()
             val informerExecution = informerFactory.sharedIndexInformerForCustomResource(
-                executionContext,
                 ExecutionCRD::class.java,
                 BenchmarkExecutionList::class.java,
                 RESYNC_PERIOD

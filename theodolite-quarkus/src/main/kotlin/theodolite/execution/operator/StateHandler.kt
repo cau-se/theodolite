@@ -1,15 +1,14 @@
 package theodolite.execution.operator
 
-import io.fabric8.kubernetes.client.CustomResource
 private const val MAX_TRIES: Int = 5
 
-interface StateHandler {
-    fun setState(resourceName: String, f: (CustomResource) -> CustomResource?)
-    fun getState(resourceName: String, f: (CustomResource) -> String?): String?
+interface StateHandler<T> {
+    fun setState(resourceName: String, f: (T) -> T?)
+    fun getState(resourceName: String, f: (T) -> String?): String?
     fun blockUntilStateIsSet(
         resourceName: String,
         desiredStatusString: String,
-        f: (CustomResource) -> String?,
+        f: (T) -> String?,
         maxTries: Int = MAX_TRIES): Boolean
 
 }

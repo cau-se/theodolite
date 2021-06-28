@@ -1,38 +1,35 @@
 package theodolite.execution.operator
 
+import io.fabric8.kubernetes.api.model.HasMetadata
+import io.fabric8.kubernetes.api.model.KubernetesResourceList
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
-import io.fabric8.kubernetes.client.CustomResourceDoneable
-import io.fabric8.kubernetes.client.CustomResourceList
 import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
-import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import java.lang.Thread.sleep
 
 abstract class AbstractStateHandler<T,L,D>(
-    private val context: CustomResourceDefinitionContext,
     private val client: KubernetesClient,
     private val crd: Class<T>,
-    private val crdList: Class<L>,
-    private val donableCRD: Class<D>
-    ): StateHandler where T : CustomResource, T: Namespaced, L: CustomResourceList<T>, D: CustomResourceDoneable<T> {
+    private val crdList: Class<L>
+    ): StateHandler<T> where T : CustomResource<*, *>?, T: HasMetadata, T: Namespaced, L: KubernetesResourceList<T> {
 
-    private val crdClient: MixedOperation<T, L, D, Resource<T, D>> =
-        this.client.customResources(this.context, this.crd, this.crdList, this.donableCRD)
+    private val crdClient: MixedOperation<T, L,Resource<T>> =
+        this.client.customResources(this.crd, this.crdList)
 
     @Synchronized
-    override fun setState(resourceName: String, f: (CustomResource) -> CustomResource?) {
+    override fun setState(resourceName: String, f: (T) -> T?) {
         this.crdClient
             .inNamespace(this.client.namespace)
             .list().items
             .filter { item -> item.metadata.name == resourceName }
             .map { customResource -> f(customResource) }
-            .forEach { this.crdClient.updateStatus(it as T) }
+            .forEach { this.crdClient.updateStatus(it) }
        }
 
     @Synchronized
-    override fun getState(resourceName: String, f: (CustomResource) -> String?): String? {
+    override fun getState(resourceName: String, f: (T) -> String?): String? {
         return this.crdClient
             .inNamespace(this.client.namespace)
             .list().items
@@ -42,7 +39,7 @@ abstract class AbstractStateHandler<T,L,D>(
     }
 
     @Synchronized
-    override fun blockUntilStateIsSet(resourceName: String, desiredStatusString: String, f: (CustomResource) -> String?, maxTries: Int): Boolean {
+    override fun blockUntilStateIsSet(resourceName: String, desiredStatusString: String, f: (T) -> String?, maxTries: Int): Boolean {
         for (i in 0.rangeTo(maxTries)) {
             val currentStatus = getState(resourceName, f)
                 if(currentStatus == desiredStatusString) {

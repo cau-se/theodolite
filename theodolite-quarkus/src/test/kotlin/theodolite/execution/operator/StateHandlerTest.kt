@@ -39,9 +39,23 @@ class StateHandlerTest {
     }
 
     @Test
+    @DisplayName("Test empty execution state")
+    fun executionWithoutExecutionStatusTest(){
+        val handler = ExecutionStateHandler(client = server.client)
+        assertEquals(States.NO_STATE, handler.getExecutionState("example-execution"))
+    }
+
+    @Test
+    @DisplayName("Test empty duration state")
+    fun executionWithoutDurationStatusTest(){
+        val handler = ExecutionStateHandler(client = server.client)
+        assertEquals("-", handler.getDurationState("example-execution"))
+    }
+
+    @Test
     @DisplayName("Test set and get of the execution state")
     fun executionStatusTest() {
-        val handler = ExecutionStateHandler(client = server.client, context = context)
+        val handler = ExecutionStateHandler(client = server.client)
 
         assertTrue(handler.setExecutionState("example-execution", States.INTERRUPTED))
         assertEquals(States.INTERRUPTED, handler.getExecutionState("example-execution"))
@@ -50,7 +64,7 @@ class StateHandlerTest {
     @Test
     @DisplayName("Test set and get of the duration state")
     fun durationStatusTest() {
-        val handler = ExecutionStateHandler(client = server.client, context = context)
+        val handler = ExecutionStateHandler(client = server.client)
 
         assertTrue(handler.setDurationState("example-execution", Duration.ofMillis(100)))
         assertEquals("0s", handler.getDurationState("example-execution"))
