@@ -37,7 +37,7 @@ class LabelPatcher(private val k8sResource: KubernetesResource, val variableName
                     }
                     k8sResource.metadata.labels[this.variableName] = labelValue
                 }
-                is CustomResource -> {
+                is CustomResource<*,*> -> {
                     if (k8sResource.metadata.labels == null){
                         k8sResource.metadata.labels = mutableMapOf()
                     }

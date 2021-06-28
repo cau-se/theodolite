@@ -39,7 +39,6 @@ class ExecutionEventHandlerTest {
         this.factory = server.client.informers()
         val informerExecution = factory
             .sharedIndexInformerForCustomResource(
-                controllerDummy.executionContext,
                 ExecutionCRD::class.java,
                 BenchmarkExecutionList::class.java,
                 RESYNC_PERIOD
@@ -124,7 +123,6 @@ class ExecutionEventHandlerTest {
                 resourceName = executionName
             )
         )
-
     }
 
     @Test

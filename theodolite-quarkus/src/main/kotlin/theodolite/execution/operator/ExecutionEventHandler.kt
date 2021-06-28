@@ -33,7 +33,7 @@ class ExecutionHandler(
         logger.info { "Add execution ${execution.metadata.name}" }
         execution.spec.name = execution.metadata.name
         when (this.stateHandler.getExecutionState(execution.metadata.name)) {
-            null -> this.stateHandler.setExecutionState(execution.spec.name, States.PENDING)
+            States.NO_STATE -> this.stateHandler.setExecutionState(execution.spec.name, States.PENDING)
             States.RUNNING -> {
                 this.stateHandler.setExecutionState(execution.spec.name, States.RESTART)
                 if(this.controller.isExecutionRunning(execution.spec.name)){
