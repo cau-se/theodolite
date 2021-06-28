@@ -1,0 +1,130 @@
+{{- if .Values.operator.executionCRD.create -}}
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: executions.theodolite.com
+spec:
+  group: theodolite.com
+  names:
+    kind: execution
+    plural: executions
+    shortNames:
+      - exec
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            required: ["benchmark", "load", "resources", "slos", "execution", "configOverrides"]
+            properties:
+              name:
+                type: string
+                default: ""
+              benchmark:
+                type: string
+              load: # definition of the load dimension
+                type: object
+                required: ["loadType", "loadValues"]
+                properties:
+                  loadType:
+                   type: string
+                  loadValues:
+                    type: array
+                    items:
+                      type: integer
+              resources: # definition of the resource dimension
+                type: object
+                required: ["resourceType", "resourceValues"]
+                properties:
+                  resourceType:
+                    type: string
+                  resourceValues:
+                    type: array
+                    items:
+                      type: integer
+              slos: # def of service level objectives
+                type: array
+                items:
+                  type: object
+                  required: ["sloType", "threshold", "prometheusUrl", "externalSloUrl", "offset", "warmup"]
+                  properties:
+                    sloType:
+                      type: string
+                    threshold:
+                      type: integer
+                    prometheusUrl:
+                      type: string
+                    externalSloUrl:
+                      type: string
+                    offset:
+                      type: integer
+                    warmup:
+                      type: integer
+              execution: # def execution config
+                type: object
+                required: ["strategy", "duration", "repetitions", "restrictions"]
+                properties:
+                  strategy:
+                    type: string
+                  duration:
+                    type: integer
+                  repetitions:
+                    type: integer
+                  loadGenerationDelay:
+                    type: integer
+                  restrictions:
+                    type: array
+                    items:
+                      type: string
+              configOverrides:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    patcher:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          default: ""
+                        resource:
+                          type: string
+                          default: ""
+                        properties:
+                            type: object
+                            additionalProperties: true
+                            x-kubernetes-map-type: "granular"
+                            default: {}
+                    value:
+                      type: string
+          status:
+            type: object
+            properties:
+              executionState:
+                description: ""
+                type: string
+              executionDuration:
+                description: "Duration of the execution in seconds"
+                type: string
+    additionalPrinterColumns:
+    - name: STATUS
+      type: string
+      description: State of the execution
+      jsonPath: .status.executionState
+    - name: Duration
+      type: string
+      description: Duration of the execution
+      jsonPath: .status.executionDuration
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp
+    subresources:
+      status: {}
+  scope: Namespaced
+{{- end }}

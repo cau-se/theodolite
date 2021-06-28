@@ -47,7 +47,7 @@ public final class HistoryServiceFlinkJob {
     // Parallelism
     final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
     if (parallelism != null) {
-      LOGGER.error("Set parallelism: {}.", parallelism);
+      LOGGER.info("Set parallelism: {}.", parallelism);
       this.env.setParallelism(parallelism);
     }
 
@@ -68,7 +68,7 @@ public final class HistoryServiceFlinkJob {
     final DataStream<ActivePowerRecord> stream = this.env.addSource(kafkaConsumer);
 
     stream
-        .rebalance()
+        // .rebalance()
         .map(new GsonMapper())
         .flatMap((record, c) -> LOGGER.info("Record: {}", record))
         .returns(Types.GENERIC(Object.class)); // Will never be used

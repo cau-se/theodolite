@@ -1,0 +1,74 @@
+{{- if .Values.operator.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "theodolite.fullname" . }}-operator
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "theodolite.fullname" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "theodolite.fullname" . }}
+    spec:
+      terminationGracePeriodSeconds: 0
+      serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
+      securityContext:
+        runAsUser: 0 # Set the permissions for write access to the volumes.
+      containers:
+        - name: theodolite
+          image: "{{ .Values.operator.image }}:{{ .Values.operator.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.imagePullPolicy }}"
+          env:
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: MODE
+              value: operator
+            - name: THEODOLITE_APP_RESOURCES
+              value: "./benchmark-resources"
+            - name: RESULTS_FOLDER
+              value: "results"
+          volumeMounts:
+            {{- if .Values.operator.resultsVolume.enabled }}
+            - name: theodolite-pv-storage
+              mountPath: "/deployments/results"
+            {{- end }}
+            - name: benchmark-resources
+              mountPath: /work/benchmark-resources
+        {{- if .Values.operator.sloChecker.lagTrend.enabled }}
+        - name: lag-trend-slo-checker
+          image: "{{ .Values.operator.sloChecker.lagTrend.image }}:{{ .Values.operator.sloChecker.lagTrend.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.sloChecker.lagTrend.imagePullPolicy }}"
+          ports:
+          - containerPort: 80
+            name: analysis
+          env:
+          - name: LOG_LEVEL
+            value: INFO
+        {{- end }}
+        {{- if and .Values.operator.resultsVolume.enabled .Values.operator.resultsVolume.accessSidecar.enabled }}
+        - name: results-access
+          image: busybox:stable
+          image: "{{ .Values.operator.resultsVolume.accessSidecar.image }}:{{ .Values.operator.resultsVolume.accessSidecar.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.resultsVolume.accessSidecar.imagePullPolicy }}"
+          command:
+          - sh
+          - -c
+          - exec tail -f /dev/null
+          volumeMounts:
+          - mountPath: /results
+            name: theodolite-pv-storage
+        {{- end }}
+      volumes:
+      {{- if .Values.operator.resultsVolume.enabled }}
+      - name: theodolite-pv-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.operator.resultsVolume.persistentVolumeClaim.name | quote }}
+      {{- end }}
+      - name: benchmark-resources
+        configMap:
+          name: benchmark-resources
+          optional: true
+{{- end }}

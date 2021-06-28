@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flink-taskmanager
+  labels:
+    app: flink
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: 9249
+  selector:
+    app: flink
+    component: taskmanager

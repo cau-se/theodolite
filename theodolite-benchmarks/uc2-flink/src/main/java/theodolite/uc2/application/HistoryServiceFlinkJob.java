@@ -59,7 +59,7 @@ public final class HistoryServiceFlinkJob {
     // Parallelism
     final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
     if (parallelism != null) {
-      LOGGER.error("Set parallelism: {}.", parallelism);
+      LOGGER.info("Set parallelism: {}.", parallelism);
       this.env.setParallelism(parallelism);
     }
 
@@ -83,7 +83,9 @@ public final class HistoryServiceFlinkJob {
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
-    final int windowDuration = this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES);
+    final int windowDurationMinutes =
+        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES);
+    final Time windowDuration = Time.minutes(windowDurationMinutes);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(
@@ -100,9 +102,9 @@ public final class HistoryServiceFlinkJob {
 
     this.env
         .addSource(kafkaSource).name("[Kafka Consumer] Topic: " + inputTopic)
-        .rebalance()
+        // .rebalance()
         .keyBy(ActivePowerRecord::getIdentifier)
-        .window(TumblingEventTimeWindows.of(Time.minutes(windowDuration)))
+        .window(TumblingEventTimeWindows.of(windowDuration))
         .aggregate(new StatsAggregateFunction(), new StatsProcessWindowFunction())
         .map(t -> {
           final String key = t.f0;
