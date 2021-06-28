@@ -37,10 +37,11 @@ lint-helm:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
     paths:
-      - .gradle
+      - .gradle/wrapper
+      - .gradle/caches
   before_script:
-    - cd theodolite-benchmarks
     - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite-benchmarks
 
 build-benchmarks:
   stage: build
@@ -223,8 +224,8 @@ deploy-uc4-load-generator:
       - .gradle/wrapper
       - .gradle/caches
   before_script:
-    - cd theodolite-quarkus
     - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite-quarkus
 
 build-theodolite-jvm:
   stage: build
