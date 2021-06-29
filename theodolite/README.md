@@ -1,4 +1,4 @@
-# Theodolite-quarkus project
+# Theodolite project
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -20,7 +20,7 @@ The application can be packaged using:
 ./gradlew build
 ```
 
-It produces the `theodolite-quarkus-1.0.0-SNAPSHOT-runner.jar` file in the `/build` directory. Be aware that it’s not
+It produces the `theodolite-1.0.0-SNAPSHOT-runner.jar` file in the `/build` directory. Be aware that it’s not
 an _über-jar_ as the dependencies are copied into the `build/lib` directory.
 
 If you want to build an _über-jar_, execute the following command:
@@ -29,7 +29,7 @@ If you want to build an _über-jar_, execute the following command:
 ./gradlew build -Dquarkus.package.type=uber-jar
 ```
 
-The application is now runnable using `java -jar build/theodolite-quarkus-1.0.0-SNAPSHOT-runner.jar`.
+The application is now runnable using `java -jar build/theodolite-1.0.0-SNAPSHOT-runner.jar`.
 
 ## Creating a native executable
 
@@ -46,7 +46,7 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ```
 
 You can then execute your native executable with:
-```./build/theodolite-quarkus-1.0.0-SNAPSHOT-runner```
+```./build/theodolite-1.0.0-SNAPSHOT-runner```
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
@@ -56,14 +56,14 @@ For the jvm version use:
 
 ```shell script
 ./gradlew build
-docker build -f src/main/docker/Dockerfile.jvm -t theodolite-quarkus-jvm .
+docker build -f src/main/docker/Dockerfile.jvm -t theodolite-jvm .
 ```
 
 For the native image version use:
 
 ```shell script
 ./gradlew build -Dquarkus.package.type=native
-docker build -f src/main/docker/Dockerfile.native -t theodolite-quarkus-native .
+docker build -f src/main/docker/Dockerfile.native -t theodolite-native .
 ```
 
 ## Execute docker images:
@@ -73,13 +73,13 @@ Remember to set the environment variables first.
 Jvm version:
 
 ```shell script
-docker run -i --rm theodolite-quarkus-jvm
+docker run -i --rm theodolite-jvm
 ```
 
 Native image version:
 
 ```shell script
-docker run -i --rm theodolite-quarkus-native
+docker run -i --rm theodolite-native
 ```
 
 ## Environment variables
