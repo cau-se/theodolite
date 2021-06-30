@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
+import io.fabric8.kubernetes.client.informers.SharedInformerFactory
 import io.fabric8.kubernetes.internal.KubernetesDeserializer
 import mu.KotlinLogging
 import theodolite.model.crd.BenchmarkCRD
@@ -27,7 +28,11 @@ private val logger = KotlinLogging.logger {}
  */
 class TheodoliteOperator {
     private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-    val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+    private val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
+
+    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+    private lateinit var controller: TheodoliteController
+    private lateinit var executionStateHandler: ExecutionStateHandler
 
 
     fun start() {
@@ -41,7 +46,7 @@ class TheodoliteOperator {
     /**
      * Start the operator.
      */
-   private fun startOperator() {
+    private fun startOperator() {
         logger.info { "Using $namespace as namespace." }
         client.use {
             KubernetesDeserializer.registerCustomKind(
@@ -56,56 +61,75 @@ class TheodoliteOperator {
                 BenchmarkCRD::class.java
             )
 
-            val executionCRDClient: MixedOperation<
-                    ExecutionCRD,
-                    BenchmarkExecutionList,
-                    Resource<ExecutionCRD>>
-                = client.customResources(
-                    ExecutionCRD::class.java,
-                    BenchmarkExecutionList::class.java
-            )
-
-            val benchmarkCRDClient: MixedOperation<
-                    BenchmarkCRD,
-                    KubernetesBenchmarkList,
-                    Resource<BenchmarkCRD>>
-                = client.customResources(
-                    BenchmarkCRD::class.java,
-                    KubernetesBenchmarkList::class.java
-            )
-
-            val executionStateHandler = ExecutionStateHandler(
-                client = client)
-
-            val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
-            val controller =
-                TheodoliteController(
-                    namespace = client.namespace,
-                    path = appResource,
-                    benchmarkCRDClient = benchmarkCRDClient,
-                    executionCRDClient = executionCRDClient,
-                    executionStateHandler = executionStateHandler)
-
-            val informerFactory = client.informers()
-            val informerExecution = informerFactory.sharedIndexInformerForCustomResource(
-                ExecutionCRD::class.java,
-                BenchmarkExecutionList::class.java,
-                RESYNC_PERIOD
-            )
-
-            informerExecution.addEventHandler(ExecutionHandler(
-                controller = controller,
-                stateHandler = executionStateHandler))
-
             ClusterSetup(
-                executionCRDClient = executionCRDClient,
-                benchmarkCRDClient = benchmarkCRDClient,
+                executionCRDClient = getExecutionClient(client),
+                benchmarkCRDClient = getBenchmarkClient(client),
                 client = client
             ).clearClusterState()
 
-            informerFactory.startAllRegisteredInformers()
-            controller.run()
-
+            getController(
+                client = client,
+                executionStateHandler = getExecutionStateHandler(client = client)
+            ).run()
+            getExecutionEventHandler(client).startAllRegisteredInformers()
         }
+    }
+
+    fun getExecutionEventHandler(client: NamespacedKubernetesClient): SharedInformerFactory {
+        val factory = client.informers()
+            .inNamespace(client.namespace)
+
+        factory.sharedIndexInformerForCustomResource(
+            ExecutionCRD::class.java,
+            RESYNC_PERIOD
+        ).addEventHandler(
+            ExecutionHandler(
+                controller = controller,
+                stateHandler = ExecutionStateHandler(client)
+            )
+        )
+        return factory
+    }
+
+    fun getExecutionStateHandler(client: NamespacedKubernetesClient): ExecutionStateHandler {
+        if (!::executionStateHandler.isInitialized) {
+            this.executionStateHandler = ExecutionStateHandler(client = client)
+        }
+        return executionStateHandler
+    }
+
+    fun getController(
+        client: NamespacedKubernetesClient,
+        executionStateHandler: ExecutionStateHandler
+    ): TheodoliteController {
+        if (!::controller.isInitialized) {
+            this.controller = TheodoliteController(
+                path = this.appResource,
+                benchmarkCRDClient = getBenchmarkClient(client),
+                executionCRDClient = getExecutionClient(client),
+                executionStateHandler = executionStateHandler
+            )
+        }
+        return this.controller
+    }
+
+    private fun getExecutionClient(client: NamespacedKubernetesClient): MixedOperation<
+            ExecutionCRD,
+            BenchmarkExecutionList,
+            Resource<ExecutionCRD>> {
+        return client.customResources(
+            ExecutionCRD::class.java,
+            BenchmarkExecutionList::class.java
+        )
+    }
+
+    private fun getBenchmarkClient(client: NamespacedKubernetesClient): MixedOperation<
+            BenchmarkCRD,
+            KubernetesBenchmarkList,
+            Resource<BenchmarkCRD>> {
+        return client.customResources(
+            BenchmarkCRD::class.java,
+            KubernetesBenchmarkList::class.java
+        )
     }
 }

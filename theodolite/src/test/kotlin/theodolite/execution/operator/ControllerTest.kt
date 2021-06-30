@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
@@ -30,7 +31,10 @@ class ControllerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        this.controller = ControllerDummy(server.client).getController()
+        this.controller = TheodoliteOperator().getController(
+            client = server.client,
+            executionStateHandler = ExecutionStateHandler(server.client)
+        )
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
@@ -64,6 +68,38 @@ class ControllerTest {
     @AfterEach
     fun tearDown() {
         server.after()
+    }
+
+    @Test
+    @DisplayName("Check namespaced property of benchmarkCRDClient")
+    fun testBenchmarkClientNamespaced(){
+        val method = controller
+            .javaClass
+            .getDeclaredMethod("getBenchmarks")
+        method.isAccessible = true
+        method.invoke(controller)
+
+        assert(server
+            .lastRequest
+            .toString()
+            .contains("namespaces")
+        )
+    }
+
+    @Test
+    @DisplayName("Check namespaced property of executionCRDClient")
+    fun testExecutionClientNamespaced(){
+        val method = controller
+            .javaClass
+            .getDeclaredMethod("getNextExecution")
+        method.isAccessible = true
+        method.invoke(controller)
+
+        assert(server
+            .lastRequest
+            .toString()
+            .contains("namespaces")
+        )
     }
 
     @Test
