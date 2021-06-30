@@ -1,6 +1,5 @@
 package theodolite.execution.operator
 
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
@@ -17,15 +16,12 @@ private val logger = KotlinLogging.logger {}
 /**
  * The controller implementation for Theodolite.
  *
- * @see NamespacedKubernetesClient
- * @see CustomResourceDefinitionContext
  * @see BenchmarkExecution
  * @see KubernetesBenchmark
  * @see ConcurrentLinkedDeque
  */
 
 class TheodoliteController(
-    private val namespace: String,
     val path: String,
     private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
     private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
@@ -116,11 +112,10 @@ class TheodoliteController(
      */
     private fun getBenchmarks(): List<KubernetesBenchmark> {
         return this.benchmarkCRDClient
-            .inNamespace(namespace)
             .list()
             .items
             .map { it.spec.name = it.metadata.name; it }
-            .map { it.spec.path = path; it }
+            .map { it.spec.path = path; it } // TODO check if we can remove the path field from the KubernetesBenchmark
             .map { it.spec }
     }
 
@@ -140,7 +135,6 @@ class TheodoliteController(
             .map { it.name }
 
         return executionCRDClient
-            .inNamespace(namespace)
             .list()
             .items
             .asSequence()
