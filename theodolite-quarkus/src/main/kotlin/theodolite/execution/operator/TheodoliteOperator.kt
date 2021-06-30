@@ -67,15 +67,16 @@ class TheodoliteOperator {
                 client = client
             ).clearClusterState()
 
-            getController(
+            controller = getController(
                 client = client,
                 executionStateHandler = getExecutionStateHandler(client = client)
-            ).run()
-            getExecutionEventHandler(client).startAllRegisteredInformers()
+            )
+            getExecutionEventHandler(controller, client).startAllRegisteredInformers()
+            controller.run()
         }
     }
 
-    fun getExecutionEventHandler(client: NamespacedKubernetesClient): SharedInformerFactory {
+    fun getExecutionEventHandler(controller: TheodoliteController, client: NamespacedKubernetesClient): SharedInformerFactory {
         val factory = client.informers()
             .inNamespace(client.namespace)
 
