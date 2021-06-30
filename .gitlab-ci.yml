@@ -15,6 +15,19 @@ stages:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
+
+# Theodolite Docs
+
+build-docs:
+  stage: build
+  image: jekyll/jekyll
+  tags:
+    - exec-docker
+  script:
+    - cd docs
+    - bundle exec jekyll serve
+
+
 # Theodolite Helm Chart
 
 lint-helm:
