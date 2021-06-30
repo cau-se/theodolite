@@ -24,7 +24,7 @@ lint-helm:
     entrypoint: [""]
   tags:
     - exec-docker
-  script: helm lint execution/helm/
+  script: helm lint helm/
 
 
 # Theodolite Benchmarks
@@ -37,10 +37,11 @@ lint-helm:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
     paths:
-      - .gradle
+      - .gradle/wrapper
+      - .gradle/caches
   before_script:
-    - cd theodolite-benchmarks
     - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite-benchmarks
 
 build-benchmarks:
   stage: build
@@ -213,7 +214,9 @@ deploy-uc4-load-generator:
 # Theodolite Framework
 
 .theodolite:
-  image: ghcr.io/graalvm/graalvm-ce:java11-21.0.0.2
+  image:
+    name: ghcr.io/graalvm/native-image:java11-21.1.0
+    entrypoint: [""]
   tags:
     - exec-docker
   variables:
@@ -223,8 +226,8 @@ deploy-uc4-load-generator:
       - .gradle/wrapper
       - .gradle/caches
   before_script:
-    - cd theodolite-quarkus
     - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite-quarkus
 
 build-theodolite-jvm:
   stage: build
@@ -240,7 +243,6 @@ build-theodolite-native:
   stage: build
   extends: .theodolite
   script:
-    - gu install native-image # TODO move to image
     - ./gradlew --build-cache assemble -Dquarkus.package.type=native
   when: manual
   artifacts:

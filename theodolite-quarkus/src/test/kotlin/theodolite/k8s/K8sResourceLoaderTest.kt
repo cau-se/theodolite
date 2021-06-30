@@ -82,7 +82,7 @@ class K8sResourceLoaderTest {
     }
 
     @Test
-    @DisplayName("Test loading of ServiceMonitors")
+    @DisplayName("Test loading of Executions")
     fun loadExecutionTest() {
         val loader = K8sResourceLoader(server.client)
         val resource = loader.loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
@@ -95,7 +95,7 @@ class K8sResourceLoaderTest {
     }
 
     @Test
-    @DisplayName("Test loading of ServiceMonitors")
+    @DisplayName("Test loading of Benchmarks")
     fun loadBenchmarkTest() {
         val loader = K8sResourceLoader(server.client)
         val resource = loader.loadK8sResource("Benchmark", testResourcePath + "test-benchmark.yaml")

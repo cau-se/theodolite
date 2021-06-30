@@ -11,8 +11,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
 import theodolite.k8s.K8sResourceLoader
-import theodolite.model.crd.BenchmarkExecutionList
-import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.States
 import java.lang.Thread.sleep
 
@@ -30,27 +28,19 @@ class ExecutionEventHandlerTest {
     lateinit var executionVersion2: KubernetesResource
     lateinit var stateHandler: ExecutionStateHandler
     lateinit var manager: K8sManager
+    lateinit var controller: TheodoliteController
 
     @BeforeEach
     fun setUp() {
         server.before()
-        val controllerDummy = ControllerDummy(server.client)
-
-        this.factory = server.client.informers()
-        val informerExecution = factory
-            .sharedIndexInformerForCustomResource(
-                controllerDummy.executionContext,
-                ExecutionCRD::class.java,
-                BenchmarkExecutionList::class.java,
-                RESYNC_PERIOD
-            )
-
-        informerExecution.addEventHandler(
-            ExecutionHandler(
-                controller = controllerDummy.getController(),
-                stateHandler = controllerDummy.executionStateHandler
-            )
+        val operator = TheodoliteOperator()
+        this.controller = operator.getController(
+            client = server.client,
+            executionStateHandler = ExecutionStateHandler(client = server.client)
         )
+
+        this.factory = operator.getExecutionEventHandler(server.client)
+        this.stateHandler = TheodoliteOperator().getExecutionStateHandler(client = server.client)
 
         this.executionVersion1 = K8sResourceLoader(server.client)
             .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
@@ -58,7 +48,7 @@ class ExecutionEventHandlerTest {
         this.executionVersion2 = K8sResourceLoader(server.client)
             .loadK8sResource("Execution", testResourcePath + "test-execution-update.yaml")
 
-        this.stateHandler = ControllerDummy(server.client).executionStateHandler
+        this.stateHandler = operator.getExecutionStateHandler(server.client)
 
         this.manager = K8sManager((server.client))
     }
@@ -67,6 +57,20 @@ class ExecutionEventHandlerTest {
     fun tearDown() {
         server.after()
         factory.stopAllRegisteredInformers()
+    }
+
+    @Test
+    @DisplayName("Check namespaced property of informers")
+    fun testNamespaced() {
+        manager.deploy(executionVersion1)
+        factory.startAllRegisteredInformers()
+        server.lastRequest
+        // the second request must be namespaced (this is the first `GET` request)
+        assert(server
+            .lastRequest
+            .toString()
+            .contains("namespaces")
+        )
     }
 
     @Test
@@ -124,7 +128,6 @@ class ExecutionEventHandlerTest {
                 resourceName = executionName
             )
         )
-
     }
 
     @Test
