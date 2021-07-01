@@ -20,12 +20,17 @@ stages:
 
 build-docs:
   stage: build
-  image: jekyll/jekyll
+  image: ruby:2.7
   tags:
     - exec-docker
-  script:
+  cache:
+    paths:
+      - vendor/
+  before_script:
     - cd docs
-    - bundle exec jekyll build
+    - gem install bundler
+    - bundle install --path vendor
+  script: bundle exec jekyll build
 
 
 # Theodolite Helm Chart
