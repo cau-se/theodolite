@@ -35,7 +35,7 @@ again be merged into master.
 
 7. Tag this commit `v0.3.1` (can be done via GitLab). The corresponding Docker images will be uploaded.
 
-8. Create *releases* on GitLab and GitHub. Upload the generated Helm package to these releases.
+8. Create *releases* on GitLab and GitHub. Upload the generated Helm package to these releases via the UIs of GitLab and GitHub.
 
 9. Switch to the `master` branch.
 
