@@ -25,7 +25,7 @@ build-docs:
     - exec-docker
   script:
     - cd docs
-    - bundle exec jekyll serve
+    - bundle exec jekyll build
 
 
 # Theodolite Helm Chart
