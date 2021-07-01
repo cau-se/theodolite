@@ -25,12 +25,15 @@ build-docs:
     - exec-docker
   cache:
     paths:
-      - vendor/
+      - docs/vendor
   before_script:
     - cd docs
     - gem install bundler
     - bundle install --path vendor
   script: bundle exec jekyll build
+  artifacts:
+    paths:
+      - docs/_site
 
 
 # Theodolite Helm Chart
