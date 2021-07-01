@@ -10,4 +10,6 @@ aux_links:
       - "//github.com/cau-se/theodolite"
 
 exclude:
+  - Gemfile
+  - Gemfile.lock
   - vendor
