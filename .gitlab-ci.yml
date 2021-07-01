@@ -29,7 +29,8 @@ build-docs:
   before_script:
     - cd docs
     - gem install bundler
-    - bundle install --path vendor
+    - bundle config set --local path 'vendor'
+    - bundle install
   script: bundle exec jekyll build
   artifacts:
     paths:
