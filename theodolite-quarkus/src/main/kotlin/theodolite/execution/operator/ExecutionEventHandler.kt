@@ -53,10 +53,10 @@ class ExecutionHandler(
      */
     @Synchronized
     override fun onUpdate(oldExecution: ExecutionCRD, newExecution: ExecutionCRD) {
-        logger.info { "Receive update event for execution ${oldExecution.metadata.name}" }
         newExecution.spec.name = newExecution.metadata.name
         oldExecution.spec.name = oldExecution.metadata.name
         if(gson.toJson(oldExecution.spec) != gson.toJson(newExecution.spec)) {
+            logger.info { "Receive update event for execution ${oldExecution.metadata.name}" }
             when(this.stateHandler.getExecutionState(newExecution.metadata.name)) {
                 States.RUNNING -> {
                         this.stateHandler.setExecutionState(newExecution.spec.name, States.RESTART)
