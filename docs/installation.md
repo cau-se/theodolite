@@ -50,3 +50,18 @@ Multiple Theodolite installations in the same namespace are currently not fully 
 In cases, where you need to install multiple Theodolite instances, it's best to use dedicated namespaces **and** different release names.
 
 *Note that for meaningful results, usually only one benchmark should be executed at a time.*
+
+## Installation Hints
+
+### Installation with a release name other than `theodolite`
+
+When using another release name than `theodolite`, make sure to adjust the Kafka Lag Exporter configuration of you `values.yaml` accordingly:
+
+```yaml
+kafka-lag-exporter:
+  clusters:
+  - name: "<your-release-name>-cp-kafka"
+    bootstrapBrokers: "<your-release-name>-cp-kafka:9092"
+```
+
+This seems unfortunately to be necessary as Helm does not let us inject values into dependency charts.
