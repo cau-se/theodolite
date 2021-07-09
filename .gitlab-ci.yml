@@ -227,7 +227,7 @@ deploy-uc4-load-generator:
       - .gradle/caches
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
-    - cd theodolite-quarkus
+    - cd theodolite
 
 build-theodolite-jvm:
   stage: build
@@ -235,8 +235,8 @@ build-theodolite-jvm:
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "theodolite-quarkus/build/lib/*"
-      - "theodolite-quarkus/build/*-runner.jar"
+      - "theodolite/build/lib/*"
+      - "theodolite/build/*-runner.jar"
     expire_in: 6 hours
 
 build-theodolite-native:
@@ -247,7 +247,7 @@ build-theodolite-native:
   when: manual
   artifacts:
     paths:
-      - "theodolite-quarkus/build/*-runner"
+      - "theodolite/build/*-runner"
     expire_in: 6 hours
 
 test-theodolite:
@@ -260,7 +260,7 @@ test-theodolite:
   artifacts:
     reports:
       junit:
-        - "theodolite-quarkus/**/build/test-results/test/TEST-*.xml"
+        - "theodolite/**/build/test-results/test/TEST-*.xml"
 
 # Disabled for now
 .ktlint-theodolite:
@@ -303,7 +303,7 @@ deploy-theodolite:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - theodolite-quarkus/**/*
+      - theodolite/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
