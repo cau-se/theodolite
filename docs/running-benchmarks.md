@@ -20,7 +20,7 @@ automatically one after another.
 
 ## Running Benchmarks with the Theodolite Operator
 
-The general process for running Theodolite benchmarks in standalone mode is as follows:
+The general process for running Theodolite benchmarks in operator mode is as follows:
 
 1. Create and deploy a new `Benchmark` resource or deploy one of the already existing ones.
 2. Define your benchmark execution as an `Execution` resource and deploy it.

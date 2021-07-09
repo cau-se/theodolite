@@ -1,3 +1,9 @@
+
+# Defining a Benchmark
+
+Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a set of benchmarks, which are ready to be executed. See the Benchmarks and Executions docs page to learn more about our distinction between benchmarks and executions.
+
+
 * Create a benchmark for operator mode
 * Create a benchmark for standalone mode
 * Deploy a benchmark
@@ -9,6 +15,8 @@
 * A benchmark is defined by a set of Kubernetes resources, which are automatically deployed and scaled by Theodolite.
 * To make these resources accessible by the Theodolite operator, we need to add them to a volume, already mounted by Theodolite. The easiest way to do this is by adding the resources to the configmap `xyz`, which is mounted by Theodilte with its default installation:
 * `sh`
+
+
 
 
 
