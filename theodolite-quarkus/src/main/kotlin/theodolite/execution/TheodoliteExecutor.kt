@@ -103,10 +103,6 @@ class TheodoliteExecutor(
         return this.config
     }
 
-    fun getBenchmark(): KubernetesBenchmark {
-        return this.kubernetesBenchmark
-    }
-
     /**
      * Run all experiments which are specified in the corresponding
      * execution and benchmark objects.

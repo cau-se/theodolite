@@ -17,8 +17,8 @@ object Main {
         logger.info { "Start Theodolite with mode $mode" }
 
         when (mode) {
-            "standalone" -> TheodoliteYamlExecutor().start()
-            "yaml-executor" -> TheodoliteYamlExecutor().start() // TODO remove (#209)
+            "standalone" -> TheodoliteStandalone().start()
+            "yaml-executor" -> TheodoliteStandalone().start() // TODO remove (#209)
             "operator" -> TheodoliteOperator().start()
             else -> {
                 logger.error { "MODE $mode not found" }

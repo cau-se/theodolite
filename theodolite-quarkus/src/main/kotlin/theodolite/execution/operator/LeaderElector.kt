@@ -17,6 +17,7 @@ class LeaderElector(
     val name: String
     ) {
 
+    // TODO(what is the name of the lock? .withName() or LeaseLock(..,name..) ?)
     fun getLeadership(leader: KFunction0<Unit>) {
         val lockIdentity: String = UUID.randomUUID().toString()
             DefaultKubernetesClient().use { kc ->

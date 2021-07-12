@@ -25,8 +25,7 @@ private val logger = KotlinLogging.logger {}
  *
  * @constructor Create empty Theodolite yaml executor
  */
-// TODO(rename class to standaloneMode or similar)
-class TheodoliteYamlExecutor {
+class TheodoliteStandalone {
     private val parser = YamlParser()
 
     fun start() {

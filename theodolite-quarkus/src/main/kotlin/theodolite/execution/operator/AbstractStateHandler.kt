@@ -4,13 +4,13 @@ import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResourceList
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
-import io.fabric8.kubernetes.client.KubernetesClient
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import java.lang.Thread.sleep
 
 abstract class AbstractStateHandler<T,L,D>(
-    private val client: KubernetesClient,
+    private val client: NamespacedKubernetesClient,
     private val crd: Class<T>,
     private val crdList: Class<L>
     ): StateHandler<T> where T : CustomResource<*, *>?, T: HasMetadata, T: Namespaced, L: KubernetesResourceList<T> {
@@ -21,9 +21,8 @@ abstract class AbstractStateHandler<T,L,D>(
     @Synchronized
     override fun setState(resourceName: String, f: (T) -> T?) {
         this.crdClient
-            .inNamespace(this.client.namespace)
             .list().items
-            .filter { item -> item.metadata.name == resourceName }
+            .filter {it.metadata.name == resourceName }
             .map { customResource -> f(customResource) }
             .forEach { this.crdClient.updateStatus(it) }
        }
@@ -31,9 +30,8 @@ abstract class AbstractStateHandler<T,L,D>(
     @Synchronized
     override fun getState(resourceName: String, f: (T) -> String?): String? {
         return this.crdClient
-            .inNamespace(this.client.namespace)
             .list().items
-            .filter { item -> item.metadata.name == resourceName }
+            .filter {it.metadata.name == resourceName }
             .map { customResource -> f(customResource) }
             .firstOrNull()
     }

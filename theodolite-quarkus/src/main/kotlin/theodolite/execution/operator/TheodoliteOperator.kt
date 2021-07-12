@@ -28,7 +28,6 @@ private val logger = KotlinLogging.logger {}
  */
 class TheodoliteOperator {
     private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-    private val appResource = System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
 
     private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
     private lateinit var controller: TheodoliteController
@@ -38,7 +37,7 @@ class TheodoliteOperator {
     fun start() {
         LeaderElector(
             client = client,
-            name = "theodolite-operator"
+            name = "theodolite-operator" // TODO(make leaslock name configurable via env var)
         )
             .getLeadership(::startOperator)
     }
@@ -105,7 +104,6 @@ class TheodoliteOperator {
     ): TheodoliteController {
         if (!::controller.isInitialized) {
             this.controller = TheodoliteController(
-                path = this.appResource,
                 benchmarkCRDClient = getBenchmarkClient(client),
                 executionCRDClient = getExecutionClient(client),
                 executionStateHandler = executionStateHandler

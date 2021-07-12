@@ -1,6 +1,6 @@
 package theodolite.execution.operator
 
-import io.fabric8.kubernetes.client.KubernetesClient
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.ExecutionStatus
@@ -10,7 +10,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 
-class ExecutionStateHandler(val client: KubernetesClient):
+class ExecutionStateHandler(val client: NamespacedKubernetesClient):
     AbstractStateHandler<ExecutionCRD, BenchmarkExecutionList, ExecutionStatus >(
         client = client,
         crd = ExecutionCRD::class.java,

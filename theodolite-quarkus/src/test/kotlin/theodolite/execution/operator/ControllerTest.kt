@@ -132,43 +132,4 @@ class ControllerTest {
             gson.toJson(result)
         )
     }
-
-    @Test
-    fun setAdditionalLabelsTest() {
-        val method = controller
-            .javaClass
-            .getDeclaredMethod(
-                "setAdditionalLabels",
-                String::class.java,
-                String::class.java,
-                List::class.java,
-                BenchmarkExecution::class.java
-            )
-        method.isAccessible = true
-
-        this.benchmark.appResource = listOf("test-resource.yaml")
-
-        method.invoke(
-            controller,
-            "test-value",
-            "test-name",
-            this.benchmark.appResource,
-            this.execution
-        ) as BenchmarkExecution?
-
-        assertEquals(
-            "test-name",
-            this.execution
-                .configOverrides.firstOrNull()
-                ?.patcher
-                ?.properties
-                ?.get("variableName")
-        )
-        assertEquals(
-            "test-value",
-            this.execution
-                .configOverrides.firstOrNull()
-                ?.value
-        )
-    }
 }

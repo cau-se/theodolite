@@ -5,7 +5,10 @@ import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.evaluation.AnalysisExecutor
-import theodolite.util.*
+import theodolite.util.ConfigurationOverride
+import theodolite.util.LoadDimension
+import theodolite.util.Resource
+import theodolite.util.Results
 import java.time.Duration
 import java.time.Instant
 
@@ -53,6 +56,7 @@ class BenchmarkExecutorImpl(
     private fun runSingleExperiment(load: LoadDimension, res: Resource): Pair<Instant, Instant> {
         val benchmarkDeployment = benchmark.buildDeployment(load, res, this.configurationOverrides, this.loadGenerationDelay, this.afterTeardownDelay)
         val from = Instant.now()
+        // TODO(restructure try catch in order to throw exceptions if there are significant problems by running a experiment)
         try {
             benchmarkDeployment.setup()
             this.waitAndLog()
