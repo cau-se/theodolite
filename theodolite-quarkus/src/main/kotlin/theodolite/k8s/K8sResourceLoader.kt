@@ -24,7 +24,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return Service from fabric8
      */
     private fun loadService(path: String): Service {
-        return loadGenericResource(path) { x: String -> client.services().load(x).get() }
+        return loadGenericResource(path) {client.services().load(it).get() }
     }
 
 
@@ -83,7 +83,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return Deployment from fabric8
      */
     private fun loadDeployment(path: String): Deployment {
-        return loadGenericResource(path) { x: String -> client.apps().deployments().load(x).get() }
+        return loadGenericResource(path) {client.apps().deployments().load(it).get() }
     }
 
     /**
@@ -92,7 +92,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return ConfigMap from fabric8
      */
     private fun loadConfigmap(path: String): ConfigMap {
-        return loadGenericResource(path) { x: String -> client.configMaps().load(x).get() }
+        return loadGenericResource(path) {client.configMaps().load(it).get() }
     }
 
     /**
@@ -101,7 +101,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return StatefulSet from fabric8
      */
     private fun loadStatefulSet(path: String): KubernetesResource {
-        return loadGenericResource(path) { x: String -> client.apps().statefulSets().load(x).get() }
+        return loadGenericResource(path) {client.apps().statefulSets().load(it).get() }
 
     }
 
@@ -117,7 +117,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         try {
             resource = f(path)
         } catch (e: Exception) {
-            logger.warn { "You potentially  misspelled the path: $path" }
+            logger.warn { "You potentially misspelled the path: $path" }
             logger.warn { e }
         }
 
@@ -146,7 +146,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
             "Benchmark" -> loadBenchmark(path)
             else -> {
                 logger.error { "Error during loading of unspecified resource Kind" }
-                throw java.lang.IllegalArgumentException("error while loading resource with kind: $kind")
+                throw IllegalArgumentException("error while loading resource with kind: $kind")
             }
         }
     }
