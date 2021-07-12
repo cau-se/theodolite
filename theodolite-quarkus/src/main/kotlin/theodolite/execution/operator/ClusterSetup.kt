@@ -4,9 +4,9 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
-import org.json.JSONObject
 import theodolite.execution.Shutdown
 import theodolite.k8s.K8sContextFactory
+import theodolite.k8s.ResourceByLabelHandler
 import theodolite.model.crd.*
 
 private val logger = KotlinLogging.logger {}
@@ -29,9 +29,15 @@ class ClusterSetup(
         clearByLabel()
     }
 
+    /**
+     * This function searches for executions in the cluster that have the status running and tries to stop the execution.
+     * For this the corresponding benchmark is searched and terminated.
+     *
+     * Throws [IllegalStateException] if no suitable benchmark can be found.
+     *
+     */
     private fun stopRunningExecution() {
         executionCRDClient
-            .inNamespace(client.namespace)
             .list()
             .items
             .asSequence()
@@ -51,26 +57,33 @@ class ClusterSetup(
                     logger.error {
                         "Execution with state ${States.RUNNING.value} was found, but no corresponding benchmark. " +
                                 "Could not initialize cluster." }
+                    throw IllegalStateException("Cluster state is invalid, required Benchmark for running execution not found.")
                 }
-
-
             }
         }
 
     private  fun clearByLabel() {
-        this.client.services().withLabel("app.kubernetes.io/created-by=theodolite").delete()
-        this.client.apps().deployments().withLabel("app.kubernetes.io/created-by=theodolite").delete()
-        this.client.apps().statefulSets().withLabel("app.kubernetes.io/created-by=theodolite").delete()
-        this.client.configMaps().withLabel("app.kubernetes.io/created-by=theodolite").delete()
-
-        val serviceMonitors = JSONObject(
-            this.client.customResource(serviceMonitorContext)
-                .list(client.namespace, mapOf(Pair("app.kubernetes.io/created-by", "theodolite")))
+        val resourceRemover = ResourceByLabelHandler(client = client)
+        resourceRemover.removeServices(
+            labelName = "app.kubernetes.io/created-by",
+            labelValue = "theodolite"
         )
-            .getJSONArray("items")
-
-        (0 until serviceMonitors.length())
-            .map { serviceMonitors.getJSONObject(it).getJSONObject("metadata").getString("name") }
-            .forEach { this.client.customResource(serviceMonitorContext).delete(client.namespace, it) }
+        resourceRemover.removeDeployments(
+            labelName = "app.kubernetes.io/created-by",
+            labelValue = "theodolite"
+        )
+        resourceRemover.removeStatefulSets(
+            labelName = "app.kubernetes.io/created-by",
+            labelValue = "theodolite"
+        )
+        resourceRemover.removeConfigMaps(
+            labelName = "app.kubernetes.io/created-by",
+            labelValue = "theodolite"
+        )
+        resourceRemover.removeCR(
+            labelName = "app.kubernetes.io/created-by",
+            labelValue = "theodolite",
+            context = serviceMonitorContext
+        )
     }
 }
