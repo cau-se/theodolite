@@ -5,7 +5,6 @@ import khttp.post
 import mu.KotlinLogging
 import theodolite.util.PrometheusResponse
 import java.net.ConnectException
-import java.time.Instant
 
 /**
  * [SloChecker] that uses an external source for the concrete evaluation.

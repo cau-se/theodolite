@@ -22,7 +22,6 @@ private val logger = KotlinLogging.logger {}
  */
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
-    val namespace: String,
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
     private val loadGenerationDelay: Long,
@@ -60,7 +59,7 @@ class KubernetesBenchmarkDeployment(
         loadGenResources.forEach { kubernetesManager.remove(it) }
         appResources.forEach { kubernetesManager.remove(it) }
         kafkaController.removeTopics(this.topics.map { topic -> topic.name })
-        KafkaLagExporterRemover(client).remove(LAG_EXPORTER_POD_LABEL)
+        ResourceByLabelRemover(client).removePod(LAG_EXPORTER_POD_LABEL)
         logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything come down." }
         Thread.sleep(Duration.ofSeconds(afterTeardownDelay).toMillis())
     }

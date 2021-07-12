@@ -12,6 +12,7 @@ import java.util.*
 import java.util.regex.Pattern
 
 private val logger = KotlinLogging.logger {}
+private val RECORD_LAG_QUERY = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
@@ -32,7 +33,7 @@ class AnalysisExecutor(
      *  First fetches data from prometheus, then documents them and afterwards evaluate it via a [slo].
      *  @param load of the experiment.
      *  @param res of the experiment.
-     *  @param executionDuration of the experiment.
+     *  @param executionIntervals list of start and end points of experiments
      *  @return true if the experiment succeeded.
      */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
@@ -48,7 +49,7 @@ class AnalysisExecutor(
                 .map { interval -> fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = "sum by(group)(kafka_consumergroup_group_lag >= 0)") }
+                        query = RECORD_LAG_QUERY) }
 
             prometheusData.forEach{ data ->
                 ioHandler.writeToCSVFile(
@@ -67,6 +68,7 @@ class AnalysisExecutor(
             result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
+            // TODO(throw exception in order to make it possible to mark an experiment as unsuccessfully)
             logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: $e" }
         }
         return result
@@ -75,7 +77,7 @@ class AnalysisExecutor(
     private val NONLATIN: Pattern = Pattern.compile("[^\\w-]")
     private val WHITESPACE: Pattern = Pattern.compile("[\\s]")
 
-    fun String.toSlug(): String {
+    private fun String.toSlug(): String {
         val noWhitespace: String = WHITESPACE.matcher(this).replaceAll("-")
         val normalized: String = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD)
         val slug: String = NONLATIN.matcher(normalized).replaceAll("")
