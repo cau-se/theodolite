@@ -21,6 +21,7 @@ RUN chown 1001 /deployments \
     && chown 1001:root /deployments
 COPY --chown=1001:root build/*-runner /deployments/application
 COPY config/ /deployments/config/
+COPY examples/ /deployments/examples/
 
 EXPOSE 8080
 USER 1001
