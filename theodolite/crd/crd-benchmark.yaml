@@ -20,7 +20,7 @@ spec:
         properties:
           spec:
             type: object
-            required: []
+            required: ["appResource", "loadGenResource", "resourceTypes", "loadTypes", "kafkaConfig"]
             properties:
               name:
                 type: string
