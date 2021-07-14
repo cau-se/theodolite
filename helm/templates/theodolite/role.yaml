@@ -43,6 +43,7 @@ rules:
     - delete
     - list
     - create
+    - get
   {{- if .Values.operator.enabled }}
   - apiGroups:
     - theodolite.com
