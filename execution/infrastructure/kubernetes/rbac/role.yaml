@@ -17,7 +17,6 @@ rules:
     resources:
     - services
     - pods
-    - servicemonitors
     - configmaps
     verbs:
     - delete
@@ -39,6 +38,7 @@ rules:
     - delete
     - list
     - create
+    - get
   - apiGroups:
     - theodolite.com
     resources: 
