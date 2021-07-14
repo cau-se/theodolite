@@ -39,7 +39,7 @@ class ExecutionEventHandlerTest {
             executionStateHandler = ExecutionStateHandler(client = server.client)
         )
 
-        this.factory = operator.getExecutionEventHandler(server.client)
+        this.factory = operator.getExecutionEventHandler(this.controller,server.client)
         this.stateHandler = TheodoliteOperator().getExecutionStateHandler(client = server.client)
 
         this.executionVersion1 = K8sResourceLoader(server.client)
