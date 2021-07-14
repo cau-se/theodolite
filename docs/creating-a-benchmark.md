@@ -10,6 +10,13 @@ Please note that to simply run a benchmark, it is not required to define one. Th
 
 ## Creating a benchmark for operator mode
 
+### App and Workload Generator Resources
+
+### Load and Resource Types
+
+### Kafka Configuration
+
+
 ### Make benchmark Kubernetes resources accessible
 
 * A benchmark is defined by a set of Kubernetes resources, which are automatically deployed and scaled by Theodolite.
