@@ -1,4 +1,4 @@
-{{- if .Values.randomScheduler.rbac.create -}}
+{{- if and .Values.randomScheduler.enabled .Values.randomScheduler.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
