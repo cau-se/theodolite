@@ -42,7 +42,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
      * @param [labelName] the label name
      * @param [labelValue] the value of this label
      */
-    fun removeDeployments(labelName: String, labelValue: String){
+    fun removeDeployments(labelName: String, labelValue: String) {
         this.client
             .apps()
             .deployments()
@@ -69,7 +69,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
      * @param [labelName] the label name
      * @param [labelValue] the value of this label
      */
-    fun removeConfigMaps(labelName: String, labelValue: String){
+    fun removeConfigMaps(labelName: String, labelValue: String) {
         this.client
             .configMaps()
             .withLabel("$labelName=$labelValue")
@@ -106,7 +106,8 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
                 .withLabel("$labelName=$labelValue")
                 .list()
                 .items
-                .isNullOrEmpty()) {
+                .isNullOrEmpty()
+        ) {
             logger.info { "Wait for pods with label $labelName=$labelValue to be deleted." }
             Thread.sleep(1000)
         }

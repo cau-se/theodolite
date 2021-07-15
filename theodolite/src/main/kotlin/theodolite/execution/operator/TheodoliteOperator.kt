@@ -75,7 +75,10 @@ class TheodoliteOperator {
         }
     }
 
-    fun getExecutionEventHandler(controller: TheodoliteController, client: NamespacedKubernetesClient): SharedInformerFactory {
+    fun getExecutionEventHandler(
+        controller: TheodoliteController,
+        client: NamespacedKubernetesClient
+    ): SharedInformerFactory {
         val factory = client.informers()
             .inNamespace(client.namespace)
 

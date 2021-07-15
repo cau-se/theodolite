@@ -15,7 +15,6 @@ class ConfigOverrideModifierTest {
     private var benchmark = KubernetesBenchmark()
 
 
-
     @BeforeEach
     fun setup() {
         val execution1 = ExecutionCRDummy(name = "matching-execution", benchmark = "Test-Benchmark")
@@ -26,18 +25,19 @@ class ConfigOverrideModifierTest {
     }
 
 
-
     @Test
     fun setAdditionalLabelsTest() {
         this.benchmark.appResource = listOf("test-resource.yaml")
 
         val modifier = ConfigOverrideModifier(
             execution = this.execution,
-            resources = this.benchmark.appResource )
+            resources = this.benchmark.appResource
+        )
 
         modifier.setAdditionalLabels(
             labelName = "test-name",
-            labelValue = "test-value")
+            labelValue = "test-value"
+        )
 
         Assertions.assertEquals(
             "test-name",

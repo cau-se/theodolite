@@ -46,16 +46,20 @@ class AnalysisExecutor(
             val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
 
             val prometheusData = executionIntervals
-                .map { interval -> fetcher.fetchMetric(
+                .map { interval ->
+                    fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = RECORD_LAG_QUERY) }
+                        query = RECORD_LAG_QUERY
+                    )
+                }
 
-            prometheusData.forEach{ data ->
+            prometheusData.forEach { data ->
                 ioHandler.writeToCSVFile(
                     fileURL = "${fileURL}_${repetitionCounter++}",
                     data = data.getResultAsList(),
-                    columns = listOf("group", "timestamp", "value"))
+                    columns = listOf("group", "timestamp", "value")
+                )
             }
 
             val sloChecker = SloCheckerFactory().create(

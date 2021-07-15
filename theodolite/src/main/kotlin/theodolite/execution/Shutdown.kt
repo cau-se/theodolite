@@ -24,23 +24,27 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
     override fun run() {
         // Build Configuration to teardown
         try {
-        logger.info { "Received shutdown signal -> Shutting down" }
-        val deployment =
-            benchmark.buildDeployment(
-                load = LoadDimension(0, emptyList()),
-                res = Resource(0, emptyList()),
-                configurationOverrides = benchmarkExecution.configOverrides,
-                loadGenerationDelay = 0L,
-                afterTeardownDelay = 5L
-            )
+            logger.info { "Received shutdown signal -> Shutting down" }
+            val deployment =
+                benchmark.buildDeployment(
+                    load = LoadDimension(0, emptyList()),
+                    res = Resource(0, emptyList()),
+                    configurationOverrides = benchmarkExecution.configOverrides,
+                    loadGenerationDelay = 0L,
+                    afterTeardownDelay = 5L
+                )
             deployment.teardown()
         } catch (e: Exception) {
             // TODO(throw exception in order to make it possible to mark an experiment as unsuccessfully)
-            logger.warn { "Could not delete all specified resources from Kubernetes. " +
-                    "This could be the case, if not all resources are deployed and running." }
+            logger.warn {
+                "Could not delete all specified resources from Kubernetes. " +
+                        "This could be the case, if not all resources are deployed and running."
+            }
 
         }
-        logger.info { "Teardown everything deployed. " +
-                "\n Teardown completed" }
+        logger.info {
+            "Teardown everything deployed. " +
+                    "\n Teardown completed"
+        }
     }
 }

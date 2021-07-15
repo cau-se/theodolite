@@ -36,10 +36,13 @@ class ExternalSloChecker(
      */
     override fun evaluate(fetchedData: List<PrometheusResponse>): Boolean {
         var counter = 0
-        val data = Gson().toJson(mapOf(
-            "total_lags" to fetchedData.map { it.data?.result},
-            "threshold" to threshold,
-            "warmup" to warmup))
+        val data = Gson().toJson(
+            mapOf(
+                "total_lags" to fetchedData.map { it.data?.result },
+                "threshold" to threshold,
+                "warmup" to warmup
+            )
+        )
 
         while (counter < RETRIES) {
             val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)

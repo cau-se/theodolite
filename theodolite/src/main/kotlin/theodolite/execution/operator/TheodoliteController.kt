@@ -27,6 +27,7 @@ class TheodoliteController(
     private val executionStateHandler: ExecutionStateHandler
 ) {
     lateinit var executor: TheodoliteExecutor
+
     /**
      *
      * Runs the TheodoliteController forever.
@@ -62,7 +63,8 @@ class TheodoliteController(
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         val modifier = ConfigOverrideModifier(
             execution = execution,
-            resources = benchmark.appResource + benchmark.loadGenResource)
+            resources = benchmark.appResource + benchmark.loadGenResource
+        )
         modifier.setAdditionalLabels(
             labelValue = execution.name,
             labelName = "deployed-for-execution"
@@ -114,7 +116,7 @@ class TheodoliteController(
             .list()
             .items
             .map {
-                it.spec.name = it.metadata.name;
+                it.spec.name = it.metadata.name
                 it.spec
             }
     }

@@ -41,48 +41,50 @@ class PatcherFactory {
                 )
                 "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
                     k8sResource = resource,
-                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"] !!,
-                    numSensors = patcherDefinition.properties["numSensors"] !!
+                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"]!!,
+                    numSensors = patcherDefinition.properties["numSensors"]!!
                 )
                 "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
                     k8sResource = resource,
-                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"] !!
+                    loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"]!!
                 )
                 "EnvVarPatcher" -> EnvVarPatcher(
                     k8sResource = resource,
-                    container = patcherDefinition.properties["container"] !!,
-                    variableName = patcherDefinition.properties["variableName"] !!
+                    container = patcherDefinition.properties["container"]!!,
+                    variableName = patcherDefinition.properties["variableName"]!!
                 )
                 "NodeSelectorPatcher" -> NodeSelectorPatcher(
                     k8sResource = resource,
-                    variableName = patcherDefinition.properties["variableName"] !!
+                    variableName = patcherDefinition.properties["variableName"]!!
                 )
                 "ResourceLimitPatcher" -> ResourceLimitPatcher(
                     k8sResource = resource,
-                    container = patcherDefinition.properties["container"] !!,
-                    limitedResource = patcherDefinition.properties["limitedResource"] !!
+                    container = patcherDefinition.properties["container"]!!,
+                    limitedResource = patcherDefinition.properties["limitedResource"]!!
                 )
                 "ResourceRequestPatcher" -> ResourceRequestPatcher(
                     k8sResource = resource,
-                    container = patcherDefinition.properties["container"] !!,
-                    requestedResource = patcherDefinition.properties["requestedResource"] !!
+                    container = patcherDefinition.properties["container"]!!,
+                    requestedResource = patcherDefinition.properties["requestedResource"]!!
                 )
                 "SchedulerNamePatcher" -> SchedulerNamePatcher(
                     k8sResource = resource
                 )
                 "LabelPatcher" -> LabelPatcher(
                     k8sResource = resource,
-                    variableName = patcherDefinition.properties["variableName"] !!
+                    variableName = patcherDefinition.properties["variableName"]!!
                 )
                 "ImagePatcher" -> ImagePatcher(
                     k8sResource = resource,
-                    container = patcherDefinition.properties["container"] !!
+                    container = patcherDefinition.properties["container"]!!
                 )
                 else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
             }
         } catch (e: Exception) {
-            throw InvalidPatcherConfigurationException("Could not create patcher with type ${patcherDefinition.type}" +
-                    " Probably a required patcher argument was not specified." )
+            throw InvalidPatcherConfigurationException(
+                "Could not create patcher with type ${patcherDefinition.type}" +
+                        " Probably a required patcher argument was not specified."
+            )
         }
     }
 }

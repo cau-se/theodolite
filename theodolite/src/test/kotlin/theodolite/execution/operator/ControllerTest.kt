@@ -72,33 +72,35 @@ class ControllerTest {
 
     @Test
     @DisplayName("Check namespaced property of benchmarkCRDClient")
-    fun testBenchmarkClientNamespaced(){
+    fun testBenchmarkClientNamespaced() {
         val method = controller
             .javaClass
             .getDeclaredMethod("getBenchmarks")
         method.isAccessible = true
         method.invoke(controller)
 
-        assert(server
-            .lastRequest
-            .toString()
-            .contains("namespaces")
+        assert(
+            server
+                .lastRequest
+                .toString()
+                .contains("namespaces")
         )
     }
 
     @Test
     @DisplayName("Check namespaced property of executionCRDClient")
-    fun testExecutionClientNamespaced(){
+    fun testExecutionClientNamespaced() {
         val method = controller
             .javaClass
             .getDeclaredMethod("getNextExecution")
         method.isAccessible = true
         method.invoke(controller)
 
-        assert(server
-            .lastRequest
-            .toString()
-            .contains("namespaces")
+        assert(
+            server
+                .lastRequest
+                .toString()
+                .contains("namespaces")
         )
     }
 

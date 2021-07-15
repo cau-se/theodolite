@@ -24,7 +24,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return Service from fabric8
      */
     private fun loadService(path: String): Service {
-        return loadGenericResource(path) {client.services().load(it).get() }
+        return loadGenericResource(path) { client.services().load(it).get() }
     }
 
 
@@ -34,17 +34,20 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @param context specific crd context for this custom resource
      * @return  CustomResourceWrapper from fabric8
      */
-   private fun loadCustomResourceWrapper(path: String, context: CustomResourceDefinitionContext): CustomResourceWrapper {
-       return loadGenericResource(path) {
-           CustomResourceWrapper(
-               YamlParser().parse(
-                   path,
-                   HashMap<String, String>()::class.java
-               )!!,
-               context
-           )
-       }
-   }
+    private fun loadCustomResourceWrapper(
+        path: String,
+        context: CustomResourceDefinitionContext
+    ): CustomResourceWrapper {
+        return loadGenericResource(path) {
+            CustomResourceWrapper(
+                YamlParser().parse(
+                    path,
+                    HashMap<String, String>()::class.java
+                )!!,
+                context
+            )
+        }
+    }
 
     private fun loadServiceMonitor(path: String): CustomResourceWrapper {
         val context = K8sContextFactory().create(
@@ -83,7 +86,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return Deployment from fabric8
      */
     private fun loadDeployment(path: String): Deployment {
-        return loadGenericResource(path) {client.apps().deployments().load(it).get() }
+        return loadGenericResource(path) { client.apps().deployments().load(it).get() }
     }
 
     /**
@@ -92,7 +95,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return ConfigMap from fabric8
      */
     private fun loadConfigmap(path: String): ConfigMap {
-        return loadGenericResource(path) {client.configMaps().load(it).get() }
+        return loadGenericResource(path) { client.configMaps().load(it).get() }
     }
 
     /**
@@ -101,7 +104,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
      * @return StatefulSet from fabric8
      */
     private fun loadStatefulSet(path: String): KubernetesResource {
-        return loadGenericResource(path) {client.apps().statefulSets().load(it).get() }
+        return loadGenericResource(path) { client.apps().statefulSets().load(it).get() }
 
     }
 

@@ -11,34 +11,34 @@ class LabelPatcher(private val k8sResource: KubernetesResource, val variableName
     AbstractPatcher(k8sResource) {
 
     override fun <String> patch(labelValue: String) {
-        if(labelValue is kotlin.String){
-            when(k8sResource){
+        if (labelValue is kotlin.String) {
+            when (k8sResource) {
                 is Deployment -> {
-                    if (k8sResource.metadata.labels == null){
+                    if (k8sResource.metadata.labels == null) {
                         k8sResource.metadata.labels = mutableMapOf()
                     }
                     k8sResource.metadata.labels[this.variableName] = labelValue
                 }
                 is StatefulSet -> {
-                    if (k8sResource.metadata.labels == null){
+                    if (k8sResource.metadata.labels == null) {
                         k8sResource.metadata.labels = mutableMapOf()
                     }
                     k8sResource.metadata.labels[this.variableName] = labelValue
                 }
                 is Service -> {
-                    if (k8sResource.metadata.labels == null){
+                    if (k8sResource.metadata.labels == null) {
                         k8sResource.metadata.labels = mutableMapOf()
                     }
                     k8sResource.metadata.labels[this.variableName] = labelValue
                 }
                 is ConfigMap -> {
-                    if (k8sResource.metadata.labels == null){
+                    if (k8sResource.metadata.labels == null) {
                         k8sResource.metadata.labels = mutableMapOf()
                     }
                     k8sResource.metadata.labels[this.variableName] = labelValue
                 }
-                is CustomResource<*,*> -> {
-                    if (k8sResource.metadata.labels == null){
+                is CustomResource<*, *> -> {
+                    if (k8sResource.metadata.labels == null) {
                         k8sResource.metadata.labels = mutableMapOf()
                     }
                     k8sResource.metadata.labels[this.variableName] = labelValue

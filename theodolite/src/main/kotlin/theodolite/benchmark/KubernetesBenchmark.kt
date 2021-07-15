@@ -32,7 +32,7 @@ private var DEFAULT_THEODOLITE_APP_RESOURCES = "./config"
  */
 @JsonDeserialize
 @RegisterForReflection
-class KubernetesBenchmark: KubernetesResource, Benchmark{
+class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
     lateinit var appResource: List<String>
     lateinit var loadGenResource: List<String>

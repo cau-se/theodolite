@@ -16,7 +16,7 @@ class ClusterSetup(
     private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
     private val client: NamespacedKubernetesClient
 
-    ) {
+) {
     private val serviceMonitorContext = K8sContextFactory().create(
         api = "v1",
         scope = "Namespaced",
@@ -24,7 +24,7 @@ class ClusterSetup(
         plural = "servicemonitors"
     )
 
-    fun clearClusterState(){
+    fun clearClusterState() {
         stopRunningExecution()
         clearByLabel()
     }
@@ -41,7 +41,7 @@ class ClusterSetup(
             .list()
             .items
             .asSequence()
-            .filter {   it.status.executionState == States.RUNNING.value }
+            .filter { it.status.executionState == States.RUNNING.value }
             .forEach { execution ->
                 val benchmark = benchmarkCRDClient
                     .inNamespace(client.namespace)
@@ -56,13 +56,14 @@ class ClusterSetup(
                 } else {
                     logger.error {
                         "Execution with state ${States.RUNNING.value} was found, but no corresponding benchmark. " +
-                                "Could not initialize cluster." }
+                                "Could not initialize cluster."
+                    }
                     throw IllegalStateException("Cluster state is invalid, required Benchmark for running execution not found.")
                 }
             }
-        }
+    }
 
-    private  fun clearByLabel() {
+    private fun clearByLabel() {
         val resourceRemover = ResourceByLabelHandler(client = client)
         resourceRemover.removeServices(
             labelName = "app.kubernetes.io/created-by",
