@@ -15,28 +15,6 @@ stages:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
-
-# Theodolite Docs
-
-build-docs:
-  stage: build
-  image: ruby:2.7
-  tags:
-    - exec-docker
-  cache:
-    paths:
-      - docs/vendor
-  before_script:
-    - cd docs
-    - gem install bundler
-    - bundle config set --local path 'vendor'
-    - bundle install
-  script: bundle exec jekyll build
-  artifacts:
-    paths:
-      - docs/_site
-
-
 # Theodolite Helm Chart
 
 lint-helm:
