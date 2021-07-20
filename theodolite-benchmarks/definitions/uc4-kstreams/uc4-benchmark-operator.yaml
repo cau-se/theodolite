@@ -1,31 +1,31 @@
 apiVersion: theodolite.com/v1
 kind: benchmark
+metadata:
+  name: uc4-kstreams
 spec:
-  metadata:
-    name: uc4-kstreams
   appResource:
-    - "uc4-kstreams-deployment.yaml"
-    - "uc4-kstreams-service.yaml"
-    - "uc4-jmx-configmap.yaml"
-    - "uc4-service-monitor.yaml"
+    - "uc4-kstreams/uc4-kstreams-deployment.yaml"
+    - "uc4-kstreams/uc4-kstreams-service.yaml"
+    - "uc4-kstreams/uc4-jmx-configmap.yaml"
+    - "uc4-kstreams/uc4-service-monitor.yaml"
   loadGenResource:
-    - "uc4-load-generator-deployment.yaml"
-    - "uc4-load-generator-service.yaml"
+    - "uc4-kstreams/uc4-load-generator-deployment.yaml"
+    - "uc4-kstreams/uc4-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc4-kstreams-deployment.yaml"
+          resource: "uc4-kstreams/uc4-kstreams-deployment.yaml"
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc4-load-generator-deployment.yaml"
+          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumNestedGroupsLoadGeneratorReplicaPatcher
-          resource: "uc4-load-generator-deployment.yaml"
+          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "15000"
             numSensors: "4.0"
