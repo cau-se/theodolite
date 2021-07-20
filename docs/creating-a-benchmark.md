@@ -20,8 +20,7 @@ Please note that to simply run a benchmark, it is not required to define one. Th
 ### Make benchmark Kubernetes resources accessible
 
 * A benchmark is defined by a set of Kubernetes resources, which are automatically deployed and scaled by Theodolite.
-* To make these resources accessible by the Theodolite operator, we need to add them to a volume, already mounted by Theodolite. The easiest way to do this is by adding the resources to the configmap `xyz`, which is mounted by Theodilte with its default installation:
-* `sh`
+* To make these resources accessible by the Theodolite operator, we need to add them to a volume, already mounted by Theodolite. The easiest way to do this is by adding the resources to the ConfigMap `benchmark-resources-custom`, which is mounted by Theodolite with its default installation.
 
 
 
