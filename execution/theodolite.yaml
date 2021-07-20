@@ -9,12 +9,12 @@ spec:
         runAsUser: 0 # Set the permissions for write access to the volumes.
       containers:
         - name: lag-analysis
-          image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:theodolite-kotlin-latest
+          image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend:latest
           ports:
           - containerPort: 80
             name: analysis
         - name: theodolite
-          image: ghcr.io/cau-se/theodolite:theodolite-kotlin-latest
+          image: ghcr.io/cau-se/theodolite:latest
           imagePullPolicy: Always
           env:
             - name: NAMESPACE

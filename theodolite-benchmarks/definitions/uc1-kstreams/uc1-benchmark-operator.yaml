@@ -24,10 +24,10 @@ spec:
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
-        - type: "NumSensorsLoadGeneratorReplicaPatcher"
+        - type: NumSensorsLoadGeneratorReplicaPatcher
           resource: "uc1-kstreams/uc1-load-generator-deployment.yaml"
           properties:
-            loadGenMaxRecords: "15000"
+            loadGenMaxRecords: "150000"
   kafkaConfig:
     bootstrapServer: "theodolite-cp-kafka:9092"
     topics:

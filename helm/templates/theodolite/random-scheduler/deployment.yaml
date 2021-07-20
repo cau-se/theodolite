@@ -22,7 +22,7 @@ spec:
       serviceAccount: {{ include "theodolite.fullname" . }}-random-scheduler
       containers:
         - name: random-scheduler
-          image: ghcr.io/cau-se/theodolite-random-scheduler:theodolite-kotlin-latest
+          image: ghcr.io/cau-se/theodolite-random-scheduler:latest
           #imagePullPolicy: Always
           env:
             - name: TARGET_NAMESPACE
