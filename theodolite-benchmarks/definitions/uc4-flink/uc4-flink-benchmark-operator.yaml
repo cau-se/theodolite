@@ -37,8 +37,11 @@ spec:
           properties:
             container: "workload-generator"
             variableName: "NUM_NESTED_GROUPS"
-        - type: "NumNestedGroupsLoadGeneratorReplicaPatcher"
+        - type: NumNestedGroupsLoadGeneratorReplicaPatcher
           resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "150000"
+            numSensors: "4.0"
   kafkaConfig:
     bootstrapServer: "theodolite-cp-kafka:9092"
     topics:
