@@ -11,9 +11,9 @@ In Theodolite, we distinguish between the static description of a scalability be
 ## Benchmarks
 
 Benchmarks define what should be executed in scalability experiments. They
-consists of system under test (SUT) and an associated load generator, where
+consist of a system under test (SUT) and an associated load generator, where
 both SUT and load generator are represented as sets of Kubernetes resources
-such Pods, Services, or ConfigMaps.
+such as Pods, Services, or ConfigMaps.
 Additionally, benchmarks define one or more load and resource types, scalability
 can be evaluated for.
 
