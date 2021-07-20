@@ -23,79 +23,106 @@ spec:
             required: ["benchmark", "load", "resources", "slos", "execution", "configOverrides"]
             properties:
               name:
+                description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
                 type: string
                 default: ""
               benchmark:
+                description: The name of the benchmark this execution is referring to.
                 type: string
               load: # definition of the load dimension
+                description: Specifies the load values that are benchmarked.
                 type: object
                 required: ["loadType", "loadValues"]
                 properties:
                   loadType:
-                   type: string
+                    description: The type of the load. It must match one of the load types specified in the referenced benchmark.
+                    type: string
                   loadValues:
+                    description: List of load values for the specified load type.
                     type: array
                     items:
                       type: integer
               resources: # definition of the resource dimension
+                description: Specifies the scaling resource that is benchmarked.
                 type: object
                 required: ["resourceType", "resourceValues"]
                 properties:
                   resourceType:
+                    description: The type of the resource. It must match one of the resource types specified in the referenced benchmark.
                     type: string
                   resourceValues:
+                    descriptoin:  List of resource values for the specified resource type.
                     type: array
                     items:
                       type: integer
               slos: # def of service level objectives
+                description:  List of resource values for the specified resource type.
                 type: array
                 items:
                   type: object
                   required: ["sloType", "threshold", "prometheusUrl", "externalSloUrl", "offset", "warmup"]
                   properties:
                     sloType:
+                      description: The type of the SLO. It must match 'lag trend'.
                       type: string
                     threshold:
+                      description: The threshold the SUT should meet for a sucessful experiment.
                       type: integer
                     prometheusUrl:
+                      description: Connection string for Promehteus.
                       type: string
                     externalSloUrl:
+                      description: Connection string for a external slo analysis.
                       type: string
                     offset:
+                      description: Hours by which the start and end timestamp will be shifted (for different timezones).
                       type: integer
                     warmup:
+                      description:  Seconds of time that are ignored in the analysis.
                       type: integer
               execution: # def execution config
+                description: Defines the overall parameter for the execution.
                 type: object
                 required: ["strategy", "duration", "repetitions", "restrictions"]
                 properties:
                   strategy:
+                    description: Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'
                     type: string
                   duration:
+                    description: Defines the duration of each experiment in seconds.
                     type: integer
                   repetitions:
+                    description: Numper of repititions for each experiments.
                     type: integer
                   loadGenerationDelay:
+                    description: Seconds to wait between the start of the SUT and the load generator.
                     type: integer
                   restrictions:
+                    description: List of restriction strategys used to delimit the search space.
                     type: array
                     items:
                       type: string
               configOverrides:
+                description:  List of patchers that are used to override existing configurations.
                 type: array
                 items:
                   type: object
                   properties:
                     patcher:
+                      description: Patcher used to patch a resource
                       type: object
+                      required: ["type", "resource"]
                       properties:
                         type:
+                          description: Type of the Patcher.
                           type: string
                           default: ""
                         resource:
+                          description: Specifies the Kubernetes resource to be patched.
                           type: string
                           default: ""
                         properties:
+                          description: (Optional) Patcher specific additional arguments.
                           type: object
                           additionalProperties: true
                           x-kubernetes-map-type: "granular"
