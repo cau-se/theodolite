@@ -29,14 +29,30 @@ spec:
             - name: THEODOLITE_APP_RESOURCES
               value: "./benchmark-resources"
             - name: RESULTS_FOLDER
-              value: "results"
+              value: "./results"
           volumeMounts:
             {{- if .Values.operator.resultsVolume.enabled }}
             - name: theodolite-pv-storage
               mountPath: "/deployments/results"
             {{- end }}
-            - name: benchmark-resources
-              mountPath: /work/benchmark-resources
+            - name: benchmark-resources-uc1-kstreams
+              mountPath: /deployments/benchmark-resources/uc1-kstreams
+            - name: benchmark-resources-uc2-kstreams
+              mountPath: /deployments/benchmark-resources/uc2-kstreams
+            - name: benchmark-resources-uc3-kstreams
+              mountPath: /deployments/benchmark-resources/uc3-kstreams
+            - name: benchmark-resources-uc4-kstreams
+              mountPath: /deployments/benchmark-resources/uc4-kstreams
+            - name: benchmark-resources-uc1-flink
+              mountPath: /deployments/benchmark-resources/uc1-flink
+            - name: benchmark-resources-uc2-flink
+              mountPath: /deployments/benchmark-resources/uc2-flink
+            - name: benchmark-resources-uc3-flink
+              mountPath: /deployments/benchmark-resources/uc3-flink
+            - name: benchmark-resources-uc4-flink
+              mountPath: /deployments/benchmark-resources/uc4-flink
+            - name: benchmark-resources-custom
+              mountPath: /deployments/benchmark-resources/custom
         {{- if .Values.operator.sloChecker.lagTrend.enabled }}
         - name: lag-trend-slo-checker
           image: "{{ .Values.operator.sloChecker.lagTrend.image }}:{{ .Values.operator.sloChecker.lagTrend.imageTag }}"
@@ -67,8 +83,40 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.operator.resultsVolume.persistentVolumeClaim.name | quote }}
       {{- end }}
-      - name: benchmark-resources
+      - name: benchmark-resources-uc1-kstreams
         configMap:
-          name: benchmark-resources
+          name: benchmark-resources-uc1-kstreams
+          optional: true
+      - name: benchmark-resources-uc2-kstreams
+        configMap:
+          name: benchmark-resources-uc2-kstreams
+          optional: true
+      - name: benchmark-resources-uc3-kstreams
+        configMap:
+          name: benchmark-resources-uc3-kstreams
+          optional: true
+      - name: benchmark-resources-uc4-kstreams
+        configMap:
+          name: benchmark-resources-uc4-kstreams
+          optional: true
+      - name: benchmark-resources-uc1-flink
+        configMap:
+          name: benchmark-resources-uc1-flink
+          optional: true
+      - name: benchmark-resources-uc2-flink
+        configMap:
+          name: benchmark-resources-uc2-flink
+          optional: true
+      - name: benchmark-resources-uc3-flink
+        configMap:
+          name: benchmark-resources-uc3-flink
+          optional: true
+      - name: benchmark-resources-uc4-flink
+        configMap:
+          name: benchmark-resources-uc4-flink
+          optional: true
+      - name: benchmark-resources-custom
+        configMap:
+          name: benchmark-resources-custom
           optional: true
 {{- end }}
