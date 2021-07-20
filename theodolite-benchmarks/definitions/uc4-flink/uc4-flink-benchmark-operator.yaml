@@ -1,13 +1,16 @@
 apiVersion: theodolite.com/v1
 kind: benchmark
 metadata:
-  name: uc4-kstreams
+  name: uc4-flink
 spec:
   appResource:
-    - "uc4-kstreams/uc4-kstreams-deployment.yaml"
-    - "uc4-kstreams/uc4-kstreams-service.yaml"
-    - "uc4-kstreams/uc4-jmx-configmap.yaml"
-    - "uc4-kstreams/uc4-service-monitor.yaml"
+    - "uc4-flink/flink-configuration-configmap.yaml"
+    - "uc4-flink/taskmanager-deployment.yaml"
+    - "uc4-flink/taskmanager-service.yaml"
+    - "uc4-flink/service-monitor.yaml"
+    - "uc4-flink/jobmanager-service.yaml"
+    - "uc4-flink/jobmanager-deployment.yaml"
+    #- "uc4-flink/jobmanager-rest-service.yaml"
   loadGenResource:
     - "uc4-kstreams/uc4-load-generator-deployment.yaml"
     - "uc4-kstreams/uc4-load-generator-service.yaml"
@@ -15,7 +18,17 @@ spec:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc4-kstreams/uc4-kstreams-deployment.yaml"
+          resource: "uc4-flink/taskmanager-deployment.yaml"
+        - type: "EnvVarPatcher"
+          resource: "uc4-flink/jobmanager-deployment.yaml"
+          properties:
+            container: "jobmanager"
+            variableName: "PARALLELISM"
+        - type: "EnvVarPatcher" # required?
+          resource: "uc4-flink/taskmanager-deployment.yaml"
+          properties:
+            container: "taskmanager"
+            variableName: "PARALLELISM"
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
@@ -23,12 +36,9 @@ spec:
           resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
-            variableName: "NUM_SENSORS"
-        - type: NumNestedGroupsLoadGeneratorReplicaPatcher
+            variableName: "NUM_NESTED_GROUPS"
+        - type: "NumNestedGroupsLoadGeneratorReplicaPatcher"
           resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
-          properties:
-            loadGenMaxRecords: "15000"
-            numSensors: "4.0"
   kafkaConfig:
     bootstrapServer: "theodolite-cp-kafka:9092"
     topics:
