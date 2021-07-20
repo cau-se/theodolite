@@ -1,0 +1,52 @@
+apiVersion: theodolite.com/v1
+kind: benchmark
+metadata:
+  name: uc2-flink
+spec:
+  appResource:
+    - "uc2-flink/flink-configuration-configmap.yaml"
+    - "uc2-flink/taskmanager-deployment.yaml"
+    - "uc2-flink/taskmanager-service.yaml"
+    - "uc2-flink/service-monitor.yaml"
+    - "uc2-flink/jobmanager-service.yaml"
+    - "uc2-flink/jobmanager-deployment.yaml"
+    #- "uc2-flink/jobmanager-rest-service.yaml"
+  loadGenResource:
+    - "uc2-kstreams/uc2-load-generator-deployment.yaml"
+    - "uc2-kstreams/uc2-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc2-flink/taskmanager-deployment.yaml"
+        - type: "EnvVarPatcher"
+          resource: "uc2-flink/jobmanager-deployment.yaml"
+          properties:
+            container: "jobmanager"
+            variableName: "PARALLELISM"
+        - type: "EnvVarPatcher" # required?
+          resource: "uc2-flink/taskmanager-deployment.yaml"
+          properties:
+            container: "taskmanager"
+            variableName: "PARALLELISM"
+  loadTypes:
+    - typeName: "NumSensors"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_SENSORS"
+        - type: NumSensorsLoadGeneratorReplicaPatcher
+          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+  kafkaConfig:
+    bootstrapServer: "theodolite-cp-kafka:9092"
+    topics:
+      - name: "input"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "output"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "theodolite-.*"
+        removeOnly: True

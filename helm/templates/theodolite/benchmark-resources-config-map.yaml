@@ -1,0 +1,19 @@
+{{- $processedDict := dict -}}
+{{- range $path, $bytes := .Files.Glob "benchmark-definitions/**/resources/**" }}
+{{- $name := base (dir (dir $path)) }}
+{{- if not (hasKey $processedDict $name) -}}
+{{ $_ := set $processedDict $name "true" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: benchmark-resources-{{ $name }}
+data:
+{{ ($.Files.Glob (printf "benchmark-definitions/%s/resources/*" $name)).AsConfig | indent 2 }}
+---
+{{- end }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: benchmark-resources-custom
+data: {}

@@ -1,0 +1,287 @@
+###
+# Theodolite resources
+###
+
+kafkaClient:
+  enabled: true
+  nodeSelector: {}
+  
+
+####
+## configuration of sub charts
+###
+
+###
+# Grafana
+###
+grafana:
+  enabled: true
+  nodeSelector: {}
+  image:
+    repository: grafana/grafana
+    tag: 6.7.3
+    pullPolicy: IfNotPresent
+  # Administrator credentials when not using an existing secret (see below)
+  adminUser: admin
+  adminPassword: admin
+  grafana.ini:
+    #org_name: Theodolite
+    auth.anonymous:
+      # enable anonymous access
+      enabled: true
+      org_role: Admin # Role for unauthenticated users, other valid values are `Viewer`, `Editor` and `Admin`
+    users:
+      default_theme: light
+    #dashboards: # the following doesn't work but is planed
+      # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
+      #default_home_dashboard_path: "/tmp/dashboards/k8s-dashboard.json"
+  ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
+  ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
+  sidecar:
+    image:
+      repository: "kiwigrid/k8s-sidecar"
+      tag: "0.1.99"
+    imagePullPolicy: IfNotPresent
+    dashboards:
+      enabled: true
+      provider:
+        # allow updating provisioned dashboards from the UI
+        allowUiUpdates: true
+    datasources:
+      enabled: true
+  service:
+    nodePort: 31199
+    type: NodePort
+
+
+###
+# Confluent Platform 
+###
+
+cp-helm-charts:
+  enabled: true
+  ## ------------------------------------------------------
+  ## Zookeeper
+  ## ------------------------------------------------------
+  cp-zookeeper:
+    enabled: true
+    nodeSelector: {}
+    servers: 3 # default: 3 
+    image: confluentinc/cp-zookeeper
+    imageTag: 5.4.0
+    ## Optionally specify an array of imagePullSecrets. Secrets must be manually created in the namespace.
+    ## https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+    imagePullSecrets:
+    #  - name: "regcred"
+    heapOptions: "-Xms512M -Xmx512M"
+    persistence:
+      enabled: false
+
+  ## ------------------------------------------------------
+  ## Kafka
+  ## ------------------------------------------------------
+  cp-kafka:
+    enabled: true
+    nodeSelector: {}
+    brokers: 10 # default: 10
+    image: confluentinc/cp-enterprise-kafka
+    imageTag: 5.4.0
+    ## Optionally specify an array of imagePullSecrets. Secrets must be manually created in the namespace.
+    ## https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+    imagePullSecrets:
+    #  - name: "regcred"
+    heapOptions: "-Xms512M -Xmx512M"
+    persistence:
+      enabled: false
+    resources: {}
+    configurationOverrides:
+      #offsets.topic.replication.factor: 1
+      "message.max.bytes": "134217728" # 128 MB
+      "replica.fetch.max.bytes": "134217728" # 128 MB
+      #default.replication.factor: 1
+      # "min.insync.replicas": 2
+      "auto.create.topics.enable": false
+      #"log.retention.ms": "10000" # 10s
+      "log.retention.ms": "7200000" # 2h
+      "metrics.sample.window.ms": "5000" #5s
+      "advertised.listeners": |-
+        EXTERNAL://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}))
+      "listener.security.protocol.map": |-
+        PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+    
+    nodeport:
+      enabled: false
+      servicePort: 19092
+      firstListenerPort: 31090
+
+
+  ## ------------------------------------------------------
+  ## Schema Registry
+  ## ------------------------------------------------------
+  cp-schema-registry:
+    enabled: true
+    nodeSelector: {}
+    image: confluentinc/cp-schema-registry
+    imageTag: 5.4.0
+    ## Optionally specify an array of imagePullSecrets. Secrets must be manually created in the namespace.
+    ## https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+    imagePullSecrets:
+    #  - name: "regcred"
+    heapOptions: "-Xms512M -Xmx512M"
+    resources: {}
+    
+    external:
+      enabled: true
+      type: NodePort
+      servicePort: 8081
+      nodePort: 30099
+      annotations: {}
+
+  cp-kafka-rest:
+    enabled: false
+
+  cp-kafka-connect:
+    enabled: false
+
+  cp-ksql-server:
+    enabled: false
+
+  cp-control-center:
+    enabled: false
+
+
+###
+# Kafka Lag Exporter
+###
+kafka-lag-exporter:
+  enabled: true
+  nodeSelector: {}
+  clusters:
+    - name: "theodolite-cp-kafka"
+      bootstrapBrokers: "theodolite-cp-kafka:9092"
+
+  ## The interval between refreshing metrics
+  pollIntervalSeconds: 15
+
+  prometheus:
+    serviceMonitor:
+      enabled: true
+      interval: "5s"
+      additionalLabels:
+        appScope: titan-ccp
+
+
+###
+# Prometheus Monitoring Stack (Prometheus Operator)
+###
+kube-prometheus-stack:
+  commonLabels:
+    appScope: titan-ccp
+  
+  alertmanager:
+    enabled: false
+  
+  grafana:
+    enabled: false
+  
+  kubeApiServer:
+    enabled: false
+  
+  kubelet:
+    enabled: false
+  
+  kubeControllerManager:
+    enabled: false
+  
+  coreDns:
+    enabled: false
+  
+  kubeDns:
+    enabled: false
+   
+  kubeEtcd:
+    enabled: false
+  
+  kubeScheduler:
+    enabled: false
+  
+  kubeProxy:
+    enabled: false
+  
+  kubeStateMetrics:
+    enabled: false
+  
+  nodeExporter:
+    enabled: false
+  
+  prometheusOperator:
+    enabled: true
+    namespaces:
+      releaseNamespace: true
+      additional: []
+    nodeSelector: {}
+  
+  prometheus:
+    enabled: false
+
+
+###
+# Prometheus
+###
+prometheus: 
+  enabled: true
+  nodeSelector: {}
+  
+  # depends on your cluster security and permission settings, you may need to create the following resources
+  serviceAccount:
+    enabled: true
+  clusterRole:
+    enabled: true
+  clusterRoleBinding:
+    enabled: true
+
+###
+# Theodolite Operator
+###
+operator:
+  enabled: true
+  
+  image: ghcr.io/cau-se/theodolite
+  imageTag: theodolite-kotlin-latest
+  imagePullPolicy: Always
+
+  executionCRD:
+    create: true
+  benchmarkCRD:
+    create: true
+
+  sloChecker:
+    lagTrend:
+      enabled: true
+      image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
+      imageTag: theodolite-kotlin-latest
+      imagePullPolicy: Always
+
+  resultsVolume:
+    enabled: true
+    persistentVolumeClaim:
+      name: theodolite-pv-claim
+    accessSidecar:
+      enabled: true
+      image: busybox
+      imageTag: stable
+      imagePullPolicy: IfNotPresent
+
+
+serviceAccount:
+  create: true
+
+rbac:
+  create: true
+
+randomScheduler:
+  enabled: true
+  rbac:
+    create: true
+  serviceAccount:
+    create: true

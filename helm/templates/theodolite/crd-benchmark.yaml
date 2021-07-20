@@ -1,0 +1,119 @@
+{{- if .Values.operator.benchmarkCRD.create -}}
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: benchmarks.theodolite.com
+spec:
+  group: theodolite.com
+  names:
+    kind: benchmark
+    plural: benchmarks
+    shortNames:
+      - bench
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            required: []
+            properties:
+              name:
+                type: string
+              appResource:
+                type: array
+                minItems: 1
+                items:
+                  type: string
+              loadGenResource:
+                type: array
+                minItems: 1
+                items:
+                  type: string
+              resourceTypes:
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  properties:
+                    typeName:
+                      type: string
+                    patchers:
+                      type: array
+                      minItems: 1
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            default: ""
+                          resource:
+                            type: string
+                            default: ""
+                          properties:
+                            type: object
+                            additionalProperties: true
+                            x-kubernetes-map-type: "granular"
+                            default: {}
+              loadTypes:
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  properties:
+                    typeName:
+                      type: string
+                    patchers:
+                      type: array
+                      minItems: 1
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            default: ""
+                          resource:
+                            type: string
+                            default: ""
+                          properties:
+                            type: object
+                            additionalProperties: true
+                            x-kubernetes-map-type: "granular"
+                            default: {}
+              kafkaConfig:
+                type: object
+                properties:
+                  bootstrapServer:
+                    type: string
+                  topics:
+                    type: array
+                    minItems: 1
+                    items:
+                      type: object
+                      required: []
+                      properties:
+                        name:
+                          type: string
+                          default: ""
+                        numPartitions:
+                          type: integer
+                          default: 0
+                        replicationFactor:
+                          type: integer
+                          default: 0
+                        removeOnly:
+                          type: boolean
+                          default: false
+    additionalPrinterColumns:
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp
+    subresources:
+      status: {}
+  scope: Namespaced
+{{- end }}

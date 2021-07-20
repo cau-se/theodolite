@@ -24,7 +24,7 @@ lint-helm:
     entrypoint: [""]
   tags:
     - exec-docker
-  script: helm lint execution/helm/
+  script: helm lint helm/
 
 
 # Theodolite Benchmarks
@@ -37,10 +37,11 @@ lint-helm:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
     paths:
-      - .gradle
+      - .gradle/wrapper
+      - .gradle/caches
   before_script:
-    - cd theodolite-benchmarks
     - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite-benchmarks
 
 build-benchmarks:
   stage: build
@@ -212,13 +213,86 @@ deploy-uc4-load-generator:
 
 # Theodolite Framework
 
+.theodolite:
+  image:
+    name: ghcr.io/graalvm/native-image:java11-21.1.0
+    entrypoint: [""]
+  tags:
+    - exec-docker
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite
+
+build-theodolite-jvm:
+  stage: build
+  extends: .theodolite
+  script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "theodolite/build/lib/*"
+      - "theodolite/build/*-runner.jar"
+    expire_in: 6 hours
+
+build-theodolite-native:
+  stage: build
+  extends: .theodolite
+  script:
+    - ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  when: manual
+  artifacts:
+    paths:
+      - "theodolite/build/*-runner"
+    expire_in: 6 hours
+
+test-theodolite:
+  stage: test
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    #- build-theodolite-native
+  script: ./gradlew test --stacktrace
+  artifacts:
+    reports:
+      junit:
+        - "theodolite/**/build/test-results/test/TEST-*.xml"
+
+# Disabled for now
+.ktlint-theodolite:
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    - test-theodolite
+  script: ./gradlew ktlintCheck --continue
+
+# Disabled for now
+.detekt-theodolite: 
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    - test-theodolite
+  script: ./gradlew detekt --continue
+
 deploy-theodolite:
   stage: deploy
   extends:
+    - .theodolite
     - .dind
+  needs:
+    #- build-theodolite-native
+    - build-theodolite-jvm
+    - test-theodolite
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite ./execution
+    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
+    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
     - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
@@ -229,7 +303,46 @@ deploy-theodolite:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - execution/**/*
+      - theodolite/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: always
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+
+# Theodolite SLO Checker: Lag Trend
+
+test-slo-checker-lag-trend:
+  stage: test
+  image: python:3.7-slim
+  tags:
+    - exec-docker
+  script:
+    - cd slope-evaluator
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+
+deploy-slo-checker-lag-trend:
+  stage: deploy
+  extends:
+    - .dind
+  needs:
+    - test-slo-checker-lag-trend
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t theodolite-slo-checker-lag-trend slope-evaluator
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:${DOCKER_TAG_NAME}latest"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:$CI_COMMIT_TAG"
+    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
+    - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend
+    - docker logout
+  rules:
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - slope-evaluator/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
@@ -243,6 +356,7 @@ deploy-random-scheduler:
   stage: deploy
   extends:
     - .dind
+  needs: []
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - docker build --pull -t theodolite-random-scheduler execution/infrastructure/random-scheduler
