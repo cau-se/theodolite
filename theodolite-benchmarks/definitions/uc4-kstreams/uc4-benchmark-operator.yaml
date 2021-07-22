@@ -27,7 +27,7 @@ spec:
         - type: NumNestedGroupsLoadGeneratorReplicaPatcher
           resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
           properties:
-            loadGenMaxRecords: "15000"
+            loadGenMaxRecords: "150000"
             numSensors: "4.0"
   kafkaConfig:
     bootstrapServer: "theodolite-cp-kafka:9092"

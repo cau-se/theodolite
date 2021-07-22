@@ -247,7 +247,7 @@ operator:
   enabled: true
   
   image: ghcr.io/cau-se/theodolite
-  imageTag: theodolite-kotlin-latest
+  imageTag: latest
   imagePullPolicy: Always
 
   executionCRD:
@@ -259,7 +259,7 @@ operator:
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
-      imageTag: theodolite-kotlin-latest
+      imageTag: latest
       imagePullPolicy: Always
 
   resultsVolume:
