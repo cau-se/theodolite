@@ -5,7 +5,7 @@ import theodolite.util.ConfigurationOverride
 import theodolite.util.PatcherDefinition
 
 /**
- * The ConfigOverrideModifier makes it possible to update the configuration overrides of a execution.
+ * The ConfigOverrideModifier makes it possible to update the configuration overrides of an execution.
  *
  * @property execution execution for which the config overrides should be updated
  * @property resources list of all resources that should be updated.

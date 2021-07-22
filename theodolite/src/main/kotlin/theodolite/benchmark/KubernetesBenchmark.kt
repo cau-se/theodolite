@@ -12,7 +12,7 @@ import theodolite.util.*
 private val logger = KotlinLogging.logger {}
 
 private var DEFAULT_NAMESPACE = "default"
-private var DEFAULT_THEODOLITE_APP_RESOURCES = "./config"
+private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
 
 /**
  * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
