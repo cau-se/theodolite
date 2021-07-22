@@ -78,10 +78,6 @@ class PatcherFactory {
                     k8sResource = resource,
                     container = patcherDefinition.properties["container"]!!
                 )
-                "ImagePatcher" -> ImagePatcher(
-                    k8sResource = resource,
-                    container = patcherDefinition.properties["container"]!!
-                )
                 else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
             }
         } catch (e: Exception) {
