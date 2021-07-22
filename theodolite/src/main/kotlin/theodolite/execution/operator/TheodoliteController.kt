@@ -12,6 +12,10 @@ import theodolite.util.ExecutionStateComparator
 import java.lang.Thread.sleep
 
 private val logger = KotlinLogging.logger {}
+const val DEPLOYED_FOR_EXECUTION_LABEL_NAME = "deployed-for-execution"
+const val DEPLOYED_FOR_BENCHMARK_LABEL_NAME = "deployed-for-benchmark"
+const val CREATED_BY_LABEL_NAME = "app.kubernetes.io/created-by"
+const val CREATED_BY_LABEL_VALUE = "theodolite"
 
 /**
  * The controller implementation for Theodolite.
@@ -67,15 +71,15 @@ class TheodoliteController(
         )
         modifier.setAdditionalLabels(
             labelValue = execution.name,
-            labelName = "deployed-for-execution"
+            labelName = DEPLOYED_FOR_EXECUTION_LABEL_NAME
         )
         modifier.setAdditionalLabels(
             labelValue = benchmark.name,
-            labelName = "deployed-for-benchmark"
+            labelName = DEPLOYED_FOR_BENCHMARK_LABEL_NAME
         )
         modifier.setAdditionalLabels(
-            labelValue = "theodolite",
-            labelName = "app.kubernetes.io/created-by"
+            labelValue = CREATED_BY_LABEL_VALUE,
+            labelName = CREATED_BY_LABEL_NAME
         )
 
         executionStateHandler.setExecutionState(execution.name, States.RUNNING)
