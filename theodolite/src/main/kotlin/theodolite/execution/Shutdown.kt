@@ -43,8 +43,7 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
 
         }
         logger.info {
-            "Teardown everything deployed. " +
-                    "\n Teardown completed"
+            "Finished teardown of all benchmark resources."
         }
     }
 }
