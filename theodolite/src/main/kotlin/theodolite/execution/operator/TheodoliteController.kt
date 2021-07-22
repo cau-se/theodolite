@@ -8,7 +8,7 @@ import theodolite.benchmark.KubernetesBenchmark
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
 import theodolite.patcher.ConfigOverrideModifier
-import theodolite.util.ExecutionComparator
+import theodolite.util.ExecutionStateComparator
 import java.lang.Thread.sleep
 
 private val logger = KotlinLogging.logger {}
@@ -133,7 +133,7 @@ class TheodoliteController(
      * @return the next execution or null
      */
     private fun getNextExecution(): BenchmarkExecution? {
-        val comparator = ExecutionComparator().compareByState(States.RESTART)
+        val comparator = ExecutionStateComparator(States.RESTART)
         val availableBenchmarkNames = getBenchmarks()
             .map { it.name }
 
