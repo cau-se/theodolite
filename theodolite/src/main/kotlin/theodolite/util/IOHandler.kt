@@ -22,7 +22,7 @@ class IOHandler {
         var resultsFolder: String = System.getenv("RESULTS_FOLDER") ?: ""
         val createResultsFolder = System.getenv("CREATE_RESULTS_FOLDER") ?: "false"
 
-        if (resultsFolder != ""){
+        if (resultsFolder != "") {
             logger.info { "RESULT_FOLDER: $resultsFolder" }
             val directory = File(resultsFolder)
             if (!directory.exists()) {
@@ -35,7 +35,7 @@ class IOHandler {
             }
             resultsFolder += "/"
         }
-        return  resultsFolder
+        return resultsFolder
     }
 
     /**
@@ -70,9 +70,9 @@ class IOHandler {
     fun writeToCSVFile(fileURL: String, data: List<List<String>>, columns: List<String>) {
         val outputFile = File("$fileURL.csv")
         PrintWriter(outputFile).use { pw ->
-            pw.println(columns.joinToString(separator=","))
+            pw.println(columns.joinToString(separator = ","))
             data.forEach {
-                pw.println(it.joinToString(separator=","))
+                pw.println(it.joinToString(separator = ","))
             }
         }
         logger.info { "Wrote CSV file: $fileURL to ${outputFile.absolutePath}." }
@@ -87,7 +87,7 @@ class IOHandler {
     fun writeStringToTextFile(fileURL: String, data: String) {
         val outputFile = File("$fileURL")
         outputFile.printWriter().use {
-                it.println(data)
+            it.println(data)
         }
         logger.info { "Wrote txt file: $fileURL to ${outputFile.absolutePath}." }
     }

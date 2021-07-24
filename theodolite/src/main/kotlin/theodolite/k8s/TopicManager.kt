@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.CreateTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
-import org.apache.kafka.common.errors.TopicExistsException
 import java.lang.Thread.sleep
 
 private val logger = KotlinLogging.logger {}
@@ -35,7 +34,7 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
                 logger.debug { e } // TODO remove due to attached exception to warn log?
                 logger.info { "Remove existing topics." }
                 delete(newTopics.map { topic -> topic.name() }, kafkaAdmin)
-                logger.info { "Will retry the topic creation in ${RETRY_TIME/1000} seconds." }
+                logger.info { "Will retry the topic creation in ${RETRY_TIME / 1000} seconds." }
                 sleep(RETRY_TIME)
                 retryCreation = true
             }
@@ -104,7 +103,7 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
             if (toDelete.isNullOrEmpty()) {
                 deleted = true
             } else {
-                logger.info { "Deletion of Kafka topics failed, will retry in ${RETRY_TIME/1000} seconds." }
+                logger.info { "Deletion of Kafka topics failed, will retry in ${RETRY_TIME / 1000} seconds." }
                 sleep(RETRY_TIME)
             }
         }

@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Namespaced
 
 @JsonDeserialize
-class ExecutionStatus(): KubernetesResource, Namespaced {
+class ExecutionStatus : KubernetesResource, Namespaced {
     var executionState: String = ""
     var executionDuration: String = "-"
 }

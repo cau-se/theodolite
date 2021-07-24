@@ -17,8 +17,7 @@ data class PrometheusResponse(
      * The data section of the query result contains the information about the resultType and the values itself.
      */
     var data: PromData? = null
-)
-{
+) {
     /**
      * Return the data of the PrometheusResponse as [List] of [List]s of [String]s
      * The format of the returned list is: `[[ group, timestamp, value ], [ group, timestamp, value ], ... ]`

@@ -15,6 +15,10 @@ class ExecutionCRDummy(name: String, benchmark: String) {
         return this.executionCR
     }
 
+    fun getStatus() : ExecutionStatus {
+        return this.executionState
+    }
+
     init {
         // configure metadata
         executionCR.spec = execution

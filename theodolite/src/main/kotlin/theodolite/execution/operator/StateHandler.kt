@@ -9,6 +9,7 @@ interface StateHandler<T> {
         resourceName: String,
         desiredStatusString: String,
         f: (T) -> String?,
-        maxTries: Int = MAX_TRIES): Boolean
+        maxTries: Int = MAX_TRIES
+    ): Boolean
 
 }
