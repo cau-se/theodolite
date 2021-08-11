@@ -124,7 +124,7 @@ class TheodoliteOperator {
         )
     }
 
-    private fun getBenchmarkClient(client: NamespacedKubernetesClient): MixedOperation<
+    fun getBenchmarkClient(client: NamespacedKubernetesClient): MixedOperation<
             BenchmarkCRD,
             KubernetesBenchmarkList,
             Resource<BenchmarkCRD>> {

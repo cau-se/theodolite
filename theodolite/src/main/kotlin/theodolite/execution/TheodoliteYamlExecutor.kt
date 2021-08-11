@@ -3,7 +3,7 @@ package theodolite.execution
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
-import theodolite.util.YamlParser
+import theodolite.util.YamlParserFromFile
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
@@ -26,7 +26,7 @@ private val logger = KotlinLogging.logger {}
  * @constructor Create empty Theodolite yaml executor
  */
 class TheodoliteYamlExecutor {
-    private val parser = YamlParser()
+    private val parser = YamlParserFromFile()
 
     fun start() {
         logger.info { "Theodolite started" }

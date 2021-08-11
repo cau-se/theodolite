@@ -36,3 +36,14 @@ spec:
         replicationFactor: 1
       - name: "theodolite-.*"
         removeOnly: True
+        numPartitions: 0
+        replicationFactor: 0
+  appResourceSets:
+    - name: TestAppResources
+      FileSystemResourceSet:
+        path: ./config
+  loadGenResourceSets:
+    - name: RestGenResources
+      ConfigMapResourceSet:
+        configmap: "test-configmap"
+    

@@ -7,7 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
-import theodolite.util.YamlParser
+import theodolite.util.YamlParserFromFile
 
 private val logger = KotlinLogging.logger {}
 
@@ -37,7 +37,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
    private fun loadCustomResourceWrapper(path: String, context: CustomResourceDefinitionContext): CustomResourceWrapper {
        return loadGenericResource(path) {
            CustomResourceWrapper(
-               YamlParser().parse(
+               YamlParserFromFile().parse(
                    path,
                    HashMap<String, String>()::class.java
                )!!,
