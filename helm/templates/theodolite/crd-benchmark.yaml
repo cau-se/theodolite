@@ -130,8 +130,6 @@ spec:
                 items:
                   type: object
                   properties:
-                    name:
-                      type: string
                     ConfigMapResourceSet:
                       type: object
                       properties:
@@ -155,8 +153,6 @@ spec:
                 items:
                   type: object
                   properties:
-                    name:
-                      type: string
                     ConfigMapResourceSet:
                       type: object
                       properties:

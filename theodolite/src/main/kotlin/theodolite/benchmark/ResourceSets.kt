@@ -12,10 +12,6 @@ import theodolite.util.DeploymentFailedException
 @RegisterForReflection
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class ResourceSets: KubernetesResource {
-
-    @JsonProperty
-    lateinit var name: String
-
     @JsonProperty("ConfigMapResourceSet")
     val ConfigMapResourceSet: ConfigMapResourceSet? = null
 

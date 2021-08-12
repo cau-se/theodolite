@@ -31,8 +31,7 @@ spec:
         numPartitions: 0
         replicationFactor: 0
   appResourceSets:
-    - name: TestAppResources
-      FileSystemResourceSet:
+    - FileSystemResourceSet:
         path: ./config
         files:
           - "uc1-kstreams-deployment.yaml"
@@ -40,8 +39,7 @@ spec:
           - "jmx-configmap.yaml"
           - "uc1-service-monitor.yaml"
   loadGenResourceSets:
-    - name: RestGenResources
-      ConfigMapResourceSet:
+    - ConfigMapResourceSet:
         configmap: "test-configmap"
         files:
           - uc1-load-generator-service.yaml
