@@ -3,14 +3,6 @@ kind: benchmark
 metadata:
   name: uc1-kstreams
 spec:
-  appResource:
-    - "uc1-kstreams-deployment.yaml"
-    - "aggregation-service.yaml"
-    - "jmx-configmap.yaml"
-    - "uc1-service-monitor.yaml"
-  loadGenResource:
-    - "uc1-load-generator-deployment.yaml"
-    - "uc1-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
@@ -42,8 +34,16 @@ spec:
     - name: TestAppResources
       FileSystemResourceSet:
         path: ./config
+        files:
+          - "uc1-kstreams-deployment.yaml"
+          - "aggregation-service.yaml"
+          - "jmx-configmap.yaml"
+          - "uc1-service-monitor.yaml"
   loadGenResourceSets:
     - name: RestGenResources
       ConfigMapResourceSet:
         configmap: "test-configmap"
+        files:
+          - uc1-load-generator-service.yaml
+          - uc1-load-generator-deployment.yaml
     

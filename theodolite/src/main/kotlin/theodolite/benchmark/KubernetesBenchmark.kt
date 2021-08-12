@@ -34,8 +34,8 @@ private var DEFAULT_NAMESPACE = "default"
 @RegisterForReflection
 class KubernetesBenchmark: KubernetesResource, Benchmark{
     lateinit var name: String
-    lateinit var appResource: List<String>
-    lateinit var loadGenResource: List<String>
+    // var appResource: List<Pair<String, KubernetesResource>>
+    // var loadGenResource: List<Pair<String, KubernetesResource>>
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
@@ -44,6 +44,10 @@ class KubernetesBenchmark: KubernetesResource, Benchmark{
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
     var path =  System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
 
+    // init {
+    //    this.appResource = appResourceSets.flatMap { it.loadResourceSet() }
+    //    this.loadGenResource = loadGenResourceSets.flatMap { it.loadResourceSet() }
+   // }
 
     /**
      * Loads [KubernetesResource]s.

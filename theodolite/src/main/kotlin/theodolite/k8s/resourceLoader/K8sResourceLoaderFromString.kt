@@ -13,44 +13,44 @@ class K8sResourceLoaderFromString(private val client: NamespacedKubernetesClient
     K8sResourceLoader {
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun loadService(resourceStream: String): KubernetesResource {
-        return loadGenericResource(resourceStream) { x: String ->
+    override fun loadService(resource: String): KubernetesResource {
+        return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())
             client.services().load(stream).get() }
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun loadDeployment(path: String): Deployment {
-        return loadGenericResource(path) { x: String ->
+    override fun loadDeployment(resource: String): Deployment {
+        return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())
             client.apps().deployments().load(stream).get() }
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun loadConfigmap(path: String): ConfigMap {
-        return loadGenericResource(path) { x: String ->
+    override fun loadConfigmap(resource: String): ConfigMap {
+        return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())
             client.configMaps().load(stream).get() }
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun loadStatefulSet(path: String): KubernetesResource {
-        return loadGenericResource(path) { x: String ->
+    override fun loadStatefulSet(resource: String): KubernetesResource {
+        return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())
             client.apps().statefulSets().load(stream).get() }
     }
 
     /**
      * Parses a CustomResource from a yaml
-     * @param path of the yaml file
+     * @param resource of the yaml file
      * @param context specific crd context for this custom resource
      * @return  CustomResourceWrapper from fabric8
      */
-    override fun loadCustomResourceWrapper(path: String, context: CustomResourceDefinitionContext): CustomResourceWrapper {
-        return loadGenericResource(path) {
+    override fun loadCustomResourceWrapper(resource: String, context: CustomResourceDefinitionContext): CustomResourceWrapper {
+        return loadGenericResource(resource) {
             CustomResourceWrapper(
                 YamlParserFromString().parse(
-                    path,
+                    resource,
                     HashMap<String, String>()::class.java
                 )!!,
                 context

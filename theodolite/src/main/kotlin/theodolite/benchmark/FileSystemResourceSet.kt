@@ -10,18 +10,17 @@ import theodolite.util.YamlParserFromFile
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-
+private const val DEFAULT_NAMESPACE = "default"
 
 @JsonDeserialize
 class FileSystemResourceSet: ResourceSet {
     lateinit var path: String
     lateinit var files: List<String>
     private val parser = YamlParserFromFile()
-    private val loader = K8sResourceLoaderFromFile(DefaultKubernetesClient().inNamespace("default")) // TODO(set namespace correctly)
+    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    private val loader = K8sResourceLoaderFromFile(DefaultKubernetesClient().inNamespace(namespace))
 
     override fun getResourceSet(): List<Pair<String, KubernetesResource>> {
-        logger.info { "Get fileSystem resource set $path" }
-
 
         //if files is set ...
         if(::files.isInitialized){
@@ -33,6 +32,7 @@ class FileSystemResourceSet: ResourceSet {
         return try {
             File(path)
                 .list() !!
+                .filter { it.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
                 .map {
                     loadSingleResource(it)
                 }

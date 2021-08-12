@@ -28,6 +28,7 @@ class TheodoliteController(
     private val executionStateHandler: ExecutionStateHandler
 ) {
     lateinit var executor: TheodoliteExecutor
+
     /**
      *
      * Runs the TheodoliteController forever.
@@ -63,15 +64,18 @@ class TheodoliteController(
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         setAdditionalLabels(execution.name,
             "deployed-for-execution",
-            benchmark.appResource + benchmark.loadGenResource,
+            benchmark.appResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } }
+                    + benchmark.loadGenResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } },
             execution)
         setAdditionalLabels(benchmark.name,
             "deployed-for-benchmark",
-            benchmark.appResource + benchmark.loadGenResource,
+            benchmark.appResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } }
+                    + benchmark.loadGenResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } },
             execution)
         setAdditionalLabels("theodolite",
             "app.kubernetes.io/created-by",
-            benchmark.appResource + benchmark.loadGenResource,
+            benchmark.appResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } }
+                    + benchmark.loadGenResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } },
             execution)
 
         executionStateHandler.setExecutionState(execution.name, States.RUNNING)

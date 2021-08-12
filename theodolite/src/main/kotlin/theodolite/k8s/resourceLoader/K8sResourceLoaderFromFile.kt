@@ -19,11 +19,11 @@ class K8sResourceLoaderFromFile(private val client: NamespacedKubernetesClient):
 
     /**
      * Parses a Service from a service yaml
-     * @param path of the yaml file
+     * @param resource of the yaml file
      * @return Service from fabric8
      */
-    override fun loadService(path: String): Service {
-        return loadGenericResource(path) { x: String -> client.services().load(x).get() }
+    override fun loadService(resource: String): Service {
+        return loadGenericResource(resource) { x: String -> client.services().load(x).get() }
     }
 
 
@@ -33,11 +33,11 @@ class K8sResourceLoaderFromFile(private val client: NamespacedKubernetesClient):
      * @param context specific crd context for this custom resource
      * @return  CustomResourceWrapper from fabric8
      */
-    override fun loadCustomResourceWrapper(path: String, context: CustomResourceDefinitionContext): CustomResourceWrapper {
-       return loadGenericResource(path) {
+    override fun loadCustomResourceWrapper(resource: String, context: CustomResourceDefinitionContext): CustomResourceWrapper {
+       return loadGenericResource(resource) {
            CustomResourceWrapper(
                YamlParserFromFile().parse(
-                   path,
+                   resource,
                    HashMap<String, String>()::class.java
                )!!,
                context
@@ -47,29 +47,29 @@ class K8sResourceLoaderFromFile(private val client: NamespacedKubernetesClient):
 
     /**
      * Parses a Deployment from a Deployment yaml
-     * @param path of the yaml file
+     * @param resource of the yaml file
      * @return Deployment from fabric8
      */
-    override fun loadDeployment(path: String): Deployment {
-        return loadGenericResource(path) { x: String -> client.apps().deployments().load(x).get() }
+    override fun loadDeployment(resource: String): Deployment {
+        return loadGenericResource(resource) { x: String -> client.apps().deployments().load(x).get() }
     }
 
     /**
      * Parses a ConfigMap from a ConfigMap yaml
-     * @param path of the yaml file
+     * @param resource of the yaml file
      * @return ConfigMap from fabric8
      */
-    override fun loadConfigmap(path: String): ConfigMap {
-        return loadGenericResource(path) { x: String -> client.configMaps().load(x).get() }
+    override fun loadConfigmap(resource: String): ConfigMap {
+        return loadGenericResource(resource) { x: String -> client.configMaps().load(x).get() }
     }
 
     /**
      * Parses a StatefulSet from a StatefulSet yaml
-     * @param path of the yaml file
+     * @param resource of the yaml file
      * @return StatefulSet from fabric8
      */
-    override fun loadStatefulSet(path: String): KubernetesResource {
-        return loadGenericResource(path) { x: String -> client.apps().statefulSets().load(x).get() }
+    override fun loadStatefulSet(resource: String): KubernetesResource {
+        return loadGenericResource(resource) { x: String -> client.apps().statefulSets().load(x).get() }
 
     }
 }

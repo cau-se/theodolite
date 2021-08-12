@@ -9,56 +9,51 @@ import theodolite.k8s.resourceLoader.K8sResourceLoaderFromString
 import theodolite.util.YamlParserFromString
 
 private val logger = KotlinLogging.logger {}
-
-
+private const val DEFAULT_NAMESPACE = "default"
 
 @JsonDeserialize
 class ConfigMapResourceSet: ResourceSet {
     lateinit var configmap: String
     lateinit var files: List<String> // load all files, iff files is not set
-    private val namespace = "default"
-    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace) // TODO(load namespace from env var)
+    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
     private val loader = K8sResourceLoaderFromString(client)
 
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun getResourceSet(): List<Pair<String, KubernetesResource>> {
-        logger.info { "Load benchmark resources from configmap with name $configmap" }
 
         var resources = client
             .configMaps()
             .withName(configmap)
             .get()
             .data
+            .filter { it.key.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
 
 
         if (::files.isInitialized){
             resources = resources
-                .filterKeys { files.contains(it) }
+                .filter { files.contains(it.key) }
         }
 
         return resources
             .map { Pair(
                 getKind(resource = it.value),
-                resources) }
-            .map { Pair(
+                it) }
+            .map {
+                Pair(
                 it.first,
-                loader.loadK8sResource(it.first, it.second.values.first())) }
+                loader.loadK8sResource(it.first, it.second.value)) }
     }
 
     private fun getKind(resource: String): String {
-        logger.info { "1" }
         val parser = YamlParserFromString()
-        val resoureceAsMap = parser.parse(resource, HashMap<String, String>()::class.java)
-        logger.info { "2" }
+        val resourceAsMap = parser.parse(resource, HashMap<String, String>()::class.java)
 
         return try {
-            val kind = resoureceAsMap?.get("kind")!!
-            logger.info { "Kind is $kind" }
-            kind
-
+            resourceAsMap?.get("kind")!!
         } catch (e: Exception) {
-            logger.error { "Could not find field kind of Kubernetes resource: ${resoureceAsMap?.get("name")}" }
+            logger.error { "Could not find field kind of Kubernetes resource: ${resourceAsMap?.get("name")}" }
             ""
         }
     }

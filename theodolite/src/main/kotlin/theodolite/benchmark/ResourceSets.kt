@@ -8,8 +8,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.util.DeploymentFailedException
 
-private val logger = KotlinLogging.logger {}
-
 @JsonDeserialize
 @RegisterForReflection
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,7 +23,6 @@ class ResourceSets: KubernetesResource {
     val FileSystemResourceSet: FileSystemResourceSet? = null
 
     fun loadResourceSet(): List<Pair<String, KubernetesResource>> {
-        logger.info { "LOAD" }
         return try {
             if (ConfigMapResourceSet != null) {
                 ConfigMapResourceSet.getResourceSet()

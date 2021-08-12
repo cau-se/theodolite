@@ -9,7 +9,7 @@ private val logger = KotlinLogging.logger {}
 
 abstract class AbstractK8sLoader: K8sResourceLoader {
 
-    abstract fun loadCustomResourceWrapper(path: String, context: CustomResourceDefinitionContext): KubernetesResource
+    abstract fun loadCustomResourceWrapper(resource: String, context: CustomResourceDefinitionContext): KubernetesResource
 
     fun loadK8sResource(kind: String, resourceString: String): KubernetesResource {
         return when (kind) {
@@ -45,33 +45,33 @@ abstract class AbstractK8sLoader: K8sResourceLoader {
 
 
 
-    override fun loadServiceMonitor(path: String): KubernetesResource {
+    override fun loadServiceMonitor(resource: String): KubernetesResource {
         val context = K8sContextFactory().create(
             api = "v1",
             scope = "Namespaced",
             group = "monitoring.coreos.com",
             plural = "servicemonitors"
         )
-        return loadCustomResourceWrapper(path, context)
+        return loadCustomResourceWrapper(resource, context)
     }
 
-    override fun loadExecution(path: String): KubernetesResource {
+    override fun loadExecution(resource: String): KubernetesResource {
         val context = K8sContextFactory().create(
             api = "v1",
             scope = "Namespaced",
             group = "theodolite.com",
             plural = "executions"
         )
-        return loadCustomResourceWrapper(path, context)
+        return loadCustomResourceWrapper(resource, context)
     }
 
-    override fun loadBenchmark(path: String): KubernetesResource {
+    override fun loadBenchmark(resource: String): KubernetesResource {
         val context = K8sContextFactory().create(
             api = "v1",
             scope = "Namespaced",
             group = "theodolite.com",
             plural = "benchmarks"
         )
-        return loadCustomResourceWrapper(path, context)
+        return loadCustomResourceWrapper(resource, context)
     }
 }
