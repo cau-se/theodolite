@@ -8,13 +8,10 @@ import theodolite.util.PrometheusResponse
  */
 interface SloChecker {
     /**
-     * Evaluates [fetchedData] and returns if the experiment was successful.
-     * Returns if the evaluated experiment was successful.
+     * Evaluates [fetchedData] and returns if the experiments were successful.
      *
-     * @param start of the experiment
-     * @param end of the experiment
      * @param fetchedData from Prometheus that will be evaluated.
-     * @return true if experiment was successful. Otherwise false.
+     * @return true if experiments were successful. Otherwise false.
      */
     fun evaluate(fetchedData: List<PrometheusResponse>): Boolean
 }

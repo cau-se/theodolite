@@ -13,6 +13,7 @@ import theodolite.util.*
 private val logger = KotlinLogging.logger {}
 
 private var DEFAULT_NAMESPACE = "default"
+private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
 
 /**
  * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
@@ -26,28 +27,20 @@ private var DEFAULT_NAMESPACE = "default"
  * - [namespace] for the client,
  * - [path] under which the resource yamls can be found.
  *
- *  This class is used for the parsing(in the [theodolite.execution.TheodoliteYamlExecutor]) and
+ *  This class is used for the parsing(in the [theodolite.execution.TheodoliteStandalone]) and
  *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  * @constructor construct an empty Benchmark.
  */
 @JsonDeserialize
 @RegisterForReflection
-class KubernetesBenchmark: KubernetesResource, Benchmark{
+class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
-    // var appResource: List<Pair<String, KubernetesResource>>
-    // var loadGenResource: List<Pair<String, KubernetesResource>>
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
     lateinit var appResourceSets: List<ResourceSets>
     lateinit var loadGenResourceSets: List<ResourceSets>
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-    var path =  System.getenv("THEODOLITE_APP_RESOURCES") ?: "./config"
-
-    // init {
-    //    this.appResource = appResourceSets.flatMap { it.loadResourceSet() }
-    //    this.loadGenResource = loadGenResourceSets.flatMap { it.loadResourceSet() }
-   // }
 
     /**
      * Loads [KubernetesResource]s.
@@ -75,7 +68,6 @@ class KubernetesBenchmark: KubernetesResource, Benchmark{
         afterTeardownDelay: Long
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
-        logger.info { "Using $path as resource path." }
 
         val appResources = loadKubernetesResources(this.appResourceSets)
         val loadGenResources = loadKubernetesResources(this.loadGenResourceSets)
@@ -97,7 +89,6 @@ class KubernetesBenchmark: KubernetesResource, Benchmark{
             }
         }
         return KubernetesBenchmarkDeployment(
-            namespace = namespace,
             appResources = appResources.map { it.second },
             loadGenResources = loadGenResources.map { it.second },
             loadGenerationDelay = loadGenerationDelay,

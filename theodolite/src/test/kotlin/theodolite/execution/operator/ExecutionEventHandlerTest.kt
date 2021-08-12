@@ -39,7 +39,7 @@ class ExecutionEventHandlerTest {
             executionStateHandler = ExecutionStateHandler(client = server.client)
         )
 
-        this.factory = operator.getExecutionEventHandler(this.controller,server.client)
+        this.factory = operator.getExecutionEventHandler(this.controller, server.client)
         this.stateHandler = TheodoliteOperator().getExecutionStateHandler(client = server.client)
 
         this.executionVersion1 = K8sResourceLoaderFromFile(server.client)
@@ -66,10 +66,11 @@ class ExecutionEventHandlerTest {
         factory.startAllRegisteredInformers()
         server.lastRequest
         // the second request must be namespaced (this is the first `GET` request)
-        assert(server
-            .lastRequest
-            .toString()
-            .contains("namespaces")
+        assert(
+            server
+                .lastRequest
+                .toString()
+                .contains("namespaces")
         )
     }
 

@@ -35,23 +35,24 @@ class StateHandlerTest {
     fun namespacedTest() {
         val handler = ExecutionStateHandler(client = server.client)
         handler.getExecutionState("example-execution")
-        assert(server
-            .lastRequest
-            .toString()
-            .contains("namespaces")
+        assert(
+            server
+                .lastRequest
+                .toString()
+                .contains("namespaces")
         )
     }
 
     @Test
     @DisplayName("Test empty execution state")
-    fun executionWithoutExecutionStatusTest(){
+    fun executionWithoutExecutionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
         assertEquals(States.NO_STATE, handler.getExecutionState("example-execution"))
     }
 
     @Test
     @DisplayName("Test empty duration state")
-    fun executionWithoutDurationStatusTest(){
+    fun executionWithoutDurationStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
         assertEquals("-", handler.getDurationState("example-execution"))
     }

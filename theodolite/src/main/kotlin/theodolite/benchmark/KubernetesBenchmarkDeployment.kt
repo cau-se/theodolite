@@ -6,6 +6,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import org.apache.kafka.clients.admin.NewTopic
 import theodolite.k8s.K8sManager
+import theodolite.k8s.ResourceByLabelHandler
 import theodolite.k8s.TopicManager
 import theodolite.util.KafkaConfig
 import java.time.Duration
@@ -22,7 +23,6 @@ private val logger = KotlinLogging.logger {}
  */
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
-    val namespace: String,
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
     private val loadGenerationDelay: Long,
@@ -33,7 +33,8 @@ class KubernetesBenchmarkDeployment(
 ) : BenchmarkDeployment {
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(client)
-    private val LAG_EXPORTER_POD_LABEL = "app.kubernetes.io/name=kafka-lag-exporter"
+    private val LAG_EXPORTER_POD_LABEL_NAME = "app.kubernetes.io/name"
+    private val LAG_EXPORTER_POD_LABEL_VALUE = "kafka-lag-exporter"
 
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
@@ -60,7 +61,10 @@ class KubernetesBenchmarkDeployment(
         loadGenResources.forEach { kubernetesManager.remove(it) }
         appResources.forEach { kubernetesManager.remove(it) }
         kafkaController.removeTopics(this.topics.map { topic -> topic.name })
-        KafkaLagExporterRemover(client).remove(LAG_EXPORTER_POD_LABEL)
+        ResourceByLabelHandler(client).removePods(
+            labelName = LAG_EXPORTER_POD_LABEL_NAME,
+            labelValue = LAG_EXPORTER_POD_LABEL_VALUE
+        )
         logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything come down." }
         Thread.sleep(Duration.ofSeconds(afterTeardownDelay).toMillis())
     }
