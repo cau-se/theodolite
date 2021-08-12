@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
-import theodolite.k8s.K8sResourceLoader
+import theodolite.k8s.resourceLoader.K8sResourceLoader
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
 

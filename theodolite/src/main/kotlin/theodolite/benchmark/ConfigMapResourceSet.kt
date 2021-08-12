@@ -5,9 +5,8 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import theodolite.k8s.K8sResourceLoaderFromString
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromString
 import theodolite.util.YamlParserFromString
-import kotlin.math.log
 
 private val logger = KotlinLogging.logger {}
 

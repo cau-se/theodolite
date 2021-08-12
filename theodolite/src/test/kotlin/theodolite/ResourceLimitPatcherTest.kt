@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.quarkus.test.junit.QuarkusTest
 import io.smallrye.common.constraint.Assert.assertTrue
 import org.junit.jupiter.api.Test
-import theodolite.k8s.K8sResourceLoader
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.patcher.PatcherFactory
 import theodolite.util.PatcherDefinition
 
@@ -22,7 +22,7 @@ import theodolite.util.PatcherDefinition
 @QuarkusTest
 class ResourceLimitPatcherTest {
     val testPath = "./src/test/resources/"
-    val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace(""))
+    val loader = K8sResourceLoaderFromFile(DefaultKubernetesClient().inNamespace(""))
     val patcherFactory = PatcherFactory()
 
     fun applyTest(fileName: String) {

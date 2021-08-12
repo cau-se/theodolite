@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import mu.KotlinLogging
-import theodolite.k8s.K8sResourceLoader
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
 import theodolite.util.YamlParserFromFile
 import java.io.File
@@ -17,7 +17,7 @@ class FileSystemResourceSet: ResourceSet {
     lateinit var path: String
     lateinit var files: List<String>
     private val parser = YamlParserFromFile()
-    private val loader = K8sResourceLoader(DefaultKubernetesClient().inNamespace("default")) // TODO(set namespace correctly)
+    private val loader = K8sResourceLoaderFromFile(DefaultKubernetesClient().inNamespace("default")) // TODO(set namespace correctly)
 
     override fun getResourceSet(): List<Pair<String, KubernetesResource>> {
         logger.info { "Get fileSystem resource set $path" }

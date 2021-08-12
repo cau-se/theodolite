@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 
 @QuarkusTest
 class K8sResourceLoaderTest {
@@ -31,7 +32,7 @@ class K8sResourceLoaderTest {
     @Test
     @DisplayName("Test loading of Deployments")
     fun loadDeploymentTest() {
-        val loader = K8sResourceLoader(server.client)
+        val loader = K8sResourceLoaderFromFile(server.client)
         val resource = loader.loadK8sResource("Deployment", testResourcePath + "test-deployment.yaml")
 
         assertTrue(resource is Deployment)
@@ -41,7 +42,7 @@ class K8sResourceLoaderTest {
     @Test
     @DisplayName("Test loading of StatefulSet")
     fun loadStatefulSetTest() {
-        val loader = K8sResourceLoader(server.client)
+        val loader = K8sResourceLoaderFromFile(server.client)
         val resource = loader.loadK8sResource("StatefulSet", testResourcePath + "test-statefulset.yaml")
 
         assertTrue(resource is StatefulSet)
@@ -51,7 +52,7 @@ class K8sResourceLoaderTest {
     @Test
     @DisplayName("Test loading of Service")
     fun loadServiceTest() {
-        val loader = K8sResourceLoader(server.client)
+        val loader = K8sResourceLoaderFromFile(server.client)
         val resource = loader.loadK8sResource("Service", testResourcePath + "test-service.yaml")
 
         assertTrue(resource is Service)
@@ -61,7 +62,7 @@ class K8sResourceLoaderTest {
     @Test
     @DisplayName("Test loading of ConfigMap")
     fun loadConfigMapTest() {
-        val loader = K8sResourceLoader(server.client)
+        val loader = K8sResourceLoaderFromFile(server.client)
         val resource = loader.loadK8sResource("ConfigMap", testResourcePath + "test-configmap.yaml")
 
         assertTrue(resource is ConfigMap)
@@ -71,7 +72,7 @@ class K8sResourceLoaderTest {
     @Test
     @DisplayName("Test loading of ServiceMonitors")
     fun loadServiceMonitorTest() {
-        val loader = K8sResourceLoader(server.client)
+        val loader = K8sResourceLoaderFromFile(server.client)
         val resource = loader.loadK8sResource("ServiceMonitor", testResourcePath + "test-service-monitor.yaml")
 
         assertTrue(resource is CustomResourceWrapper)
@@ -84,7 +85,7 @@ class K8sResourceLoaderTest {
     @Test
     @DisplayName("Test loading of Executions")
     fun loadExecutionTest() {
-        val loader = K8sResourceLoader(server.client)
+        val loader = K8sResourceLoaderFromFile(server.client)
         val resource = loader.loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
 
         assertTrue(resource is CustomResourceWrapper)
@@ -97,7 +98,7 @@ class K8sResourceLoaderTest {
     @Test
     @DisplayName("Test loading of Benchmarks")
     fun loadBenchmarkTest() {
-        val loader = K8sResourceLoader(server.client)
+        val loader = K8sResourceLoaderFromFile(server.client)
         val resource = loader.loadK8sResource("Benchmark", testResourcePath + "test-benchmark.yaml")
 
         assertTrue(resource is CustomResourceWrapper)
