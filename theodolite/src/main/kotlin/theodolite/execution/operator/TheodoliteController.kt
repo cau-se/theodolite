@@ -67,8 +67,8 @@ class TheodoliteController(
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         val modifier = ConfigOverrideModifier(
             execution = execution,
-            resources = benchmark.appResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } }
-                    + benchmark.loadGenResourceSets.flatMap { it -> it.loadResourceSet().map { it.first } }
+            resources = benchmark.loadKubernetesResources(benchmark.appResourceSets).map { it.first }
+                    + benchmark.loadKubernetesResources(benchmark.loadGenResourceSets).map { it.first }
         )
         modifier.setAdditionalLabels(
             labelValue = execution.name,
