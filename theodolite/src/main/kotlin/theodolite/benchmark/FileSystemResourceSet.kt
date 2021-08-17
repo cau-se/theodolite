@@ -3,6 +3,7 @@ package theodolite.benchmark
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
@@ -12,13 +13,11 @@ import java.io.File
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_NAMESPACE = "default"
 
+@RegisterForReflection
 @JsonDeserialize
-class FileSystemResourceSet: ResourceSet {
+class FileSystemResourceSet: ResourceSet, KubernetesResource {
     lateinit var path: String
     lateinit var files: List<String>
-    private val parser = YamlParserFromFile()
-    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-    private val loader = K8sResourceLoaderFromFile(DefaultKubernetesClient().inNamespace(namespace))
 
     override fun getResourceSet(): List<Pair<String, KubernetesResource>> {
 
@@ -42,6 +41,10 @@ class FileSystemResourceSet: ResourceSet {
     }
 
     private fun loadSingleResource(resourceURL: String): Pair<String, KubernetesResource> {
+        val parser = YamlParserFromFile()
+        val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+        val loader = K8sResourceLoaderFromFile(DefaultKubernetesClient().inNamespace(namespace))
+
         val resourcePath = "$path/$resourceURL"
         val kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind")!!
         val k8sResource = loader.loadK8sResource(kind, resourcePath)

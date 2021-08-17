@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
+import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromString
 import theodolite.util.YamlParserFromString
@@ -11,17 +12,17 @@ import theodolite.util.YamlParserFromString
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_NAMESPACE = "default"
 
+@RegisterForReflection
 @JsonDeserialize
-class ConfigMapResourceSet: ResourceSet {
+class ConfigMapResourceSet: ResourceSet, KubernetesResource {
     lateinit var configmap: String
     lateinit var files: List<String> // load all files, iff files is not set
-    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
-    private val loader = K8sResourceLoaderFromString(client)
-
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun getResourceSet(): List<Pair<String, KubernetesResource>> {
+        val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+        val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+        val loader = K8sResourceLoaderFromString(client)
 
         var resources = client
             .configMaps()
@@ -42,7 +43,7 @@ class ConfigMapResourceSet: ResourceSet {
                 it) }
             .map {
                 Pair(
-                it.first,
+                it.second.key,
                 loader.loadK8sResource(it.first, it.second.value)) }
     }
 
