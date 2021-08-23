@@ -62,11 +62,9 @@ class BenchmarkExecution : KubernetesResource {
     @RegisterForReflection
     class Slo : KubernetesResource {
         lateinit var sloType: String
-        var threshold by Delegates.notNull<Int>()
         lateinit var prometheusUrl: String
-        lateinit var externalSloUrl: String
         var offset by Delegates.notNull<Int>()
-        var warmup by Delegates.notNull<Int>()
+        lateinit var properties: MutableMap<String, String>
     }
 
     /**

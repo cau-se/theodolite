@@ -1,5 +1,7 @@
 package theodolite.evaluation
 
+import theodolite.util.LoadDimension
+
 /**
  * Factory used to potentially create different [SloChecker]s.
  * Supports: lag type.
@@ -20,16 +22,28 @@ class SloCheckerFactory {
      */
     fun create(
         sloType: String,
-        externalSlopeURL: String,
-        threshold: Int,
-        warmup: Int
+        properties: MutableMap<String, String>,
+        load: LoadDimension
     ): SloChecker {
         return when (sloType) {
             "lag trend" -> ExternalSloChecker(
-                externalSlopeURL = externalSlopeURL,
-                threshold = threshold,
-                warmup = warmup
+                externalSlopeURL = properties["externalSloUrl"] ?: throw IllegalArgumentException("externalSloUrl expected"),
+                threshold = properties["threshold"]?.toInt() ?: throw IllegalArgumentException("threshold expected"),
+                warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
             )
+            "lag trend percent" -> {
+                var thresholdPercent = properties["percent"]?.toInt() ?: throw IllegalArgumentException("percent for threshold expected")
+                if (thresholdPercent < 0 || thresholdPercent > 100) {
+                    throw IllegalArgumentException("Threshold percent need to be an Int in the range between 0 and 100 (inclusive)")
+                }
+                var threshold = (load.get() / 100.0 * thresholdPercent).toInt()
+
+                ExternalSloChecker(
+                    externalSlopeURL = properties["externalSloUrl"] ?: throw IllegalArgumentException("externalSloUrl expected"),
+                    threshold = threshold,
+                    warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
+                )
+            }
             else -> throw IllegalArgumentException("Slotype $sloType not found.")
         }
     }
