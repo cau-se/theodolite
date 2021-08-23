@@ -52,20 +52,19 @@ spec:
                 type: array
                 items:
                   type: object
-                  required: ["sloType", "threshold", "prometheusUrl", "externalSloUrl", "offset", "warmup"]
+                  required: ["sloType", "prometheusUrl", "offset"]
                   properties:
                     sloType:
                       type: string
-                    threshold:
-                      type: integer
                     prometheusUrl:
-                      type: string
-                    externalSloUrl:
                       type: string
                     offset:
                       type: integer
-                    warmup:
-                      type: integer
+                    properties:
+                        type: object
+                        additionalProperties: true
+                        x-kubernetes-map-type: "granular"
+                        default: {}
               execution: # def execution config
                 type: object
                 required: ["strategy", "duration", "repetitions", "restrictions"]
