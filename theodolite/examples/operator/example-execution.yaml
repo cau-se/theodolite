@@ -18,13 +18,6 @@ spec:
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
-    # - sloType: "lag trend percent"
-    #   prometheusUrl: "http://prometheus-operated:9090"
-    #   offset: 0
-    #   properties:
-    #     percent: 5
-    #     externalSloUrl: "http://localhost:80/evaluate-slope"
-    #     warmup: 60 # in seconds
   execution:
     strategy: "LinearSearch"
     duration: 300 # in seconds
