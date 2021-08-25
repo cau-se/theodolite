@@ -37,11 +37,13 @@ class SloCheckerFactory {
                     throw IllegalArgumentException("Percent Threshold is only allowed with load type NumSensors")
                 }
                 var thresholdPercent =
-                    properties["percent"]?.toInt() ?: throw IllegalArgumentException("percent for threshold expected")
-                if (thresholdPercent < 0 || thresholdPercent > 100) {
-                    throw IllegalArgumentException("Threshold percent need to be an Int in the range between 0 and 100 (inclusive)")
+                    properties["percent"]?.toDouble()
+                        ?: throw IllegalArgumentException("percent for threshold expected")
+                if (thresholdPercent < 0.0 || thresholdPercent > 1.0) {
+                    throw IllegalArgumentException("Threshold percent need to be an Double in the range between 0.0 and 1.0 (inclusive)")
                 }
-                var threshold = (load.get() / 100.0 * thresholdPercent).toInt()
+                // cast to int, as rounding is not really necessary
+                var threshold = (load.get() * thresholdPercent).toInt()
 
                 ExternalSloChecker(
                     externalSlopeURL = properties["externalSloUrl"]
