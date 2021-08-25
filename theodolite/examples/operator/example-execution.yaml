@@ -19,7 +19,7 @@ spec:
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
     # - sloType: "lag trend percent"
-    #   prometheusUrl: "http://localhost:9090"
+    #   prometheusUrl: "http://prometheus-operated:9090"
     #   offset: 0
     #   properties:
     #     percent: 5
