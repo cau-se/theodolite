@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.util.DeploymentFailedException
@@ -18,12 +19,12 @@ class ResourceSets: KubernetesResource {
     @JsonProperty("FileSystemResourceSet")
     lateinit var FileSystemResourceSet: FileSystemResourceSet
 
-    fun loadResourceSet(): List<Pair<String, KubernetesResource>> {
+    fun loadResourceSet(client: NamespacedKubernetesClient): List<Pair<String, KubernetesResource>> {
         return try {
             if (::ConfigMapResourceSet.isInitialized) {
-                ConfigMapResourceSet.getResourceSet()
+                ConfigMapResourceSet.getResourceSet(client= client)
             } else if (::FileSystemResourceSet.isInitialized) {
-                FileSystemResourceSet.getResourceSet()
+                FileSystemResourceSet.getResourceSet(client= client )
             } else {
                 throw  DeploymentFailedException("could not load resourceSet.")
             }

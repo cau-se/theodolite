@@ -48,7 +48,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * the [K8sResourceLoader]
      */
     fun loadKubernetesResources(resourceSet: List<ResourceSets>): List<Pair<String, KubernetesResource>> {
-        return resourceSet.flatMap { it.loadResourceSet() }
+        return resourceSet.flatMap { it.loadResourceSet(DefaultKubernetesClient().inNamespace(namespace)) }
     }
 
     /**

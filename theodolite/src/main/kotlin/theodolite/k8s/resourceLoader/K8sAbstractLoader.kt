@@ -9,10 +9,8 @@ private val logger = KotlinLogging.logger {}
 
 abstract class AbstractK8sLoader: K8sResourceLoader {
 
-    abstract fun loadCustomResourceWrapper(resource: String, context: CustomResourceDefinitionContext): KubernetesResource
-
     fun loadK8sResource(kind: String, resourceString: String): KubernetesResource {
-        return when (kind) {
+        return when (kind.replaceFirst(kind[0],kind[0].toUpperCase())) {
             "Deployment" -> loadDeployment(resourceString)
             "Service" -> loadService(resourceString)
             "ServiceMonitor" -> loadServiceMonitor(resourceString)
@@ -21,7 +19,7 @@ abstract class AbstractK8sLoader: K8sResourceLoader {
             "Execution" -> loadExecution(resourceString)
             "Benchmark" -> loadBenchmark(resourceString)
             else -> {
-                logger.error { "Error during loading of unspecified resource Kind" }
+                logger.error { "Error during loading of unspecified resource Kind $kind" }
                 throw java.lang.IllegalArgumentException("error while loading resource with kind: $kind")
             }
         }
@@ -33,12 +31,11 @@ abstract class AbstractK8sLoader: K8sResourceLoader {
         try {
             resource = f(resourceString)
         } catch (e: Exception) {
-            logger.warn { "You potentially  misspelled the path: ....1" }
             logger.warn { e }
         }
 
         if (resource == null) {
-            throw IllegalArgumentException("The Resource: ....1 could not be loaded")
+            throw IllegalArgumentException("The Resource: $resourceString could not be loaded")
         }
         return resource
     }
