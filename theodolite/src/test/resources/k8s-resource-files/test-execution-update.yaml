@@ -7,10 +7,10 @@ spec:
   benchmark: "uc1-kstreams-update"
   load:
     loadType: "NumSensors"
-    loadValues: [ 25000, 50000, 75000, 100000, 125000, 150000 ]
+    loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
   resources:
     resourceType: "Instances"
-    resourceValues: [ 1, 2, 3, 4, 5 ]
+    resourceValues: [1, 2, 3, 4, 5]
   slos:
     - sloType: "lag trend"
       prometheusUrl: "http://prometheus-operated:9090"
@@ -26,4 +26,4 @@ spec:
     loadGenerationDelay: 30 # in seconds
     restrictions:
       - "LowerBound"
-  configOverrides: [ ]
+  configOverrides: []
