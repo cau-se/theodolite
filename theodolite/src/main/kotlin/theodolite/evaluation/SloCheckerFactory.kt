@@ -10,12 +10,30 @@ class SloCheckerFactory {
 
     /**
      * Creates different [SloChecker]s.
-     * Supports: lag type.
+     *
+     * Supports: `lag trend` and `lag trend percent` as arguments for `sloType`
+     *
+     * ### `lag trend`
+     * Creates an [ExternalSloChecker] with defined parameters.
+     *
+     * The properties map needs the following fields:
+     * - `externalSlopeURL`: Url to the concrete SLO checker service.
+     * - `threshold`: fixed value used for the slope.
+     * - `warmup`: time from the beginning to skip in the analysis.
+     *
+     *
+     * ### `lag trend percent`
+     * Creates an [ExternalSloChecker] with defined parameters.
+     * The required threshold is computed using a percentage and the load of the experiment.
+     *
+     * The properties map needs the following fields:
+     * - `externalSlopeURL`: Url to the concrete SLO checker service.
+     * - `percent`: of the executed load that is accepted for the slope.
+     * - `warmup`: time from the beginning to skip in the analysis.
      *
      * @param sloType Type of the [SloChecker].
-     * @param externalSlopeURL Url to the concrete [SloChecker].
-     * @param threshold for the [SloChecker].
-     * @param warmup for the [SloChecker].
+     * @param properties map of properties to use for the SLO checker creation.
+     * @param load that is executed in the experiment.
      *
      * @return A [SloChecker]
      * @throws IllegalArgumentException If [sloType] not supported.
