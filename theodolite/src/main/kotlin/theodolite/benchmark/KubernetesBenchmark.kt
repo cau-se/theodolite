@@ -47,7 +47,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
      * the [K8sResourceLoader]
      */
-    fun loadKubernetesResources(resourceSet: List<ResourceSets>): List<Pair<String, KubernetesResource>> {
+    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
         return resourceSet.flatMap { it.loadResourceSet(DefaultKubernetesClient().inNamespace(namespace)) }
     }
 

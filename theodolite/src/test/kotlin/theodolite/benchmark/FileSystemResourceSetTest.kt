@@ -36,7 +36,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-deployment.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client)[0].second is Deployment)
+        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is Deployment)
     }
 
     @Test
@@ -45,7 +45,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-service.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client)[0].second is Service)
+        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is Service)
     }
 
     @Test
@@ -54,7 +54,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-statefulset.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client)[0].second is StatefulSet)
+        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is StatefulSet)
     }
 
     @Test
@@ -63,7 +63,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-configmap.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client)[0].second is ConfigMap)
+        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is ConfigMap)
     }
 
     @Test
@@ -72,7 +72,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-service-monitor.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client)[0].second is CustomResourceWrapper)
+        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is CustomResourceWrapper)
     }
 
     @Test
@@ -81,7 +81,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-benchmark.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client)[0].second is CustomResourceWrapper)
+        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is CustomResourceWrapper)
     }
 
     @Test
@@ -90,7 +90,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-execution.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client)[0].second is CustomResourceWrapper)
+        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is CustomResourceWrapper)
     }
 
     @Test

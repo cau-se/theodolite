@@ -26,7 +26,7 @@ class PatcherFactory {
      */
     fun createPatcher(
         patcherDefinition: PatcherDefinition,
-        k8sResources: List<Pair<String, KubernetesResource>>
+        k8sResources: Collection<Pair<String, KubernetesResource>>
     ): Patcher {
         val resource =
             k8sResources.filter { it.first == patcherDefinition.resource }

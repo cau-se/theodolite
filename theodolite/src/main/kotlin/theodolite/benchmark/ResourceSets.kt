@@ -14,22 +14,18 @@ import theodolite.util.DeploymentFailedException
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class ResourceSets: KubernetesResource {
     @JsonProperty("ConfigMapResourceSet")
-    lateinit var  ConfigMapResourceSet: ConfigMapResourceSet
+    lateinit var  configMap: ConfigMapResourceSet
 
     @JsonProperty("FileSystemResourceSet")
-    lateinit var FileSystemResourceSet: FileSystemResourceSet
+    lateinit var fileSystem: FileSystemResourceSet
 
-    fun loadResourceSet(client: NamespacedKubernetesClient): List<Pair<String, KubernetesResource>> {
-        return try {
-            if (::ConfigMapResourceSet.isInitialized) {
-                ConfigMapResourceSet.getResourceSet(client= client)
-            } else if (::FileSystemResourceSet.isInitialized) {
-                FileSystemResourceSet.getResourceSet(client= client )
+    fun loadResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {
+        return if (::configMap.isInitialized) {
+            configMap.getResourceSet(client= client)
+            } else if (::fileSystem.isInitialized) {
+            fileSystem.getResourceSet(client= client )
             } else {
                 throw  DeploymentFailedException("could not load resourceSet.")
             }
-        } catch (e: Exception) {
-            throw e
-        }
     }
 }

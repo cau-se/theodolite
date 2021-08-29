@@ -40,7 +40,7 @@ class ConfigMapResourceSetTest {
         server.after()
     }
 
-    fun deployAndGetResource(resource: String): List<Pair<String, KubernetesResource>> {
+    fun deployAndGetResource(resource: String): Collection<Pair<String, KubernetesResource>> {
         val configMap1 = ConfigMapBuilder()
             .withNewMetadata().withName("test-configmap").endMetadata()
             .addToData("test-resource.yaml",resource)
@@ -65,8 +65,8 @@ class ConfigMapResourceSetTest {
 
         val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource[0].second is Deployment)
-        assertTrue(createdResource[0].second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toMutableSet().first().second is Deployment)
+        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
@@ -79,8 +79,8 @@ class ConfigMapResourceSetTest {
 
         val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource[0].second is StatefulSet)
-        assertTrue(createdResource[0].second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toMutableSet().first().second is StatefulSet)
+        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
@@ -93,8 +93,8 @@ class ConfigMapResourceSetTest {
 
         val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource[0].second is Service)
-        assertTrue(createdResource[0].second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toMutableSet().first().second is Service)
+        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
@@ -106,8 +106,8 @@ class ConfigMapResourceSetTest {
 
         val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource[0].second is ConfigMap)
-        assertTrue(createdResource[0].second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toMutableSet().first().second is ConfigMap)
+        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
@@ -117,9 +117,9 @@ class ConfigMapResourceSetTest {
         val createdResource = deployAndGetResource(resource = Gson().toJson(resource.crAsMap))
 
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource[0].second is CustomResourceWrapper)
+        assertTrue(createdResource.toMutableSet().first().second is CustomResourceWrapper)
 
-        val loadedResource = createdResource[0].second
+        val loadedResource = createdResource.toMutableSet().first().second
         if (loadedResource is CustomResourceWrapper){
             assertTrue(loadedResource.getName() == "example-execution")
         }
@@ -132,9 +132,9 @@ class ConfigMapResourceSetTest {
         val createdResource = deployAndGetResource(resource = Gson().toJson(resource.crAsMap))
 
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource[0].second is CustomResourceWrapper)
+        assertTrue(createdResource.toMutableSet().first().second is CustomResourceWrapper)
 
-        val loadedResource = createdResource[0].second
+        val loadedResource = createdResource.toMutableSet().first().second
         if (loadedResource is CustomResourceWrapper){
             assertTrue(loadedResource.getName() == "example-benchmark")
         }
@@ -147,9 +147,9 @@ class ConfigMapResourceSetTest {
         val createdResource = deployAndGetResource(resource = Gson().toJson(resource.crAsMap))
 
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource[0].second is CustomResourceWrapper)
+        assertTrue(createdResource.toMutableSet().first().second is CustomResourceWrapper)
 
-        val loadedResource = createdResource[0].second
+        val loadedResource = createdResource.toMutableSet().first().second
         if (loadedResource is CustomResourceWrapper){
             assertTrue(loadedResource.getName() == "test-service-monitor")
         }
@@ -182,8 +182,8 @@ class ConfigMapResourceSetTest {
         val createdResourcesSet = resourceSet.getResourceSet(server.client)
 
         assertEquals(2,createdResourcesSet.size )
-        assert(createdResourcesSet[0].second is Deployment)
-        assert(createdResourcesSet[1].second is ConfigMap)
+        assert(createdResourcesSet.toMutableList()[0].second is Deployment)
+        assert(createdResourcesSet.toMutableList()[1].second is ConfigMap)
     }
 
     @Test
@@ -214,7 +214,7 @@ class ConfigMapResourceSetTest {
         val createdResourcesSet = resourceSet.getResourceSet(server.client)
 
         assertEquals(1,createdResourcesSet.size )
-        assert(createdResourcesSet[0].second is Deployment)
+        assert(createdResourcesSet.toMutableSet().first().second is Deployment)
     }
 
 
@@ -226,7 +226,7 @@ class ConfigMapResourceSetTest {
         try {
             resourceSet.getResourceSet(server.client)
         } catch (e: Exception) {
-            println(e)
+            println( "haha " + e)
             ex = e
         }
         assertTrue(ex is DeploymentFailedException)

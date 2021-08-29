@@ -9,5 +9,5 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @JsonDeserialize
 interface ResourceSet: KubernetesResource {
 
-    fun getResourceSet(client: NamespacedKubernetesClient): List<Pair<String, KubernetesResource>>
+    fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>>
 }

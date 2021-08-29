@@ -1,7 +1,6 @@
 package theodolite.k8s.resourceLoader
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
 import theodolite.k8s.K8sContextFactory
 

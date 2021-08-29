@@ -10,6 +10,7 @@ import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
 import theodolite.util.YamlParserFromFile
 import java.io.File
+import java.lang.IllegalArgumentException
 
 private val logger = KotlinLogging.logger {}
 
@@ -19,17 +20,12 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
     lateinit var path: String
     lateinit var files: List<String>
 
-    override fun getResourceSet(client: NamespacedKubernetesClient): List<Pair<String, KubernetesResource>> {
+    override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {
 
         //if files is set ...
         if(::files.isInitialized){
-            return try {
-                files
+            return files
                     .map { loadSingleResource(resourceURL = it, client = client) }
-            } catch (e: Exception) {
-                throw  DeploymentFailedException("Could not load files located in $path")
-
-            }
         }
 
         return try {
@@ -39,8 +35,8 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
                 .map {
                     loadSingleResource(resourceURL = it, client = client)
                 }
-        } catch (e: Exception) {
-            throw  DeploymentFailedException("Could not load files located in $path")
+        } catch (e: NullPointerException) {
+            throw  DeploymentFailedException("Could not load files located in $path, error is: ${e.message}")
         }
     }
 
@@ -48,13 +44,19 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
         val parser = YamlParserFromFile()
         val loader = K8sResourceLoaderFromFile(client)
         val resourcePath = "$path/$resourceURL"
+        lateinit var kind: String
+
+        try {
+            kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind")!!
+        } catch (e: NullPointerException) {
+            throw DeploymentFailedException("Can not get Kind from resource $resourcePath, error is ${e.message}")
+        }
+
         return try {
-            val kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind")!!
             val k8sResource = loader.loadK8sResource(kind, resourcePath)
             Pair(resourceURL, k8sResource)
-        } catch (e: Exception) {
-            logger.error { "could not load resource: $resourcePath, caused by exception: $e" }
-            throw e
+        } catch (e: IllegalArgumentException) {
+            throw DeploymentFailedException("Could not load resource: $resourcePath, caused by exception: ${e.message}")
         }
     }
 }
