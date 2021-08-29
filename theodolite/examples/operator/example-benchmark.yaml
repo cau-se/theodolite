@@ -29,14 +29,14 @@ spec:
       - name: "theodolite-.*"
         removeOnly: True
   appResourceSets:
-    - FileSystemResourceSet:
+    - fileSystem:
          path: ./../../../../config
          files:
            - "uc1-kstreams-deployment.yaml"
            - "aggregation-service.yaml"
            - "jmx-configmap.yaml"
            - "uc1-service-monitor.yaml"
-    # - ConfigMapResourceSet:
+    # - configMap:
     #     configmap: "test-configmap"
     #    files:
     #      - "uc1-kstreams-deployment.yaml"
@@ -44,7 +44,7 @@ spec:
     #      - "jmx-configmap.yaml"
     #      - "uc1-service-monitor.yaml"
   loadGenResourceSets:
-    - FileSystemResourceSet:
+    - fileSystem:
         path: ./../../../../config
         files:
           - uc1-load-generator-service.yaml

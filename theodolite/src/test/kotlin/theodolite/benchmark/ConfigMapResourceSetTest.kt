@@ -226,7 +226,6 @@ class ConfigMapResourceSetTest {
         try {
             resourceSet.getResourceSet(server.client)
         } catch (e: Exception) {
-            println( "haha " + e)
             ex = e
         }
         assertTrue(ex is DeploymentFailedException)

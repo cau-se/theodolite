@@ -13,10 +13,10 @@ import theodolite.util.DeploymentFailedException
 @RegisterForReflection
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class ResourceSets: KubernetesResource {
-    @JsonProperty("ConfigMapResourceSet")
+    @JsonProperty("configMap")
     lateinit var  configMap: ConfigMapResourceSet
 
-    @JsonProperty("FileSystemResourceSet")
+    @JsonProperty("fileSystem")
     lateinit var fileSystem: FileSystemResourceSet
 
     fun loadResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {

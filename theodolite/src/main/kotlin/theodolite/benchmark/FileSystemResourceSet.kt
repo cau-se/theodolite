@@ -10,6 +10,7 @@ import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
 import theodolite.util.YamlParserFromFile
 import java.io.File
+import java.io.FileNotFoundException
 import java.lang.IllegalArgumentException
 
 private val logger = KotlinLogging.logger {}
@@ -50,6 +51,9 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
             kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind")!!
         } catch (e: NullPointerException) {
             throw DeploymentFailedException("Can not get Kind from resource $resourcePath, error is ${e.message}")
+        } catch (e: FileNotFoundException){
+            throw DeploymentFailedException("File $resourcePath not found")
+
         }
 
         return try {

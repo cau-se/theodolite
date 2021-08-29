@@ -129,16 +129,16 @@ spec:
                 items:
                   type: object
                   properties:
-                    ConfigMapResourceSet:
+                    configMap:
                       type: object
                       properties:
-                        configmap:
+                        name:
                           type: string
                         files:
                           type: array
                           items:
                             type: string
-                    FileSystemResourceSet:
+                    fileSystem:
                       type: object
                       properties:
                         path:
@@ -152,16 +152,16 @@ spec:
                 items:
                   type: object
                   properties:
-                    ConfigMapResourceSet:
+                    configMap:
                       type: object
                       properties:
-                        configmap:
+                        name:
                           type: string
                         files:
                           type: array
                           items:
                             type: string
-                    FileSystemResourceSet:
+                    fileSystem:
                       type: object
                       properties:
                         path:

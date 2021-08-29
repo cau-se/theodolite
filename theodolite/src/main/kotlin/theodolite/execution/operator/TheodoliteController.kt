@@ -65,7 +65,8 @@ class TheodoliteController(
      * @see BenchmarkExecution
      */
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
-        val modifier = ConfigOverrideModifier(
+        try {
+            val modifier = ConfigOverrideModifier(
             execution = execution,
             resources = benchmark.loadKubernetesResources(benchmark.appResourceSets).map { it.first }
                     + benchmark.loadKubernetesResources(benchmark.loadGenResourceSets).map { it.first }
@@ -86,7 +87,6 @@ class TheodoliteController(
         executionStateHandler.setExecutionState(execution.name, States.RUNNING)
         executionStateHandler.startDurationStateTimer(execution.name)
 
-        try {
             executor = TheodoliteExecutor(execution, benchmark)
             executor.run()
             when (executionStateHandler.getExecutionState(execution.name)) {
