@@ -48,6 +48,12 @@ class PatcherFactory {
                     k8sResource = resource,
                     loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"]!!
                 )
+                "DataVolumeLoadGeneratorReplicaPatcher" -> DataVolumeLoadGeneratorReplicaPatcher(
+                    k8sResource = resource,
+                    maxVolume = patcherDefinition.properties["maxVolume"]!!,
+                    container = patcherDefinition.properties["container"]!!,
+                    variableName = patcherDefinition.properties["variableName"]!!
+                )
                 "EnvVarPatcher" -> EnvVarPatcher(
                     k8sResource = resource,
                     container = patcherDefinition.properties["container"]!!,
