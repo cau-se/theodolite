@@ -39,7 +39,6 @@ spec:
                       type: string
                     patchers:
                       description: List of patchers used to scale this resource type.
-                      examples: test test test
                       type: array
                       minItems: 1
                       items:
@@ -130,16 +129,16 @@ spec:
                 items:
                   type: object
                   properties:
-                    ConfigMapResourceSet:
+                    configMap:
                       type: object
                       properties:
-                        configmap:
+                        name:
                           type: string
                         files:
                           type: array
                           items:
                             type: string
-                    FileSystemResourceSet:
+                    fileSystem:
                       type: object
                       properties:
                         path:
@@ -153,16 +152,16 @@ spec:
                 items:
                   type: object
                   properties:
-                    ConfigMapResourceSet:
+                    configMap:
                       type: object
                       properties:
-                        configmap:
+                        name:
                           type: string
                         files:
                           type: array
                           items:
                             type: string
-                    FileSystemResourceSet:
+                    fileSystem:
                       type: object
                       properties:
                         path:
