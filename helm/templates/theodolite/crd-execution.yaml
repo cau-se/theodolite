@@ -52,20 +52,23 @@ spec:
                 type: array
                 items:
                   type: object
-                  required: ["sloType", "threshold", "prometheusUrl", "externalSloUrl", "offset", "warmup"]
+                  required: ["sloType", "prometheusUrl", "offset"]
                   properties:
                     sloType:
+                      description: The type of the SLO. It must match 'lag trend'.
                       type: string
-                    threshold:
-                      type: integer
                     prometheusUrl:
-                      type: string
-                    externalSloUrl:
+                      description: Connection string for Promehteus.
                       type: string
                     offset:
+                      description: Hours by which the start and end timestamp will be shifted (for different timezones).
                       type: integer
-                    warmup:
-                      type: integer
+                    properties:
+                        description: (Optional) SLO specific additional arguments.
+                        type: object
+                        additionalProperties: true
+                        x-kubernetes-map-type: "granular"
+                        default: {}
               execution: # def execution config
                 type: object
                 required: ["strategy", "duration", "repetitions", "restrictions"]

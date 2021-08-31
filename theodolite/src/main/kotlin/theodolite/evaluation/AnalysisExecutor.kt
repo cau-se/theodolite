@@ -64,9 +64,8 @@ class AnalysisExecutor(
 
             val sloChecker = SloCheckerFactory().create(
                 sloType = slo.sloType,
-                externalSlopeURL = slo.externalSloUrl,
-                threshold = slo.threshold,
-                warmup = slo.warmup
+                properties = slo.properties,
+                load = load
             )
 
             result = sloChecker.evaluate(prometheusData)

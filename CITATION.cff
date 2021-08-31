@@ -1,12 +1,10 @@
 cff-version: "1.1.0"
 message: "If you use Theodolite, please cite it using these metadata."
 authors: 
-  -
-    family-names: Henning
+  - family-names: Henning
     given-names: "Sören"
     orcid: "https://orcid.org/0000-0001-6912-2549"
-  -
-    family-names: Hasselbring
+  - family-names: Hasselbring
     given-names: Wilhelm
     orcid: "https://orcid.org/0000-0001-6625-4335"
 title: Theodolite
@@ -14,3 +12,18 @@ version: "0.4.0"
 repository-code: "https://github.com/cau-se/theodolite"
 license: "Apache-2.0"
 doi: "10.1016/j.bdr.2021.100209"
+preferred-citation:
+  type: article
+  authors: 
+    - family-names: Henning
+      given-names: "Sören"
+      orcid: "https://orcid.org/0000-0001-6912-2549"
+    - family-names: Hasselbring
+      given-names: Wilhelm
+      orcid: "https://orcid.org/0000-0001-6625-4335"
+  doi: "10.1016/j.bdr.2021.100209"
+  journal: "Big Data Research"
+  month: 7
+  title: "Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures"
+  volume: 25
+  year: 2021
