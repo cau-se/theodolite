@@ -10,19 +10,12 @@ import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
 import io.smallrye.common.constraint.Assert.assertTrue
 import junit.framework.Assert.assertEquals
-import mu.KotlinLogging
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junitpioneer.jupiter.SetEnvironmentVariable
-import theodolite.execution.operator.ExecutionCRDummy
-import theodolite.execution.operator.TheodoliteOperator
 import theodolite.k8s.CustomResourceWrapper
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.model.crd.ExecutionCRD
 import theodolite.util.DeploymentFailedException
-import java.lang.IllegalStateException
 
 private val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
@@ -49,7 +42,7 @@ class ConfigMapResourceSetTest {
         server.client.configMaps().createOrReplace(configMap1)
 
         val resourceSet = ConfigMapResourceSet()
-        resourceSet.configmap = "test-configmap"
+        resourceSet.name = "test-configmap"
 
         return resourceSet.getResourceSet(server.client)
     }
@@ -177,7 +170,7 @@ class ConfigMapResourceSetTest {
         server.client.configMaps().createOrReplace(configMap1)
 
         val resourceSet = ConfigMapResourceSet()
-        resourceSet.configmap = "test-configmap"
+        resourceSet.name = "test-configmap"
 
         val createdResourcesSet = resourceSet.getResourceSet(server.client)
 
@@ -208,7 +201,7 @@ class ConfigMapResourceSetTest {
         server.client.configMaps().createOrReplace(configMap1)
 
         val resourceSet = ConfigMapResourceSet()
-        resourceSet.configmap = "test-configmap"
+        resourceSet.name = "test-configmap"
         resourceSet.files = listOf("test-deployment.yaml")
 
         val createdResourcesSet = resourceSet.getResourceSet(server.client)
@@ -221,7 +214,7 @@ class ConfigMapResourceSetTest {
     @Test()
     fun testConfigMapNotExist() {
         val resourceSet = ConfigMapResourceSet()
-        resourceSet.configmap = "test-configmap1"
+        resourceSet.name = "test-configmap1"
         lateinit var ex: Exception
         try {
             resourceSet.getResourceSet(server.client)

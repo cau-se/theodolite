@@ -2,7 +2,6 @@ package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
@@ -18,7 +17,7 @@ private val logger = KotlinLogging.logger {}
 @RegisterForReflection
 @JsonDeserialize
 class ConfigMapResourceSet: ResourceSet, KubernetesResource {
-    lateinit var configmap: String
+    lateinit var name: String
     lateinit var files: List<String> // load all files, iff files is not set
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -32,14 +31,14 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
         try {
             resources = client
                 .configMaps()
-                .withName(configmap)
+                .withName(name)
                 .get()
                 .data
                 .filter { it.key.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
         } catch (e: KubernetesClientException) {
-            throw DeploymentFailedException("can not find or read configmap:  $configmap, error is:  ${e.message}")
+            throw DeploymentFailedException("can not find or read configmap:  $name, error is:  ${e.message}")
         } catch (e: IllegalStateException) {
-            throw DeploymentFailedException("can not find configmap or data section is null $configmap, error is: ${e.message}")
+            throw DeploymentFailedException("can not find configmap or data section is null $name, error is: ${e.message}")
         }
 
         if (::files.isInitialized){

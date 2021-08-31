@@ -21,7 +21,7 @@ spec:
           properties:
             loadGenMaxRecords: "15000"
   kafkaConfig:
-    bootstrapServer: "theodolite-cp-kafka:9092"
+    bootstrapServer: "localhost:9092"
     topics:
       - name: "input"
         numPartitions: 40
@@ -29,24 +29,28 @@ spec:
       - name: "theodolite-.*"
         removeOnly: True
   appResourceSets:
-    - fileSystem:
-         path: ./../../../../config
-         files:
-           - "uc1-kstreams-deployment.yaml"
-           - "aggregation-service.yaml"
-           - "jmx-configmap.yaml"
-           - "uc1-service-monitor.yaml"
-    # - configMap:
-    #     configmap: "test-configmap"
-    #    files:
-    #      - "uc1-kstreams-deployment.yaml"
-    #      - "aggregation-service.yaml"
-    #      - "jmx-configmap.yaml"
-    #      - "uc1-service-monitor.yaml"
+    # - fileSystem:
+    #      path: ./../../../../../../config
+    #      files:
+    #        - "uc1-kstreams-deployment.yaml"
+    #        - "aggregation-service.yaml"
+    #        - "jmx-configmap.yaml"
+    #        - "uc1-service-monitor.yaml"
+    - configMap:
+       name: "test-configmap"
+       files:
+         - "uc1-kstreams-deployment.yaml"
+         - "aggregation-service.yaml"
+         - "jmx-configmap.yaml"
+         - "uc1-service-monitor.yaml"
   loadGenResourceSets:
-    - fileSystem:
-        path: ./../../../../config
-        files:
+    # - fileSystem:
+    #     path: ./../../../../../../config
+    #     files:
+    #       - uc1-load-generator-service.yaml
+    #       - uc1-load-generator-deployment.yaml
+    - configMap:
+       name: "test-configmap"
+       files:
           - uc1-load-generator-service.yaml
           - uc1-load-generator-deployment.yaml
-    
