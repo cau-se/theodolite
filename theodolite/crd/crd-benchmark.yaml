@@ -127,6 +127,9 @@ spec:
                 type: array
                 items:
                   type: object
+                  oneOf:
+                    - required: [configMap]
+                    - required: [fileSystem]
                   properties:
                     configMap:
                       type: object
@@ -150,6 +153,9 @@ spec:
                 type: array
                 items:
                   type: object
+                  oneOf:
+                    - required: [configMap]
+                    - required: [fileSystem]
                   properties:
                     configMap:
                       type: object

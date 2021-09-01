@@ -37,7 +37,7 @@ spec:
     #        - "jmx-configmap.yaml"
     #        - "uc1-service-monitor.yaml"
     - configMap:
-       name: "test-configmap"
+       name: "example-configmap"
        files:
          - "uc1-kstreams-deployment.yaml"
          - "aggregation-service.yaml"
@@ -50,7 +50,7 @@ spec:
     #       - uc1-load-generator-service.yaml
     #       - uc1-load-generator-deployment.yaml
     - configMap:
-       name: "test-configmap"
+       name: "example-configmap"
        files:
           - uc1-load-generator-service.yaml
           - uc1-load-generator-deployment.yaml

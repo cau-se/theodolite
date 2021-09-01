@@ -935,7 +935,7 @@ Specifies the scaling resource that is benchmarked.
         <td><b>resourceValues</b></td>
         <td>[]integer</td>
         <td>
-          List of resource values for the specified resource type.<br/>
+          <br/>
         </td>
         <td>true</td>
       </tr></tbody>
