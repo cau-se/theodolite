@@ -1,12 +1,4 @@
 name: "uc1-kstreams"
-appResource:
-  - "uc1-kstreams-deployment.yaml"
-  - "aggregation-service.yaml"
-  - "jmx-configmap.yaml"
-  - "uc1-service-monitor.yaml"
-loadGenResource:
-  - "uc1-load-generator-deployment.yaml"
-  - "uc1-load-generator-service.yaml"
 resourceTypes:
   - typeName: "Instances"
     patchers:
@@ -32,3 +24,29 @@ kafkaConfig:
       replicationFactor: 1
     - name: "theodolite-.*"
       removeOnly: True
+appResourceSets:
+  # - fileSystem:
+  #      path: ./../../../../../../config
+  #      files:
+  #        - "uc1-kstreams-deployment.yaml"
+  #        - "aggregation-service.yaml"
+  #        - "jmx-configmap.yaml"
+  #        - "uc1-service-monitor.yaml"
+  - configMap:
+      name: "example-configmap"
+      files:
+        - "uc1-kstreams-deployment.yaml"
+        - "aggregation-service.yaml"
+        - "jmx-configmap.yaml"
+        - "uc1-service-monitor.yaml"
+loadGenResourceSets:
+  # - fileSystem:
+  #     path: ./../../../../../../config
+  #     files:
+  #       - uc1-load-generator-service.yaml
+  #       - uc1-load-generator-deployment.yaml
+  - configMap:
+      name: "example-configmap"
+      files:
+        - uc1-load-generator-service.yaml
+        - uc1-load-generator-deployment.yaml
