@@ -25,6 +25,7 @@ spec:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
                 type: string
+                default: ""
               appResource:
                 description: A list of file names that reference Kubernetes resources that are deployed on the cluster for the system under test (SUT).
                 type: array
@@ -136,10 +137,20 @@ spec:
                           description: Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.
                           type: boolean
                           default: false
+          status:
+            type: object
+            properties:
+              resourceSets:
+                description: todo
+                type: string
     additionalPrinterColumns:
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
+    - name: ResourceSets
+      type: string
+      description: todo
+      jsonPath: .status.resourceSets
     subresources:
       status: {}
   scope: Namespaced

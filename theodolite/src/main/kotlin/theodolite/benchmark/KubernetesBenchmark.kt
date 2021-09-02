@@ -47,7 +47,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * It first loads them via the [YamlParser] to check for their concrete type and afterwards initializes them using
      * the [K8sResourceLoader]
      */
-    private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
+    fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
         val path = System.getenv("THEODOLITE_APP_RESOURCES") ?: DEFAULT_THEODOLITE_APP_RESOURCES
         logger.info { "Using $path as resource path." }
 

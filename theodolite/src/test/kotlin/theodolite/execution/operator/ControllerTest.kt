@@ -33,7 +33,8 @@ class ControllerTest {
         server.before()
         this.controller = TheodoliteOperator().getController(
             client = server.client,
-            executionStateHandler = ExecutionStateHandler(server.client)
+            executionStateHandler = ExecutionStateHandler(server.client),
+            benchmarkStateHandler =  BenchmarkStateHandler(server.client)
         )
 
         // benchmark

@@ -36,3 +36,5 @@ spec:
         replicationFactor: 1
       - name: "theodolite-.*"
         removeOnly: True
+        numPartitions: 40
+        replicationFactor: 1

@@ -51,7 +51,7 @@ spec:
                     description: The type of the resource. It must match one of the resource types specified in the referenced benchmark.
                     type: string
                   resourceValues:
-                    descriptoin:  List of resource values for the specified resource type.
+                    description:  List of resource values for the specified resource type.
                     type: array
                     items:
                       type: integer

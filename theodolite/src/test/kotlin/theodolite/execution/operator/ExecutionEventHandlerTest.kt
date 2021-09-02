@@ -36,7 +36,8 @@ class ExecutionEventHandlerTest {
         val operator = TheodoliteOperator()
         this.controller = operator.getController(
             client = server.client,
-            executionStateHandler = ExecutionStateHandler(client = server.client)
+            executionStateHandler = ExecutionStateHandler(client = server.client),
+            benchmarkStateHandler = BenchmarkStateHandler(client = server.client)
         )
 
         this.factory = operator.getExecutionEventHandler(this.controller, server.client)
