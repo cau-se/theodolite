@@ -470,7 +470,7 @@ Contains the Kafka configuration.
     </thead>
     <tbody><tr>
         <td><b>properties</b></td>
-        <td>object</td>
+        <td>map[string]string</td>
         <td>
           (Optional) Patcher specific additional arguments.<br/>
           <br/>
@@ -551,7 +551,7 @@ Contains the Kafka configuration.
     </thead>
     <tbody><tr>
         <td><b>properties</b></td>
-        <td>object</td>
+        <td>map[string]string</td>
         <td>
           (Optional) Patcher specific additional arguments.<br/>
           <br/>
@@ -790,7 +790,7 @@ Patcher used to patch a resource
     </thead>
     <tbody><tr>
         <td><b>properties</b></td>
-        <td>object</td>
+        <td>map[string]string</td>
         <td>
           (Optional) Patcher specific additional arguments.<br/>
           <br/>
@@ -960,7 +960,7 @@ Specifies the scaling resource that is benchmarked.
     </thead>
     <tbody><tr>
         <td><b>properties</b></td>
-        <td>object</td>
+        <td>map[string]string</td>
         <td>
           (Optional) SLO specific additional arguments.<br/>
           <br/>
