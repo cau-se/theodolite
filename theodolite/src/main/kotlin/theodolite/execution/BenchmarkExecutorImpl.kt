@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.evaluation.AnalysisExecutor
+import theodolite.execution.operator.EventCreator
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
@@ -24,7 +25,8 @@ class BenchmarkExecutorImpl(
     repetitions: Int,
     executionId: Int,
     loadGenerationDelay: Long,
-    afterTeardownDelay: Long
+    afterTeardownDelay: Long,
+    executionName: String
 ) : BenchmarkExecutor(
     benchmark,
     results,
@@ -34,15 +36,18 @@ class BenchmarkExecutorImpl(
     repetitions,
     executionId,
     loadGenerationDelay,
-    afterTeardownDelay
+    afterTeardownDelay,
+    executionName
 ) {
+    private val eventCreator = EventCreator()
+
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
         var result = false
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList()
 
         for (i in 1.rangeTo(repetitions)) {
-            logger.info { "Run repetition $i/$repetitions" }
             if (this.run.get()) {
+                logger.info { "Run repetition $i/$repetitions" }
                 executionIntervals.add(runSingleExperiment(load, res))
             } else {
                 break
@@ -77,17 +82,39 @@ class BenchmarkExecutorImpl(
         try {
             benchmarkDeployment.setup()
             this.waitAndLog()
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "NORMAL",
+                reason = "Start experiment",
+                message = "load: ${load.get()}, resources: ${res.get()}")
         } catch (e: Exception) {
             logger.error { "Error while setup experiment." }
             logger.error { "Error is: $e" }
             this.run.set(false)
+
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "WARNING",
+                reason = "Start experiment failed",
+                message = "load: ${load.get()}, resources: ${res.get()}")
         }
         val to = Instant.now()
         try {
             benchmarkDeployment.teardown()
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "NORMAL",
+                reason = "Stop experiment",
+                message = "Teardown complete")
         } catch (e: Exception) {
             logger.warn { "Error while tearing down the benchmark deployment." }
             logger.debug { "Teardown failed, caused by: $e" }
+
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "WARNING",
+                reason = "Stop experiment failed",
+                message = "Teardown failed: ${e.message}")
         }
         return Pair(from, to)
     }

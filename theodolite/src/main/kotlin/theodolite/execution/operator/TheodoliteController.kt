@@ -96,6 +96,11 @@ class TheodoliteController(
                 }
             }
         } catch (e: Exception) {
+            EventCreator().createEvent(
+                executionName = execution.name,
+                type = "WARNING",
+                reason = "Execution failed",
+                message = "An error occurs while executing:  ${e.message}")
             logger.error { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
             logger.error { "Problem is: $e" }
             executionStateHandler.setExecutionState(execution.name, States.FAILURE)

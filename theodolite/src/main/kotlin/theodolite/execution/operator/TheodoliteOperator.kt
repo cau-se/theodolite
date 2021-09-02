@@ -115,7 +115,7 @@ class TheodoliteOperator {
         return this.controller
     }
 
-    private fun getExecutionClient(client: NamespacedKubernetesClient): MixedOperation<
+    fun getExecutionClient(client: NamespacedKubernetesClient): MixedOperation<
             ExecutionCRD,
             BenchmarkExecutionList,
             Resource<ExecutionCRD>> {
