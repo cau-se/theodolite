@@ -5,10 +5,7 @@ import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.evaluation.AnalysisExecutor
-import theodolite.util.ConfigurationOverride
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
-import theodolite.util.Results
+import theodolite.util.*
 import java.time.Duration
 import java.time.Instant
 
@@ -61,6 +58,11 @@ class BenchmarkExecutorImpl(
                 )
             this.results.setResult(Pair(load, res), result)
         }
+
+        if(!this.run.get()) {
+            throw ExecutionFailedException("The execution was interrupted")
+        }
+
         return result
     }
 
@@ -73,21 +75,21 @@ class BenchmarkExecutorImpl(
             this.afterTeardownDelay
         )
         val from = Instant.now()
-        // TODO(restructure try catch in order to throw exceptions if there are significant problems by running a experiment)
+
         try {
             benchmarkDeployment.setup()
             this.waitAndLog()
         } catch (e: Exception) {
-            logger.error { "Error while setup experiment." }
-            logger.error { "Error is: $e" }
+            logger.debug { "Error while setup experiment: error is: $e" }
             this.run.set(false)
+            throw ExecutionFailedException("Error during setup the experiment: ${e.message}")
         }
         val to = Instant.now()
         try {
             benchmarkDeployment.teardown()
         } catch (e: Exception) {
-            logger.warn { "Error while tearing down the benchmark deployment." }
             logger.debug { "Teardown failed, caused by: $e" }
+            throw ExecutionFailedException("Error during teardown the experiment: ${e.message}")
         }
         return Pair(from, to)
     }

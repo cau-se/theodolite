@@ -120,8 +120,8 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         try {
             resource = f(path)
         } catch (e: Exception) {
-            logger.warn { "You potentially misspelled the path: $path" }
-            logger.warn { e }
+            logger.warn { "Could not load resource: ${e.message}. You potentially misspelled the path: $path" }
+            logger.debug { "Thrown exception is $e" }
         }
 
         if (resource == null) {
