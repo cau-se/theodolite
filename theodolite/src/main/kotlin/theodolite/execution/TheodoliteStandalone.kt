@@ -3,6 +3,7 @@ package theodolite.execution
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
+import theodolite.util.EvaluationFailedException
 import theodolite.util.ExecutionFailedException
 import theodolite.util.YamlParser
 import kotlin.concurrent.thread
@@ -54,7 +55,11 @@ class TheodoliteStandalone {
             TheodoliteExecutor(benchmarkExecution, benchmark).run()
         }catch (e: ExecutionFailedException) {
             logger.error { "Execution failed with error: ${e.message}" }
+        } catch (e: EvaluationFailedException) {
+            logger.error { "Evaluation failed with error: ${e.message}" }
+
         }
+
         logger.info { "Theodolite finished" }
         Runtime.getRuntime().removeShutdownHook(shutdown)
         exitProcess(0)
