@@ -50,7 +50,7 @@ class PatcherFactory {
                 )
                 "DataVolumeLoadGeneratorReplicaPatcher" -> DataVolumeLoadGeneratorReplicaPatcher(
                     k8sResource = resource,
-                    maxVolume = patcherDefinition.properties["maxVolume"]!!,
+                    maxVolume = patcherDefinition.properties["maxVolume"]!!.toInt(),
                     container = patcherDefinition.properties["container"]!!,
                     variableName = patcherDefinition.properties["variableName"]!!
                 )
