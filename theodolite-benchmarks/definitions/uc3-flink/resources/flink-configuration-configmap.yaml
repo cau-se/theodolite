@@ -6,19 +6,17 @@ metadata:
     app: flink
 data:
   flink-conf.yaml: |+
-    #jobmanager.rpc.address: flink-jobmanager
-    #taskmanager.numberOfTaskSlots: 1 #TODO
-    #blob.server.port: 6124
-    #jobmanager.rpc.port: 6123
-    #taskmanager.rpc.port: 6122
-    #queryable-state.proxy.ports: 6125
-    #jobmanager.memory.process.size: 4Gb
-    #taskmanager.memory.process.size: 4Gb
-    #parallelism.default: 1 #TODO
+    #jobmanager.rpc.address: flink-jobmanager # set in deployments
+    blob.server.port: 6124
+    jobmanager.rpc.port: 6123
+    taskmanager.rpc.port: 6122
+    queryable-state.proxy.ports: 6125
+    jobmanager.memory.process.size: 4Gb
+    taskmanager.memory.process.size: 4Gb
     metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
     metrics.reporter.prom.interval: 10 SECONDS
+    # gives metrics about inbound/outbound network queue lengths
     taskmanager.network.detailed-metrics: true
-  # -> gives metrics about inbound/outbound network queue lengths
   log4j-console.properties: |+
     # This affects logging for both user code and Flink
     rootLogger.level = INFO
