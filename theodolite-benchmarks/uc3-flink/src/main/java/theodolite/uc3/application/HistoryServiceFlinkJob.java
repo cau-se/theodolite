@@ -66,7 +66,7 @@ public final class HistoryServiceFlinkJob {
     // Parallelism
     final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
     if (parallelism != null) {
-      LOGGER.error("Set parallelism: {}.", parallelism);
+      LOGGER.info("Set parallelism: {}.", parallelism);
       this.env.setParallelism(parallelism);
     }
 
