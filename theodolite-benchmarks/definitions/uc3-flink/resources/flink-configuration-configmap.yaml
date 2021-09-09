@@ -6,7 +6,7 @@ metadata:
     app: flink
 data:
   flink-conf.yaml: |+
-    #jobmanager.rpc.address: flink-jobmanager # set in deployments
+    jobmanager.rpc.address: flink-jobmanager # must be set also in deployments
     blob.server.port: 6124
     jobmanager.rpc.port: 6123
     taskmanager.rpc.port: 6122

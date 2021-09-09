@@ -10,7 +10,7 @@ spec:
     - "uc3-flink/service-monitor.yaml"
     - "uc3-flink/jobmanager-service.yaml"
     - "uc3-flink/jobmanager-deployment.yaml"
-    #- "uc3-flink/jobmanager-rest-service.yaml"
+    # - "uc3-flink/jobmanager-rest-service.yaml"
   loadGenResource:
     - "uc3-kstreams/uc3-load-generator-deployment.yaml"
     - "uc3-kstreams/uc3-load-generator-service.yaml"
@@ -23,11 +23,6 @@ spec:
           resource: "uc3-flink/jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
-            variableName: "PARALLELISM"
-        - type: "EnvVarPatcher" # required?
-          resource: "uc3-flink/taskmanager-deployment.yaml"
-          properties:
-            container: "taskmanager"
             variableName: "PARALLELISM"
   loadTypes:
     - typeName: "NumSensors"

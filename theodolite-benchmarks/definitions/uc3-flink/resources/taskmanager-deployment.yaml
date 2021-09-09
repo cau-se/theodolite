@@ -19,20 +19,6 @@ spec:
         - name: taskmanager
           image: ghcr.io/cau-se/theodolite-uc3-flink:latest
           env:
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "theodolite-cp-kafka:9092"
-            - name: SCHEMA_REGISTRY_URL
-              value: "http://theodolite-cp-schema-registry:8081"
-            - name: COMMIT_INTERVAL_MS
-              value: "100"
-            - name: CHECKPOINTING
-              value: "false"
-            - name: PARALLELISM
-              value: "1"
-            - name: "FLINK_STATE_BACKEND"
-              value: "rocksdb"
-            - name: TASK_MANAGER_NUMBER_OF_TASK_SLOTS
-              value: "1" #TODO
             - name: JOB_MANAGER_RPC_ADDRESS
               value: "flink-jobmanager"
           resources:
