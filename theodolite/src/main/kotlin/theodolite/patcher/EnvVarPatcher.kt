@@ -12,7 +12,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
  * @property container Container to be patched.
  * @property variableName Name of the environment variable to be patched.
  */
-open class EnvVarPatcher(
+class EnvVarPatcher(
     private val k8sResource: KubernetesResource,
     private val container: String,
     private val variableName: String
