@@ -84,6 +84,11 @@ class PatcherFactory {
                     k8sResource = resource,
                     container = patcherDefinition.properties["container"]!!
                 )
+                "ConfigMapYamlPatcher" -> ConfigMapYamlPatcher(
+                    k8sResource = resource,
+                    fileName = patcherDefinition.properties["fileName"]!!,
+                    variableName = patcherDefinition.properties["variableName"]!!
+                )
                 else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
             }
         } catch (e: NullPointerException) {
