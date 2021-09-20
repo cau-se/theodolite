@@ -6,7 +6,7 @@ import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 
 /**
- * The ConfigMapYamlPatcher allows to add/modify a key-value pair in a YAML file of a Configmap
+ * The ConfigMapYamlPatcher allows to add/modify a key-value pair in a YAML file of a ConfigMap
  *
  * @property k8sResource ConfigMap kubernetes resource
  * @property fileName of the YAML file in the configmap that should be modified.
