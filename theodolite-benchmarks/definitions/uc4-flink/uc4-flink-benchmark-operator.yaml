@@ -24,11 +24,6 @@ spec:
           properties:
             container: "jobmanager"
             variableName: "PARALLELISM"
-        - type: "EnvVarPatcher" # required?
-          resource: "uc4-flink/taskmanager-deployment.yaml"
-          properties:
-            container: "taskmanager"
-            variableName: "PARALLELISM"
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
