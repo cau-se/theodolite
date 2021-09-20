@@ -19,8 +19,6 @@ spec:
         - name: taskmanager
           image: ghcr.io/cau-se/theodolite-uc3-flink:latest
           env:
-            - name: JOB_MANAGER_RPC_ADDRESS
-              value: "flink-jobmanager"
           resources:
             limits:
               memory: 4Gi
@@ -39,19 +37,10 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 60
           volumeMounts:
-            - name: flink-config-volume-rw
+            - name: flink-config-volume
               mountPath: /opt/flink/conf/
           securityContext:
             runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
-      initContainers:
-        - name: init-taskmanager
-          image: busybox:1.28
-          command: ['cp', '-a', '/flink-config/.', '/flink-config-rw/']
-          volumeMounts:
-            - name: flink-config-volume
-              mountPath: /flink-config/
-            - name: flink-config-volume-rw
-              mountPath: /flink-config-rw/
       volumes:
         - name: flink-config-volume
           configMap:
@@ -61,5 +50,3 @@ spec:
                 path: flink-conf.yaml
               - key: log4j-console.properties
                 path: log4j-console.properties
-        - name: flink-config-volume-rw
-          emptyDir: {}
