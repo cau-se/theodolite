@@ -46,8 +46,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.apps().deployments().delete(resource)
                 ResourceByLabelHandler(client = client)
                     .blockUntilPodsDeleted(
-                        labelName = "app",
-                        labelValue = resource.spec.selector.matchLabels["app"]!!
+                        matchLabels = resource.spec.selector.matchLabels
                     )
                 logger.info { "Deployment '${resource.metadata.name}' deleted." }
             }
@@ -59,8 +58,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
                 this.client.apps().statefulSets().delete(resource)
                 ResourceByLabelHandler(client = client)
                     .blockUntilPodsDeleted(
-                        labelName = "app",
-                        labelValue = resource.spec.selector.matchLabels["app"]!!
+                        matchLabels = resource.spec.selector.matchLabels
                     )
                 logger.info { "StatefulSet '$resource.metadata.name' deleted." }
             }
