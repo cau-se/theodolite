@@ -80,16 +80,14 @@ class BenchmarkExecutorImpl(
             benchmarkDeployment.setup()
             this.waitAndLog()
         } catch (e: Exception) {
-            logger.debug { "Error while setup experiment: error is: $e" }
             this.run.set(false)
-            throw ExecutionFailedException("Error during setup the experiment: ${e.message}")
+            throw ExecutionFailedException("Error during setup the experiment", e)
         }
         val to = Instant.now()
         try {
             benchmarkDeployment.teardown()
         } catch (e: Exception) {
-            logger.debug { "Teardown failed, caused by: $e" }
-            throw ExecutionFailedException("Error during teardown the experiment: ${e.message}")
+            throw ExecutionFailedException("Error during teardown the experiment", e)
         }
         return Pair(from, to)
     }

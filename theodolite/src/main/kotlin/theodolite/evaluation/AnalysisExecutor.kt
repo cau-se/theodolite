@@ -72,8 +72,7 @@ class AnalysisExecutor(
             result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: ${e.message}" }
-            throw EvaluationFailedException("Evaluation failed: ${e.message}")
+            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()} ", e)
         }
         return result
     }

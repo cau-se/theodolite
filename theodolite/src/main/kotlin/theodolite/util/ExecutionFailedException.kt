@@ -1,4 +1,4 @@
 package theodolite.util
 
-class ExecutionFailedException(message: String) : Exception(message) {
+open class ExecutionFailedException(message: String, e: Exception? = null) : TheodoliteException(message,e) {
 }

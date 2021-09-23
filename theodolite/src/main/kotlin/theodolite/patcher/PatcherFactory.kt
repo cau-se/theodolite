@@ -83,7 +83,7 @@ class PatcherFactory {
         } catch (e: Exception) {
             throw InvalidPatcherConfigurationException(
                 "Could not create patcher with type ${patcherDefinition.type}" +
-                        " Probably a required patcher argument was not specified."
+                        " Probably a required patcher argument was not specified.", e
             )
         }
     }

@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
+import theodolite.util.DeploymentFailedException
 import theodolite.util.YamlParser
 
 private val logger = KotlinLogging.logger {}
@@ -120,10 +121,8 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
         try {
             resource = f(path)
         } catch (e: Exception) {
-            logger.warn { "Could not load resource: ${e.message}. You potentially misspelled the path: $path" }
-            logger.debug { "Thrown exception is $e" }
+            throw IllegalArgumentException("The Resource at path: $path could not be loaded", e)
         }
-
         if (resource == null) {
             throw IllegalArgumentException("The Resource at path: $path could not be loaded")
         }
@@ -147,10 +146,7 @@ class K8sResourceLoader(private val client: NamespacedKubernetesClient) {
             "StatefulSet" -> loadStatefulSet(path)
             "Execution" -> loadExecution(path)
             "Benchmark" -> loadBenchmark(path)
-            else -> {
-                logger.error { "Error during loading of unspecified resource Kind" }
-                throw IllegalArgumentException("error while loading resource with kind: $kind")
-            }
+            else -> throw IllegalArgumentException("error while loading resource with kind: $kind")
         }
     }
 }
