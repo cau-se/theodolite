@@ -99,16 +99,16 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
      * @param [labelName] the label name
      * @param [labelValue] the value of this label
      * */
-    fun blockUntilPodsDeleted(labelName: String, labelValue: String) {
+    fun blockUntilPodsDeleted(matchLabels: MutableMap<String, String>) {
         while (
             !this.client
                 .pods()
-                .withLabel("$labelName=$labelValue")
+                .withLabels(matchLabels)
                 .list()
                 .items
                 .isNullOrEmpty()
         ) {
-            logger.info { "Wait for pods with label $labelName=$labelValue to be deleted." }
+            logger.info { "Wait for pods with label ${matchLabels.toString()} to be deleted." }
             Thread.sleep(1000)
         }
     }
