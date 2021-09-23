@@ -53,11 +53,10 @@ class TheodoliteStandalone {
 
         try {
             TheodoliteExecutor(benchmarkExecution, benchmark).run()
-        }catch (e: ExecutionFailedException) {
-            logger.error { "Execution failed with error: ${e.message}" }
         } catch (e: EvaluationFailedException) {
             logger.error { "Evaluation failed with error: ${e.message}" }
-
+        }catch (e: ExecutionFailedException) {
+            logger.error { "Execution failed with error: ${e.message}" }
         }
 
         logger.info { "Theodolite finished" }
