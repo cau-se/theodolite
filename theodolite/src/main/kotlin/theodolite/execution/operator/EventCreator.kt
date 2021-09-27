@@ -5,34 +5,40 @@ import io.fabric8.kubernetes.api.model.EventSource
 import io.fabric8.kubernetes.api.model.ObjectReference
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
+import mu.KotlinLogging
+import theodolite.util.Config
+import theodolite.util.Configuration
 import java.time.Instant
 import java.util.*
+import kotlin.NoSuchElementException
+private val logger = KotlinLogging.logger {}
 
 class EventCreator {
-    val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace("default")
+    val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(Configuration.NAMESPACE)
 
     fun createEvent(executionName: String, type: String, message: String, reason: String) {
         val uuid = UUID.randomUUID().toString()
-        println("uuid is: " + uuid)
-        val objectRef = buildObjectReference(executionName)
-        val event = EventBuilder()
-            .withNewMetadata()
+        try {
+            val objectRef = buildObjectReference(executionName)
+            val event = EventBuilder()
+                .withNewMetadata()
                 .withName(uuid)
-            .endMetadata()
-            .build()
+                .endMetadata()
+                .withMessage(message)
+                .withReason(reason)
+                .withType(type)
+                .withFirstTimestamp(Instant.now().toString()) // TODO change datetime format
+                .build()
 
-        event.message = message
-        event.reason = reason
-        event.type = type
+            val source =  EventSource()
+            source.component = Configuration.COMPONENT_NAME
+            event.source = source
 
-        event.firstTimestamp =  Instant.now().toString()
-
-        val source =  EventSource()
-        source.component = "theodolite-operator"
-        event.source = source
-
-        event.involvedObject = objectRef
-        client.v1().events().inNamespace("default").create(event)
+            event.involvedObject = objectRef
+            client.v1().events().inNamespace(Configuration.NAMESPACE).createOrReplace(event)
+        } catch (e: NoSuchElementException) {
+                logger.warn {"Could not create event: type: $type, message: $message, reason: $reason, no corresponding execution found."}
+        }
     }
 
     private fun buildObjectReference(executionName: String): ObjectReference {
