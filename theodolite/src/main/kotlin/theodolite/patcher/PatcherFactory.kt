@@ -32,7 +32,7 @@ class PatcherFactory {
             k8sResources.filter { it.first == patcherDefinition.resource }
                 .map { resource -> resource.second }
                 .firstOrNull()
-                ?: throw DeploymentFailedException("Could not find resource ${patcherDefinition.resource}")
+                ?: throw InvalidPatcherConfigurationException("Could not find resource ${patcherDefinition.resource}")
 
         return try {
             when (patcherDefinition.type) {
@@ -86,10 +86,10 @@ class PatcherFactory {
                 )
                 else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
             }
-        } catch (e: Exception) {
+        } catch (e: NullPointerException) {
             throw InvalidPatcherConfigurationException(
                 "Could not create patcher with type ${patcherDefinition.type}" +
-                        " Probably a required patcher argument was not specified."
+                        " Probably a required patcher argument was not specified.", e
             )
         }
     }

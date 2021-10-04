@@ -1,4 +1,4 @@
 package theodolite.util
 
-class InvalidPatcherConfigurationException(message: String) : Exception(message)
+class InvalidPatcherConfigurationException(message: String, e: Exception? = null) : Exception(message, e)
 
