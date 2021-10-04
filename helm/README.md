@@ -47,7 +47,7 @@ helm install theodolite . -f preconfigs/one-broker-values.yaml
 To uninstall/delete the `theodolite` deployment:
 
 ```sh
-helm delete theodolite
+helm uninstall theodolite
 ```
 
 This command does not remove the CRDs which are created by this chart. Remove them manually with:
