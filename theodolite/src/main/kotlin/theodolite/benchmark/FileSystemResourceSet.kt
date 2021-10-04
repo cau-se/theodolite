@@ -37,7 +37,7 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
                     loadSingleResource(resourceURL = it, client = client)
                 }
         } catch (e: NullPointerException) {
-            throw  DeploymentFailedException("Could not load files located in $path, error is: ${e.message}")
+            throw  DeploymentFailedException("Could not load files located in $path", e)
         }
     }
 
@@ -50,9 +50,9 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
         try {
             kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind")!!
         } catch (e: NullPointerException) {
-            throw DeploymentFailedException("Can not get Kind from resource $resourcePath, error is ${e.message}")
+            throw DeploymentFailedException("Can not get Kind from resource $resourcePath", e)
         } catch (e: FileNotFoundException){
-            throw DeploymentFailedException("File $resourcePath not found")
+            throw DeploymentFailedException("File $resourcePath not found", e)
 
         }
 
@@ -60,7 +60,7 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
             val k8sResource = loader.loadK8sResource(kind, resourcePath)
             Pair(resourceURL, k8sResource)
         } catch (e: IllegalArgumentException) {
-            throw DeploymentFailedException("Could not load resource: $resourcePath, caused by exception: ${e.message}")
+            throw DeploymentFailedException("Could not load resource: $resourcePath", e)
         }
     }
 }

@@ -36,9 +36,9 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
                 .data
                 .filter { it.key.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
         } catch (e: KubernetesClientException) {
-            throw DeploymentFailedException("can not find or read configmap:  $name, error is:  ${e.message}")
+            throw DeploymentFailedException("can not find or read configmap:  $name", e)
         } catch (e: IllegalStateException) {
-            throw DeploymentFailedException("can not find configmap or data section is null $name, error is: ${e.message}")
+            throw DeploymentFailedException("can not find configmap or data section is null $name", e)
         }
 
         if (::files.isInitialized){
@@ -56,7 +56,7 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
                         it.second.key,
                         loader.loadK8sResource(it.first, it.second.value)) }
         } catch (e: IllegalArgumentException) {
-            throw  DeploymentFailedException("Can not creat resource set from specified configmap" + e.message)
+            throw  DeploymentFailedException("Can not creat resource set from specified configmap", e)
         }
 
     }
@@ -68,7 +68,7 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
         return try {
             resourceAsMap?.get("kind") !!
         } catch (e: NullPointerException) {
-            throw DeploymentFailedException( "Could not find field kind of Kubernetes resource: ${resourceAsMap?.get("name")}" )
+            throw DeploymentFailedException( "Could not find field kind of Kubernetes resource: ${resourceAsMap?.get("name")}", e)
         }
     }
 }
