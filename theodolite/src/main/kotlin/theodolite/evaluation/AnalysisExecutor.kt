@@ -37,6 +37,7 @@ class AnalysisExecutor(
      *  @return true if the experiment succeeded.
      */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
+
         var result = false
         var repetitionCounter = 1
 
@@ -50,7 +51,7 @@ class AnalysisExecutor(
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = RECORD_LAG_QUERY
+                        query = slo.query
                     )
                 }
 
@@ -58,7 +59,7 @@ class AnalysisExecutor(
                 ioHandler.writeToCSVFile(
                     fileURL = "${fileURL}_${repetitionCounter++}",
                     data = data.getResultAsList(),
-                    columns = listOf("group", "timestamp", "value")
+                    columns = listOf("labels", "timestamp", "value")
                 )
             }
 

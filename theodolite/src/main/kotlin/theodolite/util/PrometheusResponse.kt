@@ -23,7 +23,7 @@ data class PrometheusResponse(
      * The format of the returned list is: `[[ group, timestamp, value ], [ group, timestamp, value ], ... ]`
      */
     fun getResultAsList(): List<List<String>> {
-        val group = data?.result?.get(0)?.metric?.group.toString()
+        val group = data?.result?.get(0)?.metric?.toString()!!
         val values = data?.result?.get(0)?.values
         val result = mutableListOf<List<String>>()
 
@@ -64,18 +64,9 @@ data class PromResult(
     /**
      * Label of the metric
      */
-    var metric: PromMetric? = null,
+    var metric: Map<String,String>? = null,
     /**
      *  Values of the metric (e.g. [ [ <unix_time>, "<sample_value>" ], ... ])
      */
     var values: List<Any>? = null
 )
-
-/**
- * Corresponds to the metric field in the range-vector result format of a Prometheus range-query response.
- */
-@RegisterForReflection
-data class PromMetric(
-    var group: String? = null
-)
-

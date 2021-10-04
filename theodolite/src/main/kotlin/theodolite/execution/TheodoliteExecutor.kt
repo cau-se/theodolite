@@ -64,7 +64,7 @@ class TheodoliteExecutor(
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = config.configOverrides,
-                slo = config.slos[0],
+                slos = config.slos,
                 repetitions = config.execution.repetitions,
                 executionId = config.executionId,
                 loadGenerationDelay = config.execution.loadGenerationDelay,

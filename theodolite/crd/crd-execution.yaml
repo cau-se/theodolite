@@ -51,7 +51,7 @@ spec:
                     description: The type of the resource. It must match one of the resource types specified in the referenced benchmark.
                     type: string
                   resourceValues:
-                    descriptoin:  List of resource values for the specified resource type.
+                    description:  List of resource values for the specified resource type.
                     type: array
                     items:
                       type: integer
@@ -67,6 +67,9 @@ spec:
                       type: string
                     prometheusUrl:
                       description: Connection string for Promehteus.
+                      type: string
+                    query:
+                      description: The prometheus query string
                       type: string
                     offset:
                       description: Hours by which the start and end timestamp will be shifted (for different timezones).

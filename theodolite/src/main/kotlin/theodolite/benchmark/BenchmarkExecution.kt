@@ -63,6 +63,7 @@ class BenchmarkExecution : KubernetesResource {
     class Slo : KubernetesResource {
         lateinit var sloType: String
         lateinit var prometheusUrl: String
+        lateinit var query: String
         var offset by Delegates.notNull<Int>()
         lateinit var properties: MutableMap<String, String>
     }
