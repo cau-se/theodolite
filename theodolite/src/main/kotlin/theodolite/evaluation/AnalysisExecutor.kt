@@ -51,7 +51,7 @@ class AnalysisExecutor(
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = slo.query
+                        query = SloConfigHandler.getQueryString(sloType = slo.sloType)
                     )
                 }
 
