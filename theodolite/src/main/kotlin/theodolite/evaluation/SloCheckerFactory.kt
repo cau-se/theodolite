@@ -43,25 +43,25 @@ class SloCheckerFactory {
         properties: MutableMap<String, String>,
         load: LoadDimension
     ): SloChecker {
-        return when (sloType) {
-            "lag trend" -> ExternalSloChecker(
+        return when (sloType.toLowerCase()) {
+            SloTypes.LAG_TREND.value, SloTypes.DROPPED_RECORDS.value -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
                 threshold = properties["threshold"]?.toInt() ?: throw IllegalArgumentException("threshold expected"),
                 warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
             )
-            "lag trend percent" -> {
+            SloTypes.LAG_TREND_PERCENTAGE.value, SloTypes.DROPPED_RECORDS_PERCENTAGE.value -> {
                 if (!properties["loadType"].equals("NumSensors")) {
                     throw IllegalArgumentException("Percent Threshold is only allowed with load type NumSensors")
                 }
-                var thresholdPercent =
+                val thresholdPercent =
                     properties["percent"]?.toDouble()
                         ?: throw IllegalArgumentException("percent for threshold expected")
                 if (thresholdPercent < 0.0 || thresholdPercent > 1.0) {
                     throw IllegalArgumentException("Threshold percent need to be an Double in the range between 0.0 and 1.0 (inclusive)")
                 }
                 // cast to int, as rounding is not really necessary
-                var threshold = (load.get() * thresholdPercent).toInt()
+                val threshold = (load.get() * thresholdPercent).toInt()
 
                 ExternalSloChecker(
                     externalSlopeURL = properties["externalSloUrl"]

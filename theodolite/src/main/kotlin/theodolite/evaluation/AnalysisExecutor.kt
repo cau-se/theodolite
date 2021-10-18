@@ -12,7 +12,6 @@ import java.util.*
 import java.util.regex.Pattern
 
 private val logger = KotlinLogging.logger {}
-private val RECORD_LAG_QUERY = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.

@@ -60,9 +60,6 @@ spec:
                     prometheusUrl:
                       description: Connection string for Promehteus.
                       type: string
-                    query:
-                      description: The prometheus query string
-                      type: string
                     offset:
                       description: Hours by which the start and end timestamp will be shifted (for different timezones).
                       type: integer
