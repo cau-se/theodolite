@@ -15,7 +15,6 @@ spec:
     - sloType: "lag trend"
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
-      query: "sum by(group)(kafka_consumergroup_group_lag >= 0)"
       properties:
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
