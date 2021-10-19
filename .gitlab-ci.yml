@@ -319,7 +319,18 @@ test-slo-checker-lag-trend:
   tags:
     - exec-docker
   script:
-    - cd slope-evaluator
+    - cd slo-checker/record-lag
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+
+test-slo-checker-dropped-records:
+  stage: test
+  image: python:3.7-slim
+  tags:
+    - exec-docker
+  script:
+    - cd slo-checker/dropped-records
     - pip install -r requirements.txt
     - cd app
     - python -m unittest
