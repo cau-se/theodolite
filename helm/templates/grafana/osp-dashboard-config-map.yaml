@@ -2,11 +2,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "theodolite.fullname" . }}-grafana-scalability
+  name: {{ template "theodolite.fullname" . }}-grafana-scalability-osp
   labels:
-    grafana_dashboard: "1"
+    grafana_dashboard: "2"
 data:
-  k8s-dashboard.json: |-
+  osp-dashboard.json: |-
     {{`{
     "annotations": {
       "list": [
@@ -24,8 +24,8 @@ data:
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 1,
-    "iteration": 1589140028684,
+    "id": 2,
+    "iteration": 1631777972723,
     "links": [],
     "panels": [
       {
@@ -71,11 +71,28 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_input)",
+            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_ndwflow)",
             "format": "time_series",
+            "interval": "",
             "intervalFactor": 1,
-            "legendFormat": "{{Messages In Per Second}}",
-            "refId": "D"
+            "legendFormat": "ndwflow",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_ndwspeed)",
+            "format": "time_series",
+            "interval": "",
+            "intervalFactor": 1,
+            "legendFormat": "ndwspeed",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_ndwflow+cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_ndwspeed)",
+            "format": "time_series",
+            "interval": "",
+            "intervalFactor": 1,
+            "legendFormat": "ndwflow+ndwspeed",
+            "refId": "C"
           }
         ],
         "thresholds": [],
@@ -162,11 +179,12 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_output)",
+            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_metrics)",
             "format": "time_series",
+            "interval": "",
             "intervalFactor": 1,
-            "legendFormat": "{{Messages Out Per Second}}",
-            "refId": "D"
+            "legendFormat": "Metrics",
+            "refId": "A"
           }
         ],
         "thresholds": [],
@@ -942,7 +960,7 @@ data:
       }
     ],
     "refresh": "10s",
-    "schemaVersion": 21,
+    "schemaVersion": 22,
     "style": "dark",
     "tags": [],
     "templating": {
@@ -958,6 +976,7 @@ data:
           "definition": "label_values(kafka_consumer_consumer_fetch_manager_metrics_records_lag, job)",
           "hide": 0,
           "includeAll": false,
+          "index": -1,
           "label": "Job",
           "multi": false,
           "name": "Job",
@@ -1000,8 +1019,11 @@ data:
       ]
     },
     "timezone": "",
-    "title": "Scalability Benchmarking",
-    "uid": "dad0CNlZz",
-    "version": 25
+    "title": "OSPBench",
+    "uid": "01O646v7z",
+    "variables": {
+      "list": []
+    },
+    "version": 1
     }`}}
 {{- end }}
