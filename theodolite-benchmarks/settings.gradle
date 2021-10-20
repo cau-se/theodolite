@@ -7,6 +7,7 @@ include 'flink-commons'
 include 'uc1-load-generator'
 include 'uc1-kstreams'
 include 'uc1-flink'
+include 'uc1-beam-samza'
 
 include 'uc2-load-generator'
 include 'uc2-kstreams'
