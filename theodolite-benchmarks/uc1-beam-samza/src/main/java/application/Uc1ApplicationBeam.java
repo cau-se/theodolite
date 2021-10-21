@@ -59,9 +59,6 @@ public final class Uc1ApplicationBeam {
   @SuppressWarnings({"unchecked", "rawtypes","unused"})
   public static void main(final String[] args) {
 
-
-
-
     // Set Configuration for Kafka
     final String bootstrapServer =
         System.getenv(BOOTSTRAP) == null ? "my-confluent-cp-kafka:9092"
@@ -137,7 +134,7 @@ public final class Uc1ApplicationBeam {
    */
   @SuppressWarnings({"unused"})
   private static class LoggKeys extends DoFn<KV<String, String>,KV<String, String>> {
-    public static final long serialVersionUID = 4328743;
+    private static final long serialVersionUID = 4328743;
 
     @ProcessElement
     public void processElement(@Element final KV<String, String> kv,
