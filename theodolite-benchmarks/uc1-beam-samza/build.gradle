@@ -14,8 +14,6 @@ allprojects {
 
 dependencies {
   compile group: 'org.apache.beam', name: 'beam-sdks-java-core', version: '2.22.0'
-  compile('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT')
-
   compile group: 'org.apache.beam', name: 'beam-runners-samza', version: '2.22.0'
 
   compile('org.apache.beam:beam-sdks-java-io-kafka:2.22.0'){
