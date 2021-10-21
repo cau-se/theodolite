@@ -43,8 +43,6 @@ public final class Uc1ApplicationBeam {
   private static final String USE_AVRO_READER = YES;
   private static final String AUTO_COMMIT_CONFIG = YES;
 
-
-
   /**
   * Private constructor to avoid instantiation.
   */
@@ -81,7 +79,7 @@ public final class Uc1ApplicationBeam {
     // --samzaExecutionEnvironment=STANDALONE
     // --maxSourceParallelism=1024
 
-    final LoggKeys logging = new LoggKeys();
+    final LogKeyValue logKeyValue = new LogKeyValue();
 
     final PipelineOptions options = PipelineOptionsFactory.fromArgs(args).create();
     options.setJobName("ucapplication");
@@ -124,16 +122,16 @@ public final class Uc1ApplicationBeam {
                   }
                 }))
         // Print to console
-        .apply(ParDo.of(logging));
+        .apply(ParDo.of(logKeyValue));
     // Start execution
     pipeline.run().waitUntilFinish();
   }
 
   /**
-   * Logs all Keys it reads.
+   * Logs all Logs all Key Value pairs..
    */
   @SuppressWarnings({"unused"})
-  private static class LoggKeys extends DoFn<KV<String, String>,KV<String, String>> {
+  private static class LogKeyValue extends DoFn<KV<String, String>,KV<String, String>> {
     private static final long serialVersionUID = 4328743;
 
     @ProcessElement
@@ -144,7 +142,6 @@ public final class Uc1ApplicationBeam {
       }
     }
   }
-
 }
 
 
