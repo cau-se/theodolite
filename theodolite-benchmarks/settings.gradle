@@ -19,6 +19,7 @@ include 'uc2-beam-flink'
 include 'uc3-load-generator'
 include 'uc3-kstreams'
 include 'uc3-flink'
+include 'uc3-beam-flink'
 
 include 'uc4-load-generator'
 include 'uc4-kstreams'
