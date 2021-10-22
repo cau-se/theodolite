@@ -24,3 +24,5 @@ include 'uc3-beam-flink'
 include 'uc4-load-generator'
 include 'uc4-kstreams'
 include 'uc4-flink'
+include 'uc4-beam-samza'
+
