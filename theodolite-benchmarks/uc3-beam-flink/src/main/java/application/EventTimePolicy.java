@@ -1,7 +1,7 @@
 package application;
 
-
 import java.util.Optional;
+
 import org.apache.beam.sdk.io.kafka.KafkaRecord;
 import org.apache.beam.sdk.io.kafka.TimestampPolicy;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
@@ -15,6 +15,7 @@ public class EventTimePolicy
   protected Instant currentWatermark;
 
   public EventTimePolicy(final Optional<Instant> previousWatermark) {
+    super();
     this.currentWatermark = previousWatermark.orElse(BoundedWindow.TIMESTAMP_MIN_VALUE);
   }
 

@@ -7,6 +7,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.beam.runners.flink.FlinkRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
@@ -42,65 +44,67 @@ import titan.ccp.model.records.ActivePowerRecord;
  * ${workspace_loc:/uc4-application-samza/eclipseConsoleLogs.log} as Output File under Standard
  * Input Output in Common in the Run Configuration Start via Eclipse Run.
  */
-public class Uc3ApplicationBeam {
+public final class Uc3ApplicationBeam {
 
+  private static final String JOB_NAME = "Uc3Application";
+  private static final String BOOTSTRAP = "KAFKA_BOOTSTRAP_SERVERS";
+  private static final String INPUT = "INPUT";
+  private static final String OUTPUT = "OUTPUT";
+  private static final String SCHEMA_REGISTRY = "SCHEMA_REGISTRY_URL";
+  private static final String YES = "true";
+  private static final String USE_AVRO_READER = YES;
+  private static final String AUTO_COMMIT_CONFIG = YES;
+  private static final String KAFKA_WINDOW_DURATION_DAYS  = "KAFKA_WINDOW_DURATION_MINUTES";
+  private static final String AGGREGATION_ADVANCE_DAYS  = "AGGREGATION_ADVANCE_DAYS";
+  private static final String TRIGGER_INTERVAL  = "TRIGGER_INTERVAL";
 
-  @SuppressWarnings("serial")
+  /**
+   * Private constructor to avoid instantiation.
+   */
+  private Uc3ApplicationBeam() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Start running this microservice.
+   */
   public static void main(final String[] args) {
 
     // Set Configuration for Windows
     final int windowDuration = Integer.parseInt(
-        System.getenv("KAFKA_WINDOW_DURATION_DAYS") != null
-            ? System.getenv("KAFKA_WINDOW_DURATION_DAYS")
-            : "30");
+        System.getenv(KAFKA_WINDOW_DURATION_DAYS) == null
+            ? "30" : System.getenv(KAFKA_WINDOW_DURATION_DAYS));
     final Duration duration = Duration.standardDays(windowDuration);
 
     final int aggregationAdvance = Integer.parseInt(
-        System.getenv("AGGREGATION_ADVANCE_DAYS") != null
-            ? System.getenv("AGGREGATION_ADVANCE_DAYS")
-            : "1");
+        System.getenv(AGGREGATION_ADVANCE_DAYS) == null
+            ? "1" : System.getenv(AGGREGATION_ADVANCE_DAYS));
     final Duration advance = Duration.standardDays(aggregationAdvance);
     final int triggerInterval = Integer.parseInt(
-        System.getenv("TRIGGER_INTERVAL") != null
-            ? System.getenv("TRIGGER_INTERVAL")
-            : "15");
+        System.getenv(TRIGGER_INTERVAL) == null
+            ? "15" : System.getenv(TRIGGER_INTERVAL));
 
     final Duration triggerDelay = Duration.standardSeconds(triggerInterval);
 
     // Set Configuration for Kafka
     final String bootstrapServer =
-        System.getenv("KAFKA_BOOTSTRAP_SERVERS") != null ? System.getenv("KAFKA_BOOTSTRAP_SERVERS")
-            : "my-confluent-cp-kafka:9092";
-    final String inputTopic = System.getenv("INPUT") != null ? System.getenv("INPUT") : "input";
-    final String outputTopic = System.getenv("OUTPUT") != null ? System.getenv("OUTPUT") : "output";
-    final String schemaRegistryURL =
-        System.getenv("SCHEMA_REGISTRY_URL") != null ? System.getenv("SCHEMA_REGISTRY_URL")
-            : "http://my-confluent-cp-schema-registry:8081";
+        System.getenv(BOOTSTRAP) == null ? "my-confluent-cp-kafka:9092"
+            : System.getenv(BOOTSTRAP);
+    final String inputTopic = System.getenv(INPUT) == null ? "input" : System.getenv(INPUT);
+    final String outputTopic = System.getenv(OUTPUT) == null ? "output" : System.getenv(OUTPUT);
+    final String schemaRegistryUrl =
+        System.getenv(SCHEMA_REGISTRY) == null ? "http://my-confluent-cp-schema-registry:8081"
+            : System.getenv(SCHEMA_REGISTRY);
 
-    // Set consumer configuration for the schema registry and commits back to Kafka
-    final HashMap<String, Object> consumerConfig = new HashMap<>();
-    consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-    consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    consumerConfig.put("schema.registry.url", schemaRegistryURL);
-    consumerConfig.put("specific.avro.reader", "true");
-    consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "uc-application");
+    final Map<String, Object> consumerConfig = buildConsumerConfig(schemaRegistryUrl);
     final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
-
 
     final PipelineOptions options = PipelineOptionsFactory.fromArgs(args).create();
     options.setRunner(FlinkRunner.class);
-    options.setJobName("ucapplication");
+    options.setJobName(JOB_NAME);
     final Pipeline pipeline = Pipeline.create(options);
     final CoderRegistry cr = pipeline.getCoderRegistry();
-
-
-    cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
-    cr.registerCoderForClass(HourOfDayKey.class, new HourOfDaykeyCoder());
-    cr.registerCoderForClass(StatsAggregation.class,
-        SerializableCoder.of(StatsAggregation.class));
-    cr.registerCoderForClass(StatsAccumulator.class, AvroCoder.of(StatsAccumulator.class));
-
-
+    registerCoders(cr);
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> kafka =
@@ -120,8 +124,9 @@ public class Uc3ApplicationBeam {
     pipeline.apply(kafka)
         // Map to correct time format
         .apply(MapElements.via(
-            new SimpleFunction<KV<String, ActivePowerRecord>, KV<HourOfDayKey, ActivePowerRecord>>() {
-              final ZoneId zone = ZoneId.of("Europe/Paris");
+            new SimpleFunction<KV<String, ActivePowerRecord>, KV<HourOfDayKey,
+                ActivePowerRecord>>() {
+              private final ZoneId zone = ZoneId.of("Europe/Paris");
 
               @Override
               public KV<application.HourOfDayKey, ActivePowerRecord> apply(
@@ -162,11 +167,37 @@ public class Uc3ApplicationBeam {
             .withKeySerializer(StringSerializer.class)
             .withValueSerializer(StringSerializer.class));
 
-
     pipeline.run().waitUntilFinish();
+  }
 
+  /**
+   * Builds a configuration for a Kafka consumer.
+   * @param schemaRegistryUrl the url to the SchemaRegistry.
+   * @return the configuration.
+   */
+  public static Map<String, Object> buildConsumerConfig(final String schemaRegistryUrl) {
 
+    // Set consumer configuration for the schema registry and commits back to Kafka
+    final HashMap<String, Object> consumerConfig = new HashMap<>();
+    consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, AUTO_COMMIT_CONFIG);
+    consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    consumerConfig.put("schema.registry.url", schemaRegistryUrl);
+    consumerConfig.put("specific.avro.reader", USE_AVRO_READER);
+    consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, JOB_NAME);
 
+    return consumerConfig;
+  }
+
+  /**
+   * Registers all Coders for all needed Coders.
+   * @param cr CoderRegistry.
+   */
+  private static void registerCoders(final CoderRegistry cr) {
+    cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
+    cr.registerCoderForClass(HourOfDayKey.class, new HourOfDaykeyCoder());
+    cr.registerCoderForClass(StatsAggregation.class,
+        SerializableCoder.of(StatsAggregation.class));
+    cr.registerCoderForClass(StatsAccumulator.class, AvroCoder.of(StatsAccumulator.class));
   }
 }
 
