@@ -55,9 +55,6 @@ class TheodoliteExecutor(
                 this.kubernetesBenchmark.loadTypes
             )
 
-        // Add load type to check if the percentage lag trend is applicable
-        config.slos.forEach { it.properties["loadType"] = config.load.loadType }
-
         executor =
             BenchmarkExecutorImpl(
                 benchmark = kubernetesBenchmark,
