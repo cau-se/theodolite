@@ -1,15 +1,15 @@
 package application;
 
-
-import org.apache.beam.sdk.coders.DefaultCoder;
 import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.DefaultCoder;
+
 
 /**
  * Composed key of an hour of the day and a sensor id.
  */
 
 @DefaultCoder(AvroCoder.class)
-public class HourOfDayKey{
+public class HourOfDayKey {
 
   private final int hourOfDay;
   private final String sensorId;
