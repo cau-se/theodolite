@@ -15,11 +15,11 @@ import org.apache.kafka.common.serialization.Serde;
  * Wrapper Class that encapsulates a HourOfDayKeySerde in a org.apache.beam.sdk.coders.Coder.
  */
 public class HourOfDaykeyCoder extends Coder<HourOfDayKey> implements Serializable {
-  private static final int VALUE_SIZE = 4;
-  private static final boolean DETEMINISTIC = false;
   public static final long serialVersionUID = 4444444;
+  private static final boolean DETERMINISTIC = true;
+  private static final int VALUE_SIZE = 4;
 
-  private Serde<HourOfDayKey> innerSerde = HourOfDayKeySerde.create();
+  private transient Serde<HourOfDayKey> innerSerde = HourOfDayKeySerde.create();
 
   @Override
   public void encode(final HourOfDayKey value, final OutputStream outStream)
@@ -39,10 +39,10 @@ public class HourOfDaykeyCoder extends Coder<HourOfDayKey> implements Serializab
       this.innerSerde = HourOfDayKeySerde.create();
     }
     final byte[] sizeinBytes = new byte[VALUE_SIZE];
-    //inStream.read(sizeinBytes);
+    inStream.read(sizeinBytes);
     final int size = ByteBuffer.wrap(sizeinBytes).getInt();
     final byte[] bytes = new byte[size];
-    //inStream.read(bytes);
+    inStream.read(bytes);
     return this.innerSerde.deserializer().deserialize("deser", bytes);
   }
 
@@ -53,7 +53,7 @@ public class HourOfDaykeyCoder extends Coder<HourOfDayKey> implements Serializab
 
   @Override
   public void verifyDeterministic() throws NonDeterministicException {
-    if (!DETEMINISTIC) {
+    if (!DETERMINISTIC) {
       throw new NonDeterministicException(this, "This class is not deterministic!");
     }
   }
