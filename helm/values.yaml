@@ -250,11 +250,6 @@ operator:
   imageTag: latest
   imagePullPolicy: Always
 
-  executionCRD:
-    create: true
-  benchmarkCRD:
-    create: true
-
   sloChecker:
     lagTrend:
       enabled: true
