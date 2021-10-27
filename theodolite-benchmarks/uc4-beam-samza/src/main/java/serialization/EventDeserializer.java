@@ -5,6 +5,9 @@ import org.apache.kafka.common.serialization.ByteBufferDeserializer;
 import org.apache.kafka.common.serialization.Deserializer;
 import titan.ccp.configuration.events.Event;
 
+/**
+ * Deserializer for Events(SensorRegistry changes).
+ */
 public class EventDeserializer implements Deserializer<Event> {
 
   private final ByteBufferDeserializer byteBufferDeserializer = new ByteBufferDeserializer();

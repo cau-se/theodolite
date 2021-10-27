@@ -49,8 +49,37 @@ import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
-public class Uc4ApplicationBeamNoFeedback {
+/**
+ * Usecase implementation without the feedback.
+ */
+public final class Uc4ApplicationBeamNoFeedback {
 
+  private static final String JOB_NAME = "Uc4Application";
+  private static final String YES = "true";
+  private static final String USE_AVRO_READER = YES;
+  private static final String AUTO_COMMIT_CONFIG = YES;
+
+  private static final String AUTO_OFFSET_RESET_CONFIG  = "earliest";
+  private static final int DELAY  = 5;
+
+  private static final String PARENTS = "Parents: ";
+  private static final String VALUE_KEY = "ValueKey: ";
+  private static final String VALUE_IN_W = "ValueInW: ";
+  private static final String TIMESTAMP = "Timestamp: ";
+
+
+
+
+  /**
+   * Private constructor to avoid instantiation.
+   */
+  private Uc4ApplicationBeamNoFeedback() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Start executing this microservice.
+   */
   @SuppressWarnings({"serial", "unchecked", "rawtypes"})
   public static void main(final String[] args) {
 
@@ -58,20 +87,21 @@ public class Uc4ApplicationBeamNoFeedback {
     final String outputTopic = "output";
     final String bootstrapServer = "localhost:9092";
     final String configurationTopic = "configuration";
-    final String schemaRegistryURL = "http://localhost:8081";
+    final String schemaRegistryUrl = "http://localhost:8081";
     final Duration duration = Duration.standardSeconds(15);
 
     // Set consumer configuration for the schema registry and commits back to Kafka
     final HashMap<String, Object> consumerConfig = new HashMap<>();
-    consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-    consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    consumerConfig.put("schema.registry.url", schemaRegistryURL);
-    consumerConfig.put("specific.avro.reader", "true");
+    consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, AUTO_COMMIT_CONFIG);
+    consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
+    consumerConfig.put("schema.registry.url", schemaRegistryUrl);
+    consumerConfig.put("specific.avro.reader", USE_AVRO_READER);
     consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "uc-application-input");
 
     final HashMap<String, Object> consumerConfigConfiguration = new HashMap<>();
-    consumerConfigConfiguration.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-    consumerConfigConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    consumerConfigConfiguration.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, AUTO_COMMIT_CONFIG);
+    consumerConfigConfiguration.put(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
     consumerConfigConfiguration.put(ConsumerConfig.GROUP_ID_CONFIG, "uc-application-configuration");
 
 
@@ -83,7 +113,7 @@ public class Uc4ApplicationBeamNoFeedback {
     // options.setTargetParallelism(1);
     final PipelineOptions options = PipelineOptionsFactory.fromArgs(args).create();
     options.setRunner(SamzaRunner.class);
-    options.setJobName("ucapplication");
+    options.setJobName(JOB_NAME);
     final Pipeline pipeline = Pipeline.create(options);
     final CoderRegistry cr = pipeline.getCoderRegistry();
 
@@ -136,7 +166,7 @@ public class Uc4ApplicationBeamNoFeedback {
             .<KV<String, Set<String>>>configure()
             .triggering(Repeatedly.forever(
                 AfterProcessingTime.pastFirstElementInPane()
-                    .plusDelayOf(Duration.standardSeconds(5))))
+                    .plusDelayOf(Duration.standardSeconds(DELAY))))
             .accumulatingFiredPanes());
     // This may need to be changed to eliminate duplicates in first iteration
 
@@ -193,33 +223,35 @@ public class Uc4ApplicationBeamNoFeedback {
                 }).withSideInputs(childParentPairMap))
 
             .apply("Debugging output before filtering latest", ParDo.of(
-                new DoFn<KV<SensorParentKey, ActivePowerRecord>, KV<SensorParentKey, ActivePowerRecord>>() {
+                new DoFn<KV<SensorParentKey, ActivePowerRecord>,
+                    KV<SensorParentKey, ActivePowerRecord>>() {
                   @ProcessElement
                   public void processElement(
                       @Element final KV<SensorParentKey, ActivePowerRecord> kv,
                       final OutputReceiver<KV<SensorParentKey, ActivePowerRecord>> out,
                       final ProcessContext c) {
                     System.out.println("Before filter latest Sensor: " + kv.getKey().getSensor()
-                        + " Parent: " + kv.getKey().getParent() + " ValueKey : "
-                        + kv.getValue().getIdentifier() + " ValueInW: "
+                        + PARENTS + kv.getKey().getParent() + VALUE_KEY
+                        + kv.getValue().getIdentifier() + VALUE_IN_W
                         + kv.getValue().getValueInW()
-                        + " Timestamp: " + kv.getValue().getTimestamp());
+                        + TIMESTAMP + kv.getValue().getTimestamp());
                     out.output(kv);
                   }
                 }))
             .apply("Filter only latest changes", Latest.perKey())
             .apply("Debugging output after filtering latest", ParDo.of(
-                new DoFn<KV<SensorParentKey, ActivePowerRecord>, KV<SensorParentKey, ActivePowerRecord>>() {
+                new DoFn<KV<SensorParentKey, ActivePowerRecord>,
+                    KV<SensorParentKey, ActivePowerRecord>>() {
                   @ProcessElement
                   public void processElement(
                       @Element final KV<SensorParentKey, ActivePowerRecord> kv,
                       final OutputReceiver<KV<SensorParentKey, ActivePowerRecord>> out,
                       final ProcessContext c) {
                     System.out.println("After filter latest Sensor: " + kv.getKey().getSensor()
-                        + " Parent: " + kv.getKey().getParent() + " ValueKey : "
-                        + kv.getValue().getIdentifier() + " ValueInW: "
+                        + PARENTS + kv.getKey().getParent() + VALUE_KEY
+                        + kv.getValue().getIdentifier() + VALUE_IN_W
                         + kv.getValue().getValueInW()
-                        + " Timestamp: " + kv.getValue().getTimestamp());
+                        + TIMESTAMP + kv.getValue().getTimestamp());
                     out.output(kv);
                   }
                 }));
@@ -228,25 +260,27 @@ public class Uc4ApplicationBeamNoFeedback {
     final PCollection<KV<String, AggregatedActivePowerRecord>> aggregations = flatMappedValues
 
         .apply("Set key to group", MapElements.via(
-            new SimpleFunction<KV<SensorParentKey, ActivePowerRecord>, KV<String, ActivePowerRecord>>() {
+            new SimpleFunction<KV<SensorParentKey, ActivePowerRecord>,
+                KV<String, ActivePowerRecord>>() {
               @Override
               public KV<String, ActivePowerRecord> apply(
                   final KV<SensorParentKey, ActivePowerRecord> kv) {
-                System.out.println("key set to group" + kv.getKey() + "Timestamp: "
+                System.out.println("key set to group" + kv.getKey() + TIMESTAMP
                     + kv.getValue().getTimestamp());
                 return KV.of(kv.getKey().getParent(), kv.getValue());
               }
             }))
         .apply("Aggregate per group", Combine.perKey(new RecordAggregation()))
         .apply("Set the Identifier in AggregatedActivePowerRecord", MapElements.via(
-            new SimpleFunction<KV<String, AggregatedActivePowerRecord>, KV<String, AggregatedActivePowerRecord>>() {
+            new SimpleFunction<KV<String, AggregatedActivePowerRecord>,
+                KV<String, AggregatedActivePowerRecord>>() {
               @Override
               public KV<String, AggregatedActivePowerRecord> apply(
                   final KV<String, AggregatedActivePowerRecord> kv) {
                 final AggregatedActivePowerRecord record = new AggregatedActivePowerRecord(
                     kv.getKey(), kv.getValue().getTimestamp(), kv.getValue().getCount(),
                     kv.getValue().getSumInW(), kv.getValue().getAverageInW());
-                System.out.println("set identifier to: " + record.getIdentifier() + "Timestamp: "
+                System.out.println("set identifier to: " + record.getIdentifier() + TIMESTAMP
                     + record.getTimestamp());
                 return KV.of(kv.getKey(), record);
               }
@@ -254,7 +288,8 @@ public class Uc4ApplicationBeamNoFeedback {
 
 
     aggregations.apply("Print Stats", MapElements.via(
-        new SimpleFunction<KV<String, AggregatedActivePowerRecord>, KV<String, AggregatedActivePowerRecord>>() {
+        new SimpleFunction<KV<String, AggregatedActivePowerRecord>,
+            KV<String, AggregatedActivePowerRecord>>() {
 
           @Override
           public KV<String, AggregatedActivePowerRecord> apply(
@@ -262,7 +297,7 @@ public class Uc4ApplicationBeamNoFeedback {
             System.out.println("Output: Key: "
                 + kv.getKey()
                 + " Identifier: " + kv.getValue().getIdentifier()
-                + " Timestamp: " + kv.getValue().getTimestamp()
+                + TIMESTAMP + kv.getValue().getTimestamp()
                 + " Avg: " + kv.getValue().getAverageInW()
                 + " Count: " + kv.getValue().getCount()
                 + " Sum: " + kv.getValue().getSumInW());

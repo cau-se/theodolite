@@ -16,13 +16,18 @@ import titan.ccp.model.sensorregistry.Sensor;
 import titan.ccp.model.sensorregistry.SensorRegistry;
 
 /**
- * DoFn class to generate a child-parent pair for every sensor in the hierarchie.
+ * DoFn class to generate a child-parent pair for every sensor in the hierarchy.
  */
 public class GenerateParentsFn extends DoFn<KV<Event, String>, KV<String, Set<String>>> {
 
 
   private static final long serialVersionUID = 958270648688932091L;
 
+  /**
+   * Transforms a parent [children] map of sensors to a child [parents] map.
+   * @param kv input map.
+   * @param out outputstream.
+   */
   @ProcessElement
   public void processElement(@Element final KV<Event, String> kv,
       final OutputReceiver<KV<String, Set<String>>> out) {
@@ -42,7 +47,7 @@ public class GenerateParentsFn extends DoFn<KV<Event, String>, KV<String, Set<St
             child -> child.getIdentifier(),
             child -> child.getParent()
                 .map(p -> Stream.of(p.getIdentifier()).collect(Collectors.toSet()))
-                .orElseGet(() -> Collections.<String>emptySet())));
+                .orElse(Collections.<String>emptySet())));
   }
 
   private Stream<Sensor> streamAllChildren(final AggregatedSensor sensor) {
