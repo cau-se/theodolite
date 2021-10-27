@@ -1,0 +1,45 @@
+plugins {
+    // common java conventions
+    id 'theodolite.java-conventions'
+
+    // make executable
+    id 'application'
+}
+
+tasks.distZip.enabled = false
+
+repositories {
+    jcenter()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+    maven {
+        url 'https://packages.confluent.io/maven/'
+    }
+}
+
+dependencies {
+    // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
+    implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+    implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+    implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'org.slf4j:slf4j-simple:1.7.25'
+//    implementation project(':beam-commons')
+
+    implementation group: 'org.apache.beam', name: 'beam-sdks-java-core', version: '2.22.0'
+//    compile group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
+
+    implementation('org.apache.beam:beam-sdks-java-io-kafka:2.22.0'){
+        exclude group: 'org.apache.kafka', module: 'kafka-clients'
+    }
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
+
+    runtime 'org.apache.beam:beam-runners-direct-java:2.22.0'
+    runtime 'org.slf4j:slf4j-api:1.7.32'
+    runtime 'org.slf4j:slf4j-jdk14:1.7.32'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
