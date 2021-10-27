@@ -54,57 +54,80 @@ import serialization.EventDeserializer;
 import serialization.SensorParentKeyCoder;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;;
+import titan.ccp.model.records.AggregatedActivePowerRecord;
 
+/**
+ * Implementation of the use case Hierarchical Aggregation using Apache Beam with the Samza
+ * Runner. To run locally in standalone start Kafka, Zookeeper, the schema-registry and the
+ * workload generator using the delayed_startup.sh script. Add
+ * --configFactory=org.apache.samza.config.factories.PropertiesConfigFactory
+ * --configFilePath=${workspace_loc:uc4-application-samza}/config/standalone_local.properties
+ * --samzaExecutionEnvironment=STANDALONE --maxSourceParallelism=1024 --as program arguments. To
+ * persist logs add ${workspace_loc:/uc4-application-samza/eclipseConsoleLogs.log} as Output File
+ * under Standard Input Output in Common in the Run Configuration Start via Eclipse Run.
+ */
 public class Uc4ApplicationBeam {
+  private static final String JOB_NAME = "Uc4Application";
+  private static final String BOOTSTRAP = "KAFKA_BOOTSTRAP_SERVERS";
+  private static final String INPUT = "INPUT";
+  private static final String OUTPUT = "OUTPUT";
+  private static final String CONFIGURATION = "CONFIGURATION";
+  private static final String FEEDBACKTOPIC = "FEEDBACKTOPIC";
+  private static final String SCHEMA_REGISTRY = "SCHEMA_REGISTRY_URL";
+  private static final String YES = "true";
+  private static final String USE_AVRO_READER = YES;
+  private static final String AUTO_COMMIT_CONFIG = YES;
+  private static final String KAFKA_WINDOW_DURATION  = "KAFKA_WINDOW_DURATION";
+  private static final String TRIGGER_INTERVAL  = "TRIGGER_INTERVAL";
+  private static final String GRACE_PERIOD  = "GRACE_PERIOD";
+  private static final String AUTO_OFFSET_RESET_CONFIG  = "earliest";
+
+
+
 
   /**
-   * Implementation of the use case Hierarchical Aggregation using Apache Beam with the Samza
-   * Runner. To run locally in standalone start Kafka, Zookeeper, the schema-registry and the
-   * workload generator using the delayed_startup.sh script. Add
-   * --configFactory=org.apache.samza.config.factories.PropertiesConfigFactory
-   * --configFilePath=${workspace_loc:uc4-application-samza}/config/standalone_local.properties
-   * --samzaExecutionEnvironment=STANDALONE --maxSourceParallelism=1024 --as program arguments. To
-   * persist logs add ${workspace_loc:/uc4-application-samza/eclipseConsoleLogs.log} as Output File
-   * under Standard Input Output in Common in the Run Configuration Start via Eclipse Run.
+   * Private constructor to avoid instantiation.
    */
+  private Uc4ApplicationBeam() {
+    throw new UnsupportedOperationException();
+  }
 
+  /**
+   * Start executing this microservice.
+   */
   @SuppressWarnings({"serial", "unchecked", "rawtypes"})
   public static void main(final String[] args) {
 
     // Set Configuration for Windows
     final int windowDuration = Integer.parseInt(
-        System.getenv("KAFKA_WINDOW_DURATION") != null
-            ? System.getenv("KAFKA_WINDOW_DURATION")
-            : "60");
+        System.getenv(KAFKA_WINDOW_DURATION) == null
+            ? "60" : System.getenv(KAFKA_WINDOW_DURATION));
     final Duration duration = Duration.standardSeconds(windowDuration);
     final int triggerInterval = Integer.parseInt(
-        System.getenv("TRIGGER_INTERVAL") != null
-            ? System.getenv("TRIGGER_INTERVAL")
-            : "30");
+        System.getenv(TRIGGER_INTERVAL) == null
+            ? "30" : System.getenv(TRIGGER_INTERVAL));
 
     final Duration triggerDelay = Duration.standardSeconds(triggerInterval);
 
     final int grace = Integer.parseInt(
-        System.getenv("GRACE_PERIOD") != null
-            ? System.getenv("GRACE_PERIOD")
-            : "270");
+        System.getenv(GRACE_PERIOD) == null
+            ? "270" : System.getenv(GRACE_PERIOD));
 
     final Duration gracePeriod = Duration.standardSeconds(grace);
     // Set Configuration for Kafka
     final String bootstrapServer =
-        System.getenv("KAFKA_BOOTSTRAP_SERVERS") != null ? System.getenv("KAFKA_BOOTSTRAP_SERVERS")
-            : "my-confluent-cp-kafka:9092";
-    final String inputTopic = System.getenv("INPUT") != null ? System.getenv("INPUT") : "input";
-    final String outputTopic = System.getenv("OUTPUT") != null ? System.getenv("OUTPUT") : "output";
+        System.getenv(BOOTSTRAP) == null ? "my-confluent-cp-kafka:9092"
+            : System.getenv(BOOTSTRAP);
+    final String inputTopic = System.getenv(INPUT) == null ? "input" : System.getenv(INPUT);
+    final String outputTopic = System.getenv(OUTPUT) == null ? "output" : System.getenv(OUTPUT);
     final String configurationTopic =
-        System.getenv("CONFIGURATION") != null ? System.getenv("CONFIGURATION") : "configuration";
+        System.getenv(CONFIGURATION) == null ? "configuration" : System.getenv(CONFIGURATION);
     final String feedbackTopic =
-        System.getenv("FEEDBACKTOPIC") != null ? System.getenv("FEEDBACKTOPIC")
-            : "aggregation-feedback";
-    final String schemaRegistryURL =
-        System.getenv("SCHEMA_REGISTRY_URL") != null ? System.getenv("SCHEMA_REGISTRY_URL")
-            : "http://my-confluent-cp-schema-registry:8081";
+        System.getenv(FEEDBACKTOPIC) == null ? "aggregation-feedback"
+            : System.getenv(FEEDBACKTOPIC);
+    final String schemaRegistryUrl =
+        System.getenv(SCHEMA_REGISTRY) == null ? "http://my-confluent-cp-schema-registry:8081"
+            : System.getenv(SCHEMA_REGISTRY);
 
 
     // final String inputTopic = "input";
@@ -119,21 +142,22 @@ public class Uc4ApplicationBeam {
 
     // Set consumer configuration for the schema registry and commits back to Kafka
     final HashMap<String, Object> consumerConfig = new HashMap<>();
-    consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-    consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    consumerConfig.put("schema.registry.url", schemaRegistryURL);
-    consumerConfig.put("specific.avro.reader", "true");
+    consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, AUTO_COMMIT_CONFIG);
+    consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
+    consumerConfig.put("schema.registry.url", schemaRegistryUrl);
+    consumerConfig.put("specific.avro.reader", USE_AVRO_READER);
     consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "uc-application-input");
 
     final HashMap<String, Object> consumerConfigConfiguration = new HashMap<>();
-    consumerConfigConfiguration.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-    consumerConfigConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    consumerConfigConfiguration.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, AUTO_COMMIT_CONFIG);
+    consumerConfigConfiguration.put(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
     consumerConfigConfiguration.put(ConsumerConfig.GROUP_ID_CONFIG, "uc-application-configuration");
 
     // Create run options from args
     final PipelineOptions options = PipelineOptionsFactory.fromArgs(args).create();
     options.setRunner(SamzaRunner.class);
-    options.setJobName("ucapplication");
+    options.setJobName(JOB_NAME);
 
     final Pipeline pipeline = Pipeline.create(options);
     final CoderRegistry cr = pipeline.getCoderRegistry();
@@ -166,7 +190,7 @@ public class Uc4ApplicationBeam {
     // Apply pipeline transformations
     // Read from Kafka
     final PCollection<KV<String, ActivePowerRecord>> values = pipeline.apply(kafka)
-        .apply("Apply Winddows", Window.into(FixedWindows.of(duration)))
+        .apply("Read Windows", Window.into(FixedWindows.of(duration)))
         .apply("Set trigger for input", Window
             .<KV<String, ActivePowerRecord>>configure()
             .triggering(Repeatedly.forever(
@@ -184,19 +208,21 @@ public class Uc4ApplicationBeam {
             .withValueDeserializer(AggregatedActivePowerRecordDeserializer.class)
             .withTimestampPolicyFactory(
                 (tp, previousWaterMark) -> new AggregatedActivePowerRecordEventTimePolicy(
-                    previousWaterMark))
+                          previousWaterMark))
             .withoutMetadata())
         .apply("Apply Winddows", Window.into(FixedWindows.of(duration)))
         // Convert into the correct data format
-        .apply("Convert AggregatedActivePowerRecord to ActivePowerRecord", MapElements.via(
-            new SimpleFunction<KV<String, AggregatedActivePowerRecord>, KV<String, ActivePowerRecord>>() {
-              @Override
-              public KV<String, ActivePowerRecord> apply(
-                  final KV<String, AggregatedActivePowerRecord> kv) {
-                return KV.of(kv.getKey(), new ActivePowerRecord(kv.getValue().getIdentifier(),
-                    kv.getValue().getTimestamp(), kv.getValue().getSumInW()));
-              }
-            }))
+        .apply("Convert AggregatedActivePowerRecord to ActivePowerRecord",
+            MapElements.via(
+                new SimpleFunction<KV<String, AggregatedActivePowerRecord>,
+                    KV<String, ActivePowerRecord>>() {
+                @Override
+                public KV<String, ActivePowerRecord> apply(
+                    final KV<String, AggregatedActivePowerRecord> kv) {
+                      return KV.of(kv.getKey(), new ActivePowerRecord(kv.getValue().getIdentifier(),
+                            kv.getValue().getTimestamp(), kv.getValue().getSumInW()));
+                }
+                }))
         .apply("Set trigger for feedback", Window
             .<KV<String, ActivePowerRecord>>configure()
             .triggering(Repeatedly.forever(
@@ -309,9 +335,11 @@ public class Uc4ApplicationBeam {
                       }
                     }));
     // Aggregate for every sensor group of the current level
-    final PCollection<KV<String, AggregatedActivePowerRecord>> aggregations = flatMappedValues
+    final PCollection<KV<String, AggregatedActivePowerRecord>>
+        aggregations = flatMappedValues
         .apply("Set key to group", MapElements.via(
-            new SimpleFunction<KV<SensorParentKey, ActivePowerRecord>, KV<String, ActivePowerRecord>>() {
+            new SimpleFunction<KV<SensorParentKey,
+                ActivePowerRecord>, KV<String, ActivePowerRecord>>() {
               @Override
               public KV<String, ActivePowerRecord> apply(
                   final KV<SensorParentKey, ActivePowerRecord> kv) {
@@ -328,18 +356,22 @@ public class Uc4ApplicationBeam {
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes())
 
-        .apply("Aggregate per group", Combine.perKey(new RecordAggregation()))
-        .apply("Set the Identifier in AggregatedActivePowerRecord", MapElements.via(
-            new SimpleFunction<KV<String, AggregatedActivePowerRecord>, KV<String, AggregatedActivePowerRecord>>() {
-              @Override
-              public KV<String, AggregatedActivePowerRecord> apply(
-                  final KV<String, AggregatedActivePowerRecord> kv) {
-                final AggregatedActivePowerRecord record = new AggregatedActivePowerRecord(
-                    kv.getKey(), kv.getValue().getTimestamp(), kv.getValue().getCount(),
-                    kv.getValue().getSumInW(), kv.getValue().getAverageInW());
-                return KV.of(kv.getKey(), record);
-              }
-            }));
+        .apply(
+            "Aggregate per group",
+            Combine.perKey(new RecordAggregation()))
+        .apply("Set the Identifier in AggregatedActivePowerRecord",
+            MapElements.via(
+              new SimpleFunction<KV<String, AggregatedActivePowerRecord>,
+                  KV<String, AggregatedActivePowerRecord>>() {
+                @Override
+                public KV<String, AggregatedActivePowerRecord> apply(
+                    final KV<String, AggregatedActivePowerRecord> kv) {
+                  final AggregatedActivePowerRecord record = new AggregatedActivePowerRecord(
+                      kv.getKey(), kv.getValue().getTimestamp(), kv.getValue().getCount(),
+                      kv.getValue().getSumInW(), kv.getValue().getAverageInW());
+                  return KV.of(kv.getKey(), record);
+                }
+              }));
 
 
 

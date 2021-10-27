@@ -1,6 +1,5 @@
 package application;
 
-
 import java.util.Optional;
 import org.apache.beam.sdk.io.kafka.KafkaRecord;
 import org.apache.beam.sdk.io.kafka.TimestampPolicy;

@@ -10,7 +10,7 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 
 /**
- * CombineFn to aggregate ActivePowerRecords into AggregatedActivePowerRecords
+ * CombineFn to aggregate ActivePowerRecords into AggregatedActivePowerRecords.
  */
 public class RecordAggregation
     extends CombineFn<ActivePowerRecord, RecordAggregation.Accum, AggregatedActivePowerRecord> {
@@ -19,12 +19,15 @@ public class RecordAggregation
 
   private static final long serialVersionUID = 4362213539553233529L;
 
+  /**
+   * Wrapper for an accumulation of records.
+   */
   @DefaultCoder(AvroCoder.class)
   public static class Accum implements Serializable {
     private static final long serialVersionUID = 3701311203919534376L;
-    long count = 0;
-    Double sum = 0.0;
-    long timestamp = 0;
+    protected long count = 0;
+    protected Double sum = 0.0;
+    protected long timestamp = 0;
   }
 
   @Override

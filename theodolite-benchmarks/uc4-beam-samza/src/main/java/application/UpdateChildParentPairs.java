@@ -8,7 +8,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;
 
 /**
- * Forward changes or tombstone values for deleted records
+ * Forward changes or tombstone values for deleted records.
  */
 public class UpdateChildParentPairs extends DoFn<KV<String, Set<String>>, KV<String, Set<String>>> {
 
@@ -19,7 +19,10 @@ public class UpdateChildParentPairs extends DoFn<KV<String, Set<String>>, KV<Str
       StateSpecs.value();
 
 
-
+  /**
+   * Match the changes accordingly.
+   * @param kv the sensor parents set that contains the changes.
+   */
   @ProcessElement
   public void processElement(@Element final KV<String, Set<String>> kv,
       final OutputReceiver<KV<String, Set<String>>> out,
