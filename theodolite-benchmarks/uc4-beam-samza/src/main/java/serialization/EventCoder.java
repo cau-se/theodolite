@@ -19,6 +19,9 @@ import titan.ccp.configuration.events.EventSerde;
 public class EventCoder extends Coder<Event> implements Serializable {
   private static final long serialVersionUID = 8403045343970659100L;
   private static final int VALUE_SIZE = 4;
+  private static final boolean DETERMINISTIC = true;
+
+
 
   private transient Serde<Event> innerSerde = EventSerde.serde();
 
@@ -54,8 +57,8 @@ public class EventCoder extends Coder<Event> implements Serializable {
 
   @Override
   public void verifyDeterministic() throws NonDeterministicException {
-
+    if (!DETERMINISTIC) {
+      throw new NonDeterministicException(this, "This class should be deterministic!");
+    }
   }
-
-
 }

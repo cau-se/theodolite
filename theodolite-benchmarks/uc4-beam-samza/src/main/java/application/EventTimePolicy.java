@@ -14,6 +14,7 @@ public class EventTimePolicy extends TimestampPolicy<String, ActivePowerRecord> 
   protected Instant currentWatermark;
 
   public EventTimePolicy(final Optional<Instant> previousWatermark) {
+    super();
     this.currentWatermark = previousWatermark.orElse(BoundedWindow.TIMESTAMP_MIN_VALUE);
   }
 

@@ -18,7 +18,6 @@ public class UpdateChildParentPairs extends DoFn<KV<String, Set<String>>, KV<Str
   private final StateSpec<ValueState<Set<String>>> parents =
       StateSpecs.value();
 
-
   /**
    * Match the changes accordingly.
    * @param kv the sensor parents set that contains the changes.

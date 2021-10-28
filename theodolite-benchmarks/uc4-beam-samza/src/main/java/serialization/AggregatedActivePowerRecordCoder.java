@@ -17,7 +17,9 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
 @SuppressWarnings("serial")
 public class AggregatedActivePowerRecordCoder extends Coder<AggregatedActivePowerRecord>
     implements Serializable {
+  private static final boolean DETERMINISTIC = true;
   private transient  AvroCoder avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
+
 
 
   @Override
@@ -47,7 +49,8 @@ public class AggregatedActivePowerRecordCoder extends Coder<AggregatedActivePowe
 
   @Override
   public void verifyDeterministic() throws NonDeterministicException {
-
+    if (!DETERMINISTIC) {
+      throw new NonDeterministicException(this, "This class should be deterministic!");
+    }
   }
-
 }
