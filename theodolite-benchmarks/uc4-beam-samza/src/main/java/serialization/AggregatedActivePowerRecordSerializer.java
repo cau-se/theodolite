@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.kafka.common.serialization.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 /**
@@ -12,6 +14,8 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
  */
 public class AggregatedActivePowerRecordSerializer
     implements Serializer<AggregatedActivePowerRecord> {
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(AggregatedActivePowerRecordSerializer.class);
 
   private final transient AvroCoder avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
 
@@ -29,13 +33,13 @@ public class AggregatedActivePowerRecordSerializer
     try {
       this.avroEnCoder.encode(data, out);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Could not serialize AggregatedActivePowerRecord", e);
     }
     byte[] result = out.toByteArray();
     try {
       out.close();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Could not close output stream after serialization of AggregatedActivePowerRecord", e);
     }
     return result;
   }

@@ -16,6 +16,7 @@ public class AggregatedActivePowerRecordEventTimePolicy
   protected Instant currentWatermark;
 
   public AggregatedActivePowerRecordEventTimePolicy(final Optional<Instant> previousWatermark) {
+    super();
     this.currentWatermark = previousWatermark.orElse(BoundedWindow.TIMESTAMP_MIN_VALUE);
   }
 

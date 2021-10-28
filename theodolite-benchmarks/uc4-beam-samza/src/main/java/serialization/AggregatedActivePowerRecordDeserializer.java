@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.kafka.common.serialization.Deserializer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 /**
@@ -12,8 +14,9 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
  */
 public class AggregatedActivePowerRecordDeserializer
     implements Deserializer<AggregatedActivePowerRecord> {
-
-  private transient  AvroCoder avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(AggregatedActivePowerRecordDeserializer.class);
+  private final transient AvroCoder avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
 
   @Override
   public AggregatedActivePowerRecord deserialize(final String topic, final byte[] data) {
@@ -21,7 +24,7 @@ public class AggregatedActivePowerRecordDeserializer
     try {
       value = (AggregatedActivePowerRecord) avroEnCoder.decode(new ByteArrayInputStream(data));
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Could not deserialize AggregatedActivePowerRecord",e);
     }
     return value;
   }

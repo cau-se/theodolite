@@ -16,7 +16,6 @@ public class RecordAggregation
     extends CombineFn<ActivePowerRecord, RecordAggregation.Accum, AggregatedActivePowerRecord> {
 
 
-
   private static final long serialVersionUID = 4362213539553233529L;
 
   /**
@@ -25,9 +24,9 @@ public class RecordAggregation
   @DefaultCoder(AvroCoder.class)
   public static class Accum implements Serializable {
     private static final long serialVersionUID = 3701311203919534376L;
-    protected long count = 0;
-    protected Double sum = 0.0;
-    protected long timestamp = 0;
+    private long count = 0;
+    private Double sum = 0.0;
+    private long timestamp = 0;
   }
 
   @Override
@@ -61,7 +60,5 @@ public class RecordAggregation
     return new AggregatedActivePowerRecord("", accumulator.timestamp, accumulator.count,
         accumulator.sum, average);
   }
-
-
 
 }
