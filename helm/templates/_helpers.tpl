@@ -60,3 +60,10 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the name of the results volume to use
+*/}}
+{{- define "theodolite.resultsClaimName" -}}
+{{- default (include "theodolite.fullname" .)-results .Values.operator.resultsVolume.existingClaim }}
+{{- end }}
