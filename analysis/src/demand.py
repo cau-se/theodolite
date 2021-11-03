@@ -8,7 +8,7 @@ def demand(exp_id, directory, threshold, warmup_sec):
     raw_runs = []
 
     # Compute SL, i.e., lag trend, for each tested configuration
-    filenames = [filename for filename in os.listdir(directory) if filename.startswith(f"exp{exp_id}") and filename.__contains__("lag-trend") and filename.endswith(".csv")]
+    filenames = [filename for filename in os.listdir(directory) if filename.startswith(f"exp{exp_id}") and "lag-trend" in filename and filename.endswith(".csv")]
     for filename in filenames:
         #print(filename)
         run_params = filename[:-4].split("_")
