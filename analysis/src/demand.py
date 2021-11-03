@@ -7,10 +7,9 @@ from sklearn.linear_model import LinearRegression
 def demand(exp_id, directory, threshold, warmup_sec):
     raw_runs = []
 
-    # Compute SL, i.e., lag trend, for each tested configuration
+    # Compute SLI, i.e., lag trend, for each tested configuration
     filenames = [filename for filename in os.listdir(directory) if filename.startswith(f"exp{exp_id}") and "lag-trend" in filename and filename.endswith(".csv")]
     for filename in filenames:
-        #print(filename)
         run_params = filename[:-4].split("_")
         dim_value = run_params[1]
         instances = run_params[2]
@@ -30,24 +29,20 @@ def demand(exp_id, directory, threshold, warmup_sec):
         Y_pred = linear_regressor.predict(X)  # make predictions
 
         trend_slope = linear_regressor.coef_[0][0]
-        #print(linear_regressor.coef_)
 
         row = {'load': int(dim_value), 'resources': int(instances), 'trend_slope': trend_slope}
-        #print(row)
         raw_runs.append(row)
 
     runs = pd.DataFrame(raw_runs)
 
     # Group by the load and resources to handle repetitions, and take from the reptitions the median
-    # for even reptitions the the average of the two middle values is used
+    # for even reptitions, the mean of the two middle values is used
     medians = runs.groupby(by=['load', 'resources'], as_index=False).median()
 
-    # Set suitable = True if SLOs are met, i.e., lag trend is below threshold_ratio
-    # Calculate the absolute threshold for each row based on threshold_ratio and check if lag is below this threshold
+    # Set suitable = True if SLOs are met, i.e., lag trend slope is below threshold
     medians["suitable"] =  medians.apply(lambda row: row['trend_slope'] < threshold, axis=1)
 
     suitable = medians[medians.apply(lambda x: x['suitable'], axis=1)]
-    #print(suitable)
     
     # Compute minimal demand per load intensity
     demand_per_load = suitable.groupby(by=['load'], as_index=False)['resources'].min()
