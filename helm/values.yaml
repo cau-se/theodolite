@@ -276,6 +276,9 @@ rbac:
 
 randomScheduler:
   enabled: true
+  image: ghcr.io/cau-se/theodolite-random-scheduler
+  imageTag: latest
+  imagePullPolicy: Always
   rbac:
     create: true
   serviceAccount:
