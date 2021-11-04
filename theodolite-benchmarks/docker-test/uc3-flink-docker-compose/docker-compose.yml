@@ -33,7 +33,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc3-workload-generator:latest
+    image: ghcr.io/cau-se/theodolite-uc3-workload-generator:v0.5.0
     depends_on:
       - schema-registry
       - kafka
@@ -44,7 +44,7 @@ services:
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       NUM_SENSORS: 10
   benchmark-jobmanager:
-    image: ghcr.io/cau-se/theodolite-uc3-flink:latest
+    image: ghcr.io/cau-se/theodolite-uc3-flink:v0.5.0
     ports:
       - "8080:8081"
     command: standalone-job --job-classname theodolite.uc3.application.HistoryServiceFlinkJob
@@ -59,7 +59,7 @@ services:
       - schema-registry
       - kafka
   benchmark-taskmanager:
-    image: ghcr.io/cau-se/theodolite-uc3-flink:latest
+    image: ghcr.io/cau-se/theodolite-uc3-flink:v0.5.0
     command: taskmanager
     environment:
       - |
