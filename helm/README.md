@@ -9,6 +9,8 @@ helm dependencies update .
 helm install theodolite .
 ```
 
+Additionally, a PersistentVolumeClaim with the name `theodolite-pv-claim` needs to be created or the results volume can be disabled as done with the minimal configuration, described below.
+
 ## Customize Installation
 
 As usual, the installation with Helm can be configured by passing a values YAML file:
