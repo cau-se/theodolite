@@ -20,7 +20,7 @@ public class AbstractBeamService {
   // Beam Pipeline
   protected PipelineOptions options;
 
-  public AbstractBeamService(String[] args) {
+  public AbstractBeamService(final String[] args) { //NOPMD
     options = PipelineOptionsFactory.fromArgs(args).create();
     options.setJobName(APPLICATION_NAME);
   }
@@ -29,13 +29,7 @@ public class AbstractBeamService {
   /**
    * Abstract main for a Beam Service.
    */
-  public static void main(final String[] args) {
-    AbstractBeamService service = new AbstractBeamService(args);
-    service.run();
-  }
-
-  public void run() {
-  }
+  public static void main(final String[] args){} //NOPMD
 
   /**
    * Builds a simple configuration for a Kafka consumer.
@@ -43,7 +37,7 @@ public class AbstractBeamService {
    * @return the build Kafka consumer configuration.
    */
   public Properties buildConsumerConfig() {
-    Properties consumerConfig = new Properties();
+    final Properties consumerConfig = new Properties();
     consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
         CONFIG.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
     consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,

@@ -1,13 +1,11 @@
 package application;
 
 import com.google.gson.Gson;
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.Properties;
 import org.apache.beam.runners.flink.FlinkRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
-import org.apache.beam.sdk.io.kafka.KafkaIO;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -16,13 +14,13 @@ import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.beam.AbstractBeamService;
 import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaAggregatedPowerRecordReader;
 import titan.ccp.model.records.ActivePowerRecord;
+
 
 /**
  * Implementation of the use case Database Storage using Apache Beam with the Flink Runner. To
@@ -50,9 +48,8 @@ public final class Uc1ApplicationBeam extends AbstractBeamService {
 
   /**
    * Main method.
-   *
    */
-  @SuppressWarnings({"unchecked", "rawtypes","unused"})
+  @SuppressWarnings({"unchecked", "rawtypes", "unused"})
   public static void main(final String[] args) {
 
     final Uc1ApplicationBeam uc1 = new Uc1ApplicationBeam(args);

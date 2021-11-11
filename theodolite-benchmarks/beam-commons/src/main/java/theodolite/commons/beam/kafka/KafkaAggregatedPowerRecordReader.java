@@ -1,9 +1,7 @@
 package theodolite.commons.beam.kafka;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
-import java.util.Map;
 import java.util.Properties;
-
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.io.kafka.KafkaIO;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -19,15 +17,17 @@ import titan.ccp.model.records.ActivePowerRecord;
 public class KafkaAggregatedPowerRecordReader extends
     PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> {
 
+  private static final long serialVersionUID = 2603286150183186115L;
   private final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> reader;
+
 
 
   /**
    * Instantiates a {@link PTransform} that reads from Kafka with the given Configuration.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public KafkaAggregatedPowerRecordReader(String bootstrapServer, String inputTopic,
-                                          Properties consumerConfig) {
+  public KafkaAggregatedPowerRecordReader(final String bootstrapServer, final String inputTopic,
+                                          final Properties consumerConfig) {
     super();
 
     // Check if boostrap server and inputTopic are defined
@@ -47,7 +47,7 @@ public class KafkaAggregatedPowerRecordReader extends
   }
 
   @Override
-  public PCollection<KV<String, ActivePowerRecord>> expand(PBegin input) {
+  public PCollection<KV<String, ActivePowerRecord>> expand(final PBegin input) {
     return input.apply(this.reader);
   }
 
