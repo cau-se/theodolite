@@ -26,7 +26,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.google.guava:guava:24.1-jre'
     implementation 'org.slf4j:slf4j-simple:1.7.25'
-//    implementation project(':beam-commons')
+    implementation project(':beam-commons')
 
     implementation group: 'org.apache.beam', name: 'beam-sdks-java-core', version: '2.22.0'
 //    compile group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
