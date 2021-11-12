@@ -21,7 +21,6 @@ public class KafkaAggregatedPowerRecordReader extends
   private final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> reader;
 
 
-
   /**
    * Instantiates a {@link PTransform} that reads from Kafka with the given Configuration.
    */
