@@ -22,8 +22,8 @@ spec:
       serviceAccount: {{ include "theodolite.fullname" . }}-random-scheduler
       containers:
         - name: random-scheduler
-          image: ghcr.io/cau-se/theodolite-random-scheduler:latest
-          #imagePullPolicy: Always
+          image: "{{ .Values.randomScheduler.image }}:{{ .Values.randomScheduler.imageTag }}"
+          imagePullPolicy: "{{ .Values.randomScheduler.imagePullPolicy }}"
           env:
             - name: TARGET_NAMESPACE
               value: {{ .Release.Namespace }}
