@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import theodolite.commons.beam.AbstractBeamService;
 import theodolite.commons.beam.ConfigurationKeys;
-import theodolite.commons.beam.kafka.KafkaAggregatedPowerRecordReader;
+import theodolite.commons.beam.kafka.KafkaActivePowerRecordReader;
 import titan.ccp.model.records.ActivePowerRecord;
 
 
@@ -66,7 +66,7 @@ public final class Uc1ApplicationBeam extends AbstractBeamService {
 
     // Create Pipeline transformations
     final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> kafka =
-        new KafkaAggregatedPowerRecordReader(uc1.bootstrapServer, uc1.inputTopic, consumerConfig);
+        new KafkaActivePowerRecordReader(uc1.bootstrapServer, uc1.inputTopic, consumerConfig);
 
     final LogKeyValue logKeyValue = new LogKeyValue();
 
