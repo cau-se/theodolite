@@ -2,55 +2,49 @@
 
 ## Installation
 
-Install the chart via:
+The Theodolite Helm chart with all its dependencies can be installed via:
 
 ```sh
 helm dependencies update .
 helm install theodolite .
 ```
 
-This chart installs requirements to execute benchmarks with Theodolite.
+Additionally, a PersistentVolumeClaim with the name `theodolite-pv-claim` needs to be created or the results volume can be disabled as done with the minimal configuration, described below.
 
-Dependencies and subcharts:
+## Customize Installation
 
-- Prometheus Operator
-- Prometheus
-- Grafana (incl. dashboard and data source configuration)
-- Kafka
-- Zookeeper
-- A Kafka client pod
+As usual, the installation with Helm can be configured by passing a values YAML file:
 
-## Test
+```
+helm install theodolite . -f <your-config.yaml>
+```
 
-Test the installation:
+We provide a minimal configuration, especially suited for development environments, with the `preconfigs/minimal.yaml`
+file.
+
+Per default, Helm installs the Theodolite CRDs used for the operator. If Theodolite will not be used as operator or if
+the CRDs are already installed, you can skip their installation by adding the flag `--skip-crds`.
+
+## Test Installation
+
+Test the installation with:
 
 ```sh
 helm test theodolite
 ```
 
-Our test files are located [here](templates/../../theodolite-chart/templates/tests). Many subcharts have their own tests, these are also executed and are placed in the respective /templates folders. 
-
+Our test files are located [here](templates/tests). Many subcharts have their own tests, which are also executed.
 Please note: If a test fails, Helm will stop testing.
-
-It is possible that the tests are not running successfully at the moment. This is because the Helm tests of the subchart cp-confluent receive a timeout exception. There is an [issue](https://github.com/confluentinc/cp-helm-charts/issues/318) for this problem on GitHub.
-
-## Configuration
-
-In development environments Kubernetes resources are often low. To reduce resource consumption, we provide an `one-broker-value.yaml` file. This file can be used with:
-
-```sh
-helm install theodolite . -f preconfigs/one-broker-values.yaml
-```
 
 ## Uninstall this Chart
 
-To uninstall/delete the `theodolite` deployment:
+The Theodolite Helm can easily be removed with:
 
 ```sh
-helm delete theodolite
+helm uninstall theodolite
 ```
 
-This command does not remove the CRDs which are created by this chart. Remove them manually with:
+Helm does not remove any CRDs created by this chart. You can remove them manually with:
 
 ```sh
 # CRDs from Theodolite
@@ -69,9 +63,20 @@ kubectl delete crd thanosrulers.monitoring.coreos.com
 
 ## Development
 
-**Hints**:
+### Dependencies
 
-- Grafana configuration: Grafana ConfigMaps contains expressions like {{ topic }}. Helm uses the same syntax for template function. More information [here](https://github.com/helm/helm/issues/2798)
+The following 3rd party charts are used by Theodolite:
+
+- Kube Prometheus Stack (to install the Prometheus Operator, which is used to create a Prometheus instances)
+- Grafana (including a dashboard and a data source configuration)
+- Confluent Platform (for Kafka and Zookeeper)
+- Kafka Lag Exporter (used to collect monitoring data of the Kafka lag)
+
+### Hints
+
+#### Grafana
+
+Grafana ConfigMaps contain expressions like `{{ topic }}`. Helm uses the same syntax for template function. More information [here](https://github.com/helm/helm/issues/2798)
   - Escape braces: {{ "{{" topic }}
   - Let Helm render the template as raw string: {{ `{{ <config>}}` }}
   

@@ -55,9 +55,6 @@ class TheodoliteExecutor(
                 this.kubernetesBenchmark.loadTypes
             )
 
-        // Add load type to check if the percentage lag trend is applicable
-        config.slos.forEach { it.properties["loadType"] = config.load.loadType }
-
         executor =
             BenchmarkExecutorImpl(
                 benchmark = kubernetesBenchmark,
@@ -119,10 +116,10 @@ class TheodoliteExecutor(
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
         this.config.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
-        ioHandler.writeToJSONFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
+        ioHandler.writeToJSONFile(this.config, "${resultsFolder}exp${this.config.executionId}-execution-configuration")
         ioHandler.writeToJSONFile(
             kubernetesBenchmark,
-            "$resultsFolder${this.config.executionId}-benchmark-configuration"
+            "${resultsFolder}exp${this.config.executionId}-benchmark-configuration"
         )
 
         val config = buildConfig()
@@ -134,7 +131,7 @@ class TheodoliteExecutor(
         }
         ioHandler.writeToJSONFile(
             config.compositeStrategy.benchmarkExecutor.results,
-            "$resultsFolder${this.config.executionId}-result"
+            "${resultsFolder}exp${this.config.executionId}-result"
         )
     }
 
