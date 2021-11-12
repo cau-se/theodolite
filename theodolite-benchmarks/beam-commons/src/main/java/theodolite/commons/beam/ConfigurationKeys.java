@@ -23,23 +23,28 @@ public final class ConfigurationKeys {
   public static final String KAFKA_CONFIGURATION_TOPIC = "kafka.configuration.topic";
 
   // UC2
-  public static final String EMIT_PERIOD_MS = "emit.period.ms";
-
-  public static final String GRACE_PERIOD_MS = "grace.period.ms";
-
-  // UC3
   public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
 
-  // UC4
+  // UC3
   public static final String AGGREGATION_DURATION_DAYS = "aggregation.duration.days";
 
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
 
+  // UC4
+  public static final String EMIT_PERIOD_MS = "emit.period.ms";
+
+  public static final String GRACE_PERIOD_MS = "grace.period.ms";
+
 
   // BEAM
   public static final String ENABLE_AUTO_COMMIT_CONFIG = "enable.auto.commit.config";
+
   public static final String AUTO_OFFSET_RESET_CONFIG = "auto.offset.reset.config";
+
   public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";
+
+  private static final String TRIGGER_INTERVAL  = "trigger.interval";
+
 
   private ConfigurationKeys() {
   }
