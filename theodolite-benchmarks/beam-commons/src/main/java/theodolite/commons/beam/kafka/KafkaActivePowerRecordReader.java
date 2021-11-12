@@ -14,7 +14,7 @@ import titan.ccp.model.records.ActivePowerRecord;
 /**
  * Simple {@link PTransform} that read from Kafka using {@link KafkaIO}.
  */
-public class KafkaAggregatedPowerRecordReader extends
+public class KafkaActivePowerRecordReader extends
     PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> {
 
   private static final long serialVersionUID = 2603286150183186115L;
@@ -25,8 +25,8 @@ public class KafkaAggregatedPowerRecordReader extends
    * Instantiates a {@link PTransform} that reads from Kafka with the given Configuration.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public KafkaAggregatedPowerRecordReader(final String bootstrapServer, final String inputTopic,
-                                          final Properties consumerConfig) {
+  public KafkaActivePowerRecordReader(final String bootstrapServer, final String inputTopic,
+                                      final Properties consumerConfig) {
     super();
 
     // Check if boostrap server and inputTopic are defined
