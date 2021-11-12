@@ -256,6 +256,11 @@ operator:
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
       imageTag: latest
       imagePullPolicy: Always
+    droppedRecordsKStreams:
+      enabled: true
+      image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
+      imageTag: latest
+      imagePullPolicy: Always
 
   resultsVolume:
     enabled: true
