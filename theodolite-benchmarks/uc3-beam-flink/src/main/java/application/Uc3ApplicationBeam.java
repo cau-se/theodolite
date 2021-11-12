@@ -123,20 +123,7 @@ public final class Uc3ApplicationBeam {
     // Read from Kafka
     pipeline.apply(kafka)
         // Map to correct time format
-        .apply(MapElements.via(
-            new SimpleFunction<KV<String, ActivePowerRecord>, KV<HourOfDayKey,
-                ActivePowerRecord>>() {
-              private final ZoneId zone = ZoneId.of("Europe/Paris");
-
-              @Override
-              public KV<application.HourOfDayKey, ActivePowerRecord> apply(
-                  final KV<String, ActivePowerRecord> kv) {
-                final Instant instant = Instant.ofEpochMilli(kv.getValue().getTimestamp());
-                final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, this.zone);
-                return KV.of(keyFactory.createKey(kv.getValue().getIdentifier(), dateTime),
-                    kv.getValue());
-              }
-            }))
+        .apply(MapElements.via(new MapTimeFormat()))
 
         // Apply a sliding window
         .apply(Window
