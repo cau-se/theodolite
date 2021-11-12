@@ -1,4 +1,4 @@
-# Lag Trend SLO Evaluator
+# Kafka Streams Dropped Record SLO Evaluator
 
 ## Execution
 
