@@ -43,7 +43,7 @@ public final class ConfigurationKeys {
 
   public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";
 
-  private static final String TRIGGER_INTERVAL  = "trigger.interval";
+  public static final String TRIGGER_INTERVAL  = "trigger.interval";
 
 
   private ConfigurationKeys() {
