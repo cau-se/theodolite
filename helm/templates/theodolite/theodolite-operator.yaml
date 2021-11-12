@@ -94,7 +94,7 @@ spec:
       {{- if .Values.operator.resultsVolume.enabled }}
       - name: theodolite-pv-storage
         persistentVolumeClaim:
-          claimName: {{ .Values.operator.resultsVolume.persistentVolumeClaim.name | quote }}
+          claimName: {{ include "theodolite.resultsClaimName" . | quote }}
       {{- end }}
       - name: benchmark-resources-uc1-kstreams
         configMap:

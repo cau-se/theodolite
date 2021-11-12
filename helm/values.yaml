@@ -264,8 +264,11 @@ operator:
 
   resultsVolume:
     enabled: true
-    persistentVolumeClaim:
-      name: theodolite-pv-claim
+    # existingClaim:
+    # storageClassName:
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
     accessSidecar:
       enabled: true
       image: busybox
