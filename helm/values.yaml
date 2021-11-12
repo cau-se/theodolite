@@ -250,11 +250,6 @@ operator:
   imageTag: latest
   imagePullPolicy: Always
 
-  executionCRD:
-    create: true
-  benchmarkCRD:
-    create: true
-
   sloChecker:
     lagTrend:
       enabled: true
@@ -281,6 +276,9 @@ rbac:
 
 randomScheduler:
   enabled: true
+  image: ghcr.io/cau-se/theodolite-random-scheduler
+  imageTag: latest
+  imagePullPolicy: Always
   rbac:
     create: true
   serviceAccount:
