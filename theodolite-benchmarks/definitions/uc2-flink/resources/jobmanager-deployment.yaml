@@ -14,6 +14,7 @@ spec:
         app: flink
         component: jobmanager
     spec:
+      terminationGracePeriodSeconds: 0
       containers:
         - name: jobmanager
           image: ghcr.io/cau-se/theodolite-uc2-flink:latest

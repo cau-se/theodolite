@@ -80,7 +80,7 @@ class ExecutionHandler(
     override fun onDelete(execution: ExecutionCRD, b: Boolean) {
         logger.info { "Delete execution ${execution.metadata.name}" }
         if (execution.status.executionState == States.RUNNING.value
-            && this.controller.isExecutionRunning(execution.spec.name)
+            && this.controller.isExecutionRunning(execution.metadata.name)
         ) {
             this.controller.stop()
         }
