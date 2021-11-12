@@ -69,9 +69,11 @@ spec:
           image: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.image }}:{{ .Values.operator.sloChecker.droppedRecordsKStreams.imageTag }}"
           imagePullPolicy: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.imagePullPolicy }}"
           ports:
-          - containerPort: 80
+          - containerPort: 8081
             name: analysis
           env:
+          - name: PORT
+            value: "8081"
           - name: LOG_LEVEL
             value: INFO
         {{- end }}
