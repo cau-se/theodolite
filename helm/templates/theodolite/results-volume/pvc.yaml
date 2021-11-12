@@ -1,18 +1,18 @@
-{{- if and .Values.operator.resultsVolume.enabled (not .Values.operator.resultsVolume.existingClaim) -}}
+{{- if and .Values.operator.resultsVolume.persistent.enabled (not .Values.operator.resultsVolume.persistent.existingClaim) -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "theodolite.resultsClaimName" . }}
 spec:
-  {{- if .Values.operator.resultsVolume.storageClassName }}
-  storageClassName: {{ .Values.operator.resultsVolume.storageClassName }}
+  {{- if .Values.operator.resultsVolume.persistent.storageClassName }}
+  storageClassName: {{ .Values.operator.resultsVolume.persistent.storageClassName }}
   {{- end }}
   accessModes:
     - ReadWriteOnce
-    {{- range .Values.operator.resultsVolume.accessModes }}
+    {{- range .Values.operator.resultsVolume.persistent.accessModes }}
     - {{ . | quote }}
     {{- end }}
   resources:
     requests:
-      storage: {{ .Values.operator.resultsVolume.size | quote }}
+      storage: {{ .Values.operator.resultsVolume.persistent.size | quote }}
 {{- end }}
