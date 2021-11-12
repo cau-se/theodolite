@@ -118,7 +118,7 @@ spec:
                     minItems: 1
                     items:
                       type: object
-                      required: ["name", "numPartitions", "replicationFactor"]
+                      required: ["name"]
                       properties:
                         name:
                           description: The name of the topic.
