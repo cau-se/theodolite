@@ -38,7 +38,7 @@ def calculate_slope_trend(results, warmup):
         err_msg = 'Computing trend slope failed.'
         logger.exception(err_msg)
         logger.error('Mark this subexperiment as not successful and continue benchmark.')
-        return False
+        return float('inf')
 
     logger.info("Computed lag trend slope is '%s'", trend_slope)
     return trend_slope
@@ -49,7 +49,7 @@ def check_service_level_objective(results, threshold):
 @app.post("/evaluate-slope",response_model=bool)
 async def evaluate_slope(request: Request):
     data = json.loads(await request.body())
-    results = [calculate_slope_trend(total_lag, data['warmup']) for total_lag in data['total_lags']]
-    return check_service_level_objective(results=results, threshold=data["threshold"])
+    results = [calculate_slope_trend(total_lag, data['metadata']['warmup']) for total_lag in data['results']]
+    return check_service_level_objective(results=results, threshold=data['metadata']["threshold"])
 
 logger.info("SLO evaluator is online")
