@@ -1,5 +1,5 @@
 {
-    "total_lags": [
+    "results": [
         [
             {
                 "metric": {
@@ -284,6 +284,8 @@
             }
         ]
     ],
-    "threshold": 2000,
-    "warmup": 0
+    "metadata": {
+        "threshold": 2000,
+        "warmup": 0
+    }
 }
