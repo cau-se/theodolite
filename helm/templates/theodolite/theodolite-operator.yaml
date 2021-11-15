@@ -64,6 +64,19 @@ spec:
           - name: LOG_LEVEL
             value: INFO
         {{- end }}
+        {{- if .Values.operator.sloChecker.droppedRecordsKStreams.enabled }}
+        - name: slo-checker-dropped-records-kstreams
+          image: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.image }}:{{ .Values.operator.sloChecker.droppedRecordsKStreams.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.imagePullPolicy }}"
+          ports:
+          - containerPort: 8081
+            name: analysis
+          env:
+          - name: PORT
+            value: "8081"
+          - name: LOG_LEVEL
+            value: INFO
+        {{- end }}
         {{- if and .Values.operator.resultsVolume.enabled .Values.operator.resultsVolume.accessSidecar.enabled }}
         - name: results-access
           image: busybox:stable
@@ -81,7 +94,7 @@ spec:
       {{- if .Values.operator.resultsVolume.enabled }}
       - name: theodolite-pv-storage
         persistentVolumeClaim:
-          claimName: {{ .Values.operator.resultsVolume.persistentVolumeClaim.name | quote }}
+          claimName: {{ include "theodolite.resultsClaimName" . | quote }}
       {{- end }}
       - name: benchmark-resources-uc1-kstreams
         configMap:
