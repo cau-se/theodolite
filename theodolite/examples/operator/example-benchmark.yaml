@@ -40,9 +40,6 @@ spec:
        name: "example-configmap"
        files:
          - "uc1-kstreams-deployment.yaml"
-         - "aggregation-service.yaml"
-         - "jmx-configmap.yaml"
-         - "uc1-service-monitor.yaml"
   loadGenResourceSets:
     # - fileSystem:
     #     path: ./../../../../../../config
