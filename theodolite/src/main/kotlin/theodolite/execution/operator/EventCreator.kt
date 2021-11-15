@@ -6,7 +6,6 @@ import io.fabric8.kubernetes.api.model.ObjectReference
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import theodolite.util.Config
 import theodolite.util.Configuration
 import java.time.Instant
 import java.util.*

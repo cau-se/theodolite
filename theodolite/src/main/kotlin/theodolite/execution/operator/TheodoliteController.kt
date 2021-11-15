@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
+import theodolite.execution.ExecutionModes
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
 import theodolite.patcher.ConfigOverrideModifier
@@ -96,7 +97,7 @@ class TheodoliteController(
                 }
             }
         } catch (e: Exception) {
-            EventCreator().createEvent(
+                EventCreator().createEvent(
                 executionName = execution.name,
                 type = "WARNING",
                 reason = "Execution failed",
