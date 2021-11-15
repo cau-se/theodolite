@@ -36,7 +36,6 @@ class AnalysisExecutor(
      *  @return true if the experiment succeeded.
      */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
-
         var result = false
         var repetitionCounter = 1
 

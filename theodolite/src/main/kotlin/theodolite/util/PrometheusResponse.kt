@@ -64,7 +64,7 @@ data class PromResult(
     /**
      * Label of the metric
      */
-    var metric: Map<String,String>? = null,
+    var metric: Map<String, String>? = null,
     /**
      *  Values of the metric (e.g. [ [ <unix_time>, "<sample_value>" ], ... ])
      */

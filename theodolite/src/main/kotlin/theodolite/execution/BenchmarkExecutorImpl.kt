@@ -53,7 +53,6 @@ class BenchmarkExecutorImpl(
          * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
          */
         if (this.run.get()) {
-
             val experimentResults = slos.map {
                 AnalysisExecutor(slo = it, executionId = executionId)
                     .analyze(
@@ -65,7 +64,6 @@ class BenchmarkExecutorImpl(
 
             result = (false !in experimentResults)
             this.results.setResult(Pair(load, res), result)
-
         }
         return result
     }
