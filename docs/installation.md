@@ -15,7 +15,7 @@ helm repo update
 helm install theodolite theodolite/theodolite
 ```
 
-This installs Theodolite in operator mode. Operator mode is the easiest to be used, but requires some permissions in the installation. If those cannot be granted, Theodolite can also be installed for standalone mode. 
+This installs Theodolite in operator mode. Operator mode is the easiest to use, but requires some permissions in the installation. If those cannot be granted, Theodolite can also be installed for standalone mode. 
 
 
 ## Installation Options
