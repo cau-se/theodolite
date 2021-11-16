@@ -7,11 +7,15 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
-import theodolite.util.ConfigurationOverride
-import theodolite.util.PatcherDefinition
+import theodolite.patcher.ConfigOverrideModifier
+import theodolite.util.ExecutionStateComparator
 import java.lang.Thread.sleep
 
 private val logger = KotlinLogging.logger {}
+const val DEPLOYED_FOR_EXECUTION_LABEL_NAME = "deployed-for-execution"
+const val DEPLOYED_FOR_BENCHMARK_LABEL_NAME = "deployed-for-benchmark"
+const val CREATED_BY_LABEL_NAME = "app.kubernetes.io/created-by"
+const val CREATED_BY_LABEL_VALUE = "theodolite"
 
 /**
  * The controller implementation for Theodolite.
@@ -22,12 +26,12 @@ private val logger = KotlinLogging.logger {}
  */
 
 class TheodoliteController(
-    val path: String,
     private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
     private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
     private val executionStateHandler: ExecutionStateHandler
 ) {
     lateinit var executor: TheodoliteExecutor
+
     /**
      *
      * Runs the TheodoliteController forever.
@@ -61,18 +65,22 @@ class TheodoliteController(
      * @see BenchmarkExecution
      */
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
-        setAdditionalLabels(execution.name,
-            "deployed-for-execution",
-            benchmark.appResource + benchmark.loadGenResource,
-            execution)
-        setAdditionalLabels(benchmark.name,
-            "deployed-for-benchmark",
-            benchmark.appResource + benchmark.loadGenResource,
-            execution)
-        setAdditionalLabels("theodolite",
-            "app.kubernetes.io/created-by",
-            benchmark.appResource + benchmark.loadGenResource,
-            execution)
+        val modifier = ConfigOverrideModifier(
+            execution = execution,
+            resources = benchmark.appResource + benchmark.loadGenResource
+        )
+        modifier.setAdditionalLabels(
+            labelValue = execution.name,
+            labelName = DEPLOYED_FOR_EXECUTION_LABEL_NAME
+        )
+        modifier.setAdditionalLabels(
+            labelValue = benchmark.name,
+            labelName = DEPLOYED_FOR_BENCHMARK_LABEL_NAME
+        )
+        modifier.setAdditionalLabels(
+            labelValue = CREATED_BY_LABEL_VALUE,
+            labelName = CREATED_BY_LABEL_NAME
+        )
 
         executionStateHandler.setExecutionState(execution.name, States.RUNNING)
         executionStateHandler.startDurationStateTimer(execution.name)
@@ -100,9 +108,6 @@ class TheodoliteController(
         if (!::executor.isInitialized) return
         if (restart) {
             executionStateHandler.setExecutionState(this.executor.getExecution().name, States.RESTART)
-        } else {
-            executionStateHandler.setExecutionState(this.executor.getExecution().name, States.INTERRUPTED)
-            logger.warn { "Execution ${executor.getExecution().name} unexpected interrupted" }
         }
         this.executor.executor.run.set(false)
     }
@@ -114,9 +119,10 @@ class TheodoliteController(
         return this.benchmarkCRDClient
             .list()
             .items
-            .map { it.spec.name = it.metadata.name; it }
-            .map { it.spec.path = path; it } // TODO check if we can remove the path field from the KubernetesBenchmark
-            .map { it.spec }
+            .map {
+                it.spec.name = it.metadata.name
+                it.spec
+            }
     }
 
     /**
@@ -131,6 +137,7 @@ class TheodoliteController(
      * @return the next execution or null
      */
     private fun getNextExecution(): BenchmarkExecution? {
+        val comparator = ExecutionStateComparator(States.RESTART)
         val availableBenchmarkNames = getBenchmarks()
             .map { it.name }
 
@@ -144,46 +151,13 @@ class TheodoliteController(
                         it.status.executionState == States.RESTART.value
             }
             .filter { availableBenchmarkNames.contains(it.spec.benchmark) }
-            .sortedWith(stateComparator().thenBy { it.metadata.creationTimestamp })
+            .sortedWith(comparator.thenBy { it.metadata.creationTimestamp })
             .map { it.spec }
             .firstOrNull()
-    }
-
-    /**
-     * Simple comparator which can be used to order a list of [ExecutionCRD] such that executions with
-     * status [States.RESTART] are before all other executions.
-     */
-    private fun stateComparator() = Comparator<ExecutionCRD> { a, b ->
-        when {
-            (a == null && b == null) -> 0
-            (a.status.executionState == States.RESTART.value) -> -1
-            else -> 1
-        }
     }
 
     fun isExecutionRunning(executionName: String): Boolean {
         if (!::executor.isInitialized) return false
         return this.executor.getExecution().name == executionName
-    }
-
-    private fun setAdditionalLabels(
-        labelValue: String,
-        labelName: String,
-        resources: List<String>,
-        execution: BenchmarkExecution
-    ) {
-        val additionalConfigOverrides = mutableListOf<ConfigurationOverride>()
-        resources.forEach {
-            run {
-                val configurationOverride = ConfigurationOverride()
-                configurationOverride.patcher = PatcherDefinition()
-                configurationOverride.patcher.type = "LabelPatcher"
-                configurationOverride.patcher.properties = mutableMapOf("variableName" to labelName)
-                configurationOverride.patcher.resource = it
-                configurationOverride.value = labelValue
-                additionalConfigOverrides.add(configurationOverride)
-            }
-        }
-        execution.configOverrides.addAll(additionalConfigOverrides)
     }
 }

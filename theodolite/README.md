@@ -2,13 +2,13 @@
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/> .
 
 ## Running the application in dev mode
 
 You can run your application in dev mode using:
 
-```shell script
+```sh
 ./gradlew quarkusDev
 ```
 
@@ -16,7 +16,7 @@ You can run your application in dev mode using:
 
 The application can be packaged using:
 
-```shell script
+```sh
 ./gradlew build
 ```
 
@@ -25,7 +25,7 @@ an _über-jar_ as the dependencies are copied into the `build/lib` directory.
 
 If you want to build an _über-jar_, execute the following command:
 
-```shell script
+```sh
 ./gradlew build -Dquarkus.package.type=uber-jar
 ```
 
@@ -33,92 +33,108 @@ The application is now runnable using `java -jar build/theodolite-1.0.0-SNAPSHOT
 
 ## Creating a native executable
 
+It is recommended to use the native GraalVM images to create executable jars from Theodolite. For more information please visit the [Native Image guide](https://www.graalvm.org/reference-manual/native-image/).
+
 You can create a native executable using:
 
-```shell script
+```sh
 ./gradlew build -Dquarkus.package.type=native
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
-```shell script
+```sh
 ./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
 ```
 
 You can then execute your native executable with:
 ```./build/theodolite-1.0.0-SNAPSHOT-runner```
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
+If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
 
 ## Build docker images
 
 For the jvm version use:
 
-```shell script
+```sh
 ./gradlew build
 docker build -f src/main/docker/Dockerfile.jvm -t theodolite-jvm .
 ```
 
 For the native image version use:
 
-```shell script
+```sh
 ./gradlew build -Dquarkus.package.type=native
 docker build -f src/main/docker/Dockerfile.native -t theodolite-native .
 ```
 
-## Execute docker images:
+## Execute docker images
 
 Remember to set the environment variables first.
 
 Jvm version:
 
-```shell script
+```sh
 docker run -i --rm theodolite-jvm
 ```
 
 Native image version:
 
-```shell script
+```sh
 docker run -i --rm theodolite-native
 ```
 
 ## Environment variables
 
-**Production:** (Docker-Container)
+**Execution in Docker**:
 
 | Variables name               | Default value                      |Usage         |
 | -----------------------------|:----------------------------------:| ------------:|
 | `NAMESPACE`                  | `default`                          |Determines the namespace of the Theodolite will be executed in. Used in the KubernetesBenchmark|
-| `THEODOLITE_EXECUTION`       |  `./config/BenchmarkExecution.yaml`|The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
-| `THEODOLITE_BENCHMARK_TYPE`  |  `./config/BenchmarkType.yaml`     |The complete path to the benchmarkType file. Used in the TheodoliteYamlExecutor.|
-| `THEODOLITE_APP_RESOURCES`   |  `./config`                        |The path under which the yamls for the resources for the subexperiments are found. Used in the KubernetesBenchmark|
-| `MODE`                       | `yaml-executor`                    |  Defines the mode of operation: either `yaml-executor` or `operator`|
+| `THEODOLITE_EXECUTION`       |  `execution/execution.yaml`        |The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
+| `THEODOLITE_BENCHMARK_TYPE`  |  `benchmark/benchmark.yaml`        |The complete path to the benchmarkType file. Used in the TheodoliteYamlExecutor.|
+| `THEODOLITE_APP_RESOURCES`   |  `./benchmark-resources`           |The path under which the yamls for the resources for the subexperiments are found. Used in the KubernetesBenchmark|
+| `MODE`                       | `standalone`                       |Defines the mode of operation: either `standalone` or `operator`
 
-**Development:** (local via Intellij)
+**Execution in IntelliJ**:
 
 When running Theodolite from within IntelliJ via
-[Run Configurations](https://www.jetbrains.com/help/idea/work-with-gradle-tasks.html#gradle_run_config), set the *
-Environment variables* field to:
+[Run Configurations](https://www.jetbrains.com/help/idea/work-with-gradle-tasks.html#gradle_run_config), set the *Environment variables* field to:
 
-```
-NAMESPACE=default;THEODOLITE_BENCHMARK=./../../../../config/BenchmarkType.yaml;THEODOLITE_APP_RESOURCES=./../../../../config;THEODOLITE_EXECUTION=./../../../../config/BenchmarkExecution.yaml;MODE=operator
+Set the following environment variables to run the example in the `standalone` mode within the IDE:
+
+```sh
+THEODOLITE_BENCHMARK=./../../../../examples/standalone/example-benchmark.yaml;THEODOLITE_EXECUTION=./../../../../examples/standalone/example-execution.yaml;THEODOLITE_APP_RESOURCES=./../../../../examples/resources;
 ```
 
 Alternative:
 
 ``` sh
-export NAMESPACE=default
-export THEODOLITE_BENCHMARK=./../../../../config/BenchmarkType.yaml
-export THEODOLITE_APP_RESOURCES=./../../../../config
-export THEODOLITE_EXECUTION=./../../../../config/BenchmarkExecution.yaml
-export MODE=operator
+export THEODOLITE_BENCHMARK=./../../../../examples/standalone/example-benchmark.yaml
+export THEODOLITE_APP_RESOURCES=./../../../../examples/resources;
+export THEODOLITE_EXECUTION=./../../../../examples/standalone/example-execution.yaml
 ./gradlew quarkusDev
-
 ```
 
-#### Install Detekt Code analysis Plugin
+Set the following environment variables to run the example in the `operator` mode within the IDE:
 
-Install https://plugins.jetbrains.com/plugin/10761-detekt
+```sh
+THEODOLITE_APP_RESOURCES=./../../../../examples/resources;MODE=operator
+```
+
+Alternative:
+
+``` sh
+export THEODOLITE_APP_RESOURCES=./../../../../examples/resources;
+export MODE=operator
+./gradlew quarkusDev
+```
+
+Additionally, the benchmark and execution resources must be installed.
+
+### Install Detekt Code analysis Plugin
+
+Install <https://plugins.jetbrains.com/plugin/10761-detekt>
 
 - Install the plugin
 - Navigate to Settings/Preferences -> Tools -> Detekt
@@ -127,7 +143,7 @@ Install https://plugins.jetbrains.com/plugin/10761-detekt
 
 -> detekt issues will be annotated on-the-fly while coding
 
-**ingore Failures in build:** add
+**ingore Failures in build**: add
 
 ```ignoreFailures = true```
 

@@ -60,26 +60,23 @@ spec:
                 type: array
                 items:
                   type: object
-                  required: ["sloType", "threshold", "prometheusUrl", "externalSloUrl", "offset", "warmup"]
+                  required: ["sloType", "prometheusUrl", "offset"]
                   properties:
                     sloType:
                       description: The type of the SLO. It must match 'lag trend'.
                       type: string
-                    threshold:
-                      description: The threshold the SUT should meet for a sucessful experiment.
-                      type: integer
                     prometheusUrl:
                       description: Connection string for Promehteus.
-                      type: string
-                    externalSloUrl:
-                      description: Connection string for a external slo analysis.
                       type: string
                     offset:
                       description: Hours by which the start and end timestamp will be shifted (for different timezones).
                       type: integer
-                    warmup:
-                      description:  Seconds of time that are ignored in the analysis.
-                      type: integer
+                    properties:
+                        description: (Optional) SLO specific additional arguments.
+                        type: object
+                        additionalProperties: true
+                        x-kubernetes-map-type: "granular"
+                        default: {}
               execution: # def execution config
                 description: Defines the overall parameter for the execution.
                 type: object

@@ -36,10 +36,10 @@ class ExecutionHandler(
             States.NO_STATE -> this.stateHandler.setExecutionState(execution.spec.name, States.PENDING)
             States.RUNNING -> {
                 this.stateHandler.setExecutionState(execution.spec.name, States.RESTART)
-                if(this.controller.isExecutionRunning(execution.spec.name)){
-                    this.controller.stop(restart=true)
-                    }
+                if (this.controller.isExecutionRunning(execution.spec.name)) {
+                    this.controller.stop(restart = true)
                 }
+            }
         }
     }
 
@@ -55,20 +55,21 @@ class ExecutionHandler(
     override fun onUpdate(oldExecution: ExecutionCRD, newExecution: ExecutionCRD) {
         newExecution.spec.name = newExecution.metadata.name
         oldExecution.spec.name = oldExecution.metadata.name
-        if(gson.toJson(oldExecution.spec) != gson.toJson(newExecution.spec)) {
+        if (gson.toJson(oldExecution.spec) != gson.toJson(newExecution.spec)) {
             logger.info { "Receive update event for execution ${oldExecution.metadata.name}" }
-            when(this.stateHandler.getExecutionState(newExecution.metadata.name)) {
+            when (this.stateHandler.getExecutionState(newExecution.metadata.name)) {
                 States.RUNNING -> {
-                        this.stateHandler.setExecutionState(newExecution.spec.name, States.RESTART)
-                         if (this.controller.isExecutionRunning(newExecution.spec.name)){
-                            this.controller.stop(restart=true)
-                            }
-                        }
-                States.RESTART -> {} // should this set to pending?
-                else -> this.stateHandler.setExecutionState(newExecution.spec.name, States.PENDING)
+                    this.stateHandler.setExecutionState(newExecution.spec.name, States.RESTART)
+                    if (this.controller.isExecutionRunning(newExecution.spec.name)) {
+                        this.controller.stop(restart = true)
+                    }
                 }
+                States.RESTART -> {
+                } // should this set to pending?
+                else -> this.stateHandler.setExecutionState(newExecution.spec.name, States.PENDING)
             }
         }
+    }
 
     /**
      * Delete an execution from the queue of the TheodoliteController.
@@ -78,8 +79,9 @@ class ExecutionHandler(
     @Synchronized
     override fun onDelete(execution: ExecutionCRD, b: Boolean) {
         logger.info { "Delete execution ${execution.metadata.name}" }
-         if(execution.status.executionState == States.RUNNING.value
-             && this.controller.isExecutionRunning(execution.spec.name)) {
+        if (execution.status.executionState == States.RUNNING.value
+            && this.controller.isExecutionRunning(execution.metadata.name)
+        ) {
             this.controller.stop()
         }
     }

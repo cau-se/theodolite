@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.ResourceRequirements
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
+import theodolite.util.InvalidPatcherConfigurationException
 
 /**
  * The Resource request [Patcher] set resource limits for deployments and statefulSets.
@@ -33,7 +34,7 @@ class ResourceRequestPatcher(
                 }
             }
             else -> {
-                throw IllegalArgumentException("ResourceRequestPatcher not applicable for $k8sResource")
+                throw InvalidPatcherConfigurationException("ResourceRequestPatcher not applicable for $k8sResource")
             }
         }
     }

@@ -341,7 +341,18 @@ test-slo-checker-lag-trend:
   tags:
     - exec-docker
   script:
-    - cd slope-evaluator
+    - cd slo-checker/record-lag
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+
+test-slo-checker-dropped-records-kstreams:
+  stage: test
+  image: python:3.7-slim
+  tags:
+    - exec-docker
+  script:
+    - cd slo-checker/dropped-records
     - pip install -r requirements.txt
     - cd app
     - python -m unittest
@@ -354,7 +365,7 @@ deploy-slo-checker-lag-trend:
     - test-slo-checker-lag-trend
   script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-slo-checker-lag-trend slope-evaluator
+    - docker build --pull -t theodolite-slo-checker-lag-trend slo-checker/record-lag
     - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:${DOCKER_TAG_NAME}latest"
     - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:$CI_COMMIT_TAG"
     - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
@@ -364,7 +375,32 @@ deploy-slo-checker-lag-trend:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
       when: always
     - changes:
-      - slope-evaluator/**/*
+      - slo-checker/record-lag/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: always
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+deploy-slo-checker-dropped-records-kstreams:
+  stage: deploy
+  extends:
+    - .dind
+  needs:
+    - test-slo-checker-dropped-records-kstreams
+  script:
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - docker build --pull -t theodolite-slo-checker-dropped-records-kstreams slo-checker/dropped-records
+    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-dropped-records-kstreams $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams:${DOCKER_TAG_NAME}latest"
+    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-dropped-records-kstreams $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams:$CI_COMMIT_TAG"
+    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
+    - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams
+    - docker logout
+  rules:
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
+      when: always
+    - changes:
+      - slo-checker/dropped-records/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"

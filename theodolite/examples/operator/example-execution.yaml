@@ -12,11 +12,12 @@ spec:
     resourceValues: [1, 2, 3, 4, 5]
   slos:
     - sloType: "lag trend"
-      threshold: 2000
       prometheusUrl: "http://prometheus-operated:9090"
-      externalSloUrl: "http://localhost:80/evaluate-slope"
       offset: 0
-      warmup: 60 # in seconds
+      properties:
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
   execution:
     strategy: "LinearSearch"
     duration: 300 # in seconds
@@ -24,7 +25,7 @@ spec:
     loadGenerationDelay: 30 # in seconds
     restrictions:
       - "LowerBound"
-  configOverrides:
+  configOverrides: []
   # - patcher:
   #     type: "NodeSelectorPatcher"
   #     resource: "uc1-load-generator-deployment.yaml"

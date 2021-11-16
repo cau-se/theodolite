@@ -18,8 +18,11 @@ again be merged into master.
 
 3. Update all references to artifacts which are versioned. This includes:
 
-    1. Update all references to Theodolite Docker images to tag `v0.3.1`. These are the Kubernetes resource definitions in
-`execution`, the references to *latest* in `run_uc.py`, the Docker Compose files in `theodolite-benchmarks/docker-test` and the example `theodolite.yaml` job.
+    1. Update all references to Theodolite Docker images to tag `v0.3.1`. These are:
+        1. the default `helm/values.yaml` file,
+        2. the example `execution/theodolite.yaml` job,
+        3. the Kubernetes benchmark resources in `theodolite-benchmarks/definitions/**/resources` and
+        2. the Docker Compose files in `theodolite-benchmarks/docker-test`.
 
     2. Update both, the `version` and the `appVersion` fields, in the Helm `Charts.yaml` file to `0.3.1`.
 

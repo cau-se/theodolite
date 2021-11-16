@@ -20,10 +20,6 @@ spec:
             - containerPort: 5701
               name: coordination
           env:
-            - name: NUM_SENSORS
-              value: "25000"
-            - name: NUM_NESTED_GROUPS
-              value: "5"
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:

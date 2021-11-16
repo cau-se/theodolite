@@ -12,7 +12,8 @@ class NumSensorsLoadGeneratorReplicaPatcher(
     override fun <String> patch(value: String) {
         if (k8sResource is Deployment) {
             if (value is kotlin.String) {
-                val loadGenInstances = (Integer.parseInt(value) + loadGenMaxRecords.toInt() - 1) / loadGenMaxRecords.toInt()
+                val loadGenInstances =
+                    (Integer.parseInt(value) + loadGenMaxRecords.toInt() - 1) / loadGenMaxRecords.toInt()
                 this.k8sResource.spec.replicas = loadGenInstances
             }
         }

@@ -7,7 +7,10 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-class CustomResourceWrapper(val crAsMap: Map<String, String>, private val context: CustomResourceDefinitionContext) : KubernetesResource {
+class CustomResourceWrapper(
+    private val crAsMap: Map<String, String>,
+    private val context: CustomResourceDefinitionContext
+) : KubernetesResource {
     /**
      * Deploy a service monitor
      *
@@ -40,10 +43,5 @@ class CustomResourceWrapper(val crAsMap: Map<String, String>, private val contex
     fun getName(): String {
         val metadataAsMap = this.crAsMap["metadata"]!! as Map<String, String>
         return metadataAsMap["name"]!!
-    }
-
-    fun getLabels(): Map<String, String>{
-        val metadataAsMap = this.crAsMap["metadata"]!! as Map<String, String>
-        return metadataAsMap["labels"]!! as Map<String, String>
     }
 }

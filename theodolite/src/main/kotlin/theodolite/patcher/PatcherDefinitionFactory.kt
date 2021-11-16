@@ -21,7 +21,7 @@ class PatcherDefinitionFactory {
      *     value of the requiredType.
      */
     fun createPatcherDefinition(requiredType: String, patcherTypes: List<TypeName>): List<PatcherDefinition> {
-        return patcherTypes.firstOrNull() { type -> type.typeName == requiredType }
+        return patcherTypes.firstOrNull { type -> type.typeName == requiredType }
             ?.patchers ?: throw IllegalArgumentException("typeName $requiredType not found.")
     }
 }

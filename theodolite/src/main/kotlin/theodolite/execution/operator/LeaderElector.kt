@@ -13,14 +13,15 @@ import kotlin.reflect.KFunction0
 private val logger = KotlinLogging.logger {}
 
 class LeaderElector(
-    val client:  NamespacedKubernetesClient,
+    val client: NamespacedKubernetesClient,
     val name: String
-    ) {
+) {
 
+    // TODO(what is the name of the lock? .withName() or LeaseLock(..,name..) ?)
     fun getLeadership(leader: KFunction0<Unit>) {
         val lockIdentity: String = UUID.randomUUID().toString()
-            DefaultKubernetesClient().use { kc ->
-                kc.leaderElector()
+        DefaultKubernetesClient().use { kc ->
+            kc.leaderElector()
                 .withConfig(
                     LeaderElectionConfigBuilder()
                         .withName("Theodolite")
@@ -29,10 +30,10 @@ class LeaderElector(
                         .withRenewDeadline(Duration.ofSeconds(10L))
                         .withRetryPeriod(Duration.ofSeconds(2L))
                         .withLeaderCallbacks(LeaderCallbacks(
-                            { Thread{leader()}.start() },
+                            { Thread { leader() }.start() },
                             { logger.info { "STOPPED LEADERSHIP" } }
                         ) { newLeader: String? ->
-                           logger.info { "New leader elected $newLeader" }
+                            logger.info { "New leader elected $newLeader" }
                         })
                         .build()
                 )

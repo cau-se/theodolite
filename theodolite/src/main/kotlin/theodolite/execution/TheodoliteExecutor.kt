@@ -70,14 +70,18 @@ class TheodoliteExecutor(
 
         if (config.load.loadValues != config.load.loadValues.sorted()) {
             config.load.loadValues = config.load.loadValues.sorted()
-            logger.info { "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
-                    "New order is: ${config.load.loadValues}" }
+            logger.info {
+                "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
+                        "New order is: ${config.load.loadValues}"
+            }
         }
 
         if (config.resources.resourceValues != config.resources.resourceValues.sorted()) {
             config.resources.resourceValues = config.resources.resourceValues.sorted()
-            logger.info { "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
-                    "New order is: ${config.resources.resourceValues}" }
+            logger.info {
+                "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
+                        "New order is: ${config.resources.resourceValues}"
+            }
         }
 
         return Config(
@@ -103,10 +107,6 @@ class TheodoliteExecutor(
         return this.config
     }
 
-    fun getBenchmark(): KubernetesBenchmark {
-        return this.kubernetesBenchmark
-    }
-
     /**
      * Run all experiments which are specified in the corresponding
      * execution and benchmark objects.
@@ -114,9 +114,12 @@ class TheodoliteExecutor(
     fun run() {
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
-        this.config.executionId = getAndIncrementExecutionID(resultsFolder+"expID.txt")
-        ioHandler.writeToJSONFile(this.config, "$resultsFolder${this.config.executionId}-execution-configuration")
-        ioHandler.writeToJSONFile(kubernetesBenchmark, "$resultsFolder${this.config.executionId}-benchmark-configuration")
+        this.config.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
+        ioHandler.writeToJSONFile(this.config, "${resultsFolder}exp${this.config.executionId}-execution-configuration")
+        ioHandler.writeToJSONFile(
+            kubernetesBenchmark,
+            "${resultsFolder}exp${this.config.executionId}-benchmark-configuration"
+        )
 
         val config = buildConfig()
         // execute benchmarks for each load
@@ -125,17 +128,20 @@ class TheodoliteExecutor(
                 config.compositeStrategy.findSuitableResource(load, config.resources)
             }
         }
-        ioHandler.writeToJSONFile(config.compositeStrategy.benchmarkExecutor.results, "$resultsFolder${this.config.executionId}-result")
+        ioHandler.writeToJSONFile(
+            config.compositeStrategy.benchmarkExecutor.results,
+            "${resultsFolder}exp${this.config.executionId}-result"
+        )
     }
 
-   private fun getAndIncrementExecutionID(fileURL: String): Int {
-       val ioHandler = IOHandler()
-       var executionID = 0
-       if (File(fileURL).exists()) {
-           executionID = ioHandler.readFileAsString(fileURL).toInt() + 1
-       }
-       ioHandler.writeStringToTextFile(fileURL, (executionID).toString())
-       return executionID
+    private fun getAndIncrementExecutionID(fileURL: String): Int {
+        val ioHandler = IOHandler()
+        var executionID = 0
+        if (File(fileURL).exists()) {
+            executionID = ioHandler.readFileAsString(fileURL).toInt() + 1
+        }
+        ioHandler.writeStringToTextFile(fileURL, (executionID).toString())
+        return executionID
     }
 
 }

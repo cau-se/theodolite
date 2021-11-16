@@ -18,7 +18,7 @@ import kotlin.properties.Delegates
  *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
  *  for the execution of the benchmark.
  *  - [configOverrides] additional configurations.
- *  This class is used for parsing(in [theodolite.execution.TheodoliteYamlExecutor]) and
+ *  This class is used for parsing(in [theodolite.execution.TheodoliteStandalone]) and
  *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  *  @constructor construct an empty BenchmarkExecution.
  */
@@ -62,11 +62,9 @@ class BenchmarkExecution : KubernetesResource {
     @RegisterForReflection
     class Slo : KubernetesResource {
         lateinit var sloType: String
-        var threshold by Delegates.notNull<Int>()
         lateinit var prometheusUrl: String
-        lateinit var externalSloUrl: String
         var offset by Delegates.notNull<Int>()
-        var warmup by Delegates.notNull<Int>()
+        lateinit var properties: MutableMap<String, String>
     }
 
     /**
