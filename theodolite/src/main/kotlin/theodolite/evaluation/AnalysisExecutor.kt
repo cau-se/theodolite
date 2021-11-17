@@ -2,6 +2,7 @@ package theodolite.evaluation
 
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
@@ -37,7 +38,7 @@ class AnalysisExecutor(
      *  @return true if the experiment succeeded.
      */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
-        var result = false
+        var result: Boolean
         var repetitionCounter = 1
 
         try {
@@ -71,8 +72,7 @@ class AnalysisExecutor(
             result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            // TODO(throw exception in order to make it possible to mark an experiment as unsuccessfully)
-            logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: $e" }
+            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()} ", e)
         }
         return result
     }

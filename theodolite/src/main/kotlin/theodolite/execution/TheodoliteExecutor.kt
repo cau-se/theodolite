@@ -123,15 +123,18 @@ class TheodoliteExecutor(
 
         val config = buildConfig()
         // execute benchmarks for each load
-        for (load in config.loads) {
-            if (executor.run.get()) {
-                config.compositeStrategy.findSuitableResource(load, config.resources)
+        try {
+            for (load in config.loads) {
+                if (executor.run.get()) {
+                    config.compositeStrategy.findSuitableResource(load, config.resources)
+                }
             }
+        } finally {
+            ioHandler.writeToJSONFile(
+                config.compositeStrategy.benchmarkExecutor.results,
+                "${resultsFolder}exp${this.config.executionId}-result"
+            )
         }
-        ioHandler.writeToJSONFile(
-            config.compositeStrategy.benchmarkExecutor.results,
-            "${resultsFolder}exp${this.config.executionId}-result"
-        )
     }
 
     private fun getAndIncrementExecutionID(fileURL: String): Int {

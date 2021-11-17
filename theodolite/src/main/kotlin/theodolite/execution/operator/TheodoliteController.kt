@@ -8,6 +8,7 @@ import theodolite.benchmark.KubernetesBenchmark
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
 import theodolite.patcher.ConfigOverrideModifier
+import theodolite.util.ExecutionFailedException
 import theodolite.util.ExecutionStateComparator
 import java.lang.Thread.sleep
 
@@ -93,6 +94,10 @@ class TheodoliteController(
                 States.RUNNING -> {
                     executionStateHandler.setExecutionState(execution.name, States.FINISHED)
                     logger.info { "Execution of ${execution.name} is finally stopped." }
+                    }
+                else -> {
+                    executionStateHandler.setExecutionState(execution.name, States.FAILURE)
+                    logger.warn { "Unexpected execution state, set state to ${States.FAILURE.value}" }
                 }
             }
         } catch (e: Exception) {

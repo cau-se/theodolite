@@ -1,4 +1,4 @@
 package theodolite.util
 
 
-class DeploymentFailedException(message: String) : Exception(message)
+open class DeploymentFailedException(message: String, e: Exception? = null) : TheodoliteException(message,e)
