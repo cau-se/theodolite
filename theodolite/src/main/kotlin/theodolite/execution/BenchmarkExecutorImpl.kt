@@ -64,6 +64,11 @@ class BenchmarkExecutorImpl(
                 )
             this.results.setResult(Pair(load, res), result)
         }
+
+        if(!this.run.get()) {
+            throw ExecutionFailedException("The execution was interrupted")
+        }
+
         return result
     }
 
@@ -76,7 +81,7 @@ class BenchmarkExecutorImpl(
             this.afterTeardownDelay
         )
         val from = Instant.now()
-        // TODO(restructure try catch in order to throw exceptions if there are significant problems by running a experiment)
+
         try {
             benchmarkDeployment.setup()
             this.waitAndLog()
@@ -88,8 +93,6 @@ class BenchmarkExecutorImpl(
                     message = "load: ${load.get()}, resources: ${res.get()}")
             }
         } catch (e: Exception) {
-            logger.error { "Error while setup experiment." }
-            logger.error { "Error is: $e" }
             this.run.set(false)
 
             if (mode == ExecutionModes.OPERATOR.value) {
@@ -99,6 +102,7 @@ class BenchmarkExecutorImpl(
                     reason = "Start experiment failed",
                     message = "load: ${load.get()}, resources: ${res.get()}")
             }
+            throw ExecutionFailedException("Error during setup the experiment", e)
         }
         val to = Instant.now()
         try {
@@ -111,8 +115,6 @@ class BenchmarkExecutorImpl(
                     message = "Teardown complete")
             }
         } catch (e: Exception) {
-            logger.warn { "Error while tearing down the benchmark deployment." }
-            logger.debug { "Teardown failed, caused by: $e" }
             if (mode == ExecutionModes.OPERATOR.value) {
                 eventCreator.createEvent(
                     executionName = executionName,
@@ -120,6 +122,7 @@ class BenchmarkExecutorImpl(
                     reason = "Stop experiment failed",
                     message = "Teardown failed: ${e.message}")
             }
+            throw ExecutionFailedException("Error during teardown the experiment", e)
         }
         return Pair(from, to)
     }

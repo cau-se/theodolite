@@ -34,16 +34,15 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
                     afterTeardownDelay = 5L
                 )
             deployment.teardown()
+            logger.info {
+                "Finished teardown of all benchmark resources."
+            }
         } catch (e: Exception) {
-            // TODO(throw exception in order to make it possible to mark an experiment as unsuccessfully)
             logger.warn {
                 "Could not delete all specified resources from Kubernetes. " +
                         "This could be the case, if not all resources are deployed and running."
             }
 
-        }
-        logger.info {
-            "Finished teardown of all benchmark resources."
         }
     }
 }
