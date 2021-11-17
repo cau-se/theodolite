@@ -5,6 +5,8 @@ include 'kstreams-commons'
 include 'flink-commons'
 include 'beam-commons'
 
+include 'uc1-beam'
+
 include 'uc1-load-generator'
 include 'uc1-kstreams'
 include 'uc1-flink'

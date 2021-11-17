@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
       compile group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
+      compile project(':uc1-beam')
 }
 
-mainClassName = "application.Uc1ApplicationBeam"
+mainClassName = "application.Uc1BeamFlink"
