@@ -124,6 +124,7 @@ spec:
                           type: boolean
                           default: false
               appResourceSets:
+                description: The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: array
                 items:
                   type: object
@@ -132,24 +133,31 @@ spec:
                     - required: [fileSystem]
                   properties:
                     configMap:
+                      description: The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
                       type: object
                       properties:
                         name:
+                          description: The name of the configMap
                           type: string
                         files:
+                          description: (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.
                           type: array
                           items:
                             type: string
                     fileSystem:
+                      description: The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
                       type: object
                       properties:
                         path:
+                          description: The path to the folder which contains the Kubernetes manifests files.
                           type: string
                         files:
+                          description: (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.
                           type: array
                           items:
                             type: string
               loadGenResourceSets:
+                description: The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: array
                 items:
                   type: object
@@ -158,20 +166,26 @@ spec:
                     - required: [fileSystem]
                   properties:
                     configMap:
+                      description: The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
                       type: object
                       properties:
                         name:
+                          description: The name of the configMap
                           type: string
                         files:
+                          description: (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.
                           type: array
                           items:
                             type: string
                     fileSystem:
+                      description: The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
                       type: object
                       properties:
                         path:
+                          description: The path to the folder which contains the Kubernetes manifests files.
                           type: string
                         files:
+                          description: (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.
                           type: array
                           items:
                             type: string

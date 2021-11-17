@@ -89,7 +89,7 @@ Resource Types:
         <td><b><a href="#benchmarkspecappresourcesetsindex">appResourceSets</a></b></td>
         <td>[]object</td>
         <td>
-          <br/>
+          The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -103,7 +103,7 @@ Resource Types:
         <td><b><a href="#benchmarkspecloadgenresourcesetsindex">loadGenResourceSets</a></b></td>
         <td>[]object</td>
         <td>
-          <br/>
+          The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -144,14 +144,14 @@ Resource Types:
         <td><b><a href="#benchmarkspecappresourcesetsindexconfigmap">configMap</a></b></td>
         <td>object</td>
         <td>
-          <br/>
+          The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b><a href="#benchmarkspecappresourcesetsindexfilesystem">fileSystem</a></b></td>
         <td>object</td>
         <td>
-          <br/>
+          The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -163,7 +163,7 @@ Resource Types:
 
 
 
-
+The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
 
 <table>
     <thead>
@@ -178,14 +178,14 @@ Resource Types:
         <td><b>files</b></td>
         <td>[]string</td>
         <td>
-          <br/>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          <br/>
+          The name of the configMap<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -197,7 +197,7 @@ Resource Types:
 
 
 
-
+The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
 
 <table>
     <thead>
@@ -212,14 +212,14 @@ Resource Types:
         <td><b>files</b></td>
         <td>[]string</td>
         <td>
-          <br/>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>path</b></td>
         <td>string</td>
         <td>
-          <br/>
+          The path to the folder which contains the Kubernetes manifests files.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -336,14 +336,14 @@ Contains the Kafka configuration.
         <td><b><a href="#benchmarkspecloadgenresourcesetsindexconfigmap">configMap</a></b></td>
         <td>object</td>
         <td>
-          <br/>
+          The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b><a href="#benchmarkspecloadgenresourcesetsindexfilesystem">fileSystem</a></b></td>
         <td>object</td>
         <td>
-          <br/>
+          The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -355,7 +355,7 @@ Contains the Kafka configuration.
 
 
 
-
+The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
 
 <table>
     <thead>
@@ -370,14 +370,14 @@ Contains the Kafka configuration.
         <td><b>files</b></td>
         <td>[]string</td>
         <td>
-          <br/>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          <br/>
+          The name of the configMap<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -389,7 +389,7 @@ Contains the Kafka configuration.
 
 
 
-
+The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
 
 <table>
     <thead>
@@ -404,14 +404,14 @@ Contains the Kafka configuration.
         <td><b>files</b></td>
         <td>[]string</td>
         <td>
-          <br/>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>path</b></td>
         <td>string</td>
         <td>
-          <br/>
+          The path to the folder which contains the Kubernetes manifests files.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -935,7 +935,7 @@ Specifies the scaling resource that is benchmarked.
         <td><b>resourceValues</b></td>
         <td>[]integer</td>
         <td>
-          <br/>
+          List of resource values for the specified resource type.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
