@@ -155,7 +155,10 @@ cp-helm-charts:
 ###
 kafka-lag-exporter:
   enabled: true
+  image:
+    pullPolicy: IfNotPresent
   nodeSelector: {}
+  
   clusters:
     - name: "theodolite-cp-kafka"
       bootstrapBrokers: "theodolite-cp-kafka:9092"
