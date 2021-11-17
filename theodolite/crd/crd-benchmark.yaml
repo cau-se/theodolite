@@ -157,7 +157,7 @@ spec:
                           items:
                             type: string
               loadGenResourceSets:
-                description: The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
+                description: The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: array
                 items:
                   type: object

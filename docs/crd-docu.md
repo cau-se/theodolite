@@ -103,7 +103,7 @@ Resource Types:
         <td><b><a href="#benchmarkspecloadgenresourcesetsindex">loadGenResourceSets</a></b></td>
         <td>[]object</td>
         <td>
-          The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
+          The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
         </td>
         <td>true</td>
       </tr><tr>
