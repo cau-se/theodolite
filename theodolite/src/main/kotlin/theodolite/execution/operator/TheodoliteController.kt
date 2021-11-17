@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
+import theodolite.execution.ExecutionModes
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
 import theodolite.patcher.ConfigOverrideModifier
@@ -101,6 +102,11 @@ class TheodoliteController(
                 }
             }
         } catch (e: Exception) {
+                EventCreator().createEvent(
+                executionName = execution.name,
+                type = "WARNING",
+                reason = "Execution failed",
+                message = "An error occurs while executing:  ${e.message}")
             logger.error { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
             logger.error { "Problem is: $e" }
             executionStateHandler.setExecutionState(execution.name, States.FAILURE)
