@@ -17,7 +17,7 @@ class TestSloEvaluation(unittest.TestCase):
             data = json.load(json_file)
             response = self.client.post("/evaluate-slope", json=data)
             self.assertEquals(response.json(), True)
-        
+
     def test_check_service_level_objective(self):
         list = [1,2,3,4]
         self.assertEquals(check_service_level_objective(list, 2), False)

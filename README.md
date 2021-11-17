@@ -4,20 +4,17 @@
 
 Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines. It consists of three modules:
 
-## Theodolite Benchmarks
+## Theodolite Benchmarking Tool
 
-Theodolite contains 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding workload generator is provided. Currently, this repository provides benchmark implementations for Apache Kafka Streams and Apache Flink. The benchmark sources can be found in [Thedolite benchmarks](benchmarks).
-
-
-## Theodolite Execution Framework
-
-Theodolite aims to benchmark scalability of stream processing engines for real use cases. Microservices that apply stream processing techniques are usually deployed in elastic cloud environments. Hence, Theodolite's cloud-native benchmarking framework deploys its components in a cloud environment, orchestrated by Kubernetes. More information on how to execute scalability benchmarks can be found in [Thedolite execution framework](execution).
-
+Theodolite aims to benchmark scalability of stream processing engines for real use cases. Microservices that apply stream processing techniques are usually deployed in elastic cloud environments. Hence, Theodolite's cloud-native benchmarking framework deploys its components in a cloud environment, orchestrated by Kubernetes. It is recommended to install Theodolite with the package manager Helm. The Theodolite Helm chart along with instructions how to install it can be found in the [`helm`](helm) directory.
 
 ## Theodolite Analysis Tools
 
-Theodolite's benchmarking method creates a *scalability graph* allowing to draw conclusions about the scalability of a stream processing engine or its deployment. A scalability graph shows how resource demand evolves with an increasing workload. Theodolite provides Jupyter notebooks for creating such scalability graphs based on benchmarking results from the execution framework. More information can be found in [Theodolite analysis tool](analysis).
+Theodolite's benchmarking method maps load intensities to the resource amounts that are required for processing them. A plot showing how resource demand evolves with an increasing load allows to draw conclusions about the scalability of a stream processing engine or its deployment. Theodolite provides Jupyter notebooks for creating such plots based on benchmarking results from the execution framework. More information can be found in [Theodolite analysis tool](analysis).
 
+## Theodolite Benchmarks
+
+Theodolite comes with 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding load generator is provided. Currently, this repository provides benchmark implementations for Apache Kafka Streams and Apache Flink. The benchmark sources can be found in [Thedolite benchmarks](theodolite-benchmarks).
 
 ## How to Cite
 
