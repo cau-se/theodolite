@@ -18,7 +18,7 @@ class BenchmarkExecutorImpl(
     results: Results,
     executionDuration: Duration,
     configurationOverrides: List<ConfigurationOverride?>,
-    slo: BenchmarkExecution.Slo,
+    slos: List<BenchmarkExecution.Slo>,
     repetitions: Int,
     executionId: Int,
     loadGenerationDelay: Long,
@@ -29,7 +29,7 @@ class BenchmarkExecutorImpl(
     results,
     executionDuration,
     configurationOverrides,
-    slo,
+    slos,
     repetitions,
     executionId,
     loadGenerationDelay,
@@ -56,12 +56,16 @@ class BenchmarkExecutorImpl(
          * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
          */
         if (this.run.get()) {
-            result = AnalysisExecutor(slo = slo, executionId = executionId)
-                .analyze(
-                    load = load,
-                    res = res,
-                    executionIntervals = executionIntervals
-                )
+            val experimentResults = slos.map {
+                AnalysisExecutor(slo = it, executionId = executionId)
+                    .analyze(
+                        load = load,
+                        res = res,
+                        executionIntervals = executionIntervals
+                    )
+            }
+
+            result = (false !in experimentResults)
             this.results.setResult(Pair(load, res), result)
         }
 
