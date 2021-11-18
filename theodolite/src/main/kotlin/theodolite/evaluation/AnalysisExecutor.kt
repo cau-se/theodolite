@@ -13,7 +13,6 @@ import java.util.*
 import java.util.regex.Pattern
 
 private val logger = KotlinLogging.logger {}
-private val RECORD_LAG_QUERY = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
@@ -51,7 +50,7 @@ class AnalysisExecutor(
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = RECORD_LAG_QUERY
+                        query = SloConfigHandler.getQueryString(sloType = slo.sloType)
                     )
                 }
 
@@ -59,7 +58,7 @@ class AnalysisExecutor(
                 ioHandler.writeToCSVFile(
                     fileURL = "${fileURL}_${repetitionCounter++}",
                     data = data.getResultAsList(),
-                    columns = listOf("group", "timestamp", "value")
+                    columns = listOf("labels", "timestamp", "value")
                 )
             }
 
