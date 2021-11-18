@@ -65,7 +65,8 @@ class TheodoliteExecutor(
                 repetitions = config.execution.repetitions,
                 executionId = config.executionId,
                 loadGenerationDelay = config.execution.loadGenerationDelay,
-                afterTeardownDelay = config.execution.afterTeardownDelay
+                afterTeardownDelay = config.execution.afterTeardownDelay,
+                executionName = config.name
             )
 
         if (config.load.loadValues != config.load.loadValues.sorted()) {
