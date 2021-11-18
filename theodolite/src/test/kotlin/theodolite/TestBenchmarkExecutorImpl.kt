@@ -26,7 +26,8 @@ class TestBenchmarkExecutorImpl(
         repetitions = 1,
         executionId = executionId,
         loadGenerationDelay = loadGenerationDelay,
-        afterTeardownDelay = afterTeardownDelay
+        afterTeardownDelay = afterTeardownDelay,
+        executionName = "test-execution"
     ) {
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {

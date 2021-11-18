@@ -29,7 +29,8 @@ abstract class BenchmarkExecutor(
     val repetitions: Int,
     val executionId: Int,
     val loadGenerationDelay: Long,
-    val afterTeardownDelay: Long
+    val afterTeardownDelay: Long,
+    val executionName: String
 ) {
 
     var run: AtomicBoolean = AtomicBoolean(true)
