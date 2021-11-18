@@ -155,7 +155,10 @@ cp-helm-charts:
 ###
 kafka-lag-exporter:
   enabled: true
+  image:
+    pullPolicy: IfNotPresent
   nodeSelector: {}
+  
   clusters:
     - name: "theodolite-cp-kafka"
       bootstrapBrokers: "theodolite-cp-kafka:9092"
@@ -263,12 +266,13 @@ operator:
       imagePullPolicy: Always
 
   resultsVolume:
-    enabled: true
-    # existingClaim:
-    # storageClassName:
-    accessModes:
-      - ReadWriteOnce
-    size: 1Gi
+    persistent:
+      enabled: false
+      # existingClaim:
+      # storageClassName:
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
     accessSidecar:
       enabled: true
       image: busybox

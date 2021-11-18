@@ -54,11 +54,8 @@ class ClusterSetup(
                     benchmark.spec.name = benchmark.metadata.name
                     Shutdown(execution.spec, benchmark.spec).start()
                 } else {
-                    logger.error {
-                        "Execution with state ${States.RUNNING.value} was found, but no corresponding benchmark. " +
-                                "Could not initialize cluster."
-                    }
-                    throw IllegalStateException("Cluster state is invalid, required Benchmark for running execution not found.")
+                    throw IllegalStateException("Execution with state ${States.RUNNING.value} was found, but no corresponding benchmark. " +
+                            "Could not initialize cluster.")
                 }
             }
     }

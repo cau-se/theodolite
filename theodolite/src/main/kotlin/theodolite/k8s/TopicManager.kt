@@ -30,8 +30,7 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
                 result = kafkaAdmin.createTopics(newTopics)
                 result.all().get() // wait for the future to be completed
             } catch (e: Exception) { // TopicExistsException
-                logger.warn(e) { "Error during topic creation." }
-                logger.debug { e } // TODO remove due to attached exception to warn log?
+                logger.warn { "Error during topic creation. Error is: ${e.message}" }
                 logger.info { "Remove existing topics." }
                 delete(newTopics.map { topic -> topic.name() }, kafkaAdmin)
                 logger.info { "Will retry the topic creation in ${RETRY_TIME / 1000} seconds." }
@@ -94,7 +93,7 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
                     }"
                 }
             } catch (e: Exception) {
-                logger.error(e) { "Error while removing topics: $e" }
+                logger.error { "Error while removing topics: ${e.message}" }
                 logger.info { "Existing topics are: ${kafkaAdmin.listTopics().names().get()}." }
             }
 

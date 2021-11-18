@@ -65,5 +65,5 @@ Create the name of the service account to use
 Create the name of the results volume to use
 */}}
 {{- define "theodolite.resultsClaimName" -}}
-{{- default (printf "%s-results" (include "theodolite.fullname" .)) .Values.operator.resultsVolume.existingClaim }}
+{{- default (printf "%s-results" (include "theodolite.fullname" .)) .Values.operator.resultsVolume.persistent.existingClaim }}
 {{- end }}
