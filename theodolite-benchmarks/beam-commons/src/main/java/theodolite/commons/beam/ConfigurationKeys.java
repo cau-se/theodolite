@@ -46,6 +46,8 @@ public final class ConfigurationKeys {
   public static final String TRIGGER_INTERVAL  = "trigger.interval";
 
 
+
+
   private ConfigurationKeys() {
   }
 

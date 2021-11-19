@@ -76,6 +76,7 @@ public final class Uc3ApplicationBeam {
         System.getenv(AGGREGATION_ADVANCE_DAYS) == null
             ? "1" : System.getenv(AGGREGATION_ADVANCE_DAYS));
     final Duration advance = Duration.standardDays(aggregationAdvance);
+
     final int triggerInterval = Integer.parseInt(
         System.getenv(TRIGGER_INTERVAL) == null
             ? "15" : System.getenv(TRIGGER_INTERVAL));

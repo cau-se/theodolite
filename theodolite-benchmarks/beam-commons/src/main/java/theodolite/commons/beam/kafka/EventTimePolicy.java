@@ -1,4 +1,4 @@
-package application;
+package theodolite.commons.beam.kafka;
 
 import java.util.Optional;
 
