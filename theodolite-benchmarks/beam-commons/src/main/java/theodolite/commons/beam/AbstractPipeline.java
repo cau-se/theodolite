@@ -14,9 +14,15 @@ public class AbstractPipeline extends Pipeline {
   // Application Configurations
   private final Configuration config;
 
+  protected final String inputTopic;
+  protected final String bootstrapServer;
+
   protected AbstractPipeline(final PipelineOptions options, final Configuration config) {
     super(options);
     this.config = config;
+
+    inputTopic = config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
+    bootstrapServer = config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
   }
 
   /**

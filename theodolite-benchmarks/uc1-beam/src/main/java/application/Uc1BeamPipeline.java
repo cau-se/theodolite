@@ -33,12 +33,8 @@ public final class Uc1BeamPipeline extends AbstractPipeline {
 
   Uc1BeamPipeline(PipelineOptions options, Configuration config) {
     super(options, config);
-    // Additional needed fields
-    String inputTopic = config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
-    String bootstrapServer = config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
 
     // Set Coders for Classes that will be distributed
-
     final CoderRegistry cr = this.getCoderRegistry();
     cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
 
