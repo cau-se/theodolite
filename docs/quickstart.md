@@ -66,7 +66,6 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
     theodolite-example-execution   RUNNING   13s        14s
     ```
 
-    You can get additional information about the current status of an Execution by running:
     Theodolite provides additional information on the current status of an Execution by producing Kubernetes events. To see them:
 
     ```sh

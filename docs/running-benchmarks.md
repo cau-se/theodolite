@@ -6,56 +6,93 @@ nav_order: 4
 
 # Running Scalability Benchmarks
 
-There are two options to run scalability benchmarks with Theodolite:
+Running scalability benchmarks with Theodolite involves two things:
 
-1. The [Theodolite Operator](#running-benchmarks-with-the-theodolite-operator) is a long-running service in your cluster, which accepts submitted benchmarks and executes them.
-2. In [standalone mode](#running-benchmarks-in-standalone-mode), Theodolite is started as a Kubernetes Job and only runs for the duration of one benchmark execution.
+1. [Deploying a benchmark to Kubernetes](#deploying-a-benchmark)
+1. [Creating an execution](#creating-an-execution), which describes the experimental setup for running the benchmark
 
-While the operator is a bit more complex to install then the standalone mode,
-it makes it way easier to manage benchmarks and their executions. In
-particular, it allows to submit a set of experiments, which are then executed
-automatically one after another.
-**Therefore, running benchmarks with the operator is recommended.** 
+## Deploying a Benchmark
 
+A benchmark specification consists of two things:
 
-## Running Benchmarks with the Theodolite Operator
+* A Benchmark resource YAML file
+* A set of Kubernetes resource YAML files used by the benchmark
+<!-- - One or multiple ConfigMap YAML files containing all the Kubernetes resource used by the benchmark as YAML files -->
 
-The general process for running Theodolite benchmarks in operator mode is as follows:
+These files are usually provided by benchmark designers.
+For example, we ship Theodolite with a set of [benchmarks for event-driven microservices](theodolite-benchmarks).
+Alternatively, you can also [create your own benchmarks](creating-a-benchmark).
 
-1. Create and deploy a new `Benchmark` resource or deploy one of the already existing ones.
-2. Define your benchmark execution as an `Execution` resource and deploy it.
+<!-- Theodolite >v0.5
+Once you have collected all Kubernetes resources for the benchmark (Benchmark resource and ConfigMaps) in a specific directory, you can deploy everything to Kubernetes by running:
 
-### 1. Creating a benchmark
+```sh
+kubectl apply -f .
+```
+-->
 
-Benchmarks are defined as resources of our custom resource definition
-`Benchmark`. You can either create a new `Benchmark` for your custom benchmark
-or system under test or deploy one of the existing benchmarks, which can be
-found in [`theodolite-benchmarks/definitions`](theodolite-benchmarks/definitions). **TODO link**
+### Create the Benchmark
 
-Suppose your `Benchmark` resource is stored in `example-benchmark.yaml`, you
-can deploy it by running:
+Suppose your Benchmark resource is stored in `example-benchmark.yaml`, you can deploy it to Kubernetes by running:
 
 ```sh
 kubectl apply -f example-benchmark.yaml
 ```
 
-To see the list of all deployed benchmarks run:
+To list all benchmarks currently deployed run:
 
 ```sh
 kubectl get benchmarks
 ```
 
-Additionally you need to make all your benchmark's Kubernetes resources available to the operator.
+<!-- TODO output-->
 
-**TODO benchmark resources**
+### Create the Benchmark Resources ConfigMaps
 
-Once your benchmark is deployed, it is ready to be executed.
+A Benchmark resource refers to other Kubernetes resources (e.g., Deployments, Services, ConfigMaps), which describe the system under test, the load generator and infrastructure components such as a middleware used in the benchmark. To manage those resources, Theodolite needs to have access to them. This is done by bundling resources in ConfigMaps.
 
-### 2. Creating an execution
+Suppose the resources needed by your benchmark are defined as YAML files, located in the `resources` directory. You can put them into the ConfigMap `benchmark-resources-custom` by running:
 
-To execute a benchmark, you need to describe this execution by creating an `Execution` resource.
+```sh
+kubectl create configmap benchmark-resources-custom --from-file=./resources -o yaml --dry-run=client | kubectl apply -f -
+```
 
-**TODO: details execution** 
+
+## Creating an Execution
+
+To run a benchmark, an Execution YAML file needs to be created such as the following one.
+
+```yaml
+apiVersion: theodolite.com/v1
+kind: execution
+metadata:
+  name: theodolite-example-execution # (1) give your execution a name
+spec:
+  benchmark: "uc1-kstreams" # (2) refer to the benchmark to be run
+  load:
+    loadType: "NumSensors" # (3) chose one of the benchmark's load types
+    loadValues: [25000, 50000] # (4) select a set of load intensities
+  resources:
+    resourceType: "Instances" # (5) chose one of the benchmark's resource types
+    resourceValues: [1, 2] # (6) select a set of resource amounts
+  slos: # (7) set your SLOs
+    - sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
+  execution:
+    strategy: "LinearSearch" # (8) chose a search strategy
+    restrictions: ["LowerBound"] # (9) add restrictions for the strategy
+    duration: 300 # (10) set the experiment duration in seconds
+    repetitions: 1 # (11) set the number of repetitions
+    loadGenerationDelay: 30 # (12) configure a delay before load generation
+  configOverrides: []
+```
+
+See [Creating an Execution](creating-an-execution) for a more detailed explanation on how to create Executions.
 
 Suppose your `Execution` resource is stored in `example-execution.yaml`, you
 can deploy it by running:
@@ -64,10 +101,17 @@ can deploy it by running:
 kubectl apply -f example-execution.yaml
 ```
 
-To see the list of all deployed benchmarks run:
+To list all deployed executions run:
 
 ```sh
 kubectl get executions
+```
+
+The output is similar to this:
+
+```
+NAME                           STATUS    DURATION   AGE
+theodolite-example-execution   RUNNING   13s        14s
 ```
 
 The `STATUS` field will tell you whether a benchmark execution has been
@@ -77,35 +121,8 @@ an `Execution` is not automatically deleted once it is finished. This makes it
 easier to keep track of all the benchmark executions and to organize benchmark
 results.
 
+Theodolite provides additional information on the current status of an Execution by producing Kubernetes events. To see them:
 
-## Running Benchmarks in Standalone Mode
-
-The general process for running Theodolite benchmarks in standalone mode is as follows:
-
-1. Create a benchmark by writing a YAML file or select one of the already existing ones and create a ConfigMap from it.
-2. Define your benchmark execution as a YAML file and create a ConfigMap from it. We provide a template for this.
-3. Create a Theodolite Job from our template and mount your benchmark and benchmark execution with it.
-
-### 1. Creating a benchmark
-
-Creating a benchmark in standalone mode is similar to operator mode. However,
-instead of defining a benchmark as `Benchmark` resource, it is defined as a
-benchmark YAML file. Such a file deviates in the following points from a
-`Benchmark` resource:
-
-* The fields `apiVersion`, `kind` and `metadata` should be removed.
-* The benchmark's name (`metadata.name` in `Benchmark` resources) must be defined by the top-level field `name`.
-* Everything that is defined in `spec` has to be moved to the top-level.
-
-**TODO: example**
-
-**TODO: Create a ConfigMap containing the benchmark YAML files as well as all Kubernetes resources for that benchmark + deploy**
-
-### 2. Creating an execution
-
-**TODO: see above**
-
-
-### 3. Create a Theodolite Job
-
-**TODO example**
+```sh
+kubectl describe execution <execution-name>
+```
