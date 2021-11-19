@@ -2,30 +2,28 @@ package application;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.Properties;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.SerializableCoder;
-import org.apache.beam.sdk.io.kafka.KafkaIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.transforms.windowing.*;
+import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
+import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
+import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
+import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
-import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.POutput;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.joda.time.Duration;
 import theodolite.commons.beam.AbstractPipeline;
 import theodolite.commons.beam.ConfigurationKeys;
-import theodolite.commons.beam.kafka.EventTimePolicy;
-import theodolite.commons.beam.kafka.KafkaActivePowerRecordReader;
+import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import theodolite.commons.beam.kafka.KafkaWriterTransformation;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -55,7 +53,7 @@ public final class Uc3BeamPipeline extends AbstractPipeline {
 
     final int triggerInterval = Integer.parseInt(
         config.getString(ConfigurationKeys.TRIGGER_INTERVAL));
-    final Duration triggerDelay = Duration.standardDays(aggregationAdvance);
+    final Duration triggerDelay = Duration.standardSeconds(triggerInterval);
 
     // Build kafka configuration
     final Properties consumerConfig = buildConsumerConfig();
@@ -64,43 +62,29 @@ public final class Uc3BeamPipeline extends AbstractPipeline {
     final CoderRegistry cr = this.getCoderRegistry();
     registerCoders(cr);
 
-
     // Read from Kafka
-    final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>>
-        kafkaActivePowerRecordReader =
-        new KafkaActivePowerRecordReader(bootstrapServer, inputTopic, consumerConfig);
-
     @SuppressWarnings({"rawtypes", "unchecked"})
-    final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> kafka =
-        KafkaIO.<String, ActivePowerRecord>read()
-            .withBootstrapServers(bootstrapServer)
-            .withTopic(inputTopic)
-            .withKeyDeserializer(StringDeserializer.class)
-            .withValueDeserializerAndCoder((Class) KafkaAvroDeserializer.class,
-                AvroCoder.of(ActivePowerRecord.class))
-            .withConsumerConfigUpdates(consumerConfig)
-            // Set TimeStampPolicy for event time
-            .withTimestampPolicyFactory(
-                (tp, previousWaterMark) -> new EventTimePolicy(previousWaterMark))
-            .withoutMetadata();
+    final KafkaActivePowerTimestampReader kafka =
+        new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
 
-
-    final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
-
+    // Map the time format
     final MapTimeFormat mapTimeFormat = new MapTimeFormat();
 
+    // get the stats per HourOfDay
     final HourOfDayWithStats hourOfDayWithStats = new HourOfDayWithStats();
 
     // Write to Kafka
+    @SuppressWarnings({"rawtypes", "unchecked"})
     final PTransform<PCollection<KV<String, String>>, POutput> kafkaWriter =
         new KafkaWriterTransformation(bootstrapServer, outputTopic, StringSerializer.class);
 
     this.apply(kafka)
         // Map to correct time format
-        .apply(MapElements.via(new MapTimeFormat()))
+        .apply(MapElements.via(mapTimeFormat))
         // Apply a sliding window
         .apply(Window
-            .<KV<HourOfDayKey, ActivePowerRecord>>into(SlidingWindows.of(duration).every(aggregationAdvanceDuration))
+            .<KV<HourOfDayKey, ActivePowerRecord>>
+                into(SlidingWindows.of(duration).every(aggregationAdvanceDuration))
             .triggering(AfterWatermark.pastEndOfWindow()
                 .withEarlyFirings(
                     AfterProcessingTime.pastFirstElementInPane().plusDelayOf(triggerDelay)))
@@ -122,6 +106,7 @@ public final class Uc3BeamPipeline extends AbstractPipeline {
 
   /**
    * Registers all Coders for all needed Coders.
+   *
    * @param cr CoderRegistry.
    */
   private static void registerCoders(final CoderRegistry cr) {
