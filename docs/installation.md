@@ -26,7 +26,7 @@ As usual, the installation via Helm can be configured by passing a values YAML f
 helm install theodolite theodolite/theodolite --values <your-config.yaml>
 ```
 
-For this purpose the [default values file]() can serve as a template for your custom configuration.
+For this purpose the [default values file](https://github.com/cau-se/theodolite/blob/master/helm/values.yaml) can serve as a template for your custom configuration.
 
 ### Operator mode
 
@@ -40,7 +40,7 @@ For running Theodolite in standalone mode, it is sufficient to disable the opera
 
 ### Random Scheduler
 
-Installation of the random scheduler can be enabled and via `randomScheduler.enabled`. Please note that the random scheduler is neither required in operator mode nor in standalone mode. However, it has to be installed if benchmark executions should use random scheduling.
+Installation of the random scheduler can be enabled via `randomScheduler.enabled`. Please note that the random scheduler is neither required in operator mode nor in standalone mode. However, it has to be installed if benchmark executions should use random scheduling.
 
 **TODO:** link
 
