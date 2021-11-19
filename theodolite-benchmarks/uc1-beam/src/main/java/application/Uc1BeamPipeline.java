@@ -11,10 +11,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import theodolite.commons.beam.AbstractPipeline;
-import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaActivePowerRecordReader;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -29,9 +26,7 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public final class Uc1BeamPipeline extends AbstractPipeline {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Uc1BeamPipeline.class);
-
-  Uc1BeamPipeline(PipelineOptions options, Configuration config) {
+  protected Uc1BeamPipeline(final PipelineOptions options, final Configuration config) {
     super(options, config);
 
     // Set Coders for Classes that will be distributed

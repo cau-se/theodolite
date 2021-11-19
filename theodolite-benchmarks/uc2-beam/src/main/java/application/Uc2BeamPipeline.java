@@ -38,17 +38,17 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public final class Uc2BeamPipeline extends AbstractPipeline {
 
-  protected Uc2BeamPipeline(PipelineOptions options, Configuration config) {
+  protected Uc2BeamPipeline(final PipelineOptions options,final Configuration config) {
     super(options, config);
     // Additional needed variables
-    String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final int windowDurationMinutes = Integer.parseInt(
         config.getString(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
     final Duration duration = Duration.standardMinutes(windowDurationMinutes);
 
     // Build kafka configuration
-    Properties consumerConfig = buildConsumerConfig();
+    final Properties consumerConfig = buildConsumerConfig();
 
     // Set Coders for Classes that will be distributed
     final CoderRegistry cr = this.getCoderRegistry();
