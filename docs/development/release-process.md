@@ -1,7 +1,8 @@
 ---
 title: Release Process
 has_children: false
-nav_order: 5
+parent: Development
+nav_order: 1
 ---
 
 # Release Process
