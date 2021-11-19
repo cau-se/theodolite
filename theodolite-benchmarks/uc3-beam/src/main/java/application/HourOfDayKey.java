@@ -7,7 +7,6 @@ import org.apache.beam.sdk.coders.DefaultCoder;
 /**
  * Composed key of an hour of the day and a sensor id.
  */
-
 @DefaultCoder(AvroCoder.class)
 public class HourOfDayKey {
 
