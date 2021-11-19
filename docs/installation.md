@@ -32,7 +32,7 @@ For this purpose the [default values file](https://github.com/cau-se/theodolite/
 
 The Theodolite operator allows to run and manage benchmarks through the Kubernetes API. It is installed by setting `operator.enabled` to `true`. In addition to Theodolite's dependencies, this will deploy all resources that are required for the operator as well as the CRDs, users will interact with.
 
-**TODO:** link
+<!-- **TODO:** link-->
 
 ### Standalone mode
 
@@ -42,7 +42,7 @@ For running Theodolite in standalone mode, it is sufficient to disable the opera
 
 Installation of the random scheduler can be enabled via `randomScheduler.enabled`. Please note that the random scheduler is neither required in operator mode nor in standalone mode. However, it has to be installed if benchmark executions should use random scheduling.
 
-**TODO:** link
+<!-- **TODO:** link-->
 
 ### Multiple installations in the same cluster
 
@@ -50,8 +50,6 @@ Multiple Theodolite installations in the same namespace are currently not fully 
 In cases, where you need to install multiple Theodolite instances, it's best to use dedicated namespaces **and** different release names.
 
 *Note that for meaningful results, usually only one benchmark should be executed at a time.*
-
-## Installation Hints
 
 ### Installation with a release name other than `theodolite`
 
@@ -65,3 +63,38 @@ kafka-lag-exporter:
 ```
 
 This seems unfortunately to be necessary as Helm does not let us inject values into dependency charts.
+
+
+## Test Installation
+
+You can test the installation with:
+
+```sh
+helm test theodolite
+```
+
+
+## Uninstall this Chart
+
+The Theodolite Helm can easily be removed with:
+
+```sh
+helm uninstall theodolite
+```
+
+Helm does not remove any CRDs created by this chart. You can remove them manually with:
+
+```sh
+# CRDs from Theodolite
+kubectl delete crd executions.theodolite.com
+kubectl delete crd benchmarks.theodolite.com
+# CRDs from Prometheus operator (see https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#uninstall-chart)
+kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
+kubectl delete crd podmonitors.monitoring.coreos.com
+kubectl delete crd probes.monitoring.coreos.com
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd thanosrulers.monitoring.coreos.com
+```
