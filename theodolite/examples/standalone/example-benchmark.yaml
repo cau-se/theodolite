@@ -1,9 +1,15 @@
 name: "uc1-kstreams"
-appResource:
-  - "uc1-kstreams-deployment.yaml"
-loadGenResource:
-  - "uc1-load-generator-deployment.yaml"
-  - "uc1-load-generator-service.yaml"
+appResourceSets:
+  - configMap:
+      name: "example-configmap"
+      files:
+        - "uc1-kstreams-deployment.yaml"
+loadGenResourceSets:
+  - configMap:
+      name: "example-configmap"
+      files:
+        - uc1-load-generator-service.yaml
+        - uc1-load-generator-deployment.yaml
 resourceTypes:
   - typeName: "Instances"
     patchers:

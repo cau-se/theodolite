@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
-import theodolite.k8s.K8sResourceLoader
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.model.crd.States
 import java.time.Duration
 
@@ -19,7 +19,7 @@ class StateHandlerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        val executionResource = K8sResourceLoader(server.client)
+        val executionResource = K8sResourceLoaderFromFile(server.client)
             .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
 
         K8sManager(server.client).deploy(executionResource)

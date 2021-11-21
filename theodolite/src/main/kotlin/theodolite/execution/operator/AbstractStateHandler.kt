@@ -4,10 +4,13 @@ import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResourceList
 import io.fabric8.kubernetes.api.model.Namespaced
 import io.fabric8.kubernetes.client.CustomResource
+import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
+import mu.KotlinLogging
 import java.lang.Thread.sleep
+private val logger = KotlinLogging.logger {}
 
 abstract class AbstractStateHandler<T, L, D>(
     private val client: NamespacedKubernetesClient,
@@ -20,11 +23,15 @@ abstract class AbstractStateHandler<T, L, D>(
 
     @Synchronized
     override fun setState(resourceName: String, f: (T) -> T?) {
-        this.crdClient
-            .list().items
-            .filter { it.metadata.name == resourceName }
-            .map { customResource -> f(customResource) }
-            .forEach { this.crdClient.updateStatus(it) }
+        try {
+            this.crdClient
+                .list().items
+                .filter { it.metadata.name == resourceName }
+                .map { customResource -> f(customResource) }
+                .forEach { this.crdClient.updateStatus(it) }
+        } catch (e: KubernetesClientException) {
+            logger.warn { "Status cannot be set for resource $resourceName" }
+        }
     }
 
     @Synchronized

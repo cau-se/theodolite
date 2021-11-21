@@ -24,8 +24,9 @@ class BenchmarkCRDummy(name: String) {
         benchmarkCR.kind = "Benchmark"
         benchmarkCR.apiVersion = "v1"
 
-        benchmark.appResource = emptyList()
-        benchmark.loadGenResource = emptyList()
+        benchmark.appResourceSets = emptyList()
+        benchmark.loadGenResourceSets = emptyList()
+
         benchmark.resourceTypes = emptyList()
         benchmark.loadTypes = emptyList()
         benchmark.kafkaConfig = kafkaConfig
