@@ -33,7 +33,7 @@ class CustomResourceWrapper(
             client.customResource(this.context)
                 .delete(client.configuration.namespace, this.getName())
         } catch (e: Exception) {
-            logger.warn { "Could not delete service monitor" }
+            logger.warn { "Could not delete custom resource" }
         }
     }
 

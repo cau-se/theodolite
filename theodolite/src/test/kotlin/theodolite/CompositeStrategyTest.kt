@@ -31,7 +31,7 @@ class CompositeStrategyTest {
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, sloChecker, 0, 0, 5)
+        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val linearSearch = LinearSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
@@ -65,7 +65,7 @@ class CompositeStrategyTest {
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutorImpl =
-            TestBenchmarkExecutorImpl(mockResults, benchmark, results, sloChecker, 0, 0, 0)
+            TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutorImpl)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
@@ -98,7 +98,7 @@ class CompositeStrategyTest {
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, sloChecker, 0, 0, 0)
+        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =

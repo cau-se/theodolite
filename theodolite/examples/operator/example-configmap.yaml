@@ -1,35 +1,8 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configmap
 data:
-  aggregation-service.yaml: "apiVersion: v1\nkind: Service\nmetadata:  \n  name: titan-ccp-aggregation\n
-    \ labels:\n    app: titan-ccp-aggregation\nspec:\n  #type: NodePort\n  selector:
-    \   \n    app: titan-ccp-aggregation\n  ports:  \n  - name: http\n    port: 80\n
-    \   targetPort: 80\n    protocol: TCP\n  - name: metrics\n    port: 5556\n"
-  jmx-configmap.yaml: |
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: aggregation-jmx-configmap
-    data:
-      jmx-kafka-prometheus.yml: |+
-        jmxUrl: service:jmx:rmi:///jndi/rmi://localhost:5555/jmxrmi
-        lowercaseOutputName: true
-        lowercaseOutputLabelNames: true
-        ssl: false
-  service-monitor.yaml: |
-    apiVersion: monitoring.coreos.com/v1
-    kind: ServiceMonitor
-    metadata:
-      labels:
-        app: titan-ccp-aggregation
-        appScope: titan-ccp
-      name: titan-ccp-aggregation
-    spec:
-      selector:
-        matchLabels:
-            app: titan-ccp-aggregation
-      endpoints:
-        - port: metrics
-          interval: 10s
   uc1-kstreams-deployment.yaml: |-
     apiVersion: apps/v1
     kind: Deployment
@@ -49,9 +22,6 @@ data:
           containers:
             - name: uc-application
               image: ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest
-              ports:
-                - containerPort: 5555
-                  name: jmx
               env:
                 - name: KAFKA_BOOTSTRAP_SERVERS
                   value: "theodolite-cp-kafka:9092"
@@ -65,27 +35,6 @@ data:
                 limits:
                   memory: 4Gi
                   cpu: 1000m
-            - name: prometheus-jmx-exporter
-              image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
-              command:
-                - java
-                - -XX:+UnlockExperimentalVMOptions
-                - -XX:+UseCGroupMemoryLimitForHeap
-                - -XX:MaxRAMFraction=1
-                - -XshowSettings:vm
-                - -jar
-                - jmx_prometheus_httpserver.jar
-                - "5556"
-                - /etc/jmx-aggregation/jmx-kafka-prometheus.yml
-              ports:
-                - containerPort: 5556
-              volumeMounts:
-                - name: jmx-config
-                  mountPath: /etc/jmx-aggregation
-          volumes:
-            - name: jmx-config
-              configMap:
-                name: aggregation-jmx-configmap
   uc1-load-generator-deployment.yaml: |
     apiVersion: apps/v1
     kind: Deployment
@@ -109,10 +58,6 @@ data:
                 - containerPort: 5701
                   name: coordination
               env:
-                - name: NUM_SENSORS
-                  value: "25000"
-                - name: NUM_NESTED_GROUPS
-                  value: "5"
                 - name: KUBERNETES_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -140,21 +85,3 @@ data:
           port: 5701
           targetPort: 5701
           protocol: TCP
-  uc1-service-monitor.yaml: |
-    apiVersion: monitoring.coreos.com/v1
-    kind: ServiceMonitor
-    metadata:
-      labels:
-        app: titan-ccp-aggregation
-        appScope: titan-ccp
-      name: titan-ccp-aggregation
-    spec:
-      selector:
-        matchLabels:
-            app: titan-ccp-aggregation
-      endpoints:
-        - port: metrics
-          interval: 10s
-kind: ConfigMap
-metadata:
-  name: example-configmap
