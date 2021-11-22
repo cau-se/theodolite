@@ -15,6 +15,8 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.model.crd.BenchmarkCRD
 import theodolite.model.crd.ExecutionCRD
+import theodolite.model.crd.ExecutionStatus
+import theodolite.model.crd.States
 
 @QuarkusTest
 class ControllerTest {
@@ -40,6 +42,7 @@ class ControllerTest {
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
+        benchmark1.getCR().status.resourceSets = States.AVAILABLE.value
         val benchmark2 = BenchmarkCRDummy(name = "Test-Benchmark-123")
         benchmarkResourceList.items = listOf(benchmark1.getCR(), benchmark2.getCR())
 
@@ -113,12 +116,12 @@ class ControllerTest {
             .getDeclaredMethod("getBenchmarks")
         method.isAccessible = true
 
-        val result = method.invoke(controller) as List<KubernetesBenchmark>
+        val result = method.invoke(controller) as List<BenchmarkCRD>
 
         assertEquals(2, result.size)
         assertEquals(
             gson.toJson(benchmark),
-            gson.toJson(result.firstOrNull())
+            gson.toJson(result.firstOrNull()?.spec)
         )
     }
 

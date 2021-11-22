@@ -191,9 +191,9 @@ class TheodoliteController(
     private fun checkResource(benchmark: KubernetesBenchmark): States {
         return try {
             val appResources =
-                benchmark.loadKubernetesResources(resources = benchmark.appResource)
+                benchmark.loadKubernetesResources(resourceSet = benchmark.appResourceSets)
             val loadGenResources =
-                benchmark.loadKubernetesResources(resources = benchmark.loadGenResource)
+                benchmark.loadKubernetesResources(resourceSet = benchmark.loadGenResourceSets)
             if(appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
                 States.AVAILABLE
             } else {
