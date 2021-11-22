@@ -3,8 +3,10 @@ package theodolite.benchmark
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
+import theodolite.k8s.K8sManager
 import theodolite.k8s.K8sResourceLoader
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
@@ -36,11 +38,14 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
     lateinit var appResource: List<String>
     lateinit var loadGenResource: List<String>
+    lateinit var infrastructure: List<String>
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
+    @Transient
+    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
     /**
      * Loads [KubernetesResource]s.
@@ -61,6 +66,20 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
                 Pair(resource, k8sResource)
             }
     }
+
+    override fun setupInfrastructure() {
+        val kubernetesManager = K8sManager(this.client)
+        loadKubernetesResources(this.infrastructure)
+            .map{it.second}
+            .forEach { kubernetesManager.deploy(it) }
+    }
+
+    override fun teardownInfrastructure() {
+        val kubernetesManager = K8sManager(this.client)
+        loadKubernetesResources(this.infrastructure)
+            .map{it.second}
+            .forEach { kubernetesManager.remove(it) }
+        }
 
     /**
      * Builds a deployment.
@@ -106,7 +125,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             afterTeardownDelay = afterTeardownDelay,
             kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
             topics = kafkaConfig.topics,
-            client = DefaultKubernetesClient().inNamespace(namespace)
+            client = this.client
         )
     }
 }

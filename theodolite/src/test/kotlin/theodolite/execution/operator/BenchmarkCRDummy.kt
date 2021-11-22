@@ -24,6 +24,7 @@ class BenchmarkCRDummy(name: String) {
         benchmarkCR.kind = "Benchmark"
         benchmarkCR.apiVersion = "v1"
 
+        benchmark.infrastructure = emptyList()
         benchmark.appResource = emptyList()
         benchmark.loadGenResource = emptyList()
         benchmark.resourceTypes = emptyList()

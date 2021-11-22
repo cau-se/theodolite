@@ -113,6 +113,8 @@ class TheodoliteExecutor(
      * execution and benchmark objects.
      */
     fun run() {
+        kubernetesBenchmark.setupInfrastructure()
+
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
         this.config.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
@@ -136,6 +138,7 @@ class TheodoliteExecutor(
                 "${resultsFolder}exp${this.config.executionId}-result"
             )
         }
+        kubernetesBenchmark.teardownInfrastructure()
     }
 
     private fun getAndIncrementExecutionID(fileURL: String): Int {

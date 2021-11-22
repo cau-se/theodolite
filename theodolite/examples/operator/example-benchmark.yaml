@@ -3,6 +3,7 @@ kind: benchmark
 metadata:
   name: uc1-kstreams
 spec:
+  infrastructure: []
   appResource:
     - "uc1-kstreams-deployment.yaml"
   loadGenResource:

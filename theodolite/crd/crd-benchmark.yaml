@@ -25,6 +25,12 @@ spec:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
                 type: string
+              infrastructure:
+                description: A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
+                type: array
+                minItems: 1
+                items:
+                  type: string
               appResource:
                 description: A list of file names that reference Kubernetes resources that are deployed on the cluster for the system under test (SUT).
                 type: array

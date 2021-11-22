@@ -3,6 +3,7 @@ kind: benchmark
 metadata:
   name: example-benchmark
 spec:
+  infrastructure: []
   appResource:
     - "uc1-kstreams-deployment.yaml"
     - "aggregation-service.yaml"
