@@ -5,9 +5,11 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
+import theodolite.execution.ExecutionModes
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
 import theodolite.patcher.ConfigOverrideModifier
+import theodolite.util.ExecutionFailedException
 import theodolite.util.ExecutionStateComparator
 import java.lang.Thread.sleep
 
@@ -69,9 +71,11 @@ class TheodoliteController(
      * @see BenchmarkExecution
      */
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
-        val modifier = ConfigOverrideModifier(
+        try {
+            val modifier = ConfigOverrideModifier(
             execution = execution,
-            resources = benchmark.appResource + benchmark.loadGenResource
+            resources = benchmark.loadKubernetesResources(benchmark.appResourceSets).map { it.first }
+                    + benchmark.loadKubernetesResources(benchmark.loadGenResourceSets).map { it.first }
         )
         modifier.setAdditionalLabels(
             labelValue = execution.name,
@@ -89,7 +93,6 @@ class TheodoliteController(
         executionStateHandler.setExecutionState(execution.name, States.RUNNING)
         executionStateHandler.startDurationStateTimer(execution.name)
 
-        try {
             executor = TheodoliteExecutor(execution, benchmark)
             executor.run()
             when (executionStateHandler.getExecutionState(execution.name)) {
@@ -97,9 +100,18 @@ class TheodoliteController(
                 States.RUNNING -> {
                     executionStateHandler.setExecutionState(execution.name, States.FINISHED)
                     logger.info { "Execution of ${execution.name} is finally stopped." }
+                    }
+                else -> {
+                    executionStateHandler.setExecutionState(execution.name, States.FAILURE)
+                    logger.warn { "Unexpected execution state, set state to ${States.FAILURE.value}" }
                 }
             }
         } catch (e: Exception) {
+                EventCreator().createEvent(
+                executionName = execution.name,
+                type = "WARNING",
+                reason = "Execution failed",
+                message = "An error occurs while executing:  ${e.message}")
             logger.error { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
             logger.error { "Problem is: $e" }
             executionStateHandler.setExecutionState(execution.name, States.FAILURE)

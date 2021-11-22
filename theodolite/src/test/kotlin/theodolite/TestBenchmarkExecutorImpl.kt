@@ -12,7 +12,7 @@ class TestBenchmarkExecutorImpl(
     private val mockResults: Array<Array<Boolean>>,
     benchmark: Benchmark,
     results: Results,
-    slo: BenchmarkExecution.Slo,
+    slo: List<BenchmarkExecution.Slo>,
     executionId: Int,
     loadGenerationDelay: Long,
     afterTeardownDelay: Long
@@ -22,11 +22,12 @@ class TestBenchmarkExecutorImpl(
         results,
         executionDuration = Duration.ofSeconds(1),
         configurationOverrides = emptyList(),
-        slo = slo,
+        slos = slo,
         repetitions = 1,
         executionId = executionId,
         loadGenerationDelay = loadGenerationDelay,
-        afterTeardownDelay = afterTeardownDelay
+        afterTeardownDelay = afterTeardownDelay,
+        executionName = "test-execution"
     ) {
 
     override fun runExperiment(load: LoadDimension, res: Resource): Boolean {

@@ -22,13 +22,13 @@ class SloCheckerFactory {
      * - `warmup`: time from the beginning to skip in the analysis.
      *
      *
-     * ### `lag trend percent`
+     * ### `lag trend ratio`
      * Creates an [ExternalSloChecker] with defined parameters.
-     * The required threshold is computed using a percentage and the load of the experiment.
+     * The required threshold is computed using a ratio and the load of the experiment.
      *
      * The properties map needs the following fields:
      * - `externalSlopeURL`: Url to the concrete SLO checker service.
-     * - `percent`: of the executed load that is accepted for the slope.
+     * - `ratio`: of the executed load that is accepted for the slope.
      * - `warmup`: time from the beginning to skip in the analysis.
      *
      * @param sloType Type of the [SloChecker].
@@ -43,25 +43,23 @@ class SloCheckerFactory {
         properties: MutableMap<String, String>,
         load: LoadDimension
     ): SloChecker {
-        return when (sloType) {
-            "lag trend" -> ExternalSloChecker(
+        return when (sloType.toLowerCase()) {
+            SloTypes.LAG_TREND.value, SloTypes.DROPPED_RECORDS.value -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
                 threshold = properties["threshold"]?.toInt() ?: throw IllegalArgumentException("threshold expected"),
                 warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
             )
-            "lag trend percent" -> {
-                if (!properties["loadType"].equals("NumSensors")) {
-                    throw IllegalArgumentException("Percent Threshold is only allowed with load type NumSensors")
-                }
-                var thresholdPercent =
-                    properties["percent"]?.toDouble()
-                        ?: throw IllegalArgumentException("percent for threshold expected")
-                if (thresholdPercent < 0.0 || thresholdPercent > 1.0) {
-                    throw IllegalArgumentException("Threshold percent need to be an Double in the range between 0.0 and 1.0 (inclusive)")
+
+                SloTypes.LAG_TREND_RATIO.value, SloTypes.DROPPED_RECORDS_RATIO.value -> {
+                val thresholdRatio =
+                    properties["ratio"]?.toDouble()
+                        ?: throw IllegalArgumentException("ratio for threshold expected")
+                if (thresholdRatio < 0.0) {
+                    throw IllegalArgumentException("Threshold ratio needs to be an Double greater or equal 0.0")
                 }
                 // cast to int, as rounding is not really necessary
-                var threshold = (load.get() * thresholdPercent).toInt()
+                val threshold = (load.get() * thresholdRatio).toInt()
 
                 ExternalSloChecker(
                     externalSlopeURL = properties["externalSloUrl"]

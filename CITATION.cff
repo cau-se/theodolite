@@ -8,7 +8,7 @@ authors:
     given-names: Wilhelm
     orcid: "https://orcid.org/0000-0001-6625-4335"
 title: Theodolite
-version: "0.4.0"
+version: "0.5.1"
 repository-code: "https://github.com/cau-se/theodolite"
 license: "Apache-2.0"
 doi: "10.1016/j.bdr.2021.100209"

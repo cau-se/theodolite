@@ -2,6 +2,7 @@ package theodolite.execution.operator
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.client.CustomResourceList
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest

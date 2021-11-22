@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 
 
 private val logger = KotlinLogging.logger {}
@@ -125,7 +126,7 @@ class K8sManagerTest {
     @DisplayName("Test handling of custom resources")
     fun handleCustomResourcesTest() {
         val manager = K8sManager(server.client)
-        val servicemonitor = K8sResourceLoader(server.client)
+        val servicemonitor = K8sResourceLoaderFromFile(server.client)
             .loadK8sResource("ServiceMonitor", testResourcePath + "test-service-monitor.yaml")
 
         val serviceMonitorContext = K8sContextFactory().create(

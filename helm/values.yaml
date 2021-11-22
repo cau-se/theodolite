@@ -155,7 +155,10 @@ cp-helm-charts:
 ###
 kafka-lag-exporter:
   enabled: true
+  image:
+    pullPolicy: IfNotPresent
   nodeSelector: {}
+  
   clusters:
     - name: "theodolite-cp-kafka"
       bootstrapBrokers: "theodolite-cp-kafka:9092"
@@ -250,22 +253,26 @@ operator:
   imageTag: latest
   imagePullPolicy: Always
 
-  executionCRD:
-    create: true
-  benchmarkCRD:
-    create: true
-
   sloChecker:
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
       imageTag: latest
       imagePullPolicy: Always
+    droppedRecordsKStreams:
+      enabled: true
+      image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
+      imageTag: latest
+      imagePullPolicy: Always
 
   resultsVolume:
-    enabled: true
-    persistentVolumeClaim:
-      name: theodolite-pv-claim
+    persistent:
+      enabled: false
+      # existingClaim:
+      # storageClassName:
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
     accessSidecar:
       enabled: true
       image: busybox
@@ -281,6 +288,9 @@ rbac:
 
 randomScheduler:
   enabled: true
+  image: ghcr.io/cau-se/theodolite-random-scheduler
+  imageTag: latest
+  imagePullPolicy: Always
   rbac:
     create: true
   serviceAccount:

@@ -2,6 +2,7 @@ package theodolite.evaluation
 
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
@@ -12,7 +13,6 @@ import java.util.*
 import java.util.regex.Pattern
 
 private val logger = KotlinLogging.logger {}
-private val RECORD_LAG_QUERY = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
@@ -37,7 +37,7 @@ class AnalysisExecutor(
      *  @return true if the experiment succeeded.
      */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
-        var result = false
+        var result: Boolean
         var repetitionCounter = 1
 
         try {
@@ -50,7 +50,7 @@ class AnalysisExecutor(
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = RECORD_LAG_QUERY
+                        query = SloConfigHandler.getQueryString(sloType = slo.sloType)
                     )
                 }
 
@@ -58,7 +58,7 @@ class AnalysisExecutor(
                 ioHandler.writeToCSVFile(
                     fileURL = "${fileURL}_${repetitionCounter++}",
                     data = data.getResultAsList(),
-                    columns = listOf("group", "timestamp", "value")
+                    columns = listOf("labels", "timestamp", "value")
                 )
             }
 
@@ -71,8 +71,7 @@ class AnalysisExecutor(
             result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            // TODO(throw exception in order to make it possible to mark an experiment as unsuccessfully)
-            logger.error { "Evaluation failed for resource '${res.get()}' and load '${load.get()}'. Error: $e" }
+            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()} ", e)
         }
         return result
     }
