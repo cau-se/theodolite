@@ -3,7 +3,8 @@ kind: benchmark
 metadata:
   name: uc3-kstreams
 spec:
-  appResourceSets:
+  infrastructure: []
+  sut:
     - configMap:
         name: "benchmark-resources-uc3-kstreams"
         files:
@@ -11,7 +12,7 @@ spec:
         - "uc3-kstreams/uc3-kstreams-service.yaml"
         - "uc3-kstreams/uc3-jmx-configmap.yaml"
         - "uc3-kstreams/uc3-service-monitor.yaml"
-  loadGenResourceSets:
+  loadGenerator:
     - configMap:
         name: "benchmark-resources-uc3-loadgen"
         files:

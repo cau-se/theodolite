@@ -3,7 +3,8 @@ kind: benchmark
 metadata:
   name: uc1-flink
 spec:
-  appResourceSets:
+  infrastructure: []
+  sut:
     - configMap:
         name: "benchmark-resources-uc1-flink"
         files:
@@ -14,7 +15,7 @@ spec:
         - "uc1-flink/jobmanager-service.yaml"
         - "uc1-flink/jobmanager-deployment.yaml"
         #- "uc1-flink/jobmanager-rest-service.yaml"
-  loadGenResourceSets:
+  loadGenerator:
     - configMap:
         name: "benchmark-resources-uc1-loadgen"
         files:

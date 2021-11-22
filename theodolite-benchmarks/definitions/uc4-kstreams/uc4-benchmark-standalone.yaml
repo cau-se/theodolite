@@ -1,5 +1,6 @@
 name: "uc4-kstreams"
-appResourceSets:
+infrastructure: []
+sut:
   - configMap:
       name: "benchmark-resources-uc4-kstreams"
       files:
@@ -7,7 +8,7 @@ appResourceSets:
         - "uc4-kstreams/uc4-kstreams-service.yaml"
         - "uc4-kstreams/uc4-jmx-configmap.yaml"
         - "uc4-kstreams/uc4-service-monitor.yaml"
-loadGenResourceSets:
+loadGenerator:
   - configMap:
       name: "benchmark-resources-uc4-loadgen"
       files:

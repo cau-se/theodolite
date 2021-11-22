@@ -1,5 +1,6 @@
 name: "uc3-kstreams"
-appResourceSets:
+infrastructure: []
+sut:
   - configMap:
       name: "benchmark-resources-uc3-kstreams"
       files:
@@ -7,7 +8,7 @@ appResourceSets:
       - "uc3-kstreams/uc3-kstreams-service.yaml"
       - "uc3-kstreams/uc3-jmx-configmap.yaml"
       - "uc3-kstreams/uc3-service-monitor.yaml"
-loadGenResourceSets:
+loadGenerator:
   - configMap:
       name: "benchmark-resources-uc3-loadgen"
       files:

@@ -1,4 +1,5 @@
 name: "uc1-kstreams"
+infrastructure: []
 appResourceSet:
   - configMap:
       name: "benchmark-resources-uc1-kstreams"

@@ -41,8 +41,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
     lateinit var infrastructure: List<ResourceSets>
-    lateinit var appResourceSets: List<ResourceSets>
-    lateinit var loadGenResourceSets: List<ResourceSets>
+    lateinit var sut: List<ResourceSets>
+    lateinit var loadGenerator: List<ResourceSets>
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
     @Transient
@@ -89,8 +89,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
 
-        val appResources = loadKubernetesResources(this.appResourceSets)
-        val loadGenResources = loadKubernetesResources(this.loadGenResourceSets)
+        val appResources = loadKubernetesResources(this.sut)
+        val loadGenResources = loadKubernetesResources(this.loadGenerator)
 
         val patcherFactory = PatcherFactory()
 

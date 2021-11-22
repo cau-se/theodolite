@@ -5,11 +5,9 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
-import theodolite.execution.ExecutionModes
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
 import theodolite.patcher.ConfigOverrideModifier
-import theodolite.util.ExecutionFailedException
 import theodolite.util.ExecutionStateComparator
 import java.lang.Thread.sleep
 
@@ -70,8 +68,8 @@ class TheodoliteController(
         try {
             val modifier = ConfigOverrideModifier(
             execution = execution,
-            resources = benchmark.loadKubernetesResources(benchmark.appResourceSets).map { it.first }
-                    + benchmark.loadKubernetesResources(benchmark.loadGenResourceSets).map { it.first }
+            resources = benchmark.loadKubernetesResources(benchmark.sut).map { it.first }
+                    + benchmark.loadKubernetesResources(benchmark.loadGenerator).map { it.first }
         )
         modifier.setAdditionalLabels(
             labelValue = execution.name,
