@@ -3,17 +3,6 @@ kind: benchmark
 metadata:
   name: uc1-kstreams
 spec:
-  appResourceSets:
-    - configMap:
-       name: "example-configmap"
-       files:
-         - "uc1-kstreams-deployment.yaml"
-  loadGenResourceSets:
-    - configMap:
-       name: "example-configmap"
-       files:
-          - uc1-load-generator-service.yaml
-          - uc1-load-generator-deployment.yaml
   resourceTypes:
     - typeName: "Instances"
       patchers:
@@ -32,7 +21,7 @@ spec:
           properties:
             loadGenMaxRecords: "15000"
   kafkaConfig:
-    bootstrapServer: "theodolite-cp-kafka:9092"
+    bootstrapServer: "theodolite-cp-kafka:9092git"
     topics:
       - name: "input"
         numPartitions: 40
