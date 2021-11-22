@@ -18,17 +18,17 @@ spec:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "custom/uc1-kstreams-deployment.yaml"
+          resource: "uc1-kstreams-deployment.yaml"
   loadTypes:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "custom/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             variableName: "NUM_SENSORS"
             container: "workload-generator"
         - type: "NumSensorsLoadGeneratorReplicaPatcher"
-          resource: "custom/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
@@ -39,26 +39,3 @@ spec:
         replicationFactor: 1
       - name: "theodolite-.*"
         removeOnly: True
-  appResourceSets:
-    # - fileSystem:
-    #      path: ./../../../../../../config
-    #      files:
-    #        - "uc1-kstreams-deployment.yaml"
-    #        - "aggregation-service.yaml"
-    #        - "jmx-configmap.yaml"
-    #        - "uc1-service-monitor.yaml"
-    - configMap:
-       name: "example-configmap"
-       files:
-         - "uc1-kstreams-deployment.yaml"
-  loadGenResourceSets:
-    # - fileSystem:
-    #     path: ./../../../../../../config
-    #     files:
-    #       - uc1-load-generator-service.yaml
-    #       - uc1-load-generator-deployment.yaml
-    - configMap:
-       name: "example-configmap"
-       files:
-          - uc1-load-generator-service.yaml
-          - uc1-load-generator-deployment.yaml

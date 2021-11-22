@@ -17,25 +17,25 @@ metadata:
   name: uc1-kstreams
 spec:
   appResource:
-    - "custom/uc1-kstreams-deployment.yaml"
+    - "uc1-kstreams-deployment.yaml"
   loadGenResource:
-    - "custom/uc1-load-generator-deployment.yaml"
-    - "custom/uc1-load-generator-service.yaml"
+    - "uc1-load-generator-deployment.yaml"
+    - "uc1-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "custom/uc1-kstreams-deployment.yaml"
+          resource: "uc1-kstreams-deployment.yaml"
   loadTypes:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "custom/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             variableName: "NUM_SENSORS"
             container: "workload-generator"
         - type: "NumSensorsLoadGeneratorReplicaPatcher"
-          resource: "custom/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
