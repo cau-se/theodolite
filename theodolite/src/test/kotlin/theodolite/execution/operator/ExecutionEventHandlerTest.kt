@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
-import theodolite.k8s.K8sResourceLoader
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.model.crd.States
 import java.lang.Thread.sleep
 
@@ -42,10 +42,10 @@ class ExecutionEventHandlerTest {
         this.factory = operator.getExecutionEventHandler(this.controller, server.client)
         this.stateHandler = TheodoliteOperator().getExecutionStateHandler(client = server.client)
 
-        this.executionVersion1 = K8sResourceLoader(server.client)
+        this.executionVersion1 = K8sResourceLoaderFromFile(server.client)
             .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
 
-        this.executionVersion2 = K8sResourceLoader(server.client)
+        this.executionVersion2 = K8sResourceLoaderFromFile(server.client)
             .loadK8sResource("Execution", testResourcePath + "test-execution-update.yaml")
 
         this.stateHandler = operator.getExecutionStateHandler(server.client)

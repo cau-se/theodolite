@@ -8,7 +8,7 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger {}
 
 class CustomResourceWrapper(
-    private val crAsMap: Map<String, String>,
+    val crAsMap: Map<String, String>,
     private val context: CustomResourceDefinitionContext
 ) : KubernetesResource {
     /**
