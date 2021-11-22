@@ -1,12 +1,18 @@
 name: "uc1-kstreams"
-appResource:
-  - "uc1-kstreams-deployment.yaml"
-  - "uc1-kstreams-service.yaml"
-  - "uc1-jmx-configmap.yaml"
-  - "uc1-service-monitor.yaml"
-loadGenResource:
-  - "uc1-load-generator-deployment.yaml"
-  - "uc1-load-generator-service.yaml"
+appResourceSet:
+  - configMap:
+      name: "benchmark-resources-uc1-kstreams"
+      files:
+      - "uc1-kstreams/uc1-kstreams-deployment.yaml"
+      - "uc1-kstreams/uc1-kstreams-service.yaml"
+      - "uc1-kstreams/uc1-jmx-configmap.yaml"
+      - "uc1-kstreams/uc1-service-monitor.yaml"
+loadGenResourceSet:
+  - configMap:
+      name: "benchmark-resources-uc1-loadgen"
+      files:
+      - "uc1-kstreams/uc1-load-generator-deployment.yaml"
+      - "uc1-kstreams/uc1-load-generator-service.yaml"
 resourceTypes:
   - typeName: "Instances"
     patchers:

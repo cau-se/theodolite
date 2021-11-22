@@ -3,17 +3,23 @@ kind: benchmark
 metadata:
   name: uc1-flink
 spec:
-  appResource:
-    - "uc1-flink/flink-configuration-configmap.yaml"
-    - "uc1-flink/taskmanager-deployment.yaml"
-    - "uc1-flink/taskmanager-service.yaml"
-    - "uc1-flink/service-monitor.yaml"
-    - "uc1-flink/jobmanager-service.yaml"
-    - "uc1-flink/jobmanager-deployment.yaml"
-    #- "uc1-flink/jobmanager-rest-service.yaml"
-  loadGenResource:
-    - "uc1-kstreams/uc1-load-generator-deployment.yaml"
-    - "uc1-kstreams/uc1-load-generator-service.yaml"
+  appResourceSets:
+    - configMap:
+        name: "benchmark-resources-uc1-flink"
+        files:
+        - "uc1-flink/flink-configuration-configmap.yaml"
+        - "uc1-flink/taskmanager-deployment.yaml"
+        - "uc1-flink/taskmanager-service.yaml"
+        - "uc1-flink/service-monitor.yaml"
+        - "uc1-flink/jobmanager-service.yaml"
+        - "uc1-flink/jobmanager-deployment.yaml"
+        #- "uc1-flink/jobmanager-rest-service.yaml"
+  loadGenResourceSets:
+    - configMap:
+        name: "benchmark-resources-uc1-loadgen"
+        files:
+        - "uc1-kstreams/uc1-load-generator-deployment.yaml"
+        - "uc1-kstreams/uc1-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:

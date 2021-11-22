@@ -7,12 +7,11 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 /**
- * The YamlParser parses a YAML file
+ * The YamlParser parses a YAML string
  */
-class YamlParser : Parser {
-    override fun <T> parse(path: String, E: Class<T>): T? {
-        val input: InputStream = FileInputStream(File(path))
+class YamlParserFromString : Parser {
+    override fun <T> parse(fileString: String, E: Class<T>): T? {
         val parser = Yaml(Constructor(E))
-        return parser.loadAs(input, E)
+        return parser.loadAs(fileString, E)
     }
 }

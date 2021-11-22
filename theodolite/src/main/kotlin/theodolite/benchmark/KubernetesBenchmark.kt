@@ -7,9 +7,10 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sManager
-import theodolite.k8s.K8sResourceLoader
+import theodolite.k8s.resourceLoader.K8sResourceLoader
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
+
 
 private val logger = KotlinLogging.logger {}
 
@@ -36,12 +37,12 @@ private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
 @RegisterForReflection
 class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
-    lateinit var appResource: List<String>
-    lateinit var loadGenResource: List<String>
-    lateinit var infrastructure: List<String>
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
+    lateinit var infrastructure: List<ResourceSets>
+    lateinit var appResourceSets: List<ResourceSets>
+    lateinit var loadGenResourceSets: List<ResourceSets>
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
     @Transient
@@ -49,22 +50,11 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
 
     /**
      * Loads [KubernetesResource]s.
-     * It first loads them via the [YamlParser] to check for their concrete type and afterwards initializes them using
+     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
      * the [K8sResourceLoader]
      */
-    private fun loadKubernetesResources(resources: List<String>): List<Pair<String, KubernetesResource>> {
-        val path = System.getenv("THEODOLITE_APP_RESOURCES") ?: DEFAULT_THEODOLITE_APP_RESOURCES
-        logger.info { "Using $path as resource path." }
-
-        val parser = YamlParser()
-        val loader = K8sResourceLoader(DefaultKubernetesClient())
-        return resources
-            .map { resource ->
-                val resourcePath = "$path/$resource"
-                val kind = parser.parse(resourcePath, HashMap<String, String>()::class.java)?.get("kind")!!
-                val k8sResource = loader.loadK8sResource(kind, resourcePath)
-                Pair(resource, k8sResource)
-            }
+    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
+        return resourceSet.flatMap { it.loadResourceSet(this.client) }
     }
 
     override fun setupInfrastructure() {
@@ -99,8 +89,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
 
-        val appResources = loadKubernetesResources(this.appResource)
-        val loadGenResources = loadKubernetesResources(this.loadGenResource)
+        val appResources = loadKubernetesResources(this.appResourceSets)
+        val loadGenResources = loadKubernetesResources(this.loadGenResourceSets)
 
         val patcherFactory = PatcherFactory()
 

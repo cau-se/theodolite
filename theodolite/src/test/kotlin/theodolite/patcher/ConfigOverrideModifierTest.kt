@@ -27,11 +27,10 @@ class ConfigOverrideModifierTest {
 
     @Test
     fun setAdditionalLabelsTest() {
-        this.benchmark.appResource = listOf("test-resource.yaml")
 
         val modifier = ConfigOverrideModifier(
             execution = this.execution,
-            resources = this.benchmark.appResource
+            resources = listOf("test-resource.yaml")
         )
 
         modifier.setAdditionalLabels(
