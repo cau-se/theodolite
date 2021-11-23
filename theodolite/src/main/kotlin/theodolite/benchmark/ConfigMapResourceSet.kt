@@ -23,9 +23,6 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
     @OptIn(ExperimentalStdlibApi::class)
     override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {
         val loader = K8sResourceLoaderFromString(client)
-
-        logger.info {"use namespace: ${client.namespace} in configmap resource set" }
-
         var resources: Map<String, String>
 
         try {
@@ -44,6 +41,10 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
         if (::files.isInitialized){
             resources = resources
                 .filter { files.contains(it.key) }
+
+            if (resources.size != files.size) {
+                throw  DeploymentFailedException("Could not find all specified Kubernetes manifests files")
+            }
         }
 
         return try {

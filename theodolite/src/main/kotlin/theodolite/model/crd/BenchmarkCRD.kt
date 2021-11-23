@@ -16,4 +16,4 @@ import theodolite.benchmark.KubernetesBenchmark
 class BenchmarkCRD(
     var spec: KubernetesBenchmark = KubernetesBenchmark(),
     var status: BenchmarkStatus = BenchmarkStatus()
-) : CustomResource<KubernetesBenchmark, Void>(), Namespaced, HasMetadata
+) : CustomResource<KubernetesBenchmark, BenchmarkStatus>(), Namespaced, HasMetadata
