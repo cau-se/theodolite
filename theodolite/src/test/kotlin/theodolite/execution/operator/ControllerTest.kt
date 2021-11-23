@@ -2,7 +2,6 @@ package theodolite.execution.operator
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.client.CustomResourceList
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
@@ -14,9 +13,8 @@ import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.model.crd.BenchmarkCRD
+import theodolite.model.crd.BenchmarkStates
 import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.ExecutionStatus
-import theodolite.model.crd.States
 
 @QuarkusTest
 class ControllerTest {
@@ -42,7 +40,7 @@ class ControllerTest {
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
-        benchmark1.getCR().status.resourceSets = States.AVAILABLE.value
+        benchmark1.getCR().status.resourceSetsState = BenchmarkStates.READY.value
         val benchmark2 = BenchmarkCRDummy(name = "Test-Benchmark-123")
         benchmarkResourceList.items = listOf(benchmark1.getCR(), benchmark2.getCR())
 

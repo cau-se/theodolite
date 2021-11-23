@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.model.crd.States
+import theodolite.model.crd.ExecutionStates
 import java.time.Duration
 
 class StateHandlerTest {
@@ -47,7 +47,7 @@ class StateHandlerTest {
     @DisplayName("Test empty execution state")
     fun executionWithoutExecutionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
-        assertEquals(States.NO_STATE, handler.getExecutionState("example-execution"))
+        assertEquals(ExecutionStates.NO_STATE, handler.getExecutionState("example-execution"))
     }
 
     @Test
@@ -62,8 +62,8 @@ class StateHandlerTest {
     fun executionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
 
-        assertTrue(handler.setExecutionState("example-execution", States.INTERRUPTED))
-        assertEquals(States.INTERRUPTED, handler.getExecutionState("example-execution"))
+        assertTrue(handler.setExecutionState("example-execution", ExecutionStates.INTERRUPTED))
+        assertEquals(ExecutionStates.INTERRUPTED, handler.getExecutionState("example-execution"))
     }
 
     @Test

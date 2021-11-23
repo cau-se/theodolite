@@ -6,6 +6,6 @@ import io.fabric8.kubernetes.api.model.Namespaced
 
 @JsonDeserialize
 class BenchmarkStatus: KubernetesResource, Namespaced {
-    var resourceSets = "-"
+    var resourceSetsState = "-"
 
 }

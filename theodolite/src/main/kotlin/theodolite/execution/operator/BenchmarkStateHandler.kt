@@ -10,19 +10,19 @@ class BenchmarkStateHandler(val client: NamespacedKubernetesClient) :
         crdList = KubernetesBenchmarkList::class.java
     ) {
 
-    private fun getBenchmarkResourceState() = { cr: BenchmarkCRD -> cr.status.resourceSets }
+    private fun getBenchmarkResourceState() = { cr: BenchmarkCRD -> cr.status.resourceSetsState }
 
-    fun setResourceSetState(resourceName: String, status: States): Boolean {
-        setState(resourceName) { cr -> cr.status.resourceSets = status.value; cr }
+    fun setResourceSetState(resourceName: String, status: BenchmarkStates): Boolean {
+        setState(resourceName) { cr -> cr.status.resourceSetsState = status.value; cr }
         return blockUntilStateIsSet(resourceName, status.value, getBenchmarkResourceState())
     }
 
-    fun getResourceSetState(resourceName: String): States {
+    fun getResourceSetState(resourceName: String): ExecutionStates {
         val status = this.getState(resourceName, getBenchmarkResourceState())
         return if (status.isNullOrBlank()) {
-            States.NO_STATE
+            ExecutionStates.NO_STATE
         } else {
-            States.values().first { it.value == status }
+            ExecutionStates.values().first { it.value == status }
         }
     }
 }

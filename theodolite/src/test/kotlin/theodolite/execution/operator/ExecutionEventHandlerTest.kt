@@ -11,7 +11,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.model.crd.States
+import theodolite.model.crd.ExecutionStates
 import java.lang.Thread.sleep
 
 
@@ -82,7 +82,7 @@ class ExecutionEventHandlerTest {
         factory.startAllRegisteredInformers()
         sleep(500)
         assertEquals(
-            States.PENDING,
+            ExecutionStates.PENDING,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )
@@ -96,12 +96,12 @@ class ExecutionEventHandlerTest {
         stateHandler
             .setExecutionState(
                 resourceName = executionName,
-                status = States.RUNNING
+                status = ExecutionStates.RUNNING
             )
         factory.startAllRegisteredInformers()
         sleep(500)
         assertEquals(
-            States.RESTART,
+            ExecutionStates.RESTART,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )
@@ -117,7 +117,7 @@ class ExecutionEventHandlerTest {
         sleep(500)
 
         assertEquals(
-            States.PENDING,
+            ExecutionStates.PENDING,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )
@@ -125,7 +125,7 @@ class ExecutionEventHandlerTest {
 
         manager.deploy(executionVersion2)
         assertEquals(
-            States.PENDING,
+            ExecutionStates.PENDING,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )
@@ -141,14 +141,14 @@ class ExecutionEventHandlerTest {
 
         stateHandler.setExecutionState(
             resourceName = executionName,
-            status = States.FINISHED
+            status = ExecutionStates.FINISHED
         )
 
         manager.deploy(executionVersion2)
         sleep(500)
 
         assertEquals(
-            States.PENDING,
+            ExecutionStates.PENDING,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )
@@ -164,14 +164,14 @@ class ExecutionEventHandlerTest {
 
         stateHandler.setExecutionState(
             resourceName = executionName,
-            status = States.FAILURE
+            status = ExecutionStates.FAILURE
         )
 
         manager.deploy(executionVersion2)
         sleep(500)
 
         assertEquals(
-            States.PENDING,
+            ExecutionStates.PENDING,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )
@@ -188,14 +188,14 @@ class ExecutionEventHandlerTest {
 
         stateHandler.setExecutionState(
             resourceName = executionName,
-            status = States.RUNNING
+            status = ExecutionStates.RUNNING
         )
 
         manager.deploy(executionVersion2)
         sleep(500)
 
         assertEquals(
-            States.RESTART,
+            ExecutionStates.RESTART,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )
@@ -211,14 +211,14 @@ class ExecutionEventHandlerTest {
 
         stateHandler.setExecutionState(
             resourceName = executionName,
-            status = States.RESTART
+            status = ExecutionStates.RESTART
         )
 
         manager.deploy(executionVersion2)
         sleep(500)
 
         assertEquals(
-            States.RESTART,
+            ExecutionStates.RESTART,
             stateHandler.getExecutionState(
                 resourceName = executionName
             )

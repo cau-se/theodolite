@@ -5,11 +5,9 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
-import theodolite.execution.ExecutionModes
 import theodolite.execution.TheodoliteExecutor
 import theodolite.model.crd.*
 import theodolite.patcher.ConfigOverrideModifier
-import theodolite.util.ExecutionFailedException
 import theodolite.util.ExecutionStateComparator
 import java.lang.Thread.sleep
 
@@ -90,20 +88,20 @@ class TheodoliteController(
             labelName = CREATED_BY_LABEL_NAME
         )
 
-        executionStateHandler.setExecutionState(execution.name, States.RUNNING)
+        executionStateHandler.setExecutionState(execution.name, ExecutionStates.RUNNING)
         executionStateHandler.startDurationStateTimer(execution.name)
 
             executor = TheodoliteExecutor(execution, benchmark)
             executor.run()
             when (executionStateHandler.getExecutionState(execution.name)) {
-                States.RESTART -> runExecution(execution, benchmark)
-                States.RUNNING -> {
-                    executionStateHandler.setExecutionState(execution.name, States.FINISHED)
+                ExecutionStates.RESTART -> runExecution(execution, benchmark)
+                ExecutionStates.RUNNING -> {
+                    executionStateHandler.setExecutionState(execution.name, ExecutionStates.FINISHED)
                     logger.info { "Execution of ${execution.name} is finally stopped." }
                     }
                 else -> {
-                    executionStateHandler.setExecutionState(execution.name, States.FAILURE)
-                    logger.warn { "Unexpected execution state, set state to ${States.FAILURE.value}" }
+                    executionStateHandler.setExecutionState(execution.name, ExecutionStates.FAILURE)
+                    logger.warn { "Unexpected execution state, set state to ${ExecutionStates.FAILURE.value}" }
                 }
             }
         } catch (e: Exception) {
@@ -114,7 +112,7 @@ class TheodoliteController(
                 message = "An error occurs while executing:  ${e.message}")
             logger.error { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
             logger.error { "Problem is: $e" }
-            executionStateHandler.setExecutionState(execution.name, States.FAILURE)
+            executionStateHandler.setExecutionState(execution.name, ExecutionStates.FAILURE)
         }
         executionStateHandler.stopDurationStateTimer()
     }
@@ -123,7 +121,7 @@ class TheodoliteController(
     fun stop(restart: Boolean = false) {
         if (!::executor.isInitialized) return
         if (restart) {
-            executionStateHandler.setExecutionState(this.executor.getExecution().name, States.RESTART)
+            executionStateHandler.setExecutionState(this.executor.getExecution().name, ExecutionStates.RESTART)
         }
         this.executor.executor.run.set(false)
     }
@@ -147,16 +145,16 @@ class TheodoliteController(
      * is selected for the next execution depends on three points:
      *
      * 1. Only executions are considered for which a matching benchmark is available on the cluster
-     * 2. The Status of the execution must be [States.PENDING] or [States.RESTART]
-     * 3. Of the remaining [BenchmarkCRD], those with status [States.RESTART] are preferred,
+     * 2. The Status of the execution must be [ExecutionStates.PENDING] or [ExecutionStates.RESTART]
+     * 3. Of the remaining [BenchmarkCRD], those with status [ExecutionStates.RESTART] are preferred,
      * then, if there is more than one, the oldest execution is chosen.
      *
      * @return the next execution or null
      */
     private fun getNextExecution(): BenchmarkExecution? {
-        val comparator = ExecutionStateComparator(States.RESTART)
+        val comparator = ExecutionStateComparator(ExecutionStates.RESTART)
         val availableBenchmarkNames = getBenchmarks()
-            .filter { it.status.resourceSets == States.AVAILABLE.value }
+            .filter { it.status.resourceSetsState == BenchmarkStates.READY.value }
             .map { it.spec }
             .map { it.name }
 
@@ -166,8 +164,8 @@ class TheodoliteController(
             .asSequence()
             .map { it.spec.name = it.metadata.name; it }
             .filter {
-                it.status.executionState == States.PENDING.value ||
-                        it.status.executionState == States.RESTART.value
+                it.status.executionState == ExecutionStates.PENDING.value ||
+                        it.status.executionState == ExecutionStates.RESTART.value
             }
             .filter { availableBenchmarkNames.contains(it.spec.benchmark) }
             .sortedWith(comparator.thenBy { it.metadata.creationTimestamp })
@@ -184,23 +182,23 @@ class TheodoliteController(
             .forEach { setState(it.first, it.second ) }
     }
 
-    private fun setState(resource: BenchmarkCRD, state: States) {
+    private fun setState(resource: BenchmarkCRD, state: BenchmarkStates) {
         benchmarkStateHandler.setResourceSetState(resource.spec.name, state)
     }
 
-    private fun checkResource(benchmark: KubernetesBenchmark): States {
+    private fun checkResource(benchmark: KubernetesBenchmark): BenchmarkStates {
         return try {
             val appResources =
                 benchmark.loadKubernetesResources(resourceSet = benchmark.appResourceSets)
             val loadGenResources =
                 benchmark.loadKubernetesResources(resourceSet = benchmark.loadGenResourceSets)
             if(appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
-                States.AVAILABLE
+                BenchmarkStates.READY
             } else {
-                States.NOT_AVAILABLE
+                BenchmarkStates.PENDING
             }
         } catch (e: Exception) {
-            States.NOT_AVAILABLE
+            BenchmarkStates.PENDING
         }
     }
 

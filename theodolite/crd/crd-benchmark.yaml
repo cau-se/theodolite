@@ -193,17 +193,17 @@ spec:
           status:
             type: object
             properties:
-              resourceSets:
+              resourceSetsState:
                 description: The status of a Benchmark indicates whether all resources are available to start the benchmark or not.
                 type: string
     additionalPrinterColumns:
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
-    - name: ResourceSets
+    - name: STATUS
       type: string
       description: The status of a Benchmark indicates whether all resources are available to start the benchmark or not.
-      jsonPath: .status.resourceSets
+      jsonPath: .status.resourceSetsState
     subresources:
       status: {}
   scope: Namespaced

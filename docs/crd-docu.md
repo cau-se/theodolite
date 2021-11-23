@@ -86,7 +86,7 @@ Resource Types:
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>resourceSets</b></td>
+        <td><b>resourceSetsState</b></td>
         <td>string</td>
         <td>
           The status of a Benchmark indicates whether all resources are available to start the benchmark or not.<br/>

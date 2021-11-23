@@ -11,7 +11,6 @@ import theodolite.util.DeploymentFailedException
 
 @JsonDeserialize
 @RegisterForReflection
-@JsonInclude(JsonInclude.Include.NON_NULL)
 class ResourceSets: KubernetesResource {
     @JsonProperty("configMap")
     @JsonInclude(JsonInclude.Include.NON_NULL)
