@@ -14,6 +14,9 @@ import theodolite.util.Resource
 @RegisterForReflection
 interface Benchmark {
 
+    fun setupInfrastructure()
+    fun teardownInfrastructure()
+
     /**
      * Builds a Deployment that can be deployed.
      * @return a BenchmarkDeployment.
