@@ -8,17 +8,17 @@ spec:
     - configMap:
         name: "benchmark-resources-uc2-kstreams"
         files:
-          - "uc2-kstreams/uc2-kstreams-deployment.yaml"
-          - "uc2-kstreams/uc2-kstreams-service.yaml"
-          - "uc2-kstreams/uc2-jmx-configmap.yaml"
-          - "uc2-kstreams/uc2-service-monitor.yaml"
+          - "uc2-kstreams-deployment.yaml"
+          - "uc2-kstreams-service.yaml"
+          - "uc2-jmx-configmap.yaml"
+          - "uc2-service-monitor.yaml"
   loadGenerator:
     resources:
       - configMap:
           name: "benchmark-resources-uc2-loadgen"
           files:
-            - "uc2-kstreams/uc2-load-generator-deployment.yaml"
-            - "uc2-kstreams/uc2-load-generator-service.yaml"
+            - "uc2-load-generator-deployment.yaml"
+            - "uc2-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:

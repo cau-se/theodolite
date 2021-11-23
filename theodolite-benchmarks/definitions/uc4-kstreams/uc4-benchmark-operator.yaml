@@ -8,17 +8,17 @@ spec:
       - configMap:
           name: "benchmark-resources-uc4-kstreams"
           files:
-            - "uc4-kstreams/uc4-kstreams-deployment.yaml"
-            - "uc4-kstreams/uc4-kstreams-service.yaml"
-            - "uc4-kstreams/uc4-jmx-configmap.yaml"
-          - "uc4-kstreams/uc4-service-monitor.yaml"
+            - "uc4-kstreams-deployment.yaml"
+            - "uc4-kstreams-service.yaml"
+            - "uc4-jmx-configmap.yaml"
+            - "uc4-service-monitor.yaml"
   loadGenerator:
     resources:
       - configMap:
           name: "benchmark-resources-uc4-loadgen"
           files:
-            - "uc4-kstreams/uc4-load-generator-deployment.yaml"
-            - "uc4-kstreams/uc4-load-generator-service.yaml"
+            - "uc4-load-generator-deployment.yaml"
+            - "uc4-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
