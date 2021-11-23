@@ -52,12 +52,46 @@ Resource Types:
       <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
       <td>true</td>
       </tr><tr>
+        <td><b><a href="#benchmarkstatus">status</a></b></td>
+        <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspec">spec</a></b></td>
         <td>object</td>
         <td>
           <br/>
         </td>
         <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.status
+<sup><sup>[↩ Parent](#benchmark)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>resourceSetsState</b></td>
+        <td>string</td>
+        <td>
+          The status of a Benchmark indicates whether all resources are available to start the benchmark or not.<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -92,6 +126,8 @@ Resource Types:
         <td>string</td>
         <td>
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr><tr>
