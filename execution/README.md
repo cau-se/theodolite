@@ -1,12 +1,12 @@
 # Theodolite Execution Framework
 
+**Please note: Most of the content in this directory is deprecated. Please refer to the `helm` directory for installing the latest version of Theodolite.**
+
 This directory contains the Theodolite framework for executing scalability
 benchmarks in a Kubernetes cluster. As Theodolite aims for executing benchmarks
 in realistic execution environments, some third-party components are [required](#installation).
 After everything is installed and configured, you can move on the [execution of
 benchmarks](#execution).
-
-*Note: The currently released version of Theodolite only allows running Kafka Streams benchmarks. With the upcoming release `0.5`, we plan to support arbitrary stream processing engines, in particular, our already available implementations for Apache Flink. To already run them now, please contact us.*
 
 ## Installation
 
