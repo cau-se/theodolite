@@ -25,6 +25,7 @@ spec:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
                 type: string
+                default: ""
               resourceTypes:
                 description: A list of resource types that can be scaled for this `benchmark` resource. For each resource type the concrete values are defined in the `execution` object.
                 type: array
