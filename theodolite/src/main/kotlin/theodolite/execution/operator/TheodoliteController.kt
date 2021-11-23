@@ -72,8 +72,8 @@ class TheodoliteController(
         try {
             val modifier = ConfigOverrideModifier(
             execution = execution,
-            resources = benchmark.loadKubernetesResources(benchmark.appResourceSets).map { it.first }
-                    + benchmark.loadKubernetesResources(benchmark.loadGenResourceSets).map { it.first }
+            resources = benchmark.loadKubernetesResources(benchmark.sut.resources).map { it.first }
+                    + benchmark.loadKubernetesResources(benchmark.loadGenerator.resources).map { it.first }
         )
         modifier.setAdditionalLabels(
             labelValue = execution.name,
@@ -189,9 +189,9 @@ class TheodoliteController(
     private fun checkResource(benchmark: KubernetesBenchmark): BenchmarkStates {
         return try {
             val appResources =
-                benchmark.loadKubernetesResources(resourceSet = benchmark.appResourceSets)
+                benchmark.loadKubernetesResources(resourceSet = benchmark.sut.resources)
             val loadGenResources =
-                benchmark.loadKubernetesResources(resourceSet = benchmark.loadGenResourceSets)
+                benchmark.loadKubernetesResources(resourceSet = benchmark.sut.resources)
             if(appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
                 BenchmarkStates.READY
             } else {

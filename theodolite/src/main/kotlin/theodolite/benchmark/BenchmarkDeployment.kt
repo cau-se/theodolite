@@ -7,8 +7,7 @@ package theodolite.benchmark
 interface BenchmarkDeployment {
 
     /**
-     * Setup a benchmark. This method is responsible for deploying the resources
-     * and organize the needed infrastructure.
+     * Setup a benchmark. This method is responsible for deploying the resources of a benchmark.
      */
     fun setup()
 
