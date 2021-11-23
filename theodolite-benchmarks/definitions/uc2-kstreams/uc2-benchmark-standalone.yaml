@@ -11,7 +11,7 @@ sut:
 loadGenerator:
   resources:
     - configMap:
-        name: "benchmark-resources-uc2-loadgen"
+        name: "benchmark-resources-uc2-load-generator"
         files:
           - "uc2-load-generator-deployment.yaml"
           - "uc2-load-generator-service.yaml"
