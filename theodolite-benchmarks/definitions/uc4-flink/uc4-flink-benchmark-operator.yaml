@@ -26,14 +26,14 @@ spec:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc4-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
         - type: "EnvVarPatcher"
-          resource: "uc4-flink/jobmanager-deployment.yaml"
+          resource: "jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
             variableName: "PARALLELISM"
         - type: "EnvVarPatcher" # required?
-          resource: "uc4-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
           properties:
             container: "taskmanager"
             variableName: "PARALLELISM"
@@ -41,12 +41,12 @@ spec:
     - typeName: "NumNestedGroups"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_NESTED_GROUPS"
         - type: NumNestedGroupsLoadGeneratorReplicaPatcher
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
             numSensors: "4.0"

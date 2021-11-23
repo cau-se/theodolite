@@ -23,17 +23,17 @@ spec:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc4-kstreams/uc4-kstreams-deployment.yaml"
+          resource: "uc4-kstreams-deployment.yaml"
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumNestedGroupsLoadGeneratorReplicaPatcher
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
             numSensors: "4.0"

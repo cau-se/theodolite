@@ -26,14 +26,14 @@ spec:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc2-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
         - type: "EnvVarPatcher"
-          resource: "uc2-flink/jobmanager-deployment.yaml"
+          resource: "jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
             variableName: "PARALLELISM"
         - type: "EnvVarPatcher" # required?
-          resource: "uc2-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
           properties:
             container: "taskmanager"
             variableName: "PARALLELISM"
@@ -41,12 +41,12 @@ spec:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+          resource: "uc2-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumSensorsLoadGeneratorReplicaPatcher
-          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+          resource: "uc2-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:

@@ -23,17 +23,17 @@ spec:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc2-kstreams/uc2-kstreams-deployment.yaml"
+          resource: "uc2-kstreams-deployment.yaml"
   loadTypes:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+          resource: "uc2-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumSensorsLoadGeneratorReplicaPatcher
-          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+          resource: "uc2-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
