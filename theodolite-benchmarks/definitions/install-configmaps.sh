@@ -11,7 +11,7 @@ kubectl create configmap benchmark-resources-uc3-kstreams --from-file uc3-kstrea
 kubectl create configmap benchmark-resources-uc4-kstreams --from-file uc4-kstreams/resources
 
 # Load Generator
-kubectl create configmap benchmark-resources-uc1-load-generator --from-file uc1-load-generator
-kubectl create configmap benchmark-resources-uc2-load-generator --from-file uc2-load-generator
-kubectl create configmap benchmark-resources-uc3-load-generator --from-file uc3-load-generator
-kubectl create configmap benchmark-resources-uc4-load-generator --from-file uc4-load-generator
+kubectl create configmap benchmark-resources-uc1-load-generator --from-file uc1-load-generator/resources
+kubectl create configmap benchmark-resources-uc2-load-generator --from-file uc2-load-generator/resources
+kubectl create configmap benchmark-resources-uc3-load-generator --from-file uc3-load-generator/resources
+kubectl create configmap benchmark-resources-uc4-load-generator --from-file uc4-load-generator/resources
