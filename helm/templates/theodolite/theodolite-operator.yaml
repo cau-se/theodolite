@@ -132,4 +132,8 @@ spec:
         configMap:
           name: benchmark-resources-custom
           optional: true
+      {{- with .Values.operator.nodeSelector }}
+      nodeSelector:
+      {{ toYaml . | indent 2 }}
+      {{- end }}
 {{- end }}
