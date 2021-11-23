@@ -68,8 +68,8 @@ class TheodoliteController(
         try {
             val modifier = ConfigOverrideModifier(
             execution = execution,
-            resources = benchmark.loadKubernetesResources(benchmark.sut).map { it.first }
-                    + benchmark.loadKubernetesResources(benchmark.loadGenerator).map { it.first }
+            resources = benchmark.loadKubernetesResources(benchmark.sut.resources).map { it.first }
+                    + benchmark.loadKubernetesResources(benchmark.loadGenerator.resources).map { it.first }
         )
         modifier.setAdditionalLabels(
             labelValue = execution.name,

@@ -3,24 +3,25 @@ kind: benchmark
 metadata:
   name: uc3-flink
 spec:
-  infrastructure: []
   sut:
-    - configMap:
-        name: "benchmark-resources-uc3-flink"
-        files:
-          - "uc3-flink/flink-configuration-configmap.yaml"
-          - "uc3-flink/taskmanager-deployment.yaml"
-          - "uc3-flink/taskmanager-service.yaml"
-          - "uc3-flink/service-monitor.yaml"
-          - "uc3-flink/jobmanager-service.yaml"
-          - "uc3-flink/jobmanager-deployment.yaml"
-          #- "uc3-flink/jobmanager-rest-service.yaml"
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc3-flink"
+          files:
+            - "uc3-flink/flink-configuration-configmap.yaml"
+            - "uc3-flink/taskmanager-deployment.yaml"
+            - "uc3-flink/taskmanager-service.yaml"
+            - "uc3-flink/service-monitor.yaml"
+            - "uc3-flink/jobmanager-service.yaml"
+            - "uc3-flink/jobmanager-deployment.yaml"
+            #- "uc3-flink/jobmanager-rest-service.yaml"
   loadGenerator:
-    - configMap:
-        name: "benchmark-resources-uc3-loadgen"
-        files:
-          - "uc3-kstreams/uc3-load-generator-deployment.yaml"
-          - "uc3-kstreams/uc3-load-generator-service.yaml"
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc3-loadgen"
+          files:
+            - "uc3-kstreams/uc3-load-generator-deployment.yaml"
+            - "uc3-kstreams/uc3-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:

@@ -79,19 +79,21 @@ Resource Types:
         </tr>
     </thead>
     <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructure">infrastructure</a></b></td>
+        <td>object</td>
+        <td>
+          (Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
         </td>
         <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureindex">infrastructure</a></b></td>
-        <td>[]object</td>
-        <td>
-          A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.<br/>
-        </td>
-        <td>true</td>
       </tr><tr>
         <td><b><a href="#benchmarkspeckafkaconfig">kafkaConfig</a></b></td>
         <td>object</td>
@@ -100,8 +102,8 @@ Resource Types:
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorindex">loadGenerator</a></b></td>
-        <td>[]object</td>
+        <td><b><a href="#benchmarkspecloadgenerator">loadGenerator</a></b></td>
+        <td>object</td>
         <td>
           The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
         </td>
@@ -121,8 +123,8 @@ Resource Types:
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecsutindex">sut</a></b></td>
-        <td>[]object</td>
+        <td><b><a href="#benchmarkspecsut">sut</a></b></td>
+        <td>object</td>
         <td>
           The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
         </td>
@@ -131,8 +133,37 @@ Resource Types:
 </table>
 
 
-### benchmark.spec.infrastructure[index]
+### benchmark.spec.infrastructure
 <sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+(Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindex">resources</a></b></td>
+        <td>[]object</td>
+        <td>
+          <br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.resources[index]
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
 
 
 
@@ -148,14 +179,14 @@ Resource Types:
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructureindexconfigmap">configMap</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindexconfigmap">configMap</a></b></td>
         <td>object</td>
         <td>
           The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureindexfilesystem">fileSystem</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindexfilesystem">fileSystem</a></b></td>
         <td>object</td>
         <td>
           The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
@@ -165,8 +196,8 @@ Resource Types:
 </table>
 
 
-### benchmark.spec.infrastructure[index].configMap
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureindex)</sup></sup>
+### benchmark.spec.infrastructure.resources[index].configMap
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
 
 
 
@@ -199,8 +230,8 @@ The configMap resourceSet loads the Kubernetes manifests from an Kubernetes conf
 </table>
 
 
-### benchmark.spec.infrastructure[index].fileSystem
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureindex)</sup></sup>
+### benchmark.spec.infrastructure.resources[index].fileSystem
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
 
 
 
@@ -323,8 +354,37 @@ Contains the Kafka configuration.
 </table>
 
 
-### benchmark.spec.loadGenerator[index]
+### benchmark.spec.loadGenerator
 <sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorresourcesindex">resources</a></b></td>
+        <td>[]object</td>
+        <td>
+          <br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.resources[index]
+<sup><sup>[↩ Parent](#benchmarkspecloadgenerator)</sup></sup>
 
 
 
@@ -340,14 +400,14 @@ Contains the Kafka configuration.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorindexconfigmap">configMap</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorresourcesindexconfigmap">configMap</a></b></td>
         <td>object</td>
         <td>
           The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorindexfilesystem">fileSystem</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorresourcesindexfilesystem">fileSystem</a></b></td>
         <td>object</td>
         <td>
           The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
@@ -357,8 +417,8 @@ Contains the Kafka configuration.
 </table>
 
 
-### benchmark.spec.loadGenerator[index].configMap
-<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorindex)</sup></sup>
+### benchmark.spec.loadGenerator.resources[index].configMap
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorresourcesindex)</sup></sup>
 
 
 
@@ -391,8 +451,8 @@ The configMap resourceSet loads the Kubernetes manifests from an Kubernetes conf
 </table>
 
 
-### benchmark.spec.loadGenerator[index].fileSystem
-<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorindex)</sup></sup>
+### benchmark.spec.loadGenerator.resources[index].fileSystem
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorresourcesindex)</sup></sup>
 
 
 
@@ -587,8 +647,37 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
 </table>
 
 
-### benchmark.spec.sut[index]
+### benchmark.spec.sut
 <sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecsutresourcesindex">resources</a></b></td>
+        <td>[]object</td>
+        <td>
+          <br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.resources[index]
+<sup><sup>[↩ Parent](#benchmarkspecsut)</sup></sup>
 
 
 
@@ -604,14 +693,14 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecsutindexconfigmap">configMap</a></b></td>
+        <td><b><a href="#benchmarkspecsutresourcesindexconfigmap">configMap</a></b></td>
         <td>object</td>
         <td>
           The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecsutindexfilesystem">fileSystem</a></b></td>
+        <td><b><a href="#benchmarkspecsutresourcesindexfilesystem">fileSystem</a></b></td>
         <td>object</td>
         <td>
           The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
@@ -621,8 +710,8 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
 </table>
 
 
-### benchmark.spec.sut[index].configMap
-<sup><sup>[↩ Parent](#benchmarkspecsutindex)</sup></sup>
+### benchmark.spec.sut.resources[index].configMap
+<sup><sup>[↩ Parent](#benchmarkspecsutresourcesindex)</sup></sup>
 
 
 
@@ -655,8 +744,8 @@ The configMap resourceSet loads the Kubernetes manifests from an Kubernetes conf
 </table>
 
 
-### benchmark.spec.sut[index].fileSystem
-<sup><sup>[↩ Parent](#benchmarkspecsutindex)</sup></sup>
+### benchmark.spec.sut.resources[index].fileSystem
+<sup><sup>[↩ Parent](#benchmarkspecsutresourcesindex)</sup></sup>
 
 
 

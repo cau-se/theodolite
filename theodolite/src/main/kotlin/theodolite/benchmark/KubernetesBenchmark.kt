@@ -40,9 +40,9 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var kafkaConfig: KafkaConfig
-    lateinit var infrastructure: List<ResourceSets>
-    lateinit var sut: List<ResourceSets>
-    lateinit var loadGenerator: List<ResourceSets>
+    lateinit var infrastructure: Resources
+    lateinit var sut: Resources
+    lateinit var loadGenerator: Resources
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
     @Transient
@@ -59,14 +59,14 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
 
     override fun setupInfrastructure() {
         val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(this.infrastructure)
+        loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
             .forEach { kubernetesManager.deploy(it) }
     }
 
     override fun teardownInfrastructure() {
         val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(this.infrastructure)
+        loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
             .forEach { kubernetesManager.remove(it) }
         }
@@ -89,8 +89,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
 
-        val appResources = loadKubernetesResources(this.sut)
-        val loadGenResources = loadKubernetesResources(this.loadGenerator)
+        val appResources = loadKubernetesResources(this.sut.resources)
+        val loadGenResources = loadKubernetesResources(this.loadGenerator.resources)
 
         val patcherFactory = PatcherFactory()
 

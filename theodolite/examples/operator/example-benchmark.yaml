@@ -3,18 +3,19 @@ kind: benchmark
 metadata:
   name: uc1-kstreams
 spec:
-  infrastructure: []
   sut:
-    - configMap:
-       name: "example-configmap"
-       files:
-         - "uc1-kstreams-deployment.yaml"
+    resources:
+      - configMap:
+         name: "example-configmap"
+         files:
+           - "uc1-kstreams-deployment.yaml"
   loadGenerator:
-    - configMap:
-       name: "example-configmap"
-       files:
-          - uc1-load-generator-service.yaml
-          - uc1-load-generator-deployment.yaml
+    resources:
+      - configMap:
+         name: "example-configmap"
+         files:
+            - uc1-load-generator-service.yaml
+            - uc1-load-generator-deployment.yaml
   resourceTypes:
     - typeName: "Instances"
       patchers:
