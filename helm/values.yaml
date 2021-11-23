@@ -3,7 +3,7 @@
 ###
 
 kafkaClient:
-  enabled: true
+  enabled: false
   nodeSelector: {}
   
 
