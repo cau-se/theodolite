@@ -3,7 +3,7 @@
 ###
 
 kafkaClient:
-  enabled: true
+  enabled: false
   nodeSelector: {}
   
 
@@ -253,6 +253,8 @@ operator:
   imageTag: latest
   imagePullPolicy: Always
 
+  nodeSelector: {}
+
   sloChecker:
     lagTrend:
       enabled: true
@@ -295,3 +297,4 @@ randomScheduler:
     create: true
   serviceAccount:
     create: true
+  nodeSelector: {}
