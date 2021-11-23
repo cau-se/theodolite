@@ -3,20 +3,22 @@ kind: benchmark
 metadata:
   name: uc3-kstreams
 spec:
-  appResourceSets:
-    - configMap:
-        name: "benchmark-resources-uc3-kstreams"
-        files:
-        - "uc3-kstreams/uc3-kstreams-deployment.yaml"
-        - "uc3-kstreams/uc3-kstreams-service.yaml"
-        - "uc3-kstreams/uc3-jmx-configmap.yaml"
-        - "uc3-kstreams/uc3-service-monitor.yaml"
-  loadGenResourceSets:
-    - configMap:
-        name: "benchmark-resources-uc3-loadgen"
-        files:
-          - "uc3-kstreams/uc3-load-generator-deployment.yaml"
-          - "uc3-kstreams/uc3-load-generator-service.yaml"
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc3-kstreams"
+          files:
+          - "uc3-kstreams-deployment.yaml"
+          - "uc3-kstreams-service.yaml"
+          - "uc3-jmx-configmap.yaml"
+          - "uc3-service-monitor.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc3-loadgen"
+          files:
+            - "uc3-load-generator-deployment.yaml"
+            - "uc3-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
