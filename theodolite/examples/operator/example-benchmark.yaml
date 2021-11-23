@@ -21,7 +21,7 @@ spec:
           properties:
             loadGenMaxRecords: "15000"
   kafkaConfig:
-    bootstrapServer: "theodolite-cp-kafka:9092git"
+    bootstrapServer: "theodolite-cp-kafka:9092"
     topics:
       - name: "input"
         numPartitions: 40
