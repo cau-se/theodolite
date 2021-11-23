@@ -4,21 +4,21 @@ metadata:
   name: uc2-flink
 spec:
   sut:
-  resources:
-      - configMap:
-          name: "benchmark-resources-uc2-flink"
-          files:
-          - "flink-configuration-configmap.yaml"
-          - "taskmanager-deployment.yaml"
-          - "taskmanager-service.yaml"
-          - "service-monitor.yaml"
-          - "jobmanager-service.yaml"
-          - "jobmanager-deployment.yaml"
-          #- "jobmanager-rest-service.yaml"
+    resources:
+        - configMap:
+            name: "benchmark-resources-uc2-flink"
+            files:
+            - "flink-configuration-configmap.yaml"
+            - "taskmanager-deployment.yaml"
+            - "taskmanager-service.yaml"
+            - "service-monitor.yaml"
+            - "jobmanager-service.yaml"
+            - "jobmanager-deployment.yaml"
+            #- "jobmanager-rest-service.yaml"
   loadGenerator:
     resources:
       - configMap:
-          name: "benchmark-resources-uc2-loadgen"
+          name: "benchmark-resources-uc2-load-generator"
           files:
             - "uc2-load-generator-deployment.yaml"
             - "uc2-load-generator-service.yaml"

@@ -15,7 +15,7 @@ spec:
   loadGenerator:
     resources:
       - configMap:
-          name: "benchmark-resources-uc3-loadgen"
+          name: "benchmark-resources-uc3-load-generator"
           files:
             - "uc3-load-generator-deployment.yaml"
             - "uc3-load-generator-service.yaml"
