@@ -10,6 +10,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import titan.ccp.model.records.ActivePowerRecord;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -28,7 +29,7 @@ public class KafkaActivePowerTimestampReader extends
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public KafkaActivePowerTimestampReader(final String bootstrapServer, final String inputTopic,
-                                         final Properties consumerConfig) {
+                                         final HashMap consumerConfig) {
     super();
 
     // Check if boostrap server and inputTopic are defined

@@ -1,7 +1,9 @@
 package theodolite.commons.beam.kafka;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
-import java.util.Properties;
+
+import java.util.HashMap;
+
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.io.kafka.KafkaIO;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -26,7 +28,7 @@ public class KafkaActivePowerRecordReader extends
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public KafkaActivePowerRecordReader(final String bootstrapServer, final String inputTopic,
-                                      final Properties consumerConfig) {
+                                      final HashMap consumerConfig) {
     super();
 
     // Check if boostrap server and inputTopic are defined
