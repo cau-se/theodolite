@@ -9,6 +9,14 @@ spec:
          name: "example-configmap"
          files:
            - "uc1-kstreams-deployment.yaml"
+    beforeActions:
+      - selector:
+          pod:
+            matchLabels:
+              app: kafka-client
+          container: "abc" # optional (if there is only one container or there exists something like a default container)
+        exec:
+          command: "kafka-topics.sh --create --topic abc" # or list
   loadGenerator:
     resources:
       - configMap:
@@ -16,6 +24,14 @@ spec:
          files:
             - uc1-load-generator-service.yaml
             - uc1-load-generator-deployment.yaml
+    beforeActions:
+      - selector:
+          pod:
+            matchLabels:
+              app: kafka-client
+          container: "abc" # optional (if there is only one container or there exists something like a default container)
+        exec:
+          command: "kafka-topics.sh --create --topic abc" # or list
   resourceTypes:
     - typeName: "Instances"
       patchers:

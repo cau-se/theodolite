@@ -23,6 +23,10 @@ private val logger = KotlinLogging.logger {}
  */
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
+    private val sutBeforeActions: List<Action>,
+    private val sutAfterActions: List<Action>,
+    private val loadGenBeforeActions: List<Action>,
+    private val loadGenAfterActions: List<Action>,
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
     private val loadGenerationDelay: Long,
@@ -36,12 +40,17 @@ class KubernetesBenchmarkDeployment(
     private val LAG_EXPORTER_POD_LABEL_NAME = "app.kubernetes.io/name"
     private val LAG_EXPORTER_POD_LABEL_VALUE = "kafka-lag-exporter"
 
+
+
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
      *  - Create the needed topics.
      *  - Deploy the needed resources.
      */
     override fun setup() {
+        sutBeforeActions.forEach { it.exec }
+        loadGenBeforeActions.forEach { it.exec }
+
         val kafkaTopics = this.topics.filter { !it.removeOnly }
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
@@ -65,6 +74,8 @@ class KubernetesBenchmarkDeployment(
             labelName = LAG_EXPORTER_POD_LABEL_NAME,
             labelValue = LAG_EXPORTER_POD_LABEL_VALUE
         )
+        sutAfterActions.forEach { it.exec }
+        loadGenAfterActions.forEach { it.exec }
         logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything come down." }
         Thread.sleep(Duration.ofSeconds(afterTeardownDelay).toMillis())
     }

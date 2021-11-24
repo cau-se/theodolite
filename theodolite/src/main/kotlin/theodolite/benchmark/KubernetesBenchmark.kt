@@ -110,6 +110,10 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             }
         }
         return KubernetesBenchmarkDeployment(
+            sutBeforeActions = sut.beforeActions,
+            sutAfterActions = sut.beforeActions,
+            loadGenBeforeActions = loadGenerator.beforeActions,
+            loadGenAfterActions = loadGenerator.afterActions,
             appResources = appResources.map { it.second },
             loadGenResources = loadGenResources.map { it.second },
             loadGenerationDelay = loadGenerationDelay,

@@ -66,14 +66,59 @@ spec:
                                 type: string
                   beforeActions:
                     type: array
-                    properties:
+                    default: []
+                    items:
+                      type: object
+                      properties:
+                        selector:
+                          type: object
+                          properties:
+                            pod:
+                              type: object
+                              properties:
+                                matchLabels:
+                                  type: object
+                                  additionalProperties: true
+                                  x-kubernetes-map-type: "granular"
+                                  default: { }
+                            container:
+                              type: string
+                        exec:
+                          type: object
+                          properties:
+                            command:
+                              type: string
+                  afterActions:
+                    type: array
+                    default: []
+                    items:
+                      type: object
+                      properties:
+                        selector:
+                          type: object
+                          properties:
+                            pod:
+                              type: object
+                              properties:
+                                matchLabels:
+                                  type: object
+                                  additionalProperties: true
+                                  x-kubernetes-map-type: "granular"
+                                  default: { }
+                            container:
+                              type: string
+                        exec:
+                          type: object
+                          properties:
+                            command:
+                              type: string
               sut:
                 description: The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: object
                 properties:
                   resources:
                     type: array
-                    default: [ ]
+                    default: []
                     items:
                       type: object
                       oneOf:
@@ -104,6 +149,54 @@ spec:
                               type: array
                               items:
                                 type: string
+                  beforeActions:
+                    type: array
+                    default: []
+                    items:
+                      type: object
+                      properties:
+                        selector:
+                          type: object
+                          properties:
+                            pod:
+                              type: object
+                              properties:
+                                matchLabels:
+                                  type: object
+                                  additionalProperties: true
+                                  x-kubernetes-map-type: "granular"
+                                  default: { }
+                            container:
+                              type: string
+                        exec:
+                          type: object
+                          properties:
+                            command:
+                              type: string
+                  afterActions:
+                    type: array
+                    default: []
+                    items:
+                      type: object
+                      properties:
+                        selector:
+                          type: object
+                          properties:
+                            pod:
+                              type: object
+                              properties:
+                                matchLabels:
+                                  type: object
+                                  additionalProperties: true
+                                  x-kubernetes-map-type: "granular"
+                                  default: { }
+                            container:
+                              type: string
+                        exec:
+                          type: object
+                          properties:
+                            command:
+                              type: string
               loadGenerator:
                 description: The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: object
@@ -141,6 +234,54 @@ spec:
                               type: array
                               items:
                                 type: string
+                  beforeActions:
+                    type: array
+                    default: [ ]
+                    items:
+                      type: object
+                      properties:
+                        selector:
+                          type: object
+                          properties:
+                            pod:
+                              type: object
+                              properties:
+                                matchLabels:
+                                  type: object
+                                  additionalProperties: true
+                                  x-kubernetes-map-type: "granular"
+                                  default: { }
+                            container:
+                              type: string
+                        exec:
+                          type: object
+                          properties:
+                            command:
+                              type: string
+                  afterActions:
+                    type: array
+                    default: []
+                    items:
+                      type: object
+                      properties:
+                        selector:
+                          type: object
+                          properties:
+                            pod:
+                              type: object
+                              properties:
+                                matchLabels:
+                                  type: object
+                                  additionalProperties: true
+                                  x-kubernetes-map-type: "granular"
+                                  default: { }
+                            container:
+                              type: string
+                        exec:
+                          type: object
+                          properties:
+                            command:
+                              type: string
               resourceTypes:
                 description: A list of resource types that can be scaled for this `benchmark` resource. For each resource type the concrete values are defined in the `execution` object.
                 type: array
