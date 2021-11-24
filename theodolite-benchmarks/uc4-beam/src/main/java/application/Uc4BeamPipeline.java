@@ -44,9 +44,6 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
   protected Uc4BeamPipeline(final PipelineOptions options, final Configuration config) {
     super(options, config);
 
-    Pipeline pipeline = Pipeline.create(options);
-
-
     // Additional needed variables
     final String feedbackTopic = config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
     final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
@@ -247,7 +244,7 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
    */
   private static void registerCoders(final CoderRegistry cr) {
     cr.registerCoderForClass(ActivePowerRecord.class,
-        NullableCoder.of(AvroCoder.of(ActivePowerRecord.class)));
+       AvroCoder.of(ActivePowerRecord.class));
     cr.registerCoderForClass(AggregatedActivePowerRecord.class,
         new AggregatedActivePowerRecordCoder());
     cr.registerCoderForClass(Set.class, SetCoder.of(StringUtf8Coder.of()));

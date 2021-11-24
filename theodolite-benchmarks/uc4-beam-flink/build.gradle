@@ -1,0 +1,11 @@
+plugins {
+  id 'theodolite.beam'
+}
+
+
+dependencies {
+  compile group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
+  compile project(':uc4-beam')
+}
+
+mainClassName = 'application.Uc4BeamFlink'
