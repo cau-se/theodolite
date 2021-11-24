@@ -1,3 +1,11 @@
+---
+title: Theodolite CRDs
+has_children: false
+parent: API Reference
+nav_order: 1
+---
+
+
 # API Reference
 
 Packages:

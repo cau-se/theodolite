@@ -1,7 +1,8 @@
 ---
 title: Patchers
 has_children: false
-#nav_order: 1
+parent: API Reference
+nav_order: 2
 ---
 
 # Patchers
