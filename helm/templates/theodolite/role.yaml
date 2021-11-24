@@ -51,6 +51,7 @@ rules:
     - benchmarks
     - executions
     - executions/status
+    - benchmarks/status
     verbs:
     - delete
     - list
