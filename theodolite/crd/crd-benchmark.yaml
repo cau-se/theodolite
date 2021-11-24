@@ -64,6 +64,9 @@ spec:
                               type: array
                               items:
                                 type: string
+                  beforeActions:
+                    type: array
+                    properties:
               sut:
                 description: The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: object
