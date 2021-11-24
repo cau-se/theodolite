@@ -1,5 +1,6 @@
 package application;
 
+import java.util.HashMap;
 import java.util.Properties;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
@@ -34,7 +35,7 @@ public final class Uc1BeamPipeline extends AbstractPipeline {
     cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
 
     // build KafkaConsumerConfig
-    final Properties consumerConfig = buildConsumerConfig();
+    final HashMap consumerConfig = buildConsumerConfig();
 
     // Create Pipeline transformations
     final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> kafka =

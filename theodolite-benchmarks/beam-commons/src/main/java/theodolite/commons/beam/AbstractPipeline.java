@@ -1,5 +1,6 @@
 package theodolite.commons.beam;
 
+import java.util.HashMap;
 import java.util.Properties;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -30,8 +31,8 @@ public class AbstractPipeline extends Pipeline {
    *
    * @return the build configuration.
    */
-  public Properties buildConsumerConfig() {
-    final Properties consumerConfig = new Properties();
+  public HashMap buildConsumerConfig() {
+    final HashMap consumerConfig = new HashMap();
     consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
         config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
     consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,

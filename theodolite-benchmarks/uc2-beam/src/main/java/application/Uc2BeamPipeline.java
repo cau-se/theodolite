@@ -2,6 +2,8 @@ package application;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
+
+import java.util.HashMap;
 import java.util.Properties;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
@@ -48,7 +50,7 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
     final Duration duration = Duration.standardMinutes(windowDurationMinutes);
 
     // Build kafka configuration
-    final Properties consumerConfig = buildConsumerConfig();
+    final HashMap consumerConfig = buildConsumerConfig();
 
     // Set Coders for Classes that will be distributed
     final CoderRegistry cr = this.getCoderRegistry();
