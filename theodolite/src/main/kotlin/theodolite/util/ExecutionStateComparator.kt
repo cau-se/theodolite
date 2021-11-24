@@ -1,13 +1,13 @@
 package theodolite.util
 
 import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.States
+import theodolite.model.crd.ExecutionStates
 
-class ExecutionStateComparator(private val preferredState: States): Comparator<ExecutionCRD> {
+class ExecutionStateComparator(private val preferredState: ExecutionStates): Comparator<ExecutionCRD> {
 
     /**
      * Simple comparator which can be used to order a list of [ExecutionCRD] such that executions with
-     * status [States.RESTART] are before all other executions.
+     * status [ExecutionStates.RESTART] are before all other executions.
      */
     override fun compare(p0: ExecutionCRD, p1: ExecutionCRD): Int {
        return when {

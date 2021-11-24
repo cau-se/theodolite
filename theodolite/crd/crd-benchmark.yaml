@@ -25,6 +25,7 @@ spec:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
                 type: string
+                default: ""
               infrastructure:
                 description: (Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
                 type: object
@@ -235,10 +236,20 @@ spec:
                           description: Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.
                           type: boolean
                           default: false
+          status:
+            type: object
+            properties:
+              resourceSetsState:
+                description: The status of a Benchmark indicates whether all resources are available to start the benchmark or not.
+                type: string
     additionalPrinterColumns:
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
+    - name: STATUS
+      type: string
+      description: The status of a Benchmark indicates whether all resources are available to start the benchmark or not.
+      jsonPath: .status.resourceSetsState
     subresources:
       status: {}
   scope: Namespaced

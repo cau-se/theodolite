@@ -28,7 +28,8 @@ const val CREATED_BY_LABEL_VALUE = "theodolite"
 class TheodoliteController(
     private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
     private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
-    private val executionStateHandler: ExecutionStateHandler
+    private val executionStateHandler: ExecutionStateHandler,
+    private val benchmarkStateHandler: BenchmarkStateHandler
 ) {
     lateinit var executor: TheodoliteExecutor
 
@@ -40,6 +41,7 @@ class TheodoliteController(
         sleep(5000) // wait until all states are correctly set
         while (true) {
             reconcile()
+            updateBenchmarkStatus()
             sleep(2000)
         }
     }
@@ -47,8 +49,10 @@ class TheodoliteController(
     private fun reconcile() {
         do {
             val execution = getNextExecution()
+            updateBenchmarkStatus()
             if (execution != null) {
                 val benchmark = getBenchmarks()
+                    .map { it.spec }
                     .firstOrNull { it.name == execution.benchmark }
                 if (benchmark != null) {
                     runExecution(execution, benchmark)
@@ -84,20 +88,20 @@ class TheodoliteController(
             labelName = CREATED_BY_LABEL_NAME
         )
 
-        executionStateHandler.setExecutionState(execution.name, States.RUNNING)
+        executionStateHandler.setExecutionState(execution.name, ExecutionStates.RUNNING)
         executionStateHandler.startDurationStateTimer(execution.name)
 
             executor = TheodoliteExecutor(execution, benchmark)
             executor.run()
             when (executionStateHandler.getExecutionState(execution.name)) {
-                States.RESTART -> runExecution(execution, benchmark)
-                States.RUNNING -> {
-                    executionStateHandler.setExecutionState(execution.name, States.FINISHED)
+                ExecutionStates.RESTART -> runExecution(execution, benchmark)
+                ExecutionStates.RUNNING -> {
+                    executionStateHandler.setExecutionState(execution.name, ExecutionStates.FINISHED)
                     logger.info { "Execution of ${execution.name} is finally stopped." }
                     }
                 else -> {
-                    executionStateHandler.setExecutionState(execution.name, States.FAILURE)
-                    logger.warn { "Unexpected execution state, set state to ${States.FAILURE.value}" }
+                    executionStateHandler.setExecutionState(execution.name, ExecutionStates.FAILURE)
+                    logger.warn { "Unexpected execution state, set state to ${ExecutionStates.FAILURE.value}" }
                 }
             }
         } catch (e: Exception) {
@@ -108,7 +112,7 @@ class TheodoliteController(
                 message = "An error occurs while executing:  ${e.message}")
             logger.error { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
             logger.error { "Problem is: $e" }
-            executionStateHandler.setExecutionState(execution.name, States.FAILURE)
+            executionStateHandler.setExecutionState(execution.name, ExecutionStates.FAILURE)
         }
         executionStateHandler.stopDurationStateTimer()
     }
@@ -117,7 +121,7 @@ class TheodoliteController(
     fun stop(restart: Boolean = false) {
         if (!::executor.isInitialized) return
         if (restart) {
-            executionStateHandler.setExecutionState(this.executor.getExecution().name, States.RESTART)
+            executionStateHandler.setExecutionState(this.executor.getExecution().name, ExecutionStates.RESTART)
         }
         this.executor.executor.run.set(false)
     }
@@ -125,30 +129,33 @@ class TheodoliteController(
     /**
      * @return all available [BenchmarkCRD]s
      */
-    private fun getBenchmarks(): List<KubernetesBenchmark> {
+    private fun getBenchmarks(): List<BenchmarkCRD> {
         return this.benchmarkCRDClient
             .list()
             .items
             .map {
                 it.spec.name = it.metadata.name
-                it.spec
+                it
             }
     }
+
 
     /**
      * Get the [BenchmarkExecution] for the next run. Which [BenchmarkExecution]
      * is selected for the next execution depends on three points:
      *
      * 1. Only executions are considered for which a matching benchmark is available on the cluster
-     * 2. The Status of the execution must be [States.PENDING] or [States.RESTART]
-     * 3. Of the remaining [BenchmarkCRD], those with status [States.RESTART] are preferred,
+     * 2. The Status of the execution must be [ExecutionStates.PENDING] or [ExecutionStates.RESTART]
+     * 3. Of the remaining [BenchmarkCRD], those with status [ExecutionStates.RESTART] are preferred,
      * then, if there is more than one, the oldest execution is chosen.
      *
      * @return the next execution or null
      */
     private fun getNextExecution(): BenchmarkExecution? {
-        val comparator = ExecutionStateComparator(States.RESTART)
+        val comparator = ExecutionStateComparator(ExecutionStates.RESTART)
         val availableBenchmarkNames = getBenchmarks()
+            .filter { it.status.resourceSetsState == BenchmarkStates.READY.value }
+            .map { it.spec }
             .map { it.name }
 
         return executionCRDClient
@@ -157,13 +164,42 @@ class TheodoliteController(
             .asSequence()
             .map { it.spec.name = it.metadata.name; it }
             .filter {
-                it.status.executionState == States.PENDING.value ||
-                        it.status.executionState == States.RESTART.value
+                it.status.executionState == ExecutionStates.PENDING.value ||
+                        it.status.executionState == ExecutionStates.RESTART.value
             }
             .filter { availableBenchmarkNames.contains(it.spec.benchmark) }
             .sortedWith(comparator.thenBy { it.metadata.creationTimestamp })
             .map { it.spec }
             .firstOrNull()
+    }
+
+    private fun updateBenchmarkStatus() {
+        this.benchmarkCRDClient
+            .list()
+            .items
+            .map { it.spec.name = it.metadata.name; it }
+            .map { Pair(it, checkResource(it.spec)) }
+            .forEach { setState(it.first, it.second ) }
+    }
+
+    private fun setState(resource: BenchmarkCRD, state: BenchmarkStates) {
+        benchmarkStateHandler.setResourceSetState(resource.spec.name, state)
+    }
+
+    private fun checkResource(benchmark: KubernetesBenchmark): BenchmarkStates {
+        return try {
+            val appResources =
+                benchmark.loadKubernetesResources(resourceSet = benchmark.sut.resources)
+            val loadGenResources =
+                benchmark.loadKubernetesResources(resourceSet = benchmark.sut.resources)
+            if(appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
+                BenchmarkStates.READY
+            } else {
+                BenchmarkStates.PENDING
+            }
+        } catch (e: Exception) {
+            BenchmarkStates.PENDING
+        }
     }
 
     fun isExecutionRunning(executionName: String): Boolean {

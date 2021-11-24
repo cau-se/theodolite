@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.ExecutionStatus
-import theodolite.model.crd.States
+import theodolite.model.crd.ExecutionStates
 import java.lang.Thread.sleep
 import java.time.Duration
 import java.time.Instant
@@ -23,17 +23,17 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
 
     private fun getDurationLambda() = { cr: ExecutionCRD -> cr.status.executionDuration }
 
-    fun setExecutionState(resourceName: String, status: States): Boolean {
+    fun setExecutionState(resourceName: String, status: ExecutionStates): Boolean {
         setState(resourceName) { cr -> cr.status.executionState = status.value; cr }
         return blockUntilStateIsSet(resourceName, status.value, getExecutionLambda())
     }
 
-    fun getExecutionState(resourceName: String): States {
+    fun getExecutionState(resourceName: String): ExecutionStates {
         val status = this.getState(resourceName, getExecutionLambda())
         return if (status.isNullOrBlank()) {
-            States.NO_STATE
+            ExecutionStates.NO_STATE
         } else {
-            States.values().first { it.value == status }
+            ExecutionStates.values().first { it.value == status }
         }
     }
 

@@ -41,7 +41,7 @@ class ClusterSetup(
             .list()
             .items
             .asSequence()
-            .filter { it.status.executionState == States.RUNNING.value }
+            .filter { it.status.executionState == ExecutionStates.RUNNING.value }
             .forEach { execution ->
                 val benchmark = benchmarkCRDClient
                     .inNamespace(client.namespace)
@@ -54,7 +54,7 @@ class ClusterSetup(
                     benchmark.spec.name = benchmark.metadata.name
                     Shutdown(execution.spec, benchmark.spec).start()
                 } else {
-                    throw IllegalStateException("Execution with state ${States.RUNNING.value} was found, but no corresponding benchmark. " +
+                    throw IllegalStateException("Execution with state ${ExecutionStates.RUNNING.value} was found, but no corresponding benchmark. " +
                             "Could not initialize cluster.")
                 }
             }

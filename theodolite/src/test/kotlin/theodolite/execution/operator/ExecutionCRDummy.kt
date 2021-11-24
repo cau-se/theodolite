@@ -3,7 +3,7 @@ package theodolite.execution.operator
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.ExecutionStatus
-import theodolite.model.crd.States
+import theodolite.model.crd.ExecutionStates
 
 class ExecutionCRDummy(name: String, benchmark: String) {
 
@@ -51,6 +51,6 @@ class ExecutionCRDummy(name: String, benchmark: String) {
         execution.configOverrides = mutableListOf()
         execution.name = executionCR.metadata.name
 
-        executionState.executionState = States.PENDING.value
+        executionState.executionState = ExecutionStates.PENDING.value
     }
 }

@@ -1,35 +1,35 @@
-name: "uc3-kstreams"
+name: "uc2-kstreams"
 sut:
   resources:
     - configMap:
-        name: "benchmark-resources-uc3-kstreams"
+        name: "benchmark-resources-uc2-kstreams"
         files:
-        - "uc3-kstreams-deployment.yaml"
-        - "uc3-kstreams-service.yaml"
-        - "uc3-jmx-configmap.yaml"
-        - "uc3-service-monitor.yaml"
+          - "uc2-kstreams-deployment.yaml"
+          - "uc2-kstreams-service.yaml"
+          - "uc2-jmx-configmap.yaml"
+          - "uc2-service-monitor.yaml"
 loadGenerator:
   resources:
     - configMap:
-        name: "benchmark-resources-uc3-loadgen"
+        name: "benchmark-resources-uc2-load-generator"
         files:
-          - "uc3-load-generator-deployment.yaml"
-          - "uc3-load-generator-service.yaml"
+          - "uc2-load-generator-deployment.yaml"
+          - "uc2-load-generator-service.yaml"
 resourceTypes:
   - typeName: "Instances"
     patchers:
       - type: "ReplicaPatcher"
-        resource: "uc3-kstreams-deployment.yaml"
+        resource: "uc2-kstreams-deployment.yaml"
 loadTypes:
   - typeName: "NumSensors"
     patchers:
       - type: "EnvVarPatcher"
-        resource: "uc3-load-generator-deployment.yaml"
+        resource: "uc2-load-generator-deployment.yaml"
         properties:
           container: "workload-generator"
           variableName: "NUM_SENSORS"
       - type: NumSensorsLoadGeneratorReplicaPatcher
-        resource: "uc3-load-generator-deployment.yaml"
+        resource: "uc2-load-generator-deployment.yaml"
         properties:
           loadGenMaxRecords: "150000"
 kafkaConfig:

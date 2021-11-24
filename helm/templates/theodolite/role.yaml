@@ -49,6 +49,7 @@ rules:
     - theodolite.com
     resources:
     - benchmarks
+    - benchmarks/status
     - executions
     - executions/status
     verbs:
