@@ -45,6 +45,7 @@ import serialization.AggregatedActivePowerRecordSerializer;
 import serialization.EventCoder;
 import serialization.EventDeserializer;
 import serialization.SensorParentKeyCoder;
+import theodolite.commons.beam.kafka.EventTimePolicy;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
@@ -66,9 +67,6 @@ public final class Uc4ApplicationBeamNoFeedback {
   private static final String VALUE_KEY = "ValueKey: ";
   private static final String VALUE_IN_W = "ValueInW: ";
   private static final String TIMESTAMP = "Timestamp: ";
-
-
-
 
   /**
    * Private constructor to avoid instantiation.

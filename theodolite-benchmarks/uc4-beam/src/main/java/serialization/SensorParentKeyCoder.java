@@ -20,7 +20,7 @@ public class SensorParentKeyCoder extends Coder<SensorParentKey> implements Seri
   private static final boolean DETERMINISTIC = true;
   private static final int VALUE_SIZE = 4;
 
-  private transient Serde<application.SensorParentKey> innerSerde = SensorParentKeySerde.serde();
+  private transient Serde<SensorParentKey> innerSerde = SensorParentKeySerde.serde();
 
   @Override
   public void encode(final SensorParentKey value, final OutputStream outStream)

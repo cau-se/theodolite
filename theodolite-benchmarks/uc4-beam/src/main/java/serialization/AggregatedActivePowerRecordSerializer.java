@@ -29,17 +29,18 @@ public class AggregatedActivePowerRecordSerializer
 
   @Override
   public byte[] serialize(final String topic, final AggregatedActivePowerRecord data) {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
       this.avroEnCoder.encode(data, out);
     } catch (IOException e) {
       LOGGER.error("Could not serialize AggregatedActivePowerRecord", e);
     }
-    byte[] result = out.toByteArray();
+    final byte[] result = out.toByteArray();
     try {
       out.close();
     } catch (IOException e) {
-      LOGGER.error("Could not close output stream after serialization of AggregatedActivePowerRecord", e);
+      LOGGER.error(
+          "Could not close output stream after serialization of AggregatedActivePowerRecord", e);
     }
     return result;
   }

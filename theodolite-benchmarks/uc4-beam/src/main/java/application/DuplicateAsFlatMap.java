@@ -14,12 +14,13 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 
 /**
- * Duplicates the data as a flat map.
+ * Duplicates the Kv containing the (Children,Parents) pair as a flat map.
  */
 public class DuplicateAsFlatMap extends DoFn
     <KV<String, ActivePowerRecord>, KV<SensorParentKey, ActivePowerRecord>> {
+  private static final long serialVersionUID = -5132355515723961647L;
   @StateId("parents")
-  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();
+  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();//NOPMD
   private final PCollectionView<Map<String, Set<String>>> childParentPairMap;
 
   public DuplicateAsFlatMap(final PCollectionView<Map<String, Set<String>>> childParentPairMap) {
