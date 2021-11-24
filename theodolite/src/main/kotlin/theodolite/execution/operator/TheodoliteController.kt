@@ -72,8 +72,8 @@ class TheodoliteController(
         try {
             val modifier = ConfigOverrideModifier(
             execution = execution,
-            resources = benchmark.loadKubernetesResources(benchmark.sut.resources !!).map { it.first }
-                    + benchmark.loadKubernetesResources(benchmark.loadGenerator.resources !!).map { it.first }
+            resources = benchmark.loadKubernetesResources(benchmark.sut.resources).map { it.first }
+                    + benchmark.loadKubernetesResources(benchmark.loadGenerator.resources).map { it.first }
         )
         modifier.setAdditionalLabels(
             labelValue = execution.name,
@@ -186,7 +186,6 @@ class TheodoliteController(
         benchmarkStateHandler.setResourceSetState(resource.spec.name, state)
     }
 
-    // TODO(Should we check, if actions could be performed or not (all pods are up and running...))?
     private fun checkResource(benchmark: KubernetesBenchmark): BenchmarkStates {
         return try {
             val appResources =
