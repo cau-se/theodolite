@@ -1,12 +1,10 @@
-{{- $processedDict := dict -}}
-{{- range $path, $bytes := .Files.Glob "benchmark-definitions/**/resources/**" }}
-{{- $name := base (dir (dir $path)) }}
-{{- if not (hasKey $processedDict $name) -}}
-{{ $_ := set $processedDict $name "true" }}
+{{- range $configmap, $enabled := .Values.operator.theodoliteBenchmarks.resourceConfigMaps }}
+{{- if $enabled -}}
+{{- $name := kebabcase $configmap }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    name: benchmark-resources-{{ $name }}
+  name: benchmark-resources-{{ $name }}
 data:
 {{ ($.Files.Glob (printf "benchmark-definitions/%s/resources/*" $name)).AsConfig | indent 2 }}
 ---
