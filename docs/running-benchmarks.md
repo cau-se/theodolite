@@ -16,27 +16,18 @@ Running scalability benchmarks with Theodolite involves two things:
 A benchmark specification consists of two things:
 
 * A Benchmark resource YAML file
-* A set of Kubernetes resource YAML files used by the benchmark
-<!-- - One or multiple ConfigMap YAML files containing all the Kubernetes resource used by the benchmark as YAML files -->
+* One or multiple ConfigMap YAML files containing all the Kubernetes resources used by the benchmark
 
 These files are usually provided by benchmark designers.
 For example, we ship Theodolite with a set of [benchmarks for event-driven microservices](theodolite-benchmarks).
 Alternatively, you can also [create your own benchmarks](creating-a-benchmark).
 
-<!-- Theodolite >v0.5
-Once you have collected all Kubernetes resources for the benchmark (Benchmark resource and ConfigMaps) in a specific directory, you can deploy everything to Kubernetes by running:
-
-```sh
-kubectl apply -f .
-```
--->
-
-### Create the Benchmark
-
-Suppose your Benchmark resource is stored in `example-benchmark.yaml`, you can deploy it to Kubernetes by running:
+Suppose your Benchmark is defined in `example-benchmark.yaml` and all resources required by this benchmark are bundled in `example-configmap.yaml`.
+You can deploy both to Kubernetes by running:
 
 ```sh
 kubectl apply -f example-benchmark.yaml
+kubectl apply -f example-configmap.yaml
 ```
 
 To list all benchmarks currently deployed run:
@@ -45,17 +36,16 @@ To list all benchmarks currently deployed run:
 kubectl get benchmarks
 ```
 
-<!-- TODO output-->
+The output is similar to this:
 
-### Create the Benchmark Resources ConfigMaps
-
-A Benchmark resource refers to other Kubernetes resources (e.g., Deployments, Services, ConfigMaps), which describe the system under test, the load generator and infrastructure components such as a middleware used in the benchmark. To manage those resources, Theodolite needs to have access to them. This is done by bundling resources in ConfigMaps.
-
-Suppose the resources needed by your benchmark are defined as YAML files, located in the `resources` directory. You can put them into the ConfigMap `benchmark-resources-custom` by running:
-
-```sh
-kubectl create configmap benchmark-resources-custom --from-file=./resources -o yaml --dry-run=client | kubectl apply -f -
 ```
+NAME                AGE   STATUS
+example-benchmark   81s   Ready
+```
+
+The status of a benchmark tells you whether executions of it can be executed:
+* *Ready* means that Theodolite has access to all resources referred from the benchmark.
+* *Pending* implies that not all benchmark resources are available (yet). Please ensure that you have deployed them, for example, by running `kubectl get configmaps`.
 
 
 ## Creating an Execution

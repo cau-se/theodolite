@@ -41,11 +41,9 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
     The output is similar to this:
 
     ```
-    NAME           AGE
-    uc1-kstreams   100s
+    NAME                AGE   STATUS
+    example-benchmark   81s   Ready
     ```
-
-    <!-- State with newest version -->
 
 1. Run the Benchmark by deploying an Execution:
 
