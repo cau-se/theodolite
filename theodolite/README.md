@@ -12,6 +12,15 @@ You can run your application in dev mode using:
 ./gradlew quarkusDev
 ```
 
+### Hint for running with k3s (or k3d)
+
+You may need to add the following dependencies to the `build.gradle` file when running Theodolite with k3s.
+
+```
+implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.68'
+implementation 'org.bouncycastle:bcpkix-jdk15on:1.68'
+```
+
 ## Packaging and running the application
 
 The application can be packaged using:
