@@ -1,17 +1,17 @@
 package theodolite.commons.beam.kafka;
 
 import java.util.Optional;
-
 import org.apache.beam.sdk.io.kafka.KafkaRecord;
 import org.apache.beam.sdk.io.kafka.TimestampPolicy;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.joda.time.Instant;
+import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * TimeStampPolicy to use event time based on the timestamp of the record value.
  */
 public class EventTimePolicy
-    extends TimestampPolicy<String, titan.ccp.model.records.ActivePowerRecord> {
+    extends TimestampPolicy<String, ActivePowerRecord> {
   protected Instant currentWatermark;
 
   public EventTimePolicy(final Optional<Instant> previousWatermark) {
