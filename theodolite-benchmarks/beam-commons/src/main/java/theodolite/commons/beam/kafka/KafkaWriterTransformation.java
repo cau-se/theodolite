@@ -13,7 +13,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
  * where the value type can be generic.
  * @param <T> type of the value.
  */
-public class KafkaWriterTransformation<T extends Serializer> extends
+public class KafkaWriterTransformation<T> extends
     PTransform<PCollection<KV<String, T>>, PDone> {
 
   private static final long serialVersionUID = 3171423303843174723L;
