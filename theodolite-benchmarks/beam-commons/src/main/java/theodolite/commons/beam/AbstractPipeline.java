@@ -1,6 +1,8 @@
 package theodolite.commons.beam;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.commons.configuration2.Configuration;
@@ -11,11 +13,10 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
  */
 public class AbstractPipeline extends Pipeline {
 
-  // Application Configurations
-  private final Configuration config;
-
   protected final String inputTopic;
   protected final String bootstrapServer;
+  // Application Configurations
+  private final Configuration config;
 
   protected AbstractPipeline(final PipelineOptions options, final Configuration config) {
     super(options);
@@ -30,8 +31,8 @@ public class AbstractPipeline extends Pipeline {
    *
    * @return the build configuration.
    */
-  public HashMap<String, Object> buildConsumerConfig() {
-    final HashMap<String, Object> consumerConfig = new HashMap<>();
+  public Map<String, Object> buildConsumerConfig() {
+    final Map<String, Object> consumerConfig = new HashMap<>();
     consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
         config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
     consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,

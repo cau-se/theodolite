@@ -29,7 +29,7 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
 /**
  * Implementation of the use case Database Storage using Apache Beam with the Flink Runner. To
  * execute locally in standalone start Kafka, Zookeeper, the schema-registry and the workload
- * generator using the delayed_startup.sh script. Start a Flink cluster and pass its REST adress
+ * generator using the delayed_startup.sh script. Start a Flink cluster and pass its REST address
  * using--flinkMaster as run parameter. To persist logs add
  * ${workspace_loc:/uc1-application-samza/eclipseConsoleLogs.log} as Output File under Standard
  * Input Output in Common in the Run Configuration Start via Eclipse Run.
@@ -57,8 +57,8 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     final Duration gracePeriod = Duration.standardSeconds(grace);
 
     // Build kafka configuration
-    final HashMap<String, Object> consumerConfig = buildConsumerConfig();
-    final HashMap<String, Object> configurationConfig = configurationConfig(config);
+    final Map<String, Object> consumerConfig = buildConsumerConfig();
+    final Map<String, Object> configurationConfig = configurationConfig(config);
 
     // Set Coders for Classes that will be distributed
     final CoderRegistry cr = this.getCoderRegistry();
@@ -106,7 +106,7 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
                 (tp, previousWaterMark) -> new AggregatedActivePowerRecordEventTimePolicy(
                     previousWaterMark))
             .withoutMetadata())
-        .apply("Apply Winddows", Window.into(FixedWindows.of(duration)))
+        .apply("Apply Windows", Window.into(FixedWindows.of(duration)))
         // Convert into the correct data format
         .apply("Convert AggregatedActivePowerRecord to ActivePowerRecord",
             MapElements.via(aggregatedToActive))
@@ -162,13 +162,14 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
                 .accumulatingFiredPanes())
             .apply(View.asMap());
 
-    FilterNullValues filterNullValues = new FilterNullValues();
+    final FilterNullValues filterNullValues = new FilterNullValues();
 
     // Build pairs of every sensor reading and parent
     final PCollection<KV<SensorParentKey, ActivePowerRecord>> flatMappedValues =
         inputCollection.apply(
                 "Duplicate as flatMap",
-                ParDo.of(new DuplicateAsFlatMap(childParentPairMap)).withSideInputs(childParentPairMap))
+                ParDo.of(new DuplicateAsFlatMap(childParentPairMap))
+                    .withSideInputs(childParentPairMap))
             .apply("Filter only latest changes", Latest.perKey())
             .apply("Filter out null values",
                 Filter.by(filterNullValues));
