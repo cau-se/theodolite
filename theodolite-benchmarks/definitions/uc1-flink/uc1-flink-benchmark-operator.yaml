@@ -18,7 +18,7 @@ spec:
   loadGenerator:
     resources:
       - configMap:
-          name: "benchmark-resources-uc1-loadgen"
+          name: "benchmark-resources-uc1-load-generator"
           files:
           - "uc1-load-generator-deployment.yaml"
           - "uc1-load-generator-service.yaml"
@@ -26,14 +26,14 @@ spec:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc1-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
         - type: "EnvVarPatcher"
-          resource: "uc1-flink/jobmanager-deployment.yaml"
+          resource: "jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
             variableName: "PARALLELISM"
         - type: "EnvVarPatcher" # required?
-          resource: "uc1-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
           properties:
             container: "taskmanager"
             variableName: "PARALLELISM"
@@ -41,12 +41,12 @@ spec:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc1-kstreams/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumSensorsLoadGeneratorReplicaPatcher
-          resource: "uc1-kstreams/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
