@@ -18,10 +18,22 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
     private val execLatch = CountDownLatch(1);
 
     fun exec(matchLabels: MutableMap<String, String>, container: String, command: String): Pair<String, String> {
+        println("container is: $container")
         try {
-            val execWatch: ExecWatch = client.pods()
-                .withName(getPodName(matchLabels))
-                .inContainer(container)
+
+            val execWatch: ExecWatch = if (container.isNotEmpty()) {
+                println("container is not empty")
+                client.pods()
+                    .inNamespace(client.namespace)
+                    .withName(getPodName(matchLabels))
+                    .inContainer(container)
+
+            } else {
+                println("container is empty")
+                client.pods()
+                    .inNamespace(client.namespace)
+                    .withName(getPodName(matchLabels))
+            }
                 .writingOutput(out)
                 .writingError(error)
                 .usingListener(MyPodExecListener(execLatch))

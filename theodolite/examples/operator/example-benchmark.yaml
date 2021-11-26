@@ -3,6 +3,12 @@ kind: benchmark
 metadata:
   name: uc1-kstreams
 spec:
+  infrastructure:
+    resources:
+      - configMap:
+          name: "example-configmap"
+          files:
+            - "uc1-kstreams-deployment.yaml"
   sut:
     resources:
       - configMap:
@@ -13,10 +19,9 @@ spec:
       - selector:
           pod:
             matchLabels:
-              app: kafka-client
-          container: "abc" # optional (if there is only one container or there exists something like a default container)
+              app: titan-ccp-aggregation
         exec:
-          command: "kafka-topics.sh --create --topic abc" # or list
+          command: "ls -l" # or list
   loadGenerator:
     resources:
       - configMap:
@@ -28,8 +33,9 @@ spec:
       - selector:
           pod:
             matchLabels:
-              app: kafka-client
-          container: "abc" # optional (if there is only one container or there exists something like a default container)
+              'app.kubernetes.io/name': grafana
+
+          #container: "abc" # optional (if there is only one container or there exists something like a default container)
         exec:
           command: "kafka-topics.sh --create --topic abc" # or list
   resourceTypes:

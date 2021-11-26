@@ -27,7 +27,7 @@ class Action {
 @RegisterForReflection
 class ActionSelector {
     lateinit var pod: PodSelector
-    lateinit var container: String
+    var container: String = ""
 }
 @JsonDeserialize
 @RegisterForReflection

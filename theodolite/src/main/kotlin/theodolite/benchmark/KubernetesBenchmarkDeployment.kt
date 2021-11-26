@@ -48,8 +48,8 @@ class KubernetesBenchmarkDeployment(
      *  - Deploy the needed resources.
      */
     override fun setup() {
-        sutBeforeActions.forEach { it.exec }
-        loadGenBeforeActions.forEach { it.exec }
+        sutBeforeActions.forEach { it.exec(client = client) }
+        loadGenBeforeActions.forEach { it.exec(client = client) }
 
         val kafkaTopics = this.topics.filter { !it.removeOnly }
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
@@ -74,8 +74,8 @@ class KubernetesBenchmarkDeployment(
             labelName = LAG_EXPORTER_POD_LABEL_NAME,
             labelValue = LAG_EXPORTER_POD_LABEL_VALUE
         )
-        sutAfterActions.forEach { it.exec }
-        loadGenAfterActions.forEach { it.exec }
+        sutAfterActions.forEach { it.exec(client = client) }
+        loadGenAfterActions.forEach { it.exec(client = client) }
         logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything come down." }
         Thread.sleep(Duration.ofSeconds(afterTeardownDelay).toMillis())
     }

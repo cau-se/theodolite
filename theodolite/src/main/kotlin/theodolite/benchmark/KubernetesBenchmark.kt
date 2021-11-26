@@ -59,7 +59,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     }
 
     override fun setupInfrastructure() {
-        this.infrastructure.beforeActions.forEach { it.exec }
+        this.infrastructure.beforeActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
@@ -67,7 +67,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     }
 
     override fun teardownInfrastructure() {
-        this.infrastructure.afterActions.forEach { it.exec }
+        this.infrastructure.afterActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
