@@ -10,14 +10,33 @@ import org.apache.beam.sdk.coders.SetCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.kafka.KafkaIO;
 import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.beam.sdk.transforms.*;
-import org.apache.beam.sdk.transforms.windowing.*;
-import org.apache.beam.sdk.values.*;
+import org.apache.beam.sdk.transforms.Combine;
+import org.apache.beam.sdk.transforms.Filter;
+import org.apache.beam.sdk.transforms.Flatten;
+import org.apache.beam.sdk.transforms.Latest;
+import org.apache.beam.sdk.transforms.MapElements;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.View;
+import org.apache.beam.sdk.transforms.windowing.AfterPane;
+import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
+import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
+import org.apache.beam.sdk.transforms.windowing.FixedWindows;
+import org.apache.beam.sdk.transforms.windowing.Repeatedly;
+import org.apache.beam.sdk.transforms.windowing.Window;
+import org.apache.beam.sdk.values.KV;
+import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollectionList;
+import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.joda.time.Duration;
-import serialization.*;
+import serialization.AggregatedActivePowerRecordCoder;
+import serialization.AggregatedActivePowerRecordDeserializer;
+import serialization.AggregatedActivePowerRecordSerializer;
+import serialization.EventCoder;
+import serialization.EventDeserializer;
+import serialization.SensorParentKeyCoder;
 import theodolite.commons.beam.AbstractPipeline;
 import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
@@ -208,8 +227,8 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
    *
    * @return the build configuration.
    */
-  public HashMap<String, Object> configurationConfig(final Configuration config) {
-    final HashMap<String, Object> consumerConfig = new HashMap<>();
+  public Map<String, Object> configurationConfig(final Configuration config) {
+    final Map<String, Object> consumerConfig = new HashMap<>();
     consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
         config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
     consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,

@@ -24,9 +24,9 @@ public class RecordAggregation
   @DefaultCoder(AvroCoder.class)
   public static class Accum implements Serializable {
     private static final long serialVersionUID = 3701311203919534376L;
-    private long count = 0;
+    private long count;
     private Double sum = 0.0;
-    private long timestamp = 0;
+    private long timestamp;
   }
 
   @Override
