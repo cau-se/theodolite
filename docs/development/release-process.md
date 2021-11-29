@@ -37,7 +37,7 @@ again be merged into master.
 
 6. Commit these changes to the `v0.3` branch.
 
-7. Tag this commit `v0.3.1` (can be done via GitLab). The corresponding Docker images will be uploaded.
+7. Tag this commit `v0.3.1` (can be done via GitLab). The corresponding Docker images will be uploaded from the CI/CD pipeline.
 
 8. Create *releases* on GitLab and GitHub. Upload the generated Helm package to these releases via the UIs of GitLab and GitHub.
 
