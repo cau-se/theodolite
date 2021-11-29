@@ -1,5 +1,5 @@
 
-Not sure yet where to put the following docs.
+Some additional hints
 
 ### Use results-access Sidecar
 
