@@ -10,15 +10,5 @@ class ActionCommandTest {
 
     @Test
     fun testAction() {
-        val action = ActionCommand(DefaultKubernetesClient().inNamespace("default"))
-        val result = action.exec(mutableMapOf(
-            Pair("app.kubernetes.io/name","grafana")
-        ),
-            container = "grafana",
-            command = "ls /")
-        println("out is: " + result.first)
-        println("error is: " + result.second)
-
-
     }
 }
