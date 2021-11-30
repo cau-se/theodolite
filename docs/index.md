@@ -9,8 +9,16 @@ permalink: /
 
 > A theodolite is a precision optical instrument for measuring angles between designated visible points in the horizontal and vertical planes.  -- <cite>[Wikipedia](https://en.wikipedia.org/wiki/Theodolite)</cite>
 
-Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines. It consists of three modules:
+Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines.
 
+[Get started now](quickstart){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](benchmarks-and-executions){: .btn .fs-5 .mb-4 .mb-md-0 }
+
+---
+
+More content...
+
+<!--
 ## Theodolite Benchmarking Tool
 
 Theodolite aims to benchmark scalability of stream processing engines for real use cases. Microservices that apply stream processing techniques are usually deployed in elastic cloud environments. Hence, Theodolite's cloud-native benchmarking framework deploys its components in a cloud environment, orchestrated by Kubernetes. It is recommended to install Theodolite with the package manager Helm. The Theodolite Helm chart along with instructions how to install it can be found in the [`helm`](helm) directory.
@@ -22,6 +30,7 @@ Theodolite's benchmarking method maps load intensities to the resource amounts t
 ## Theodolite Benchmarks
 
 Theodolite comes with 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding load generator is provided. Currently, this repository provides benchmark implementations for Apache Kafka Streams and Apache Flink. The benchmark sources can be found in [Thedolite benchmarks](theodolite-benchmarks).
+-->
 
 ## How to Cite
 
