@@ -1,9 +1,8 @@
 plugins {
-  id 'theodolite.beam'
+  id 'theodolite.beam.flink'
 }
 
 dependencies {
-      compile group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
       compile project(':uc1-beam')
 }
 
