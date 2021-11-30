@@ -1,10 +1,9 @@
 plugins {
-  id 'theodolite.beam'
+  id 'theodolite.beam.samza'
 }
 
 
 dependencies {
-  compile group: 'org.apache.beam', name: 'beam-runners-samza', version: '2.22.0'
   compile project(':uc2-beam')
 }
 

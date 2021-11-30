@@ -1,0 +1,7 @@
+plugins {
+    id 'theodolite.beam'
+}
+
+dependencies {
+    compile group: 'org.apache.beam', name: 'beam-runners-samza', version: '2.22.0'
+}
