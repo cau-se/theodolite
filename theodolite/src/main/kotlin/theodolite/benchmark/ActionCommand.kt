@@ -8,10 +8,8 @@ import okhttp3.Response
 import theodolite.util.ActionCommandFailedException
 import java.io.ByteArrayOutputStream
 import java.time.Duration
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import javax.imageio.ImageTranscoder
 import kotlin.properties.Delegates
 
 private val logger = KotlinLogging.logger {}
@@ -31,7 +29,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
      * @param command The command to be executed.
      * @return
      */
-    fun exec(matchLabels: MutableMap<String, String>,  command: String, container: String = ""): Int {
+    fun exec(matchLabels: MutableMap<String, String>, command: String, container: String = ""): Int {
 
         val exitCode = ExitCode()
 
@@ -70,7 +68,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         for (i in 1..tries) {
 
             try {
-            return getPodName(matchLabels)
+                return getPodName(matchLabels)
             } catch (e: Exception) {
                 logger.warn { "Could not found any pod with specified matchlabels or pod is not ready." }
             }
@@ -80,13 +78,13 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
     }
 
     private fun getPodName(matchLabels: MutableMap<String, String>): String {
-        return  try {
+        return try {
             val podNames = this.client
                 .pods()
                 .withLabels(matchLabels)
                 .list()
                 .items
-                .map {it.metadata.name }
+                .map { it.metadata.name }
 
             podNames.first {
                 this.client.pods().withName(it).isReady
