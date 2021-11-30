@@ -9,7 +9,7 @@ helm dependencies update .
 helm install theodolite .
 ```
 
-**Hint for Windows users:** The Theodolite Helm chart makes use of some smylinks. These are not properly created when this repository is checked out with Windows. There are a couple of solutions presented in this [Stack Overflow post](https://stackoverflow.com/q/5917249/4121056). A simpler workaround is to manually delete the symlinks and replace them by the files and folders, they are pointing to. The relevant symlinks are `benchmark-definitions` and the files inside `crd`.
+**Hint for Windows users:** The Theodolite Helm chart makes use of some symbolic links. These are not properly created when this repository is checked out with Windows. There are a couple of solutions presented in this [Stack Overflow post](https://stackoverflow.com/q/5917249/4121056). A simpler workaround is to manually delete the symbolic links and replace them by the files and folders, they are pointing to. The relevant symbolic links are `benchmark-definitions` and the files inside `crd`.
 
 ## Customize Installation
 
