@@ -1,8 +1,6 @@
 package application;
 
 import org.apache.beam.runners.samza.SamzaRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import theodolite.commons.beam.AbstractBeamService;
 
 /**
@@ -35,7 +33,7 @@ public final class Uc1BeamSamza extends AbstractBeamService {
     final Uc1BeamSamza uc1 = new Uc1BeamSamza(args);
 
     // Create pipeline with configurations
-    Uc1BeamPipeline pipeline = new Uc1BeamPipeline(uc1.options, uc1.getConfig());
+    final Uc1BeamPipeline pipeline = new Uc1BeamPipeline(uc1.options, uc1.getConfig());
 
     // Submit job and start execution
     pipeline.run().waitUntilFinish();

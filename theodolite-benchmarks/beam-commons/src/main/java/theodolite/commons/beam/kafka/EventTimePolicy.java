@@ -22,7 +22,7 @@ public class EventTimePolicy
 
   @Override
   public Instant getTimestampForRecord(final PartitionContext ctx,
-      final KafkaRecord<String, titan.ccp.model.records.ActivePowerRecord> record) {
+      final KafkaRecord<String, ActivePowerRecord> record) {
     this.currentWatermark = new Instant(record.getKV().getValue().getTimestamp());
     return this.currentWatermark;
   }

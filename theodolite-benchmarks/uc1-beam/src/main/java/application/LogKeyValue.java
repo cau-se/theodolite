@@ -13,6 +13,9 @@ public class LogKeyValue extends DoFn<KV<String, String>, KV<String, String>> {
   private static final long serialVersionUID = 4328743;
   private static final Logger LOGGER = LoggerFactory.getLogger(LogKeyValue.class);
 
+  /**
+   * Logs all key value pairs it processes.
+   */
   @ProcessElement
   public void processElement(@Element final KV<String, String> kv,
                              final OutputReceiver<KV<String, String>> out) {

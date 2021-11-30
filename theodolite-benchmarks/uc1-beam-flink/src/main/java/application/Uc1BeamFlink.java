@@ -31,7 +31,7 @@ public final class Uc1BeamFlink extends AbstractBeamService {
     final Uc1BeamFlink uc1 = new Uc1BeamFlink(args);
 
     // Create pipeline with configurations
-    Uc1BeamPipeline pipeline = new Uc1BeamPipeline(uc1.options, uc1.getConfig());
+    final Uc1BeamPipeline pipeline = new Uc1BeamPipeline(uc1.options, uc1.getConfig());
 
     // Submit job and start execution
     pipeline.run().waitUntilFinish();

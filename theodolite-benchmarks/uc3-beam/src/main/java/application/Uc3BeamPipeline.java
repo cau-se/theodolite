@@ -2,10 +2,7 @@ package application;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
-
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.KvCoder;

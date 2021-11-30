@@ -1,4 +1,4 @@
-package application;
+package application; //NOPMD
 
 import com.google.common.math.StatsAccumulator;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
  */
 public final class Uc4BeamPipeline extends AbstractPipeline {
 
-  protected Uc4BeamPipeline(final PipelineOptions options, final Configuration config) {
+  protected Uc4BeamPipeline(final PipelineOptions options, final Configuration config) { //NOPMD
     super(options, config);
 
     // Additional needed variables
