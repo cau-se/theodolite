@@ -40,6 +40,7 @@ import serialization.SensorParentKeyCoder;
 import theodolite.commons.beam.AbstractPipeline;
 import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
+import theodolite.commons.beam.kafka.KafkaGenericReader;
 import theodolite.commons.beam.kafka.KafkaWriterTransformation;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
@@ -84,9 +85,17 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     registerCoders(cr);
 
     // Read from Kafka
+    // ActivePowerRecords
     final KafkaActivePowerTimestampReader
         kafkaActivePowerRecordReader =
         new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
+
+    //Configuration Events
+    final KafkaGenericReader<Event, String>
+        kafkaConfigurationReader =
+        new KafkaGenericReader<>(
+            bootstrapServer, configurationTopic, configurationConfig,
+            EventDeserializer.class, StringDeserializer.class);
 
     // Transform into AggregatedActivePowerRecords into ActivePowerRecords
     final AggregatedToActive aggregatedToActive = new AggregatedToActive();
@@ -100,11 +109,9 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
         new KafkaWriterTransformation<>(
             bootstrapServer, feedbackTopic, AggregatedActivePowerRecordSerializer.class);
 
-
     // Apply pipeline transformations
-    // Read from Kafka
     final PCollection<KV<String, ActivePowerRecord>> values = this
-        .apply(kafkaActivePowerRecordReader)
+        .apply("Read from Kafka", kafkaActivePowerRecordReader)
         .apply("Read Windows", Window.into(FixedWindows.of(duration)))
         .apply("Set trigger for input", Window
             .<KV<String, ActivePowerRecord>>configure()
@@ -148,13 +155,7 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
 
     // Build the configuration stream from a changelog.
     final PCollection<KV<String, Set<String>>> configurationStream = this
-        .apply("Read sensor groups", KafkaIO.<Event, String>read()
-            .withBootstrapServers(bootstrapServer)
-            .withTopic(configurationTopic)
-            .withKeyDeserializer(EventDeserializer.class)
-            .withValueDeserializer(StringDeserializer.class)
-            .withConsumerConfigUpdates(configurationConfig)
-            .withoutMetadata())
+        .apply("Read sensor groups", kafkaConfigurationReader)
         // Only forward relevant changes in the hierarchy
         .apply("Filter changed and status events",
             Filter.by(new FilterEvents()))
