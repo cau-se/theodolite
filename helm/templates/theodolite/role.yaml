@@ -1,0 +1,79 @@
+{{- if .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "theodolite.fullname" . }}
+rules:
+  - apiGroups:
+    - apps
+    resources:
+    - deployments
+    - statefulsets
+    verbs:
+    - delete
+    - list
+    - get
+    - create
+    - update
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    - pods
+    - configmaps
+    verbs:
+    - update
+    - delete
+    - list
+    - get
+    - create
+  - apiGroups:
+    - ""
+    resources:
+    - pods/exec
+    verbs:
+    - create
+    - get
+  - apiGroups:
+    - monitoring.coreos.com
+    resources:
+    - servicemonitors
+    verbs:
+    - update
+    - delete
+    - list
+    - create
+    - get
+  {{- if .Values.operator.enabled }}
+  - apiGroups:
+    - theodolite.com
+    resources:
+    - benchmarks
+    - benchmarks/status
+    - executions
+    - executions/status
+    verbs:
+    - delete
+    - list
+    - get
+    - create
+    - watch
+    - update
+    - patch
+  - apiGroups:
+    - coordination.k8s.io
+    resources:
+    - leases
+    verbs:
+    - delete
+    - get
+    - create
+    - update
+  - apiGroups:
+    - ""
+    resources:
+    - events
+    verbs:
+    - create
+  {{- end }}
+{{- end }}

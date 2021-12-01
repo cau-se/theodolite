@@ -1,0 +1,70 @@
+plugins {
+  id 'java'
+  id 'checkstyle'
+  id 'pmd'
+
+  // NOTE: external plugin version is specified in implementation dependency artifact of the project's build file
+  id 'com.github.spotbugs'
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+// Per default XML reports for SpotBugs are generated
+// Include this to generate HTML reports
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+  reports {
+    // Either HTML or XML reports can be activated
+    html.enabled true
+    xml.enabled false
+  }
+}
+
+task pmd {
+  group 'Quality Assurance'
+  description 'Run PMD'
+
+  dependsOn 'pmdMain'
+  dependsOn 'pmdTest'
+}
+
+task checkstyle {
+  group 'Quality Assurance'
+  description 'Run Checkstyle'
+
+  dependsOn 'checkstyleMain'
+  dependsOn 'checkstyleTest'
+}
+
+task spotbugs {
+  group 'Quality Assurance'
+  description 'Run SpotBugs'
+
+  dependsOn 'spotbugsMain'
+  dependsOn 'spotbugsTest'
+}
+
+pmd {
+  ruleSets = [] // Gradle requires to clean the rule sets first
+  ruleSetFiles = files("$rootProject.projectDir/config/pmd.xml")
+  ignoreFailures = false
+  toolVersion = "6.7.0"
+}
+
+checkstyle {
+  configDirectory = file("$rootProject.projectDir/config")
+  configFile = file("$rootProject.projectDir/config/checkstyle.xml")
+  maxWarnings = 0
+  ignoreFailures = false
+  toolVersion = "8.12"
+}
+
+spotbugs {
+  excludeFilter = file("$rootProject.projectDir/config/spotbugs-exclude-filter.xml")
+  reportLevel = "low"
+  effort = "max"
+  ignoreFailures = false
+  toolVersion = '4.1.4'
+}

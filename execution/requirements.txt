@@ -1,8 +1,0 @@
-matplotlib==3.2.0
-pandas==1.0.1
-requests==2.23.0
-scikit-learn==0.22.2.post1
-
-# For run_uc.py
-kubernetes==11.0.0
-confuse==1.1.0

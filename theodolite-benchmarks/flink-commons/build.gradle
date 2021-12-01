@@ -1,0 +1,36 @@
+plugins {
+    id 'theodolite.java-commons'
+}
+
+ext {
+    flinkVersion = '1.12.0'
+    scalaBinaryVersion = '2.12'
+}
+
+repositories {
+  jcenter()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+    url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+    // Special version required because of https://issues.apache.org/jira/browse/FLINK-13703
+    implementation('org.industrial-devops:titan-ccp-common:0.1.0-flink-ready-SNAPSHOT') { changing = true }
+    implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+    implementation 'com.google.guava:guava:30.1-jre'
+
+    implementation "org.apache.flink:flink-java:${flinkVersion}"    
+    implementation "org.apache.flink:flink-connector-kafka_${scalaBinaryVersion}:${flinkVersion}"
+    implementation "org.apache.flink:flink-avro:${flinkVersion}"
+    implementation "org.apache.flink:flink-avro-confluent-registry:${flinkVersion}"
+    implementation "org.apache.flink:flink-runtime-web_${scalaBinaryVersion}:${flinkVersion}" // For debugging
+    implementation "org.apache.flink:flink-statebackend-rocksdb_${scalaBinaryVersion}:${flinkVersion}"
+    implementation "org.apache.flink:flink-metrics-prometheus_${scalaBinaryVersion}:${flinkVersion}"
+    
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+  }

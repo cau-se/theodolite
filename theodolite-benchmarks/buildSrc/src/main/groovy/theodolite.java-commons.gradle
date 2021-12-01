@@ -1,0 +1,7 @@
+plugins {
+  // common java conventions
+  id 'theodolite.java-conventions'
+
+  // provide library capability in commons
+  id 'java-library'
+}

@@ -1,0 +1,12 @@
+{{- range $configmap, $enabled := .Values.operator.theodoliteBenchmarks.resourceConfigMaps }}
+{{- if $enabled -}}
+{{- $name := kebabcase $configmap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: benchmark-resources-{{ $name }}
+data:
+{{ ($.Files.Glob (printf "benchmark-definitions/%s/resources/*" $name)).AsConfig | indent 2 }}
+---
+{{- end }}
+{{- end }}
