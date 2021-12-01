@@ -5,7 +5,6 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.math.Stats;
-
 import java.io.Serializable;
 
 /**
@@ -13,7 +12,7 @@ import java.io.Serializable;
  */
 public class StatsSerializer extends Serializer<Stats> implements Serializable {
 
-  private static final long serialVersionUID = -1276866176534267373L; //NOPMD
+  private static final long serialVersionUID = -1276866176534267373L; // NOPMD
 
   @Override
   public void write(final Kryo kryo, final Output output, final Stats object) {
