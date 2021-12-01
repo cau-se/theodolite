@@ -47,7 +47,7 @@ lint-helm:
     - if: $CI_COMMIT_TAG
       when: always
     - changes:
-      - benchmarks/**/*
+      - theodolite-benchmarks/**/*
       when: always
     - when: manual
       allow_failure: true
