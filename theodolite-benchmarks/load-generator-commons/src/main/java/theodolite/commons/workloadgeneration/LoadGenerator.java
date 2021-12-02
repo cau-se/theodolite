@@ -91,12 +91,11 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, NUMBER_OF_KEYS_DEFAULT),
             Duration.ofMillis(PERIOD_MS_DEFAULT)))
         .setGeneratorConfig(new LoadGeneratorConfig(
-            TitanMessageGeneratorFactory
-                .withKafkaConfig(
-                    KAFKA_BOOTSTRAP_SERVERS_DEFAULT,
-                    KAFKA_TOPIC_DEFAULT,
-                    SCHEMA_REGISTRY_URL_DEFAULT)
-                .forConstantValue(VALUE_DEFAULT)));
+            TitanRecordGeneratorFactory.forConstantValue(VALUE_DEFAULT),
+            TitanKafkaSenderFactory.forKafkaConfig(
+                KAFKA_BOOTSTRAP_SERVERS_DEFAULT,
+                KAFKA_TOPIC_DEFAULT,
+                SCHEMA_REGISTRY_URL_DEFAULT)));
   }
 
   /**
@@ -170,13 +169,11 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))
         .setGeneratorConfig(new LoadGeneratorConfig(
-            TitanMessageGeneratorFactory
-                .withKafkaConfig(
-                    kafkaBootstrapServers,
-                    kafkaInputTopic,
-                    schemaRegistryUrl,
-                    kafkaProperties)
-                .forConstantValue(value)))
+            TitanRecordGeneratorFactory.forConstantValue(value),
+            TitanKafkaSenderFactory.forKafkaConfig(
+                kafkaBootstrapServers,
+                kafkaInputTopic,
+                schemaRegistryUrl)))
         .withThreads(threads);
   }
 
