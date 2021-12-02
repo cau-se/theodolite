@@ -6,10 +6,11 @@ nav_order: 4
 
 # Running Scalability Benchmarks
 
-Running scalability benchmarks with Theodolite involves two things:
+Running scalability benchmarks with Theodolite involves the following steps:
 
 1. [Deploying a benchmark to Kubernetes](#deploying-a-benchmark)
 1. [Creating an execution](#creating-an-execution), which describes the experimental setup for running the benchmark
+<!-- TODO analyzing results-->
 
 ## Deploying a Benchmark
 

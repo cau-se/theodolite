@@ -76,7 +76,7 @@ helm test theodolite
 
 ## Uninstall this Chart
 
-The Theodolite Helm can easily be removed with:
+The Theodolite Helm chart can easily be removed with:
 
 ```sh
 helm uninstall theodolite
