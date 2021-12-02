@@ -170,6 +170,9 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))
         .setGeneratorConfig(new LoadGeneratorConfig(
+            // TitanMessageHttpGeneratorFactory
+            // .withHttpConfig(
+            // URI.create("http://localhost:8080"))
             TitanMessageGeneratorFactory
                 .withKafkaConfig(
                     kafkaBootstrapServers,
