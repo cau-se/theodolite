@@ -12,7 +12,7 @@ permalink: /
 Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines.
 
 [Get started now](quickstart){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](benchmarks-and-executions){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Learn the underlying concepts](benchmarks-and-executions){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 

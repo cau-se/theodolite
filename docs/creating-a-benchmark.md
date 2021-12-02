@@ -1,5 +1,5 @@
 ---
-title: Creating a Benchmark
+title: Creating Benchmarks
 has_children: false
 nav_order: 5
 ---

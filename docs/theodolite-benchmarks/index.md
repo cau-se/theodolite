@@ -1,5 +1,5 @@
 ---
-title: Theodolite Benchmarks
+title: Available Benchmarks
 has_children: false
 nav_order: 7
 ---
