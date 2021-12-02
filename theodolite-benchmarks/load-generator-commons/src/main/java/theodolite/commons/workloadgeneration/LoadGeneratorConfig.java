@@ -5,28 +5,22 @@ package theodolite.commons.workloadgeneration;
  */
 public class LoadGeneratorConfig {
 
-  private final MessageGenerator messageGenerator;
+  private final GeneratorAction messageGenerator;
   private BeforeAction beforeAction = BeforeAction.doNothing();
   private int threads = 1;
 
-  public LoadGeneratorConfig(final MessageGenerator messageGenerator) {
-    this.messageGenerator = messageGenerator;
+  public <T> LoadGeneratorConfig(
+      final RecordGenerator<? extends T> generator,
+      final RecordSender<? super T> sender) {
+    this.messageGenerator = GeneratorAction.from(generator, sender);
   }
 
-  public LoadGeneratorConfig(
-      final MessageGenerator messageGenerator,
+  public <T> LoadGeneratorConfig(
+      final RecordGenerator<? extends T> generator,
+      final RecordSender<? super T> sender,
       final int threads) {
-    this.messageGenerator = messageGenerator;
+    this(generator, sender);
     this.threads = threads;
-  }
-
-  public LoadGeneratorExecution buildLoadGeneratorExecution(
-      final WorkloadDefinition workloadDefinition) {
-    return new LoadGeneratorExecution(workloadDefinition, this.messageGenerator, this.threads);
-  }
-
-  public BeforeAction getBeforeAction() {
-    return this.beforeAction;
   }
 
   public void setThreads(final int threads) {
@@ -37,6 +31,13 @@ public class LoadGeneratorConfig {
     this.beforeAction = beforeAction;
   }
 
+  public BeforeAction getBeforeAction() {
+    return this.beforeAction;
+  }
 
+  public LoadGeneratorExecution buildLoadGeneratorExecution(
+      final WorkloadDefinition workloadDefinition) {
+    return new LoadGeneratorExecution(workloadDefinition, this.messageGenerator, this.threads);
+  }
 
 }
