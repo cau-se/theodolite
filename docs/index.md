@@ -1,7 +1,7 @@
 ---
-title: Theodolite
+title: Home
 nav_order: 1
-nav_exclude: true
+#nav_exclude: true
 permalink: /
 ---
 
