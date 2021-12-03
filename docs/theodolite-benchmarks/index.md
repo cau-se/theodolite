@@ -20,7 +20,7 @@ A simple, but common use case in event-driven architectures is that events or me
 
 Another common use case for stream processing architectures is reducing the amount of events, messages, or measurements by aggregating multiple records within consecutive, non-overlapping time windows. Typical aggregations compute the average, minimum, or maximum of measurements within a time window or
 count the occurrence of same events. Such reduced amounts of data are required, for example, to save computing resources or to provide a better user experience (e.g., for data visualizations).
-When using aggregation windows of ﬁxed size that succeed each other without gaps (called [tumbling windows](https://kafka.apache.org/20/documentation/streams/developer-guide/dsl-api.html#tumbling-time-windows) in many stream processing engines), the (potentially varying) message frequency is reduced to a constant value.
+When using aggregation windows of ﬁxed size that succeed each other without gaps (called [tumbling windows](https://kafka.apache.org/30/documentation/streams/developer-guide/dsl-api.html#tumbling-time-windows) in many stream processing engines), the (potentially varying) message frequency is reduced to a constant value.
 This is also referred to as downsampling. Downsampling allows for applying many machine learning methods that require data of a ﬁxed frequency.
 
 

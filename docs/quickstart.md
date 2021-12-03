@@ -74,4 +74,4 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
 
 * [Deploy and run custom benchmarks](running-benchmarks)
 * [Define your own benchmarks](creating-a-benchmark)
-* [Customize the Theodolite Installation](installation)
+* [Customize the Theodolite installation](installation)

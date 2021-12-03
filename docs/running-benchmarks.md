@@ -23,7 +23,7 @@ These files are usually provided by benchmark designers.
 For example, we ship Theodolite with a set of [benchmarks for event-driven microservices](theodolite-benchmarks).
 Alternatively, you can also [create your own benchmarks](creating-a-benchmark).
 
-Suppose your Benchmark is defined in `example-benchmark.yaml` and all resources required by this benchmark are bundled in `example-configmap.yaml`.
+Suppose your benchmark is defined in `example-benchmark.yaml` and all resources required by this benchmark are bundled in `example-configmap.yaml`.
 You can deploy both to Kubernetes by running:
 
 ```sh
@@ -44,7 +44,7 @@ NAME                AGE   STATUS
 example-benchmark   81s   Ready
 ```
 
-The status of a benchmark tells you whether executions of it can be executed:
+The status of a benchmark tells you whether executions of it are ready to run:
 * *Ready* means that Theodolite has access to all resources referred from the benchmark.
 * *Pending* implies that not all benchmark resources are available (yet). Please ensure that you have deployed them, for example, by running `kubectl get configmaps`.
 
@@ -102,7 +102,7 @@ The output is similar to this:
 
 ```
 NAME                           STATUS    DURATION   AGE
-theodolite-example-execution   RUNNING   13s        14s
+theodolite-example-execution   Running   13s        14s
 ```
 
 The `STATUS` field will tell you whether a benchmark execution has been
