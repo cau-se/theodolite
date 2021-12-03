@@ -19,7 +19,7 @@ stages:
 # Theodolite Docs
 
 .docs:
-  image: ruby:2.7
+  image: alpine/bundle:3.0.3
   tags:
     - exec-docker
   cache:
@@ -27,7 +27,6 @@ stages:
       - docs/vendor
   before_script:
     - cd docs
-    - gem install bundler
     - bundle config set --local path 'vendor'
     - bundle install
 
