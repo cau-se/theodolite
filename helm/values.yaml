@@ -3,7 +3,7 @@
 ###
 
 kafkaClient:
-  enabled: true
+  enabled: false
   nodeSelector: {}
   
 
@@ -155,7 +155,10 @@ cp-helm-charts:
 ###
 kafka-lag-exporter:
   enabled: true
+  image:
+    pullPolicy: IfNotPresent
   nodeSelector: {}
+  
   clusters:
     - name: "theodolite-cp-kafka"
       bootstrapBrokers: "theodolite-cp-kafka:9092"
@@ -250,6 +253,8 @@ operator:
   imageTag: latest
   imagePullPolicy: Always
 
+  nodeSelector: {}
+
   sloChecker:
     lagTrend:
       enabled: true
@@ -263,18 +268,42 @@ operator:
       imagePullPolicy: Always
 
   resultsVolume:
-    enabled: true
-    # existingClaim:
-    # storageClassName:
-    accessModes:
-      - ReadWriteOnce
-    size: 1Gi
+    persistent:
+      enabled: false
+      # existingClaim:
+      # storageClassName:
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
     accessSidecar:
       enabled: true
       image: busybox
       imageTag: stable
       imagePullPolicy: IfNotPresent
 
+  theodoliteBenchmarks:
+    resourceConfigMaps:
+      uc1LoadGenerator: true
+      uc1Kstreams: true
+      uc1Flink: true
+      uc2LoadGenerator: true
+      uc2Kstreams: true
+      uc2Flink: true
+      uc3LoadGenerator: true
+      uc3Kstreams: true
+      uc3Flink: true
+      uc4LoadGenerator: true
+      uc4Kstreams: true
+      uc4Flink: true
+    benchmarks:
+      uc1Kstreams: true
+      uc1Flink: true
+      uc2Kstreams: true
+      uc2Flink: true
+      uc3Kstreams: true
+      uc3Flink: true
+      uc4Kstreams: true
+      uc4Flink: true
 
 serviceAccount:
   create: true
@@ -291,3 +320,4 @@ randomScheduler:
     create: true
   serviceAccount:
     create: true
+  nodeSelector: {}

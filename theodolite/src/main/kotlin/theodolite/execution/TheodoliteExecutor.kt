@@ -61,11 +61,12 @@ class TheodoliteExecutor(
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = config.configOverrides,
-                slo = config.slos[0],
+                slos = config.slos,
                 repetitions = config.execution.repetitions,
                 executionId = config.executionId,
                 loadGenerationDelay = config.execution.loadGenerationDelay,
-                afterTeardownDelay = config.execution.afterTeardownDelay
+                afterTeardownDelay = config.execution.afterTeardownDelay,
+                executionName = config.name
             )
 
         if (config.load.loadValues != config.load.loadValues.sorted()) {
@@ -112,6 +113,8 @@ class TheodoliteExecutor(
      * execution and benchmark objects.
      */
     fun run() {
+        kubernetesBenchmark.setupInfrastructure()
+
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
         this.config.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
@@ -123,15 +126,19 @@ class TheodoliteExecutor(
 
         val config = buildConfig()
         // execute benchmarks for each load
-        for (load in config.loads) {
-            if (executor.run.get()) {
-                config.compositeStrategy.findSuitableResource(load, config.resources)
+        try {
+            for (load in config.loads) {
+                if (executor.run.get()) {
+                    config.compositeStrategy.findSuitableResource(load, config.resources)
+                }
             }
+        } finally {
+            ioHandler.writeToJSONFile(
+                config.compositeStrategy.benchmarkExecutor.results,
+                "${resultsFolder}exp${this.config.executionId}-result"
+            )
         }
-        ioHandler.writeToJSONFile(
-            config.compositeStrategy.benchmarkExecutor.results,
-            "${resultsFolder}exp${this.config.executionId}-result"
-        )
+        kubernetesBenchmark.teardownInfrastructure()
     }
 
     private fun getAndIncrementExecutionID(fileURL: String): Int {

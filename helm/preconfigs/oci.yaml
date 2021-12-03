@@ -1,4 +1,6 @@
 operator:
   resultsVolume:
-    storageClassName: "oci-bv"
-    size: 50Gi # minimal size in OCI
+    persistent:
+      enabled: true
+      storageClassName: "oci-bv"
+      size: 50Gi # minimal size in OCI

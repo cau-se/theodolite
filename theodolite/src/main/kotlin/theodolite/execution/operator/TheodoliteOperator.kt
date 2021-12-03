@@ -11,6 +11,7 @@ import theodolite.model.crd.BenchmarkCRD
 import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.KubernetesBenchmarkList
+import theodolite.util.Configuration
 
 
 private const val DEFAULT_NAMESPACE = "default"
@@ -27,17 +28,18 @@ private val logger = KotlinLogging.logger {}
  * **See Also:** [Kubernetes Operator Pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
  */
 class TheodoliteOperator {
-    private val namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    private val namespace = Configuration.NAMESPACE
 
     private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
     private lateinit var controller: TheodoliteController
     private lateinit var executionStateHandler: ExecutionStateHandler
+    private lateinit var benchmarkStateHandler: BenchmarkStateHandler
 
 
     fun start() {
         LeaderElector(
             client = client,
-            name = "theodolite-operator" // TODO(make leaslock name configurable via env var)
+            name = Configuration.COMPONENT_NAME
         )
             .getLeadership(::startOperator)
     }
@@ -68,7 +70,9 @@ class TheodoliteOperator {
 
             controller = getController(
                 client = client,
-                executionStateHandler = getExecutionStateHandler(client = client)
+                executionStateHandler = getExecutionStateHandler(client = client),
+                benchmarkStateHandler = getBenchmarkStateHandler(client = client)
+
             )
             getExecutionEventHandler(controller, client).startAllRegisteredInformers()
             controller.run()
@@ -101,21 +105,30 @@ class TheodoliteOperator {
         return executionStateHandler
     }
 
+    fun getBenchmarkStateHandler(client: NamespacedKubernetesClient) : BenchmarkStateHandler {
+        if (!::benchmarkStateHandler.isInitialized) {
+            this.benchmarkStateHandler = BenchmarkStateHandler(client = client)
+        }
+        return benchmarkStateHandler
+    }
+
     fun getController(
         client: NamespacedKubernetesClient,
-        executionStateHandler: ExecutionStateHandler
+        executionStateHandler: ExecutionStateHandler,
+        benchmarkStateHandler: BenchmarkStateHandler
     ): TheodoliteController {
         if (!::controller.isInitialized) {
             this.controller = TheodoliteController(
                 benchmarkCRDClient = getBenchmarkClient(client),
                 executionCRDClient = getExecutionClient(client),
-                executionStateHandler = executionStateHandler
+                executionStateHandler = executionStateHandler,
+                benchmarkStateHandler = benchmarkStateHandler
             )
         }
         return this.controller
     }
 
-    private fun getExecutionClient(client: NamespacedKubernetesClient): MixedOperation<
+    fun getExecutionClient(client: NamespacedKubernetesClient): MixedOperation<
             ExecutionCRD,
             BenchmarkExecutionList,
             Resource<ExecutionCRD>> {
@@ -125,7 +138,7 @@ class TheodoliteOperator {
         )
     }
 
-    private fun getBenchmarkClient(client: NamespacedKubernetesClient): MixedOperation<
+    fun getBenchmarkClient(client: NamespacedKubernetesClient): MixedOperation<
             BenchmarkCRD,
             KubernetesBenchmarkList,
             Resource<BenchmarkCRD>> {

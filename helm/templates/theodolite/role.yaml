@@ -49,6 +49,7 @@ rules:
     - theodolite.com
     resources:
     - benchmarks
+    - benchmarks/status
     - executions
     - executions/status
     verbs:
@@ -68,5 +69,11 @@ rules:
     - get
     - create
     - update
+  - apiGroups:
+    - ""
+    resources:
+    - events
+    verbs:
+    - create
   {{- end }}
 {{- end }}

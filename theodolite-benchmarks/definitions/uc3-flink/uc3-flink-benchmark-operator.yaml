@@ -3,29 +3,37 @@ kind: benchmark
 metadata:
   name: uc3-flink
 spec:
-  appResource:
-    - "uc3-flink/flink-configuration-configmap.yaml"
-    - "uc3-flink/taskmanager-deployment.yaml"
-    - "uc3-flink/taskmanager-service.yaml"
-    - "uc3-flink/service-monitor.yaml"
-    - "uc3-flink/jobmanager-service.yaml"
-    - "uc3-flink/jobmanager-deployment.yaml"
-    #- "uc3-flink/jobmanager-rest-service.yaml"
-  loadGenResource:
-    - "uc3-kstreams/uc3-load-generator-deployment.yaml"
-    - "uc3-kstreams/uc3-load-generator-service.yaml"
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc3-flink"
+          files:
+            - "flink-configuration-configmap.yaml"
+            - "taskmanager-deployment.yaml"
+            - "taskmanager-service.yaml"
+            - "service-monitor.yaml"
+            - "jobmanager-service.yaml"
+            - "jobmanager-deployment.yaml"
+            #- "jobmanager-rest-service.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc3-load-generator"
+          files:
+            - "uc3-load-generator-deployment.yaml"
+            - "uc3-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc3-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
         - type: "EnvVarPatcher"
-          resource: "uc3-flink/jobmanager-deployment.yaml"
+          resource: "jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
             variableName: "PARALLELISM"
         - type: "EnvVarPatcher" # required?
-          resource: "uc3-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
           properties:
             container: "taskmanager"
             variableName: "PARALLELISM"
@@ -33,12 +41,12 @@ spec:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc3-kstreams/uc3-load-generator-deployment.yaml"
+          resource: "uc3-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumSensorsLoadGeneratorReplicaPatcher
-          resource: "uc3-kstreams/uc3-load-generator-deployment.yaml"
+          resource: "uc3-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:

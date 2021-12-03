@@ -1,12 +1,18 @@
 name: "uc1-kstreams"
-appResource:
-  - "uc1-kstreams-deployment.yaml"
-  - "aggregation-service.yaml"
-  - "jmx-configmap.yaml"
-  - "uc1-service-monitor.yaml"
-loadGenResource:
-  - "uc1-load-generator-deployment.yaml"
-  - "uc1-load-generator-service.yaml"
+  infrastructure: []
+  sut:
+    resources:
+      - configMap:
+         name: "example-configmap"
+         files:
+           - "uc1-kstreams-deployment.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+         name: "example-configmap"
+         files:
+            - uc1-load-generator-service.yaml
+            - uc1-load-generator-deployment.yaml
 resourceTypes:
   - typeName: "Instances"
     patchers:
@@ -25,7 +31,7 @@ loadTypes:
         properties:
           loadGenMaxRecords: "15000"
 kafkaConfig:
-  bootstrapServer: "localhost:31290"
+  bootstrapServer: "theodolite-cp-kafka:9092"
   topics:
     - name: "input"
       numPartitions: 40

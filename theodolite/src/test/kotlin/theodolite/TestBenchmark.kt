@@ -8,6 +8,12 @@ import theodolite.util.Resource
 
 class TestBenchmark : Benchmark {
 
+    override fun setupInfrastructure() {
+    }
+
+    override fun teardownInfrastructure() {
+    }
+
     override fun buildDeployment(
         load: LoadDimension,
         res: Resource,

@@ -8,7 +8,7 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger {}
 
 class CustomResourceWrapper(
-    private val crAsMap: Map<String, String>,
+    val crAsMap: Map<String, String>,
     private val context: CustomResourceDefinitionContext
 ) : KubernetesResource {
     /**
@@ -33,7 +33,7 @@ class CustomResourceWrapper(
             client.customResource(this.context)
                 .delete(client.configuration.namespace, this.getName())
         } catch (e: Exception) {
-            logger.warn { "Could not delete service monitor" }
+            logger.warn { "Could not delete custom resource" }
         }
     }
 

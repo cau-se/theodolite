@@ -8,8 +8,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
-import theodolite.k8s.K8sResourceLoader
-import theodolite.model.crd.States
+import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
+import theodolite.model.crd.ExecutionStates
 import java.time.Duration
 
 class StateHandlerTest {
@@ -19,7 +19,7 @@ class StateHandlerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        val executionResource = K8sResourceLoader(server.client)
+        val executionResource = K8sResourceLoaderFromFile(server.client)
             .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
 
         K8sManager(server.client).deploy(executionResource)
@@ -47,7 +47,7 @@ class StateHandlerTest {
     @DisplayName("Test empty execution state")
     fun executionWithoutExecutionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
-        assertEquals(States.NO_STATE, handler.getExecutionState("example-execution"))
+        assertEquals(ExecutionStates.NO_STATE, handler.getExecutionState("example-execution"))
     }
 
     @Test
@@ -62,8 +62,8 @@ class StateHandlerTest {
     fun executionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
 
-        assertTrue(handler.setExecutionState("example-execution", States.INTERRUPTED))
-        assertEquals(States.INTERRUPTED, handler.getExecutionState("example-execution"))
+        assertTrue(handler.setExecutionState("example-execution", ExecutionStates.INTERRUPTED))
+        assertEquals(ExecutionStates.INTERRUPTED, handler.getExecutionState("example-execution"))
     }
 
     @Test

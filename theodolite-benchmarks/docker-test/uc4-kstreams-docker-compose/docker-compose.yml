@@ -45,7 +45,7 @@ services:
       - schema-registry
       - kafka
     environment:
-      BOOTSTRAP_SERVER: uc-wg:5701
+      BOOTSTRAP_SERVER: load-generator:5701
       PORT: 5701
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
