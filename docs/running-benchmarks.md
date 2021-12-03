@@ -17,7 +17,7 @@ Running scalability benchmarks with Theodolite involves the following steps:
 A benchmark specification consists of two things:
 
 * A Benchmark resource YAML file
-* One or multiple ConfigMap YAML files containing all the Kubernetes resources used by the benchmark
+* One or more ConfigMap YAML files containing all the Kubernetes resources used by the benchmark
 
 These files are usually provided by benchmark designers.
 For example, we ship Theodolite with a set of [benchmarks for event-driven microservices](theodolite-benchmarks).
