@@ -15,7 +15,7 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
     ```sh
     helm repo add theodolite https://cau-se.github.io/theodolite
     helm repo update
-    helm install theodolite theodolite/theodolite
+    helm install theodolite theodolite/theodolite -f https://raw.githubusercontent.com/cau-se/theodolite/master/helm/preconfigs/minimal.yaml
     ```
 
 1. Get the Theodolite examples from the [Theodolite repository](https://github.com/cau-se/theodolite) and `cd` into its example directory:
