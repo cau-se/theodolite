@@ -51,7 +51,7 @@ test-docs-links:
     - gem install bundler
     - bundle config set --local path 'vendor'
     - bundle install
-  script: bundle exec htmlproofer --assume-extension ./_site
+  script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
 
 
 # Theodolite Helm Chart
