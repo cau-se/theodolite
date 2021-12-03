@@ -22,14 +22,14 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
 
     ```sh
     git clone https://github.com/cau-se/theodolite.git
-    cd theodolite/theodolite/examples/
+    cd theodolite/theodolite/examples/operator/
     ```
 
 1. Deploy the example Benchmark and package its associated Kubernetes resources in a ConfigMap:
 
     ```sh
-    kubectl apply -f operator/example-benchmark.yaml
-    kubectl create configmap benchmark-resources-custom --from-file=./resources -o yaml --dry-run=client | kubectl apply -f -
+    kubectl apply -f example-benchmark.yaml
+    kubectl apply -f example-configmap.yaml
     ```
 
 1. Verify that the Benchmark has been deployed successfully:
@@ -48,7 +48,7 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
 1. Run the Benchmark by deploying an Execution:
 
     ```sh
-    kubectl apply -f operator/example-execution.yaml 
+    kubectl apply -f example-execution.yaml 
     ```
 
 1. Verify that the Executions is running:
@@ -61,7 +61,7 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
 
     ```
     NAME                           STATUS    DURATION   AGE
-    theodolite-example-execution   RUNNING   13s        14s
+    theodolite-example-execution   Running   13s        14s
     ```
 
     Theodolite provides additional information on the current status of an Execution by producing Kubernetes events. To see them:
