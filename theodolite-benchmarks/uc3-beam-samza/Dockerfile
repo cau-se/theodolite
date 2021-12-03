@@ -1,5 +1,6 @@
-FROM openjdk:8-slim
+FROM openjdk:11-slim
 
-ADD build/distributions/uc4-application-flink.tar /
+ADD build/distributions/uc3-beam-samza.tar /
+ADD samza-standalone.properties /
 
-CMD /uc4-application-flink/bin/uc4-application-flink --runner=FlinkRunner --flinkMaster=flink-jobmanager:8081 --streaming --parallelism=$PARALLELISM --disableMetrics=true --fasterCopy --stateBackend=rocksdb --stateBackendStoragePath=file:///data/flink/checkpoints
+CMD /uc3-beam-samza/bin/uc3-beam-samza --configFactory=org.apache.samza.config.factories.PropertiesConfigFactory --configFilePath=samza-standalone.properties --samzaExecutionEnvironment=STANDALONE --enableMetrics=false

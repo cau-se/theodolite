@@ -1,7 +1,6 @@
-FROM openjdk:8-slim
+FROM openjdk:11-slim
 
-ADD build/distributions/uc2-application-samza.tar /
-ADD ../config/standalone.properties /
+ADD build/distributions/uc4-beam-samza.tar /
+ADD samza-standalone.properties /
 
-
-CMD /uc2-application-samza/bin/uc2-application-samza --configFactory=org.apache.samza.config.factories.PropertiesConfigFactory --configFilePath=samza-standalone.properties --samzaExecutionEnvironment=STANDALONE --maxSourceParallelism=$MAX_SOURCE_PARALLELISM --enableMetrics=false
+CMD /uc4-beam-samza/bin/uc4-beam-samza --configFactory=org.apache.samza.config.factories.PropertiesConfigFactory --configFilePath=samza-standalone.properties --samzaExecutionEnvironment=STANDALONE --enableMetrics=false
