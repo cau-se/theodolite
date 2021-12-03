@@ -70,14 +70,8 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
     kubectl describe execution theodolite-example-execution
     ```
 
-<!--
 ## Next Steps
 
-* Deploy and run custom benchmarks
-* Define your own benchmarks
-* Customize the benchmark
-
-## Further Readings
-
-* Customize the Theodolite Installation
--->
+* [Deploy and run custom benchmarks](running-benchmarks)
+* [Define your own benchmarks](creating-a-benchmark)
+* [Customize the Theodolite Installation](installation)
