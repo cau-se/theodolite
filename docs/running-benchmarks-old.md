@@ -26,7 +26,7 @@ The general process for running Theodolite benchmarks in operator mode is as fol
 Benchmarks are defined as resources of our custom resource definition
 `Benchmark`. You can either create a new `Benchmark` for your custom benchmark
 or system under test or deploy one of the existing benchmarks, which can be
-found in [`theodolite-benchmarks/definitions`](theodolite-benchmarks/definitions). **TODO link**
+found in [`theodolite-benchmarks/definitions`](https://github.com/cau-se/theodolite/tree/master/theodolite-benchmarks/definitions).
 
 Suppose your `Benchmark` resource is stored in `example-benchmark.yaml`, you
 can deploy it by running:
