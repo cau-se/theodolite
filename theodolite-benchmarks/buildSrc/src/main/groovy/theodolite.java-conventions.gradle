@@ -50,7 +50,7 @@ pmd {
   ruleSets = [] // Gradle requires to clean the rule sets first
   ruleSetFiles = files("$rootProject.projectDir/config/pmd.xml")
   ignoreFailures = false
-  toolVersion = "6.7.0"
+  toolVersion = "6.13.0"
 }
 
 checkstyle {
@@ -58,7 +58,7 @@ checkstyle {
   configFile = file("$rootProject.projectDir/config/checkstyle.xml")
   maxWarnings = 0
   ignoreFailures = false
-  toolVersion = "8.12"
+  toolVersion = "8.19"
 }
 
 spotbugs {
