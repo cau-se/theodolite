@@ -36,6 +36,23 @@ build-docs:
     paths:
       - docs/_site
 
+test-docs-links:
+  stage: test
+  needs:
+    - build-docs
+  image: ruby:2.7
+  tags:
+    - exec-docker
+  cache:
+    paths:
+      - docs/vendor
+  before_script:
+    - cd docs
+    - gem install bundler
+    - bundle config set --local path 'vendor'
+    - bundle install
+  script: bundle exec htmlproofer --assume-extension ./_site
+
 
 # Theodolite Helm Chart
 
