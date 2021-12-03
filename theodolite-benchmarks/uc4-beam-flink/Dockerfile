@@ -1,5 +1,5 @@
-FROM openjdk:8-slim
+FROM openjdk:11-slim
 
-ADD build/distributions/uc2-application-flink.tar /
+ADD build/distributions/uc2-beam-flink.tar /
 
-CMD /uc2-application-flink/bin/uc2-application-flink --runner=FlinkRunner --flinkMaster=flink-jobmanager:8081 --streaming --parallelism=$PARALLELISM --disableMetrics=true --fasterCopy --stateBackend=rocksdb --stateBackendStoragePath=file:///data/flink/checkpoints
+CMD /uc2-beam-flink/bin/uc2-beam-flink --runner=FlinkRunner --streaming --disableMetrics=true --fasterCopy --stateBackend=rocksdb --stateBackendStoragePath=file:///data/flink/checkpoints
