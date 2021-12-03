@@ -22,11 +22,15 @@ This installs Theodolite in operator mode. Operator mode is the easiest to use, 
 
 As usual, the installation via Helm can be configured by passing a values YAML file:
 
-```
+```sh
 helm install theodolite theodolite/theodolite --values <your-config.yaml>
 ```
 
 For this purpose the [default values file](https://github.com/cau-se/theodolite/blob/master/helm/values.yaml) can serve as a template for your custom configuration.
+
+### Minimal setup
+
+For Kubernetes clusters with limited resources such as on local developer installations, we provide a [minimal values file](https://github.com/cau-se/theodolite/blob/master/helm/preconfigs/minimal.yaml).
 
 ### Operator mode
 
@@ -38,7 +42,7 @@ The Theodolite operator allows to run and manage benchmarks through the Kubernet
 
 For running Theodolite in standalone mode, it is sufficient to disable the operator by setting `operator.enabled` to `false`. With this setting, only Theodolite's dependencies as well as resources to get the necessary permissions are installed.
 
-### Random Scheduler
+### Random scheduler
 
 Installation of the random scheduler can be enabled via `randomScheduler.enabled`. Please note that the random scheduler is neither required in operator mode nor in standalone mode. However, it has to be installed if benchmark executions should use random scheduling.
 
@@ -74,7 +78,7 @@ helm test theodolite
 ```
 
 
-## Uninstall this Chart
+## Uninstall Theodolite
 
 The Theodolite Helm chart can easily be removed with:
 
