@@ -29,6 +29,10 @@ public class AbstractBeamService {
    */
   public AbstractBeamService(final String[] args) { //NOPMD
     super();
+    LOGGER.info("Pipeline options:");
+    for (final String s : args) {
+      LOGGER.info("{}", s);
+    }
     options = PipelineOptionsFactory.fromArgs(args).create();
     options.setJobName(applicationName);
     LOGGER.info("Starting BeamService with PipelineOptions {}:", this.options.toString());
