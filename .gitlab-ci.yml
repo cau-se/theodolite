@@ -18,8 +18,7 @@ stages:
 
 # Theodolite Docs
 
-build-docs:
-  stage: build
+.docs:
   image: ruby:2.7
   tags:
     - exec-docker
@@ -31,6 +30,10 @@ build-docs:
     - gem install bundler
     - bundle config set --local path 'vendor'
     - bundle install
+
+build-docs:
+  stage: build
+  extends: .docs
   script: bundle exec jekyll build
   artifacts:
     paths:
@@ -38,19 +41,9 @@ build-docs:
 
 test-docs-links:
   stage: test
+  extends: .docs
   needs:
     - build-docs
-  image: ruby:2.7
-  tags:
-    - exec-docker
-  cache:
-    paths:
-      - docs/vendor
-  before_script:
-    - cd docs
-    - gem install bundler
-    - bundle config set --local path 'vendor'
-    - bundle install
   script: bundle exec htmlproofer --assume-extension --allow_hash_href --url-ignore "/favicon.ico" ./_site
 
 
