@@ -200,7 +200,7 @@ deploy-uc1-beam-flink:
     IMAGE_NAME: "theodolite-uc1-beam-flink"
     JAVA_PROJECT_NAME: "uc1-beam-flink"
 
-deploy-uc2-b-flink:
+deploy-uc2-beam-flink:
   extends: .deploy-benchmarks
   rules:
     - changes:
