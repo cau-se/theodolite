@@ -29,7 +29,6 @@ dependencies {
     implementation project(':beam-commons')
 
     implementation group: 'org.apache.beam', name: 'beam-sdks-java-core', version: '2.22.0'
-//    compile group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
 
     implementation('org.apache.beam:beam-sdks-java-io-kafka:2.22.0'){
         exclude group: 'org.apache.kafka', module: 'kafka-clients'
