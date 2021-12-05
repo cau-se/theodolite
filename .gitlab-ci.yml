@@ -137,7 +137,7 @@ spotbugs-benchmarks:
       - theodolite-benchmarks/uc3-beam/**/*
       - theodolite-benchmarks/uc4-beam/**/*
       - theodolite-benchmarks/load-generator-commons/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $JAVA_PROJECT_DEPS"
       when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual
