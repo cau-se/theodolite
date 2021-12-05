@@ -131,6 +131,7 @@ spotbugs-benchmarks:
       - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
       - theodolite-benchmarks/kstreams-commons/**/*
       - theodolite-benchmarks/flink-commons/**/*
+      - theodolite-benchmarks/beam-commons/**/*
       - theodolite-benchmarks/load-generator-commons/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: always
@@ -138,6 +139,7 @@ spotbugs-benchmarks:
       when: manual
       allow_failure: true
 
+# ---------------------- Kstreams:
 deploy-uc1-kstreams:
   extends: .deploy-benchmarks
   variables:
@@ -162,6 +164,7 @@ deploy-uc4-kstreams:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-kstreams"
 
+# ---------------------- Flink:
 deploy-uc1-flink:
   extends: .deploy-benchmarks
   variables:
@@ -186,6 +189,89 @@ deploy-uc4-flink:
     IMAGE_NAME: "theodolite-uc4-flink"
     JAVA_PROJECT_NAME: "uc4-flink"
 
+# ---------------------- Beam - Flink :
+deploy-uc1-beam-flink:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+        - theodolite-benchmarks/uc1-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-flink"
+    JAVA_PROJECT_NAME: "uc1-beam-flink"
+
+deploy-uc2-b-flink:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+        - theodolite-benchmarks/uc2-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-flink"
+    JAVA_PROJECT_NAME: "uc2-beam-flink"
+
+deploy-uc3-beam-flink:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+        - theodolite-benchmarks/uc3-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-flink"
+    JAVA_PROJECT_NAME: "uc3-beam-flink"
+
+deploy-uc4-beam-flink:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+      -  theodolite-benchmarks/uc4-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-flink"
+    JAVA_PROJECT_NAME: "uc4-beam-flink"
+
+# ---------------------- Beam - Samza:
+deploy-uc1-beam-samza:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/uc1-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-samza"
+    JAVA_PROJECT_NAME: "uc1-beam-samza"
+
+deploy-uc2-beam-samza:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/uc2-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-samza"
+    JAVA_PROJECT_NAME: "uc2-beam-samza"
+
+deploy-uc3-beam-samza:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/uc3-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-samza"
+    JAVA_PROJECT_NAME: "uc3-beam-samza"
+
+deploy-uc4-beam-samza:
+  extends: .deploy-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/uc4-beam/**/*
+      when: always
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-samza"
+    JAVA_PROJECT_NAME: "uc4-beam-samza"
+
+# ---------------------- Loadgenerator:
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks
   variables:
@@ -209,6 +295,7 @@ deploy-uc4-load-generator:
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-load-generator"
+
       
 
 # Theodolite Framework
