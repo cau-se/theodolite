@@ -39,8 +39,9 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KAFKA_WINDOW_DURATION_MINUTES: 60
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc1-workload-generator:latest
+    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:latest
     depends_on:
       - schema-registry
       - kafka

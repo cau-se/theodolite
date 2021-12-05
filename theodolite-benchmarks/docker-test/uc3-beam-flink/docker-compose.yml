@@ -40,7 +40,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc1-workload-generator:latest
+    image: ghcr.io/cau-se/theodolite-uc3-workload-generator:latest
     depends_on:
       - schema-registry
       - kafka
