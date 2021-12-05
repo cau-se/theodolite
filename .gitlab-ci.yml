@@ -149,24 +149,28 @@ deploy-uc1-kstreams:
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
 
 deploy-uc2-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
     JAVA_PROJECT_NAME: "uc2-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
 
 deploy-uc3-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
     JAVA_PROJECT_NAME: "uc3-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
 
 deploy-uc4-kstreams:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
 
 # ---------------------- Flink:
 deploy-uc1-flink:
@@ -174,24 +178,28 @@ deploy-uc1-flink:
   variables:
     IMAGE_NAME: "theodolite-uc1-flink"
     JAVA_PROJECT_NAME: "uc1-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
 
 deploy-uc2-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-flink"
     JAVA_PROJECT_NAME: "uc2-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
 
 deploy-uc3-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-flink"
     JAVA_PROJECT_NAME: "uc3-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
 
 deploy-uc4-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-flink"
     JAVA_PROJECT_NAME: "uc4-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
 
 # ---------------------- Beam - Flink :
 deploy-uc1-beam-flink:
@@ -199,24 +207,28 @@ deploy-uc1-beam-flink:
   variables:
     IMAGE_NAME: "theodolite-uc1-beam-flink"
     JAVA_PROJECT_NAME: "uc1-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
 
 deploy-uc2-beam-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-beam-flink"
     JAVA_PROJECT_NAME: "uc2-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
 
 deploy-uc3-beam-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-beam-flink"
     JAVA_PROJECT_NAME: "uc3-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
 
 deploy-uc4-beam-flink:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-beam-flink"
     JAVA_PROJECT_NAME: "uc4-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
 
 # ---------------------- Beam - Samza:
 deploy-uc1-beam-samza:
@@ -224,24 +236,28 @@ deploy-uc1-beam-samza:
   variables:
     IMAGE_NAME: "theodolite-uc1-beam-samza"
     JAVA_PROJECT_NAME: "uc1-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
 
 deploy-uc2-beam-samza:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-beam-samza"
     JAVA_PROJECT_NAME: "uc2-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
 
 deploy-uc3-beam-samza:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-beam-samza"
     JAVA_PROJECT_NAME: "uc3-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
 
 deploy-uc4-beam-samza:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-beam-samza"
     JAVA_PROJECT_NAME: "uc4-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
 
 # ---------------------- Loadgenerator:
 deploy-uc1-load-generator:
@@ -249,24 +265,28 @@ deploy-uc1-load-generator:
   variables:
     IMAGE_NAME: "theodolite-uc1-workload-generator"
     JAVA_PROJECT_NAME: "uc1-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
 
 deploy-uc2-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-workload-generator"
     JAVA_PROJECT_NAME: "uc2-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
 
 deploy-uc3-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-workload-generator"
     JAVA_PROJECT_NAME: "uc3-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
 
 deploy-uc4-load-generator:
   extends: .deploy-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
       
 
 # Theodolite Framework
