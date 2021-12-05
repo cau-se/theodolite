@@ -17,7 +17,7 @@ public class MapTimeFormat extends SimpleFunction<KV<String, ActivePowerRecord>,
   private final ZoneId zone = ZoneId.of("Europe/Paris");
 
   @Override
-  public KV<application.HourOfDayKey, ActivePowerRecord> apply(
+  public KV<HourOfDayKey, ActivePowerRecord> apply(
       final KV<String, ActivePowerRecord> kv) {
     final Instant instant = Instant.ofEpochMilli(kv.getValue().getTimestamp());
     final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, this.zone);
