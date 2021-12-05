@@ -295,7 +295,6 @@ deploy-uc4-load-generator:
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-load-generator"
-
       
 
 # Theodolite Framework
