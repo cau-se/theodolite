@@ -136,7 +136,6 @@ spotbugs-benchmarks:
       when: manual
       allow_failure: true
 
-# ---------------------- Kstreams:
 deploy-uc1-kstreams:
   extends: .deploy-benchmarks
   variables:
@@ -165,7 +164,6 @@ deploy-uc4-kstreams:
     JAVA_PROJECT_NAME: "uc4-kstreams"
     JAVA_PROJECT_DEPS: "kstreams-commons"
 
-# ---------------------- Flink:
 deploy-uc1-flink:
   extends: .deploy-benchmarks
   variables:
@@ -194,7 +192,6 @@ deploy-uc4-flink:
     JAVA_PROJECT_NAME: "uc4-flink"
     JAVA_PROJECT_DEPS: "flink-commons"
 
-# ---------------------- Beam - Flink :
 deploy-uc1-beam-flink:
   extends: .deploy-benchmarks
   variables:
@@ -223,7 +220,6 @@ deploy-uc4-beam-flink:
     JAVA_PROJECT_NAME: "uc4-beam-flink"
     JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
 
-# ---------------------- Beam - Samza:
 deploy-uc1-beam-samza:
   extends: .deploy-benchmarks
   variables:
@@ -252,7 +248,6 @@ deploy-uc4-beam-samza:
     JAVA_PROJECT_NAME: "uc4-beam-samza"
     JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
 
-# ---------------------- Loadgenerator:
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks
   variables:
