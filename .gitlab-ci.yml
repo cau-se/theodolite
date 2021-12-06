@@ -19,6 +19,7 @@ stages:
 
 lint-helm:
   stage: check
+  needs: []
   image:
     name: alpine/helm:3.5.2
     entrypoint: [""]
@@ -315,6 +316,7 @@ deploy-theodolite:
 
 test-slo-checker-lag-trend:
   stage: test
+  needs: []
   image: python:3.7-slim
   tags:
     - exec-docker
@@ -326,6 +328,7 @@ test-slo-checker-lag-trend:
 
 test-slo-checker-dropped-records-kstreams:
   stage: test
+  needs: []
   image: python:3.7-slim
   tags:
     - exec-docker
