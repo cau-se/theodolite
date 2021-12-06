@@ -324,7 +324,7 @@ deploy-theodolite-kaniko:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CR_HOST\":{\"username\":\"$CR_USER\",\"password\":\"$CR_PW\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $PWD/src/main/docker/ --dockerfile Dockerfile.jvm -d $CR_ORG/theodolite:${DOCKER_TAG_NAME}latest-kaniko
+    - /kaniko/executor --context $PWD --dockerfile $PWD/src/main/docker/Dockerfile.jvm -d $CR_ORG/theodolite:${DOCKER_TAG_NAME}latest-kaniko
   rules:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
       when: always
@@ -335,6 +335,7 @@ deploy-theodolite-kaniko:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
+
 
 # Theodolite SLO Checker: Lag Trend
 
