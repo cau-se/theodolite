@@ -1,8 +1,15 @@
+include:
+  - template: 'Workflows/Branch-Pipelines.gitlab-ci.yml'
+
 stages:
   - build
   - test
   - check
   - deploy
+
+default:
+  tags:
+    - exec-docker
 
 .dind:
   tags:
@@ -15,15 +22,15 @@ stages:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
+
 # Theodolite Helm Chart
 
 lint-helm:
   stage: check
+  needs: []
   image:
     name: alpine/helm:3.5.2
     entrypoint: [""]
-  tags:
-    - exec-docker
   script: helm lint helm/
 
 
@@ -31,8 +38,6 @@ lint-helm:
 
 .benchmarks:
   image: openjdk:11-jdk
-  tags:
-    - exec-docker
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -42,6 +47,11 @@ lint-helm:
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - cd theodolite-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/**/*
+    - when: manual
+      allow_failure: true
 
 build-benchmarks:
   stage: build
@@ -124,14 +134,11 @@ spotbugs-benchmarks:
     - docker push $CR_HOST/$CR_ORG/$IMAGE_NAME
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - theodolite-benchmarks/*
       - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
       - theodolite-benchmarks/{$JAVA_PROJECT_DEPS}/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $JAVA_PROJECT_DEPS"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual
       allow_failure: true
@@ -283,8 +290,6 @@ deploy-uc4-load-generator:
   image:
     name: ghcr.io/graalvm/native-image:java11-21.1.0
     entrypoint: [""]
-  tags:
-    - exec-docker
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -366,40 +371,47 @@ deploy-theodolite:
     - docker push $CR_HOST/$CR_ORG/theodolite
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - theodolite/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
 
 
-# Theodolite SLO Checker: Lag Trend
+# Theodolite SLO Checker
 
 test-slo-checker-lag-trend:
   stage: test
+  needs: []
   image: python:3.7-slim
-  tags:
-    - exec-docker
-  script:
+  before_script:
     - cd slo-checker/record-lag
+  script:
     - pip install -r requirements.txt
     - cd app
     - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/record-lag/**/*
+    - when: manual
+      allow_failure: true
 
 test-slo-checker-dropped-records-kstreams:
   stage: test
+  needs: []
   image: python:3.7-slim
-  tags:
-    - exec-docker
-  script:
+  before_script:
     - cd slo-checker/dropped-records
+  script:
     - pip install -r requirements.txt
     - cd app
     - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/dropped-records/**/*
+    - when: manual
+      allow_failure: true
 
 deploy-slo-checker-lag-trend:
   stage: deploy
@@ -416,12 +428,9 @@ deploy-slo-checker-lag-trend:
     - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - slo-checker/record-lag/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
@@ -441,12 +450,9 @@ deploy-slo-checker-dropped-records-kstreams:
     - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - slo-checker/dropped-records/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
@@ -468,12 +474,9 @@ deploy-random-scheduler:
     - docker push $CR_HOST/$CR_ORG/theodolite-random-scheduler
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - execution/infrastructure/random-scheduler/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
