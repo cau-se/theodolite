@@ -24,7 +24,6 @@ public class KafkaActivePowerRecordReader extends
   /**
    * Instantiates a {@link PTransform} that reads from Kafka with the given Configuration.
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public KafkaActivePowerRecordReader(final String bootstrapServer, final String inputTopic,
                                       final Map<String, Object> consumerConfig) {
     super();

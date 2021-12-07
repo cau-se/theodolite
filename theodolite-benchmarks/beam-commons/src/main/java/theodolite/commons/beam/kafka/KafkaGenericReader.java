@@ -22,9 +22,8 @@ public class KafkaGenericReader<K, V> extends
   /**
    * Instantiates a {@link PTransform} that reads from Kafka with the given Configuration.
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public KafkaGenericReader(final String bootstrapServer, final String inputTopic,
-                            final Map consumerConfig,
+                            final Map<String, Object> consumerConfig,
                             final Class<? extends
                                 org.apache.kafka.common.serialization.Deserializer<K>>
                                   keyDeserializer,
