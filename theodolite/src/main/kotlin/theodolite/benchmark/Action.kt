@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
+import theodolite.util.ActionCommandFailedException
 
 @JsonDeserialize
 @RegisterForReflection
@@ -14,12 +15,15 @@ class Action {
     lateinit var exec: Command
 
     fun exec(client: NamespacedKubernetesClient) {
-        ActionCommand(client = client)
+        val exitCode = ActionCommand(client = client)
             .exec(
                 matchLabels = selector.pod.matchLabels,
                 container = selector.container,
                 command = exec.command
-            )
+        )
+            if(exitCode != 0){
+            throw ActionCommandFailedException("Error while executing action, finished with exit code $exitCode")
+        }
     }
 }
 
@@ -37,5 +41,5 @@ class PodSelector {
 @JsonDeserialize
 @RegisterForReflection
 class Command {
-    lateinit var command: String
+    lateinit var command: Array<String>
 }

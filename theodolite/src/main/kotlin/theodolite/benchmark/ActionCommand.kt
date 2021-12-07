@@ -27,9 +27,9 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
      * `of any` of is used and the command is called on one of the possible pods.
      * @param container (Optional) The container to run the command. Is optional iff exactly one container exist.
      * @param command The command to be executed.
-     * @return
+     * @return the exit code of this executed command
      */
-    fun exec(matchLabels: MutableMap<String, String>, command: String, container: String = ""): Int {
+    fun exec(matchLabels: MutableMap<String, String>, command: Array<String>, container: String = ""): Int {
 
         val exitCode = ExitCode()
 
@@ -48,7 +48,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
                 .writingOutput(out)
                 .writingError(error)
                 .usingListener(MyPodExecListener(execLatch, exitCode))
-                .exec(*command.split(" ").toTypedArray())
+                .exec(*command)
 
             val latchTerminationStatus = execLatch.await(TIMEOUT, TimeUnit.SECONDS);
             if (!latchTerminationStatus) {
@@ -60,7 +60,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
             throw ActionCommandFailedException("Interrupted while waiting for the exec", e)
         }
 
-        logger.info { "Action command finished with code $exitCode" }
+        logger.info { "Action command finished with code ${exitCode.code}" }
         return exitCode.code
     }
 
@@ -101,7 +101,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
 
         override fun onFailure(throwable: Throwable, response: Response) {
             execLatch.countDown()
-            throw ActionCommandFailedException("Some error encountered while executing action")
+            throw ActionCommandFailedException("Some error encountered while executing action: ${throwable.printStackTrace()}")
         }
 
         override fun onClose(code: Int, reason: String) {

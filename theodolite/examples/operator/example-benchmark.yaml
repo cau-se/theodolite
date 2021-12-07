@@ -19,9 +19,9 @@ spec:
       - selector:
           pod:
             matchLabels:
-              app: titan-ccp-aggregation
+              app: busybox1
         exec:
-          command: "ls -l" # or list
+          command: ["rm", "test-folder"]
   loadGenerator:
     resources:
       - configMap:
@@ -29,15 +29,7 @@ spec:
          files:
             - uc1-load-generator-service.yaml
             - uc1-load-generator-deployment.yaml
-    beforeActions:
-      - selector:
-          pod:
-            matchLabels:
-              'app.kubernetes.io/name': grafana
-
-          #container: "abc" # optional (if there is only one container or there exists something like a default container)
-        exec:
-          command: "kafka-topics.sh --create --topic abc" # or list
+    beforeActions: []
   resourceTypes:
     - typeName: "Instances"
       patchers:
