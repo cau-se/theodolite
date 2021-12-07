@@ -308,11 +308,9 @@ deploy-theodolite:
     - docker logout
   rules:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - theodolite/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
@@ -356,11 +354,9 @@ deploy-slo-checker-lag-trend:
     - docker logout
   rules:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - slo-checker/record-lag/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
@@ -381,11 +377,9 @@ deploy-slo-checker-dropped-records-kstreams:
     - docker logout
   rules:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - slo-checker/dropped-records/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
@@ -408,11 +402,9 @@ deploy-random-scheduler:
     - docker logout
   rules:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - execution/infrastructure/random-scheduler/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
