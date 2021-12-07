@@ -8,10 +8,12 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import theodolite.commons.hazelcastjet.ConfigurationKeys;
 import theodolite.commons.hazelcastjet.JetInstanceBuilder;
+import theodolite.uc4.application.uc4specifics.ImmutableSensorRegistryUc4Serializer;
 import theodolite.uc4.application.uc4specifics.SensorGroupKey;
 import theodolite.uc4.application.uc4specifics.SensorGroupKeySerializer;
 import theodolite.uc4.application.uc4specifics.ValueGroup;
 import theodolite.uc4.application.uc4specifics.ValueGroupSerializer;
+import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC4
@@ -66,6 +68,8 @@ public class Uc4HazelcastJetFactory {
     final JobConfig jobConfig = new JobConfig()
         .registerSerializer(ValueGroup.class, ValueGroupSerializer.class)
         .registerSerializer(SensorGroupKey.class, SensorGroupKeySerializer.class)
+        .registerSerializer(ImmutableSensorRegistry.class,
+            ImmutableSensorRegistryUc4Serializer.class)
         .setName(jobName);
     this.uc4JetInstance.newJobIfAbsent(this.uc4JetPipeline, jobConfig).join();
   }
@@ -121,7 +125,7 @@ public class Uc4HazelcastJetFactory {
       throw new IllegalStateException("Kafka Config Read Properties for pipeline not set! "
           + defaultPipelineWarning);
     }
-    
+
     // Check if Properties for the Kafka Feedback Read are set.
     if (this.kafkaFeedbackPropsForPipeline == null) {
       throw new IllegalStateException("Kafka Feedback Read Properties for pipeline not set! "

@@ -95,7 +95,7 @@ public class Uc4PipelineBuilder {
           // DEBUG
           // System.out.println("D E B U G: It passed through the filter");
 
-          return Map.entry(data.getKey(), SensorRegistry.fromJson(data.getValue()));
+          return Util.entry(data.getKey(), SensorRegistry.fromJson(data.getValue()));
         });
 
     // Builds a new HashMap //
@@ -173,7 +173,7 @@ public class Uc4PipelineBuilder {
           // System.out.println("INPUT D E B U G: Got an input Stream Element!");
           // System.out.println("[SensorId=" + sensorId + "//valueinW=" + valueInW.toString());
 
-          return Map.entry(sensorId, valueInW);
+          return Util.entry(sensorId, valueInW);
         });
 
     // (1) Aggregation Stream
@@ -210,13 +210,13 @@ public class Uc4PipelineBuilder {
               if (sensorParentsCasted == null) {
                 Set<String> nullSet = new HashSet<String>();
                 nullSet.add("NULL-GROUPSET");
-                return Map.entry(sensorEvent.getKey(),
+                return Util.entry(sensorEvent.getKey(),
                     new ValueGroup(sensorEvent.getValue(), nullSet));
               } else {
                 ValueGroup valueParentsPair =
                     new ValueGroup(sensorEvent.getValue(), sensorParentsCasted);
                 // Return solution
-                return Map.entry(sensorEvent.getKey(), valueParentsPair);
+                return Util.entry(sensorEvent.getKey(), valueParentsPair);
               }
 
 
@@ -242,7 +242,7 @@ public class Uc4PipelineBuilder {
               new ArrayList<Entry<SensorGroupKey, Double>>();
           for (int i = 0; i < groupList.length; i++) {
             newKeyList[i] = new SensorGroupKey(keyGroupId, groupList[i]);
-            newEntryList.add(Map.entry(newKeyList[i], valueInW));
+            newEntryList.add(Util.entry(newKeyList[i], valueInW));
             // DEBUG
             // System.out.println("Added new Entry to list: [(" + newKeyList[i].getSensorId() + ","
             // + newKeyList[i].getGroup() + ")," + valueInW.toString());
