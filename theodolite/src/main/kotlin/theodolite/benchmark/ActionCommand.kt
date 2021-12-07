@@ -63,12 +63,11 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
             Thread.currentThread().interrupt();
             throw ActionCommandFailedException("Interrupted while waiting for the exec", e)
         }
-
         logger.info { "Action command finished with code ${exitCode.code}" }
         return exitCode.code
     }
 
-    private fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
+    fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
         for (i in 1..tries) {
 
             try {
@@ -81,7 +80,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         throw ActionCommandFailedException("Couldn't find any pod that matches the specified labels.")
     }
 
-    private fun getPodName(matchLabels: MutableMap<String, String>): String {
+    fun getPodName(matchLabels: MutableMap<String, String>): String {
         return try {
             val podNames = this.client
                 .pods()
