@@ -22,6 +22,20 @@ default:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
+.kaniko-push:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CR_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_USER}" "${CR_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest\""
+    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA\""
+    - "[ $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG\""
+    - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
+    - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
+
 
 # Theodolite Docs
 
@@ -151,21 +165,16 @@ spotbugs-benchmarks:
   stage: deploy
   extends:
     - .benchmarks
-    - .dind
+    - .kaniko-push
   needs:
     - build-benchmarks
     - checkstyle-benchmarks
     - pmd-benchmarks
     - spotbugs-benchmarks
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/$IMAGE_NAME
-    - docker logout
+  variables:
+    CONTEXT: "/$JAVA_PROJECT_NAME"
+  #before_script:
+  #  - cd theodolite-benchmarks/$JAVA_PROJECT_NAME
   rules:
     - changes:
       - theodolite-benchmarks/*
@@ -322,21 +331,15 @@ deploy-theodolite:
   stage: deploy
   extends:
     - .theodolite
-    - .dind
+    - .kaniko-push
   needs:
     #- build-theodolite-native
     - build-theodolite-jvm
     - test-theodolite
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
-    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite
-    - docker logout
+  variables:
+    IMAGE_NAME: theodolite
+    DOCKERFILE: src/main/docker/Dockerfile.jvm
+    #DOCKERFILE: src/main/docker/Dockerfile.native
   rules:
     - changes:
       - theodolite/**/*
@@ -383,17 +386,13 @@ test-slo-checker-dropped-records-kstreams:
 deploy-slo-checker-lag-trend:
   stage: deploy
   extends:
-    - .dind
+    - .kaniko-push
   needs:
     - test-slo-checker-lag-trend
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-slo-checker-lag-trend slo-checker/record-lag
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:${DOCKER_TAG_NAME}latest"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend
-    - docker logout
+  before_script:
+    - cd slo-checker/record-lag
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-lag-trend
   rules:
     - changes:
       - slo-checker/record-lag/**/*
@@ -405,17 +404,13 @@ deploy-slo-checker-lag-trend:
 deploy-slo-checker-dropped-records-kstreams:
   stage: deploy
   extends:
-    - .dind
+    - .kaniko-push
   needs:
     - test-slo-checker-dropped-records-kstreams
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-slo-checker-dropped-records-kstreams slo-checker/dropped-records
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-dropped-records-kstreams $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams:${DOCKER_TAG_NAME}latest"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-dropped-records-kstreams $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams
-    - docker logout
+  before_script:
+    - cd slo-checker/dropped-records
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-dropped-records-kstreams
   rules:
     - changes:
       - slo-checker/dropped-records/**/*
@@ -430,16 +425,12 @@ deploy-slo-checker-dropped-records-kstreams:
 deploy-random-scheduler:
   stage: deploy
   extends:
-    - .dind
+    - .kaniko-push
   needs: []
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-random-scheduler execution/infrastructure/random-scheduler
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:${DOCKER_TAG_NAME}latest"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite-random-scheduler
-    - docker logout
+  before_script:
+    - cd execution/infrastructure/random-scheduler
+  variables:
+    IMAGE_NAME: theodolite-random-scheduler
   rules:
     - changes:
       - execution/infrastructure/random-scheduler/**/*
