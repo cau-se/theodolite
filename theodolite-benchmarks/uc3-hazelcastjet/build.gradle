@@ -1,0 +1,6 @@
+plugins {
+  // common java conventions
+  id 'theodolite.hazelcastjet'
+}
+
+mainClassName = "theodolite.uc3.application.HistoryService"
