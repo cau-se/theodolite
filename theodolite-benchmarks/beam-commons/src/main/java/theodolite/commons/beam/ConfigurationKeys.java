@@ -7,8 +7,6 @@ public final class ConfigurationKeys {
   // Common keys
   public static final String APPLICATION_NAME = "application.name";
 
-  public static final String APPLICATION_VERSION = "application.version";
-
   public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
 
   public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
@@ -31,8 +29,6 @@ public final class ConfigurationKeys {
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
 
   // UC4
-  public static final String EMIT_PERIOD_MS = "emit.period.ms";
-
   public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
 
@@ -44,8 +40,6 @@ public final class ConfigurationKeys {
   public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";
 
   public static final String TRIGGER_INTERVAL  = "trigger.interval";
-
-
 
 
   private ConfigurationKeys() {
