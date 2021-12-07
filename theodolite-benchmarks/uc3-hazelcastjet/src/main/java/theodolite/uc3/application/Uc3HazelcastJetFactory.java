@@ -20,7 +20,7 @@ import theodolite.uc3.application.uc3specifics.HourOfDayKeySerializer;
  * Outside data only refers to custom values or default values in case data of the environment
  * cannot the fetched.
  */
-public class Uc3HazelcastJetFactory { //NOPMD
+public class Uc3HazelcastJetFactory { // NOPMD
 
   // Information per History Service
   private Properties kafkaReadPropsForPipeline;
@@ -33,31 +33,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
   private int windowSizeInSeconds;
   private int hoppingSizeInSeconds;
 
-  // Checkflags
-  private boolean readPropertiesSet;
-  private boolean writePropertiesSet;
-  private boolean inputTopicSet;
-  private boolean outputTopicSet;
-  private boolean pipelineSet;
-  private boolean jetInstanceSet;
-  private boolean windowSizeInSecondsSet;
-  private boolean hoppingSizeInSecondsSet;
-
-
-  /**
-   * Create a new Hazelcast Jet Factory for UC3.
-   */
-  public Uc3HazelcastJetFactory() {
-    this.readPropertiesSet = false;
-    this.writePropertiesSet = false;
-    this.inputTopicSet = false;
-    this.outputTopicSet = false;
-    this.pipelineSet = false;
-    this.jetInstanceSet = false;
-    this.windowSizeInSecondsSet = false;
-    this.hoppingSizeInSecondsSet = false;
-  }
-
   /////////////////////////////////////
   // Layer 1 - Hazelcast Jet Run Job //
   /////////////////////////////////////
@@ -69,24 +44,25 @@ public class Uc3HazelcastJetFactory { //NOPMD
    * @param jobName The name of the job.
    * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
-  public void runUc3Job(final String jobName) throws Exception { // NOPMD
-    if (this.jetInstanceSet) {
-      if (this.pipelineSet) {
+  public void runUc3Job(final String jobName) throws IllegalStateException { // NOPMD
 
-        // Adds the job name and joins a job to the JetInstance defined in this factory
-        final JobConfig jobConfig = new JobConfig()
-        .registerSerializer(HourOfDayKey.class, HourOfDayKeySerializer.class)
-        .setName(jobName);
-        this.uc3JetInstance.newJobIfAbsent(this.uc3JetPipeline, jobConfig).join();
-
-      } else {
-        throw new Exception(// NOPMD
-            "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC3.");
-      }
-    } else {
-      throw new Exception("Jet Instance is not set! " // NOPMD
+    // Check if a Jet Instance for UC3 is set.
+    if (this.uc3JetInstance == null) {
+      throw new IllegalStateException("Jet Instance is not set! "
           + "Cannot start a hazelcast jet job for UC3.");
     }
+
+    // Check if a Pipeline for UC3 is set.
+    if (this.uc3JetPipeline == null) {
+      throw new IllegalStateException(
+          "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC3.");
+    }
+
+    // Adds the job name and joins a job to the JetInstance defined in this factory
+    final JobConfig jobConfig = new JobConfig()
+        .registerSerializer(HourOfDayKey.class, HourOfDayKeySerializer.class)
+        .setName(jobName);
+    this.uc3JetInstance.newJobIfAbsent(this.uc3JetPipeline, jobConfig).join();
   }
 
   /////////////
@@ -108,7 +84,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
     this.uc3JetInstance = new JetInstanceBuilder()
         .setConfigFromEnv(logger, bootstrapServerDefault, hzKubernetesServiceDnsKey)
         .build();
-    this.jetInstanceSet = true;
     return this;
   }
 
@@ -120,48 +95,57 @@ public class Uc3HazelcastJetFactory { //NOPMD
    * @throws Exception If the input topic or the kafka properties are not defined, the pipeline
    *         cannot be built.
    */
-  public Uc3HazelcastJetFactory buildUc3Pipeline() throws Exception { // NOPMD
-    // Check for set properties and set input topic
-    if (this.readPropertiesSet) {
-      if (this.writePropertiesSet) {
-        if (this.inputTopicSet) {
-          if (this.outputTopicSet) {
-            if (this.windowSizeInSecondsSet) {
-              if (this.hoppingSizeInSecondsSet) {
-                // Build Pipeline Using the pipelineBuilder
-                final Uc3PipelineBuilder pipeBuilder = new Uc3PipelineBuilder();
-                this.uc3JetPipeline =
-                    pipeBuilder.build(this.kafkaReadPropsForPipeline,
-                        this.kafkaWritePropsForPipeline,
-                        this.kafkaInputTopic, this.kafkaOutputTopic, this.hoppingSizeInSeconds,
-                        this.windowSizeInSeconds);
-                this.pipelineSet = true;
-                // Return Uc3HazelcastJetBuilder factory
-                return this;
-              } else {
-                throw new Exception("hopping size in seconds for pipeline not set! " // NOPMD
-                    + "Cannot build pipeline."); // NOCS //NOPMD
-              }
-            } else {
-              throw new Exception("window size in seconds for pipeline not set! " // NOPMD
-                  + "Cannot build pipeline."); // NOCS // NOPMD
-            }
-          } else {
-            throw new Exception("kafka output topic for pipeline not set! " // NOPMD
-                + "Cannot build pipeline."); // NOCS // NOPMD
-          }
-        } else {
-          throw new Exception("Kafka input topic for pipeline not set! " // NOPMD
-              + "Cannot build pipeline."); // NOCS // NOPMD
-        }
-      } else {
-        throw new Exception("Kafka Write Properties for pipeline not set! " // NOPMD
-            + "Cannot build pipeline."); // NOCS // NOPMD
-      }
-    } else {
-      throw new Exception("Kafka Read Properties for pipeline not set! " // NOPMD
-          + "Cannot build pipeline."); // NOCS // NOPMD
+  public Uc3HazelcastJetFactory buildUc3Pipeline() throws IllegalStateException { // NOPMD
+
+    final String defaultPipelineWarning = "Cannot build pipeline."; // NOPMD
+
+    // Check if Properties for the Kafka Input are set.
+    if (this.kafkaReadPropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Read Properties for pipeline not set! "
+          + defaultPipelineWarning);
     }
+
+    // Check if Properties for the Kafka Output are set.
+    if (this.kafkaWritePropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Write Properties for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka input topic is set.
+    if (this.kafkaInputTopic == null) {
+      throw new IllegalStateException("Kafka input topic for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka output topic is set.
+    if (this.kafkaOutputTopic == null) {
+      throw new IllegalStateException("kafka output topic for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the window size for the "sliding" window is set.
+    if (this.windowSizeInSeconds <= 0) {
+      throw new IllegalStateException(
+          "window size in seconds for pipeline not set or not greater than 0! "
+              + defaultPipelineWarning);
+    }
+
+    // Check if the hopping distance for the "sliding" window is set.
+    if (this.hoppingSizeInSeconds <= 0) {
+      throw new IllegalStateException(
+          "hopping size in seconds for pipeline not set or not greater than 0! "
+              + defaultPipelineWarning);
+    }
+
+    // Build Pipeline Using the pipelineBuilder
+    final Uc3PipelineBuilder pipeBuilder = new Uc3PipelineBuilder();
+    this.uc3JetPipeline =
+        pipeBuilder.build(this.kafkaReadPropsForPipeline,
+            this.kafkaWritePropsForPipeline,
+            this.kafkaInputTopic, this.kafkaOutputTopic, this.hoppingSizeInSeconds,
+            this.windowSizeInSeconds);
+    // Return Uc3HazelcastJetBuilder factory
+    return this;
   }
 
   /////////////
@@ -178,7 +162,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
   public Uc3HazelcastJetFactory setCustomReadProperties(// NOPMD
       final Properties kafkaReadProperties) {
     this.kafkaReadPropsForPipeline = kafkaReadProperties;
-    this.readPropertiesSet = true;
     return this;
   }
 
@@ -192,7 +175,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
   public Uc3HazelcastJetFactory setCustomWriteProperties(// NOPMD
       final Properties kafkaWriteProperties) {
     this.kafkaWritePropsForPipeline = kafkaWriteProperties;
-    this.writePropertiesSet = true;
     return this;
   }
 
@@ -214,7 +196,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
         propsBuilder.buildKafkaReadPropsFromEnv(bootstrapServersDefault,
             schemaRegistryUrlDefault);
     this.kafkaReadPropsForPipeline = kafkaReadProps;
-    this.readPropertiesSet = true;
     return this;
   }
 
@@ -232,7 +213,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
     final Properties kafkaWriteProps =
         propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault);
     this.kafkaWritePropsForPipeline = kafkaWriteProps;
-    this.writePropertiesSet = true;
     return this;
   }
 
@@ -245,7 +225,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
   public Uc3HazelcastJetFactory setCustomKafkaInputTopic(// NOPMD
       final String inputTopic) {
     this.kafkaInputTopic = inputTopic;
-    this.inputTopicSet = true;
     return this;
   }
 
@@ -257,7 +236,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
    */
   public Uc3HazelcastJetFactory setCustomKafkaOutputTopic(final String outputTopic) { // NOPMD
     this.kafkaOutputTopic = outputTopic;
-    this.outputTopicSet = true;
     return this;
   }
 
@@ -274,7 +252,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
     this.kafkaInputTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_INPUT_TOPIC),
         defaultInputTopic);
-    this.inputTopicSet = true;
     return this;
   }
 
@@ -290,7 +267,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
     this.kafkaOutputTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_OUTPUT_TOPIC),
         defaultOutputTopic);
-    this.outputTopicSet = true;
     return this;
   }
 
@@ -303,7 +279,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
   public Uc3HazelcastJetFactory setCustomWindowSizeInSeconds(// NOPMD
       final int windowSizeInSeconds) {
     this.windowSizeInSeconds = windowSizeInSeconds;
-    this.windowSizeInSecondsSet = true;
     return this;
   }
 
@@ -321,7 +296,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
         defaultWindowSizeInSeconds);
     final int windowSizeInSecondsNumber = Integer.parseInt(windowSizeInSeconds);
     this.windowSizeInSeconds = windowSizeInSecondsNumber;
-    this.windowSizeInSecondsSet = true;
     return this;
   }
 
@@ -334,7 +308,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
   public Uc3HazelcastJetFactory setCustomHoppingSizeInSeconds(// NOPMD
       final int hoppingSizeInSeconds) {
     this.hoppingSizeInSeconds = hoppingSizeInSeconds;
-    this.hoppingSizeInSecondsSet = true;
     return this;
   }
 
@@ -352,7 +325,6 @@ public class Uc3HazelcastJetFactory { //NOPMD
         defaultHoppingSizeInSeconds);
     final int hoppingSizeInSecondsNumber = Integer.parseInt(hoppingSizeInSeconds);
     this.hoppingSizeInSeconds = hoppingSizeInSecondsNumber;
-    this.hoppingSizeInSecondsSet = true;
     return this;
   }
 }

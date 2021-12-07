@@ -11,7 +11,7 @@ import java.util.HashSet;
 public class ValueGroupSerializer implements StreamSerializer<ValueGroup> {
 
   private static final int TYPE_ID = 1;
-  
+
   @Override
   public int getTypeId() {
     return TYPE_ID;
@@ -19,13 +19,14 @@ public class ValueGroupSerializer implements StreamSerializer<ValueGroup> {
 
   @Override
   public void write(final ObjectDataOutput out, final ValueGroup key) throws IOException {
-    out.writeDouble(key.getValueInW()); 
-    out.writeString(String.join(",", key.getGroups())); 
+    out.writeDouble(key.getValueInW());
+    out.writeString(String.join(",", key.getGroups()));
   }
 
   @Override
   public ValueGroup read(final ObjectDataInput in) throws IOException {
-    return new ValueGroup(in.readDouble(), new HashSet<>(Arrays.asList(in.readString().split(","))));
+    return new ValueGroup(in.readDouble(),
+        new HashSet<>(Arrays.asList(in.readString().split(","))));
   }
 
 }

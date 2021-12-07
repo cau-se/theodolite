@@ -3,6 +3,10 @@ package theodolite.uc4.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A microservice that manages the history and, therefore, stores and aggregates incoming
+ * measurements.
+ */
 public class HistoryService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
@@ -16,7 +20,7 @@ public class HistoryService {
   // UC4 specific (default)
   private static final String KAFKA_CONFIG_TOPIC_DEFAULT = "configuration";
   private static final String KAFKA_FEEDBACK_TOPIC_DEFAULT = "aggregation-feedback";
-  private static final String WINDOW_SIZE_DEFAULT = "5000";
+  private static final String WINDOW_SIZE_DEFAULT_MS = "5000";
 
   // -- (default) job name for this history serivce
   private static final String JOB_NAME = "uc4-hazelcastjet";
@@ -29,9 +33,10 @@ public class HistoryService {
     try {
       uc4HistoryService.run();
     } catch (final Exception e) { // NOPMD
-      e.printStackTrace(); // NOPMD
-      System.out.println("An Exception occured. "// NOPMD
+      e.printStackTrace(); // NOPMD     
+      LOGGER.error("An Exception occured. "// NOPMD
           + "No history service is deployed! ABORT MISSION!");
+      LOGGER.error(e.toString());
     }
   }
 
@@ -59,7 +64,7 @@ public class HistoryService {
         .setKafkaOutputTopicFromEnv(KAFKA_OUTPUT_TOPIC_DEFAULT)
         .setKafkaConfigurationTopicFromEnv(KAFKA_CONFIG_TOPIC_DEFAULT)
         .setKafkaFeedbackTopicFromEnv(KAFKA_FEEDBACK_TOPIC_DEFAULT)
-        .setWindowSizeFromEnv(WINDOW_SIZE_DEFAULT)
+        .setWindowSizeFromEnv(WINDOW_SIZE_DEFAULT_MS)
         .buildUc4JetInstanceFromEnv(LOGGER, BOOTSTRAP_SERVER_DEFAULT, HZ_KUBERNETES_SERVICE_DNS_KEY)
         .buildUc4Pipeline()        
         .runUc4Job(JOB_NAME);

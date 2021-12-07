@@ -3,6 +3,7 @@ package theodolite.uc2.application;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.Objects;
 import java.util.Properties;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import theodolite.commons.hazelcastjet.ConfigurationKeys;
@@ -31,13 +32,18 @@ public class Uc2KafkaPropertiesBuilder {
         System.getenv(ConfigurationKeys.SCHEMA_REGISTRY_URL),
         schemaRegistryUrlDefault);
 
+    // comment:
+    // > Could not find constant fields for all properties
+    // > setProperties not applicable for non string values
     final Properties props = new Properties();
-    props.put("bootstrap.servers", kafkaBootstrapServers); //NOCS
-    props.put("key.deserializer", StringDeserializer.class.getCanonicalName());
-    props.put("value.deserializer", KafkaAvroDeserializer.class);
+    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        StringDeserializer.class.getCanonicalName());
+    props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        KafkaAvroDeserializer.class.getCanonicalName());
     props.put("specific.avro.reader", true);
-    props.put("schema.registry.url", schemaRegistryUrl);
-    props.setProperty("auto.offset.reset", "latest");
+    props.setProperty("schema.registry.url", schemaRegistryUrl);
+    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
     return props;
   }
 
@@ -55,7 +61,7 @@ public class Uc2KafkaPropertiesBuilder {
         kafkaBootstrapServerDefault);
 
     final Properties props = new Properties();
-    props.put("bootstrap.servers", kafkaBootstrapServers); //NOCS
+    props.put("bootstrap.servers", kafkaBootstrapServers); // NOCS
     props.put("key.serializer", StringSerializer.class.getCanonicalName());
     props.put("value.serializer", StringSerializer.class.getCanonicalName());
     return props;

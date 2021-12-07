@@ -3,14 +3,14 @@ package theodolite.uc4.application.uc4specifics;
 import java.util.Objects;
 
 /**
- * Structure (sensorId, group)
+ * Structure (sensorId, group).
  */
 public class SensorGroupKey {
 
   private final String sensorId;
   private final String group;
 
-  public SensorGroupKey(String sensorId, String group) {
+  public SensorGroupKey(final String sensorId, final String group) {
     this.sensorId = sensorId;
     this.group = group;
   }

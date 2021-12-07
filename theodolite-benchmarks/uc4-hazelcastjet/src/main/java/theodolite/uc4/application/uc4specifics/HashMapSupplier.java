@@ -4,9 +4,12 @@ import com.hazelcast.function.SupplierEx;
 import java.util.HashMap;
 import java.util.Set;
 
-public class HashMapSupplier implements SupplierEx<HashMap<String,Set<String>>>{
+/**
+ * Supplies a hashmap and implements supplierEx.
+ */
+public class HashMapSupplier implements SupplierEx<HashMap<String,Set<String>>> {
   
-  private static final long serialVersionUID = -6247504592403610702L;
+  private static final long serialVersionUID = -6247504592403610702L;//NOPMD
 
   @Override
   public HashMap<String, Set<String>> get() {
@@ -15,7 +18,7 @@ public class HashMapSupplier implements SupplierEx<HashMap<String,Set<String>>>{
 
   @Override
   public HashMap<String, Set<String>> getEx() throws Exception {
-    return null;
+    return this.get();
   }
 
   

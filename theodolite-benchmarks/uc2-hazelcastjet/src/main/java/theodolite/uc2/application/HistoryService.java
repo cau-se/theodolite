@@ -18,7 +18,7 @@ public class HistoryService {
   private static final String KAFKA_OUTPUT_TOPIC_DEFAULT = "output";
   private static final String KAFKA_BSERVER_DEFAULT = "localhost:19092";
   // UC2 specific (default)
-  private static final String DOWNSAMPLE_INTERVAL_DEFAULT = "5000";
+  private static final String DOWNSAMPLE_INTERVAL_DEFAULT_MS = "5000";
   // -- (default) job name for this history serivce
   private static final String JOB_NAME = "uc2-hazelcastjet";
 
@@ -31,8 +31,9 @@ public class HistoryService {
       uc2HistoryService.run();
     } catch (final Exception e) { // NOPMD
       e.printStackTrace(); // NOPMD
-      System.out.println("An Exception occured. "// NOPMD
+      LOGGER.error("An Exception occured. "// NOPMD
           + "No history service is deployed! ABORT MISSION!");
+      LOGGER.error(e.toString());
     }
   }
 
@@ -58,7 +59,7 @@ public class HistoryService {
         .setWritePropertiesFromEnv(KAFKA_BSERVER_DEFAULT)
         .setKafkaInputTopicFromEnv(KAFKA_INPUT_TOPIC_DEFAULT)
         .setKafkaOutputTopicFromEnv(KAFKA_OUTPUT_TOPIC_DEFAULT)
-        .setDownsampleIntervalFromEnv(DOWNSAMPLE_INTERVAL_DEFAULT)
+        .setDownsampleIntervalFromEnv(DOWNSAMPLE_INTERVAL_DEFAULT_MS)
         .buildUc2Pipeline()
         .buildUc2JetInstanceFromEnv(LOGGER, BOOTSTRAP_SERVER_DEFAULT, HZ_KUBERNETES_SERVICE_DNS_KEY)
         .runUc2Job(JOB_NAME);

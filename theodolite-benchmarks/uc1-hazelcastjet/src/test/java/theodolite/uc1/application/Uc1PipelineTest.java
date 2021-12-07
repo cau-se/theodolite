@@ -1,7 +1,6 @@
 package theodolite.uc1.application;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
@@ -12,7 +11,6 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,23 +18,31 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.jupiter.api.Test;
 import titan.ccp.model.records.ActivePowerRecord;
 
+/**
+ * Test methods for the Hazelcast Jet Implementation of UC1.
+ */
 @Category(SerialTest.class)
 public class Uc1PipelineTest extends JetTestSupport {
 
   private static final Gson GSON = new Gson();
-  final Type entryStringRecordType = new TypeToken<Entry<String, ActivePowerRecord>>() {}.getType();
 
+  /**
+   * UC1 Pipeline test to check if items are passed through at an acceptable rate.
+   */
   @Test
   public void test1Uc1PipelineElements() {
 
     // Test Configuration
-    final int TEST_ITEMS_PER_SECOND = 1;
-    final String TEST_SENSOR_NAME = "id_test1";
-    final Double TEST_VALUE_IN_W = 10.0;
+    final int testItemsPerSecond = 1;
+    final String testSensorName = "id_test1";
+    final Double testValueInW = 10.0;
+    // Assertion Configuration
+    final int assertTimeoutSeconds = 6;
+    final int assertCollectedItems = 5;
 
     // Create mock jet instance with configuration
     final String testClusterName = randomName();
@@ -48,11 +54,11 @@ public class Uc1PipelineTest extends JetTestSupport {
     final List<String> sourceRecord =
         new ArrayList<>();
     final StreamSource<Entry<String, ActivePowerRecord>> testSource =
-        TestSources.itemStream(TEST_ITEMS_PER_SECOND, (timestamp, item) -> {
+        TestSources.itemStream(testItemsPerSecond, (timestamp, item) -> {
           final ActivePowerRecord testRecord =
-              new ActivePowerRecord(TEST_SENSOR_NAME, timestamp, TEST_VALUE_IN_W);
+              new ActivePowerRecord(testSensorName, timestamp, testValueInW);
           final Entry<String, ActivePowerRecord> testEntry =
-              Map.entry(TEST_SENSOR_NAME, testRecord);
+              Map.entry(testSensorName, testRecord);
           sourceRecord.add(GSON.toJson(testEntry));
           return testEntry;
         });
@@ -67,15 +73,15 @@ public class Uc1PipelineTest extends JetTestSupport {
         .map(data -> {
           return new Gson().toJson(data);
         })
-        .apply(Assertions.assertCollectedEventually(6,
+        .apply(Assertions.assertCollectedEventually(assertTimeoutSeconds,
             collection -> Assert.assertTrue("Not enough data arrived in the end",
-                collection.size() >= 5)));
+                collection.size() >= assertCollectedItems)));
 
     // Test the UC1 Pipeline Recreation
     try {
       testInstance.newJob(testPipeline).join();
-      Assert.fail("Job should have completed with an AssertionCompletedException, " +
-          "but completed normally");
+      Assert.fail("Job should have completed with an AssertionCompletedException, "
+          + "but completed normally");
     } catch (final CompletionException e) {
       final String errorMsg = e.getCause().getMessage();
       Assert.assertTrue(

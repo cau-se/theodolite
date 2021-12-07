@@ -36,23 +36,24 @@ public class Uc1HazelcastJetFactory {
    * @param jobName The name of the job.
    * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
-  public void runUc1Job(final String jobName) throws Exception { // NOPMD
-    if (this.uc1JetInstance != null) {
-      if (this.uc1JetPipeline != null) {
+  public void runUc1Job(final String jobName) throws IllegalStateException {
 
-        // Adds the job name and joins a job to the JetInstance defined in this factory
-        final JobConfig jobConfig = new JobConfig();
-        jobConfig.setName(jobName);
-        this.uc1JetInstance.newJobIfAbsent(this.uc1JetPipeline, jobConfig).join();
-
-      } else {
-        throw new Exception(// NOPMD
-            "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC1.");
-      }
-    } else {
-      throw new Exception("Jet Instance is not set! " // NOPMD
+    // Check if a Jet Instance for UC1 is set.
+    if (this.uc1JetInstance == null) {
+      throw new IllegalStateException("Jet Instance is not set! "
           + "Cannot start a hazelcast jet job for UC1.");
     }
+
+    // Check if a Pipeline for UC1 is set.
+    if (this.uc1JetPipeline == null) {
+      throw new IllegalStateException(
+          "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC1.");
+    }
+
+    // Adds the job name and joins a job to the JetInstance defined in this factory
+    final JobConfig jobConfig = new JobConfig();
+    jobConfig.setName(jobName);
+    this.uc1JetInstance.newJobIfAbsent(this.uc1JetPipeline, jobConfig).join();
   }
 
   /////////////
@@ -85,25 +86,26 @@ public class Uc1HazelcastJetFactory {
    * @throws Exception If the input topic or the kafka properties are not defined, the pipeline
    *         cannot be built.
    */
-  public Uc1HazelcastJetFactory buildUc1Pipeline() throws Exception { // NOPMD
-    // Check for set properties and set input topic
-    if (this.kafkaPropertiesForPipeline != null) {
-      if (this.kafkaInputTopic != null) {
+  public Uc1HazelcastJetFactory buildUc1Pipeline() throws IllegalStateException {
 
-        // Build Pipeline Using the pipelineBuilder
-        final Uc1PipelineBuilder pipeBuilder = new Uc1PipelineBuilder();
-        this.uc1JetPipeline =
-            pipeBuilder.build(this.kafkaPropertiesForPipeline, this.kafkaInputTopic);
-        // Return Uc1HazelcastJetBuilder factory
-        return this;
-
-      } else {
-        throw new Exception("Kafka input topic for pipeline not set! " // NOPMD
-            + "Cannot build pipeline.");
-      }
-    } else {
-      throw new Exception("Kafka Properties for pipeline not set! Cannot build pipeline."); // NOPMD
+    // Check if Properties for the Kafka Input are set.
+    if (this.kafkaPropertiesForPipeline == null) {
+      throw new IllegalStateException(
+          "Kafka Properties for pipeline not set! Cannot build pipeline.");
     }
+
+    // Check if the Kafka input topic is set.
+    if (this.kafkaInputTopic == null) {
+      throw new IllegalStateException("Kafka input topic for pipeline not set! "
+          + "Cannot build pipeline.");
+    }
+
+    // Build Pipeline Using the pipelineBuilder
+    final Uc1PipelineBuilder pipeBuilder = new Uc1PipelineBuilder();
+    this.uc1JetPipeline =
+        pipeBuilder.build(this.kafkaPropertiesForPipeline, this.kafkaInputTopic);
+    // Return Uc1HazelcastJetBuilder factory
+    return this;
   }
 
   /////////////

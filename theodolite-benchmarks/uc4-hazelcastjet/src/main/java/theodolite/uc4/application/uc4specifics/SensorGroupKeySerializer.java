@@ -4,13 +4,14 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 
-public class SensorGroupKeySerializer implements StreamSerializer<SensorGroupKey>{
-  
-private static final int TYPE_ID = 2;
-  
+/**
+ * Serializes and Deserializes a SensorGroupKey.
+ */
+public class SensorGroupKeySerializer implements StreamSerializer<SensorGroupKey> {
+
+  private static final int TYPE_ID = 2;
+
   @Override
   public int getTypeId() {
     return TYPE_ID;
@@ -18,8 +19,8 @@ private static final int TYPE_ID = 2;
 
   @Override
   public void write(final ObjectDataOutput out, final SensorGroupKey key) throws IOException {
-    out.writeString(key.getSensorId()); 
-    out.writeString(key.getGroup()); 
+    out.writeString(key.getSensorId());
+    out.writeString(key.getGroup());
   }
 
   @Override

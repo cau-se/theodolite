@@ -25,8 +25,8 @@ public class Uc4HazelcastJetFactory {
 
   // Information per History Service
   private Properties kafkaInputReadPropsForPipeline;
-  private Properties kafkaConfigReadPropsForPipeline;
-  private Properties kafkaAggregationReadPropsForPipeline;
+  private Properties kafkaConfigPropsForPipeline;
+  private Properties kafkaFeedbackPropsForPipeline;
   private Properties kafkaWritePropsForPipeline;
   private String kafkaInputTopic;
   private String kafkaOutputTopic;
@@ -36,32 +36,6 @@ public class Uc4HazelcastJetFactory {
   private String kafkaConfigurationTopic;
   private String kafkaFeedbackTopic;
   private int windowSize;
-
-  // Checkflags
-  private boolean readPropertiesSet;
-  private boolean writePropertiesSet;
-  private boolean inputTopicSet;
-  private boolean outputTopicSet;
-  private boolean pipelineSet;
-  private boolean jetInstanceSet;
-  private boolean kafkaConfigurationTopicSet;
-  private boolean kafkaFeedbackTopicSet;
-  private boolean windowSizeSet;
-
-  /**
-   * Create a new Hazelcast Jet Factory for UC4.
-   */
-  public Uc4HazelcastJetFactory() {
-    this.readPropertiesSet = false;
-    this.writePropertiesSet = false;
-    this.inputTopicSet = false;
-    this.outputTopicSet = false;
-    this.pipelineSet = false;
-    this.jetInstanceSet = false;
-    this.kafkaConfigurationTopicSet = false;
-    this.kafkaFeedbackTopicSet = false;
-    this.windowSizeSet = false;
-  }
 
   /////////////////////////////////////
   // Layer 1 - Hazelcast Jet Run Job //
@@ -74,25 +48,26 @@ public class Uc4HazelcastJetFactory {
    * @param jobName The name of the job.
    * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
-  public void runUc4Job(final String jobName) throws Exception { // NOPMD
-    if (this.jetInstanceSet) {
-      if (this.pipelineSet) {
+  public void runUc4Job(final String jobName) throws IllegalStateException { // NOPMD
 
-        // Adds the job name and joins a job to the JetInstance defined in this factory
-        final JobConfig jobConfig = new JobConfig()
-            .registerSerializer(ValueGroup.class, ValueGroupSerializer.class)
-            .registerSerializer(SensorGroupKey.class, SensorGroupKeySerializer.class)
-            .setName(jobName);
-        this.uc4JetInstance.newJobIfAbsent(this.uc4JetPipeline, jobConfig).join();
-
-      } else {
-        throw new Exception(// NOPMD
-            "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC4.");
-      }
-    } else {
-      throw new Exception("Jet Instance is not set! " // NOPMD
+    // Check if a Jet Instance for UC4 is set.
+    if (this.uc4JetInstance == null) {
+      throw new IllegalStateException("Jet Instance is not set! "
           + "Cannot start a hazelcast jet job for UC4.");
     }
+
+    // Check if a Pipeline for UC3 is set.
+    if (this.uc4JetPipeline == null) {
+      throw new IllegalStateException(
+          "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC4.");
+    }
+
+    // Adds the job name and joins a job to the JetInstance defined in this factory
+    final JobConfig jobConfig = new JobConfig()
+        .registerSerializer(ValueGroup.class, ValueGroupSerializer.class)
+        .registerSerializer(SensorGroupKey.class, SensorGroupKeySerializer.class)
+        .setName(jobName);
+    this.uc4JetInstance.newJobIfAbsent(this.uc4JetPipeline, jobConfig).join();
   }
 
   /////////////
@@ -114,7 +89,6 @@ public class Uc4HazelcastJetFactory {
     this.uc4JetInstance = new JetInstanceBuilder()
         .setConfigFromEnv(logger, bootstrapServerDefault, hzKubernetesServiceDnsKey)
         .build();
-    this.jetInstanceSet = true;
     return this;
   }
 
@@ -126,62 +100,77 @@ public class Uc4HazelcastJetFactory {
    * @throws Exception If the input topic or the kafka properties are not defined, the pipeline
    *         cannot be built.
    */
-  public Uc4HazelcastJetFactory buildUc4Pipeline() throws Exception { // NOPMD
-    // Check for set properties and set input topic
-    if (this.readPropertiesSet) {
-      if (this.writePropertiesSet) {
-        if (this.inputTopicSet) {
-          if (this.outputTopicSet) {
-            if (this.kafkaConfigurationTopicSet) {
-              if (this.windowSizeSet) {
-                if (this.jetInstanceSet) {
-                  if (this.kafkaFeedbackTopicSet) {
-                    // Build Pipeline Using the pipelineBuilder
-                    final Uc4PipelineBuilderNew pipeBuilder = new Uc4PipelineBuilderNew();
-                    this.uc4JetPipeline =
-                        pipeBuilder.build(this.kafkaInputReadPropsForPipeline,
-                            this.kafkaConfigReadPropsForPipeline,
-                            this.kafkaAggregationReadPropsForPipeline,
-                            this.kafkaWritePropsForPipeline,
-                            this.kafkaInputTopic, this.kafkaOutputTopic,
-                            this.kafkaConfigurationTopic,
-                            this.kafkaFeedbackTopic,
-                            this.windowSize);
-                    this.pipelineSet = true;
-                    // Return Uc4HazelcastJetBuilder factory
-                    return this;
-                  } else {
-                    throw new Exception("Feedback topic not set! " // NOPMD
-                        + "Cannot build pipeline."); // NOCS // NOPMD
-                  }
-                } else {
-                  throw new Exception("Jet Instance not set! " // NOPMD
-                      + "Cannot build pipeline."); // NOCS // NOPMD
-                }
-              } else {
-                throw new Exception("window size for pipeline not set! " // NOPMD
-                    + "Cannot build pipeline."); // NOCS // NOPMD
-              }
-            } else {
-              throw new Exception("configuratin topic for pipeline not set! " // NOPMD
-                  + "Cannot build pipeline."); // NOCS // NOPMD
-            }
-          } else {
-            throw new Exception("kafka output topic for pipeline not set! " // NOPMD
-                + "Cannot build pipeline."); // NOCS // NOPMD
-          }
-        } else {
-          throw new Exception("Kafka input topic for pipeline not set! " // NOPMD
-              + "Cannot build pipeline."); // NOCS // NOPMD
-        }
-      } else {
-        throw new Exception("Kafka Write Properties for pipeline not set! " // NOPMD
-            + "Cannot build pipeline."); // NOCS // NOPMD
-      }
-    } else {
-      throw new Exception("Kafka Read Properties for pipeline not set! " // NOPMD
-          + "Cannot build pipeline."); // NOCS // NOPMD
+  public Uc4HazelcastJetFactory buildUc4Pipeline() throws IllegalStateException { // NOPMD
+
+    final String defaultPipelineWarning = "Cannot build pipeline."; // NOPMD
+
+    // Check if Properties for the Kafka Input are set.
+    if (this.kafkaInputReadPropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Input Read Properties for pipeline not set! "
+          + defaultPipelineWarning);
     }
+
+    // Check if Properties for the Kafka Output are set.
+    if (this.kafkaWritePropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Write Properties for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if Properties for the Kafka Config Read are set.
+    if (this.kafkaConfigPropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Config Read Properties for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+    
+    // Check if Properties for the Kafka Feedback Read are set.
+    if (this.kafkaFeedbackPropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Feedback Read Properties for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka input topic is set.
+    if (this.kafkaInputTopic == null) {
+      throw new IllegalStateException("Kafka input topic for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka output topic is set.
+    if (this.kafkaOutputTopic == null) {
+      throw new IllegalStateException("kafka output topic for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka config topic is set.
+    if (this.kafkaConfigurationTopic == null) {
+      throw new IllegalStateException("configuratin topic for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka feedback topic is set.
+    if (this.kafkaFeedbackTopic == null) {
+      throw new IllegalStateException("Feedback topic not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if window size for tumbling window is set.
+    if (this.windowSize <= 0) {
+      throw new IllegalStateException("window size for pipeline not set or not greater than 0! "
+          + defaultPipelineWarning);
+    }
+
+    // Build Pipeline Using the pipelineBuilder
+    final Uc4PipelineBuilder pipeBuilder = new Uc4PipelineBuilder();
+    this.uc4JetPipeline =
+        pipeBuilder.build(this.kafkaInputReadPropsForPipeline,
+            this.kafkaConfigPropsForPipeline,
+            this.kafkaFeedbackPropsForPipeline,
+            this.kafkaWritePropsForPipeline,
+            this.kafkaInputTopic, this.kafkaOutputTopic,
+            this.kafkaConfigurationTopic,
+            this.kafkaFeedbackTopic,
+            this.windowSize);
+    // Return Uc4HazelcastJetBuilder factory
+    return this;
   }
 
   /////////////
@@ -212,9 +201,8 @@ public class Uc4HazelcastJetFactory {
         propsBuilder.buildKafkaAggregationReadPropsFromEnv(bootstrapServersDefault,
             schemaRegistryUrlDefault);
     this.kafkaInputReadPropsForPipeline = kafkaInputReadProps;
-    this.kafkaConfigReadPropsForPipeline = kafkaConfigReadProps;
-    this.kafkaAggregationReadPropsForPipeline = kafkaAggregationReadProps;
-    this.readPropertiesSet = true;
+    this.kafkaConfigPropsForPipeline = kafkaConfigReadProps;
+    this.kafkaFeedbackPropsForPipeline = kafkaAggregationReadProps;
     return this;
   }
 
@@ -232,7 +220,6 @@ public class Uc4HazelcastJetFactory {
     final Properties kafkaWriteProps =
         propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault);
     this.kafkaWritePropsForPipeline = kafkaWriteProps;
-    this.writePropertiesSet = true;
     return this;
   }
 
@@ -245,7 +232,6 @@ public class Uc4HazelcastJetFactory {
   public Uc4HazelcastJetFactory setCustomKafkaInputTopic(// NOPMD
       final String inputTopic) {
     this.kafkaInputTopic = inputTopic;
-    this.inputTopicSet = true;
     return this;
   }
 
@@ -257,7 +243,6 @@ public class Uc4HazelcastJetFactory {
    */
   public Uc4HazelcastJetFactory setCustomKafkaOutputTopic(final String outputTopic) { // NOPMD
     this.kafkaOutputTopic = outputTopic;
-    this.outputTopicSet = true;
     return this;
   }
 
@@ -274,7 +259,6 @@ public class Uc4HazelcastJetFactory {
     this.kafkaInputTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_INPUT_TOPIC),
         defaultInputTopic);
-    this.inputTopicSet = true;
     return this;
   }
 
@@ -290,7 +274,6 @@ public class Uc4HazelcastJetFactory {
     this.kafkaOutputTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_OUTPUT_TOPIC),
         defaultOutputTopic);
-    this.outputTopicSet = true;
     return this;
   }
 
@@ -303,7 +286,6 @@ public class Uc4HazelcastJetFactory {
   public Uc4HazelcastJetFactory setCustomWindowSize(// NOPMD
       final int windowSize) {
     this.windowSize = windowSize;
-    this.windowSizeSet = true;
     return this;
   }
 
@@ -321,7 +303,6 @@ public class Uc4HazelcastJetFactory {
         defaultWindowSize);
     final int windowSizeNumber = Integer.parseInt(windowSize);
     this.windowSize = windowSizeNumber;
-    this.windowSizeSet = true;
     return this;
   }
 
@@ -334,7 +315,6 @@ public class Uc4HazelcastJetFactory {
   public Uc4HazelcastJetFactory setCustomKafkaConfigurationTopic(// NOPMD
       final String kafkaConfigurationTopic) {
     this.kafkaConfigurationTopic = kafkaConfigurationTopic;
-    this.kafkaConfigurationTopicSet = true;
     return this;
   }
 
@@ -350,7 +330,6 @@ public class Uc4HazelcastJetFactory {
     this.kafkaConfigurationTopic = (String) Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC),
         defaultKafkaConfigurationTopic);
-    this.kafkaConfigurationTopicSet = true;
     return this;
   }
 
@@ -363,7 +342,6 @@ public class Uc4HazelcastJetFactory {
   public Uc4HazelcastJetFactory setCustomKafkaFeedbackTopic(// NOPMD
       final String kafkaFeedbackTopic) {
     this.kafkaFeedbackTopic = kafkaFeedbackTopic;
-    this.kafkaFeedbackTopicSet = true;
     return this;
   }
 
@@ -379,7 +357,6 @@ public class Uc4HazelcastJetFactory {
     this.kafkaFeedbackTopic = (String) Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC),
         defaultKafkaFeedbackTopic);
-    this.kafkaFeedbackTopicSet = true;
     return this;
   }
 

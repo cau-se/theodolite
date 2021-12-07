@@ -4,14 +4,14 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Structure: (valueInW, Set(Groups))
+ * Structure: (valueInW, Set(Groups)).
  */
 public class ValueGroup {
 
   private final Double valueInW;
   private final Set<String> groups;
   
-  public ValueGroup(Double valueInW, Set<String> groups) {
+  public ValueGroup(final Double valueInW, final Set<String> groups) {
     this.valueInW = valueInW;
     this.groups = groups;
   }
@@ -27,8 +27,8 @@ public class ValueGroup {
   @Override
   public String toString() {
     String groupString = "[";
-    for (String group: groups) {
-      groupString = groupString + group + "/";
+    for (final String group: groups) {
+      groupString = groupString + group + "/";//NOPMD
     }
     return this.valueInW.toString() + ";" + groupString + "]";
   }

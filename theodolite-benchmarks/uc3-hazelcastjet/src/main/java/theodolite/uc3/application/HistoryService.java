@@ -34,11 +34,12 @@ public class HistoryService {
       uc3HistoryService.run();
     } catch (final Exception e) { // NOPMD
       e.printStackTrace(); // NOPMD
-      System.out.println("An Exception occured. "// NOPMD
+      LOGGER.error("An Exception occured. "// NOPMD
           + "No history service is deployed! ABORT MISSION!");
+      LOGGER.error(e.toString());
     }
   }
-  
+
   /**
    * Start a UC3 service.
    *
@@ -48,7 +49,7 @@ public class HistoryService {
   public void run() throws Exception { // NOPMD
     this.createHazelcastJetApplication();
   }
-  
+
   /**
    * Creates a Hazelcast Jet Application for UC3 using the Uc3HazelcastJetFactory.
    *
@@ -67,5 +68,5 @@ public class HistoryService {
         .buildUc3JetInstanceFromEnv(LOGGER, BOOTSTRAP_SERVER_DEFAULT, HZ_KUBERNETES_SERVICE_DNS_KEY)
         .runUc3Job(JOB_NAME);
   }
-  
+
 }

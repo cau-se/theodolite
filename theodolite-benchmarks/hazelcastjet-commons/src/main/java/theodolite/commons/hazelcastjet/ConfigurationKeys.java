@@ -1,5 +1,8 @@
 package theodolite.commons.hazelcastjet;
 
+/**
+ * Configuration Keys used for Hazelcast Jet Benchmark implementations.
+ */
 public class ConfigurationKeys {
 
   // Common Keys

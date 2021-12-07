@@ -21,8 +21,9 @@ public class Uc1PipelineBuilder {
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
    *
-   * @param inputSource A hazelcast jet stream-source for Entry<String,ActivePowerRecord> input
-   *        values.
+   * @param inputSource A hazelcast jet stream-source for {@code Entry<String,ActivePowerRecord>}
+   *        input values.
+   * @param outputSink A hazelcast jet sink for String output values.
    * @return A hazelcast jet pipeline which processes data for Uc1.
    */
   public Pipeline build(final StreamSource<Entry<String, ActivePowerRecord>> inputSource,

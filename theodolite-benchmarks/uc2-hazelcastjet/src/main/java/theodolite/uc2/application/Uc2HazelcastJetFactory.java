@@ -29,28 +29,6 @@ public class Uc2HazelcastJetFactory {
   // UC2 specific
   private int downsampleInterval;
 
-  // Checkflags
-  private boolean readPropertiesSet;
-  private boolean writePropertiesSet;
-  private boolean inputTopicSet;
-  private boolean outputTopicSet;
-  private boolean pipelineSet;
-  private boolean jetInstanceSet;
-  private boolean downsampleIntervalSet;
-
-  /**
-   * Create a new Hazelcast Jet Factory for UC2.
-   */
-  public Uc2HazelcastJetFactory() {
-    this.readPropertiesSet = false;
-    this.writePropertiesSet = false;
-    this.inputTopicSet = false;
-    this.outputTopicSet = false;
-    this.pipelineSet = false;
-    this.jetInstanceSet = false;
-    this.downsampleIntervalSet = false;
-  }
-
   /////////////////////////////////////
   // Layer 1 - Hazelcast Jet Run Job //
   /////////////////////////////////////
@@ -62,23 +40,24 @@ public class Uc2HazelcastJetFactory {
    * @param jobName The name of the job.
    * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
-  public void runUc2Job(final String jobName) throws Exception { // NOPMD
-    if (this.jetInstanceSet) {
-      if (this.pipelineSet) {
+  public void runUc2Job(final String jobName) throws IllegalStateException {
 
-        // Adds the job name and joins a job to the JetInstance defined in this factory
-        final JobConfig jobConfig = new JobConfig();
-        jobConfig.setName(jobName);
-        this.uc2JetInstance.newJobIfAbsent(this.uc2JetPipeline, jobConfig).join();
-
-      } else {
-        throw new Exception(// NOPMD
-            "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC2.");
-      }
-    } else {
-      throw new Exception("Jet Instance is not set! " // NOPMD
+    // Check if a Jet Instance for UC2 is set.
+    if (this.uc2JetInstance == null) {
+      throw new IllegalStateException("Jet Instance is not set! "
           + "Cannot start a hazelcast jet job for UC2.");
     }
+
+    // Check if a Pipeline for UC2 is set.
+    if (this.uc2JetPipeline == null) {
+      throw new IllegalStateException(
+          "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC2.");
+    }
+
+    // Adds the job name and joins a job to the JetInstance defined in this factory
+    final JobConfig jobConfig = new JobConfig();
+    jobConfig.setName(jobName);
+    this.uc2JetInstance.newJobIfAbsent(this.uc2JetPipeline, jobConfig).join();
   }
 
   /////////////
@@ -100,7 +79,6 @@ public class Uc2HazelcastJetFactory {
     this.uc2JetInstance = new JetInstanceBuilder()
         .setConfigFromEnv(logger, bootstrapServerDefault, hzKubernetesServiceDnsKey)
         .build();
-    this.jetInstanceSet = true;
     return this;
   }
 
@@ -112,41 +90,48 @@ public class Uc2HazelcastJetFactory {
    * @throws Exception If the input topic or the kafka properties are not defined, the pipeline
    *         cannot be built.
    */
-  public Uc2HazelcastJetFactory buildUc2Pipeline() throws Exception { // NOPMD
-    // Check for set properties and set input topic
-    if (this.readPropertiesSet) {
-      if (this.writePropertiesSet) {
-        if (this.inputTopicSet) {
-          if (this.outputTopicSet) {
-            if (this.downsampleIntervalSet) {
-              // Build Pipeline Using the pipelineBuilder
-              final Uc2PipelineBuilder pipeBuilder = new Uc2PipelineBuilder();
-              this.uc2JetPipeline =
-                  pipeBuilder.build(this.kafkaReadPropsForPipeline, this.kafkaWritePropsForPipeline,
-                      this.kafkaInputTopic, this.kafkaOutputTopic, this.downsampleInterval);
-              this.pipelineSet = true;
-              // Return Uc2HazelcastJetBuilder factory
-              return this;
-            } else {
-              throw new Exception("downsample interval for pipeline not set! " // NOPMD
-                  + "Cannot build pipeline."); // NOCS // NOPMD
-            }
-          } else {
-            throw new Exception("kafka output topic for pipeline not set! " // NOPMD
-                + "Cannot build pipeline."); // NOCS // NOPMD
-          }
-        } else {
-          throw new Exception("Kafka input topic for pipeline not set! " // NOPMD
-              + "Cannot build pipeline."); // NOCS // NOPMD
-        }
-      } else {
-        throw new Exception("Kafka Write Properties for pipeline not set! " // NOPMD
-            + "Cannot build pipeline."); // NOCS // NOPMD
-      }
-    } else {
-      throw new Exception("Kafka Read Properties for pipeline not set! " // NOPMD
-          + "Cannot build pipeline."); // NOCS // NOPMD
+  public Uc2HazelcastJetFactory buildUc2Pipeline() throws IllegalStateException { //NOPMD
+
+    final String defaultPipelineWarning = "Cannot build pipeline."; //NOPMD
+
+    // Check if Properties for the Kafka Input are set.
+    if (this.kafkaReadPropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Read Properties for pipeline not set! "
+          + defaultPipelineWarning);
     }
+
+    // Check if Properties for the Kafka Output are set.
+    if (this.kafkaWritePropsForPipeline == null) {
+      throw new IllegalStateException("Kafka Write Properties for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka input topic is set.
+    if (this.kafkaInputTopic == null) {
+      throw new IllegalStateException("Kafka input topic for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the Kafka output topic is set.
+    if (this.kafkaOutputTopic == null) {
+      throw new IllegalStateException("kafka output topic for pipeline not set! "
+          + defaultPipelineWarning);
+    }
+
+    // Check if the downsampleInterval (tumbling window time) is set.
+    if (this.downsampleInterval <= 0) {
+      throw new IllegalStateException(
+          "downsample interval for pipeline not set or not bigger than 0! "
+              + defaultPipelineWarning);
+    }
+
+    // Build Pipeline Using the pipelineBuilder
+    final Uc2PipelineBuilder pipeBuilder = new Uc2PipelineBuilder();
+    this.uc2JetPipeline =
+        pipeBuilder.build(this.kafkaReadPropsForPipeline, this.kafkaWritePropsForPipeline,
+            this.kafkaInputTopic, this.kafkaOutputTopic, this.downsampleInterval);
+    // Return Uc2HazelcastJetBuilder factory
+    return this;
   }
 
   /////////////
@@ -163,7 +148,6 @@ public class Uc2HazelcastJetFactory {
   public Uc2HazelcastJetFactory setCustomReadProperties(// NOPMD
       final Properties kafkaReadProperties) {
     this.kafkaReadPropsForPipeline = kafkaReadProperties;
-    this.readPropertiesSet = true;
     return this;
   }
 
@@ -177,7 +161,6 @@ public class Uc2HazelcastJetFactory {
   public Uc2HazelcastJetFactory setCustomWriteProperties(// NOPMD
       final Properties kafkaWriteProperties) {
     this.kafkaWritePropsForPipeline = kafkaWriteProperties;
-    this.writePropertiesSet = true;
     return this;
   }
 
@@ -199,7 +182,6 @@ public class Uc2HazelcastJetFactory {
         propsBuilder.buildKafkaReadPropsFromEnv(bootstrapServersDefault,
             schemaRegistryUrlDefault);
     this.kafkaReadPropsForPipeline = kafkaReadProps;
-    this.readPropertiesSet = true;
     return this;
   }
 
@@ -217,7 +199,6 @@ public class Uc2HazelcastJetFactory {
     final Properties kafkaWriteProps =
         propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault);
     this.kafkaWritePropsForPipeline = kafkaWriteProps;
-    this.writePropertiesSet = true;
     return this;
   }
 
@@ -230,7 +211,6 @@ public class Uc2HazelcastJetFactory {
   public Uc2HazelcastJetFactory setCustomKafkaInputTopic(// NOPMD
       final String inputTopic) {
     this.kafkaInputTopic = inputTopic;
-    this.inputTopicSet = true;
     return this;
   }
 
@@ -242,7 +222,6 @@ public class Uc2HazelcastJetFactory {
    */
   public Uc2HazelcastJetFactory setCustomKafkaOutputTopic(final String outputTopic) { // NOPMD
     this.kafkaOutputTopic = outputTopic;
-    this.outputTopicSet = true;
     return this;
   }
 
@@ -259,7 +238,6 @@ public class Uc2HazelcastJetFactory {
     this.kafkaInputTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_INPUT_TOPIC),
         defaultInputTopic);
-    this.inputTopicSet = true;
     return this;
   }
 
@@ -275,7 +253,6 @@ public class Uc2HazelcastJetFactory {
     this.kafkaOutputTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_OUTPUT_TOPIC),
         defaultOutputTopic);
-    this.outputTopicSet = true;
     return this;
   }
 
@@ -288,7 +265,6 @@ public class Uc2HazelcastJetFactory {
   public Uc2HazelcastJetFactory setCustomDownsampleInterval(// NOPMD
       final int downsampleInterval) {
     this.downsampleInterval = downsampleInterval;
-    this.downsampleIntervalSet = true;
     return this;
   }
 
@@ -306,7 +282,6 @@ public class Uc2HazelcastJetFactory {
         defaultDownsampleInterval);
     final int downsampleIntervalNumber = Integer.parseInt(downsampleInterval);
     this.downsampleInterval = downsampleIntervalNumber;
-    this.downsampleIntervalSet = true;
     return this;
   }
 

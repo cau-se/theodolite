@@ -30,5 +30,8 @@ dependencies {
  	implementation project(':hazelcastjet-commons')
  	compile 'com.hazelcast.jet:hazelcast-jet-core:4.5:tests'
 	compile 'com.hazelcast:hazelcast:4.2:tests'
- 	 
+	
+	// Use JUnit test framework
+    testImplementation("junit:junit:4.13.2")
+
 }

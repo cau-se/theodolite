@@ -3,10 +3,17 @@ package theodolite.commons.hazelcastjet;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import org.slf4j.Logger;
-import theodolite.commons.hazelcastjet.ConfigurationKeys;
 
+/**
+ * Build a Config Object for Benchmarks implemented in Hazelcast Jet.
+ *
+ */
 public class BenchmarkConfigBuilder {
 
+  /**
+   * Builds a Config Object for Benchmarks implemented in Hazelcast Jet using data from the
+   * environment.
+   */
   public Config buildFromEnv(final Logger logger, final String bootstrapServerDefault,
       final String hzKubernetesServiceDnsKey) {
 
