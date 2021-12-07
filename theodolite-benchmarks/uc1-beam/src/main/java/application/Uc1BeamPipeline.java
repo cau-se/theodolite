@@ -34,7 +34,7 @@ public final class Uc1BeamPipeline extends AbstractPipeline {
     cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
 
     // build KafkaConsumerConfig
-    final Map consumerConfig = buildConsumerConfig();
+    final Map<String, Object> consumerConfig = buildConsumerConfig();
 
     // Create Pipeline transformations
     final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> kafka =
