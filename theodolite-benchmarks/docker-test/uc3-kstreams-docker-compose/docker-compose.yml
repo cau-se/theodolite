@@ -1,10 +1,9 @@
 version: '2'
 services:
   zookeeper:
-    #image: wurstmeister/zookeeper
     image: confluentinc/cp-zookeeper
-    ports:
-      - "2181:2181"
+    expose:
+      - "2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
   kafka:
@@ -32,7 +31,7 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-      benchmark:
+  benchmark:
     image: ghcr.io/cau-se/theodolite-uc3-kstreams-app:latest
     depends_on:
       - schema-registry
@@ -46,7 +45,7 @@ services:
       - schema-registry
       - kafka
     environment:
-      BOOTSTRAP_SERVER: uc-wg:5701
+      BOOTSTRAP_SERVER: load-generator:5701
       PORT: 5701
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081

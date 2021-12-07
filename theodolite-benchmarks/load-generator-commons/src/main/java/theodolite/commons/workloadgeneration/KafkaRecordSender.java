@@ -53,6 +53,33 @@ public class KafkaRecordSender<T extends SpecificRecord> implements RecordSender
         avroSerdeFactory.<T>forKeys().serializer());
   }
 
+  /**
+   * Write the passed monitoring record to Kafka.
+   */
+  public void write(final T monitoringRecord) {
+    final ProducerRecord<String, T> record =
+        new ProducerRecord<>(this.topic, null, this.timestampAccessor.apply(monitoringRecord),
+            this.keyAccessor.apply(monitoringRecord), monitoringRecord);
+
+    LOGGER.debug("Send record to Kafka topic {}: {}", this.topic, record);
+    try {
+      this.producer.send(record);
+    } catch (final SerializationException e) {
+      LOGGER.warn(
+          "Record could not be serialized and thus not sent to Kafka due to exception. Skipping this record.", // NOCS
+          e);
+    }
+  }
+
+  public void terminate() {
+    this.producer.close();
+  }
+
+  @Override
+  public void send(final T message) {
+    this.write(message);
+  }
+
   public static <T extends SpecificRecord> Builder<T> builder(
       final String bootstrapServers,
       final String topic,
@@ -106,33 +133,6 @@ public class KafkaRecordSender<T extends SpecificRecord> implements RecordSender
     public KafkaRecordSender<T> build() {
       return new KafkaRecordSender<>(this);
     }
-  }
-
-  /**
-   * Write the passed monitoring record to Kafka.
-   */
-  public void write(final T monitoringRecord) {
-    final ProducerRecord<String, T> record =
-        new ProducerRecord<>(this.topic, null, this.timestampAccessor.apply(monitoringRecord),
-            this.keyAccessor.apply(monitoringRecord), monitoringRecord);
-
-    LOGGER.debug("Send record to Kafka topic {}: {}", this.topic, record);
-    try {
-      this.producer.send(record);
-    } catch (final SerializationException e) {
-      LOGGER.warn(
-          "Record could not be serialized and thus not sent to Kafka due to exception. Skipping this record.", // NOCS
-          e);
-    }
-  }
-
-  public void terminate() {
-    this.producer.close();
-  }
-
-  @Override
-  public void send(final T message) {
-    this.write(message);
   }
 
 }

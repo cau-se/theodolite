@@ -1,8 +1,15 @@
+include:
+  - template: 'Workflows/Branch-Pipelines.gitlab-ci.yml'
+
 stages:
   - build
   - test
   - check
   - deploy
+
+default:
+  tags:
+    - exec-docker
 
 .dind:
   tags:
@@ -15,15 +22,29 @@ stages:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
+.kaniko-push:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CR_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_USER}" "${CR_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest\""
+    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA\""
+    - "[ $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG\""
+    - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
+    - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
+
+
 # Theodolite Helm Chart
 
 lint-helm:
   stage: check
+  needs: []
   image:
     name: alpine/helm:3.5.2
     entrypoint: [""]
-  tags:
-    - exec-docker
   script: helm lint helm/
 
 
@@ -31,8 +52,6 @@ lint-helm:
 
 .benchmarks:
   image: openjdk:11-jdk
-  tags:
-    - exec-docker
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -42,6 +61,11 @@ lint-helm:
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - cd theodolite-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/**/*
+    - when: manual
+      allow_failure: true
 
 build-benchmarks:
   stage: build
@@ -108,24 +132,17 @@ spotbugs-benchmarks:
   stage: deploy
   extends:
     - .benchmarks
-    - .dind
+    - .kaniko-push
   needs:
     - build-benchmarks
     - checkstyle-benchmarks
     - pmd-benchmarks
     - spotbugs-benchmarks
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t $IMAGE_NAME ./$JAVA_PROJECT_NAME
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag $IMAGE_NAME $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/$IMAGE_NAME
-    - docker logout
+  variables:
+    CONTEXT: "/$JAVA_PROJECT_NAME"
+  #before_script:
+  #  - cd theodolite-benchmarks/$JAVA_PROJECT_NAME
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - theodolite-benchmarks/*
       - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
@@ -133,7 +150,6 @@ spotbugs-benchmarks:
       - theodolite-benchmarks/flink-commons/**/*
       - theodolite-benchmarks/load-generator-commons/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual
       allow_failure: true
@@ -217,8 +233,6 @@ deploy-uc4-load-generator:
   image:
     name: ghcr.io/graalvm/native-image:java11-21.1.0
     entrypoint: [""]
-  tags:
-    - exec-docker
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -284,78 +298,72 @@ deploy-theodolite:
   stage: deploy
   extends:
     - .theodolite
-    - .dind
+    - .kaniko-push
   needs:
     #- build-theodolite-native
     - build-theodolite-jvm
     - test-theodolite
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    #- docker build -f src/main/docker/Dockerfile.native -t theodolite .
-    - docker build -f src/main/docker/Dockerfile.jvm -t theodolite .
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest"
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite
-    - docker logout
+  variables:
+    IMAGE_NAME: theodolite
+    DOCKERFILE: src/main/docker/Dockerfile.jvm
+    #DOCKERFILE: src/main/docker/Dockerfile.native
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - theodolite/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
 
 
-# Theodolite SLO Checker: Lag Trend
+# Theodolite SLO Checker
 
 test-slo-checker-lag-trend:
   stage: test
+  needs: []
   image: python:3.7-slim
-  tags:
-    - exec-docker
-  script:
+  before_script:
     - cd slo-checker/record-lag
+  script:
     - pip install -r requirements.txt
     - cd app
     - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/record-lag/**/*
+    - when: manual
+      allow_failure: true
 
 test-slo-checker-dropped-records-kstreams:
   stage: test
+  needs: []
   image: python:3.7-slim
-  tags:
-    - exec-docker
-  script:
+  before_script:
     - cd slo-checker/dropped-records
+  script:
     - pip install -r requirements.txt
     - cd app
     - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/dropped-records/**/*
+    - when: manual
+      allow_failure: true
 
 deploy-slo-checker-lag-trend:
   stage: deploy
   extends:
-    - .dind
+    - .kaniko-push
   needs:
     - test-slo-checker-lag-trend
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-slo-checker-lag-trend slo-checker/record-lag
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:${DOCKER_TAG_NAME}latest"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-lag-trend $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend
-    - docker logout
+  before_script:
+    - cd slo-checker/record-lag
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-lag-trend
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - slo-checker/record-lag/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
@@ -363,24 +371,17 @@ deploy-slo-checker-lag-trend:
 deploy-slo-checker-dropped-records-kstreams:
   stage: deploy
   extends:
-    - .dind
+    - .kaniko-push
   needs:
     - test-slo-checker-dropped-records-kstreams
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-slo-checker-dropped-records-kstreams slo-checker/dropped-records
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-dropped-records-kstreams $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams:${DOCKER_TAG_NAME}latest"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-slo-checker-dropped-records-kstreams $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams
-    - docker logout
+  before_script:
+    - cd slo-checker/dropped-records
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-dropped-records-kstreams
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - slo-checker/dropped-records/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
@@ -391,23 +392,16 @@ deploy-slo-checker-dropped-records-kstreams:
 deploy-random-scheduler:
   stage: deploy
   extends:
-    - .dind
+    - .kaniko-push
   needs: []
-  script:
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - docker build --pull -t theodolite-random-scheduler execution/infrastructure/random-scheduler
-    - "[ ! $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:${DOCKER_TAG_NAME}latest"
-    - "[ $CI_COMMIT_TAG ] && docker tag theodolite-random-scheduler $CR_HOST/$CR_ORG/theodolite-random-scheduler:$CI_COMMIT_TAG"
-    - echo $CR_PW | docker login $CR_HOST -u $CR_USER --password-stdin
-    - docker push $CR_HOST/$CR_ORG/theodolite-random-scheduler
-    - docker logout
+  before_script:
+    - cd execution/infrastructure/random-scheduler
+  variables:
+    IMAGE_NAME: theodolite-random-scheduler
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
-      when: always
     - changes:
       - execution/infrastructure/random-scheduler/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: always
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true

@@ -48,19 +48,19 @@ dependencies {
     implementation 'com.google.guava:guava:24.1-jre'
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'org.slf4j:slf4j-simple:1.6.1'
-    compile project(':flink-commons')
+    implementation project(':flink-commons')
 
     //compile group: 'org.apache.kafka', name: 'kafka-clients', version: "2.2.0"
-    compile group: 'org.apache.flink', name: 'flink-java', version: "${flinkVersion}"
-    compile group: 'org.apache.flink', name: "flink-streaming-java_${scalaBinaryVersion}", version:"${flinkVersion}"
-    compile group: 'org.apache.flink', name: "flink-table-api-java-bridge_${scalaBinaryVersion}", version: "${flinkVersion}"
-    compile group: 'org.apache.flink', name: "flink-table-planner-blink_${scalaBinaryVersion}", version: "${flinkVersion}"
-    compile group: 'org.apache.flink', name: "flink-connector-kafka_${scalaBinaryVersion}", version: "${flinkVersion}"
+    implementation "org.apache.flink:flink-java:${flinkVersion}"
+    implementation "org.apache.flink:flink-streaming-java_${scalaBinaryVersion}:${flinkVersion}"
+    implementation "org.apache.flink:flink-table-api-java-bridge_${scalaBinaryVersion}:${flinkVersion}"
+    implementation "org.apache.flink:flink-table-planner-blink_${scalaBinaryVersion}:${flinkVersion}"
+    implementation "org.apache.flink:flink-connector-kafka_${scalaBinaryVersion}:${flinkVersion}"
     implementation "org.apache.flink:flink-avro:${flinkVersion}"
     implementation "org.apache.flink:flink-avro-confluent-registry:${flinkVersion}"
-    compile group: 'org.apache.flink', name: "flink-runtime-web_${scalaBinaryVersion}", version: "${flinkVersion}" // TODO: remove after development
-    compile group: 'org.apache.flink', name: "flink-statebackend-rocksdb_${scalaBinaryVersion}", version: "${flinkVersion}"
-    compile group: 'org.apache.flink', name: "flink-metrics-prometheus_${scalaBinaryVersion}", version: "${flinkVersion}"
+    implementation "org.apache.flink:flink-runtime-web_${scalaBinaryVersion}:${flinkVersion}" // For debugging
+    implementation "org.apache.flink:flink-statebackend-rocksdb_${scalaBinaryVersion}:${flinkVersion}"
+    implementation "org.apache.flink:flink-metrics-prometheus_${scalaBinaryVersion}:${flinkVersion}"
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
