@@ -6,9 +6,11 @@ stages:
 
 default:
   tags:
-    - exec-dind
+    - exec-docke
 
 .dind:
+  tags:
+    - exec-dind
   # see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   # for image usage and settings for building with TLS and docker in docker
   image: docker:19.03.1
