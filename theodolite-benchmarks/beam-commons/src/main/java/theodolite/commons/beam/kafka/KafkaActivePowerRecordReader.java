@@ -26,7 +26,7 @@ public class KafkaActivePowerRecordReader extends
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public KafkaActivePowerRecordReader(final String bootstrapServer, final String inputTopic,
-                                      final Map consumerConfig) {
+                                      final Map<String, Object> consumerConfig) {
     super();
 
     // Check if boostrap server and inputTopic are defined
