@@ -11,6 +11,7 @@ import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StageWithWindow;
+import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.StreamStageWithKey;
 import com.hazelcast.jet.pipeline.WindowDefinition;
@@ -41,8 +42,8 @@ public class Uc4PipelineBuilder {
    *
    * @param kafkaInputReadPropsForPipeline Properties Object containing the necessary kafka input
    *        read attributes.
-   * @param kafkaConfigPropsForPipeline Properties Object containing the necessary kafka config
-   *        read attributes.
+   * @param kafkaConfigPropsForPipeline Properties Object containing the necessary kafka config read
+   *        attributes.
    * @param kafkaFeedbackPropsForPipeline Properties Object containing the necessary kafka
    *        aggregation read attributes.
    * @param kafkaWritePropsForPipeline Properties Object containing the necessary kafka write
@@ -55,7 +56,6 @@ public class Uc4PipelineBuilder {
    * @return returns a Pipeline used which can be used in a Hazelcast Jet Instance to process data
    *         for UC3.
    */
-  @SuppressWarnings("unchecked")
   public Pipeline build(final Properties kafkaInputReadPropsForPipeline, // NOPMD
       final Properties kafkaConfigPropsForPipeline,
       final Properties kafkaFeedbackPropsForPipeline,
@@ -66,93 +66,80 @@ public class Uc4PipelineBuilder {
       final String kafkaFeedbackTopic,
       final int windowSize) {
 
-    //////////////////////////////////
     // The pipeline for this Use Case
     final Pipeline uc4Pipeline = Pipeline.create();
 
-    // System.out.println("DEBUG: Window Size: " + windowSize);
+    // Sources for this use case
+    final StreamSource<Entry<Event, String>> configSource = KafkaSources.<Event, String>kafka(
+        kafkaConfigPropsForPipeline, kafkaConfigurationTopic);
+    final StreamSource<Entry<String, ActivePowerRecord>> inputSource =
+        KafkaSources.<String, ActivePowerRecord>kafka(
+            kafkaInputReadPropsForPipeline, kafkaInputTopic);
+    final StreamSource<Entry<String, Double>> aggregationSource = 
+        KafkaSources.<String, Double>kafka(kafkaFeedbackPropsForPipeline, kafkaFeedbackTopic);
+
+    // Extend UC4 topology to pipeline
+    final StreamStage<Entry<String, Double>> uc4Product =
+        extendUc4Topology(uc4Pipeline, inputSource, aggregationSource, configSource, windowSize);
+
+    // Add Sink1: Write back to kafka output topic
+    uc4Product.writeTo(KafkaSinks.<String, Double>kafka(
+        kafkaWritePropsForPipeline, kafkaOutputTopic));
+    // Add Sink2: Write back to kafka feedback/aggregation topic
+    uc4Product.writeTo(KafkaSinks.<String, Double>kafka(
+        kafkaWritePropsForPipeline, kafkaFeedbackTopic));
+    // Add Sink3: Logger
+    uc4Product.writeTo(Sinks.logger());
+
+    // Return the pipeline
+    return uc4Pipeline;
+  }
+
+  /**
+   * Extends to a blank Hazelcast Jet Pipeline the UC4 topology defines by theodolite.
+   * 
+   * <p>UC4 takes {@code ActivePowerRecord} events from sensors and a {@code SensorRegistry} 
+   * with maps from keys to groups to map values to their accourding groups. A feedback stream 
+   * allows for group keys to be mapped to values and eventually to be mapped to other top 
+   * level groups defines by the {@code SensorRegistry}.
+   * 
+   * <p>6 Step topology:
+   * (1) Inputs (Config, Values, Aggregations)
+   * (2) Merge Input Values and Aggregations
+   * (3) Join Configuration with Merged Input Stream
+   * (4) Duplicate as flatmap per value and group
+   * (5) Window (preperation for possible last values)
+   * (6) Aggregate data over the window
+   * 
+   * @param pipe The blank pipeline to extend the logic to.
+   * @param inputSource A streaming source with {@code ActivePowerRecord} data.
+   * @param aggregationSource A streaming source with aggregated data.
+   * @param configurationSource A streaming source delivering a {@code SensorRegistry}.
+   * @param windowSize The window size used to aggregate over.
+   * @return A {@code StreamSource<String,Double>} with sensorKeys or groupKeys mapped to their
+   *         according aggregated values. The data can be further modified or directly be linked to
+   *         a Hazelcast Jet sink.
+   */
+  public StreamStage<Entry<String, Double>> extendUc4Topology(final Pipeline pipe,//NOPMD
+      final StreamSource<Entry<String, ActivePowerRecord>> inputSource,
+      final StreamSource<Entry<String, Double>> aggregationSource,
+      final StreamSource<Entry<Event, String>> configurationSource, final int windowSize) {
 
     //////////////////////////////////
     // (1) Configuration Stream
-    final StreamStage<Entry<Event, SensorRegistry>> configurationStream = uc4Pipeline
-        .readFrom(KafkaSources.<Event, String>kafka(
-            kafkaConfigPropsForPipeline, kafkaConfigurationTopic))
+    pipe.readFrom(configurationSource)
         .withNativeTimestamps(0)
-        .map(data -> {
-
-          // DEBUG
-          // System.out.println("D E B U G: Got a configuration Stream Element!");
-          // System.out.println("Event: " + data.getKey().toString() + "; Sensor Registry: " +
-          // data.getValue().toString());
-
-          return data;
-
-        })
         .filter(entry -> entry.getKey() == Event.SENSOR_REGISTRY_CHANGED
             || entry.getKey() == Event.SENSOR_REGISTRY_STATUS)
         .map(data -> {
-
-          // DEBUG
-          // System.out.println("D E B U G: It passed through the filter");
-
           return Util.entry(data.getKey(), SensorRegistry.fromJson(data.getValue()));
-        });
-
-    // Builds a new HashMap //
-    final SupplierEx<? extends HashMap<String, Set<String>>> hashMapSupplier =
-        () -> new HashMap<String, Set<String>>();
-
-    // FlatMapFunction //
-    final BiFunctionEx<? super HashMap<String, Set<String>>, ? super Entry<Event, SensorRegistry>,
-        ? extends Traverser<Entry<String, Set<String>>>> flatMapFn =
-            (flatMapStage, eventItem) -> {
-              // Get Data
-              HashMap<String, Set<String>> oldParents =
-                  (HashMap<String, Set<String>>) flatMapStage.clone();
-              SensorRegistry newSensorRegistry = (SensorRegistry) eventItem.getValue();
-    
-              // Transform new Input
-              ChildParentsTransformer transformer = new ChildParentsTransformer("default-name");
-              Map<String, Set<String>> mapFromRegistry =
-                  transformer.constructChildParentsPairs(newSensorRegistry);
-    
-              // Compare both tables
-              HashMap<String, Set<String>> updates = new HashMap<String, Set<String>>();
-              for (String key : mapFromRegistry.keySet()) {
-                if (oldParents.containsKey(key)) {
-                  if (!mapFromRegistry.get(key).equals(oldParents.get(key))) {
-                    updates.put(key, mapFromRegistry.get(key));
-                  }
-                } else {
-                  updates.put(key, mapFromRegistry.get(key));
-                }
-              }
-    
-              ArrayList<Entry<String, Set<String>>> updatesList =
-                  new ArrayList<Entry<String, Set<String>>>(updates.entrySet());
-    
-              // Return traverser with differences
-              return Traversers.traverseIterable(updatesList)
-                  .map(e -> Util.entry(e.getKey(), e.getValue()));
-    
-            };
-
-    // Write into table sink
-    configurationStream
-        .flatMapStateful(hashMapSupplier, flatMapFn)
+        })
+        .flatMapStateful(hashMapSupplier(), configFlatMap())
         .writeTo(Sinks.mapWithUpdating(
             SENSOR_PARENT_MAP_NAME, // The addressed IMAP
             event -> event.getKey(), // The key to look for
             (oldValue, newEntry) -> { // the new entry returned (null automatically results in
-                                      // deletion of entry) //NOCS
-
-              // DEBUG
-              /*
-               * String debugFlatmapString = "["; for (String group : newEntry.getValue()) {
-               * debugFlatmapString = debugFlatmapString + group + ","; } debugFlatmapString =
-               * debugFlatmapString + "]"; System.out.println( "Flatmap Writes for key '" +
-               * newEntry.getKey() + "': " + debugFlatmapString);
-               */
+              // deletion of entry) //NOCS
 
               // Write new set of groups
               return newEntry.getValue();
@@ -160,43 +147,30 @@ public class Uc4PipelineBuilder {
 
     //////////////////////////////////
     // (1) Sensor Input Stream
-    final StreamStage<Entry<String, Double>> inputStream = uc4Pipeline
-        .readFrom(KafkaSources.<String, ActivePowerRecord>kafka(
-            kafkaInputReadPropsForPipeline, kafkaInputTopic))
+    final StreamStage<Entry<String, Double>> inputStream = pipe
+        .readFrom(inputSource)
         .withNativeTimestamps(0)
         .map(stream -> {
-
+          // Build data for next pipeline stage
           String sensorId = stream.getValue().getIdentifier();
           Double valueInW = stream.getValue().getValueInW();
-
-          // DEBUG
-          // System.out.println("INPUT D E B U G: Got an input Stream Element!");
-          // System.out.println("[SensorId=" + sensorId + "//valueinW=" + valueInW.toString());
-
+          // Return data for next pipeline stage
           return Util.entry(sensorId, valueInW);
         });
 
+    //////////////////////////////////
     // (1) Aggregation Stream
-    final StreamStage<Entry<String, Double>> aggregations = uc4Pipeline
-        .readFrom(KafkaSources.<String, Double>kafka(
-            kafkaFeedbackPropsForPipeline, kafkaFeedbackTopic))
-        .withNativeTimestamps(0)
-        .map(stream -> {
+    final StreamStage<Entry<String, Double>> aggregations = pipe
+        .readFrom(aggregationSource)
+        .withNativeTimestamps(0);
 
-          // DEBUG
-          // System.out.println("AGGREGATION D E B U G: Got an aggregation Stream Element!");
-          // System.out.println(
-          // "[SensorId=" + stream.getKey() + "//valueinW=" + stream.getValue().toString());
-
-          return stream;
-
-        });
-
+    //////////////////////////////////
     // (2) UC4 Merge Input with aggregation stream
     final StreamStageWithKey<Entry<String, Double>, String> mergedInputAndAggregations = inputStream
         .merge(aggregations)
         .groupingKey(event -> event.getKey());
 
+    //////////////////////////////////
     // (3) UC4 Join Configuration and Merges Input/Aggregation Stream
     // [sensorKey , (value,Set<Groups>)]
     final StreamStage<Entry<String, ValueGroup>> joinedStage = mergedInputAndAggregations
@@ -205,30 +179,30 @@ public class Uc4PipelineBuilder {
             (sensorEvent, sensorParentsSet) -> {
 
               // Get Data
+              @SuppressWarnings("unchecked")
               Set<String> sensorParentsCasted = (Set<String>) sensorParentsSet;
 
+              // Check whether a groupset exists for a key or not
               if (sensorParentsCasted == null) {
+                // No group set exists for this key: return valuegroup with default null group set.
                 Set<String> nullSet = new HashSet<String>();
                 nullSet.add("NULL-GROUPSET");
                 return Util.entry(sensorEvent.getKey(),
                     new ValueGroup(sensorEvent.getValue(), nullSet));
               } else {
+                // Group set exists for this key: return valuegroup with the groupset.
                 ValueGroup valueParentsPair =
                     new ValueGroup(sensorEvent.getValue(), sensorParentsCasted);
                 // Return solution
                 return Util.entry(sensorEvent.getKey(), valueParentsPair);
               }
-
-
             });
 
+    //////////////////////////////////
     // (4) UC4 Duplicate as flatmap joined Stream
     // [(sensorKey, Group) , value]
     final StreamStage<Entry<SensorGroupKey, Double>> dupliAsFlatmappedStage = joinedStage
         .flatMap(entry -> {
-
-          // DEBUG
-          // System.out.println("D E B G U G Stage 4");
 
           // Supplied data
           String keyGroupId = entry.getKey();
@@ -243,51 +217,77 @@ public class Uc4PipelineBuilder {
           for (int i = 0; i < groupList.length; i++) {
             newKeyList[i] = new SensorGroupKey(keyGroupId, groupList[i]);
             newEntryList.add(Util.entry(newKeyList[i], valueInW));
-            // DEBUG
-            // System.out.println("Added new Entry to list: [(" + newKeyList[i].getSensorId() + ","
-            // + newKeyList[i].getGroup() + ")," + valueInW.toString());
           }
-
-
 
           // Return traversable list of new entry elements
           return Traversers.traverseIterable(newEntryList);
-
         });
 
+    //////////////////////////////////
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
-    // TODO: Implementation of static table to fill values out of the past!
     final StageWithWindow<Entry<SensorGroupKey, Double>> windowedLastValues = dupliAsFlatmappedStage
         .window(WindowDefinition.tumbling(windowSize));
 
+    //////////////////////////////////
     // (6) UC4 GroupBy and aggregate and map
     // Group using the group out of the sensorGroupKey keys
-    final StreamStage<Entry<String, Double>> groupedAggregatedMapped = windowedLastValues
+    return windowedLastValues
         .groupingKey(entry -> entry.getKey().getGroup())
         .aggregate(AggregateOperations.summingDouble(entry -> entry.getValue()))
         .map(agg -> {
-          String theGroup = agg.getKey();
-          Double summedValueInW = agg.getValue();
 
-          // System.out.println("DEBUG - We have a grouped Aggregation Stage at the end!");
+          // Construct data for return pair
+          final String theGroup = agg.getKey();
+          final Double summedValueInW = agg.getValue();
 
+          // Return aggregates group value pair
           return Util.entry(theGroup, summedValueInW);
         });
+  }
 
-    // (7) Sink - Results back to Kafka
-    groupedAggregatedMapped.writeTo(KafkaSinks.<String, Double>kafka(
-        kafkaWritePropsForPipeline, kafkaOutputTopic));
 
-    // (7) Sink - Results back to Kafka
-    groupedAggregatedMapped.writeTo(KafkaSinks.<String, Double>kafka(
-        kafkaWritePropsForPipeline, kafkaFeedbackTopic));
+  /**
+   * Returns a function which supplies a {@code HashMapy<String, Set<String>>()}.
+   */
+  private SupplierEx<? extends HashMap<String, Set<String>>> hashMapSupplier() {
+    return () -> new HashMap<String, Set<String>>();
+  }
 
-    // (7) Sink - Write to logger/console for debug puposes
-    groupedAggregatedMapped.writeTo(Sinks.logger());
+  /**
+   * Returns a function which supplies the flatMap function used to process the configuration input
+   * for UC4.
+   */
+  private BiFunctionEx<? super HashMap<String, Set<String>>, 
+      ? super Entry<Event, SensorRegistry>,
+      ? extends Traverser<Entry<String, Set<String>>>> configFlatMap() {
+    return (flatMapStage, eventItem) -> {
 
-    // Return the pipeline
-    return uc4Pipeline;
+      // Transform new Input
+      final ChildParentsTransformer transformer = new ChildParentsTransformer("default-name");
+      final Map<String, Set<String>> mapFromRegistry =
+          transformer.constructChildParentsPairs(eventItem.getValue());
+
+      // Compare both tables
+      final HashMap<String, Set<String>> updates = new HashMap<String, Set<String>>();
+      for (final String key : mapFromRegistry.keySet()) {
+        if (flatMapStage.containsKey(key)) {
+          if (!mapFromRegistry.get(key).equals(flatMapStage.get(key))) {
+            updates.put(key, mapFromRegistry.get(key));
+          }
+        } else {
+          updates.put(key, mapFromRegistry.get(key));
+        }
+      }
+
+      // Create a updates list to pass onto the next pipeline stage-
+      final ArrayList<Entry<String, Set<String>>> updatesList =
+          new ArrayList<Entry<String, Set<String>>>(updates.entrySet());
+
+      // Return traverser with updates list.
+      return Traversers.traverseIterable(updatesList)
+          .map(e -> Util.entry(e.getKey(), e.getValue()));
+    };
   }
 
 }

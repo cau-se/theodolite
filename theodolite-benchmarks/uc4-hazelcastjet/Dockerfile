@@ -1,6 +1,6 @@
 FROM openjdk:11-slim
 
-ADD build/distributions/uc3-hazelcastjet.tar /
+ADD build/distributions/uc4-hazelcastjet.tar /
 
 
 CMD  JAVA_OPTS="$JAVA_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=$LOG_LEVEL" \

@@ -1,4 +1,4 @@
-package theodolite.uc1.application;
+package theodolite.uc2.application;
 
 import com.google.gson.Gson;
 import com.hazelcast.jet.Jet;
@@ -23,27 +23,27 @@ import org.junit.experimental.categories.Category;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
- * Test methods for the Hazelcast Jet Implementation of UC1.
+ * Test methods for the Hazelcast Jet Implementation of UC2.
  */
 @Category(SerialTest.class)
-public class Uc1PipelineTest extends JetTestSupport {
+public class Uc2PipelineTest extends JetTestSupport {
 
-  private static final Gson GSON = new Gson();
-  private JetInstance testInstance = null;
-  private Pipeline testPipeline = null;
-  private StreamStage<String> uc1Topology = null;
+  JetInstance testInstance = null;
+  Pipeline testPipeline = null;
+  StreamStage<Entry<String, String>> uc2Topology = null;
 
-  /**
+  /*
    * Creates the JetInstance, defines a new Hazelcast Jet Pipeline and extends the UC2 topology.
    * Allows for quick extension of tests.
    */
   @Before
-  public void buildUc1Pipeline() {
+  public void buildUc2Pipeline() {
 
     // Setup Configuration
-    final int testItemsPerSecond = 1;
-    final String testSensorName = "TEST_SENSOR";
-    final Double testValueInW = 10.0;
+    int testItemsPerSecond = 1;
+    String testSensorName = "TEST-SENSOR";
+    Double testValueInW = 10.0;
+    int testWindowInMs = 5000;
 
     // Create mock jet instance with configuration
     final String testClusterName = randomName();
@@ -62,33 +62,34 @@ public class Uc1PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    final Uc1PipelineBuilder pipelineBuilder = new Uc1PipelineBuilder();
+    Uc2PipelineBuilder pipelineBuilder = new Uc2PipelineBuilder();
     this.testPipeline = Pipeline.create();
-    this.uc1Topology =
-        pipelineBuilder.extendUc1Topology(this.testPipeline, testSource);
+    this.uc2Topology =
+        pipelineBuilder.extendUc2Topology(this.testPipeline, testSource, testWindowInMs);
 
   }
 
   /**
-   * UC1 Pipeline test to check if items are passed through at an acceptable rate.
+   * Tests if no items reach the end before the first window ends.
    */
   @Test
-  public void test1Uc1PipelineElements() {
+  public void testOutput() {
 
     // Assertion Configuration
-    final int assertTimeoutSeconds = 6;
-    final int assertCollectedItems = 5;
+    int timeout = 14;
+    String expectedOutput = "Stats{count=5, mean=10.0, populationStandardDeviation=0.0, min=10.0, max=10.0}";
 
     // Assertion
-    this.uc1Topology.apply(Assertions.assertCollectedEventually(assertTimeoutSeconds,
-        collection -> Assert.assertTrue("Not enough data arrived in the end",
-            collection.size() >= assertCollectedItems)));
+    this.uc2Topology.apply(Assertions.assertCollectedEventually(timeout,
+        collection -> Assert.assertTrue(
+            "Not the right amount items in Stats Object!",
+            collection.get(collection.size()-1).getValue().equals(expectedOutput))));
 
-    // Test the UC1 Pipeline Recreation
+    // Run the test!
     try {
       this.testInstance.newJob(this.testPipeline).join();
       Assert.fail("Job should have completed with an AssertionCompletedException, "
-          + "but completed normally");
+          + "but completed normally!");
     } catch (final CompletionException e) {
       final String errorMsg = e.getCause().getMessage();
       Assert.assertTrue(
@@ -96,6 +97,7 @@ public class Uc1PipelineTest extends JetTestSupport {
               + e.getCause(),
           errorMsg.contains(AssertionCompletedException.class.getName()));
     }
+
   }
 
   @After

@@ -1,39 +1,36 @@
 apiVersion: theodolite.com/v1
 kind: benchmark
 metadata:
-  name: uc2-hazelcastjet
+  name: uc1-hazelcastjet
 spec:
   appResource:
-    - "uc2-hazelcastjet/uc2-hazelcastjet-deployment.yaml"
-    - "uc2-khazelcastjet/uc2-hazelcastjet-service.yaml"
-    #- "uc2-hazelcastjet/uc2-jmx-configmap.yaml"
-    #- "uc2-hazelcastjet/uc2-service-monitor.yaml"
+    - "uc1-hazelcastjet/uc1-hazelcastjet-deployment.yaml"
+    - "uc1-hazelcastjet/uc1-hazelcastjet-service.yaml"
+    #- "uc1-hazelcastjet/uc1-jmx-configmap.yaml"
+    #- "uc1-hazelcastjet/uc1-service-monitor.yaml"
   loadGenResource:
-    - "uc2-kstreams/uc2-load-generator-deployment.yaml"
-    - "uc2-kstreams/uc2-load-generator-service.yaml"
+    - "uc1-kstreams/uc1-load-generator-deployment.yaml"
+    - "uc1-kstreams/uc1-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc2-hazelcastjet/uc2-hazelcastjet-deployment.yaml"
+          resource: "uc1-hazelcsatjet/uc1-hazelcastjet-deployment.yaml"
   loadTypes:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+          resource: "uc1-kstreams/uc1-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumSensorsLoadGeneratorReplicaPatcher
-          resource: "uc2-kstreams/uc2-load-generator-deployment.yaml"
+          resource: "uc1-kstreams/uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
     bootstrapServer: "theodolite-cp-kafka:9092"
     topics:
       - name: "input"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "output"
         numPartitions: 40
         replicationFactor: 1
