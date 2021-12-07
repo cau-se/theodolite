@@ -48,7 +48,6 @@ lint-helm:
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - cd theodolite-benchmarks
   rules:
-    - if: $CI_COMMIT_TAG
     - changes:
       - theodolite-benchmarks/**/*
     - when: manual
@@ -135,7 +134,6 @@ spotbugs-benchmarks:
     - docker push $CR_HOST/$CR_ORG/$IMAGE_NAME
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $CI_COMMIT_TAG"
     - changes:
       - theodolite-benchmarks/*
       - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
@@ -307,7 +305,6 @@ deploy-theodolite:
     - docker push $CR_HOST/$CR_ORG/theodolite
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
     - changes:
       - theodolite/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
@@ -329,7 +326,6 @@ test-slo-checker-lag-trend:
     - cd app
     - python -m unittest
   rules:
-    - if: $CI_COMMIT_TAG
     - changes:
       - slo-checker/record-lag/**/*
     - when: manual
@@ -346,7 +342,6 @@ test-slo-checker-dropped-records-kstreams:
     - cd app
     - python -m unittest
   rules:
-    - if: $CI_COMMIT_TAG
     - changes:
       - slo-checker/dropped-records/**/*
     - when: manual
@@ -367,7 +362,6 @@ deploy-slo-checker-lag-trend:
     - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-lag-trend
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
     - changes:
       - slo-checker/record-lag/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
@@ -390,7 +384,6 @@ deploy-slo-checker-dropped-records-kstreams:
     - docker push $CR_HOST/$CR_ORG/theodolite-slo-checker-dropped-records-kstreams
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
     - changes:
       - slo-checker/dropped-records/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
@@ -415,7 +408,6 @@ deploy-random-scheduler:
     - docker push $CR_HOST/$CR_ORG/theodolite-random-scheduler
     - docker logout
   rules:
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
     - changes:
       - execution/infrastructure/random-scheduler/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
