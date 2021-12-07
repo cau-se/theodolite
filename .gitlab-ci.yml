@@ -34,6 +34,11 @@ default:
     - cd docs
     - bundle config set --local path 'vendor'
     - bundle install
+  rules:
+    - changes:
+      - docs/**/*
+    - when: manual
+      allow_failure: true
 
 build-docs:
   stage: build
