@@ -4,6 +4,10 @@ stages:
   - check
   - deploy
 
+default:
+  tags:
+    - exec-docker
+
 .dind:
   tags:
     - exec-dind
@@ -19,11 +23,10 @@ stages:
 
 lint-helm:
   stage: check
+  needs: []
   image:
     name: alpine/helm:3.5.2
     entrypoint: [""]
-  tags:
-    - exec-docker
   script: helm lint helm/
 
 
@@ -31,8 +34,6 @@ lint-helm:
 
 .benchmarks:
   image: openjdk:11-jdk
-  tags:
-    - exec-docker
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -217,8 +218,6 @@ deploy-uc4-load-generator:
   image:
     name: ghcr.io/graalvm/native-image:java11-21.1.0
     entrypoint: [""]
-  tags:
-    - exec-docker
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -341,9 +340,8 @@ deploy-theodolite-kaniko:
 
 test-slo-checker-lag-trend:
   stage: test
+  needs: []
   image: python:3.7-slim
-  tags:
-    - exec-docker
   script:
     - cd slo-checker/record-lag
     - pip install -r requirements.txt
@@ -352,9 +350,8 @@ test-slo-checker-lag-trend:
 
 test-slo-checker-dropped-records-kstreams:
   stage: test
+  needs: []
   image: python:3.7-slim
-  tags:
-    - exec-docker
   script:
     - cd slo-checker/dropped-records
     - pip install -r requirements.txt
