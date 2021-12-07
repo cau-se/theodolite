@@ -6,7 +6,7 @@ stages:
 
 default:
   tags:
-    - exec-docke
+    - exec-docker
 
 .dind:
   tags:
