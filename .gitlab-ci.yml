@@ -319,15 +319,18 @@ deploy-theodolite-kaniko:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  before_script:
+  variables:
+    IMAGE_NAME: theodolite
+    DOCKERFILE: src/main/docker/Dockerfile.jvm
+  script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CR_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_USER}" "${CR_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
-  script:
     - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    #- DESTINATION="$DESTINATION -d $CR_HOST/$CR_ORG/theodolite:${DOCKER_TAG_NAME}latest-kaniko"
-    #- DESTINATION="$DESTINATION -d $CR_HOST/$CR_ORG/theodolite:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA-kaniko"
-    #- DESTINATION="$DESTINATION -d theodolite $CR_HOST/$CR_ORG/theodolite:$CI_COMMIT_TAG-kaniko"
-    - /kaniko/executor --context `pwd` --dockerfile src/main/docker/Dockerfile.jvm $DESTINATION
+    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest-kaniko\""
+    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA-kaniko\""
+    - "[ $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG-kaniko\""
+    - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
+    - /kaniko/executor --context `pwd` $KANIKO_DOCKERFILE $KANIKO_D
   rules:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_COMMIT_TAG"
       when: always
