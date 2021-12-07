@@ -2,7 +2,6 @@ package theodolite.commons.beam;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.commons.configuration2.Configuration;
