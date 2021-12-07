@@ -1,5 +1,6 @@
 package theodolite.uc2.application;
 
+import com.google.common.math.StatsAccumulator;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.pipeline.Pipeline;
@@ -8,6 +9,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import theodolite.commons.hazelcastjet.ConfigurationKeys;
 import theodolite.commons.hazelcastjet.JetInstanceBuilder;
+import theodolite.uc2.application.uc2specifics.StatsAccumulatorSerializer;
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC2
@@ -56,6 +58,7 @@ public class Uc2HazelcastJetFactory {
 
     // Adds the job name and joins a job to the JetInstance defined in this factory
     final JobConfig jobConfig = new JobConfig();
+    jobConfig.registerSerializer(StatsAccumulator.class, StatsAccumulatorSerializer.class);
     jobConfig.setName(jobName);
     this.uc2JetInstance.newJobIfAbsent(this.uc2JetPipeline, jobConfig).join();
   }

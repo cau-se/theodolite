@@ -1,6 +1,9 @@
 package theodolite.uc2.application;
 
-import com.hazelcast.jet.aggregate.AggregateOperations;
+import com.google.common.math.Stats;
+import com.google.common.math.StatsAccumulator;
+import com.hazelcast.jet.aggregate.AggregateOperation;
+import com.hazelcast.jet.aggregate.AggregateOperation1;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
@@ -8,7 +11,9 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import theodolite.uc2.application.uc2specifics.StatsAccumulatorSupplier;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
@@ -36,6 +41,26 @@ public class Uc2PipelineBuilder {
       final String kafkaOutputTopic,
       final int downsampleInterval) {
 
+    // Aggregate Operation to Create a Stats Object from Entry<String,ActivePowerRecord> items using
+    // the Statsaccumulator.
+    final AggregateOperation1<Object, StatsAccumulator, Stats> aggrOp = AggregateOperation
+        .withCreate(new StatsAccumulatorSupplier())
+        .andAccumulate((accumulator, item) -> {
+
+          Entry<String, ActivePowerRecord> castedEntry = (Entry<String, ActivePowerRecord>) item;
+          accumulator.add(castedEntry.getValue().getValueInW());
+
+        })
+        .andCombine((left, right) -> {
+
+          Stats rightStats = right.snapshot();
+          left.addAll(rightStats);
+
+        })
+        .andExportFinish((accumulator) -> {
+          return accumulator.snapshot();
+        });
+
     final Pipeline pipe = Pipeline.create();
     final StreamStage<Map.Entry<String, String>> mapProduct =
         pipe.readFrom(KafkaSources.<String, ActivePowerRecord>kafka(
@@ -44,11 +69,10 @@ public class Uc2PipelineBuilder {
             .setLocalParallelism(1)
             .groupingKey(record -> record.getValue().getIdentifier())
             .window(WindowDefinition.tumbling(downsampleInterval))
-            .aggregate(
-                AggregateOperations.averagingDouble(record -> record.getValue().getValueInW()))
+            .aggregate(aggrOp)
             .map(agg -> {
+              String theKey = agg.key();
               String theValue = agg.getValue().toString();
-              String theKey = agg.getKey().toString();
               return Map.entry(theKey, theValue);
             });
     // Add Sink1: Logger
