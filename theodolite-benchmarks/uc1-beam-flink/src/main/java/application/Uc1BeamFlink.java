@@ -24,7 +24,6 @@ public final class Uc1BeamFlink extends AbstractBeamService {
   /**
    * Main method.
    */
-  @SuppressWarnings({"unchecked", "rawtypes", "unused"})
   public static void main(final String[] args) {
 
     // Create application via configurations

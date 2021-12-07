@@ -28,7 +28,6 @@ public final class Uc4BeamSamza extends AbstractBeamService {
   /**
    * Start running this microservice.
    */
-  @SuppressWarnings({"serial", "unchecked", "rawtypes"})
   public static void main(final String[] args) {
 
     final Uc4BeamSamza uc4BeamSamza = new Uc4BeamSamza(args);

@@ -22,7 +22,6 @@ public final class Uc4BeamFlink extends AbstractBeamService {
   /**
    * Start running this microservice.
    */
-  @SuppressWarnings({"serial", "unchecked", "rawtypes"})
   public static void main(final String[] args) {
 
     final Uc4BeamFlink uc4BeamFlink = new Uc4BeamFlink(args);

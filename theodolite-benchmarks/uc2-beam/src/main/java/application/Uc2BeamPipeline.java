@@ -17,7 +17,6 @@ import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.POutput;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.joda.time.Duration;
@@ -38,7 +37,7 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public final class Uc2BeamPipeline extends AbstractPipeline {
 
-  protected Uc2BeamPipeline(final PipelineOptions options,final Configuration config) {
+  protected Uc2BeamPipeline(final PipelineOptions options, final Configuration config) {
     super(options, config);
     // Additional needed variables
     final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
@@ -48,7 +47,7 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
     final Duration duration = Duration.standardMinutes(windowDurationMinutes);
 
     // Build kafka configuration
-    final Map consumerConfig = buildConsumerConfig();
+    final Map<String, Object> consumerConfig = buildConsumerConfig();
 
     // Set Coders for Classes that will be distributed
     final CoderRegistry cr = this.getCoderRegistry();
@@ -67,8 +66,8 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
     final StatsToString statsToString = new StatsToString();
 
     // Write to Kafka
-    final PTransform<PCollection<KV<String, String>>, POutput> kafkaWriter =
-        new KafkaWriterTransformation(bootstrapServer, outputTopic, StringSerializer.class);
+    final KafkaWriterTransformation<String> kafkaWriter =
+        new KafkaWriterTransformation<>(bootstrapServer, outputTopic, StringSerializer.class);
 
     // Apply pipeline transformations
     this.apply(kafkaActivePowerRecordReader)

@@ -10,14 +10,11 @@ import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
 import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.POutput;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.joda.time.Duration;
@@ -63,7 +60,6 @@ public final class Uc3BeamPipeline extends AbstractPipeline {
     registerCoders(cr);
 
     // Read from Kafka
-    @SuppressWarnings({"rawtypes", "unchecked"})
     final KafkaActivePowerTimestampReader kafka =
         new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
 
@@ -74,9 +70,8 @@ public final class Uc3BeamPipeline extends AbstractPipeline {
     final HourOfDayWithStats hourOfDayWithStats = new HourOfDayWithStats();
 
     // Write to Kafka
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    final PTransform<PCollection<KV<String, String>>, POutput> kafkaWriter =
-        new KafkaWriterTransformation(bootstrapServer, outputTopic, StringSerializer.class);
+    final KafkaWriterTransformation<String> kafkaWriter =
+        new KafkaWriterTransformation<>(bootstrapServer, outputTopic, StringSerializer.class);
 
     this.apply(kafka)
         // Map to correct time format
