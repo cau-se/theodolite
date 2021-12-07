@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.client.dsl.ExecWatch
 import mu.KotlinLogging
 import okhttp3.Response
 import theodolite.util.ActionCommandFailedException
+import theodolite.util.Configuration
 import java.io.ByteArrayOutputStream
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
@@ -13,7 +14,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 private val logger = KotlinLogging.logger {}
-private const val TIMEOUT = 30L
 
 class ActionCommand(val client: NamespacedKubernetesClient) {
     var out: ByteArrayOutputStream = ByteArrayOutputStream()
@@ -29,8 +29,12 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
      * @param command The command to be executed.
      * @return the exit code of this executed command
      */
-    fun exec(matchLabels: MutableMap<String, String>, command: Array<String>, container: String = ""): Int {
-
+    fun exec(
+        matchLabels: MutableMap<String, String>,
+        command: Array<String>,
+        timeout: Long = Configuration.TIMEOUT,
+        container: String = ""
+    ): Int {
         val exitCode = ExitCode()
 
         try {
@@ -50,7 +54,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
                 .usingListener(MyPodExecListener(execLatch, exitCode))
                 .exec(*command)
 
-            val latchTerminationStatus = execLatch.await(TIMEOUT, TimeUnit.SECONDS);
+            val latchTerminationStatus = execLatch.await(timeout, TimeUnit.SECONDS);
             if (!latchTerminationStatus) {
                 throw ActionCommandFailedException("Latch could not terminate within specified time")
             }

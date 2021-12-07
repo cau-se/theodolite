@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ActionCommandFailedException
+import theodolite.util.Configuration
 
 @JsonDeserialize
 @RegisterForReflection
@@ -19,6 +20,7 @@ class Action {
             .exec(
                 matchLabels = selector.pod.matchLabels,
                 container = selector.container,
+                timeout = exec.timeout,
                 command = exec.command
         )
             if(exitCode != 0){
@@ -42,4 +44,5 @@ class PodSelector {
 @RegisterForReflection
 class Command {
     lateinit var command: Array<String>
+    var timeout: Long = Configuration.TIMEOUT
 }
