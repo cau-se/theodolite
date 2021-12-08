@@ -118,7 +118,7 @@ class ActionCommandTest {
         action.selector.pod.matchLabels = mutableMapOf("app" to "pod")
         action.exec = Command()
         action.exec.command = arrayOf("ls")
-        action.exec.timeout = 10L
+        action.exec.timeoutSeconds = 10L
 
         assertThrows<ActionCommandFailedException> { run { action.exec(server.client) } }
     }

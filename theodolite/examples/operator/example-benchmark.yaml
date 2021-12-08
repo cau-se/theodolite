@@ -22,7 +22,7 @@ spec:
               app: busybox1
         exec:
           command: ["rm", "test-folder"]
-          timeout: 90
+          timeoutSeconds: 90
   loadGenerator:
     resources:
       - configMap:

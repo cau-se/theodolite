@@ -20,7 +20,7 @@ class Action {
             .exec(
                 matchLabels = selector.pod.matchLabels,
                 container = selector.container,
-                timeout = exec.timeout,
+                timeout = exec.timeoutSeconds,
                 command = exec.command
         )
             if(exitCode != 0){
@@ -44,5 +44,5 @@ class PodSelector {
 @RegisterForReflection
 class Command {
     lateinit var command: Array<String>
-    var timeout: Long = Configuration.TIMEOUT
+    var timeoutSeconds: Long = Configuration.TIMEOUT_SECONDS
 }

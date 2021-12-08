@@ -32,7 +32,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
     fun exec(
         matchLabels: MutableMap<String, String>,
         command: Array<String>,
-        timeout: Long = Configuration.TIMEOUT,
+        timeout: Long = Configuration.TIMEOUT_SECONDS,
         container: String = ""
     ): Int {
         val exitCode = ExitCode()

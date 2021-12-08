@@ -17,7 +17,7 @@ class Configuration(
         /**
          * Specifies how long Theodolite should wait (in sec) before aborting the execution of an action command.
          */
-        const val TIMEOUT: Long = 30L
+        const val TIMEOUT_SECONDS: Long = 30L
     }
 
 }

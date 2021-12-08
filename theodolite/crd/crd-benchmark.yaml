@@ -90,7 +90,7 @@ spec:
                               type: array
                               items:
                                 type: string
-                            timeout:
+                            timeoutSeconds:
                               type: integer
                   afterActions:
                     type: array
@@ -118,7 +118,7 @@ spec:
                               type: array
                               items:
                                 type: string
-                            timeout:
+                            timeoutSeconds:
                               type: integer
               sut:
                 description: The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
@@ -183,7 +183,7 @@ spec:
                               type: array
                               items:
                                 type: string
-                            timeout:
+                            timeoutSeconds:
                               type: integer
                   afterActions:
                     type: array
@@ -211,7 +211,7 @@ spec:
                               type: array
                               items:
                                 type: string
-                            timeout:
+                            timeoutSeconds:
                               type: integer
               loadGenerator:
                 description: The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
@@ -276,7 +276,7 @@ spec:
                               type: array
                               items:
                                 type: string
-                            timeout:
+                            timeoutSeconds:
                               type: integer
                   afterActions:
                     type: array
@@ -304,7 +304,7 @@ spec:
                               type: array
                               items:
                                 type: string
-                            timeout:
+                            timeoutSeconds:
                               type: integer
               resourceTypes:
                 description: A list of resource types that can be scaled for this `benchmark` resource. For each resource type the concrete values are defined in the `execution` object.
