@@ -14,12 +14,18 @@ private val logger = KotlinLogging.logger {}
  */
 class LinearSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
 
-    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
+    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>,
+                                      lastLowestResource: Resource?): Resource? {
+        if (lastLowestResource != null) {
+            logger.info { "Running LinearSearch with a set lastLowestResource value doesn't make sense." }
+        }
+
         for (res in resources) {
 
             logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
             if (this.benchmarkExecutor.runExperiment(load, res)) return res
         }
+
         return null
     }
 }

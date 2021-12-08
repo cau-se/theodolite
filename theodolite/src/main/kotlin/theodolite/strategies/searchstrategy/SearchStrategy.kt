@@ -20,5 +20,5 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor) {
      *
      * @return suitable resource for the specified load, or null if no suitable resource exists.
      */
-    abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource?
+    abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>, lastLowestResource: Resource? = null): Resource?
 }
