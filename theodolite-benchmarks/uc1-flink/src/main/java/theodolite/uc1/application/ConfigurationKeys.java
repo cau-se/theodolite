@@ -5,7 +5,7 @@ package theodolite.uc1.application;
  */
 public final class ConfigurationKeys {
 
-  public static final String APPLICATION_NAME = "application.name";
+  pblic static final String APPLICATION_NAME = "application.name";
 
   public static final String APPLICATION_VERSION = "application.version";
 
