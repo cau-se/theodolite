@@ -94,4 +94,45 @@ class InitialGuessSearchStrategyTest {
 
         assertEquals(actual, expected)
     }
+
+    @Test
+    fun testEnd2EndInitialGuessSearchFirstNotDoable() {
+        val mockResults = arrayOf(
+                arrayOf(false, false, false, false, false, false, false),
+                arrayOf(false, false, true, true, true, true, true),
+                arrayOf(false, false, false, true, true, true, true),
+                arrayOf(true, true, true, true, true, true, true),
+                arrayOf(false, false, false, false, true, true, true),
+                arrayOf(false, false, false, false, false, false, true),
+                arrayOf(false, false, false, false, false, false, false)
+        )
+        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
+        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
+        val results = Results()
+        val benchmark = TestBenchmark()
+        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor)
+
+        val actual: ArrayList<Resource?> = ArrayList()
+        var expected: ArrayList<Resource?> = ArrayList(listOf(2, 3, 0, 4, 6).map { x -> Resource(x, emptyList()) })
+        expected.add(null)
+        expected = ArrayList(listOf(null) + expected)
+
+        var currentResource : Resource? = mockResources[0]
+        for (load in mockLoads) {
+            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources, currentResource)
+            if(returnVal != null) {
+                logger.info { "returnVal '${returnVal.get()}'" }
+            }
+            else {
+                logger.info { "returnVal is null." }
+            }
+
+            actual.add(returnVal)
+            currentResource = returnVal
+        }
+
+        assertEquals(actual, expected)
+    }
 }

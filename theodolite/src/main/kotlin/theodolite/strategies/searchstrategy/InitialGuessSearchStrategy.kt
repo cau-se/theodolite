@@ -8,7 +8,8 @@ import theodolite.util.Resource
 private val logger = KotlinLogging.logger {}
 
 /**
- *  Linear-search-like implementation for determining the smallest suitable number of instances.
+ *  Search strategy implementation for determining the smallest suitable number of instances, which takes the
+ *  resource demand of the previous load into account as a starting point for the search.
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */
@@ -16,18 +17,28 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor) : SearchS
 
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>, lastLowestResource: Resource?): Resource? {
 
-        if (lastLowestResource != null) {
+        var lastLowestResourceToUse = lastLowestResource
+
+        // This Search strategy needs a resource demand to start the search with,
+        // if this is not provided it will be set to the first resource of the given resource-list
+        if(lastLowestResource == null && resources.isNotEmpty()){
+            lastLowestResourceToUse = resources[0]
+        }
+
+        if (lastLowestResourceToUse != null) {
             val resourcesToCheck: List<Resource>
-            val startIndex: Int = resources.indexOf(lastLowestResource)
+            val startIndex: Int = resources.indexOf(lastLowestResourceToUse)
 
-            logger.info { "Running experiment with load '${load.get()}' and resources '${lastLowestResource.get()}'" }
+            logger.info { "Running experiment with load '${load.get()}' and resources '${lastLowestResourceToUse.get()}'" }
 
-            if (this.benchmarkExecutor.runExperiment(load, lastLowestResource)) {
+            // If the first experiment passes, starting downward linear search
+            // otherwise starting upward linear search
+            if (this.benchmarkExecutor.runExperiment(load, lastLowestResourceToUse)) {
 
                 resourcesToCheck = resources.subList(0, startIndex).reversed()
-                if(resourcesToCheck.isEmpty()) return lastLowestResource
+                if (resourcesToCheck.isEmpty()) return lastLowestResourceToUse
 
-                var currentMin : Resource = lastLowestResource
+                var currentMin: Resource = lastLowestResourceToUse
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
