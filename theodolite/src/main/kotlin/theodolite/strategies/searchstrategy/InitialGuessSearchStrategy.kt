@@ -8,22 +8,22 @@ import theodolite.util.Resource
 private val logger = KotlinLogging.logger {}
 
 /**
- *  Search strategy implementation for determining the smallest suitable number of instances, which takes the
- *  resource demand of the previous load into account as a starting point for the search.
+ *  Search strategy implementation for determining the smallest suitable resource demand.
+ *  Starting with a resource amount provided by a guess strategy.
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
+ * @param guessStrategy Strategy that provides us with a guess for the first resource amount.
  */
-class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
+class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStrategy: GuessStrategy) : SearchStrategy(benchmarkExecutor, guessStrategy) {
 
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>, lastLowestResource: Resource?): Resource? {
 
-        var lastLowestResourceToUse = lastLowestResource
-
-        // This Search strategy needs a resource demand to start the search with,
-        // if this is not provided it will be set to the first resource of the given resource-list
-        if(lastLowestResource == null && resources.isNotEmpty()){
-            lastLowestResourceToUse = resources[0]
+        if(guessStrategy == null){
+            logger.info { "Your InitialGuessSearchStrategy doesn't have a GuessStrategy. This is not supported." }
+            return null
         }
+
+        var lastLowestResourceToUse = this.guessStrategy.firstGuess(resources, lastLowestResource)
 
         if (lastLowestResourceToUse != null) {
             val resourcesToCheck: List<Resource>

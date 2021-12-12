@@ -9,6 +9,7 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import mu.KotlinLogging
+import theodolite.strategies.searchstrategy.PrevResourceMinGuess
 
 private val logger = KotlinLogging.logger {}
 
@@ -16,7 +17,7 @@ private val logger = KotlinLogging.logger {}
 class InitialGuessSearchStrategyTest {
 
     @Test
-    fun testEnd2EndInitialGuessSearch() {
+    fun testInitialGuessSearch() {
         val mockResults = arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -30,9 +31,10 @@ class InitialGuessSearchStrategyTest {
         val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
+        val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
-        val strategy = InitialGuessSearchStrategy(benchmarkExecutor)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy)
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
@@ -56,7 +58,7 @@ class InitialGuessSearchStrategyTest {
     }
 
     @Test
-    fun testEnd2EndInitialGuessSearchLowerResourceDemandHigherLoad() {
+    fun testInitialGuessSearchLowerResourceDemandHigherLoad() {
         val mockResults = arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -70,9 +72,10 @@ class InitialGuessSearchStrategyTest {
         val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
+        val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
-        val strategy = InitialGuessSearchStrategy(benchmarkExecutor)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy)
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 1, 4, 6).map { x -> Resource(x, emptyList()) })
@@ -96,7 +99,7 @@ class InitialGuessSearchStrategyTest {
     }
 
     @Test
-    fun testEnd2EndInitialGuessSearchFirstNotDoable() {
+    fun testInitialGuessSearchFirstNotDoable() {
         val mockResults = arrayOf(
                 arrayOf(false, false, false, false, false, false, false),
                 arrayOf(false, false, true, true, true, true, true),
@@ -110,9 +113,10 @@ class InitialGuessSearchStrategyTest {
         val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
+        val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
-        val strategy = InitialGuessSearchStrategy(benchmarkExecutor)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy)
 
         val actual: ArrayList<Resource?> = ArrayList()
         var expected: ArrayList<Resource?> = ArrayList(listOf(2, 3, 0, 4, 6).map { x -> Resource(x, emptyList()) })
