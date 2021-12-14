@@ -32,15 +32,9 @@ For this purpose the [default values file](https://github.com/cau-se/theodolite/
 
 For Kubernetes clusters with limited resources such as on local developer installations, we provide a [minimal values file](https://github.com/cau-se/theodolite/blob/master/helm/preconfigs/minimal.yaml).
 
-### Operator mode
-
-The Theodolite operator allows to run and manage benchmarks through the Kubernetes API. It is installed by setting `operator.enabled` to `true`. In addition to Theodolite's dependencies, this will deploy all resources that are required for the operator as well as the CRDs, users will interact with.
-
-<!-- **TODO:** link-->
-
 ### Standalone mode
 
-For running Theodolite in standalone mode, it is sufficient to disable the operator by setting `operator.enabled` to `false`. With this setting, only Theodolite's dependencies as well as resources to get the necessary permissions are installed.
+Per default, Theodolite is installed in operator mode, which allows to run and manage benchmarks through the Kubernetes API. For running Theodolite in standalone mode, it is sufficient to disable the operator by setting `operator.enabled` to `false`. Additionally, you might want to add the command line argument `--skip-crds`. With these settings, only Theodolite's dependencies as well as resources to get the necessary permissions are installed.
 
 ### Random scheduler
 
