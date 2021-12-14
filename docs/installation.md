@@ -32,6 +32,12 @@ For this purpose the [default values file](https://github.com/cau-se/theodolite/
 
 For Kubernetes clusters with limited resources such as on local developer installations, we provide a [minimal values file](https://github.com/cau-se/theodolite/blob/master/helm/preconfigs/minimal.yaml).
 
+### Persisting Results
+
+To store the results of benchmark executions in a [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes), `operator.resultsVolume.persistent.enabled` has to be set to `true`. This requires that either a statically provisioned PersistentVolume is available or a dynamic provisioner exists (which is the case for many Kubernetes installations). If required, you can select a storage class with `operator.resultsVolume.persistent.storageClassName`.
+You can also use an existing PersistentVolumeClaim by setting `operator.resultsVolume.persistent.existingClaim`.
+
+
 ### Standalone mode
 
 Per default, Theodolite is installed in operator mode, which allows to run and manage benchmarks through the Kubernetes API. For running Theodolite in standalone mode, it is sufficient to disable the operator by setting `operator.enabled` to `false`. Additionally, you might want to add the command line argument `--skip-crds`. With these settings, only Theodolite's dependencies as well as resources to get the necessary permissions are installed.
@@ -63,7 +69,7 @@ kafka-lag-exporter:
 This seems unfortunately to be necessary as Helm does not let us inject values into dependency charts.
 
 
-## Test Installation
+## Test the Installation
 
 You can test the installation with:
 
