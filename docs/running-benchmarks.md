@@ -10,7 +10,8 @@ Running scalability benchmarks with Theodolite involves the following steps:
 
 1. [Deploying a benchmark to Kubernetes](#deploying-a-benchmark)
 1. [Creating an execution](#creating-an-execution), which describes the experimental setup for running the benchmark
-<!-- TODO analyzing results-->
+1. [Accessing Benchmark Results](#accessing-benchmark-results)
+
 
 ## Deploying a Benchmark
 
@@ -116,4 +117,19 @@ Theodolite provides additional information on the current status of an Execution
 
 ```sh
 kubectl describe execution <execution-name>
+```
+
+
+## Accessing Benchmark Results
+
+<!-- TODO more specific -->
+
+Theodolite stores the results of benchmark executions in CSV files, whose names are starting with `exp<id>_...`. These files can be read and analyzed by Theodolite's analysis notebooks.
+
+If [persisting results](installation#persisting-results) is enabled in Theodolite's installation, the result files are stored in a PersistentVolume. Depending on the cluster setup or Theodolite's configuration, the content of these volumes can usually be mounted into your host system in some way or accessed via your cloud provider.
+
+For installations without persistence, but also as an alternative for installations with persistence, we provide a second option to access results: Theodolite comes with a *results access sidecar*. It allows to copy all benchmark results from the Theodolite pod to your current working directory on your host machine with the following command:
+
+```sh
+kubectl cp $(kubectl get pod -l app=theodolite -o jsonpath="{.items[0].metadata.name}"):/results . -c results-access
 ```

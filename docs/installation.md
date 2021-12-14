@@ -32,10 +32,11 @@ For this purpose the [default values file](https://github.com/cau-se/theodolite/
 
 For Kubernetes clusters with limited resources such as on local developer installations, we provide a [minimal values file](https://github.com/cau-se/theodolite/blob/master/helm/preconfigs/minimal.yaml).
 
-### Persisting Results
+### Persisting results
 
 To store the results of benchmark executions in a [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes), `operator.resultsVolume.persistent.enabled` has to be set to `true`. This requires that either a statically provisioned PersistentVolume is available or a dynamic provisioner exists (which is the case for many Kubernetes installations). If required, you can select a storage class with `operator.resultsVolume.persistent.storageClassName`.
 You can also use an existing PersistentVolumeClaim by setting `operator.resultsVolume.persistent.existingClaim`.
+If persistence is not enabled, all results will be gone upon pod termination.
 
 
 ### Standalone mode
