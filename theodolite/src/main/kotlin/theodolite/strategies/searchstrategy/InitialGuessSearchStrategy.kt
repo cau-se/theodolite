@@ -14,6 +14,7 @@ private val logger = KotlinLogging.logger {}
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  * @param guessStrategy Strategy that provides us with a guess for the first resource amount.
+ * @param results current results of all previously performed benchmarks.
  */
 class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStrategy: GuessStrategy, results: Results) :
         SearchStrategy(benchmarkExecutor, guessStrategy, results) {

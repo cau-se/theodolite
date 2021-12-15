@@ -14,7 +14,6 @@ private val logger = KotlinLogging.logger {}
  */
 class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
-
         val result = binarySearch(load, resources, 0, resources.size - 1)
         if (result == -1) {
             return null
