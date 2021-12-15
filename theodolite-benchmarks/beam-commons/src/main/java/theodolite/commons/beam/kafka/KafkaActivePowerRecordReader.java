@@ -28,10 +28,19 @@ public class KafkaActivePowerRecordReader extends
                                       final Map<String, Object> consumerConfig) {
     super();
 
+    if (bootstrapServer == null) {
+      throw new IllegalArgumentException("bootstrapServer is null");
+    }
+
+    if (inputTopic == null) {
+      throw new IllegalArgumentException("inputTopic is null");
+    }
+
     // Check if boostrap server and inputTopic are defined
     if (bootstrapServer.isEmpty() || inputTopic.isEmpty()) {
       throw new IllegalArgumentException("bootstrapServer or inputTopic missing");
     }
+
 
     reader =
         KafkaIO.<String, ActivePowerRecord>read()
