@@ -1,5 +1,9 @@
-include:
-  - template: 'Workflows/Branch-Pipelines.gitlab-ci.yml'
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"'
+      when: never
+    - when: always
 
 stages:
   - build
@@ -231,7 +235,7 @@ deploy-uc4-load-generator:
 
 .theodolite:
   image:
-    name: ghcr.io/graalvm/native-image:java11-21.1.0
+    name: ghcr.io/graalvm/native-image:java11-21.3.0
     entrypoint: [""]
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
