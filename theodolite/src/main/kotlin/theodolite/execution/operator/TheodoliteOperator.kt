@@ -105,7 +105,7 @@ class TheodoliteOperator {
         return executionStateHandler
     }
 
-    fun getBenchmarkStateHandler(client: NamespacedKubernetesClient) : BenchmarkStateHandler {
+    private fun getBenchmarkStateHandler(client: NamespacedKubernetesClient) : BenchmarkStateHandler {
         if (!::benchmarkStateHandler.isInitialized) {
             this.benchmarkStateHandler = BenchmarkStateHandler(client = client)
         }
@@ -138,7 +138,7 @@ class TheodoliteOperator {
         )
     }
 
-    fun getBenchmarkClient(client: NamespacedKubernetesClient): MixedOperation<
+    private fun getBenchmarkClient(client: NamespacedKubernetesClient): MixedOperation<
             BenchmarkCRD,
             KubernetesBenchmarkList,
             Resource<BenchmarkCRD>> {

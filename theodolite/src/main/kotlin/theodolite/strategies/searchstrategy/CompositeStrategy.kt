@@ -23,7 +23,7 @@ class CompositeStrategy(
     override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
         var restrictedResources = resources.toList()
         for (strategy in this.restrictionStrategies) {
-            restrictedResources = restrictedResources.intersect(strategy.apply(load, resources)).toList()
+            restrictedResources = restrictedResources.intersect(strategy.apply(load, resources).toSet()).toList()
         }
         return this.searchStrategy.findSuitableResource(load, restrictedResources)
     }

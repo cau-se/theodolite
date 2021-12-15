@@ -1,6 +1,5 @@
 package theodolite.evaluation
 
-import com.google.gson.Gson
 import khttp.post
 import mu.KotlinLogging
 import theodolite.util.PrometheusResponse

@@ -48,9 +48,9 @@ abstract class AbstractStateHandler<T, L, D>(
         resourceName: String,
         desiredStatusString: String,
         f: (T) -> String?,
-        maxTries: Int
+        maxRetries: Int
     ): Boolean {
-        for (i in 0.rangeTo(maxTries)) {
+        for (i in 0.rangeTo(maxRetries)) {
             val currentStatus = getState(resourceName, f)
             if (currentStatus == desiredStatusString) {
                 return true

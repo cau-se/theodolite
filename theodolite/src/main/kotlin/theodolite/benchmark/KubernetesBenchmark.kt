@@ -1,6 +1,5 @@
 package theodolite.benchmark
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
@@ -44,7 +43,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var infrastructure: Resources
     lateinit var sut: Resources
     lateinit var loadGenerator: Resources
-    var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    private var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
     @Transient
     private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)

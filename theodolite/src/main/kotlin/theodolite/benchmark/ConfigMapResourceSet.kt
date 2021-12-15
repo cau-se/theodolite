@@ -5,14 +5,10 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
-import mu.KotlinLogging
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromString
 import theodolite.util.DeploymentFailedException
 import theodolite.util.YamlParserFromString
 import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
-
-private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 @JsonDeserialize

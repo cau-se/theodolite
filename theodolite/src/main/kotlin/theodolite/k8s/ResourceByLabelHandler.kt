@@ -108,7 +108,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
                 .items
                 .isNullOrEmpty()
         ) {
-            logger.info { "Wait for pods with label ${matchLabels.toString()} to be deleted." }
+            logger.info { "Wait for pods with label $matchLabels to be deleted." }
             Thread.sleep(1000)
         }
     }

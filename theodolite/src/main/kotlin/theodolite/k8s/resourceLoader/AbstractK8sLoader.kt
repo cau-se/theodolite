@@ -9,7 +9,7 @@ private val logger = KotlinLogging.logger {}
 abstract class AbstractK8sLoader: K8sResourceLoader {
 
     fun loadK8sResource(kind: String, resourceString: String): KubernetesResource {
-        return when (kind.replaceFirst(kind[0],kind[0].toUpperCase())) {
+        return when (kind.replaceFirst(kind[0],kind[0].uppercaseChar())) {
             "Deployment" -> loadDeployment(resourceString)
             "Service" -> loadService(resourceString)
             "ServiceMonitor" -> loadServiceMonitor(resourceString)
@@ -18,8 +18,8 @@ abstract class AbstractK8sLoader: K8sResourceLoader {
             "Execution" -> loadExecution(resourceString)
             "Benchmark" -> loadBenchmark(resourceString)
             else -> {
-                logger.error { "Error during loading of unspecified resource Kind $kind" }
-                throw java.lang.IllegalArgumentException("error while loading resource with kind: $kind")
+                logger.error { "Error during loading of unspecified resource Kind '$kind'." }
+                throw IllegalArgumentException("error while loading resource with kind: $kind")
             }
         }
     }

@@ -43,7 +43,7 @@ class SloCheckerFactory {
         properties: MutableMap<String, String>,
         load: LoadDimension
     ): SloChecker {
-        return when (sloType.toLowerCase()) {
+        return when (sloType.lowercase()) {
             SloTypes.LAG_TREND.value, SloTypes.DROPPED_RECORDS.value -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),

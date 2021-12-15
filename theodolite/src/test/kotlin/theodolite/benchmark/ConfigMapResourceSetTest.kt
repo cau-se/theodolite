@@ -18,7 +18,7 @@ import theodolite.k8s.CustomResourceWrapper
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
 
-private val testResourcePath = "./src/test/resources/k8s-resource-files/"
+private const val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
 @QuarkusTest
 class ConfigMapResourceSetTest {

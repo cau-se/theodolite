@@ -15,7 +15,7 @@ import theodolite.model.crd.ExecutionStates
 import java.lang.Thread.sleep
 
 
-private const val RESYNC_PERIOD = 1000 * 1000.toLong()
+private const val SLEEP_AFTER_REQUEST_MS = 500L
 
 
 @QuarkusTest
@@ -80,7 +80,7 @@ class ExecutionEventHandlerTest {
     fun testWithoutState() {
         manager.deploy(executionVersion1)
         factory.startAllRegisteredInformers()
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
         assertEquals(
             ExecutionStates.PENDING,
             stateHandler.getExecutionState(
@@ -99,7 +99,7 @@ class ExecutionEventHandlerTest {
                 status = ExecutionStates.RUNNING
             )
         factory.startAllRegisteredInformers()
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
         assertEquals(
             ExecutionStates.RESTART,
             stateHandler.getExecutionState(
@@ -114,7 +114,7 @@ class ExecutionEventHandlerTest {
         manager.deploy(executionVersion1)
 
         factory.startAllRegisteredInformers()
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         assertEquals(
             ExecutionStates.PENDING,
@@ -137,7 +137,7 @@ class ExecutionEventHandlerTest {
     fun testOnUpdateFinished() {
         manager.deploy(executionVersion1)
         factory.startAllRegisteredInformers()
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         stateHandler.setExecutionState(
             resourceName = executionName,
@@ -145,7 +145,7 @@ class ExecutionEventHandlerTest {
         )
 
         manager.deploy(executionVersion2)
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         assertEquals(
             ExecutionStates.PENDING,
@@ -160,7 +160,7 @@ class ExecutionEventHandlerTest {
     fun testOnUpdateFailure() {
         manager.deploy(executionVersion1)
         factory.startAllRegisteredInformers()
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         stateHandler.setExecutionState(
             resourceName = executionName,
@@ -168,7 +168,7 @@ class ExecutionEventHandlerTest {
         )
 
         manager.deploy(executionVersion2)
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         assertEquals(
             ExecutionStates.PENDING,
@@ -184,7 +184,7 @@ class ExecutionEventHandlerTest {
     fun testOnUpdateRunning() {
         manager.deploy(executionVersion1)
         factory.startAllRegisteredInformers()
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         stateHandler.setExecutionState(
             resourceName = executionName,
@@ -192,7 +192,7 @@ class ExecutionEventHandlerTest {
         )
 
         manager.deploy(executionVersion2)
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         assertEquals(
             ExecutionStates.RESTART,
@@ -207,7 +207,7 @@ class ExecutionEventHandlerTest {
     fun testOnUpdateRestart() {
         manager.deploy(executionVersion1)
         factory.startAllRegisteredInformers()
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         stateHandler.setExecutionState(
             resourceName = executionName,
@@ -215,7 +215,7 @@ class ExecutionEventHandlerTest {
         )
 
         manager.deploy(executionVersion2)
-        sleep(500)
+        sleep(SLEEP_AFTER_REQUEST_MS)
 
         assertEquals(
             ExecutionStates.RESTART,
