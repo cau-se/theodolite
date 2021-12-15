@@ -24,7 +24,7 @@ abstract class AbstractK8sLoader: K8sResourceLoader {
         }
     }
 
-    fun <T> loadGenericResource(resourceString: String, f: (String) -> T): T {
+    fun <T : KubernetesResource> loadGenericResource(resourceString: String, f: (String) -> T): T {
         var resource: T? = null
 
         try {

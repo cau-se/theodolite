@@ -2,38 +2,37 @@ package theodolite.k8s.resourceLoader
 
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import theodolite.k8s.CustomResourceWrapper
 import theodolite.util.YamlParserFromString
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class K8sResourceLoaderFromString(private val client: NamespacedKubernetesClient): AbstractK8sLoader(),
     K8sResourceLoader {
 
-    override fun loadService(resource: String): KubernetesResource {
-        return loadGenericResource(resource) { x: String ->
-            val stream = ByteArrayInputStream(x.encodeToByteArray())
-            client.services().load(stream).get() }
+    override fun loadService(resource: String): Service {
+        return loadAnyResource(resource) { stream -> client.services().load(stream).get() }
     }
 
     override fun loadDeployment(resource: String): Deployment {
-        return loadGenericResource(resource) { x: String ->
-            val stream = ByteArrayInputStream(x.encodeToByteArray())
-            client.apps().deployments().load(stream).get() }
+        return loadAnyResource(resource) { stream -> client.apps().deployments().load(stream).get() }
     }
 
     override fun loadConfigmap(resource: String): ConfigMap {
-        return loadGenericResource(resource) { x: String ->
-            val stream = ByteArrayInputStream(x.encodeToByteArray())
-            client.configMaps().load(stream).get() }
+        return loadAnyResource(resource) { stream -> client.configMaps().load(stream).get() }
     }
 
-    override fun loadStatefulSet(resource: String): KubernetesResource {
-        return loadGenericResource(resource) { x: String ->
-            val stream = ByteArrayInputStream(x.encodeToByteArray())
-            client.apps().statefulSets().load(stream).get() }
+    override fun loadStatefulSet(resource: String): StatefulSet {
+        return loadAnyResource(resource) { stream -> client.apps().statefulSets().load(stream).get() }
+    }
+
+    private fun <T : KubernetesResource> loadAnyResource(resource: String, f: (InputStream) -> T): T {
+        return loadGenericResource(resource) { f(ByteArrayInputStream(it.encodeToByteArray())) }
     }
 
     /**
