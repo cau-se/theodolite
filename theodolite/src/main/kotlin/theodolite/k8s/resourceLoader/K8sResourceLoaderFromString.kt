@@ -12,28 +12,24 @@ import java.io.ByteArrayInputStream
 class K8sResourceLoaderFromString(private val client: NamespacedKubernetesClient): AbstractK8sLoader(),
     K8sResourceLoader {
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun loadService(resource: String): KubernetesResource {
         return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())
             client.services().load(stream).get() }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun loadDeployment(resource: String): Deployment {
         return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())
             client.apps().deployments().load(stream).get() }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun loadConfigmap(resource: String): ConfigMap {
         return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())
             client.configMaps().load(stream).get() }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun loadStatefulSet(resource: String): KubernetesResource {
         return loadGenericResource(resource) { x: String ->
             val stream = ByteArrayInputStream(x.encodeToByteArray())

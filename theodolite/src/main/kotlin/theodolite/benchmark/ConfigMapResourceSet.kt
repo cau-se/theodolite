@@ -16,7 +16,6 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
     lateinit var name: String
     lateinit var files: List<String> // load all files, iff files is not set
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {
         val loader = K8sResourceLoaderFromString(client)
         var resources: Map<String, String>
