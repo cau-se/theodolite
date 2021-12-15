@@ -13,12 +13,7 @@ private val logger = KotlinLogging.logger {}
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */
 class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
-    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>,
-                                      lastLowestResource: Resource?): Resource? {
-
-        if (lastLowestResource != null) {
-            logger.info { "Running LinearSearch with a set lastLowestResource value doesn't make sense." }
-        }
+    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
 
         val result = binarySearch(load, resources, 0, resources.size - 1)
         if (result == -1) {

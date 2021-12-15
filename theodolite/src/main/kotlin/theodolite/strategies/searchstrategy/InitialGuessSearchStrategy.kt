@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+import theodolite.util.Results
 
 private val logger = KotlinLogging.logger {}
 
@@ -14,31 +15,51 @@ private val logger = KotlinLogging.logger {}
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  * @param guessStrategy Strategy that provides us with a guess for the first resource amount.
  */
-class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStrategy: GuessStrategy) : SearchStrategy(benchmarkExecutor, guessStrategy) {
+class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStrategy: GuessStrategy, results: Results) :
+        SearchStrategy(benchmarkExecutor, guessStrategy, results) {
 
-    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>, lastLowestResource: Resource?): Resource? {
+    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
+
+        if(resources.isEmpty()) {
+            logger.info { "You need to specify resources to be checked for the InitialGuessSearchStrategy to work." }
+            return null
+        }
 
         if(guessStrategy == null){
             logger.info { "Your InitialGuessSearchStrategy doesn't have a GuessStrategy. This is not supported." }
             return null
         }
 
-        var lastLowestResourceToUse = this.guessStrategy.firstGuess(resources, lastLowestResource)
+        if(results == null){
+            logger.info { "The results need to be initialized." }
+            return null
+        }
 
-        if (lastLowestResourceToUse != null) {
+
+        var lastLowestResource : Resource? = null
+
+        // Getting the lastLowestResource from results and calling firstGuess() with it
+        if (!results.isEmpty()) {
+            val maxLoad: LoadDimension? = this.results.getMaxBenchmarkedLoad(load)
+            lastLowestResource = this.results.getMinRequiredInstances(maxLoad)
+            if (lastLowestResource.get() == Int.MAX_VALUE) lastLowestResource = null
+        }
+        lastLowestResource = this.guessStrategy.firstGuess(resources, lastLowestResource)
+
+        if (lastLowestResource != null) {
             val resourcesToCheck: List<Resource>
-            val startIndex: Int = resources.indexOf(lastLowestResourceToUse)
+            val startIndex: Int = resources.indexOf(lastLowestResource)
 
-            logger.info { "Running experiment with load '${load.get()}' and resources '${lastLowestResourceToUse.get()}'" }
+            logger.info { "Running experiment with load '${load.get()}' and resources '${lastLowestResource.get()}'" }
 
             // If the first experiment passes, starting downward linear search
             // otherwise starting upward linear search
-            if (this.benchmarkExecutor.runExperiment(load, lastLowestResourceToUse)) {
+            if (this.benchmarkExecutor.runExperiment(load, lastLowestResource)) {
 
                 resourcesToCheck = resources.subList(0, startIndex).reversed()
-                if (resourcesToCheck.isEmpty()) return lastLowestResourceToUse
+                if (resourcesToCheck.isEmpty()) return lastLowestResource
 
-                var currentMin: Resource = lastLowestResourceToUse
+                var currentMin: Resource = lastLowestResource
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }

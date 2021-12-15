@@ -2,6 +2,7 @@ package theodolite.strategies.searchstrategy
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.Resource
+import theodolite.util.Results
 
 /**
  * Base class for the implementation of Guess strategies. Guess strategies are strategies to determine the resource
