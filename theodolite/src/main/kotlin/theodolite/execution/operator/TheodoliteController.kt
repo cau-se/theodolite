@@ -41,7 +41,7 @@ class TheodoliteController(
         sleep(5000) // wait until all states are correctly set
         while (true) {
             reconcile()
-            benchmarkSateChecker.updateBenchmarkStatus()
+            benchmarkSateChecker.start(true)
             sleep(2000)
         }
     }
@@ -49,7 +49,6 @@ class TheodoliteController(
     private fun reconcile() {
         do {
             val execution = getNextExecution()
-            benchmarkSateChecker.updateBenchmarkStatus()
             if (execution != null) {
                 val benchmark = getBenchmarks()
                     .map { it.spec }

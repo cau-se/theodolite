@@ -18,6 +18,16 @@ class BenchmarkStateChecker(
     private val client: NamespacedKubernetesClient
 
 ) {
+
+    fun start(running: Boolean) {
+        Thread {
+            while (running) {
+                updateBenchmarkStatus()
+                Thread.sleep(100 * 1)
+            }
+        }.start()
+    }
+
     /**
      * Checks and updates the states off all deployed benchmarks.
      *
