@@ -20,8 +20,7 @@ class CompositeStrategy(
     val restrictionStrategies: Set<RestrictionStrategy>
 ) : SearchStrategy(benchmarkExecutor) {
 
-    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>,
-                                      lastLowestResource: Resource?): Resource? {
+    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
         var restrictedResources = resources.toList()
         for (strategy in this.restrictionStrategies) {
             restrictedResources = restrictedResources.intersect(strategy.apply(load, resources)).toList()

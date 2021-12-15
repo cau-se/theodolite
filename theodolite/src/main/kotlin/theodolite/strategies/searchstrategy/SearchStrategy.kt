@@ -4,6 +4,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
+import theodolite.util.Results
 
 /**
  *  Base class for the implementation for SearchStrategies. SearchStrategies determine the smallest suitable number of instances.
@@ -12,7 +13,8 @@ import theodolite.util.Resource
  * @param guessStrategy Guess strategy for the initial resource amount in case the InitialGuessStrategy is selected.
  */
 @RegisterForReflection
-abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val guessStrategy: GuessStrategy? = null) {
+abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val guessStrategy: GuessStrategy? = null,
+                              val results: Results? = null) {
     /**
      * Find smallest suitable resource from the specified resource list for the given load.
      *
@@ -22,5 +24,5 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
      *
      * @return suitable resource for the specified load, or null if no suitable resource exists.
      */
-    abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>, lastLowestResource: Resource? = null): Resource?
+    abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource?
 }

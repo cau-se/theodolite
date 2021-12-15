@@ -34,24 +34,21 @@ class InitialGuessSearchStrategyTest {
         val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
-        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
         expected.add(null)
 
-        var currentResource : Resource? = mockResources[0]
         for (load in mockLoads) {
-            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources, currentResource)
+            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources)
             if(returnVal != null) {
                 logger.info { "returnVal '${returnVal.get()}'" }
             }
             else {
                 logger.info { "returnVal is null." }
             }
-
             actual.add(returnVal)
-            currentResource = returnVal
         }
 
         assertEquals(actual, expected)
@@ -75,24 +72,21 @@ class InitialGuessSearchStrategyTest {
         val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
-        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 1, 4, 6).map { x -> Resource(x, emptyList()) })
         expected.add(null)
 
-        var currentResource : Resource? = mockResources[0]
         for (load in mockLoads) {
-            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources, currentResource)
+            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources)
             if(returnVal != null) {
                 logger.info { "returnVal '${returnVal.get()}'" }
             }
             else {
                 logger.info { "returnVal is null." }
             }
-
             actual.add(returnVal)
-            currentResource = returnVal
         }
 
         assertEquals(actual, expected)
@@ -116,25 +110,22 @@ class InitialGuessSearchStrategyTest {
         val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
-        val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)
 
         val actual: ArrayList<Resource?> = ArrayList()
         var expected: ArrayList<Resource?> = ArrayList(listOf(2, 3, 0, 4, 6).map { x -> Resource(x, emptyList()) })
         expected.add(null)
         expected = ArrayList(listOf(null) + expected)
 
-        var currentResource : Resource? = mockResources[0]
         for (load in mockLoads) {
-            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources, currentResource)
+            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources)
             if(returnVal != null) {
                 logger.info { "returnVal '${returnVal.get()}'" }
             }
             else {
                 logger.info { "returnVal is null." }
             }
-
             actual.add(returnVal)
-            currentResource = returnVal
         }
 
         assertEquals(actual, expected)
