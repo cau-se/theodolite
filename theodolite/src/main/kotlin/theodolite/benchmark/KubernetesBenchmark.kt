@@ -47,7 +47,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
     @Transient
-    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+    var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
     /**
      * Loads [KubernetesResource]s.

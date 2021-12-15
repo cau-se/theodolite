@@ -1,8 +1,11 @@
 package theodolite.benchmark
 
+import io.fabric8.kubernetes.api.model.Status
+import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.ExecListener
 import io.fabric8.kubernetes.client.dsl.ExecWatch
+import io.fabric8.kubernetes.client.utils.Serialization
 import mu.KotlinLogging
 import okhttp3.Response
 import theodolite.util.ActionCommandFailedException
@@ -11,13 +14,14 @@ import java.io.ByteArrayOutputStream
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.properties.Delegates
+
 
 private val logger = KotlinLogging.logger {}
 
 class ActionCommand(val client: NamespacedKubernetesClient) {
     var out: ByteArrayOutputStream = ByteArrayOutputStream()
     var error: ByteArrayOutputStream = ByteArrayOutputStream()
+    var errChannelStream: ByteArrayOutputStream = ByteArrayOutputStream()
     private val execLatch = CountDownLatch(1);
 
     /**
@@ -35,8 +39,6 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         timeout: Long = Configuration.TIMEOUT_SECONDS,
         container: String = ""
     ): Int {
-        val exitCode = ExitCode()
-
         try {
             val execWatch: ExecWatch = if (container.isNotEmpty()) {
                 client.pods()
@@ -51,7 +53,8 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
             }
                 .writingOutput(out)
                 .writingError(error)
-                .usingListener(MyPodExecListener(execLatch, exitCode))
+                .writingErrorChannel(errChannelStream)
+                .usingListener(MyPodExecListener(execLatch))
                 .exec(*command)
 
             val latchTerminationStatus = execLatch.await(timeout, TimeUnit.SECONDS);
@@ -59,12 +62,46 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
                 throw ActionCommandFailedException("Latch could not terminate within specified time")
             }
             execWatch.close();
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt();
-            throw ActionCommandFailedException("Interrupted while waiting for the exec", e)
+        } catch (e: Exception) {
+            when (e) {
+                is InterruptedException -> {
+                    Thread.currentThread().interrupt();
+                    throw ActionCommandFailedException("Interrupted while waiting for the exec", e)
+                }
+                is KubernetesClientException -> {
+                    throw ActionCommandFailedException("Error while executing command", e)
+                }
+                else -> {
+                    throw  e
+                }
+            }
         }
-        logger.info { "Action command finished with code ${exitCode.code}" }
-        return exitCode.code
+        logger.debug { "Execution Output Stream is \n $out" }
+        logger.debug { "Execution Error Stream is \n $error" }
+        return getExitCode(errChannelStream)
+    }
+
+    private fun getExitCode(errChannelStream: ByteArrayOutputStream): Int {
+        val status: Status?
+        try {
+            status = Serialization.unmarshal(errChannelStream.toString(), Status::class.java)
+        } catch (e: Exception) {
+            throw ActionCommandFailedException("Could not determine the exit code, no information given")
+        }
+
+        if (status == null) {
+            throw ActionCommandFailedException("Could not determine the exit code, no information given")
+        }
+
+        return if (status.status.equals("Success")) {
+            0
+        } else status.details.causes.stream()
+            .filter { it.reason.equals("ExitCode") }
+            .map { it.message }
+            .findFirst()
+            .orElseThrow {
+                ActionCommandFailedException("Status is not SUCCESS but contains no exit code - Status: $status")
+            }.toInt()
     }
 
     fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
@@ -98,7 +135,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         }
     }
 
-    private class MyPodExecListener(val execLatch: CountDownLatch, val exitCode: ExitCode) : ExecListener {
+    private class MyPodExecListener(val execLatch: CountDownLatch) : ExecListener {
         override fun onOpen(response: Response) {
         }
 
@@ -108,14 +145,8 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         }
 
         override fun onClose(code: Int, reason: String) {
-            exitCode.code = code
-            exitCode.reason = reason
             execLatch.countDown()
         }
     }
 
-    private class ExitCode() {
-        var code by Delegates.notNull<Int>()
-        lateinit var reason: String
-    }
 }

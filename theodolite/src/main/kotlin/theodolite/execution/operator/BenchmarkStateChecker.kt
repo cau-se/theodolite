@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import theodolite.benchmark.Action
 import theodolite.benchmark.ActionSelector
 import theodolite.benchmark.KubernetesBenchmark
+import theodolite.benchmark.ResourceSets
 import theodolite.model.crd.BenchmarkCRD
 import theodolite.model.crd.BenchmarkStates
 import theodolite.model.crd.KubernetesBenchmarkList
@@ -57,10 +58,10 @@ class BenchmarkStateChecker(
      * @return The state of this benchmark. [BenchmarkStates.READY] if all actions could be executed, else [BenchmarkStates.PENDING]
      */
     private fun checkActionCommands(benchmark: KubernetesBenchmark): BenchmarkStates {
-        return if (checkIfActionPossible(benchmark, benchmark.sut.beforeActions)
-            && checkIfActionPossible(benchmark, benchmark.sut.afterActions)
-            && checkIfActionPossible(benchmark, benchmark.loadGenerator.beforeActions)
-            && checkIfActionPossible(benchmark, benchmark.loadGenerator.beforeActions)
+        return if (checkIfActionPossible(benchmark.infrastructure.resources, benchmark.sut.beforeActions)
+            && checkIfActionPossible(benchmark.infrastructure.resources, benchmark.sut.afterActions)
+            && checkIfActionPossible(benchmark.infrastructure.resources, benchmark.loadGenerator.beforeActions)
+            && checkIfActionPossible(benchmark.infrastructure.resources, benchmark.loadGenerator.beforeActions)
         ) {
             BenchmarkStates.READY
         } else {
@@ -77,9 +78,9 @@ class BenchmarkStateChecker(
      * @param actions the actions
      * @return true if all actions could be executed, else false
      */
-    private fun checkIfActionPossible(benchmark: KubernetesBenchmark, actions: List<Action>): Boolean {
+    private fun checkIfActionPossible(resourcesSets: List<ResourceSets>, actions: List<Action>): Boolean {
         return !actions.map {
-            checkIfResourceIsDeployed(it.selector) || checkIfResourceIsInfrastructure(benchmark, it.selector)
+            checkIfResourceIsDeployed(it.selector) || checkIfResourceIsInfrastructure(resourcesSets, it.selector)
         }.contains(false)
     }
 
@@ -89,7 +90,7 @@ class BenchmarkStateChecker(
      * @param selector the actionSelector to check
      * @return true if the required resources are found, else false
      */
-    private fun checkIfResourceIsDeployed(selector: ActionSelector): Boolean {
+    fun checkIfResourceIsDeployed(selector: ActionSelector): Boolean {
         val pods = this.client
             .pods()
             .withLabels(selector.pod.matchLabels)
@@ -103,11 +104,10 @@ class BenchmarkStateChecker(
                     .containers
                     .map { it.name }
                     .contains(selector.container)
-            }.contains(false)
+            }.contains(true)
         } else {
             pods.isNotEmpty()
         }
-
     }
 
     /**
@@ -117,15 +117,15 @@ class BenchmarkStateChecker(
      * @param selector the actionSelector to check
      * @return true if the required resources are found, else false
      */
-    private fun checkIfResourceIsInfrastructure(benchmark: KubernetesBenchmark, selector: ActionSelector): Boolean {
-        val resources = benchmark.loadKubernetesResources(resourceSet = benchmark.infrastructure.resources)
+    fun checkIfResourceIsInfrastructure(resourcesSets: List<ResourceSets>, selector: ActionSelector): Boolean {
+        val resources = resourcesSets.flatMap { it.loadResourceSet(this.client) }
 
         return if (resources.isEmpty()) {
             false
         } else {
             resources.map { it.second }
                 .filterIsInstance<Deployment>()
-                .filter { it.spec.selector.matchLabels.containsMatchLabels(selector.pod.matchLabels) }
+                .filter { it.metadata.labels.containsMatchLabels(selector.pod.matchLabels) }
                 .any {
                     if (selector.container.isNotEmpty()) {
                         it.spec.template.spec.containers.map { it.name }.contains(selector.container)
@@ -142,7 +142,7 @@ class BenchmarkStateChecker(
      * @param benchmark The benchmark to check
      * @return The state of this benchmark. [BenchmarkStates.READY] if all resources could be loaded, else [BenchmarkStates.PENDING]
      */
-    private fun checkResources(benchmark: KubernetesBenchmark): BenchmarkStates { // TODO check if infrastructure could be loaded or not
+    fun checkResources(benchmark: KubernetesBenchmark): BenchmarkStates {
         return try {
             val appResources =
                 benchmark.loadKubernetesResources(resourceSet = benchmark.sut.resources)

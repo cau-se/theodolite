@@ -1,11 +1,9 @@
 package theodolite.benchmark
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+
 import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodBuilder
 import io.fabric8.kubernetes.api.model.PodListBuilder
-import io.fabric8.kubernetes.client.CustomResourceList
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.fabric8.kubernetes.client.server.mock.OutputStreamMessage
 import io.fabric8.kubernetes.client.utils.Utils
@@ -13,8 +11,6 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.*
 import theodolite.execution.operator.TheodoliteController
 import theodolite.execution.operator.TheodoliteOperator
-import theodolite.model.crd.BenchmarkCRD
-import theodolite.model.crd.ExecutionCRD
 import theodolite.util.ActionCommandFailedException
 
 
@@ -22,14 +18,6 @@ import theodolite.util.ActionCommandFailedException
 class ActionCommandTest {
     private val server = KubernetesServer(false, false)
     lateinit var controller: TheodoliteController
-    private val gson: Gson = GsonBuilder().enableComplexMapKeySerialization().create()
-
-    private var benchmark = KubernetesBenchmark()
-    private var execution = BenchmarkExecution()
-
-    private val benchmarkResourceList = CustomResourceList<BenchmarkCRD>()
-    private val executionResourceList = CustomResourceList<ExecutionCRD>()
-
 
     @BeforeEach
     fun setUp() {
@@ -71,11 +59,11 @@ class ActionCommandTest {
             .expect()
             .withPath("/api/v1/namespaces/test/pods/pod1/exec?command=ls&stdout=true&stderr=true")
             .andUpgradeToWebSocket()
-            .open(OutputStreamMessage("Test ByteStream"))
+            .open(OutputStreamMessage("Test-Output"))
             .done()
             .always()
     }
-
+    
     /**
      * Copied from fabric8 Kubernetes Client repository
      *
@@ -106,8 +94,8 @@ class ActionCommandTest {
 
     @Test
     fun testActionCommandExec() {
-        Assertions.assertEquals(1000, ActionCommand(client = server.client)
-            .exec(mutableMapOf("app" to "pod"), command = arrayOf("ls"), timeout = 30))
+        Assertions.assertEquals(0, ActionCommand(client = server.client)
+            .exec(mutableMapOf("app" to "pod"), command = arrayOf("ls"), timeout = 30L))
     }
 
     @Test
@@ -120,6 +108,7 @@ class ActionCommandTest {
         action.exec.command = arrayOf("ls")
         action.exec.timeoutSeconds = 10L
 
-        assertThrows<ActionCommandFailedException> { run { action.exec(server.client) } }
+        val e = assertThrows<ActionCommandFailedException> { run { action.exec(server.client) } }
+        assert(e.message.equals("Could not determine the exit code, no information given"))
     }
 }
