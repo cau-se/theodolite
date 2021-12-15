@@ -26,24 +26,21 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
         var resources: Map<String, String>
 
         try {
-            resources = client
+            resources = (client
                 .configMaps()
                 .withName(name)
-                .get()
+                .get() ?: throw DeploymentFailedException("Cannot find ConfigMap with name '$name'."))
                 .data
-                .filter { it.key.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
+                .filter { it.key.endsWith(".yaml") }
         } catch (e: KubernetesClientException) {
-            throw DeploymentFailedException("can not find or read configmap:  $name", e)
-        } catch (e: IllegalStateException) {
-            throw DeploymentFailedException("can not find configmap or data section is null $name", e)
+            throw DeploymentFailedException("Cannot find or read ConfigMap with name '$name'.", e)
         }
 
         if (::files.isInitialized){
-            resources = resources
-                .filter { files.contains(it.key) }
+            resources = resources.filter { files.contains(it.key) }
 
             if (resources.size != files.size) {
-                throw  DeploymentFailedException("Could not find all specified Kubernetes manifests files")
+                throw DeploymentFailedException("Could not find all specified Kubernetes manifests files")
             }
         }
 
@@ -57,7 +54,7 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
                         it.second.key,
                         loader.loadK8sResource(it.first, it.second.value)) }
         } catch (e: IllegalArgumentException) {
-            throw  DeploymentFailedException("Can not creat resource set from specified configmap", e)
+            throw DeploymentFailedException("Can not create resource set from specified configmap", e)
         }
 
     }
