@@ -166,7 +166,7 @@ internal class BenchmarkStateCheckerTest {
         val benchmark = BenchmarkCRDummy(
             name = "test-benchmark"
         )
-        benchmark.getCR().spec.client = serverCrud.client
+        benchmark.getCR().spec.setClient(serverCrud.client)
         val resourceSet = Resources()
         resourceSet.resources = listOf(createAndDeployConfigmapResourceSet())
         benchmark.getCR().spec.infrastructure = resourceSet

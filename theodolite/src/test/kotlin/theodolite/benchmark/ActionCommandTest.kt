@@ -1,6 +1,5 @@
 package theodolite.benchmark
 
-
 import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodBuilder
 import io.fabric8.kubernetes.api.model.PodListBuilder
@@ -63,7 +62,7 @@ class ActionCommandTest {
             .done()
             .always()
     }
-    
+
     /**
      * Copied from fabric8 Kubernetes Client repository
      *
@@ -90,12 +89,6 @@ class ActionCommandTest {
     @Test
     fun testGetPodName() {
         Assertions.assertEquals("pod1", ActionCommand(client = server.client).getPodName(mutableMapOf("app" to "pod")))
-    }
-
-    @Test
-    fun testActionCommandExec() {
-        Assertions.assertEquals(0, ActionCommand(client = server.client)
-            .exec(mutableMapOf("app" to "pod"), command = arrayOf("ls"), timeout = 30L))
     }
 
     @Test

@@ -47,7 +47,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
     @Transient
-    var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+    private var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
     /**
      * Loads [KubernetesResource]s.
@@ -124,5 +124,14 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             topics = kafkaConfig.topics,
             client = this.client
         )
+    }
+
+    /**
+     * This function can be used to set the Kubernetes client manually. This is for example necessary for testing.
+     *
+     * @param client
+     */
+    fun setClient(client: NamespacedKubernetesClient) {
+        this.client = client
     }
 }
