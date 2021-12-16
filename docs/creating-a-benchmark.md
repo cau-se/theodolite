@@ -6,9 +6,9 @@ nav_order: 5
 
 # Creating a Benchmark
 
-Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a set of benchmarks, which are ready to be executed. See the Benchmarks and Executions docs page to learn more about our distinction between benchmarks and executions.
+Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a [set of benchmarks](theodolite-benchmarks), which are ready to be executed. See the [fundamental concepts](benchmarks-and-executions) page to learn more about our distinction between benchmarks and executions.
 
-A typical benchmark looks as follow.
+A typical benchmark looks like this:
 
 ```yaml
 apiVersion: theodolite.com/v1
@@ -77,6 +77,7 @@ Suppose the resources needed by your benchmark are defined as YAML files, locate
 Benchmarks need to specify at least one supported load and resource type for which scalability can be benchmarked.
 
 Load and resource types are described by a name (used for reference from an Execution) and a list of patchers.
+If a benchmark is [executed by an Execution](running-benchmarks), these patchers are used to configure SUT and load generator according to the [load and resource values](creating-an-execution) set in the Execution.
 
 ## Kafka Configuration
 

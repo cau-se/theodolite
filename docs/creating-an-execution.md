@@ -51,11 +51,9 @@ Similar to [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/contr
 
 ## Reference to a Benchmark
 
-An Execution always refers to a Benchmark. This benchmark has to be registered with Kubernetes once Theodolite starts an Execution. Otherwise, Theodolite aborts the Executions and marks it as *failed*.
+An Execution always refers to a Benchmark. For the Execution to run, the Benchmark must be registered with Kubernetes and it must be in state *Ready*. If this is not the case, the Execution will remain in state *Pending*.
 
-<!-- Benchmark state -->
-
-As a Benchmark may define multiple supported load and resource types, an Execution has to pick exactly one of each by its name. Additionally, it defines the set of load values and resource values the benchmark should be executed with.
+As a Benchmark may define multiple supported load and resource types, an Execution has to pick exactly one of each by its name. Additionally, it defines the set of load values and resource values the benchmark should be executed with. Both these values are represented as integers, which are interpreted in a [Benchmark-specific way](creating-a-benchmark) to configure the SUT and load generator.
 
 ## Definition of SLOs
 
