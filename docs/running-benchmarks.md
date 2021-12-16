@@ -10,7 +10,7 @@ Running scalability benchmarks with Theodolite involves the following steps:
 
 1. [Deploying a benchmark to Kubernetes](#deploying-a-benchmark)
 1. [Creating an execution](#creating-an-execution), which describes the experimental setup for running the benchmark
-1. [Accessing Benchmark Results](#accessing-benchmark-results)
+1. [Accessing benchmark results](#accessing-benchmark-results)
 
 
 ## Deploying a Benchmark
@@ -121,8 +121,6 @@ kubectl describe execution <execution-name>
 
 
 ## Accessing Benchmark Results
-
-<!-- TODO more specific -->
 
 Theodolite stores the results of benchmark executions in CSV files, whose names are starting with `exp<id>_...`. These files can be read and analyzed by Theodolite's analysis notebooks.
 
