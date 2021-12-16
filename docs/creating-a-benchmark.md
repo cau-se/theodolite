@@ -52,18 +52,49 @@ spec:
 
 ```
 
-## System under Test (SUT) and Load Generator Resources
+## System under Test (SUT), Load Generator and Infrastructure
 
-In Thedolite, the system under test (SUT) and the load generator are described by Kubernetes resources files.
-Based on these files, both the SUT and the load generator are started and stopped for each SLO experiment.
-Optionally, you can also define infrastructure as Kubernetes resources files which lives over the entire duration of a benchmark run.
+In Thedolite, the system under test (SUT), the load generator as well as additional infrastructure (e.g., a middleware) are described by Kubernetes resources files.
+All resources defined for the SUT and the load generator are started and stopped for each SLO experiment, with SUT resources being started before the load generator.
+Infrastructure resources live over the entire duration of a benchmark run. They avoid time-consuming recreation of software components like middlewares, but should be used with caution to not let previous SLO experiments influence latte ones.
 
-The recommended way to link Kubernetes resources files from a Benchmark is by bundling them in one or multiple ConfigMaps and refer to these ConfigMap from `sut.resources`, `loadGenerator.resources` or `infrastructure.resources`.
+### Resources
+
+#### ConfigMap
+
+The recommended way to link Kubernetes resources files from a Benchmark is by bundling them in one or multiple ConfigMaps and refer to that ConfigMap from `sut.resources`, `loadGenerator.resources` or `infrastructure.resources`.
 To create a ConfigMap from all the Kubernetes resources in a directory run:
 
 ```sh
 kubectl create configmap <configmap-name> --from-file=<path-to-resource-dir>
 ```
+
+Add an item such as the following one to the `resources` list of the `sut`, `loadGenerator` or `infrastructure` fields.
+
+```yaml
+configMap:
+  name: example-configmap
+  files:
+  - example-deployment.yaml
+  - example-service.yaml
+```
+
+#### Filesystem
+
+Alternatively, resources can also be read from the filesystem, Theodolite has access to. This usually requires that the Benchmark resources are available in a volume, which is mounted into the container Theodolite.
+
+```yaml
+filesystem:
+  path: example/path/to/files
+  files:
+  - example-deployment.yaml
+  - example-service.yaml
+```
+
+<!-- ### Before and after actions -->
+
+
+
 
 <!--
 A Benchmark refers to other Kubernetes resources (e.g., Deployments, Services, ConfigMaps), which describe the system under test, the load generator and infrastructure components such as a middleware used in the benchmark. To manage those resources, Theodolite needs to have access to them. This is done by bundling resources in ConfigMaps.
