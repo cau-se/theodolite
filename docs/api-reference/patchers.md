@@ -11,19 +11,23 @@ Patchers can be seen as functions which take a value as input and modify a Kuber
 
 ## Available Patchers
 
-* **ReplicaPatcher**: Allows to modify the number of Replicas for a Kubernetes deployment.
+* **ReplicaPatcher**: Modifies the number of replicas for a Kubernetes deployment.
   * **type**: "ReplicaPatcher"
   * **resource**: "uc1-kstreams-deployment.yaml"
 
-* **NumSensorsLoadGeneratorReplicaPatcher**: Allows to scale the number of load generators. Scales according to the following formula: (value + 15_000 - 1) / 15_000
+* **NumSensorsLoadGeneratorReplicaPatcher**: Modifies the number of load generators, according to the following formula: *(value + loadGenMaxRecords - 1) / loadGenMaxRecords*
   * **type**: "NumSensorsLoadGeneratorReplicaPatcher"
   * **resource**: "uc1-load-generator-deployment.yaml"
+  * **properties**:
+    * loadGenMaxRecords: 150000
 
-* **NumNestedGroupsLoadGeneratorReplicaPatcher**: Allows to scale the number of load generators. Scales according to the following formula: (4^(value) + 15_000 -1) /15_000
+* **NumNestedGroupsLoadGeneratorReplicaPatcher**: Modifies the number of load generators, according to the following formula: *(4^(value) + loadGenMaxRecords - 1) / loadGenMaxRecords*
   * **type**: "NumNestedGroupsLoadGeneratorReplicaPatcher"
   * **resource**: "uc1-load-generator-deployment.yaml"
+  * **properties**:
+    * loadGenMaxRecords: 150000
 
-* **EnvVarPatcher**: Allows to modify the value of an environment variable for a container in a Kubernetes deployment. 
+* **EnvVarPatcher**: Modifies the value of an environment variable for a container in a Kubernetes deployment. 
   * **type**: "EnvVarPatcher"
   * **resource**: "uc1-load-generator-deployment.yaml"
   * **properties**:
@@ -35,23 +39,23 @@ Patchers can be seen as functions which take a value as input and modify a Kuber
   * **resource**: "uc1-load-generator-deployment.yaml"
   * **properties**:
     * variableName: "env"
-  * **value**: "prod"
+  * **example value**: "prod"
 
 * **ResourceLimitPatcher**: Changes the resource limit for a Kubernetes resource.
   * **resource**: "uc1-kstreams-deployment.yaml"
   * **properties**:
     * container: "uc-application"
     * variableName: "cpu" or "memory"
-  * **value**:"1000m" or "2Gi"
+  * **example value**:"1000m" or "2Gi"
   
 * **SchedulerNamePatcher**: Changes the scheduler for Kubernetes resources.
   * **type**: "SchedulerNamePatcher"
   * **resource**: "uc1-kstreams-deployment.yaml"
-  * **value**: "random-scheduler"
+  * **example value**: "random-scheduler"
 
-* **ImagePatcher**: Changes the image of a Kubernetes resource. Currently not fully implemented.
+* **ImagePatcher**: Changes the image of a Kubernetes resource. **Currently not fully implemented.**
   * **type**: "ImagePatcher"
   * **resource**: "uc1-kstreams-deployment.yaml"
   * **properties**:
     * container: "uc-application"
-  * **value**: "dockerhub-org/image-name"
+  * **example value**: "dockerhub-org/image-name"
