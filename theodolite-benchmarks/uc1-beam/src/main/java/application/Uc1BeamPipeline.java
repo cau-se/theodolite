@@ -5,14 +5,10 @@ import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.values.KV;
-import org.apache.beam.sdk.values.PBegin;
-import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import theodolite.commons.beam.AbstractPipeline;
-import theodolite.commons.beam.kafka.KafkaActivePowerRecordReader;
+import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import titan.ccp.model.records.ActivePowerRecord;
 
 
@@ -37,8 +33,8 @@ public final class Uc1BeamPipeline extends AbstractPipeline {
     final Map<String, Object> consumerConfig = buildConsumerConfig();
 
     // Create Pipeline transformations
-    final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>> kafka =
-        new KafkaActivePowerRecordReader(bootstrapServer, inputTopic, consumerConfig);
+    final KafkaActivePowerTimestampReader kafka =
+        new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
 
     final LogKeyValue logKeyValue = new LogKeyValue();
     final MapToGson mapToGson = new MapToGson();

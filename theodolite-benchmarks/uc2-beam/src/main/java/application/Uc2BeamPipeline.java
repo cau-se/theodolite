@@ -11,18 +11,15 @@ import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
-import org.apache.beam.sdk.values.PBegin;
-import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.joda.time.Duration;
 import theodolite.commons.beam.AbstractPipeline;
 import theodolite.commons.beam.ConfigurationKeys;
-import theodolite.commons.beam.kafka.KafkaActivePowerRecordReader;
+import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import theodolite.commons.beam.kafka.KafkaWriterTransformation;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -58,9 +55,9 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
 
 
     // Read from Kafka
-    final PTransform<PBegin, PCollection<KV<String, ActivePowerRecord>>>
+    final KafkaActivePowerTimestampReader
         kafkaActivePowerRecordReader =
-        new KafkaActivePowerRecordReader(bootstrapServer, inputTopic, consumerConfig);
+        new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
 
     // Transform into String
     final StatsToString statsToString = new StatsToString();
