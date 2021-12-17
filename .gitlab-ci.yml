@@ -55,17 +55,19 @@ lint-helm:
 test-helm:
   stage: post-deploy
   extends: .dind
-  needs: []
+  needs:
+    - lint-helm
     # - deploy-theodolite
   variables:
     KUBECTL: v1.21.3
+    K3D: v4.4.8
   before_script:
     - apk add -U wget bash curl
     # install kubectl
     - wget -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl
     - chmod +x /usr/local/bin/kubectl
     # install k3d
-    - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+    - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/${K3D}/install.sh | bash
     - k3d help
     - k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
     # show cluster info
