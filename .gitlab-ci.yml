@@ -69,7 +69,9 @@ test-helm:
     # install k3d
     - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/${K3D}/install.sh | bash
     - k3d help
-    - k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
+    - k3d version
+    #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
+    - k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent:0" # k3d 5.0
     # show cluster info
     - kubectl cluster-info
   script:
