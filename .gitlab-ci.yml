@@ -60,6 +60,9 @@ test-helm:
     # - deploy-theodolite
   variables:
     KUBECTL: v1.21.3
+  cache:
+    paths:
+      - helm/charts
   before_script:
     - apk add -U wget bash openssl
     # install kubectl
@@ -78,6 +81,7 @@ test-helm:
   script:
     # Display initial pods, etc.
     - cd helm
+    - helm dependencies update .
     - helm install theodolite . -f preconfigs/minimal.yaml --wait
     - kubectl get nodes -o wide
     - kubectl get pods --all-namespaces -o wide
