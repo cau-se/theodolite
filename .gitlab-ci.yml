@@ -21,9 +21,11 @@ default:
     - exec-dind
   # see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   # for image usage and settings for building with TLS and docker in docker
-  image: docker:19.03.1
+  #image: docker:19.03.1
+  image: docker:20.10.12
   services:
-    - docker:19.03.1-dind
+    #- docker:19.03.1-dind
+    - docker:20.10.12-dind
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
@@ -60,14 +62,13 @@ test-helm:
     # - deploy-theodolite
   variables:
     KUBECTL: v1.21.3
-    K3D: v4.4.8
   before_script:
     - apk add -U wget bash curl
     # install kubectl
     - wget -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl
     - chmod +x /usr/local/bin/kubectl
     # install k3d
-    - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/${K3D}/install.sh | bash
+    - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
     - k3d help
     - k3d version
     #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
