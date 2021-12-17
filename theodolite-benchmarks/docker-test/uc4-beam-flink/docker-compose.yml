@@ -47,9 +47,15 @@ services:
       image: uc4-beam-flink:latest
       ports:
         - "8080:8081"
-      command: standalone-job --job-classname application.Uc4BeamFlink
+      command: >
+        standalone-job
+        --job-classname application.Uc4BeamFlink
+        --streaming
+        --disableMetrics=true 
+        --fasterCopy 
+        --stateBackend=rocksdb 
+        --stateBackendStoragePath=file:///data/flink/checkpoints
       environment:
-        - PARALLELISM=1
         - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
         - SCHEMA_REGISTRY_URL=http://schema-registry:8081
         - |
