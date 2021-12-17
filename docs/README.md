@@ -39,5 +39,5 @@ crdoc --resources ../theodolite/crd/ --output api-reference/crds.md
 With the following command, crdoc is installed and executed in Docker:
 
 ```sh
-docker run --rm -v "`pwd`/../theodolite/crd/":/crd -v "`pwd`/api-reference":/api-reference golang sh -c "go install fybrik.io/crdoc@v0.5.1 && crdoc --resources /crd/ --template /api-reference/crds.tmpl --output /api-reference/crds.md"
+docker run --rm -v "`pwd`/../theodolite/crd/":/crd -v "`pwd`/api-reference":/api-reference golang sh -c "go install fybrik.io/crdoc@latest && crdoc --resources /crd/ --template /api-reference/crds.tmpl --output /api-reference/crds.md"
 ```
