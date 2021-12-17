@@ -82,6 +82,11 @@ test-docs-crds-regression:
   script:
     - crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.ref.md
     - cmp api-reference/crds.md api-reference/crds.ref.md
+  artifacts:
+    when: on_failure
+    paths:
+      - docs/api-reference/crds.ref.md
+    expire_in: 1 week
   rules:
     - changes:
       - docs/api-reference/crds.tmpl
