@@ -60,7 +60,7 @@ test-helm:
     # - deploy-theodolite
   variables:
     KUBECTL: v1.21.3
-    CLUSTERNAME: "$CI_PROJECT_NAME-CI_PIPELINE_ID"
+    CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
   cache:
     paths:
       - helm/charts
