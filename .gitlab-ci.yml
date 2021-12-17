@@ -61,13 +61,13 @@ test-helm:
   variables:
     KUBECTL: v1.21.3
   before_script:
-    - apk add -U wget bash curl
+    - apk add -U wget bash openssl
     # install kubectl
     - wget -q -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl
     - chmod +x /usr/local/bin/kubectl
     # install k3d
     - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - wget -q -O - https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - k3d help
     - k3d version
     #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
