@@ -60,6 +60,7 @@ test-helm:
     # - deploy-theodolite
   variables:
     KUBECTL: v1.21.3
+    CLUSTERNAME: "$CI_PROJECT_NAME-CI_PIPELINE_ID"
   cache:
     paths:
       - helm/charts
@@ -74,7 +75,7 @@ test-helm:
     - k3d help
     - k3d version
     #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
-    - k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent:0" # k3d 5.0
+    - k3d cluster create $CLUSTERNAME --agents 1 --wait -p "30000:30000@agent:0" # k3d 5.0
     # show cluster info
     - kubectl cluster-info
     - helm version
@@ -87,7 +88,7 @@ test-helm:
     - kubectl get pods --all-namespaces -o wide
     - kubectl get services --all-namespaces -o wide
   after_script:
-    - k3d cluster delete testgitlabci
+    - k3d cluster delete $CLUSTERNAME
 
 
 # Theodolite Benchmarks
