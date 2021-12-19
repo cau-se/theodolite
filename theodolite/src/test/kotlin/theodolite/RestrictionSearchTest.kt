@@ -6,17 +6,18 @@ import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.BinarySearch
-import theodolite.strategies.searchstrategy.CompositeStrategy
+import theodolite.strategies.searchstrategy.RestrictionSearch
 import theodolite.strategies.searchstrategy.LinearSearch
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 
 @QuarkusTest
-class CompositeStrategyTest {
+class RestrictionSearchTest {
+
 
     @Test
-    fun testEnd2EndLinearSearch() {
+    fun restrictionSearchTestLinearSearch() {
         val mockResults = arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -35,7 +36,7 @@ class CompositeStrategyTest {
         val linearSearch = LinearSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
-            CompositeStrategy(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
+            RestrictionSearch(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
@@ -49,7 +50,7 @@ class CompositeStrategyTest {
     }
 
     @Test
-    fun testEnd2EndBinarySearch() {
+    fun restrictionSearchTestBinarySearch() {
         val mockResults = arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -68,8 +69,7 @@ class CompositeStrategyTest {
             TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutorImpl)
         val lowerBoundRestriction = LowerBoundRestriction(results)
-        val strategy =
-            CompositeStrategy(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
+        val strategy = RestrictionSearch(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
@@ -83,7 +83,7 @@ class CompositeStrategyTest {
     }
 
     @Test
-    fun testEnd2EndBinarySearch2() {
+    fun restrictionSearchTestBinarySearch2() {
         val mockResults = arrayOf(
             arrayOf(true, true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true, true),
@@ -102,7 +102,7 @@ class CompositeStrategyTest {
         val binarySearch = BinarySearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
-            CompositeStrategy(benchmarkExecutor, binarySearch, setOf(lowerBoundRestriction))
+            RestrictionSearch(benchmarkExecutor, binarySearch, setOf(lowerBoundRestriction))
 
         val actual: ArrayList<Resource?> = ArrayList()
         val expected: ArrayList<Resource?> =

@@ -5,7 +5,6 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
 import theodolite.strategies.StrategyFactory
-import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.util.*
 import java.io.File
 import java.time.Duration
@@ -34,8 +33,8 @@ class TheodoliteExecutor(
      * Creates all required components to start Theodolite.
      *
      * @return a [Config], that contains a list of [LoadDimension]s,
-     *          a list of [Resource]s , and the [CompositeStrategy].
-     * The [CompositeStrategy] is configured and able to find the minimum required resource for the given load.
+     *          a list of [Resource]s , and the [restrictionSearch].
+     * The [searchStrategy] is configured and able to find the minimum required resource for the given load.
      */
     private fun buildConfig(): Config {
         val results = Results()
@@ -93,14 +92,7 @@ class TheodoliteExecutor(
                     resourcePatcherDefinition
                 )
             },
-            compositeStrategy = CompositeStrategy(
-                benchmarkExecutor = executor,
-                searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy),
-                restrictionStrategies = strategyFactory.createRestrictionStrategy(
-                    results,
-                    config.execution.restrictions
-                )
-            )
+            searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results)
         )
     }
 
@@ -125,16 +117,18 @@ class TheodoliteExecutor(
         )
 
         val config = buildConfig()
+        //TODO: Differentiate metrics here
+
         // execute benchmarks for each load
         try {
             for (load in config.loads) {
                 if (executor.run.get()) {
-                    config.compositeStrategy.findSuitableResource(load, config.resources)
+                    config.searchStrategy.findSuitableResource(load, config.resources)
                 }
             }
         } finally {
             ioHandler.writeToJSONFile(
-                config.compositeStrategy.benchmarkExecutor.results,
+                config.searchStrategy.benchmarkExecutor.results,
                 "${resultsFolder}exp${this.config.executionId}-result"
             )
         }

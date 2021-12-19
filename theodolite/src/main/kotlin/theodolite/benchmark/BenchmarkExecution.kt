@@ -3,6 +3,7 @@ package theodolite.benchmark
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.quarkus.runtime.annotations.RegisterForReflection
+import theodolite.strategies.searchstrategy.SearchStrategy
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
@@ -41,12 +42,23 @@ class BenchmarkExecution : KubernetesResource {
     @JsonDeserialize
     @RegisterForReflection
     class Execution : KubernetesResource {
-        lateinit var strategy: String
+        lateinit var metric: String
+        lateinit var strategy: Strategy
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
-        lateinit var restrictions: List<String>
         var loadGenerationDelay = 0L
         var afterTeardownDelay = 5L
+    }
+
+    /**
+     * This Strategy encapsulates the [restrictions] which is used for restricting the resources.
+     */
+    @JsonDeserialize
+    @RegisterForReflection
+    class Strategy : KubernetesResource {
+        lateinit var name: String
+        lateinit var restrictions: List<String>
+        lateinit var guessStrategy: String
     }
 
     /**

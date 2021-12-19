@@ -1,12 +1,10 @@
 package theodolite.strategies
 
+import theodolite.benchmark.BenchmarkExecution
 import theodolite.execution.BenchmarkExecutor
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.restriction.RestrictionStrategy
-import theodolite.strategies.searchstrategy.BinarySearch
-import theodolite.strategies.searchstrategy.FullSearch
-import theodolite.strategies.searchstrategy.LinearSearch
-import theodolite.strategies.searchstrategy.SearchStrategy
+import theodolite.strategies.searchstrategy.*
 import theodolite.util.Results
 
 /**
@@ -23,13 +21,22 @@ class StrategyFactory {
      *
      * @throws IllegalArgumentException if the [SearchStrategy] was not one of the allowed options.
      */
-    fun createSearchStrategy(executor: BenchmarkExecutor, searchStrategyString: String): SearchStrategy {
-        return when (searchStrategyString) {
+    fun createSearchStrategy(executor: BenchmarkExecutor, searchStrategyObject: BenchmarkExecution.Strategy, results: Results): SearchStrategy {
+
+        var strategy : SearchStrategy = when (searchStrategyObject.name) {
             "FullSearch" -> FullSearch(executor)
             "LinearSearch" -> LinearSearch(executor)
             "BinarySearch" -> BinarySearch(executor)
-            else -> throw IllegalArgumentException("Search Strategy $searchStrategyString not found")
+            "InitialGuessSearch" -> when (searchStrategyObject.guessStrategy){
+                "PrevResourceMinGuess" -> InitialGuessSearchStrategy(executor,PrevResourceMinGuess(), results)
+                else -> throw IllegalArgumentException("Guess Strategy ${searchStrategyObject.guessStrategy} not found")
+            }
+            else -> throw IllegalArgumentException("Search Strategy $searchStrategyObject not found")
         }
+        if(searchStrategyObject.restrictions.isNotEmpty()){
+            strategy = RestrictionSearch(executor,strategy,createRestrictionStrategy(results, searchStrategyObject.restrictions))
+        }
+        return strategy
     }
 
     /**
@@ -42,7 +49,7 @@ class StrategyFactory {
      *
      * @throws IllegalArgumentException if param searchStrategyString was not one of the allowed options.
      */
-    fun createRestrictionStrategy(results: Results, restrictionStrings: List<String>): Set<RestrictionStrategy> {
+    private fun createRestrictionStrategy(results: Results, restrictionStrings: List<String>): Set<RestrictionStrategy> {
         return restrictionStrings
             .map { restriction ->
                 when (restriction) {
