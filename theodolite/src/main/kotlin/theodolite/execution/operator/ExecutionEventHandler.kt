@@ -26,7 +26,7 @@ class ExecutionHandler(
     /**
      * Add an execution to the end of the queue of the TheodoliteController.
      *
-     * @param ExecutionCRD the execution to add
+     * @param execution the execution to add
      */
     @Synchronized
     override fun onAdd(execution: ExecutionCRD) {
@@ -48,8 +48,8 @@ class ExecutionHandler(
      * added to the beginning of the queue of the TheodoliteController.
      * Otherwise, it is just added to the beginning of the queue.
      *
-     * @param oldExecutionCRD the old execution
-     * @param newExecutionCRD the new execution
+     * @param oldExecution the old execution
+     * @param newExecution the new execution
      */
     @Synchronized
     override fun onUpdate(oldExecution: ExecutionCRD, newExecution: ExecutionCRD) {
@@ -74,7 +74,7 @@ class ExecutionHandler(
     /**
      * Delete an execution from the queue of the TheodoliteController.
      *
-     * @param ExecutionCRD the execution to delete
+     * @param execution the execution to delete
      */
     @Synchronized
     override fun onDelete(execution: ExecutionCRD, b: Boolean) {

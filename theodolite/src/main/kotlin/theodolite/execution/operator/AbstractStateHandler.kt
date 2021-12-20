@@ -24,11 +24,9 @@ abstract class AbstractStateHandler<T, L, D>(
     @Synchronized
     override fun setState(resourceName: String, f: (T) -> T?) {
         try {
-            this.crdClient
-                .list().items
-                .filter { it.metadata.name == resourceName }
-                .map { customResource -> f(customResource) }
-                .forEach { this.crdClient.updateStatus(it) }
+            val resource = this.crdClient.withName(resourceName).get()
+            val resourcePatched = f(resource)
+            this.crdClient.patchStatus(resourcePatched)
         } catch (e: KubernetesClientException) {
             logger.warn { "Status cannot be set for resource $resourceName" }
         }
