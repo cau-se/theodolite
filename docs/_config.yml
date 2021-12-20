@@ -10,6 +10,7 @@ aux_links:
       - "//github.com/cau-se/theodolite"
 
 exclude:
+  - "*.tmpl"
   - Gemfile
   - Gemfile.lock
   - README.md
