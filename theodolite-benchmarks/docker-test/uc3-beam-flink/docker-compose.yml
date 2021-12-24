@@ -1,4 +1,4 @@
-version: '2'
+version: '2.2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper
@@ -51,8 +51,6 @@ services:
         --streaming
         --disableMetrics=true 
         --fasterCopy 
-        --stateBackend=rocksdb 
-        --stateBackendStoragePath=file:///data/flink/checkpoints
       environment:
         - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
         - SCHEMA_REGISTRY_URL=http://schema-registry:8081
@@ -60,16 +58,21 @@ services:
           FLINK_PROPERTIES=
           jobmanager.rpc.address: benchmark-jobmanager
           parallelism.default: 1
+          state.backend: rocksdb
+          state.checkpoints.dir: file:///data/flink/checkpoints
       depends_on:
         - schema-registry
         - kafka
   benchmark-taskmanager:
       image: uc3-beam-flink:latest
+      scale: 1
       command: taskmanager
       environment:
         - |
           FLINK_PROPERTIES=
           jobmanager.rpc.address: benchmark-jobmanager
+          state.backend: rocksdb
+          state.checkpoints.dir: file:///data/flink/checkpoints
       depends_on:
         - schema-registry
         - kafka

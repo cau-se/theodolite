@@ -1,4 +1,4 @@
-version: '2'
+version: '2.2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper
@@ -64,6 +64,7 @@ services:
         - kafka
   benchmark-taskmanager:
       image: uc2-beam-flink:latest
+      scale: 1
       command: taskmanager
       environment:
         - |
