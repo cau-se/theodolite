@@ -67,8 +67,8 @@ services:
         - kafka
   benchmark-taskmanager:
       image: uc4-beam-flink:latest
-      command: taskmanager
       scale: 1
+      command: taskmanager
       environment:
         - |
           FLINK_PROPERTIES=
