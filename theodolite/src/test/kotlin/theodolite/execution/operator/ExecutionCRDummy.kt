@@ -9,7 +9,7 @@ class ExecutionCRDummy(name: String, benchmark: String) {
 
     private val execution = BenchmarkExecution()
     private val executionState = ExecutionStatus()
-    private val executionCR = ExecutionCRD(execution, executionState)
+    private val executionCR = ExecutionCRD()
 
     fun getCR(): ExecutionCRD {
         return this.executionCR
@@ -25,6 +25,7 @@ class ExecutionCRDummy(name: String, benchmark: String) {
         executionCR.metadata.name = name
         executionCR.kind = "Execution"
         executionCR.apiVersion = "v1"
+        executionCR.status = executionState
 
         // configure execution
         val loadType = BenchmarkExecution.LoadDefinition()

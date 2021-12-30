@@ -96,10 +96,9 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
     /**
      * Block until all pods with are deleted
      *
-     * @param [labelName] the label name
-     * @param [labelValue] the value of this label
+     * @param matchLabels Map of label keys to label values to be deleted
      * */
-    fun blockUntilPodsDeleted(matchLabels: MutableMap<String, String>) {
+    fun blockUntilPodsDeleted(matchLabels: Map<String, String>) {
         while (
             !this.client
                 .pods()

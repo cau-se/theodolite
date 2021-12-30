@@ -1,7 +1,6 @@
 package theodolite.model.crd
 
 enum class ExecutionStates(val value: String) {
-    // Execution states
     RUNNING("Running"),
     PENDING("Pending"),
     FAILURE("Failure"),

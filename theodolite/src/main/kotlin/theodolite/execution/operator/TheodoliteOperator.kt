@@ -90,7 +90,7 @@ class TheodoliteOperator {
             ExecutionCRD::class.java,
             RESYNC_PERIOD
         ).addEventHandler(
-            ExecutionHandler(
+            ExecutionEventHandler(
                 controller = controller,
                 stateHandler = ExecutionStateHandler(client)
             )
