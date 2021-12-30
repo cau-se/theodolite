@@ -34,9 +34,9 @@ class ExecutionEventHandler(
         logger.info { "Add execution ${execution.metadata.name}." }
         execution.spec.name = execution.metadata.name
         when (this.stateHandler.getExecutionState(execution.metadata.name)) {
-            ExecutionStates.NO_STATE -> this.stateHandler.setExecutionState(execution.spec.name, ExecutionStates.PENDING)
-            ExecutionStates.RUNNING -> {
-                this.stateHandler.setExecutionState(execution.spec.name, ExecutionStates.RESTART)
+            ExecutionState.NO_STATE -> this.stateHandler.setExecutionState(execution.spec.name, ExecutionState.PENDING)
+            ExecutionState.RUNNING -> {
+                this.stateHandler.setExecutionState(execution.spec.name, ExecutionState.RESTART)
                 if (this.controller.isExecutionRunning(execution.spec.name)) {
                     this.controller.stop(restart = true)
                 }
@@ -59,15 +59,15 @@ class ExecutionEventHandler(
         if (gson.toJson(oldExecution.spec) != gson.toJson(newExecution.spec)) {
             logger.info { "Receive update event for execution ${oldExecution.metadata.name}." }
             when (this.stateHandler.getExecutionState(newExecution.metadata.name)) {
-                ExecutionStates.RUNNING -> {
-                    this.stateHandler.setExecutionState(newExecution.spec.name, ExecutionStates.RESTART)
+                ExecutionState.RUNNING -> {
+                    this.stateHandler.setExecutionState(newExecution.spec.name, ExecutionState.RESTART)
                     if (this.controller.isExecutionRunning(newExecution.spec.name)) {
                         this.controller.stop(restart = true)
                     }
                 }
-                ExecutionStates.RESTART -> {
+                ExecutionState.RESTART -> {
                 } // should this set to pending?
-                else -> this.stateHandler.setExecutionState(newExecution.spec.name, ExecutionStates.PENDING)
+                else -> this.stateHandler.setExecutionState(newExecution.spec.name, ExecutionState.PENDING)
             }
         }
     }
@@ -80,7 +80,7 @@ class ExecutionEventHandler(
     @Synchronized
     override fun onDelete(execution: ExecutionCRD, deletedFinalStateUnknown: Boolean) {
         logger.info { "Delete execution ${execution.metadata.name}." }
-        if (execution.status.executionState == ExecutionStates.RUNNING.value
+        if (execution.status.executionState == ExecutionState.RUNNING
             && this.controller.isExecutionRunning(execution.metadata.name)
         ) {
             this.controller.stop()

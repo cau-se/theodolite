@@ -6,6 +6,6 @@ import io.fabric8.kubernetes.api.model.Namespaced
 
 @JsonDeserialize
 class ExecutionStatus : KubernetesResource, Namespaced {
-    var executionState: String = ""
+    var executionState: ExecutionState = ExecutionState.NO_STATE
     var executionDuration: String = "-"
 }

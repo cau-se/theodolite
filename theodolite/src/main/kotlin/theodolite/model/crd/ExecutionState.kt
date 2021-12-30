@@ -1,6 +1,8 @@
 package theodolite.model.crd
 
-enum class ExecutionStates(val value: String) {
+import com.fasterxml.jackson.annotation.JsonValue
+
+enum class ExecutionState(@JsonValue val value: String) {
     RUNNING("Running"),
     PENDING("Pending"),
     FAILURE("Failure"),

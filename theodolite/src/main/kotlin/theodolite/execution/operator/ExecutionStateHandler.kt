@@ -1,10 +1,8 @@
 package theodolite.execution.operator
 
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
-import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.ExecutionStatus
-import theodolite.model.crd.ExecutionStates
+import theodolite.model.crd.ExecutionState
 import java.lang.Thread.sleep
 import java.time.Duration
 import java.time.Instant
@@ -18,21 +16,21 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
 
     private var runExecutionDurationTimer: AtomicBoolean = AtomicBoolean(false)
 
-    private fun getExecutionLambda() = { cr: ExecutionCRD -> cr.status.executionState }
+    private fun getExecutionLambda() = { cr: ExecutionCRD -> cr.status.executionState.value }
 
     private fun getDurationLambda() = { cr: ExecutionCRD -> cr.status.executionDuration }
 
-    fun setExecutionState(resourceName: String, status: ExecutionStates): Boolean {
-        super.setState(resourceName) { cr -> cr.status.executionState = status.value; cr }
+    fun setExecutionState(resourceName: String, status: ExecutionState): Boolean {
+        super.setState(resourceName) { cr -> cr.status.executionState = status; cr }
         return blockUntilStateIsSet(resourceName, status.value, getExecutionLambda())
     }
 
-    fun getExecutionState(resourceName: String): ExecutionStates {
+    fun getExecutionState(resourceName: String): ExecutionState {
         val status = this.getState(resourceName, getExecutionLambda())
         return if (status.isNullOrBlank()) {
-            ExecutionStates.NO_STATE
+            ExecutionState.NO_STATE
         } else {
-            ExecutionStates.values().first { it.value == status }
+            ExecutionState.values().first { it.value == status }
         }
     }
 

@@ -14,7 +14,7 @@ import theodolite.benchmark.KubernetesBenchmark
 @Version("v1")
 @Group("theodolite.com")
 @Kind("benchmark")
-class BenchmarkCRD : CustomResource<KubernetesBenchmark, BenchmarkStatus>(), Namespaced, HasMetadata {
+class BenchmarkCRD : CustomResource<KubernetesBenchmark, BenchmarkStatus>(), Namespaced {
 
     override fun initSpec(): KubernetesBenchmark {
         return KubernetesBenchmark()
