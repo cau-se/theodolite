@@ -12,7 +12,14 @@ import theodolite.benchmark.BenchmarkExecution
 @Version("v1")
 @Group("theodolite.com")
 @Kind("execution")
-class ExecutionCRD(
-    var spec: BenchmarkExecution = BenchmarkExecution(),
-    var status: ExecutionStatus = ExecutionStatus()
-) : CustomResource<BenchmarkExecution, ExecutionStatus>(), Namespaced
+class ExecutionCRD: CustomResource<BenchmarkExecution, ExecutionStatus>(), Namespaced {
+
+    override fun initSpec(): BenchmarkExecution {
+        return BenchmarkExecution()
+    }
+
+    override fun initStatus(): ExecutionStatus {
+         return ExecutionStatus()
+    }
+
+}
