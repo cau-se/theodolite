@@ -39,17 +39,16 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
         return blockUntilStateIsSet(resourceName, durationToK8sString(duration), getDurationLambda())
     }
 
-    fun getDurationState(resourceName: String): String {
+    fun getDurationStateAsK8sString(resourceName: String): String {
         val status = getState(resourceName, getDurationLambda())
         return if (status.isNullOrBlank()) "-" else status
     }
 
     private fun durationToK8sString(duration: Duration): String {
-        val sec = duration.seconds
         return when {
-            sec <= 120 -> "${sec}s" // max 120s
-            sec < 60 * 99 -> "${duration.toMinutes()}m" // max 99m
-            sec < 60 * 60 * 99 -> "${duration.toHours()}h"   // max 99h
+            duration <= Duration.ofSeconds(2)  -> "${duration.toSeconds()}s"
+            duration < Duration.ofMinutes(99) -> "${duration.toMinutes()}m"
+            duration < Duration.ofHours(99) -> "${duration.toHours()}h"
             else -> "${duration.toDays()}d + ${duration.minusDays(duration.toDays()).toHours()}h"
         }
     }

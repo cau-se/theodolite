@@ -61,7 +61,7 @@ class StateHandlerTest {
     @DisplayName("Test empty duration state")
     fun executionWithoutDurationStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
-        assertEquals("-", handler.getDurationState("example-execution"))
+        assertEquals("-", handler.getDurationStateAsK8sString("example-execution"))
     }
 
     @Test
@@ -79,6 +79,6 @@ class StateHandlerTest {
         val handler = ExecutionStateHandler(client = server.client)
 
         assertTrue(handler.setDurationState("example-execution", Duration.ofMillis(100)))
-        assertEquals("0s", handler.getDurationState("example-execution"))
+        assertEquals("0s", handler.getDurationStateAsK8sString("example-execution"))
     }
 }
