@@ -152,7 +152,7 @@ class TheodoliteController(
     private fun getNextExecution(): BenchmarkExecution? {
         val comparator = ExecutionStateComparator(ExecutionState.RESTART)
         val availableBenchmarkNames = getBenchmarks()
-            .filter { it.status.resourceSetsState == BenchmarkState.READY.value }
+            .filter { it.status.resourceSetsState == BenchmarkState.READY }
             .map { it.spec }
             .map { it.name }
 

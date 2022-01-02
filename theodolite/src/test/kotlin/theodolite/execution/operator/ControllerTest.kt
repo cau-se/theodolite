@@ -40,7 +40,7 @@ class ControllerTest {
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
-        benchmark1.getCR().status.resourceSetsState = BenchmarkState.READY.value
+        benchmark1.getCR().status.resourceSetsState = BenchmarkState.READY
         val benchmark2 = BenchmarkCRDummy(name = "Test-Benchmark-123")
         benchmarkResourceList.items = listOf(benchmark1.getCR(), benchmark2.getCR())
 
