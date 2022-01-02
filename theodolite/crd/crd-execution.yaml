@@ -133,10 +133,10 @@ spec:
                 description: ""
                 type: string
               executionDuration:
-                description: "Duration of the execution in seconds"
+                description: "Duration of the execution"
                 type: string
     additionalPrinterColumns:
-    - name: STATUS
+    - name: Status
       type: string
       description: State of the execution
       jsonPath: .status.executionState
