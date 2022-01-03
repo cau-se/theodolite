@@ -22,7 +22,6 @@ const val CREATED_BY_LABEL_VALUE = "theodolite"
  *
  * @see BenchmarkExecution
  * @see KubernetesBenchmark
- * @see ConcurrentLinkedDeque
  */
 
 class TheodoliteController(
@@ -34,7 +33,6 @@ class TheodoliteController(
     lateinit var executor: TheodoliteExecutor
 
     /**
-     *
      * Runs the TheodoliteController forever.
      */
     fun run() {

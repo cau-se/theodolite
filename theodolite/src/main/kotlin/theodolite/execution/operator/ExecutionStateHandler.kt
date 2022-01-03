@@ -11,10 +11,9 @@ import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 
 class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
-    AbstractStateHandler<ExecutionCRD, BenchmarkExecutionList, ExecutionStatus>(
+    AbstractStateHandler<ExecutionCRD>(
         client = client,
-        crd = ExecutionCRD::class.java,
-        crdList = BenchmarkExecutionList::class.java
+        crd = ExecutionCRD::class.java
     ) {
 
     private var runExecutionDurationTimer: AtomicBoolean = AtomicBoolean(false)
@@ -24,7 +23,7 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
     private fun getDurationLambda() = { cr: ExecutionCRD -> cr.status.executionDuration }
 
     fun setExecutionState(resourceName: String, status: ExecutionStates): Boolean {
-        setState(resourceName) { cr -> cr.status.executionState = status.value; cr }
+        super.setState(resourceName) { cr -> cr.status.executionState = status.value; cr }
         return blockUntilStateIsSet(resourceName, status.value, getExecutionLambda())
     }
 
@@ -44,11 +43,7 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
 
     fun getDurationState(resourceName: String): String {
         val status = getState(resourceName, getDurationLambda())
-        return if (status.isNullOrBlank()) {
-            "-"
-        } else {
-            status
-        }
+        return if (status.isNullOrBlank()) "-" else status
     }
 
     private fun durationToK8sString(duration: Duration): String {

@@ -1,6 +1,9 @@
 package theodolite.execution.operator
 
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -12,9 +15,13 @@ import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.model.crd.ExecutionStates
 import java.time.Duration
 
+@WithKubernetesTestServer
+@QuarkusTest
 class StateHandlerTest {
     private val testResourcePath = "./src/test/resources/k8s-resource-files/"
-    private val server = KubernetesServer(false, true)
+
+    @KubernetesTestServer
+    private lateinit var server: KubernetesServer
 
     @BeforeEach
     fun setUp() {
