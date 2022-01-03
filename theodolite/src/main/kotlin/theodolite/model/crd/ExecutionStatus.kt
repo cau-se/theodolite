@@ -10,22 +10,28 @@ import io.fabric8.kubernetes.api.model.Duration
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.MicroTime
 import io.fabric8.kubernetes.api.model.Namespaced
+import java.time.Clock
 import java.time.Instant
 import java.time.Duration as JavaDuration
 
 
 @JsonDeserialize
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ExecutionStatus : KubernetesResource, Namespaced {
+class ExecutionStatus(
+    private val clock: Clock = Clock.systemUTC()
+) : KubernetesResource, Namespaced {
+
     var executionState: ExecutionState = ExecutionState.NO_STATE
+
     var startTime: MicroTime? = null
+
     var completionTime: MicroTime? = null
 
     @get:JsonSerialize(using = DurationSerializer::class)
     val executionDuration: Duration?
         get() {
             val startTime = this.startTime?.toInstant()
-            val completionTime = this.completionTime?.toInstant() ?: Instant.now()!!
+            val completionTime = this.completionTime?.toInstant() ?: clock.instant()!!
             return startTime?.let {Duration(JavaDuration.between(it, completionTime)) }
         }
 

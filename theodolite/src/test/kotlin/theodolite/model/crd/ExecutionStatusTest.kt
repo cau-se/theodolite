@@ -3,11 +3,14 @@ package theodolite.model.crd
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import io.fabric8.kubernetes.api.model.MicroTime
+import io.fabric8.kubernetes.api.model.Duration as K8sDuration
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 
 
 internal class ExecutionStatusTest {
@@ -61,6 +64,43 @@ internal class ExecutionStatusTest {
     }
 
     @Test
+    fun `test duration for no start and completion time`() {
+        val executionStatus = ExecutionStatus()
+        assertNull(executionStatus.startTime)
+        assertNull(executionStatus.completionTime)
+        assertNull(executionStatus.executionDuration)
+    }
+
+    @Test
+    fun `test duration for no start but completion time`() {
+        val executionStatus = ExecutionStatus()
+        executionStatus.completionTime = MicroTime(Instant.parse("2022-01-02T18:59:20.492103Z").toString())
+        assertNull(executionStatus.startTime)
+        assertNull(executionStatus.executionDuration)
+    }
+
+    @Test
+    fun `test duration for non completed execution`() {
+        val startInstant = Instant.parse("2022-01-02T18:59:20.492103Z")
+        val sinceStart = Duration.ofMinutes(5)
+        val executionStatus = ExecutionStatus(clock = Clock.fixed(startInstant.plus(sinceStart), ZoneId.systemDefault()))
+        executionStatus.startTime = MicroTime(startInstant.toString())
+        assertNotNull(executionStatus.executionDuration)
+        assertEquals(K8sDuration(sinceStart), executionStatus.executionDuration)
+    }
+
+    @Test
+    fun `test duration for completed execution`() {
+        val startInstant = Instant.parse("2022-01-02T18:59:20.492103Z")
+        val sinceStart = Duration.ofMinutes(5)
+        val executionStatus = ExecutionStatus()
+        executionStatus.startTime = MicroTime(startInstant.toString())
+        executionStatus.completionTime = MicroTime(startInstant.plus(sinceStart).toString())
+        assertNotNull(executionStatus.executionDuration)
+        assertEquals(K8sDuration(sinceStart), executionStatus.executionDuration)
+    }
+
+    @Test
     fun testDurationSerialization() {
         val objectMapper = ObjectMapper()
         val executionStatus = ExecutionStatus()
@@ -69,8 +109,21 @@ internal class ExecutionStatusTest {
         executionStatus.completionTime = MicroTime(startInstant.plus(Duration.ofMinutes(15)).toString())
         val jsonString = objectMapper.writeValueAsString(executionStatus)
         val json = objectMapper.readTree(jsonString)
-        val jsonField = json.get("executionDuration").asText()
-        assertEquals("15m", jsonField)
+        val jsonField = json.get("executionDuration")
+        assertTrue(jsonField.isTextual)
+        assertEquals("15m", jsonField.asText())
+    }
+
+    @Test
+    fun testNotStartedDurationSerialization() {
+        val objectMapper = ObjectMapper()
+        val executionStatus = ExecutionStatus()
+        val jsonString = objectMapper.writeValueAsString(executionStatus)
+        val json = objectMapper.readTree(jsonString)
+
+        assertTrue(json.get("startTime").isNull)
+        assertTrue(json.get("completionTime").isNull)
+        assertTrue(json.get("executionDuration").isNull)
     }
 
     @Test
