@@ -15,8 +15,8 @@ import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.model.crd.ExecutionState
 import java.time.Duration
 
-@WithKubernetesTestServer
 @QuarkusTest
+@WithKubernetesTestServer
 class StateHandlerTest {
     private val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
@@ -58,13 +58,6 @@ class StateHandlerTest {
     }
 
     @Test
-    @DisplayName("Test empty duration state")
-    fun executionWithoutDurationStatusTest() {
-        val handler = ExecutionStateHandler(client = server.client)
-        assertEquals("-", handler.getDurationStateAsK8sString("example-execution"))
-    }
-
-    @Test
     @DisplayName("Test set and get of the execution state")
     fun executionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
@@ -73,12 +66,4 @@ class StateHandlerTest {
         assertEquals(ExecutionState.INTERRUPTED, handler.getExecutionState("example-execution"))
     }
 
-    @Test
-    @DisplayName("Test set and get of the duration state")
-    fun durationStatusTest() {
-        val handler = ExecutionStateHandler(client = server.client)
-
-        assertTrue(handler.setDurationState("example-execution", Duration.ofMillis(100)))
-        assertEquals("0s", handler.getDurationStateAsK8sString("example-execution"))
-    }
 }

@@ -135,6 +135,14 @@ spec:
               executionDuration:
                 description: "Duration of the execution"
                 type: string
+              startTime:
+                description: "Time this execution started"
+                type: string
+                format: date-time
+              completionTime:
+                description: "Time when this execution was stopped"
+                type: string
+                format: date-time
     additionalPrinterColumns:
     - name: Status
       type: string

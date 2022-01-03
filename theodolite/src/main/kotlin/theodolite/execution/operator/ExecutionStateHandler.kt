@@ -1,10 +1,10 @@
 package theodolite.execution.operator
 
+import io.fabric8.kubernetes.api.model.MicroTime
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.ExecutionState
 import java.lang.Thread.sleep
-import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -18,55 +18,37 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
 
     private fun getExecutionLambda() = { cr: ExecutionCRD -> cr.status.executionState.value }
 
-    private fun getDurationLambda() = { cr: ExecutionCRD -> cr.status.executionDuration }
-
     fun setExecutionState(resourceName: String, status: ExecutionState): Boolean {
         super.setState(resourceName) { cr -> cr.status.executionState = status; cr }
         return blockUntilStateIsSet(resourceName, status.value, getExecutionLambda())
     }
 
     fun getExecutionState(resourceName: String): ExecutionState {
-        val status = this.getState(resourceName, getExecutionLambda())
-        return if (status.isNullOrBlank()) {
-            ExecutionState.NO_STATE
-        } else {
-            ExecutionState.values().first { it.value == status }
-        }
+        val statusString = this.getState(resourceName, getExecutionLambda())
+        return ExecutionState.values().first { it.value == statusString }
     }
 
-    fun setDurationState(resourceName: String, duration: Duration): Boolean {
-        setState(resourceName) { cr -> cr.status.executionDuration = durationToK8sString(duration); cr }
-        return blockUntilStateIsSet(resourceName, durationToK8sString(duration), getDurationLambda())
-    }
-
-    fun getDurationStateAsK8sString(resourceName: String): String {
-        val status = getState(resourceName, getDurationLambda())
-        return if (status.isNullOrBlank()) "-" else status
-    }
-
-    private fun durationToK8sString(duration: Duration): String {
-        return when {
-            duration <= Duration.ofSeconds(2)  -> "${duration.toSeconds()}s"
-            duration < Duration.ofMinutes(99) -> "${duration.toMinutes()}m"
-            duration < Duration.ofHours(99) -> "${duration.toHours()}h"
-            else -> "${duration.toDays()}d + ${duration.minusDays(duration.toDays()).toHours()}h"
-        }
+    private fun updateDurationState(resourceName: String) {
+        super.setState(resourceName) { cr -> cr }
     }
 
     fun startDurationStateTimer(resourceName: String) {
         this.runExecutionDurationTimer.set(true)
-        val startTime = Instant.now().toEpochMilli()
+
+        super.setState(resourceName) { cr -> cr.status.completionTime = null; cr }
+        super.setState(resourceName) { cr -> cr.status.startTime = MicroTime(Instant.now().toString()); cr }
+
         Thread {
             while (this.runExecutionDurationTimer.get()) {
-                val duration = Duration.ofMillis(Instant.now().minusMillis(startTime).toEpochMilli())
-                setDurationState(resourceName, duration)
+                updateDurationState(resourceName)
                 sleep(100 * 1)
             }
         }.start()
     }
 
     @Synchronized
-    fun stopDurationStateTimer() {
+    fun stopDurationStateTimer(resourceName: String) {
+        super.setState(resourceName) { cr -> cr.status.completionTime = MicroTime(Instant.now().toString()); cr }
         this.runExecutionDurationTimer.set(false)
         sleep(100 * 2)
     }
