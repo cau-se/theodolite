@@ -5,11 +5,12 @@ nav_order: 1
 permalink: /
 ---
 
-# Theodolite
+![Theodolite](assets/theodolite-stacked-transparent.svg){: .d-block .mx-auto .theodolite-logo }
 
-> A theodolite is a precision optical instrument for measuring angles between designated visible points in the horizontal and vertical planes.  -- <cite>[Wikipedia](https://en.wikipedia.org/wiki/Theodolite)</cite>
+---
 
 Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines.
+{: .fs-6 .fw-300 }
 
 [Get started now](quickstart){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Learn the underlying concepts](benchmarks-and-executions){: .btn .fs-5 .mb-4 .mb-md-0 }
