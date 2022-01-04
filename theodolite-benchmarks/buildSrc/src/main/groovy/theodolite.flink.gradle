@@ -6,9 +6,6 @@ plugins {
 
 applicationDefaultJvmArgs = ["-Dlog4j.configuration=log4j.properties"]
 
-
-run.classpath = sourceSets.main.runtimeClasspath
-
 jar {
     manifest {
         attributes 'Built-By': System.getProperty('user.name'),
@@ -17,7 +14,6 @@ jar {
 }
 
 shadowJar {
-    configurations = [project.configurations.compile]
     zip64 true
 }
 
@@ -43,7 +39,6 @@ dependencies {
     implementation('org.industrial-devops:titan-ccp-common:0.1.0-flink-ready-SNAPSHOT') { changing = true }
     implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
 
-    // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
     implementation 'org.apache.kafka:kafka-clients:2.2.0'
     implementation 'com.google.guava:guava:24.1-jre'
     implementation 'com.google.code.gson:gson:2.8.2'
