@@ -26,7 +26,6 @@ dependencies {
     implementation('io.fabric8:kubernetes-model-common:5.4.1'){force = true}
     implementation 'org.apache.kafka:kafka-clients:2.7.0'
     implementation 'khttp:khttp:1.0.0'
-    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
 
     compile 'junit:junit:4.12'
 
