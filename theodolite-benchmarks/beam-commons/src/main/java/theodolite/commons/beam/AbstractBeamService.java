@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
- * Abstraction of a beam microservice.
+ * Abstraction of a Beam microservice.
  * Encapsulates the corresponding {@link PipelineOptions} and the beam Runner.
  */
 public class AbstractBeamService {
