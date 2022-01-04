@@ -54,7 +54,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
                 .writingOutput(out)
                 .writingError(error)
                 .writingErrorChannel(errChannelStream)
-                .usingListener(MyPodExecListener(execLatch))
+                .usingListener(ActionCommandListener(execLatch))
                 .exec(*command)
 
             val latchTerminationStatus = execLatch.await(timeout, TimeUnit.SECONDS);
@@ -105,7 +105,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
             }.toInt()
     }
 
-    fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
+    private fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
         for (i in 1..tries) {
 
             try {
@@ -136,13 +136,13 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         }
     }
 
-    private class MyPodExecListener(val execLatch: CountDownLatch) : ExecListener {
+    private class ActionCommandListener(val execLatch: CountDownLatch) : ExecListener {
         override fun onOpen(response: Response) {
         }
 
         override fun onFailure(throwable: Throwable, response: Response) {
             execLatch.countDown()
-            throw ActionCommandFailedException("Some error encountered while executing action.", throwable)
+            throw ActionCommandFailedException("Some error encountered while executing action, caused ${throwable.message})")
         }
 
         override fun onClose(code: Int, reason: String) {
