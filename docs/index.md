@@ -17,7 +17,11 @@ Theodolite is a framework for benchmarking the horizontal and vertical scalabili
 
 ---
 
-More content...
+* Cloud-native benchmarking by using CRDs
+* Operator based (easy to use)
+* Arbitrary load and resource types
+* statistical grounding + time-efficient execution
+* Ready-to-use benchmarks for event-driven microservices that use distributed stream processing engines
 
 <!--
 ## Theodolite Benchmarking Tool
@@ -35,6 +39,6 @@ Theodolite comes with 4 application benchmarks, which are based on typical use c
 
 ## How to Cite
 
-If you use Theodolite, please cite
+If you use Theodolite, please cite:
 
 > Sören Henning and Wilhelm Hasselbring. (2021). Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures. Big Data Research, Volume 25. DOI: [10.1016/j.bdr.2021.100209](https://doi.org/10.1016/j.bdr.2021.100209). arXiv:[2009.00304](https://arxiv.org/abs/2009.00304).
