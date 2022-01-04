@@ -4,14 +4,14 @@ import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodBuilder
 import io.fabric8.kubernetes.api.model.PodListBuilder
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
-import io.fabric8.kubernetes.client.server.mock.OutputStreamMessage
 import io.fabric8.kubernetes.client.utils.Utils
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import theodolite.execution.operator.TheodoliteController
 import theodolite.execution.operator.TheodoliteOperator
 import theodolite.util.ActionCommandFailedException
-
 
 @QuarkusTest
 class ActionCommandTest {
@@ -40,7 +40,6 @@ class ActionCommandTest {
         val podList = PodListBuilder().build()
         podList.items.add(0, ready)
 
-
         server
             .expect()
             .withPath("/api/v1/namespaces/test/pods?labelSelector=${Utils.toUrlEncoded("app=pod")}")
@@ -58,7 +57,15 @@ class ActionCommandTest {
             .expect()
             .withPath("/api/v1/namespaces/test/pods/pod1/exec?command=ls&stdout=true&stderr=true")
             .andUpgradeToWebSocket()
-            .open(OutputStreamMessage("Test-Output"))
+            .open(ErrorChannelMessage("{\"metadata\":{},\"status\":\"Success\"}\n"))
+            .done()
+            .always()
+
+        server
+            .expect()
+            .withPath("/api/v1/namespaces/test/pods/pod1/exec?command=error-command&stdout=true&stderr=true")
+            .andUpgradeToWebSocket()
+            .open(ErrorChannelMessage("{\"metadata\":{},\"status\":\"failed\", \"details\":{}}\n"))
             .done()
             .always()
     }
@@ -88,11 +95,11 @@ class ActionCommandTest {
 
     @Test
     fun testGetPodName() {
-        Assertions.assertEquals("pod1", ActionCommand(client = server.client).getPodName(mutableMapOf("app" to "pod")))
+        assertEquals("pod1", ActionCommand(client = server.client).getPodName(mutableMapOf("app" to "pod")))
     }
 
     @Test
-    fun testAction() {
+    fun testActionSuccess() {
         val action = Action()
         action.selector = ActionSelector()
         action.selector.pod = PodSelector()
@@ -101,7 +108,22 @@ class ActionCommandTest {
         action.exec.command = arrayOf("ls")
         action.exec.timeoutSeconds = 10L
 
-        val e = assertThrows<ActionCommandFailedException> { run { action.exec(server.client) } }
-        assert(e.message.equals("Could not determine the exit code, no information given"))
+        action.exec(server.client)
+        assertEquals(
+            "/api/v1/namespaces/test/pods/pod1/exec?command=ls&stdout=true&stderr=true",
+            server.lastRequest.path)
+    }
+
+    @Test
+    fun testActionFailed() {
+        val action = Action()
+        action.selector = ActionSelector()
+        action.selector.pod = PodSelector()
+        action.selector.pod.matchLabels = mutableMapOf("app" to "pod")
+        action.exec = Command()
+        action.exec.command = arrayOf("error-command")
+        action.exec.timeoutSeconds = 10L
+
+        assertThrows<ActionCommandFailedException> { run { action.exec(server.client) } }
     }
 }

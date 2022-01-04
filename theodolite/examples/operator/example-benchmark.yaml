@@ -21,7 +21,7 @@ spec:
             matchLabels:
               app: busybox1
         exec:
-          command: ["rm", "test-folder"]
+          command: ["touch", "test-folder"]
           timeoutSeconds: 90
   loadGenerator:
     resources:

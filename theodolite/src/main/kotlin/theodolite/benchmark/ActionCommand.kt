@@ -76,8 +76,9 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
                 }
             }
         }
-        logger.debug { "Execution Output Stream is \n $out" }
-        logger.debug { "Execution Error Stream is \n $error" }
+        logger.info { "Execution Output Stream is \n $out" }
+        logger.info { "Execution Error Stream is \n $error" }
+        logger.info { "ERRORCHANNEL IS: \n $errChannelStream" }
         return getExitCode(errChannelStream)
     }
 
