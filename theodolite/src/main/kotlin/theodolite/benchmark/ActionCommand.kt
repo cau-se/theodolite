@@ -142,7 +142,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
 
         override fun onFailure(throwable: Throwable, response: Response) {
             execLatch.countDown()
-            throw ActionCommandFailedException("Some error encountered while executing action: ${throwable.printStackTrace()}")
+            throw ActionCommandFailedException("Some error encountered while executing action.", throwable)
         }
 
         override fun onClose(code: Int, reason: String) {
