@@ -5,4 +5,4 @@ ENV MAX_SOURCE_PARALLELISM=1024
 ADD build/distributions/uc4-beam-samza.tar /
 ADD samza-standalone.properties /
 
-CMD /uc4-beam-samza/bin/uc4-beam-samza --configFactory=org.apache.samza.config.factories.PropertiesConfigFactory --configFilePath=samza-standalone.properties --samzaExecutionEnvironment=STANDALONE --maxSourceParallelism=$MAX_SOURCE_PARALLELISM --enableMetrics=false --jobInstance=$HOSTNAME
+CMD /uc4-beam-samza/bin/uc4-beam-samza --configFactory=org.apache.samza.config.factories.PropertiesConfigFactory --configFilePath=samza-standalone.properties --samzaExecutionEnvironment=STANDALONE --maxSourceParallelism=$MAX_SOURCE_PARALLELISM --enableMetrics=false
