@@ -3,26 +3,12 @@ kind: benchmark
 metadata:
   name: uc1-kstreams
 spec:
-  infrastructure:
-    resources:
-      - configMap:
-          name: "example-configmap"
-          files:
-            - "uc1-kstreams-deployment.yaml"
   sut:
     resources:
       - configMap:
          name: "example-configmap"
          files:
            - "uc1-kstreams-deployment.yaml"
-    beforeActions:
-      - selector:
-          pod:
-            matchLabels:
-              app: busybox1
-        exec:
-          command: ["touch", "test-folder"]
-          timeoutSeconds: 90
   loadGenerator:
     resources:
       - configMap:
@@ -30,7 +16,6 @@ spec:
          files:
             - uc1-load-generator-service.yaml
             - uc1-load-generator-deployment.yaml
-    beforeActions: []
   resourceTypes:
     - typeName: "Instances"
       patchers:

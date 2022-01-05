@@ -47,8 +47,6 @@ class KubernetesBenchmarkDeployment(
      */
     override fun setup() {
         sutBeforeActions.forEach { it.exec(client = client) }
-        loadGenBeforeActions.forEach { it.exec(client = client) }
-
         val kafkaTopics = this.topics.filter { !it.removeOnly }
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
@@ -56,6 +54,8 @@ class KubernetesBenchmarkDeployment(
         logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
         Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
         loadGenResources.forEach { kubernetesManager.deploy(it) }
+        loadGenBeforeActions.forEach { it.exec(client = client) }
+
     }
 
     /**
