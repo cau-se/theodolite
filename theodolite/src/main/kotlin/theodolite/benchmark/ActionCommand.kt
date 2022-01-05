@@ -22,7 +22,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
     var out: ByteArrayOutputStream = ByteArrayOutputStream()
     var error: ByteArrayOutputStream = ByteArrayOutputStream()
     var errChannelStream: ByteArrayOutputStream = ByteArrayOutputStream()
-    private val execLatch = CountDownLatch(1);
+    private val execLatch = CountDownLatch(1)
 
     /**
      * Executes an action command.
@@ -57,22 +57,22 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
                 .usingListener(ActionCommandListener(execLatch))
                 .exec(*command)
 
-            val latchTerminationStatus = execLatch.await(timeout, TimeUnit.SECONDS);
+            val latchTerminationStatus = execLatch.await(timeout, TimeUnit.SECONDS)
             if (!latchTerminationStatus) {
                 throw ActionCommandFailedException("Latch could not terminate within specified time")
             }
-            execWatch.close();
+            execWatch.close()
         } catch (e: Exception) {
             when (e) {
                 is InterruptedException -> {
-                    Thread.currentThread().interrupt();
+                    Thread.currentThread().interrupt()
                     throw ActionCommandFailedException("Interrupted while waiting for the exec", e)
                 }
                 is KubernetesClientException -> {
                     throw ActionCommandFailedException("Error while executing command", e)
                 }
                 else -> {
-                    throw  e
+                    throw e
                 }
             }
         }
@@ -105,7 +105,15 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
             }.toInt()
     }
 
-    private fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
+    /**
+     * Find pod with matching labels. The matching pod must have the status `Running`.
+     *
+     * @param matchLabels the match labels
+     * @param tries specifies the number of times to look for a  matching pod. When pods are newly created,
+     * it can take a while until the status is ready and the pod can be selected.
+     * @return the name of the pod or throws [ActionCommandFailedException]
+     */
+    fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
         for (i in 1..tries) {
 
             try {
@@ -118,7 +126,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         throw ActionCommandFailedException("Couldn't find any pod that matches the specified labels.")
     }
 
-    fun getPodName(matchLabels: MutableMap<String, String>): String {
+    private fun getPodName(matchLabels: MutableMap<String, String>): String {
         return try {
             val podNames = this.client
                 .pods()

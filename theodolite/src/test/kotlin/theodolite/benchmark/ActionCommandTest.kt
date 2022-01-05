@@ -94,7 +94,7 @@ class ActionCommandTest {
 
     @Test
     fun testGetPodName() {
-        assertEquals("pod1", ActionCommand(client = server.client).getPodName(mutableMapOf("app" to "pod")))
+        assertEquals("pod1", ActionCommand(client = server.client).getPodName(mutableMapOf("app" to "pod"), 1))
     }
 
     @Test
