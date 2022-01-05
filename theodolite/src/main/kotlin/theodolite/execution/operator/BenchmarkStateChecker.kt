@@ -1,6 +1,7 @@
 package theodolite.execution.operator
 
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
@@ -129,21 +130,41 @@ class BenchmarkStateChecker(
      */
     fun checkIfResourceIsInfrastructure(resourcesSets: List<ResourceSets>, selector: ActionSelector): Boolean {
         val resources = resourcesSets.flatMap { it.loadResourceSet(this.client) }
-
-        return if (resources.isEmpty()) {
-            false
-        } else {
-            resources.map { it.second }
-                .filterIsInstance<Deployment>()
-                .filter { it.metadata.labels.containsMatchLabels(selector.pod.matchLabels) }
-                .any {
-                    if (selector.container.isNotEmpty()) {
-                        it.spec.template.spec.containers.map { it.name }.contains(selector.container)
-                    } else {
-                        true
-                    }
-                }
+        if (resources.isEmpty()) {
+            return false
         }
+
+        var podExist = resources.map { it.second }
+            .filterIsInstance<Deployment>()
+            .filter { it.metadata.labels.containsMatchLabels(selector.pod.matchLabels) }
+            .any {
+                if (selector.container.isNotEmpty()) {
+                    it.spec.template.spec.containers.map { it.name }.contains(selector.container)
+                } else {
+                    true
+                }
+            }
+
+        if (podExist) {
+            return true
+        }
+
+        podExist = resources.map { it.second }
+            .filterIsInstance<StatefulSet>()
+            .filter { it.metadata.labels.containsMatchLabels(selector.pod.matchLabels) }
+            .any {
+                if (selector.container.isNotEmpty()) {
+                    it.spec.template.spec.containers.map { it.name }.contains(selector.container)
+                } else {
+                    true
+                }
+            }
+
+        if (podExist) {
+            return true
+        }
+
+        return false
     }
 
     /**
@@ -169,7 +190,7 @@ class BenchmarkStateChecker(
     }
 }
 
-private fun <K, V> MutableMap<K, V>.containsMatchLabels(matchLabels: MutableMap<V, V>) : Boolean {
+private fun <K, V> MutableMap<K, V>.containsMatchLabels(matchLabels: MutableMap<V, V>): Boolean {
     for (kv in matchLabels) {
         if (kv.value != this[kv.key as K]) {
             return false

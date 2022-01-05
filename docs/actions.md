@@ -15,6 +15,8 @@ The necessary infrastructure for an execution can be defined in the benchmark ma
 ## Action Commands
 Theodolite allows to execute commands on running pods (similar to the `kubectl exec -it <pod-name> -- <command>` command). This commands can be run either before (via so called `beforeActions`) or after (via so called `afterActions`) an experiment is executed.
 
+Theodolite checks if all required pods are available for the specified actions (i.e. the pods must either be defined as infrastructure or already deployed in the cluster). If not all pods/resources are available, the benchmark will not be set as `Ready`. Consequently, an action cannot be executed on a pod that is defined as an SUT or loadGen resource.
+
 ### Example
 
 ```yaml
