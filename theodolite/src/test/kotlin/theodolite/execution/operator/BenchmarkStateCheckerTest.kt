@@ -115,16 +115,6 @@ internal class BenchmarkStateCheckerTest {
         return actionSelector
     }
 
-    @Test
-    fun checkIfResourceIsDeployed() {
-        // pod with matching labels are deployed
-        assertTrue(checker.checkIfResourceIsDeployed(getActionSelector("app" to "pod1")))
-
-        // no pod with matching labels are deployed
-        assertFalse(checker.checkIfResourceIsDeployed(getActionSelector("app" to "pod0")))
-    }
-
-
     private fun createAndDeployConfigmapResourceSet(): ResourceSets {
         // create test deployment
         val resourceBuilder = DeploymentBuilder()
@@ -151,6 +141,15 @@ internal class BenchmarkStateCheckerTest {
         val set = ResourceSets()
         set.configMap = resourceSet
         return set
+    }
+
+    @Test
+    fun checkIfResourceIsDeployed() {
+        // pod with matching labels are deployed
+        assertTrue(checker.checkIfResourceIsDeployed(getActionSelector("app" to "pod1")))
+
+        // no pod with matching labels are deployed
+        assertFalse(checker.checkIfResourceIsDeployed(getActionSelector("app" to "pod0")))
     }
 
     @Test
