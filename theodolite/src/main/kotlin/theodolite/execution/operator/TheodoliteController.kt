@@ -29,7 +29,7 @@ class TheodoliteController(
     private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
     private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
     private val executionStateHandler: ExecutionStateHandler,
-    private val benchmarkSateChecker: BenchmarkStateChecker
+    private val benchmarkStateChecker: BenchmarkStateChecker
 ) {
     lateinit var executor: TheodoliteExecutor
 
@@ -41,7 +41,7 @@ class TheodoliteController(
         sleep(5000) // wait until all states are correctly set
         while (true) {
             reconcile()
-            benchmarkSateChecker.start(true)
+            benchmarkStateChecker.start(true)
             sleep(2000)
         }
     }

@@ -134,7 +134,7 @@ class TheodoliteOperator {
                 benchmarkCRDClient = getBenchmarkClient(client),
                 executionCRDClient = getExecutionClient(client),
                 executionStateHandler = executionStateHandler,
-                benchmarkSateChecker = benchmarkStateChecker
+                benchmarkStateChecker = benchmarkStateChecker
             )
         }
         return this.controller
