@@ -1,5 +1,7 @@
 FROM openjdk:11-slim
 
+ENV MAX_SOURCE_PARALLELISM=1024
+
 ADD build/distributions/uc3-beam-samza.tar /
 ADD samza-standalone.properties /
 
