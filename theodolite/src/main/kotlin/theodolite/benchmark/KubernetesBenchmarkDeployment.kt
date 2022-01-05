@@ -46,15 +46,15 @@ class KubernetesBenchmarkDeployment(
      *  - Deploy the needed resources.
      */
     override fun setup() {
-        sutBeforeActions.forEach { it.exec(client = client) }
         val kafkaTopics = this.topics.filter { !it.removeOnly }
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
+        sutBeforeActions.forEach { it.exec(client = client) }
         appResources.forEach { kubernetesManager.deploy(it) }
         logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
         Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
-        loadGenResources.forEach { kubernetesManager.deploy(it) }
         loadGenBeforeActions.forEach { it.exec(client = client) }
+        loadGenResources.forEach { kubernetesManager.deploy(it) }
 
     }
 
@@ -66,14 +66,14 @@ class KubernetesBenchmarkDeployment(
      */
     override fun teardown() {
         loadGenResources.forEach { kubernetesManager.remove(it) }
+        loadGenAfterActions.forEach { it.exec(client = client) }
         appResources.forEach { kubernetesManager.remove(it) }
+        sutAfterActions.forEach { it.exec(client = client) }
         kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         ResourceByLabelHandler(client).removePods(
             labelName = LAG_EXPORTER_POD_LABEL_NAME,
             labelValue = LAG_EXPORTER_POD_LABEL_VALUE
         )
-        sutAfterActions.forEach { it.exec(client = client) }
-        loadGenAfterActions.forEach { it.exec(client = client) }
         logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything come down." }
         Thread.sleep(Duration.ofSeconds(afterTeardownDelay).toMillis())
     }
