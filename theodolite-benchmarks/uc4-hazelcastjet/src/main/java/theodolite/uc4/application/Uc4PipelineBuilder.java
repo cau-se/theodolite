@@ -208,7 +208,7 @@ public class Uc4PipelineBuilder {
           // Transformed Data
           String[] groupList = groups.toArray(String[]::new);
           SensorGroupKey[] newKeyList = new SensorGroupKey[groupList.length];
-          List<Entry<SensorGroupKey, Double>> newEntryList = new ArrayList<Entry<SensorGroupKey, Double>>();
+          List<Entry<SensorGroupKey, Double>> newEntryList = new ArrayList<>();
           for (int i = 0; i < groupList.length; i++) {
             newKeyList[i] = new SensorGroupKey(keyGroupId, groupList[i]);
             newEntryList.add(Util.entry(newKeyList[i], valueInW));
