@@ -235,7 +235,7 @@ deploy-uc4-load-generator:
 
 .theodolite:
   image:
-    name: ghcr.io/graalvm/native-image:java11-21.1.0
+    name: ghcr.io/graalvm/native-image:java11-21.3.0
     entrypoint: [""]
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
