@@ -18,6 +18,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONNECTIONS_FROM_HOST:PLAINTEXT
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_CREATE_TOPICS: "input:3:1,output:3:1,configuration:3:1,aggregation-feedback:3:1"
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
@@ -45,8 +46,8 @@ services:
       NUM_NESTED_GROUPS: 4
   benchmark-jobmanager:
       image: uc4-beam-flink:latest
-      ports:
-        - "8080:8081"
+      #ports:
+      #  - "8080:8081"
       command: >
         standalone-job
         --job-classname application.Uc4BeamFlink
