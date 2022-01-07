@@ -46,8 +46,8 @@ services:
       NUM_NESTED_GROUPS: 4
   benchmark-jobmanager:
       image: uc4-beam-flink:latest
-      ports:
-        - "8080:8081"
+      #ports:
+      #  - "8080:8081"
       command: >
         standalone-job
         --job-classname application.Uc4BeamFlink
