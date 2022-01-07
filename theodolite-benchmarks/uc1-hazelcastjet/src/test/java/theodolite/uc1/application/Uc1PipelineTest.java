@@ -1,6 +1,5 @@
 package theodolite.uc1.application;
 
-import com.google.gson.Gson;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
@@ -28,7 +27,6 @@ import titan.ccp.model.records.ActivePowerRecord;
 @Category(SerialTest.class)
 public class Uc1PipelineTest extends JetTestSupport {
 
-  private static final Gson GSON = new Gson();
   private JetInstance testInstance = null;
   private Pipeline testPipeline = null;
   private StreamStage<String> uc1Topology = null;

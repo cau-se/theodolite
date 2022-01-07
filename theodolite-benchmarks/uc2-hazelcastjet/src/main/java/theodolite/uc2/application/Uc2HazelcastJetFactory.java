@@ -40,9 +40,8 @@ public class Uc2HazelcastJetFactory {
    * JetInstance as a job.
    *
    * @param jobName The name of the job.
-   * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
-  public void runUc2Job(final String jobName) throws IllegalStateException {
+  public void runUc2Job(final String jobName) {
 
     // Check if a Jet Instance for UC2 is set.
     if (this.uc2JetInstance == null) {

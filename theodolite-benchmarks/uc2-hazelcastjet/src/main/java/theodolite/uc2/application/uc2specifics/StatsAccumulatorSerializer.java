@@ -13,11 +13,10 @@ import java.io.IOException;
  */
 public class StatsAccumulatorSerializer implements StreamSerializer<StatsAccumulator> {
 
-  private static final int TYPE_ID = 69420;
+  private static final int TYPE_ID = 69_420;
 
   @Override
   public int getTypeId() {
-    // TODO Auto-generated method stub
     return TYPE_ID;
   }
 

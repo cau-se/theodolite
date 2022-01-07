@@ -18,6 +18,7 @@ import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -120,7 +121,7 @@ public class Uc4PipelineBuilder {
    *         according aggregated values. The data can be further modified or directly be linked to
    *         a Hazelcast Jet sink.
    */
-  public StreamStage<Entry<String, Double>> extendUc4Topology(final Pipeline pipe,//NOPMD
+  public StreamStage<Entry<String, Double>> extendUc4Topology(final Pipeline pipe, //NOPMD
       final StreamSource<Entry<String, ActivePowerRecord>> inputSource,
       final StreamSource<Entry<String, Double>> aggregationSource,
       final StreamSource<Entry<Event, String>> configurationSource, final int windowSize) {
@@ -174,16 +175,11 @@ public class Uc4PipelineBuilder {
     // (3) UC4 Join Configuration and Merges Input/Aggregation Stream
     // [sensorKey , (value,Set<Groups>)]
     final StreamStage<Entry<String, ValueGroup>> joinedStage = mergedInputAndAggregations
-        .mapUsingIMap(
+        .<Set<String>, Entry<String, ValueGroup>>mapUsingIMap(
             SENSOR_PARENT_MAP_NAME,
             (sensorEvent, sensorParentsSet) -> {
-
-              // Get Data
-              @SuppressWarnings("unchecked")
-              Set<String> sensorParentsCasted = (Set<String>) sensorParentsSet;
-
               // Check whether a groupset exists for a key or not
-              if (sensorParentsCasted == null) {
+              if (sensorParentsSet == null) {
                 // No group set exists for this key: return valuegroup with default null group set.
                 Set<String> nullSet = new HashSet<String>();
                 nullSet.add("NULL-GROUPSET");
@@ -192,7 +188,7 @@ public class Uc4PipelineBuilder {
               } else {
                 // Group set exists for this key: return valuegroup with the groupset.
                 ValueGroup valueParentsPair =
-                    new ValueGroup(sensorEvent.getValue(), sensorParentsCasted);
+                    new ValueGroup(sensorEvent.getValue(), sensorParentsSet);
                 // Return solution
                 return Util.entry(sensorEvent.getKey(), valueParentsPair);
               }
@@ -212,8 +208,7 @@ public class Uc4PipelineBuilder {
           // Transformed Data
           String[] groupList = groups.toArray(String[]::new);
           SensorGroupKey[] newKeyList = new SensorGroupKey[groupList.length];
-          ArrayList<Entry<SensorGroupKey, Double>> newEntryList =
-              new ArrayList<Entry<SensorGroupKey, Double>>();
+          List<Entry<SensorGroupKey, Double>> newEntryList = new ArrayList<Entry<SensorGroupKey, Double>>();
           for (int i = 0; i < groupList.length; i++) {
             newKeyList[i] = new SensorGroupKey(keyGroupId, groupList[i]);
             newEntryList.add(Util.entry(newKeyList[i], valueInW));
@@ -269,7 +264,7 @@ public class Uc4PipelineBuilder {
           transformer.constructChildParentsPairs(eventItem.getValue());
 
       // Compare both tables
-      final HashMap<String, Set<String>> updates = new HashMap<String, Set<String>>();
+      final Map<String, Set<String>> updates = new HashMap<>();
       for (final String key : mapFromRegistry.keySet()) {
         if (flatMapStage.containsKey(key)) {
           if (!mapFromRegistry.get(key).equals(flatMapStage.get(key))) {
@@ -281,8 +276,7 @@ public class Uc4PipelineBuilder {
       }
 
       // Create a updates list to pass onto the next pipeline stage-
-      final ArrayList<Entry<String, Set<String>>> updatesList =
-          new ArrayList<Entry<String, Set<String>>>(updates.entrySet());
+      final List<Entry<String, Set<String>>> updatesList = new ArrayList<>(updates.entrySet());
 
       // Return traverser with updates list.
       return Traversers.traverseIterable(updatesList)

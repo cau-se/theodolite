@@ -18,12 +18,12 @@ public class HourOfDayKeySerializer implements StreamSerializer<HourOfDayKey> {
   @Override
   public void write(final ObjectDataOutput out, final HourOfDayKey key) throws IOException {
     out.writeInt(key.getHourOfDay());
-    out.writeUTF(key.getSensorId()); 
+    out.writeString(key.getSensorId()); 
   }
 
   @Override
   public HourOfDayKey read(final ObjectDataInput in) throws IOException {
-    return new HourOfDayKey(in.readInt(), in.readUTF());
+    return new HourOfDayKey(in.readInt(), in.readString());
   }
 
 }
