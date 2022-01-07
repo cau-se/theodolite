@@ -4,7 +4,7 @@ plugins {
 
 
 dependencies {
-  compile project(':uc2-beam')
+  implementation project(':uc2-beam')
 }
 
 mainClassName = "application.Uc2BeamSamza"
