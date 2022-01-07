@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * Supplies a {@link HashMap} and implements {@link SupplierEx}
+ * Supplies a {@link HashMap} and implements {@link SupplierEx}.
  */
 public class HashMapSupplier implements SupplierEx<HashMap<String, Set<String>>> {
 

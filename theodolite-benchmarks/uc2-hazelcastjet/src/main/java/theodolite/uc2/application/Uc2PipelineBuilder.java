@@ -70,6 +70,7 @@ public class Uc2PipelineBuilder {
    * window and aggregates them into {@code Stats} objects. The final map returns an
    * {@code Entry<String,String>} where the key is the key of the group and the String is the
    * {@code .toString()} representation of the {@code Stats} object.
+   * </p>
    *
    * @param pipe The blank hazelcast jet pipeline to extend the logic to.
    * @param source A streaming source to fetch data from.
@@ -101,7 +102,8 @@ public class Uc2PipelineBuilder {
    *
    * <p>
    * Takes a windowed and keyed {@code Entry<String,ActivePowerRecord>} elements and returns a
-   * {@Stats} Object.
+   * {@Stats} object.
+   * </p>
    *
    * @return An AggregateOperation used by Hazelcast Jet in a streaming stage which aggregates
    *         ActivePowerRecord Objects into Stats Objects.

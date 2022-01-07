@@ -74,6 +74,7 @@ public class Uc3PipelineBuilder {
    * <p>
    * UC3 takes {@code ActivePowerRecord} object, groups them by keys and calculates average double
    * values for a sliding window and sorts them into the hour of the day.
+   * </p>
    *
    * @param pipe The blank hazelcast jet pipeline to extend the logic to.
    * @param source A streaming source to fetch data from.

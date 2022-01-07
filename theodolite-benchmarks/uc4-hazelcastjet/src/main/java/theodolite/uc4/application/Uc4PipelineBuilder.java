@@ -1,7 +1,6 @@
 package theodolite.uc4.application;
 
 import com.hazelcast.function.BiFunctionEx;
-import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.Util;
@@ -105,6 +104,7 @@ public class Uc4PipelineBuilder {
    * from keys to groups to map values to their accourding groups. A feedback stream allows for
    * group keys to be mapped to values and eventually to be mapped to other top level groups defines
    * by the {@code SensorRegistry}.
+   * </p>
    *
    * <p>
    * 6 Step topology: <br>
@@ -114,6 +114,7 @@ public class Uc4PipelineBuilder {
    * (4) Duplicate as flatmap per value and group <br>
    * (5) Window (preperation for possible last values) <br>
    * (6) Aggregate data over the window
+   * </p>
    *
    * @param pipe The blank pipeline to extend the logic to.
    * @param inputSource A streaming source with {@code ActivePowerRecord} data.
@@ -136,7 +137,7 @@ public class Uc4PipelineBuilder {
         .filter(entry -> entry.getKey() == Event.SENSOR_REGISTRY_CHANGED
             || entry.getKey() == Event.SENSOR_REGISTRY_STATUS)
         .map(data -> Util.entry(data.getKey(), SensorRegistry.fromJson(data.getValue())))
-        .flatMapStateful(this.hashMapSupplier(), this.configFlatMap())
+        .flatMapStateful(HashMap::new, new ConfigFlatMap())
         .writeTo(Sinks.mapWithUpdating(
             SENSOR_PARENT_MAP_NAME, // The addressed IMAP
             Entry::getKey, // The key to look for
@@ -237,21 +238,18 @@ public class Uc4PipelineBuilder {
         });
   }
 
-
   /**
-   * Returns a function which supplies a {@code HashMapy<String, Set<String>>()}.
+   * FlatMap function used to process the configuration input for UC4.
    */
-  private SupplierEx<? extends HashMap<String, Set<String>>> hashMapSupplier() {
-    return HashMap::new;
-  }
+  private static class ConfigFlatMap implements
+      BiFunctionEx<Map<String, Set<String>>, Entry<Event, SensorRegistry>, Traverser<Entry<String, Set<String>>>> { // NOCS
 
-  /**
-   * Returns a function which supplies the flatMap function used to process the configuration input
-   * for UC4.
-   */
-  private BiFunctionEx<? super HashMap<String, Set<String>>, ? super Entry<Event, SensorRegistry>, ? extends Traverser<Entry<String, Set<String>>>> configFlatMap() {
-    return (flatMapStage, eventItem) -> {
+    private static final long serialVersionUID = -6769931374907428699L;
 
+    @Override
+    public Traverser<Entry<String, Set<String>>> applyEx(
+        final Map<String, Set<String>> flatMapStage,
+        final Entry<Event, SensorRegistry> eventItem) {
       // Transform new Input
       final ChildParentsTransformer transformer = new ChildParentsTransformer("default-name");
       final Map<String, Set<String>> mapFromRegistry =
@@ -275,7 +273,8 @@ public class Uc4PipelineBuilder {
       // Return traverser with updates list.
       return Traversers.traverseIterable(updatesList)
           .map(e -> Util.entry(e.getKey(), e.getValue()));
-    };
+    }
+
   }
 
 }
