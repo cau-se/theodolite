@@ -45,8 +45,8 @@ services:
       NUM_SENSORS: 10  
   benchmark-jobmanager:
     image: ghcr.io/cau-se/theodolite-uc2-flink:latest
-    ports:
-      - "8080:8081"
+    #ports:
+    #  - "8080:8081"
     command: standalone-job --job-classname theodolite.uc2.application.HistoryServiceFlinkJob
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
