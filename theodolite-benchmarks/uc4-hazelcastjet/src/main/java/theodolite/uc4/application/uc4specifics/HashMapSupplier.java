@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * Supplies a hashmap and implements supplierEx.
+ * Supplies a {@link HashMap} and implements {@link SupplierEx}
  */
-public class HashMapSupplier implements SupplierEx<HashMap<String,Set<String>>> {
-  
-  private static final long serialVersionUID = -6247504592403610702L;//NOPMD
+public class HashMapSupplier implements SupplierEx<HashMap<String, Set<String>>> {
+
+  private static final long serialVersionUID = -6247504592403610702L; // NOPMD
 
   @Override
   public HashMap<String, Set<String>> get() {
-    return new HashMap<String, Set<String>>();
+    return new HashMap<>();
   }
 
   @Override
@@ -21,6 +21,6 @@ public class HashMapSupplier implements SupplierEx<HashMap<String,Set<String>>> 
     return this.get();
   }
 
-  
-  
+
+
 }

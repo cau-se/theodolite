@@ -20,6 +20,7 @@ import titan.ccp.model.sensorregistry.SensorRegistry;
  * sensor identifiers. All pairs whose sensor's parents have changed since last iteration are
  * forwarded. A mapping of an identifier to <code>null</code> means that the corresponding sensor
  * does not longer exists in the sensor registry.
+ *
  */
 public class ChildParentsTransformer implements
     Transformer<Event, SensorRegistry, Iterable<KeyValue<String, Optional<Set<String>>>>> {
@@ -64,16 +65,17 @@ public class ChildParentsTransformer implements
 
   /**
    * Constructs a map of keys to their set of parents out of a SensorRegistry.
+   *
    * @param registry The SensorRegistry to build the map out of.
    * @return A map of keys to a set of their parents.
    */
   public Map<String, Set<String>> constructChildParentsPairs(final SensorRegistry registry) {
     return this.streamAllChildren(registry.getTopLevelSensor())
         .collect(Collectors.toMap(
-            child -> child.getIdentifier(),
+            Sensor::getIdentifier,
             child -> child.getParent()
                 .map(p -> Set.of(p.getIdentifier()))
-                .orElseGet(() -> Set.of())));
+                .orElseGet(Set::of)));
   }
 
   private Stream<Sensor> streamAllChildren(final AggregatedSensor sensor) {

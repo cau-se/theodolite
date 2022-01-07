@@ -45,8 +45,9 @@ public class Uc1PipelineBuilder {
 
   /**
    * Extends to a blank Hazelcast Jet Pipeline the UC1 topology defines by theodolite.
-   * 
-   * <p>UC1 takes {@code Entry<String,ActivePowerRecord>} objects and turns them into Json strings
+   *
+   * <p>
+   * UC1 takes {@code Entry<String,ActivePowerRecord>} objects and turns them into Json strings
    * using GSON.
    *
    * @param pipe The blank hazelcast jet pipeline to extend the logic to.

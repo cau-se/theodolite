@@ -10,34 +10,34 @@ public class ValueGroup {
 
   private final Double valueInW;
   private final Set<String> groups;
-  
+
   public ValueGroup(final Double valueInW, final Set<String> groups) {
     this.valueInW = valueInW;
     this.groups = groups;
   }
-  
+
   public Double getValueInW() {
     return this.valueInW;
   }
-  
+
   public Set<String> getGroups() {
     return this.groups;
   }
-  
+
   @Override
   public String toString() {
     String groupString = "[";
-    for (final String group: groups) {
-      groupString = groupString + group + "/";//NOPMD
+    for (final String group : this.groups) {
+      groupString = groupString + group + "/";// NOPMD
     }
     return this.valueInW.toString() + ";" + groupString + "]";
   }
-  
+
   @Override
   public int hashCode() {
     return Objects.hash(this.valueInW, this.groups);
   }
-  
+
   @Override
   public boolean equals(final Object obj) {
     if (obj == this) {
@@ -50,5 +50,5 @@ public class ValueGroup {
     }
     return false;
   }
-  
+
 }

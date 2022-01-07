@@ -2,7 +2,10 @@ package theodolite.uc3.application.uc3specifics;
 
 import java.time.LocalDateTime;
 
-/** A factory class to build a HourOfDayKey. */
+/**
+ * A factory class to build a {@link HourOfDayKey}
+ *
+ */
 public class HoursOfDayKeyFactory implements StatsKeyFactory<HourOfDayKey> {
 
   @Override

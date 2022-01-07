@@ -272,7 +272,7 @@ public class Uc3HazelcastJetFactory { // NOPMD
 
   /**
    * Sets the window size in seconds for the pipeline used in this builder.
-   * 
+   *
    * @param windowSizeInSeconds the windowSizeInSeconds to be used for this pipeline.
    * @return A Uc3HazelcastJetFactory with a set windowSizeInSeconds.
    */
@@ -284,14 +284,14 @@ public class Uc3HazelcastJetFactory { // NOPMD
 
   /**
    * Sets the window size in seconds for the pipeline used in this builder from the environment.
-   * 
+   *
    * @param defaultWindowSizeInSeconds the default window size in seconds to be used for this
    *        pipeline when none is set in the environment.
    * @return A Uc3HazelcastJetFactory with a set windowSizeInSeconds.
    */
   public Uc3HazelcastJetFactory setWindowSizeInSecondsFromEnv(// NOPMD
       final String defaultWindowSizeInSeconds) {
-    final String windowSizeInSeconds = (String) Objects.requireNonNullElse(
+    final String windowSizeInSeconds = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.WINDOW_SIZE_IN_SECONDS),
         defaultWindowSizeInSeconds);
     final int windowSizeInSecondsNumber = Integer.parseInt(windowSizeInSeconds);
@@ -301,7 +301,7 @@ public class Uc3HazelcastJetFactory { // NOPMD
 
   /**
    * Sets the hopping size in seconds for the pipeline used in this builder.
-   * 
+   *
    * @param hoppingSizeInSeconds the hoppingSizeInSeconds to be used for this pipeline.
    * @return A Uc3HazelcastJetFactory with a set hoppingSizeInSeconds.
    */
@@ -313,14 +313,14 @@ public class Uc3HazelcastJetFactory { // NOPMD
 
   /**
    * Sets the hopping size in seconds for the pipeline used in this builder from the environment.
-   * 
+   *
    * @param defaultHoppingSizeInSeconds the default hopping size in seconds to be used for this
    *        pipeline when none is set in the environment.
    * @return A Uc3HazelcastJetFactory with a set hoppingSizeInSeconds.
    */
   public Uc3HazelcastJetFactory setHoppingSizeInSecondsFromEnv(// NOPMD
       final String defaultHoppingSizeInSeconds) {
-    final String hoppingSizeInSeconds = (String) Objects.requireNonNullElse(
+    final String hoppingSizeInSeconds = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.HOPPING_SIZE_IN_SECONDS),
         defaultHoppingSizeInSeconds);
     final int hoppingSizeInSecondsNumber = Integer.parseInt(hoppingSizeInSeconds);

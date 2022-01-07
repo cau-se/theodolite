@@ -7,7 +7,8 @@ import java.io.IOException;
 import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
 /**
- * StreamSerializer for Hazelcast Jet to serialize and deserialize an ImmutableSensorRegistry.
+ * {@link StreamSerializer} for Hazelcast Jet to serialize and deserialize an
+ * {@link ImmutableSensorRegistry}.
  */
 public class ImmutableSensorRegistryUc4Serializer
     implements StreamSerializer<ImmutableSensorRegistry> {
@@ -16,7 +17,6 @@ public class ImmutableSensorRegistryUc4Serializer
 
   @Override
   public int getTypeId() {
-    // TODO Auto-generated method stub
     return TYPE_ID;
   }
 

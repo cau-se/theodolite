@@ -92,9 +92,9 @@ public class Uc2HazelcastJetFactory {
    * @throws Exception If the input topic or the kafka properties are not defined, the pipeline
    *         cannot be built.
    */
-  public Uc2HazelcastJetFactory buildUc2Pipeline() throws IllegalStateException { //NOPMD
+  public Uc2HazelcastJetFactory buildUc2Pipeline() throws IllegalStateException { // NOPMD
 
-    final String defaultPipelineWarning = "Cannot build pipeline."; //NOPMD
+    final String defaultPipelineWarning = "Cannot build pipeline."; // NOPMD
 
     // Check if Properties for the Kafka Input are set.
     if (this.kafkaReadPropsForPipeline == null) {
@@ -260,7 +260,7 @@ public class Uc2HazelcastJetFactory {
 
   /**
    * Sets the downsample interval for the pipeline used in this builder.
-   * 
+   *
    * @param downsampleInterval the downsample interval to be used for this pipeline.
    * @return A Uc2HazelcastJetFactory with a set downsampleInterval.
    */
@@ -272,14 +272,14 @@ public class Uc2HazelcastJetFactory {
 
   /**
    * Sets the downsample interval for the pipeline used in this builder from the environment.
-   * 
+   *
    * @param defaultDownsampleInterval the default downsample interval to be used for this pipeline
    *        when none is set in the environment.
    * @return A Uc2HazelcastJetFactory with a set downsampleInterval.
    */
   public Uc2HazelcastJetFactory setDownsampleIntervalFromEnv(// NOPMD
       final String defaultDownsampleInterval) {
-    final String downsampleInterval = (String) Objects.requireNonNullElse(
+    final String downsampleInterval = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.DOWNSAMPLE_INTERVAL),
         defaultDownsampleInterval);
     final int downsampleIntervalNumber = Integer.parseInt(downsampleInterval);

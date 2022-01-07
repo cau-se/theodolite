@@ -76,12 +76,13 @@ public class Uc4PipelineBuilder {
     final StreamSource<Entry<String, ActivePowerRecord>> inputSource =
         KafkaSources.<String, ActivePowerRecord>kafka(
             kafkaInputReadPropsForPipeline, kafkaInputTopic);
-    final StreamSource<Entry<String, Double>> aggregationSource = 
+    final StreamSource<Entry<String, Double>> aggregationSource =
         KafkaSources.<String, Double>kafka(kafkaFeedbackPropsForPipeline, kafkaFeedbackTopic);
 
     // Extend UC4 topology to pipeline
     final StreamStage<Entry<String, Double>> uc4Product =
-        extendUc4Topology(uc4Pipeline, inputSource, aggregationSource, configSource, windowSize);
+        this.extendUc4Topology(uc4Pipeline, inputSource, aggregationSource, configSource,
+            windowSize);
 
     // Add Sink1: Write back to kafka output topic
     uc4Product.writeTo(KafkaSinks.<String, Double>kafka(
@@ -98,20 +99,22 @@ public class Uc4PipelineBuilder {
 
   /**
    * Extends to a blank Hazelcast Jet Pipeline the UC4 topology defines by theodolite.
-   * 
-   * <p>UC4 takes {@code ActivePowerRecord} events from sensors and a {@code SensorRegistry} 
-   * with maps from keys to groups to map values to their accourding groups. A feedback stream 
-   * allows for group keys to be mapped to values and eventually to be mapped to other top 
-   * level groups defines by the {@code SensorRegistry}.
-   * 
-   * <p>6 Step topology:
-   * (1) Inputs (Config, Values, Aggregations)
-   * (2) Merge Input Values and Aggregations
-   * (3) Join Configuration with Merged Input Stream
-   * (4) Duplicate as flatmap per value and group
-   * (5) Window (preperation for possible last values)
+   *
+   * <p>
+   * UC4 takes {@code ActivePowerRecord} events from sensors and a {@code SensorRegistry} with maps
+   * from keys to groups to map values to their accourding groups. A feedback stream allows for
+   * group keys to be mapped to values and eventually to be mapped to other top level groups defines
+   * by the {@code SensorRegistry}.
+   *
+   * <p>
+   * 6 Step topology: <br>
+   * (1) Inputs (Config, Values, Aggregations) <br>
+   * (2) Merge Input Values and Aggregations <br>
+   * (3) Join Configuration with Merged Input Stream <br>
+   * (4) Duplicate as flatmap per value and group <br>
+   * (5) Window (preperation for possible last values) <br>
    * (6) Aggregate data over the window
-   * 
+   *
    * @param pipe The blank pipeline to extend the logic to.
    * @param inputSource A streaming source with {@code ActivePowerRecord} data.
    * @param aggregationSource A streaming source with aggregated data.
@@ -121,7 +124,7 @@ public class Uc4PipelineBuilder {
    *         according aggregated values. The data can be further modified or directly be linked to
    *         a Hazelcast Jet sink.
    */
-  public StreamStage<Entry<String, Double>> extendUc4Topology(final Pipeline pipe, //NOPMD
+  public StreamStage<Entry<String, Double>> extendUc4Topology(final Pipeline pipe, // NOPMD
       final StreamSource<Entry<String, ActivePowerRecord>> inputSource,
       final StreamSource<Entry<String, Double>> aggregationSource,
       final StreamSource<Entry<Event, String>> configurationSource, final int windowSize) {
@@ -132,19 +135,12 @@ public class Uc4PipelineBuilder {
         .withNativeTimestamps(0)
         .filter(entry -> entry.getKey() == Event.SENSOR_REGISTRY_CHANGED
             || entry.getKey() == Event.SENSOR_REGISTRY_STATUS)
-        .map(data -> {
-          return Util.entry(data.getKey(), SensorRegistry.fromJson(data.getValue()));
-        })
-        .flatMapStateful(hashMapSupplier(), configFlatMap())
+        .map(data -> Util.entry(data.getKey(), SensorRegistry.fromJson(data.getValue())))
+        .flatMapStateful(this.hashMapSupplier(), this.configFlatMap())
         .writeTo(Sinks.mapWithUpdating(
             SENSOR_PARENT_MAP_NAME, // The addressed IMAP
-            event -> event.getKey(), // The key to look for
-            (oldValue, newEntry) -> { // the new entry returned (null automatically results in
-              // deletion of entry) //NOCS
-
-              // Write new set of groups
-              return newEntry.getValue();
-            }));
+            Entry::getKey, // The key to look for
+            (oldValue, newEntry) -> newEntry.getValue()));
 
     //////////////////////////////////
     // (1) Sensor Input Stream
@@ -153,8 +149,8 @@ public class Uc4PipelineBuilder {
         .withNativeTimestamps(0)
         .map(stream -> {
           // Build data for next pipeline stage
-          String sensorId = stream.getValue().getIdentifier();
-          Double valueInW = stream.getValue().getValueInW();
+          final String sensorId = stream.getValue().getIdentifier();
+          final Double valueInW = stream.getValue().getValueInW();
           // Return data for next pipeline stage
           return Util.entry(sensorId, valueInW);
         });
@@ -169,7 +165,7 @@ public class Uc4PipelineBuilder {
     // (2) UC4 Merge Input with aggregation stream
     final StreamStageWithKey<Entry<String, Double>, String> mergedInputAndAggregations = inputStream
         .merge(aggregations)
-        .groupingKey(event -> event.getKey());
+        .groupingKey(Entry::getKey);
 
     //////////////////////////////////
     // (3) UC4 Join Configuration and Merges Input/Aggregation Stream
@@ -181,13 +177,13 @@ public class Uc4PipelineBuilder {
               // Check whether a groupset exists for a key or not
               if (sensorParentsSet == null) {
                 // No group set exists for this key: return valuegroup with default null group set.
-                Set<String> nullSet = new HashSet<String>();
+                final Set<String> nullSet = new HashSet<>();
                 nullSet.add("NULL-GROUPSET");
                 return Util.entry(sensorEvent.getKey(),
                     new ValueGroup(sensorEvent.getValue(), nullSet));
               } else {
                 // Group set exists for this key: return valuegroup with the groupset.
-                ValueGroup valueParentsPair =
+                final ValueGroup valueParentsPair =
                     new ValueGroup(sensorEvent.getValue(), sensorParentsSet);
                 // Return solution
                 return Util.entry(sensorEvent.getKey(), valueParentsPair);
@@ -201,14 +197,14 @@ public class Uc4PipelineBuilder {
         .flatMap(entry -> {
 
           // Supplied data
-          String keyGroupId = entry.getKey();
-          Double valueInW = entry.getValue().getValueInW();
-          Set<String> groups = entry.getValue().getGroups();
+          final String keyGroupId = entry.getKey();
+          final Double valueInW = entry.getValue().getValueInW();
+          final Set<String> groups = entry.getValue().getGroups();
 
           // Transformed Data
-          String[] groupList = groups.toArray(String[]::new);
-          SensorGroupKey[] newKeyList = new SensorGroupKey[groupList.length];
-          List<Entry<SensorGroupKey, Double>> newEntryList = new ArrayList<>();
+          final String[] groupList = groups.toArray(String[]::new);
+          final SensorGroupKey[] newKeyList = new SensorGroupKey[groupList.length];
+          final List<Entry<SensorGroupKey, Double>> newEntryList = new ArrayList<>();
           for (int i = 0; i < groupList.length; i++) {
             newKeyList[i] = new SensorGroupKey(keyGroupId, groupList[i]);
             newEntryList.add(Util.entry(newKeyList[i], valueInW));
@@ -229,7 +225,7 @@ public class Uc4PipelineBuilder {
     // Group using the group out of the sensorGroupKey keys
     return windowedLastValues
         .groupingKey(entry -> entry.getKey().getGroup())
-        .aggregate(AggregateOperations.summingDouble(entry -> entry.getValue()))
+        .aggregate(AggregateOperations.summingDouble(Entry::getValue))
         .map(agg -> {
 
           // Construct data for return pair
@@ -246,16 +242,14 @@ public class Uc4PipelineBuilder {
    * Returns a function which supplies a {@code HashMapy<String, Set<String>>()}.
    */
   private SupplierEx<? extends HashMap<String, Set<String>>> hashMapSupplier() {
-    return () -> new HashMap<String, Set<String>>();
+    return HashMap::new;
   }
 
   /**
    * Returns a function which supplies the flatMap function used to process the configuration input
    * for UC4.
    */
-  private BiFunctionEx<? super HashMap<String, Set<String>>, 
-      ? super Entry<Event, SensorRegistry>,
-      ? extends Traverser<Entry<String, Set<String>>>> configFlatMap() {
+  private BiFunctionEx<? super HashMap<String, Set<String>>, ? super Entry<Event, SensorRegistry>, ? extends Traverser<Entry<String, Set<String>>>> configFlatMap() {
     return (flatMapStage, eventItem) -> {
 
       // Transform new Input

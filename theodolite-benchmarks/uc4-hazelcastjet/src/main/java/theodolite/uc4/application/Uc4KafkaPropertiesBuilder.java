@@ -20,7 +20,7 @@ public class Uc4KafkaPropertiesBuilder {
 
   private static final String SPECIFIC_AVRO_READER_CONFIG = "specific.avro.reader";
   private static final String SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
-  
+
   /**
    * Builds Kafka Properties used for the UC4 Benchmark pipeline.
    *
@@ -112,7 +112,7 @@ public class Uc4KafkaPropertiesBuilder {
 
   /**
    * Builds Kafka Properties used for the UC4 Benchmark pipeline.
-   * 
+   *
    * @param kafkaBootstrapServerDefault Default bootstrap server if not set by environment.
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC4
    *         Pipeline.
