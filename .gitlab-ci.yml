@@ -75,8 +75,10 @@ test-docs-links:
 
 build-docs-crds:
   stage: build
-  image: ghcr.io/fybrik/crdoc:0.6.0
-  script: "--resources theodolite/crd/ --template docs/api-reference/crds.tmpl --output docs/api-reference/crds.ref.md"
+  image:
+    name: ghcr.io/fybrik/crdoc:0.6.0
+    entrypoint: [""]
+  script: /crdoc --resources theodolite/crd/ --template docs/api-reference/crds.tmpl --output docs/api-reference/crds.ref.md
   artifacts:
     paths:
       - docs/api-reference/crds.ref.md
