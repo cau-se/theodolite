@@ -67,12 +67,12 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     }
 
     override fun teardownInfrastructure() {
-        this.infrastructure.afterActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
             .forEach { kubernetesManager.remove(it) }
-        }
+        this.infrastructure.afterActions.forEach { it.exec(client = client) }
+    }
 
     /**
      * Builds a deployment.
