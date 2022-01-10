@@ -10,10 +10,12 @@ import theodolite.strategies.searchstrategy.SearchStrategy
  * @param loads the [LoadDimension] of the execution
  * @param resources the [Resource] of the execution
  * @param searchStrategy the [SearchStrategy] of the execution
+ * @param metric the Metric of the execution
  */
 @RegisterForReflection
 data class Config(
     val loads: List<LoadDimension>,
     val resources: List<Resource>,
-    val searchStrategy: SearchStrategy
+    val searchStrategy: SearchStrategy,
+    val metric: String
 )

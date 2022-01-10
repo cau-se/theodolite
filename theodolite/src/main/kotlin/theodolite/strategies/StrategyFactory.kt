@@ -27,15 +27,21 @@ class StrategyFactory {
             "FullSearch" -> FullSearch(executor)
             "LinearSearch" -> LinearSearch(executor)
             "BinarySearch" -> BinarySearch(executor)
+            "RestrictionSearch" -> when (searchStrategyObject.searchStrategy){
+                //TODO: Do we only need LinearSearch here as valid searchstrat? Or actually just allow all?
+                // If we dont have restriction Strat specified but still RestrictionSearch just do normal Search
+                "FullSearch" -> composeSearchRestrictionStrategy(executor, FullSearch(executor), results, searchStrategyObject.restrictions)
+                "LinearSearch" -> composeSearchRestrictionStrategy(executor, LinearSearch(executor), results, searchStrategyObject.restrictions)
+                "BinarySearch" -> composeSearchRestrictionStrategy(executor, BinarySearch(executor), results, searchStrategyObject.restrictions)
+                else -> throw IllegalArgumentException("Search Strategy ${searchStrategyObject.searchStrategy} for RestrictionSearch not found")
+            }
             "InitialGuessSearch" -> when (searchStrategyObject.guessStrategy){
                 "PrevResourceMinGuess" -> InitialGuessSearchStrategy(executor,PrevResourceMinGuess(), results)
                 else -> throw IllegalArgumentException("Guess Strategy ${searchStrategyObject.guessStrategy} not found")
             }
             else -> throw IllegalArgumentException("Search Strategy $searchStrategyObject not found")
         }
-        if(searchStrategyObject.restrictions.isNotEmpty()){
-            strategy = RestrictionSearch(executor,strategy,createRestrictionStrategy(results, searchStrategyObject.restrictions))
-        }
+
         return strategy
     }
 
@@ -57,5 +63,22 @@ class StrategyFactory {
                     else -> throw IllegalArgumentException("Restriction Strategy $restrictionStrings not found")
                 }
             }.toSet()
+    }
+
+    /**
+     * Create a RestrictionSearch, if the provided restriction list is not empty. Otherwise just return the given
+     * searchStrategy.
+     *
+     * @param executor The [theodolite.execution.BenchmarkExecutor] that executes individual experiments.
+     * @param searchStrategy The [SearchStrategy] to use
+     * @param results The [Results] saves the state of the Theodolite benchmark run.
+     * @param restrictions The [RestrictionStrategy]'s to use
+     */
+    private fun composeSearchRestrictionStrategy(executor: BenchmarkExecutor, searchStrategy: SearchStrategy,
+                                                 results: Results, restrictions: List<String>): SearchStrategy {
+        if(restrictions.isNotEmpty()){
+            return RestrictionSearch(executor,searchStrategy,createRestrictionStrategy(results, restrictions))
+        }
+        return searchStrategy
     }
 }

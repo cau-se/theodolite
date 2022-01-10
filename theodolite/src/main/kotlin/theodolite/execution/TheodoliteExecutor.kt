@@ -92,7 +92,8 @@ class TheodoliteExecutor(
                     resourcePatcherDefinition
                 )
             },
-            searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results)
+            searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results),
+            metric = config.execution.metric
         )
     }
 
@@ -119,6 +120,10 @@ class TheodoliteExecutor(
         val config = buildConfig()
         //TODO: Differentiate metrics here
 
+//        when (config.metric) {
+//            "demand" -> // execute benchmarks for each load
+//            "capacity" -> // execute benchmarks for each resource amount
+//        }
         // execute benchmarks for each load
         try {
             for (load in config.loads) {

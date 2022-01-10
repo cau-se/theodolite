@@ -59,6 +59,7 @@ class BenchmarkExecution : KubernetesResource {
         lateinit var name: String
         lateinit var restrictions: List<String>
         lateinit var guessStrategy: String
+        lateinit var searchStrategy: String
     }
 
     /**

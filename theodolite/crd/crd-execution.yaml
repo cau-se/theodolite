@@ -93,11 +93,12 @@ spec:
                   name: string
                   properties:
                     restrictions:
-                      description: List of restriction strategys used to delimit the search space.
+                      description: List of restriction strategies used to delimit the search space.
                       type: array
                       items:
                         type: string
                     guessStrategy: string
+                    searchStrategy: object
                 properties:
                   duration:
                     description: Defines the duration of each experiment in seconds.
