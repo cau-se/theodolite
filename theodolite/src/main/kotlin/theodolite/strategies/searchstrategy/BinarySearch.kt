@@ -21,6 +21,10 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         return resources[result]
     }
 
+    override fun findSuitableLoad(resource: Resource, loads: List<LoadDimension>): LoadDimension? {
+        TODO("Not yet implemented")
+    }
+
     /**
      * Apply binary search.
      *

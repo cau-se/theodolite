@@ -90,4 +90,8 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
         }
         return null
     }
+
+    override fun findSuitableLoad(resource: Resource, loads: List<LoadDimension>): LoadDimension? {
+        TODO("Not yet implemented")
+    }
 }

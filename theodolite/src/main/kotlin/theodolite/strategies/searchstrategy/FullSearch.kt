@@ -22,10 +22,20 @@ class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmar
         for (res in resources) {
             logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
             val result = this.benchmarkExecutor.runExperiment(load, res)
+            //TODO: that actually doesnt make sense no? Shouldnt it be == null?
             if (result && minimalSuitableResources != null) {
                 minimalSuitableResources = res
             }
         }
         return minimalSuitableResources
+    }
+
+    override fun findSuitableLoad(resource: Resource, loads: List<LoadDimension>): LoadDimension? {
+        var maxSuitableLoad: LoadDimension? = null
+        for (load in loads) {
+            logger.info { "Running experiment with resources '${resource.get()}' and load '${load.get()}'" }
+            if (this.benchmarkExecutor.runExperiment(load, resource)) maxSuitableLoad = load
+        }
+        return maxSuitableLoad
     }
 }

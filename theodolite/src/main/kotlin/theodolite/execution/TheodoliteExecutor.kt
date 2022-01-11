@@ -118,19 +118,25 @@ class TheodoliteExecutor(
         )
 
         val config = buildConfig()
-        //TODO: Differentiate metrics here
 
-//        when (config.metric) {
-//            "demand" -> // execute benchmarks for each load
-//            "capacity" -> // execute benchmarks for each resource amount
-//        }
-        // execute benchmarks for each load
+        //execute benchmarks for each load for the demand metric, or for each resource amount for capacity metric
         try {
-            for (load in config.loads) {
-                if (executor.run.get()) {
-                    config.searchStrategy.findSuitableResource(load, config.resources)
+            if (config.metric == "demand") {
+                //demand metric
+                for (load in config.loads) {
+                    if (executor.run.get()) {
+                        config.searchStrategy.findSuitableResource(load, config.resources)
+                    }
+                }
+            } else {
+                //capacity metric
+                for (resource in config.resources) {
+                    if (executor.run.get()) {
+                        config.searchStrategy.findSuitableLoad(resource, config.loads)
+                    }
                 }
             }
+
         } finally {
             ioHandler.writeToJSONFile(
                 config.searchStrategy.benchmarkExecutor.results,

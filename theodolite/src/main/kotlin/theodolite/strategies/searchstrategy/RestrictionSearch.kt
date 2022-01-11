@@ -27,4 +27,10 @@ class RestrictionSearch(
         }
         return this.searchStrategy.findSuitableResource(load, restrictedResources)
     }
+
+    //TODO: not sure if it makes sense but actually doing the same as for finding suitable resource with the restrictions
+    override fun findSuitableLoad(resource: Resource, loads: List<LoadDimension>): LoadDimension? {
+        //erste Zeile komisch, wird auch bei resource so gemacht aber warum? das ist doch ne liste warum also toList?
+        TODO("Not yet implemented")
+    }
 }

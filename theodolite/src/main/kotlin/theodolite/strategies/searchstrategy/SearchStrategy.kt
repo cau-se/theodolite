@@ -25,4 +25,14 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
      * @return suitable resource for the specified load, or null if no suitable resource exists.
      */
     abstract fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource?
+
+    /**
+     * Find biggest suitable load from the specified load list for the given resource amount.
+     *
+     * @param resource the [Resource] to be tested.
+     * @param loads List of all possible [LoadDimension]s.
+     *
+     * @return suitable load for the specified resource amount, or null if no suitable load exists.
+     */
+    abstract fun findSuitableLoad(resource: Resource, loads: List<LoadDimension>) : LoadDimension?
 }
