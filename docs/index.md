@@ -5,7 +5,7 @@ nav_order: 1
 permalink: /
 ---
 
-![Theodolite](assets/theodolite-stacked-transparent.svg){: .d-block .mx-auto .mb-8 .theodolite-logo }
+![Theodolite](assets/logo/theodolite-stacked-transparent.svg){: .d-block .mx-auto .mb-8 .theodolite-logo }
 
 
 Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications.
