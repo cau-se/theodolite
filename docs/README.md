@@ -36,8 +36,8 @@ We use the [crdoc](https://github.com/fybrik/crdoc) tool to generate the API ref
 crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.md
 ```
 
-With the following command, crdoc is installed and executed in Docker:
+With the following command, crdoc is executed in Docker:
 
 ```sh
-docker run --rm -v "`pwd`/../theodolite/crd/":/crd -v "`pwd`/api-reference":/api-reference golang sh -c "go install fybrik.io/crdoc@latest && crdoc --resources /crd/ --template /api-reference/crds.tmpl --output /api-reference/crds.md"
+docker run --rm -v "`pwd`/../theodolite/crd/":/crd -u $UID -v "`pwd`/api-reference":/api-reference ghcr.io/fybrik/crdoc:0.6.0 --resources /crd/ --template /api-reference/crds.tmpl --output /api-reference/crds.md
 ```
