@@ -1,7 +1,8 @@
 ---
 title: Release Process
 has_children: false
-nav_order: 2
+parent: Development
+nav_order: 1
 ---
 
 # Release Process
@@ -26,7 +27,7 @@ again be merged into master.
 
     2. Update both, the `version` and the `appVersion` fields, in the Helm `Charts.yaml` file to `0.3.1`.
 
-    3. Update `codemeta.json` to match the new version. In particular, make sure that `version` points to the version you are releasing and `dateModified` points to the date you are relasing this version. [CodeMeata generator](https://codemeta.github.io/codemeta-generator/) may help you in updating the file.
+    3. Update `codemeta.json` to match the new version. In particular, make sure that `version` points to the version you are releasing and `dateModified` points to the date you are relasing this version. [CodeMeta generator](https://codemeta.github.io/codemeta-generator/) may help you in updating the file.
 
     4. Update `CITATION.cff` to match the new version. At least update the `version` field.
 
@@ -36,9 +37,9 @@ again be merged into master.
 
 6. Commit these changes to the `v0.3` branch.
 
-7. Tag this commit `v0.3.1` (can be done via GitLab). The corresponding Docker images will be uploaded.
+7. Tag this commit `v0.3.1` (can be done via GitLab). The corresponding Docker images will be uploaded from the CI/CD pipeline.
 
-8. Create *releases* on GitLab and GitHub. Upload the generated Helm package to these releases.
+8. Create *releases* on GitLab and GitHub. Upload the generated Helm package to these releases via the UIs of GitLab and GitHub.
 
 9. Switch to the `master` branch.
 
