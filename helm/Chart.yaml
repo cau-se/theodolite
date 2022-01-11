@@ -1,7 +1,7 @@
 apiVersion: v2
 name: theodolite
-description: Theodolite is a framework for benchmarking the scalability of stream processing engines.
-home: https://cau-se.github.io/theodolite
+description: Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications.
+home: https://www.theodolite.rocks
 sources:
   - https://github.com/cau-se/theodolite
 maintainers:
