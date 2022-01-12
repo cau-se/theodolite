@@ -49,8 +49,8 @@ spec:
             limits:
               memory: 4Gi
               cpu: 1000m
-          args: ["standalone-job", "--job-classname", "application.Uc1BeamFlink"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
-          #command: ['sleep', '60m']
+          args: ["standalone-job", "--job-classname", "application.Uc1BeamFlink", "--streaming", "--disableMetrics=true", "--fasterCopy"]
+          # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
           ports:
             - containerPort: 6123
               name: rpc
