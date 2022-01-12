@@ -41,6 +41,60 @@ default:
     - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
 
 
+# Theodolite Docs
+
+.docs:
+  image: alpine/bundle:3.0.3
+  cache:
+    paths:
+      - docs/vendor
+  before_script:
+    - cd docs
+    - bundle config set --local path 'vendor'
+    - bundle install
+  rules:
+    - changes:
+      - docs/**/*
+    - when: manual
+      allow_failure: true
+
+build-docs:
+  stage: build
+  extends: .docs
+  script: bundle exec jekyll build
+  artifacts:
+    paths:
+      - docs/_site
+
+test-docs-links:
+  stage: test
+  extends: .docs
+  needs:
+    - build-docs
+  script: bundle exec htmlproofer --assume-extension --allow_hash_href --url-ignore "/favicon.ico" ./_site
+
+test-docs-crds-regression:
+  stage: test
+  image: golang
+  before_script:
+    - cd docs
+    - go install fybrik.io/crdoc@latest
+  script:
+    - crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.ref.md
+    - cmp api-reference/crds.md api-reference/crds.ref.md
+  artifacts:
+    when: on_failure
+    paths:
+      - docs/api-reference/crds.ref.md
+    expire_in: 1 week
+  rules:
+    - changes:
+      - docs/api-reference/crds.tmpl
+      - theodolite/crd/**/*
+    - when: manual
+      allow_failure: true
+
+
 # Theodolite Helm Chart
 
 lint-helm:
