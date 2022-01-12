@@ -36,9 +36,9 @@ dependencies {
     }
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
 
-    runtime "org.apache.beam:beam-runners-direct-java:${apacheBeamVersion}"
-    runtime 'org.slf4j:slf4j-api:1.7.32'
-    runtime 'org.slf4j:slf4j-jdk14:1.7.32'
+    runtimeOnly "org.apache.beam:beam-runners-direct-java:${apacheBeamVersion}"
+    runtimeOnly 'org.slf4j:slf4j-api:1.7.32'
+    runtimeOnly 'org.slf4j:slf4j-jdk14:1.7.32'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'

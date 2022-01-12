@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-      compile project(':uc1-beam')
+      implementation project(':uc1-beam')
 }
 
 mainClassName = "application.Uc1BeamFlink"

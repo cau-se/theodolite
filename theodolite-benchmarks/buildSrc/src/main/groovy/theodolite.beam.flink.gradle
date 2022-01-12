@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    compile group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
-    compile group: 'org.apache.flink', name: 'flink-statebackend-rocksdb_2.11', version: '1.12.0'
+    implementation group: 'org.apache.beam', name: 'beam-runners-flink-1.12', version: '2.27.0'
+    implementation group: 'org.apache.flink', name: 'flink-statebackend-rocksdb_2.11', version: '1.12.0'
 }
