@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: jobmanager
-          image: ghcr.io/cau-se/theodolite-uc3-flink:latest
+          image: ghcr.io/cau-se/theodolite-uc3-flink:v0.6.0
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "theodolite-cp-kafka:9092"
