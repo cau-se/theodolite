@@ -49,11 +49,9 @@ services:
       #  - "8080:8081"
       command: >
         standalone-job --job-classname application.Uc2BeamFlink
-        --streaming
         --disableMetrics=true 
         --fasterCopy 
       environment:
-        - KAFKA_WINDOW_DURATION_MINUTES=60
         - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
         - SCHEMA_REGISTRY_URL=http://schema-registry:8081
         - |

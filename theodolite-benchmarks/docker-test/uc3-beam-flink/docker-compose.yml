@@ -49,7 +49,6 @@ services:
       #  - "8080:8081"
       command: >
         standalone-job --job-classname application.Uc3BeamFlink
-        --streaming
         --disableMetrics=true 
         --fasterCopy 
       environment:
