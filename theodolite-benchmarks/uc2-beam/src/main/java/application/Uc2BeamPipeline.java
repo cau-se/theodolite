@@ -47,16 +47,13 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
     final Map<String, Object> consumerConfig = buildConsumerConfig();
 
     // Set Coders for Classes that will be distributed
-    final CoderRegistry cr = this.getCoderRegistry();
+    final CoderRegistry cr = getCoderRegistry();
     cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
-    cr.registerCoderForClass(StatsAggregation.class,
-        SerializableCoder.of(StatsAggregation.class));
+    cr.registerCoderForClass(StatsAggregation.class, SerializableCoder.of(StatsAggregation.class));
     cr.registerCoderForClass(StatsAccumulator.class, AvroCoder.of(StatsAccumulator.class));
 
-
     // Read from Kafka
-    final KafkaActivePowerTimestampReader
-        kafkaActivePowerRecordReader =
+    final KafkaActivePowerTimestampReader kafkaActivePowerRecordReader =
         new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
 
     // Transform into String
@@ -69,15 +66,12 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
     // Apply pipeline transformations
     this.apply(kafkaActivePowerRecordReader)
         // Apply a fixed window
-        .apply(Window
-            .<KV<String, ActivePowerRecord>>into(FixedWindows.of(duration)))
+        .apply(Window.<KV<String, ActivePowerRecord>>into(FixedWindows.of(duration)))
         // Aggregate per window for every key
-        .apply(Combine.<String, ActivePowerRecord, Stats>perKey(
-            new StatsAggregation()))
+        .apply(Combine.<String, ActivePowerRecord, Stats>perKey(new StatsAggregation()))
         .setCoder(KvCoder.of(StringUtf8Coder.of(), SerializableCoder.of(Stats.class)))
         // Map into correct output format
-        .apply(MapElements
-            .via(statsToString))
+        .apply(MapElements.via(statsToString))
         // Write to Kafka
         .apply(kafkaWriter);
   }
