@@ -1,7 +1,6 @@
 package application;
 
 import java.util.Optional;
-
 import org.apache.beam.sdk.io.kafka.KafkaRecord;
 import org.apache.beam.sdk.io.kafka.TimestampPolicy;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
@@ -19,7 +18,6 @@ public class AggregatedActivePowerRecordEventTimePolicy
     super();
     this.currentWatermark = previousWatermark.orElse(BoundedWindow.TIMESTAMP_MIN_VALUE);
   }
-
 
   @Override
   public Instant getTimestampForRecord(final PartitionContext ctx,

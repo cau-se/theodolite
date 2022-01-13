@@ -1,5 +1,6 @@
 package application; // NOPMD
 
+import com.google.common.math.StatsAccumulator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +31,6 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.joda.time.Duration;
-import com.google.common.math.StatsAccumulator;
 import serialization.AggregatedActivePowerRecordCoder;
 import serialization.AggregatedActivePowerRecordDeserializer;
 import serialization.AggregatedActivePowerRecordSerializer;

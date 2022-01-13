@@ -7,8 +7,8 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
 /**
  * Sets the identifier for new {@link AggregatedActivePowerRecord}.
  */
-public class SetIdForAggregated extends SimpleFunction<KV<String, AggregatedActivePowerRecord>,
-    KV<String, AggregatedActivePowerRecord>> {
+public class SetIdForAggregated extends
+    SimpleFunction<KV<String, AggregatedActivePowerRecord>, KV<String, AggregatedActivePowerRecord>> { // NOCS
   private static final long serialVersionUID = 2148522605294086982L;
 
   @Override

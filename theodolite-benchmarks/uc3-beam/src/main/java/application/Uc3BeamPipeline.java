@@ -1,5 +1,7 @@
 package application;
 
+import com.google.common.math.Stats;
+import com.google.common.math.StatsAccumulator;
 import java.util.Map;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
@@ -16,8 +18,6 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.joda.time.Duration;
-import com.google.common.math.Stats;
-import com.google.common.math.StatsAccumulator;
 import theodolite.commons.beam.AbstractPipeline;
 import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;

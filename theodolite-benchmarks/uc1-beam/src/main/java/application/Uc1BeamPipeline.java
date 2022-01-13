@@ -30,11 +30,11 @@ public final class Uc1BeamPipeline extends AbstractPipeline {
     cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
 
     // build KafkaConsumerConfig
-    final Map<String, Object> consumerConfig = buildConsumerConfig();
+    final Map<String, Object> consumerConfig = this.buildConsumerConfig();
 
     // Create Pipeline transformations
     final KafkaActivePowerTimestampReader kafka =
-        new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
+        new KafkaActivePowerTimestampReader(this.bootstrapServer, this.inputTopic, consumerConfig);
 
     final LogKeyValue logKeyValue = new LogKeyValue();
     final MapToGson mapToGson = new MapToGson();

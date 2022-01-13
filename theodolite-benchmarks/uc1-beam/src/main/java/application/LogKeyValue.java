@@ -18,7 +18,7 @@ public class LogKeyValue extends DoFn<KV<String, String>, KV<String, String>> {
    */
   @ProcessElement
   public void processElement(@Element final KV<String, String> kv,
-                             final OutputReceiver<KV<String, String>> out) {
+      final OutputReceiver<KV<String, String>> out) {
     if (LOGGER.isInfoEnabled()) {
       LOGGER.info("Key: {}, Value: {}", kv.getKey(), kv.getValue());
     }

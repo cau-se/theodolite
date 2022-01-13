@@ -31,7 +31,7 @@ public class StatsAggregation extends CombineFn<ActivePowerRecord, StatsAccumula
 
   @Override
   public StatsAccumulator mergeAccumulators(final Iterable<StatsAccumulator> accums) {
-    final StatsAccumulator merged = this.createAccumulator();
+    final StatsAccumulator merged = createAccumulator();
     for (final StatsAccumulator accum : accums) {
       merged.addAll(accum.snapshot());
     }
