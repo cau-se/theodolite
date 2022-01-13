@@ -46,7 +46,7 @@ spec:
                 queryable-state.proxy.ports: 6125
                 jobmanager.memory.process.size: 4Gb
                 taskmanager.memory.process.size: 4Gb
-                parallelism.default: 2 #TODO
+                parallelism.default: 1 #TODO
           resources:
             limits:
               memory: 4Gi
