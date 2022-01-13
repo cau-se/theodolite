@@ -19,11 +19,11 @@ dependencies {
   implementation 'com.google.code.gson:gson:2.8.2'
   implementation 'com.google.guava:guava:24.1-jre'
 
-  implementation('org.apache.beam:beam-sdks-java-io-kafka:2.22.0'){
+  implementation('org.apache.beam:beam-sdks-java-io-kafka:2.35.0'){
     exclude group: 'org.apache.kafka', module: 'kafka-clients'
   }
   implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
-  implementation group: 'org.apache.beam', name: 'beam-sdks-java-core', version: '2.22.0'
+  implementation group: 'org.apache.beam', name: 'beam-sdks-java-core', version: '2.35.0'
 
   runtimeOnly 'org.slf4j:slf4j-api:1.7.32'
   runtimeOnly 'org.slf4j:slf4j-jdk14:1.7.32'

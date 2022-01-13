@@ -18,7 +18,7 @@ repositories {
     }
 }
 
-def apacheBeamVersion =  '2.22.0' //'2.27.0' // '2.34.0'
+def apacheBeamVersion =  '2.35.0'
 
 dependencies {
     // These dependencies are used internally, and not exposed to consumers on their own compile classpath.

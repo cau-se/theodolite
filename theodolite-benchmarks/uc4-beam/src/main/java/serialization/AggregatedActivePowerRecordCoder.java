@@ -45,7 +45,7 @@ public class AggregatedActivePowerRecordCoder extends Coder<AggregatedActivePowe
 
   @Override
   public List<? extends Coder<?>> getCoderArguments() {
-    return null;
+    return List.of();
   }
 
   @Override
