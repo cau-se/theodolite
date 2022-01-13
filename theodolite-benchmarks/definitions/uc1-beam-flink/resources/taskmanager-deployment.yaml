@@ -17,7 +17,9 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: taskmanager
-          image: uc1-beam-flink:latest
+          image: uc1-beam-flink:latest # TODO Change when ready
+          imagePullPolicy: Never # TODO Change when ready
+          args: ["taskmanager"]
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "theodolite-cp-kafka:9092"
@@ -27,28 +29,27 @@ spec:
               value: "100"
             - name: CHECKPOINTING
               value: "false"
-            - name: PARALLELISM
-              value: "1"
+            # - name: PARALLELISM
+            #   value: "1"
             - name: "FLINK_STATE_BACKEND"
               value: "rocksdb"
             - name: JOB_MANAGER_RPC_ADDRESS
               value: "flink-jobmanager"
-            - name: TASK_MANAGER_NUMBER_OF_TASK_SLOTS
-              value: "1" #TODO
-            - name: FLINK_PROPERTIES
-              value: |+
-                blob.server.port: 6124
-                jobmanager.rpc.port: 6123
-                taskmanager.rpc.port: 6122
-                queryable-state.proxy.ports: 6125
-                jobmanager.memory.process.size: 4Gb
-                taskmanager.memory.process.size: 4Gb
-                #parallelism.default: 1 #TODO
+            # - name: TASK_MANAGER_NUMBER_OF_TASK_SLOTS
+            #   value: "1" #TODO
+            # - name: FLINK_PROPERTIES
+            #   value: |+
+            #     blob.server.port: 6124
+            #     jobmanager.rpc.port: 6123
+            #     taskmanager.rpc.port: 6122
+            #     queryable-state.proxy.ports: 6125
+            #     jobmanager.memory.process.size: 4Gb
+            #     taskmanager.memory.process.size: 4Gb
+            #     #parallelism.default: 1 #TODO
           resources:
             limits:
               memory: 4Gi
               cpu: 1000m
-          args: ["taskmanager"]
           ports:
             - containerPort: 6122
               name: rpc
@@ -61,28 +62,28 @@ spec:
               port: 6122
             initialDelaySeconds: 30
             periodSeconds: 60
-          volumeMounts:
-            - name: flink-config-volume-rw
-              mountPath: /opt/flink/conf/
+          # volumeMounts:
+          #   - name: flink-config-volume-rw
+          #     mountPath: /opt/flink/conf/
           securityContext:
             runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
-      initContainers:
-        - name: init-taskmanager
-          image: busybox:1.28
-          command: ['cp', '-a', '/flink-config/.', '/flink-config-rw/']
-          volumeMounts:
-            - name: flink-config-volume
-              mountPath: /flink-config/
-            - name: flink-config-volume-rw
-              mountPath: /flink-config-rw/
-      volumes:
-        - name: flink-config-volume
-          configMap:
-            name: flink-config
-            items:
-              - key: flink-conf.yaml
-                path: flink-conf.yaml
-              - key: log4j-console.properties
-                path: log4j-console.properties
-        - name: flink-config-volume-rw
-          emptyDir: {}
+      # initContainers:
+      #   - name: init-taskmanager
+      #     image: busybox:1.28
+      #     command: ['cp', '-a', '/flink-config/.', '/flink-config-rw/']
+      #     volumeMounts:
+      #       - name: flink-config-volume
+      #         mountPath: /flink-config/
+      #       - name: flink-config-volume-rw
+      #         mountPath: /flink-config-rw/
+      # volumes:
+      #   - name: flink-config-volume
+      #     configMap:
+      #       name: flink-config
+      #       items:
+      #         - key: flink-conf.yaml
+      #           path: flink-conf.yaml
+      #         - key: log4j-console.properties
+      #           path: log4j-console.properties
+      #   - name: flink-config-volume-rw
+      #     emptyDir: {}
