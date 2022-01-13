@@ -35,7 +35,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
   benchmark:
-    image: uc2-beam-samza:latest
+    image: ghcr.io/cau-se/theodolite-uc2-beam-samza:latest
     scale: 1
     depends_on:
       - schema-registry
