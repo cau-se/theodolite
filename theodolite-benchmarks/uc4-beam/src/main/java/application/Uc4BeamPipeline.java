@@ -1,6 +1,5 @@
-package application; //NOPMD
+package application; // NOPMD
 
-import com.google.common.math.StatsAccumulator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +30,7 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.joda.time.Duration;
+import com.google.common.math.StatsAccumulator;
 import serialization.AggregatedActivePowerRecordCoder;
 import serialization.AggregatedActivePowerRecordDeserializer;
 import serialization.AggregatedActivePowerRecordSerializer;
@@ -47,16 +47,11 @@ import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 /**
- * Implementation of the use case Database Storage using Apache Beam with the Flink Runner. To
- * execute locally in standalone start Kafka, Zookeeper, the schema-registry and the workload
- * generator using the delayed_startup.sh script. Start a Flink cluster and pass its REST address
- * using--flinkMaster as run parameter. To persist logs add
- * ${workspace_loc:/uc1-application-samza/eclipseConsoleLogs.log} as Output File under Standard
- * Input Output in Common in the Run Configuration Start via Eclipse Run.
+ * Implementation of the use case Hierarchical Aggregation using Apache Beam.
  */
 public final class Uc4BeamPipeline extends AbstractPipeline {
 
-  protected Uc4BeamPipeline(final PipelineOptions options, final Configuration config) { //NOPMD
+  protected Uc4BeamPipeline(final PipelineOptions options, final Configuration config) { // NOPMD
     super(options, config);
 
     // Additional needed variables
@@ -64,21 +59,16 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final String configurationTopic = config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
-    final int windowDurationMinutes = Integer.parseInt(
-        config.getString(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
-    final Duration duration = Duration.standardSeconds(windowDurationMinutes);
-
-    final int triggerInterval = Integer.parseInt(
-        config.getString(ConfigurationKeys.TRIGGER_INTERVAL));
-    final Duration triggerDelay = Duration.standardSeconds(triggerInterval);
-
-    final int grace = Integer.parseInt(
-        config.getString(ConfigurationKeys.GRACE_PERIOD_MS));
-    final Duration gracePeriod = Duration.standardSeconds(grace);
+    final Duration duration =
+        Duration.standardSeconds(config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+    final Duration triggerDelay =
+        Duration.standardSeconds(config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
+    final Duration gracePeriod =
+        Duration.standardSeconds(config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
 
     // Build kafka configuration
-    final Map<String, Object> consumerConfig = buildConsumerConfig();
-    final Map<String, Object> configurationConfig = configurationConfig(config);
+    final Map<String, Object> consumerConfig = this.buildConsumerConfig();
+    final Map<String, Object> configurationConfig = this.configurationConfig(config);
 
     // Set Coders for Classes that will be distributed
     final CoderRegistry cr = this.getCoderRegistry();
@@ -86,15 +76,13 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
 
     // Read from Kafka
     // ActivePowerRecords
-    final KafkaActivePowerTimestampReader
-        kafkaActivePowerRecordReader =
-        new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
+    final KafkaActivePowerTimestampReader kafkaActivePowerRecordReader =
+        new KafkaActivePowerTimestampReader(this.bootstrapServer, this.inputTopic, consumerConfig);
 
-    //Configuration Events
-    final KafkaGenericReader<Event, String>
-        kafkaConfigurationReader =
+    // Configuration Events
+    final KafkaGenericReader<Event, String> kafkaConfigurationReader =
         new KafkaGenericReader<>(
-            bootstrapServer, configurationTopic, configurationConfig,
+            this.bootstrapServer, configurationTopic, configurationConfig,
             EventDeserializer.class, StringDeserializer.class);
 
     // Transform into AggregatedActivePowerRecords into ActivePowerRecords
@@ -103,11 +91,11 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     // Write to Kafka
     final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaOutput =
         new KafkaWriterTransformation<>(
-            bootstrapServer, outputTopic, AggregatedActivePowerRecordSerializer.class);
+            this.bootstrapServer, outputTopic, AggregatedActivePowerRecordSerializer.class);
 
     final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaFeedback =
         new KafkaWriterTransformation<>(
-            bootstrapServer, feedbackTopic, AggregatedActivePowerRecordSerializer.class);
+            this.bootstrapServer, feedbackTopic, AggregatedActivePowerRecordSerializer.class);
 
     // Apply pipeline transformations
     final PCollection<KV<String, ActivePowerRecord>> values = this
@@ -124,7 +112,7 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     // Read the results of earlier aggregations.
     final PCollection<KV<String, ActivePowerRecord>> aggregationsInput = this
         .apply("Read aggregation results", KafkaIO.<String, AggregatedActivePowerRecord>read()
-            .withBootstrapServers(bootstrapServer)
+            .withBootstrapServers(this.bootstrapServer)
             .withTopic(feedbackTopic)
             .withKeyDeserializer(StringDeserializer.class)
             .withValueDeserializer(AggregatedActivePowerRecordDeserializer.class)
@@ -187,9 +175,9 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     // Build pairs of every sensor reading and parent
     final PCollection<KV<SensorParentKey, ActivePowerRecord>> flatMappedValues =
         inputCollection.apply(
-                "Duplicate as flatMap",
-                ParDo.of(new DuplicateAsFlatMap(childParentPairMap))
-                    .withSideInputs(childParentPairMap))
+            "Duplicate as flatMap",
+            ParDo.of(new DuplicateAsFlatMap(childParentPairMap))
+                .withSideInputs(childParentPairMap))
             .apply("Filter only latest changes", Latest.perKey())
             .apply("Filter out null values",
                 Filter.by(filterNullValues));
@@ -198,8 +186,7 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     final SetKeyToGroup setKeyToGroup = new SetKeyToGroup();
 
     // Aggregate for every sensor group of the current level
-    final PCollection<KV<String, AggregatedActivePowerRecord>>
-        aggregations = flatMappedValues
+    final PCollection<KV<String, AggregatedActivePowerRecord>> aggregations = flatMappedValues
         .apply("Set key to group", MapElements.via(setKeyToGroup))
         // Reset trigger to avoid synchronized processing time
         .apply("Reset trigger for aggregations", Window

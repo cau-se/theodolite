@@ -25,12 +25,7 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 
 /**
- * Implementation of the use case Database Storage using Apache Beam with the Flink Runner. To
- * execute locally in standalone start Kafka, Zookeeper, the schema-registry and the workload
- * generator using the delayed_startup.sh script. Start a Flink cluster and pass its REST adress
- * using--flinkMaster as run parameter. To persist logs add
- * ${workspace_loc:/uc1-application-samza/eclipseConsoleLogs.log} as Output File under Standard
- * Input Output in Common in the Run Configuration Start via Eclipse Run.
+ * Implementation of the use case Downsampling using Apache Beam.
  */
 public final class Uc2BeamPipeline extends AbstractPipeline {
 
@@ -39,9 +34,8 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
     // Additional needed variables
     final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
-    final int windowDurationMinutes = Integer.parseInt(
-        config.getString(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
-    final Duration duration = Duration.standardMinutes(windowDurationMinutes);
+    final Duration duration =
+        Duration.standardMinutes(config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
 
     // Build kafka configuration
     final Map<String, Object> consumerConfig = buildConsumerConfig();
