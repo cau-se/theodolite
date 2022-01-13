@@ -3,7 +3,7 @@ package theodolite.util
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Central class that saves the state of a execution of Theodolite. For an execution, it is used to save the result of
+ * Central class that saves the state of an execution of Theodolite. For an execution, it is used to save the result of
  * individual experiments. Further, it is used by the RestrictionStrategy to
  * perform the [theodolite.strategies.restriction.RestrictionStrategy].
  */
@@ -44,16 +44,16 @@ class Results {
      * If no experiments have been marked as either successful or unsuccessful
      * yet, a Resource with the constant value Int.MIN_VALUE is returned.
      */
-    fun getMinRequiredInstances(load: LoadDimension?): Resource? {
+    fun getMinRequiredInstances(load: LoadDimension?): Resource {
         if (this.results.isEmpty()) {
             return Resource(Int.MIN_VALUE, emptyList())
         }
 
-        var minRequiredInstances: Resource? = Resource(Int.MAX_VALUE, emptyList())
+        var minRequiredInstances = Resource(Int.MAX_VALUE, emptyList())
         for (experiment in results) {
             // Get all successful experiments for requested load
             if (experiment.key.first == load && experiment.value) {
-                if (minRequiredInstances == null || experiment.key.second.get() < minRequiredInstances.get()) {
+                if (experiment.key.second.get() < minRequiredInstances.get()) {
                     // Found new smallest resources
                     minRequiredInstances = experiment.key.second
                 }
@@ -82,5 +82,14 @@ class Results {
             }
         }
         return maxBenchmarkedLoad
+    }
+
+    /**
+     * Checks whether the results are empty.
+     *
+     * @return true if [results] is empty.
+     */
+    fun isEmpty(): Boolean{
+        return results.isEmpty()
     }
 }
