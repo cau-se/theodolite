@@ -13,24 +13,25 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
  */
 public class AggregatedActivePowerRecordSerializer
     implements Serializer<AggregatedActivePowerRecord> {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(AggregatedActivePowerRecordSerializer.class);
 
-  private final transient AvroCoder<AggregatedActivePowerRecord>
-      avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
+  private final transient AvroCoder<AggregatedActivePowerRecord> avroEnCoder =
+      AvroCoder.of(AggregatedActivePowerRecord.class);
 
   @Override
   public byte[] serialize(final String topic, final AggregatedActivePowerRecord data) {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
       this.avroEnCoder.encode(data, out);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       LOGGER.error("Could not serialize AggregatedActivePowerRecord", e);
     }
     final byte[] result = out.toByteArray();
     try {
       out.close();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       LOGGER.error(
           "Could not close output stream after serialization of AggregatedActivePowerRecord", e);
     }

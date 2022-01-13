@@ -17,10 +17,11 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
 @SuppressWarnings("serial")
 public class AggregatedActivePowerRecordCoder extends Coder<AggregatedActivePowerRecord>
     implements Serializable {
+
   private static final boolean DETERMINISTIC = true;
-  private transient  AvroCoder avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
 
-
+  private transient AvroCoder<AggregatedActivePowerRecord> avroEnCoder =
+      AvroCoder.of(AggregatedActivePowerRecord.class);
 
   @Override
   public void encode(final AggregatedActivePowerRecord value, final OutputStream outStream)
@@ -36,9 +37,9 @@ public class AggregatedActivePowerRecordCoder extends Coder<AggregatedActivePowe
   public AggregatedActivePowerRecord decode(final InputStream inStream)
       throws CoderException, IOException {
     if (this.avroEnCoder == null) {
-      avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
+      this.avroEnCoder = AvroCoder.of(AggregatedActivePowerRecord.class);
     }
-    return (AggregatedActivePowerRecord) this.avroEnCoder.decode(inStream);
+    return this.avroEnCoder.decode(inStream);
 
   }
 

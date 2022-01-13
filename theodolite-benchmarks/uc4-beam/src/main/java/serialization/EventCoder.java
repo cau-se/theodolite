@@ -17,11 +17,10 @@ import titan.ccp.configuration.events.EventSerde;
  * Wrapper Class that encapsulates a Event Serde in a org.apache.beam.sdk.coders.Coder.
  */
 public class EventCoder extends Coder<Event> implements Serializable {
+
   private static final long serialVersionUID = 8403045343970659100L;
   private static final int VALUE_SIZE = 4;
   private static final boolean DETERMINISTIC = true;
-
-
 
   private transient Serde<Event> innerSerde = EventSerde.serde();
 
