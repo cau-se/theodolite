@@ -34,6 +34,7 @@ class TheodoliteOperator {
     private lateinit var controller: TheodoliteController
     private lateinit var executionStateHandler: ExecutionStateHandler
     private lateinit var benchmarkStateHandler: BenchmarkStateHandler
+    private lateinit var benchmarkStateChecker: BenchmarkStateChecker
 
 
     fun start() {
@@ -71,7 +72,7 @@ class TheodoliteOperator {
             controller = getController(
                 client = client,
                 executionStateHandler = getExecutionStateHandler(client = client),
-                benchmarkStateHandler = getBenchmarkStateHandler(client = client)
+                benchmarkStateChecker = getBenchmarkStateChecker(client = client)
 
             )
             getExecutionEventHandler(controller, client).startAllRegisteredInformers()
@@ -112,17 +113,28 @@ class TheodoliteOperator {
         return benchmarkStateHandler
     }
 
+    fun getBenchmarkStateChecker(client: NamespacedKubernetesClient) : BenchmarkStateChecker {
+        if (!::benchmarkStateChecker.isInitialized) {
+            this.benchmarkStateChecker = BenchmarkStateChecker(
+                client = client,
+                benchmarkStateHandler = getBenchmarkStateHandler(client = client),
+                benchmarkCRDClient = getBenchmarkClient(client = client))
+        }
+        return benchmarkStateChecker
+    }
+
+
     fun getController(
         client: NamespacedKubernetesClient,
         executionStateHandler: ExecutionStateHandler,
-        benchmarkStateHandler: BenchmarkStateHandler
+        benchmarkStateChecker: BenchmarkStateChecker
     ): TheodoliteController {
         if (!::controller.isInitialized) {
             this.controller = TheodoliteController(
                 benchmarkCRDClient = getBenchmarkClient(client),
                 executionCRDClient = getExecutionClient(client),
                 executionStateHandler = executionStateHandler,
-                benchmarkStateHandler = benchmarkStateHandler
+                benchmarkStateChecker = benchmarkStateChecker
             )
         }
         return this.controller

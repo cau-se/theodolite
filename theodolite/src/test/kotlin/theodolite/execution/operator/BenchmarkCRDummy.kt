@@ -34,6 +34,13 @@ class BenchmarkCRDummy(name: String) {
         benchmark.sut.resources = emptyList()
         benchmark.loadGenerator.resources = emptyList()
 
+        benchmark.infrastructure.beforeActions = emptyList()
+        benchmark.infrastructure.afterActions = emptyList()
+        benchmark.sut.beforeActions = emptyList()
+        benchmark.sut.afterActions = emptyList()
+        benchmark.loadGenerator.beforeActions = emptyList()
+        benchmark.loadGenerator.afterActions = emptyList()
+
         benchmark.resourceTypes = emptyList()
         benchmark.loadTypes = emptyList()
         benchmark.kafkaConfig = kafkaConfig
