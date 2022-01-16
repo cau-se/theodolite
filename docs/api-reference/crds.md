@@ -1,3 +1,11 @@
+---
+title: Theodolite CRDs
+has_children: false
+parent: API Reference
+nav_order: 1
+---
+
+
 # API Reference
 
 Packages:
@@ -52,44 +60,17 @@ Resource Types:
       <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
       <td>true</td>
       </tr><tr>
-        <td><b><a href="#benchmarkstatus">status</a></b></td>
-        <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b><a href="#benchmarkspec">spec</a></b></td>
         <td>object</td>
         <td>
           <br/>
         </td>
         <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.status
-<sup><sup>[↩ Parent](#benchmark)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>resourceSetsState</b></td>
-        <td>string</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkstatus">status</a></b></td>
+        <td>object</td>
         <td>
-          The status of a Benchmark indicates whether all resources are available to start the benchmark or not.<br/>
+          <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -113,24 +94,6 @@ Resource Types:
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructure">infrastructure</a></b></td>
-        <td>object</td>
-        <td>
-          (Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b><a href="#benchmarkspeckafkaconfig">kafkaConfig</a></b></td>
         <td>object</td>
         <td>
@@ -165,135 +128,22 @@ Resource Types:
           The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
         </td>
         <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure
-<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
-
-
-
-(Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructureresourcesindex">resources</a></b></td>
-        <td>[]object</td>
-        <td>
-          <br/>
-          <br/>
-            <i>Default</i>: []<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.resources[index]
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructureresourcesindexconfigmap">configMap</a></b></td>
-        <td>object</td>
-        <td>
-          The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
-        </td>
-        <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureresourcesindexfilesystem">fileSystem</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructure">infrastructure</a></b></td>
         <td>object</td>
         <td>
-          The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.resources[index].configMap
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
-
-
-
-The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>files</b></td>
-        <td>[]string</td>
-        <td>
-          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
+          (Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          The name of the configMap<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.resources[index].fileSystem
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
-
-
-
-The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>files</b></td>
-        <td>[]string</td>
-        <td>
-          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>path</b></td>
-        <td>string</td>
-        <td>
-          The path to the folder which contains the Kubernetes manifests files.<br/>
+          This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -351,6 +201,15 @@ Contains the Kafka configuration.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the topic.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>numPartitions</b></td>
         <td>integer</td>
         <td>
@@ -377,15 +236,6 @@ Contains the Kafka configuration.
             <i>Default</i>: 0<br/>
         </td>
         <td>false</td>
-      </tr><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          The name of the topic.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>true</td>
       </tr></tbody>
 </table>
 
@@ -572,15 +422,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) Patcher specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>resource</b></td>
         <td>string</td>
         <td>
@@ -598,6 +439,15 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
             <i>Default</i>: <br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -653,15 +503,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) Patcher specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>resource</b></td>
         <td>string</td>
         <td>
@@ -679,6 +520,15 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
             <i>Default</i>: <br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -813,6 +663,164 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
       </tr></tbody>
 </table>
 
+
+### benchmark.spec.infrastructure
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+(Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindex">resources</a></b></td>
+        <td>[]object</td>
+        <td>
+          <br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.resources[index]
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindexconfigmap">configMap</a></b></td>
+        <td>object</td>
+        <td>
+          The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindexfilesystem">fileSystem</a></b></td>
+        <td>object</td>
+        <td>
+          The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.resources[index].configMap
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
+
+
+
+The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>files</b></td>
+        <td>[]string</td>
+        <td>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the configMap<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.resources[index].fileSystem
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
+
+
+
+The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>files</b></td>
+        <td>[]string</td>
+        <td>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>path</b></td>
+        <td>string</td>
+        <td>
+          The path to the folder which contains the Kubernetes manifests files.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.status
+<sup><sup>[↩ Parent](#benchmark)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>resourceSetsState</b></td>
+        <td>string</td>
+        <td>
+          The status of a Benchmark indicates whether all resources are available to start the benchmark or not.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
 ## execution
 <sup><sup>[↩ Parent](#theodolitecomv1 )</sup></sup>
 
@@ -850,49 +858,15 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
       <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
       <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionstatus">status</a></b></td>
-        <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b><a href="#executionspec">spec</a></b></td>
         <td>object</td>
         <td>
           <br/>
         </td>
         <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### execution.status
-<sup><sup>[↩ Parent](#execution)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>executionDuration</b></td>
-        <td>string</td>
-        <td>
-          Duration of the execution in seconds<br/>
-        </td>
-        <td>false</td>
       </tr><tr>
-        <td><b>executionState</b></td>
-        <td>string</td>
+        <td><b><a href="#executionstatus">status</a></b></td>
+        <td>object</td>
         <td>
           <br/>
         </td>
@@ -918,15 +892,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>benchmark</b></td>
         <td>string</td>
         <td>
@@ -968,6 +933,15 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
           List of resource values for the specified resource type.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -1023,15 +997,6 @@ Patcher used to patch a resource
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) Patcher specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>resource</b></td>
         <td>string</td>
         <td>
@@ -1049,6 +1014,15 @@ Patcher used to patch a resource
             <i>Default</i>: <br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -1070,13 +1044,6 @@ Defines the overall parameter for the execution.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>loadGenerationDelay</b></td>
-        <td>integer</td>
-        <td>
-          Seconds to wait between the start of the SUT and the load generator.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>duration</b></td>
         <td>integer</td>
         <td>
@@ -1104,6 +1071,13 @@ Defines the overall parameter for the execution.
           Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>loadGenerationDelay</b></td>
+        <td>integer</td>
+        <td>
+          Seconds to wait between the start of the SUT and the load generator.<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -1193,15 +1167,6 @@ Specifies the scaling resource that is benchmarked.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) SLO specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>offset</b></td>
         <td>integer</td>
         <td>
@@ -1222,5 +1187,48 @@ Specifies the scaling resource that is benchmarked.
           The type of the SLO. It must match 'lag trend'.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) SLO specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### execution.status
+<sup><sup>[↩ Parent](#execution)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>executionDuration</b></td>
+        <td>string</td>
+        <td>
+          Duration of the execution in seconds<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>executionState</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
