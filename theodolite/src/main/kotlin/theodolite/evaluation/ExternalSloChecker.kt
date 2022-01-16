@@ -13,8 +13,7 @@ import java.net.ConnectException
  */
 class ExternalSloChecker(
     private val externalSlopeURL: String,
-    private val threshold: Int,
-    private val warmup: Int
+    private val metadata: Map<String, Any>
 ) : SloChecker {
 
     private val RETRIES = 2
@@ -37,8 +36,7 @@ class ExternalSloChecker(
         var counter = 0
         val data = SloJson.Builder()
             .results(fetchedData.map { it.data?.result })
-            .addMetadata("threshold", threshold)
-            .addMetadata("warmup", warmup)
+            .addMetadata(metadata)
             .build()
             .toJson()
 

@@ -44,11 +44,30 @@ class SloCheckerFactory {
         load: LoadDimension
     ): SloChecker {
         return when (SloTypes.from(sloType)) {
-            SloTypes.GENERIC, SloTypes.LAG_TREND, SloTypes.DROPPED_RECORDS -> ExternalSloChecker(
+            SloTypes.GENERIC -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
-                threshold = properties["threshold"]?.toInt() ?: throw IllegalArgumentException("threshold expected"),
-                warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
+                // TODO validate property contents
+                metadata = mapOf(
+                    "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
+                    "queryAggregation" to (properties["warmup"]?.toInt()
+                        ?: throw IllegalArgumentException("queryAggregation expected")),
+                    "repetitionAggregation" to (properties["warmup"]?.toInt()
+                        ?: throw IllegalArgumentException("repetitionAggregation expected")),
+                    "operator" to (properties["warmup"]?.toInt()
+                        ?: throw IllegalArgumentException("operator expected")),
+                    "threshold" to (properties["threshold"]?.toInt()
+                        ?: throw IllegalArgumentException("threshold expected"))
+                )
+            )
+            SloTypes.LAG_TREND, SloTypes.DROPPED_RECORDS -> ExternalSloChecker(
+                externalSlopeURL = properties["externalSloUrl"]
+                    ?: throw IllegalArgumentException("externalSloUrl expected"),
+                metadata = mapOf(
+                    "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
+                    "threshold" to (properties["threshold"]?.toInt()
+                        ?: throw IllegalArgumentException("threshold expected"))
+                )
             )
             SloTypes.LAG_TREND_RATIO, SloTypes.DROPPED_RECORDS_RATIO -> {
                 val thresholdRatio =
@@ -63,8 +82,11 @@ class SloCheckerFactory {
                 ExternalSloChecker(
                     externalSlopeURL = properties["externalSloUrl"]
                         ?: throw IllegalArgumentException("externalSloUrl expected"),
-                    threshold = threshold,
-                    warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
+                    metadata = mapOf(
+                        "warmup" to (properties["warmup"]?.toInt()
+                            ?: throw IllegalArgumentException("warmup expected")),
+                        "threshold" to threshold
+                    )
                 )
             }
         }
