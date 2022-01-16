@@ -26,7 +26,7 @@ class SloJson private constructor(
          * @param key key of the metadata to be added
          * @param value value of the metadata to be added
          */
-        fun addMetadata(key: String, value: String) = apply {
+        fun addMetadata(key: String, value: Any) = apply {
             if (this.metadata.isNullOrEmpty()) {
                 this.metadata = mutableMapOf(key to value)
             } else {
@@ -35,16 +35,13 @@ class SloJson private constructor(
         }
 
         /**
-         * Add metadata as key value pairs
+         * Add metadata as map of key value pairs.
          *
-         * @param key key of the metadata to be added
-         * @param value value of the metadata to be added
+         * @param metadata map of key-value pairs to be added to be added
          */
-        fun addMetadata(key: String, value: Int) = apply {
-            if (this.metadata.isNullOrEmpty()) {
-                this.metadata = mutableMapOf(key to value)
-            } else {
-                this.metadata!![key] = value
+        fun addMetadata(metadata: Map<String, Any>) = apply {
+            for (entry in metadata) {
+                this.addMetadata(entry.key, entry.value)
             }
         }
 
