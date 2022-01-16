@@ -1,6 +1,5 @@
 package theodolite.evaluation
 
-import com.google.gson.Gson
 import khttp.post
 import mu.KotlinLogging
 import theodolite.util.PrometheusResponse
@@ -39,7 +38,7 @@ class ExternalSloChecker(
         val data = SloJson.Builder()
             .results(fetchedData.map { it.data?.result })
             .addMetadata("threshold", threshold)
-            .addMetadata( "warmup", warmup)
+            .addMetadata("warmup", warmup)
             .build()
             .toJson()
 
@@ -47,10 +46,10 @@ class ExternalSloChecker(
             val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)
             if (result.statusCode != 200) {
                 counter++
-                logger.error { "Could not reach external SLO checker" }
+                logger.error { "Could not reach external SLO checker." }
             } else {
                 val booleanResult = result.text.toBoolean()
-                logger.info { "SLO checker result is: $booleanResult" }
+                logger.info { "SLO checker result is: $booleanResult." }
                 return booleanResult
             }
         }

@@ -43,15 +43,14 @@ class SloCheckerFactory {
         properties: MutableMap<String, String>,
         load: LoadDimension
     ): SloChecker {
-        return when (sloType.toLowerCase()) {
-            SloTypes.LAG_TREND.value, SloTypes.DROPPED_RECORDS.value -> ExternalSloChecker(
+        return when (SloTypes.from(sloType)) {
+            SloTypes.GENERIC, SloTypes.LAG_TREND, SloTypes.DROPPED_RECORDS -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
                 threshold = properties["threshold"]?.toInt() ?: throw IllegalArgumentException("threshold expected"),
                 warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
             )
-
-                SloTypes.LAG_TREND_RATIO.value, SloTypes.DROPPED_RECORDS_RATIO.value -> {
+            SloTypes.LAG_TREND_RATIO, SloTypes.DROPPED_RECORDS_RATIO -> {
                 val thresholdRatio =
                     properties["ratio"]?.toDouble()
                         ?: throw IllegalArgumentException("ratio for threshold expected")
@@ -68,7 +67,6 @@ class SloCheckerFactory {
                     warmup = properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")
                 )
             }
-            else -> throw IllegalArgumentException("Slotype $sloType not found.")
         }
     }
 }
