@@ -44,18 +44,6 @@ class ExecutionEventHandlerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        val operator = TheodoliteOperator()
-        this.controller = operator.getController(
-            client = server.client,
-            executionStateHandler = operator.getExecutionStateHandler(client = server.client),
-            benchmarkStateChecker = operator.getBenchmarkStateChecker(client = server.client)
-        )
-
-        this.factory = operator.getExecutionEventHandler(this.controller, server.client)
-        this.stateHandler = TheodoliteOperator().getExecutionStateHandler(client = server.client)
-
-        this.executionVersion1 = K8sResourceLoaderFromFile(server.client)
-            .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
 
         this.server.client
             .apiextensions().v1()
