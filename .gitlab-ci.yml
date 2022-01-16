@@ -474,6 +474,22 @@ test-slo-checker-dropped-records-kstreams:
     - when: manual
       allow_failure: true
 
+test-slo-checker-generic:
+  stage: test
+  needs: []
+  image: python:3.7-slim
+  before_script:
+    - cd slo-checker/generic
+  script:
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
+    - when: manual
+      allow_failure: true
+
 deploy-slo-checker-lag-trend:
   stage: deploy
   extends:
@@ -505,6 +521,24 @@ deploy-slo-checker-dropped-records-kstreams:
   rules:
     - changes:
       - slo-checker/dropped-records/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+deploy-slo-checker-generic:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs:
+    - test-slo-checker-generic
+  before_script:
+    - cd slo-checker/generic
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-generic
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual

@@ -1,5 +1,6 @@
 package theodolite.evaluation
 
+import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.InvalidPatcherConfigurationException
 import javax.enterprise.context.ApplicationScoped
 
@@ -9,11 +10,12 @@ private const val DROPPED_RECORDS_QUERY = "sum by(job) (kafka_streams_stream_tas
 @ApplicationScoped
 class SloConfigHandler {
     companion object {
-        fun getQueryString(sloType: String): String {
-            return when (sloType.lowercase()) {
+        fun getQueryString(slo: BenchmarkExecution.Slo): String {
+            return when (slo.sloType.toLowerCase()) {
+                SloTypes.GENERIC.value -> slo.properties["promQLQuery"] ?: throw IllegalArgumentException("promQLQuery expected")
                 SloTypes.LAG_TREND.value, SloTypes.LAG_TREND_RATIO.value -> CONSUMER_LAG_QUERY
                 SloTypes.DROPPED_RECORDS.value, SloTypes.DROPPED_RECORDS_RATIO.value -> DROPPED_RECORDS_QUERY
-                else -> throw  InvalidPatcherConfigurationException("Could not find Prometheus query string for slo type $sloType")
+                else -> throw  InvalidPatcherConfigurationException("Could not find Prometheus query string for slo type $slo.sloType")
             }
         }
     }

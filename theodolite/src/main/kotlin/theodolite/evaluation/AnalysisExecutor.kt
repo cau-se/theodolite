@@ -46,7 +46,7 @@ class AnalysisExecutor(
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = SloConfigHandler.getQueryString(sloType = slo.sloType)
+                        query = SloConfigHandler.getQueryString(slo = slo)
                     )
                 }
 
@@ -67,7 +67,7 @@ class AnalysisExecutor(
             return sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()} ", e)
+            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()}", e)
         }
     }
 
