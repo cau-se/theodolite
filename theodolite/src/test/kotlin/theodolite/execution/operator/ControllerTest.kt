@@ -32,10 +32,11 @@ class ControllerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        this.controller = TheodoliteOperator().getController(
+        val operator = TheodoliteOperator()
+        this.controller = operator.getController(
             client = server.client,
-            executionStateHandler = ExecutionStateHandler(server.client),
-            benchmarkStateHandler =  BenchmarkStateHandler(server.client)
+            executionStateHandler = operator.getExecutionStateHandler(client = server.client),
+            benchmarkStateChecker = operator.getBenchmarkStateChecker(client = server.client)
         )
 
         // benchmark
