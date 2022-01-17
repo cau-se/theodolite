@@ -139,7 +139,7 @@ class TheodoliteExecutor(
             )
             // Create expXYZ_demand.csv file
             ioHandler.writeToCSVFile(
-                "${resultsFolder}exp${this.config.executionId}_demand.csv",
+                "${resultsFolder}exp${this.config.executionId}_demand",
                 calculateDemandMetric(config.loads, config.compositeStrategy.benchmarkExecutor.results),
                 listOf("load","resources")
             )
