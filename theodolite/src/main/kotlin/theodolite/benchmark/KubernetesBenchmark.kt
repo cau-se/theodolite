@@ -1,6 +1,5 @@
 package theodolite.benchmark
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
@@ -82,11 +81,11 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * @return a [BenchmarkDeployment]
      */
     override fun buildDeployment(
-        load: LoadDimension,
-        res: Resource,
-        configurationOverrides: List<ConfigurationOverride?>,
-        loadGenerationDelay: Long,
-        afterTeardownDelay: Long
+            load: LoadDimension,
+            res: theodolite.util.Resources,
+            configurationOverrides: List<ConfigurationOverride?>,
+            loadGenerationDelay: Long,
+            afterTeardownDelay: Long
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
 

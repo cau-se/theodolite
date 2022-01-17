@@ -1,9 +1,10 @@
 package theodolite.strategies.searchstrategy
 
 import mu.KotlinLogging
+import org.apache.kafka.common.protocol.types.Field
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
+import theodolite.util.Resources
 
 private val logger = KotlinLogging.logger {}
 
@@ -13,16 +14,17 @@ private val logger = KotlinLogging.logger {}
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */
 class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
-    override fun findSuitableResource(load: LoadDimension, resources: List<Resource>): Resource? {
-        val result = binarySearch(load, resources, 0, resources.size - 1)
+    override fun findSuitableResource(load: LoadDimension, resources: List<Int>): Int? {
+        val result = binarySearch(load, resources, 0, resources.size - 1, true)
         if (result == -1) {
             return null
         }
         return resources[result]
     }
 
-    override fun findSuitableLoad(resource: Resource, loads: List<LoadDimension>): LoadDimension? {
-        TODO("Not yet implemented")
+    override fun findSuitableLoad(resource: Int, loads: List<LoadDimension>): LoadDimension? {
+        // TODO
+        return null
     }
 
     /**
@@ -33,14 +35,15 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
      * @param lower lower bound for binary search (inclusive)
      * @param upper upper bound for binary search (inclusive)
      */
-    private fun binarySearch(load: LoadDimension, resources: List<Resource>, lower: Int, upper: Int): Int {
+    private fun binarySearch(load: LoadDimension, resources: List<Int>, lower: Int, upper: Int,
+                             demand: Boolean): Int {
         if (lower > upper) {
             throw IllegalArgumentException()
         }
         // special case:  length == 1 or 2
         if (lower == upper) {
             val res = resources[lower]
-            logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
+            logger.info { "Running experiment with load '${load.get()}' and resources '$res'" }
             if (this.benchmarkExecutor.runExperiment(load, resources[lower])) return lower
             else {
                 if (lower + 1 == resources.size) return -1
@@ -51,14 +54,14 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
             // length > 2 and adjust upper and lower depending on the result for `resources[mid]`
             val mid = (upper + lower) / 2
             val res = resources[mid]
-            logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
+            logger.info { "Running experiment with load '${load.get()}' and resources '$res'" }
             if (this.benchmarkExecutor.runExperiment(load, resources[mid])) {
                 if (mid == lower) {
                     return lower
                 }
-                return binarySearch(load, resources, lower, mid - 1)
+                return binarySearch(load, resources, lower, mid - 1, demand)
             } else {
-                return binarySearch(load, resources, mid + 1, upper)
+                return binarySearch(load, resources, mid + 1, upper, demand)
             }
         }
     }

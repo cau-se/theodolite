@@ -5,7 +5,7 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
+import theodolite.util.Resources
 import java.text.Normalizer
 import java.time.Duration
 import java.time.Instant
@@ -36,14 +36,14 @@ class AnalysisExecutor(
      *  @param executionIntervals list of start and end points of experiments
      *  @return true if the experiment succeeded.
      */
-    fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
+    fun analyze(load: LoadDimension, res: Int, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
         var result: Boolean
         var repetitionCounter = 1
 
         try {
             val ioHandler = IOHandler()
             val resultsFolder: String = ioHandler.getResultFolderURL()
-            val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
+            val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res}_${slo.sloType.toSlug()}"
 
             val prometheusData = executionIntervals
                 .map { interval ->
@@ -71,7 +71,7 @@ class AnalysisExecutor(
             result = sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()} ", e)
+            throw EvaluationFailedException("Evaluation failed for resource '${res}' and load '${load.get()} ", e)
         }
         return result
     }

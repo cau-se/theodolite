@@ -43,7 +43,7 @@ internal class ResultsTest {
         this.setResult(
             Pair(
                 LoadDimension(load, emptyList()),
-                Resource(resources, emptyList())
+                Resources(resources, emptyList())
             ),
             successful
         )

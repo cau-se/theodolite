@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
+import theodolite.util.Resources
 
 private val logger = KotlinLogging.logger {}
 
@@ -28,7 +28,7 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
             val deployment =
                 benchmark.buildDeployment(
                     load = LoadDimension(0, emptyList()),
-                    res = Resource(0, emptyList()),
+                    res = Resources(listOf(0), emptyList()),
                     configurationOverrides = benchmarkExecution.configOverrides,
                     loadGenerationDelay = 0L,
                     afterTeardownDelay = 5L

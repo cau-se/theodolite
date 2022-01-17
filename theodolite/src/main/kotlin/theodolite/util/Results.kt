@@ -9,28 +9,28 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  */
 @RegisterForReflection
 class Results {
-    private val results: MutableMap<Pair<LoadDimension, Resource>, Boolean> = mutableMapOf()
+    private val results: MutableMap<Pair<LoadDimension, Int>, Boolean> = mutableMapOf()
 
     /**
      * Set the result for an experiment.
      *
-     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resource].
+     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resources].
      * @param successful the result of the experiment. Successful == true and Unsuccessful == false.
      */
-    fun setResult(experiment: Pair<LoadDimension, Resource>, successful: Boolean) {
+    fun setResult(experiment: Pair<LoadDimension, Int>, successful: Boolean) {
         this.results[experiment] = successful
     }
 
     /**
      * Get the result for an experiment.
      *
-     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resource].
+     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resources].
      * @return true if the experiment was successful and false otherwise. If the result has not been reported so far,
      * null is returned.
      *
-     * @see Resource
+     * @see Resources
      */
-    fun getResult(experiment: Pair<LoadDimension, Resource>): Boolean? {
+    fun getResult(experiment: Pair<LoadDimension, Int>): Boolean? {
         return this.results[experiment]
     }
 
@@ -44,16 +44,16 @@ class Results {
      * If no experiments have been marked as either successful or unsuccessful
      * yet, a Resource with the constant value Int.MIN_VALUE is returned.
      */
-    fun getMinRequiredInstances(load: LoadDimension?): Resource {
+    fun getMinRequiredInstances(load: LoadDimension?): Int {
         if (this.results.isEmpty()) {
-            return Resource(Int.MIN_VALUE, emptyList())
+            return Int.MIN_VALUE
         }
 
-        var minRequiredInstances = Resource(Int.MAX_VALUE, emptyList())
+        var minRequiredInstances = Int.MAX_VALUE
         for (experiment in results) {
             // Get all successful experiments for requested load
             if (experiment.key.first == load && experiment.value) {
-                if (experiment.key.second.get() < minRequiredInstances.get()) {
+                if (experiment.key.second < minRequiredInstances) {
                     // Found new smallest resources
                     minRequiredInstances = experiment.key.second
                 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.strategies.searchstrategy.InitialGuessSearchStrategy
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
 import theodolite.util.Results
 import mu.KotlinLogging
 import theodolite.strategies.searchstrategy.PrevResourceMinGuess
@@ -28,7 +27,7 @@ class InitialGuessSearchStrategyTest {
             arrayOf(false, false, false, false, false, false, false)
         )
         val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
+        val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
@@ -36,14 +35,14 @@ class InitialGuessSearchStrategyTest {
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
-        val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
+        val actual: ArrayList<Int?> = ArrayList()
+        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 3, 4, 6))
         expected.add(null)
 
         for (load in mockLoads) {
-            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources)
+            val returnVal : Int? = strategy.findSuitableResource(load, mockResources)
             if(returnVal != null) {
-                logger.info { "returnVal '${returnVal.get()}'" }
+                logger.info { "returnVal '${returnVal}'" }
             }
             else {
                 logger.info { "returnVal is null." }
@@ -66,7 +65,7 @@ class InitialGuessSearchStrategyTest {
             arrayOf(false, false, false, false, false, false, false)
         )
         val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
+        val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
@@ -74,14 +73,14 @@ class InitialGuessSearchStrategyTest {
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
-        val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 1, 4, 6).map { x -> Resource(x, emptyList()) })
+        val actual: ArrayList<Int?> = ArrayList()
+        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 1, 4, 6))
         expected.add(null)
 
         for (load in mockLoads) {
-            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources)
+            val returnVal : Int? = strategy.findSuitableResource(load, mockResources)
             if(returnVal != null) {
-                logger.info { "returnVal '${returnVal.get()}'" }
+                logger.info { "returnVal '${returnVal}'" }
             }
             else {
                 logger.info { "returnVal is null." }
@@ -104,7 +103,7 @@ class InitialGuessSearchStrategyTest {
                 arrayOf(false, false, false, false, false, false, false)
         )
         val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
+        val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
@@ -112,15 +111,15 @@ class InitialGuessSearchStrategyTest {
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)
 
-        val actual: ArrayList<Resource?> = ArrayList()
-        var expected: ArrayList<Resource?> = ArrayList(listOf(2, 3, 0, 4, 6).map { x -> Resource(x, emptyList()) })
+        val actual: ArrayList<Int?> = ArrayList()
+        var expected: ArrayList<Int?> = ArrayList(listOf(2, 3, 0, 4, 6))
         expected.add(null)
         expected = ArrayList(listOf(null) + expected)
 
         for (load in mockLoads) {
-            val returnVal : Resource? = strategy.findSuitableResource(load, mockResources)
+            val returnVal : Int? = strategy.findSuitableResource(load, mockResources)
             if(returnVal != null) {
-                logger.info { "returnVal '${returnVal.get()}'" }
+                logger.info { "returnVal '${returnVal}'" }
             }
             else {
                 logger.info { "returnVal is null." }

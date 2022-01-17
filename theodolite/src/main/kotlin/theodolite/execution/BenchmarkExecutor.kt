@@ -5,7 +5,7 @@ import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.ConfigurationOverride
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
+import theodolite.util.Resources
 import theodolite.util.Results
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
@@ -44,7 +44,7 @@ abstract class BenchmarkExecutor(
      * @return True, if the number of resources are suitable for the
      *     given load, false otherwise.
      */
-    abstract fun runExperiment(load: LoadDimension, res: Resource): Boolean
+    abstract fun runExperiment(load: LoadDimension, res: Int): Boolean
 
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.

@@ -9,7 +9,6 @@ import theodolite.strategies.searchstrategy.BinarySearch
 import theodolite.strategies.searchstrategy.RestrictionSearch
 import theodolite.strategies.searchstrategy.LinearSearch
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
 import theodolite.util.Results
 
 @QuarkusTest
@@ -28,7 +27,7 @@ class RestrictionSearchTest {
             arrayOf(false, false, false, false, false, false, false)
         )
         val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
+        val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -38,8 +37,8 @@ class RestrictionSearchTest {
         val strategy =
             RestrictionSearch(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
 
-        val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
+        val actual: ArrayList<Int?> = ArrayList()
+        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 3, 4, 6))
         expected.add(null)
 
         for (load in mockLoads) {
@@ -61,7 +60,7 @@ class RestrictionSearchTest {
             arrayOf(false, false, false, false, false, false, false)
         )
         val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
-        val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
+        val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -71,8 +70,8 @@ class RestrictionSearchTest {
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy = RestrictionSearch(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
 
-        val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> = ArrayList(listOf(0, 2, 2, 3, 4, 6).map { x -> Resource(x, emptyList()) })
+        val actual: ArrayList<Int?> = ArrayList()
+        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 3, 4, 6))
         expected.add(null)
 
         for (load in mockLoads) {
@@ -94,7 +93,7 @@ class RestrictionSearchTest {
             arrayOf(false, false, false, false, false, false, false, true)
         )
         val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
-        val mockResources: List<Resource> = (0..7).map { number -> Resource(number, emptyList()) }
+        val mockResources: List<Int> = (0..7).toList()
         val results = Results()
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -104,9 +103,9 @@ class RestrictionSearchTest {
         val strategy =
             RestrictionSearch(benchmarkExecutor, binarySearch, setOf(lowerBoundRestriction))
 
-        val actual: ArrayList<Resource?> = ArrayList()
-        val expected: ArrayList<Resource?> =
-            ArrayList(listOf(0, 2, 2, 3, 4, 6, 7).map { x -> Resource(x, emptyList()) })
+        val actual: ArrayList<Int?> = ArrayList()
+        val expected: ArrayList<Int?> =
+            ArrayList(listOf(0, 2, 2, 3, 4, 6, 7))
 
         for (load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))

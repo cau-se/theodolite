@@ -4,7 +4,7 @@ import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
+import theodolite.util.Resources
 import theodolite.util.Results
 import java.time.Duration
 
@@ -30,7 +30,7 @@ class TestBenchmarkExecutorImpl(
         executionName = "test-execution"
     ) {
 
-    override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
+    override fun runExperiment(load: LoadDimension, res: Resources): Boolean {
         val result = this.mockResults[load.get()][res.get()]
         this.results.setResult(Pair(load, res), result)
         return result

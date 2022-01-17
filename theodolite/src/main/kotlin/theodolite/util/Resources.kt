@@ -6,13 +6,20 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  * Representation of the resources for an execution of Theodolite.
  */
 @RegisterForReflection
-data class Resource(private val number: Int, private val type: List<PatcherDefinition>) {
+data class Resources(private val resourceList: List<Int>, private val type: List<PatcherDefinition>) {
 
     /**
-     * @return the value of this resource.
+     * @return the list of resources.
      */
-    fun get(): Int {
-        return this.number
+    fun get(): List<Int> {
+        return this.resourceList
+    }
+
+    /**
+     * @return the resource at a given Index.
+     */
+    fun getIndex(i: Int): Int {
+        return this.resourceList[i]
     }
 
     /**

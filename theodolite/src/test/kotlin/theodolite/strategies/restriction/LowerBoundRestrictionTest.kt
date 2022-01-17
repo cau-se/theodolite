@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import theodolite.util.LoadDimension
-import theodolite.util.Resource
+import theodolite.util.Resources
 import theodolite.util.Results
 
 internal class LowerBoundRestrictionTest {
@@ -64,7 +64,7 @@ internal class LowerBoundRestrictionTest {
         val restriction = strategy.apply(load, resources)
 
         assertEquals(0, restriction.size)
-        assertEquals(emptyList<Resource>(), restriction)
+        assertEquals(emptyList<Resources>(), restriction)
     }
 
 
@@ -79,7 +79,7 @@ internal class LowerBoundRestrictionTest {
         val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
 
         assertNotNull(minRequiredInstances)
-        assertEquals(2, minRequiredInstances!!.get())
+        assertEquals(2, minRequiredInstances!!)
     }
 
     @Test
@@ -95,15 +95,15 @@ internal class LowerBoundRestrictionTest {
         val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
 
         assertNotNull(minRequiredInstances)
-        assertEquals(2, minRequiredInstances!!.get())
+        assertEquals(2, minRequiredInstances!!)
     }
 
     private fun buildLoadDimension(load: Int): LoadDimension {
         return LoadDimension(load, emptyList())
     }
 
-    private fun buildResourcesDimension(resources: Int): Resource {
-        return Resource(resources, emptyList())
+    private fun buildResourcesDimension(resources: Int): Int {
+        return resources
     }
 
     private fun Results.setResult(load: Int, resources: Int, successful: Boolean) {

@@ -86,12 +86,7 @@ class TheodoliteExecutor(
 
         return Config(
             loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },
-            resources = config.resources.resourceValues.map { resource ->
-                Resource(
-                    resource,
-                    resourcePatcherDefinition
-                )
-            },
+            resources = Resources(config.resources.resourceValues, resourcePatcherDefinition),
             searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results),
             metric = config.execution.metric
         )
@@ -125,12 +120,12 @@ class TheodoliteExecutor(
                 //demand metric
                 for (load in config.loads) {
                     if (executor.run.get()) {
-                        config.searchStrategy.findSuitableResource(load, config.resources)
+                        config.searchStrategy.findSuitableResource(load, config.resources.get())
                     }
                 }
             } else {
                 //capacity metric
-                for (resource in config.resources) {
+                for (resource in config.resources.get()) {
                     if (executor.run.get()) {
                         config.searchStrategy.findSuitableLoad(resource, config.loads)
                     }

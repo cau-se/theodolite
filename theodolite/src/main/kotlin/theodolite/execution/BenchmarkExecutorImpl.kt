@@ -39,7 +39,7 @@ class BenchmarkExecutorImpl(
     private val eventCreator = EventCreator()
     private val mode = Configuration.EXECUTION_MODE
 
-    override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
+    override fun runExperiment(load: LoadDimension, res: Int): Boolean {
         var result = false
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList()
 
@@ -76,7 +76,8 @@ class BenchmarkExecutorImpl(
         return result
     }
 
-    private fun runSingleExperiment(load: LoadDimension, res: Resource): Pair<Instant, Instant> {
+    private fun runSingleExperiment(load: LoadDimension, res: Int): Pair<Instant, Instant> {
+        // TODO res muss eigentlich eine Resource (Int) + Patcher sein
         val benchmarkDeployment = benchmark.buildDeployment(
             load,
             res,
@@ -94,7 +95,7 @@ class BenchmarkExecutorImpl(
                     executionName = executionName,
                     type = "NORMAL",
                     reason = "Start experiment",
-                    message = "load: ${load.get()}, resources: ${res.get()}")
+                    message = "load: ${load.get()}, resources: $res")
             }
         } catch (e: Exception) {
             this.run.set(false)
@@ -104,7 +105,7 @@ class BenchmarkExecutorImpl(
                     executionName = executionName,
                     type = "WARNING",
                     reason = "Start experiment failed",
-                    message = "load: ${load.get()}, resources: ${res.get()}")
+                    message = "load: ${load.get()}, resources: $res")
             }
             throw ExecutionFailedException("Error during setup the experiment", e)
         }

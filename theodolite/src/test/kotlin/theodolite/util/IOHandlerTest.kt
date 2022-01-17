@@ -69,7 +69,7 @@ internal class IOHandlerTest {
     fun testWriteToJSONFile() {
         temporaryFolder.create()
         val folder = temporaryFolder.newFolder(FOLDER_URL)
-        val testContent = Resource(0, emptyList())
+        val testContent = Resources(0, emptyList())
 
         IOHandler().writeToJSONFile(
             fileURL = "${folder.absolutePath}/test-file.json",
