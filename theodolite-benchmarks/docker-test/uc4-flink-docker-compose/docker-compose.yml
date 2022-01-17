@@ -33,7 +33,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc4-workload-generator:v0.6.0
+    image: ghcr.io/cau-se/theodolite-uc4-workload-generator:v0.6.1
     depends_on:
       - schema-registry
       - kafka
@@ -45,7 +45,7 @@ services:
       NUM_SENSORS: 4
       NUM_NESTED_GROUPS: 4
   benchmark-jobmanager:
-    image: ghcr.io/cau-se/theodolite-uc4-flink:v0.6.0
+    image: ghcr.io/cau-se/theodolite-uc4-flink:v0.6.1
     #ports:
     #  - "8080:8081"
     command: standalone-job --job-classname theodolite.uc4.application.AggregationServiceFlinkJob
@@ -60,7 +60,7 @@ services:
       - schema-registry
       - kafka
   benchmark-taskmanager:
-    image: ghcr.io/cau-se/theodolite-uc4-flink:v0.6.0
+    image: ghcr.io/cau-se/theodolite-uc4-flink:v0.6.1
     command: taskmanager
     environment:
       - |
