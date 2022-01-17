@@ -31,6 +31,19 @@ spec:
           volumeMounts:
             - name: theodolite-results-volume
               mountPath: "/deployments/results"
+        {{- if .Values.operator.sloChecker.droppedRecordsKStreams.enabled }}
+        - name: slo-checker-generic
+          image: "{{ .Values.operator.sloChecker.generic.image }}:{{ .Values.operator.sloChecker.generic.imageTag }}"
+          imagePullPolicy: "{{ .Values.operator.sloChecker.generic.imagePullPolicy }}"
+          ports:
+          - containerPort: 8082
+            name: analysis
+          env:
+          - name: PORT
+            value: "8082"
+          - name: LOG_LEVEL
+            value: INFO
+        {{- end }}
         {{- if .Values.operator.sloChecker.lagTrend.enabled }}
         - name: lag-trend-slo-checker
           image: "{{ .Values.operator.sloChecker.lagTrend.image }}:{{ .Values.operator.sloChecker.lagTrend.imageTag }}"
