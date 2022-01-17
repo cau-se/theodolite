@@ -8,5 +8,8 @@ cp-helm-charts:
       offsets.topic.replication.factor: "1"
 
 operator:
+  sloChecker:
+    droppedRecordsKStreams:
+      enabled: false
   resultsVolume:
     enabled: false
