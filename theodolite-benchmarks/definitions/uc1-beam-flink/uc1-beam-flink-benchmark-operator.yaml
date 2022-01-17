@@ -6,7 +6,7 @@ spec:
   sut:
     resources:
       - configMap:
-          name: "benchmark-resources-uc1-flink"
+          name: "benchmark-resources-uc1-beam-flink"
           files:
           - "flink-configuration-configmap.yaml"
           - "taskmanager-deployment.yaml"
