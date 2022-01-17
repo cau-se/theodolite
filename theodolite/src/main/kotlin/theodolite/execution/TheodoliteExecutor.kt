@@ -158,7 +158,7 @@ class TheodoliteExecutor(
     }
 
     private fun calculateDemandMetric(loadDimensions: List<LoadDimension>, results: Results): List<List<String>> {
-        return loadDimensions.map { listOf(it.get().toString(), results.getMinRequiredInstances(it).get().toString()) }
+        return loadDimensions.map { listOf(it.get().toString(), results.getMinRequiredInstances(it)?.get().toString()) }
     }
 
 }
