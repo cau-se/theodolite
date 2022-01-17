@@ -256,6 +256,11 @@ operator:
   nodeSelector: {}
 
   sloChecker:
+    generic:
+      enabled: true
+      image: ghcr.io/cau-se/theodolite-slo-checker-generic
+      imageTag: latest
+      imagePullPolicy: Always
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
