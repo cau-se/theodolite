@@ -11,6 +11,7 @@ Running scalability benchmarks with Theodolite involves the following steps:
 1. [Deploying a benchmark to Kubernetes](#deploying-a-benchmark)
 1. [Creating an execution](#creating-an-execution), which describes the experimental setup for running the benchmark
 1. [Accessing benchmark results](#accessing-benchmark-results)
+1. [Analyzing benchmark results](#analyzing-benchmark-results) with Theodolite's Jupyter notebooks
 
 
 ## Deploying a Benchmark
@@ -131,3 +132,32 @@ For installations without persistence, but also as an alternative for installati
 ```sh
 kubectl cp $(kubectl get pod -l app=theodolite -o jsonpath="{.items[0].metadata.name}"):/results . -c results-access
 ```
+
+## Analyzing Benchmark Results
+
+Theodolite comes with Jupyter notebooks for analyzing and visualizing benchmark execution results.
+The easiest way to use them is at MyBinder:
+
+[Launch Notebooks](https://mybinder.org/v2/gh/cau-se/theodolite/HEAD?labpath=analysis){: .btn .btn-primary }
+{: .text-center }
+
+Alternatively, you can also [run these notebook locally](https://github.com/cau-se/theodolite/tree/master/analysis), for example, with Docker or Visual Studio Code.
+
+The notebooks allow to compute a scalability function using its *demand* metric and to visualize multiple such functions in plots:
+
+### Computing the *demand* metric with `demand-metric.ipynb` (optional)
+
+After finishing a benchmark execution, Theodolite creates a `exp<id>_demand.csv` file. It maps the tested load intensities to the minimal required resources for that load. If the monitoring data collected during benchmark execution should be analyzed in more detail, the `demand-metric.ipynb` notebook can be used. 
+
+Theodolite stores monitoring data for each conducted SLO experiment in `exp<id>_<load>_<resources>_<slo-slug>_<rep>.csv` files, where `<id>` is the ID of an execution, `<load>` the corresponding load intensity value, `<resources>` the resources value, `<slo-slug>` the [name of the SLO](creating-an-execution.html#definition-of-slos) and `<rep>` the repetition counter.
+The `demand-metric.ipynb` notebook reads these files and generates a new CSV file mapping load intensities to the minimal required resources. The format of this file corresponds to the original `exp<id>_demand.csv` file created when running the benchmark, but allows, for example, to evaluate different warm-up periods.
+
+Currently, the `demand-metric.ipynb` notebook only supports benchmarks with the *lag trend SLO* out-of-the-box, but can easily be adjusted to perform any other type of analysis.
+
+### Plotting benchmark results with the *demand* metric with `demand-metric-plot.ipynb`
+
+The `demand-metric-plot.ipynb` takes one or multiple `exp<id>_demand.csv` files as input and visualize them together in a plot.
+Input files can either be taken directly from Theodolite, or created from the `demand-metric.ipynb` notebooks.
+
+All plotting code is only intended to serve as a template. Adjust it as needed to change colors, labels, formatting, etc. as needed. 
+Please refer to the official docs of [MatPlotLib](https://matplotlib.org/) and the [ggplot](https://matplotlib.org/stable/gallery/style_sheets/ggplot.html) style, which are used to generate the plots.

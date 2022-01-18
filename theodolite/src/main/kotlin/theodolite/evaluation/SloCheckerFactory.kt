@@ -50,12 +50,11 @@ class SloCheckerFactory {
                 // TODO validate property contents
                 metadata = mapOf(
                     "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
-                    "queryAggregation" to (properties["warmup"]?.toInt()
+                    "queryAggregation" to (properties["queryAggregation"]
                         ?: throw IllegalArgumentException("queryAggregation expected")),
-                    "repetitionAggregation" to (properties["warmup"]?.toInt()
+                    "repetitionAggregation" to (properties["repetitionAggregation"]
                         ?: throw IllegalArgumentException("repetitionAggregation expected")),
-                    "operator" to (properties["warmup"]?.toInt()
-                        ?: throw IllegalArgumentException("operator expected")),
+                    "operator" to (properties["operator"] ?: throw IllegalArgumentException("operator expected")),
                     "threshold" to (properties["threshold"]?.toInt()
                         ?: throw IllegalArgumentException("threshold expected"))
                 )

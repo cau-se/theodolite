@@ -57,14 +57,13 @@ def check_result(result, operator: str, threshold):
 @app.post("/",response_model=bool)
 async def check_slo(request: Request):
     data = json.loads(await request.body())
+    logger.info('Received request with metadata: %s', data['metadata'])
+
     warmup = int(data['metadata']['warmup'])
     query_aggregation = get_aggr_func(data['metadata']['queryAggregation'])
     rep_aggregation = get_aggr_func(data['metadata']['repetitionAggregation'])
     operator = data['metadata']['operator']
     threshold = int(data['metadata']['threshold'])
-
-    for r in data["results"]:
-        aggr_query(r[0]["values"], warmup, query_aggregation)
 
     query_results = [aggr_query(r[0]["values"], warmup, query_aggregation) for r in data["results"]]
     result = pd.DataFrame(query_results).aggregate(rep_aggregation).at[0]
