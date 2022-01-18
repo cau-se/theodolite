@@ -1,6 +1,5 @@
 package theodolite.evaluation
 
-import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
@@ -11,8 +10,6 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.regex.Pattern
-
-private val logger = KotlinLogging.logger {}
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
@@ -37,7 +34,6 @@ class AnalysisExecutor(
      *  @return true if the experiment succeeded.
      */
     fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
-        var result: Boolean
         var repetitionCounter = 1
 
         try {
@@ -50,7 +46,7 @@ class AnalysisExecutor(
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
-                        query = SloConfigHandler.getQueryString(sloType = slo.sloType)
+                        query = SloConfigHandler.getQueryString(slo = slo)
                     )
                 }
 
@@ -68,12 +64,11 @@ class AnalysisExecutor(
                 load = load
             )
 
-            result = sloChecker.evaluate(prometheusData)
+            return sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()} ", e)
+            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()}", e)
         }
-        return result
     }
 
     private val NONLATIN: Pattern = Pattern.compile("[^\\w-]")
@@ -83,6 +78,6 @@ class AnalysisExecutor(
         val noWhitespace: String = WHITESPACE.matcher(this).replaceAll("-")
         val normalized: String = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD)
         val slug: String = NONLATIN.matcher(normalized).replaceAll("")
-        return slug.toLowerCase(Locale.ENGLISH)
+        return slug.lowercase(Locale.ENGLISH)
     }
 }

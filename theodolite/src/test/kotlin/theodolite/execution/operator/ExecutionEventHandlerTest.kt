@@ -1,227 +1,264 @@
 package theodolite.execution.operator
 
-import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.client.informers.SharedInformerFactory
+import io.fabric8.kubernetes.api.model.KubernetesResourceList
+import io.fabric8.kubernetes.client.dsl.MixedOperation
+import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import theodolite.k8s.K8sManager
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.model.crd.ExecutionStates
-import java.lang.Thread.sleep
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.*
+import theodolite.model.crd.ExecutionCRD
+import theodolite.model.crd.ExecutionState
+import java.io.FileInputStream
+import java.util.stream.Stream
 
+// TODO move somewhere else
+typealias ExecutionClient = MixedOperation<ExecutionCRD, KubernetesResourceList<ExecutionCRD>, Resource<ExecutionCRD>>
 
-private const val RESYNC_PERIOD = 1000 * 1000.toLong()
-
-
+@WithKubernetesTestServer
 @QuarkusTest
 class ExecutionEventHandlerTest {
-    private final val server = KubernetesServer(false, true)
-    private val testResourcePath = "./src/test/resources/k8s-resource-files/"
-    private final val executionName = "example-execution"
-    lateinit var factory: SharedInformerFactory
-    lateinit var executionVersion1: KubernetesResource
-    lateinit var executionVersion2: KubernetesResource
-    lateinit var stateHandler: ExecutionStateHandler
-    lateinit var manager: K8sManager
+
+    @KubernetesTestServer
+    private lateinit var server: KubernetesServer
+
+    lateinit var executionClient: ExecutionClient
+
     lateinit var controller: TheodoliteController
+
+    lateinit var stateHandler: ExecutionStateHandler
+
+    lateinit var eventHandler: ExecutionEventHandler
 
     @BeforeEach
     fun setUp() {
         server.before()
-        val operator = TheodoliteOperator()
-        this.controller = operator.getController(
-            client = server.client,
-            executionStateHandler = operator.getExecutionStateHandler(client = server.client),
-            benchmarkStateChecker = operator.getBenchmarkStateChecker(client = server.client)
-        )
 
-        this.factory = operator.getExecutionEventHandler(this.controller, server.client)
-        this.stateHandler = TheodoliteOperator().getExecutionStateHandler(client = server.client)
+        this.server.client
+            .apiextensions().v1()
+            .customResourceDefinitions()
+            .load(FileInputStream("crd/crd-execution.yaml"))
+            .create()
 
-        this.executionVersion1 = K8sResourceLoaderFromFile(server.client)
-            .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
+        this.executionClient = this.server.client.resources(ExecutionCRD::class.java)
 
-        this.executionVersion2 = K8sResourceLoaderFromFile(server.client)
-            .loadK8sResource("Execution", testResourcePath + "test-execution-update.yaml")
-
-        this.stateHandler = operator.getExecutionStateHandler(server.client)
-
-        this.manager = K8sManager((server.client))
+        this.controller = mock()
+        this.stateHandler = ExecutionStateHandler(server.client)
+        this.eventHandler = ExecutionEventHandler(this.controller, this.stateHandler)
     }
 
     @AfterEach
     fun tearDown() {
         server.after()
-        factory.stopAllRegisteredInformers()
     }
 
     @Test
-    @DisplayName("Check namespaced property of informers")
-    fun testNamespaced() {
-        manager.deploy(executionVersion1)
-        factory.startAllRegisteredInformers()
-        server.lastRequest
-        // the second request must be namespaced (this is the first `GET` request)
-        assert(
-            server
-                .lastRequest
-                .toString()
-                .contains("namespaces")
-        )
+    fun testCrdRegistered() {
+        val crds = this.server.client.apiextensions().v1().customResourceDefinitions().list();
+        assertEquals(1, crds.items.size)
+        assertEquals("execution", crds.items[0].spec.names.kind)
+    }
+
+    @Test
+    fun testExecutionDeploy() {
+        getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml").create()
+
+        val executions = executionClient.list().items
+        assertEquals(1, executions.size)
+    }
+
+    @Test
+    fun testStatusSet() {
+        val execCreated = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml").create()
+        assertNotNull(execCreated.status)
+        val execResponse = this.executionClient.withName(execCreated.metadata.name)
+        val execResponseItem = execResponse.get()
+        assertNotNull(execResponseItem.status)
     }
 
     @Test
     @DisplayName("Test onAdd method for executions without execution state")
-    fun testWithoutState() {
-        manager.deploy(executionVersion1)
-        factory.startAllRegisteredInformers()
-        sleep(500)
-        assertEquals(
-            ExecutionStates.PENDING,
-            stateHandler.getExecutionState(
-                resourceName = executionName
-            )
-        )
+    fun testOnAddWithoutStatus() {
+        // Create first version of execution resource
+        val executionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
+        val execution = executionResource.create()
+        val executionName = execution.metadata.name
+
+        // Get execution from server
+        val executionResponse = this.executionClient.withName(executionName).get()
+        this.eventHandler.onAdd(executionResponse)
+
+        assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
     @DisplayName("Test onAdd method for executions with execution state `RUNNING`")
-    fun testWithStateIsRunning() {
-        manager.deploy(executionVersion1)
-        stateHandler
-            .setExecutionState(
-                resourceName = executionName,
-                status = ExecutionStates.RUNNING
-            )
-        factory.startAllRegisteredInformers()
-        sleep(500)
-        assertEquals(
-            ExecutionStates.RESTART,
-            stateHandler.getExecutionState(
-                resourceName = executionName
-            )
-        )
+    fun testOnAddWithStatusRunning() {
+        // Create first version of execution resource
+        val executionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
+        val execution = executionResource.create()
+        val executionName = execution.metadata.name
+        stateHandler.setExecutionState(executionName, ExecutionState.RUNNING)
+
+        // Update status of execution
+        execution.status.executionState = ExecutionState.RUNNING
+        executionResource.patchStatus(execution)
+
+
+        // Get execution from server
+        val executionResponse = this.executionClient.withName(executionName).get()
+        // Assert that status at server matches set status
+        assertEquals(ExecutionState.RUNNING, this.executionClient.withName(executionName).get().status.executionState)
+
+        whenever(this.controller.isExecutionRunning(executionName)).thenReturn(true)
+
+        this.eventHandler.onAdd(executionResponse)
+
+        verify(this.controller).stop(true)
+        assertEquals(ExecutionState.RESTART, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
-    @DisplayName("Test onUpdate method for execution with execution state `PENDING`")
-    fun testOnUpdatePending() {
-        manager.deploy(executionVersion1)
+    @DisplayName("Test onUpdate method for execution with no status")
+    fun testOnUpdateWithoutStatus() {
+        // Create first version of execution resource
+        val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
+        val firstExecution = firstExecutionResource.create()
+        val executionName = firstExecution.metadata.name
 
-        factory.startAllRegisteredInformers()
-        sleep(500)
+        // Get execution from server
+        val firstExecutionResponse = this.executionClient.withName(executionName).get()
+        // Assert that execution at server has no status
+        assertEquals(ExecutionState.NO_STATE, firstExecutionResponse.status.executionState)
 
-        assertEquals(
-            ExecutionStates.PENDING,
-            stateHandler.getExecutionState(
-                resourceName = executionName
-            )
-        )
+        // Create new version of execution and update at server
+        getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
+        // Get execution from server
+        val secondExecutionResponse = this.executionClient.withName(executionName).get()
 
-        manager.deploy(executionVersion2)
-        assertEquals(
-            ExecutionStates.PENDING,
-            stateHandler.getExecutionState(
-                resourceName = executionName
-            )
-        )
+        this.eventHandler.onUpdate(firstExecutionResponse, secondExecutionResponse)
+
+        // Get execution from server and assert that new status matches expected one
+        assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideOnUpdateTestArguments")
+    @DisplayName("Test onUpdate method for execution with different status")
+    fun testOnUpdateWithStatus(beforeState: ExecutionState, expectedState: ExecutionState) {
+        // Create first version of execution resource
+        val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
+        val firstExecution = firstExecutionResource.create()
+        val executionName = firstExecution.metadata.name
+
+        // Update status of execution
+        firstExecution.status.executionState = beforeState
+        firstExecutionResource.patchStatus(firstExecution)
+
+        // Get execution from server
+        val firstExecutionResponse = this.executionClient.withName(executionName).get()
+        // Assert that status at server matches set status
+        assertEquals(beforeState, firstExecutionResponse.status.executionState)
+
+        // Create new version of execution and update at server
+        getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
+        // Get execution from server
+        val secondExecutionResponse = this.executionClient.withName(executionName).get()
+
+        this.eventHandler.onUpdate(firstExecutionResponse, secondExecutionResponse)
+
+        // Get execution from server and assert that new status matches expected one
+        assertEquals(expectedState, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
-    @DisplayName("Test onUpdate method for execution with execution state `FINISHED`")
-    fun testOnUpdateFinished() {
-        manager.deploy(executionVersion1)
-        factory.startAllRegisteredInformers()
-        sleep(500)
+    fun testOnDeleteWithExecutionRunning() {
+        // Create first version of execution resource
+        val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
+        val firstExecution = firstExecutionResource.create()
+        val executionName = firstExecution.metadata.name
 
-        stateHandler.setExecutionState(
-            resourceName = executionName,
-            status = ExecutionStates.FINISHED
-        )
+        // Update status of execution to be running
+        firstExecution.status.executionState = ExecutionState.RUNNING
+        firstExecutionResource.patchStatus(firstExecution)
 
-        manager.deploy(executionVersion2)
-        sleep(500)
+        // Get execution from server
+        val firstExecutionResponse = this.executionClient.withName(executionName).get()
+        // Assert that execution created at server
+        assertNotNull(firstExecutionResponse)
 
-        assertEquals(
-            ExecutionStates.PENDING,
-            stateHandler.getExecutionState(
-                resourceName = executionName
-            )
-        )
+        // Delete execution
+        this.executionClient.delete(firstExecutionResponse)
+
+        // Get execution from server
+        val secondExecutionResponse = this.executionClient.withName(executionName).get()
+        // Assert that execution created at server
+        assertNull(secondExecutionResponse)
+
+        // We consider execution to be running
+        whenever(this.controller.isExecutionRunning(executionName)).thenReturn(true)
+
+        this.eventHandler.onDelete(firstExecutionResponse, true)
+
+        verify(this.controller).stop(false)
     }
 
     @Test
-    @DisplayName("Test onUpdate method for execution with execution state `FAILURE`")
-    fun testOnUpdateFailure() {
-        manager.deploy(executionVersion1)
-        factory.startAllRegisteredInformers()
-        sleep(500)
+    fun testOnDeleteWithExecutionNotRunning() {
+        // Create first version of execution resource
+        val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
+        val firstExecution = firstExecutionResource.create()
+        val executionName = firstExecution.metadata.name
 
-        stateHandler.setExecutionState(
-            resourceName = executionName,
-            status = ExecutionStates.FAILURE
-        )
+        // Update status of execution to be running
+        firstExecution.status.executionState = ExecutionState.RUNNING
+        firstExecutionResource.patchStatus(firstExecution)
 
-        manager.deploy(executionVersion2)
-        sleep(500)
+        // Get execution from server
+        val firstExecutionResponse = this.executionClient.withName(executionName).get()
+        // Assert that execution created at server
+        assertNotNull(firstExecutionResponse)
 
-        assertEquals(
-            ExecutionStates.PENDING,
-            stateHandler.getExecutionState(
-                resourceName = executionName
-            )
-        )
+        // Delete execution
+        this.executionClient.delete(firstExecutionResponse)
+
+        // Get execution from server
+        val secondExecutionResponse = this.executionClient.withName(executionName).get()
+        // Assert that execution created at server
+        assertNull(secondExecutionResponse)
+
+        // We consider execution to be running
+        whenever(this.controller.isExecutionRunning(executionName)).thenReturn(false)
+
+        this.eventHandler.onDelete(firstExecutionResponse, true)
+
+        verify(this.controller, never()).stop(false)
     }
 
-
-    @Test
-    @DisplayName("Test onUpdate method for execution with execution state `RUNNING`")
-    fun testOnUpdateRunning() {
-        manager.deploy(executionVersion1)
-        factory.startAllRegisteredInformers()
-        sleep(500)
-
-        stateHandler.setExecutionState(
-            resourceName = executionName,
-            status = ExecutionStates.RUNNING
-        )
-
-        manager.deploy(executionVersion2)
-        sleep(500)
-
-        assertEquals(
-            ExecutionStates.RESTART,
-            stateHandler.getExecutionState(
-                resourceName = executionName
-            )
-        )
+    private fun getExecutionFromSystemResource(resourceName: String): Resource<ExecutionCRD> {
+        return executionClient.load(ClassLoader.getSystemResourceAsStream(resourceName))
     }
 
-    @Test
-    @DisplayName("Test onUpdate method for execution with execution state `RESTART`")
-    fun testOnUpdateRestart() {
-        manager.deploy(executionVersion1)
-        factory.startAllRegisteredInformers()
-        sleep(500)
-
-        stateHandler.setExecutionState(
-            resourceName = executionName,
-            status = ExecutionStates.RESTART
-        )
-
-        manager.deploy(executionVersion2)
-        sleep(500)
-
-        assertEquals(
-            ExecutionStates.RESTART,
-            stateHandler.getExecutionState(
-                resourceName = executionName
+    companion object {
+        @JvmStatic
+        fun provideOnUpdateTestArguments(): Stream<Arguments> =
+            Stream.of(
+                // before state -> expected state
+                Arguments.of(ExecutionState.PENDING, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.FINISHED, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.FAILURE, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.RUNNING, ExecutionState.RESTART),
+                Arguments.of(ExecutionState.RESTART, ExecutionState.RESTART)
             )
-        )
     }
+
 }

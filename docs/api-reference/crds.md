@@ -2069,10 +2069,19 @@ Specifies the scaling resource that is benchmarked.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>completionTime</b></td>
+        <td>string</td>
+        <td>
+          Time when this execution was stopped<br/>
+          <br/>
+            <i>Format</i>: date-time<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>executionDuration</b></td>
         <td>string</td>
         <td>
-          Duration of the execution in seconds<br/>
+          Duration of the execution<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -2080,6 +2089,15 @@ Specifies the scaling resource that is benchmarked.
         <td>string</td>
         <td>
           <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>startTime</b></td>
+        <td>string</td>
+        <td>
+          Time this execution started<br/>
+          <br/>
+            <i>Format</i>: date-time<br/>
         </td>
         <td>false</td>
       </tr></tbody>

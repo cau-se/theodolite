@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
-import mu.KotlinLogging
 import theodolite.util.DeploymentFailedException
 
 @JsonDeserialize
@@ -14,7 +13,7 @@ import theodolite.util.DeploymentFailedException
 class ResourceSets: KubernetesResource {
     @JsonProperty("configMap")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    var  configMap: ConfigMapResourceSet? = null
+    var configMap: ConfigMapResourceSet? = null
 
     @JsonProperty("fileSystem")
     @JsonInclude(JsonInclude.Include.NON_NULL)
