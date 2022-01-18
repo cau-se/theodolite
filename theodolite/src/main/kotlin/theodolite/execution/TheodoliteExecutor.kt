@@ -137,6 +137,12 @@ class TheodoliteExecutor(
                 config.compositeStrategy.benchmarkExecutor.results,
                 "${resultsFolder}exp${this.config.executionId}-result"
             )
+            // Create expXYZ_demand.csv file
+            ioHandler.writeToCSVFile(
+                "${resultsFolder}exp${this.config.executionId}_demand",
+                calculateDemandMetric(config.loads, config.compositeStrategy.benchmarkExecutor.results),
+                listOf("load","resources")
+            )
         }
         kubernetesBenchmark.teardownInfrastructure()
     }
@@ -149,6 +155,10 @@ class TheodoliteExecutor(
         }
         ioHandler.writeStringToTextFile(fileURL, (executionID).toString())
         return executionID
+    }
+
+    private fun calculateDemandMetric(loadDimensions: List<LoadDimension>, results: Results): List<List<String>> {
+        return loadDimensions.map { listOf(it.get().toString(), results.getMinRequiredInstances(it).get().toString()) }
     }
 
 }

@@ -12,14 +12,8 @@ You can run your application in dev mode using:
 ./gradlew quarkusDev
 ```
 
-### Hint for running with k3s (or k3d)
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
 
-You may need to add the following dependencies to the `build.gradle` file when running Theodolite with k3s.
-
-```
-implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.68'
-implementation 'org.bouncycastle:bcpkix-jdk15on:1.68'
-```
 
 ## Packaging and running the application
 
@@ -29,7 +23,7 @@ The application can be packaged using:
 ./gradlew build
 ```
 
-It produces the `theodolite-0.6.0-SNAPSHOT-runner.jar` file in the `/build` directory. Be aware that it’s not
+It produces the `theodolite-0.7.0-SNAPSHOT-runner.jar` file in the `/build` directory. Be aware that it’s not
 an _über-jar_ as the dependencies are copied into the `build/lib` directory.
 
 If you want to build an _über-jar_, execute the following command:
@@ -38,7 +32,7 @@ If you want to build an _über-jar_, execute the following command:
 ./gradlew build -Dquarkus.package.type=uber-jar
 ```
 
-The application is now runnable using `java -jar build/theodolite-0.6.0-SNAPSHOT-runner.jar`.
+The application is now runnable using `java -jar build/theodolite-0.7.0-SNAPSHOT-runner.jar`.
 
 ## Creating a native executable
 
@@ -57,9 +51,9 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ```
 
 You can then execute your native executable with:
-```./build/theodolite-0.6.0-SNAPSHOT-runner```
+```./build/theodolite-0.7.0-SNAPSHOT-runner```
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
 ## Build docker images
 

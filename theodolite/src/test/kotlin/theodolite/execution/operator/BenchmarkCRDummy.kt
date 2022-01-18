@@ -8,7 +8,7 @@ import theodolite.util.KafkaConfig
 class BenchmarkCRDummy(name: String) {
 
     private val benchmark = KubernetesBenchmark()
-    private val benchmarkCR = BenchmarkCRD(benchmark)
+    private val benchmarkCR = BenchmarkCRD()
 
     fun getCR(): BenchmarkCRD {
         return benchmarkCR
@@ -33,6 +33,13 @@ class BenchmarkCRDummy(name: String) {
         benchmark.infrastructure.resources = emptyList()
         benchmark.sut.resources = emptyList()
         benchmark.loadGenerator.resources = emptyList()
+
+        benchmark.infrastructure.beforeActions = emptyList()
+        benchmark.infrastructure.afterActions = emptyList()
+        benchmark.sut.beforeActions = emptyList()
+        benchmark.sut.afterActions = emptyList()
+        benchmark.loadGenerator.beforeActions = emptyList()
+        benchmark.loadGenerator.afterActions = emptyList()
 
         benchmark.resourceTypes = emptyList()
         benchmark.loadTypes = emptyList()

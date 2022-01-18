@@ -99,7 +99,7 @@ class TopicManager(private val kafkaConfig: Map<String, Any>) {
 
             val toDelete = topics.filter { kafkaAdmin.listTopics().names().get().contains(it) }
 
-            if (toDelete.isNullOrEmpty()) {
+            if (toDelete.isEmpty()) {
                 deleted = true
             } else {
                 logger.info { "Deletion of Kafka topics failed, will retry in ${RETRY_TIME / 1000} seconds." }
