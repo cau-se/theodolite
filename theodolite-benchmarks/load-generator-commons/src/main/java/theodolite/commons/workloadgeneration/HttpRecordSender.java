@@ -1,12 +1,18 @@
 package theodolite.commons.workloadgeneration;
 
-import java.io.IOException;
+import com.google.gson.Gson;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import org.apache.avro.specific.SpecificRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Sends monitoring records via HTTP.
@@ -15,39 +21,69 @@ import org.apache.avro.specific.SpecificRecord;
  */
 public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<T> {
 
-  // private static final Logger LOGGER = LoggerFactory.getLogger(HttpRecordSender.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpRecordSender.class);
 
-  private final HttpClient httpClient;
+  private final Gson gson = new Gson();
+
+  private final HttpClient httpClient = HttpClient.newBuilder().build();
 
   private final URI uri;
 
   private final boolean async;
 
+  private final List<Integer> validStatusCodes;
+
   /**
    * Create a new {@link HttpRecordSender}.
+   *
+   * @param uri the {@link URI} records should be sent to
    */
   public HttpRecordSender(final URI uri) {
-    this.httpClient = HttpClient.newBuilder().build();
+    this(uri, true, List.of(200));
+  }
+
+  /**
+   * Create a new {@link HttpRecordSender}.
+   *
+   * @param uri the {@link URI} records should be sent to
+   * @param async whether HTTP requests should be sent asynchronous
+   * @param validStatusCodes a list of HTTP status codes which are considered as successful
+   */
+  public HttpRecordSender(final URI uri, final boolean async,
+      final List<Integer> validStatusCodes) {
     this.uri = uri;
-    this.async = true;
+    this.async = async;
+    this.validStatusCodes = validStatusCodes;
   }
 
   @Override
   public void send(final T message) {
+    final String json = this.gson.toJson(message);
     final HttpRequest request = HttpRequest.newBuilder()
-        .uri(this.uri) // TODO
-        .POST(HttpRequest.BodyPublishers.ofString(message.toString())) // TODO to JSON
+        .uri(this.uri)
+        .POST(HttpRequest.BodyPublishers.ofString(json))
         .build();
     final BodyHandler<Void> bodyHandler = BodyHandlers.discarding();
     // final BodyHandler<String> bodyHandler = BodyHandlers.ofString();
+
+    final CompletableFuture<HttpResponse<Void>> result =
+        this.httpClient.sendAsync(request, bodyHandler)
+            .whenComplete((response, exception) -> {
+              if (exception != null) { // NOPMD
+                LOGGER.warn("Couldn't send request to {}.", this.uri, exception);
+              } else if (!this.validStatusCodes.contains(response.statusCode())) { // NOPMD
+                LOGGER.warn("Received status code {} for request to {}.", response.statusCode(),
+                    this.uri);
+              } else {
+                LOGGER.debug("Sucessfully sent request to {} (status={}).", this.uri,
+                    response.statusCode());
+              }
+            });
     if (this.async) {
-      this.httpClient.sendAsync(request, bodyHandler);
-      // this.httpClient.sendAsync(request, bodyHandler).thenAccept(s -> System.out.println(s));
-    } else {
       try {
-        this.httpClient.send(request, bodyHandler);
-      } catch (IOException | InterruptedException e) {
-        throw new IllegalStateException(e); // TODO
+        result.get();
+      } catch (InterruptedException | ExecutionException e) {
+        LOGGER.error("Couldn't get result for request to {}.", this.uri, e);
       }
     }
   }
