@@ -109,6 +109,7 @@ class ExecutionEventHandlerTestWithInformer {
 
     @Test
     @DisplayName("Test onAdd method for executions with execution state `RUNNING`")
+    @Disabled("Flaky test due to multiple informer events.")
     fun testOnAddWithStatusRunning() {
         // Create first version of execution resource
         val executionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")

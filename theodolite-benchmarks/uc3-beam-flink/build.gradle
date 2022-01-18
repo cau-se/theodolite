@@ -1,0 +1,12 @@
+plugins {
+  id 'theodolite.beam.flink'
+}
+
+
+dependencies {
+  implementation project(':uc3-beam')
+}
+
+
+// This is the path of the main class, stored within ./src/main/java/
+mainClassName = 'application.Uc3BeamFlink'
