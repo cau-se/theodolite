@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<T> {
 
+  private static final int HTTP_OK = 200;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpRecordSender.class);
 
   private final Gson gson = new Gson();
@@ -39,7 +41,7 @@ public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<
    * @param uri the {@link URI} records should be sent to
    */
   public HttpRecordSender(final URI uri) {
-    this(uri, true, List.of(200));
+    this(uri, true, List.of(HTTP_OK));
   }
 
   /**
@@ -70,7 +72,7 @@ public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<
         this.httpClient.sendAsync(request, bodyHandler)
             .whenComplete((response, exception) -> {
               if (exception != null) { // NOPMD
-                LOGGER.warn("Couldn't send request to {}.", this.uri, exception);
+                LOGGER.warn("Couldn't send request to {}.", this.uri, exception); // NOPMD false-p.
               } else if (!this.validStatusCodes.contains(response.statusCode())) { // NOPMD
                 LOGGER.warn("Received status code {} for request to {}.", response.statusCode(),
                     this.uri);

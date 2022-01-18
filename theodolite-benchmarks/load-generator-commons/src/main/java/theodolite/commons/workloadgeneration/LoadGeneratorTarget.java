@@ -6,10 +6,14 @@ enum LoadGeneratorTarget {
 
   KAFKA("kafka"), HTTP("http");
 
-  final String value;
+  private final String value;
 
   LoadGeneratorTarget(final String value) {
     this.value = value;
+  }
+
+  String getValue() {
+    return this.value;
   }
 
   static LoadGeneratorTarget from(final String value) {

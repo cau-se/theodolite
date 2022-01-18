@@ -140,7 +140,7 @@ public final class LoadGenerator {
 
     final LoadGeneratorTarget target = LoadGeneratorTarget.from(
         Objects.requireNonNullElse(System.getenv(ConfigurationKeys.TARGET),
-            TARGET_DEFAULT.value));
+            TARGET_DEFAULT.getValue()));
 
     final RecordSender<ActivePowerRecord> recordSender; // NOPMD
     if (target == LoadGeneratorTarget.KAFKA) {
