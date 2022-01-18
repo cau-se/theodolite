@@ -267,6 +267,34 @@ deploy-uc4-flink:
     JAVA_PROJECT_NAME: "uc4-flink"
     JAVA_PROJECT_DEPS: "flink-commons"
 
+deploy-uc1-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc1-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc2-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc2-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc3-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc3-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc4-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc4-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
 deploy-uc1-beam-flink:
   extends: .deploy-benchmarks
   variables:
