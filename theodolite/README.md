@@ -12,14 +12,8 @@ You can run your application in dev mode using:
 ./gradlew quarkusDev
 ```
 
-### Hint for running with k3s (or k3d)
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
 
-You may need to add the following dependencies to the `build.gradle` file when running Theodolite with k3s.
-
-```
-implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.68'
-implementation 'org.bouncycastle:bcpkix-jdk15on:1.68'
-```
 
 ## Packaging and running the application
 
@@ -59,7 +53,7 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with:
 ```./build/theodolite-0.7.0-SNAPSHOT-runner```
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
 ## Build docker images
 

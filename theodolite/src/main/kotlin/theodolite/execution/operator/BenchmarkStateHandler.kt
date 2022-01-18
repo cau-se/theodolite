@@ -4,10 +4,9 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import theodolite.model.crd.*
 
 class BenchmarkStateHandler(val client: NamespacedKubernetesClient) :
-    AbstractStateHandler<BenchmarkCRD, KubernetesBenchmarkList, ExecutionStatus>(
+    AbstractStateHandler<BenchmarkCRD>(
         client = client,
-        crd = BenchmarkCRD::class.java,
-        crdList = KubernetesBenchmarkList::class.java
+        crd = BenchmarkCRD::class.java
     ) {
 
     private fun getBenchmarkResourceState() = { cr: BenchmarkCRD -> cr.status.resourceSetsState }

@@ -19,7 +19,6 @@ class ExecutionStateComparatorTest {
         execution2.getStatus().executionState = ExecutionStates.PENDING.value
         val list = listOf(execution2.getCR(), execution1.getCR())
 
-
         assertEquals(
             list.reversed(),
             list.sortedWith(comparator)

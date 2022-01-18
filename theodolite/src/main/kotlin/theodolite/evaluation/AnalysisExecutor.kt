@@ -1,6 +1,5 @@
 package theodolite.evaluation
 
-import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
@@ -11,8 +10,6 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.regex.Pattern
-
-private val logger = KotlinLogging.logger {}
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
@@ -81,6 +78,6 @@ class AnalysisExecutor(
         val noWhitespace: String = WHITESPACE.matcher(this).replaceAll("-")
         val normalized: String = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD)
         val slug: String = NONLATIN.matcher(normalized).replaceAll("")
-        return slug.toLowerCase(Locale.ENGLISH)
+        return slug.lowercase(Locale.ENGLISH)
     }
 }
