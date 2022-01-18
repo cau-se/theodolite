@@ -22,7 +22,7 @@ public final class LoadGenerator {
   private static final int THREADS_DEFAULT = 4;
   private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   private static final String KAFKA_TOPIC_DEFAULT = "input";
-  private static final String KAFKA_BOOTSTRAP_SERVERS_DEFAULT = "localhost:19092"; // NOPMD
+  private static final String KAFKA_BOOTSTRAP_SERVERS_DEFAULT = "localhost:9092"; // NOPMD
 
   private ClusterConfig clusterConfig;
   private WorkloadDefinition loadDefinition;

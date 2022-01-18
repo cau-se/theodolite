@@ -1,0 +1,9 @@
+plugins {
+    id 'theodolite.beam'
+}
+
+dependencies {
+    implementation('org.apache.beam:beam-runners-samza:2.22.0') {
+        exclude group: 'org.apache.samza', module: 'samza-yarn_2.11'
+    }
+}
