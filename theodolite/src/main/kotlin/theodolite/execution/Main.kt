@@ -17,8 +17,8 @@ object Main {
         val mode = Configuration.EXECUTION_MODE
         logger.info { "Start Theodolite with mode $mode" }
 
-        when (mode.toLowerCase()) {
-            ExecutionModes.STANDALONE.value, ExecutionModes.YAML_EXECUTOR.value -> TheodoliteStandalone().start()  // TODO remove standalone (#209)
+        when (mode.lowercase()) {
+            ExecutionModes.STANDALONE.value -> TheodoliteStandalone().start()
             ExecutionModes.OPERATOR.value -> TheodoliteOperator().start()
             else -> {
                 logger.error { "MODE $mode not found" }
