@@ -10,7 +10,7 @@ import theodolite.benchmark.ActionSelector
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.benchmark.ResourceSets
 import theodolite.model.crd.BenchmarkCRD
-import theodolite.model.crd.BenchmarkStates
+import theodolite.model.crd.BenchmarkState
 import theodolite.model.crd.KubernetesBenchmarkList
 
 class BenchmarkStateChecker(
@@ -42,7 +42,7 @@ class BenchmarkStateChecker(
             .forEach { setState(it.first, it.second) }
     }
 
-    private fun setState(resource: BenchmarkCRD, state: BenchmarkStates) {
+    private fun setState(resource: BenchmarkCRD, state: BenchmarkState) {
         benchmarkStateHandler.setResourceSetState(resource.spec.name, state)
     }
 
@@ -52,13 +52,13 @@ class BenchmarkStateChecker(
      * @param benchmark The benchmark to check
      * @return [BenchmarkStates.READY] iff all resource could be loaded and all actions could be executed, [BenchmarkStates.PENDING] else
      */
-    private fun checkState(benchmark: KubernetesBenchmark): BenchmarkStates {
-        return if (checkActionCommands(benchmark) == BenchmarkStates.READY
-            && checkResources(benchmark) == BenchmarkStates.READY
+    private fun checkState(benchmark: KubernetesBenchmark): BenchmarkState {
+        return if (checkActionCommands(benchmark) == BenchmarkState.READY
+            && checkResources(benchmark) == BenchmarkState.READY
         ) {
-            BenchmarkStates.READY
+            BenchmarkState.READY
         } else {
-            BenchmarkStates.PENDING
+            BenchmarkState.PENDING
         }
     }
 
@@ -68,15 +68,15 @@ class BenchmarkStateChecker(
      * @param benchmark The benchmark to check
      * @return The state of this benchmark. [BenchmarkStates.READY] if all actions could be executed, else [BenchmarkStates.PENDING]
      */
-    private fun checkActionCommands(benchmark: KubernetesBenchmark): BenchmarkStates {
+    private fun checkActionCommands(benchmark: KubernetesBenchmark): BenchmarkState {
         return if (checkIfActionPossible(benchmark.infrastructure.resources, benchmark.sut.beforeActions)
             && checkIfActionPossible(benchmark.infrastructure.resources, benchmark.sut.afterActions)
             && checkIfActionPossible(benchmark.infrastructure.resources, benchmark.loadGenerator.beforeActions)
             && checkIfActionPossible(benchmark.infrastructure.resources, benchmark.loadGenerator.beforeActions)
         ) {
-            BenchmarkStates.READY
+            BenchmarkState.READY
         } else {
-            BenchmarkStates.PENDING
+            BenchmarkState.PENDING
         }
     }
 
@@ -171,21 +171,21 @@ class BenchmarkStateChecker(
      * Checks if it is possible to load all specified Kubernetes manifests.
      *
      * @param benchmark The benchmark to check
-     * @return The state of this benchmark. [BenchmarkStates.READY] if all resources could be loaded, else [BenchmarkStates.PENDING]
+     * @return The state of this benchmark. [BenchmarkState.READY] if all resources could be loaded, else [BenchmarkState.PENDING]
      */
-    fun checkResources(benchmark: KubernetesBenchmark): BenchmarkStates {
+    fun checkResources(benchmark: KubernetesBenchmark): BenchmarkState {
         return try {
             val appResources =
                 benchmark.loadKubernetesResources(resourceSet = benchmark.sut.resources)
             val loadGenResources =
                 benchmark.loadKubernetesResources(resourceSet = benchmark.loadGenerator.resources)
             if (appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
-                BenchmarkStates.READY
+                BenchmarkState.READY
             } else {
-                BenchmarkStates.PENDING
+                BenchmarkState.PENDING
             }
         } catch (e: Exception) {
-            BenchmarkStates.PENDING
+            BenchmarkState.PENDING
         }
     }
 }

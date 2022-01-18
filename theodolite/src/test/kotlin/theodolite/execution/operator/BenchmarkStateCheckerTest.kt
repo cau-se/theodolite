@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import theodolite.benchmark.*
-import theodolite.model.crd.BenchmarkStates
+import theodolite.model.crd.BenchmarkState
 
 internal class BenchmarkStateCheckerTest {
     private val server = KubernetesServer(false, false)
@@ -172,6 +172,6 @@ internal class BenchmarkStateCheckerTest {
         benchmark.getCR().spec.loadGenerator = resourceSet
         benchmark.getCR().spec.sut = resourceSet
 
-        assertEquals(BenchmarkStates.READY,checkerCrud.checkResources(benchmark.getCR().spec))
+        assertEquals(BenchmarkState.READY,checkerCrud.checkResources(benchmark.getCR().spec))
     }
 }
