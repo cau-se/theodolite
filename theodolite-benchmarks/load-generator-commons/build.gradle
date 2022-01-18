@@ -21,6 +21,8 @@ dependencies {
   implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
   implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
   implementation 'org.apache.kafka:kafka-streams:2.6.0' // TODO required?
+  implementation platform('com.google.cloud:libraries-bom:24.2.0')
+  implementation 'com.google.cloud:google-cloud-pubsub'
 
   // Use JUnit test framework
   testImplementation 'junit:junit:4.12'
