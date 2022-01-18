@@ -143,6 +143,7 @@ test-benchmarks:
     - build-benchmarks
   script: ./gradlew test --continue
   artifacts:
+    when: always
     reports:
       junit:
         - "theodolite-benchmarks/**/build/test-results/test/TEST-*.xml"
@@ -396,6 +397,7 @@ test-theodolite:
     #- build-theodolite-native
   script: ./gradlew test --stacktrace
   artifacts:
+    when: always
     reports:
       junit:
         - "theodolite/**/build/test-results/test/TEST-*.xml"
