@@ -12,11 +12,11 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.model.crd.ExecutionStates
+import theodolite.model.crd.ExecutionState
 import java.time.Duration
 
-@WithKubernetesTestServer
 @QuarkusTest
+@WithKubernetesTestServer
 class StateHandlerTest {
     private val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
@@ -54,14 +54,7 @@ class StateHandlerTest {
     @DisplayName("Test empty execution state")
     fun executionWithoutExecutionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
-        assertEquals(ExecutionStates.NO_STATE, handler.getExecutionState("example-execution"))
-    }
-
-    @Test
-    @DisplayName("Test empty duration state")
-    fun executionWithoutDurationStatusTest() {
-        val handler = ExecutionStateHandler(client = server.client)
-        assertEquals("-", handler.getDurationState("example-execution"))
+        assertEquals(ExecutionState.NO_STATE, handler.getExecutionState("example-execution"))
     }
 
     @Test
@@ -69,16 +62,8 @@ class StateHandlerTest {
     fun executionStatusTest() {
         val handler = ExecutionStateHandler(client = server.client)
 
-        assertTrue(handler.setExecutionState("example-execution", ExecutionStates.INTERRUPTED))
-        assertEquals(ExecutionStates.INTERRUPTED, handler.getExecutionState("example-execution"))
+        assertTrue(handler.setExecutionState("example-execution", ExecutionState.INTERRUPTED))
+        assertEquals(ExecutionState.INTERRUPTED, handler.getExecutionState("example-execution"))
     }
 
-    @Test
-    @DisplayName("Test set and get of the duration state")
-    fun durationStatusTest() {
-        val handler = ExecutionStateHandler(client = server.client)
-
-        assertTrue(handler.setDurationState("example-execution", Duration.ofMillis(100)))
-        assertEquals("0s", handler.getDurationState("example-execution"))
-    }
 }

@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
 import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.ExecutionStates
+import theodolite.model.crd.ExecutionState
 import java.io.FileInputStream
 import java.util.concurrent.CountDownLatch
 import java.util.stream.Stream
@@ -104,7 +104,7 @@ class ExecutionEventHandlerTestWithInformer {
 
         // Await informer called
         this.addCountDownLatch.await()
-        assertEquals(ExecutionStates.PENDING.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
@@ -123,16 +123,16 @@ class ExecutionEventHandlerTestWithInformer {
         val execution = executionResource.create()
 
         // Update status of execution
-        execution.status.executionState = ExecutionStates.RUNNING.value
+        execution.status.executionState = ExecutionState.RUNNING
         executionResource.patchStatus(execution)
 
         // Assert that status at server matches set status
-        // assertEquals(ExecutionStates.RUNNING.value, this.executionClient.withName(executionName).get().status.executionState)
+        // assertEquals(ExecutionStates.RUNNING, this.executionClient.withName(executionName).get().status.executionState)
 
         // Await informer called
         this.addCountDownLatch.await()
         verify(this.controller).stop(true)
-        assertEquals(ExecutionStates.RESTART.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(ExecutionState.RESTART, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
@@ -149,7 +149,7 @@ class ExecutionEventHandlerTestWithInformer {
         // Get execution from server
         val firstExecutionResponse = this.executionClient.withName(executionName).get()
         // Assert that execution at server has pending status
-        assertEquals(ExecutionStates.PENDING.value, firstExecutionResponse.status.executionState)
+        assertEquals(ExecutionState.PENDING, firstExecutionResponse.status.executionState)
 
         // Create new version of execution and update at server
         getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
@@ -157,20 +157,20 @@ class ExecutionEventHandlerTestWithInformer {
         // Await informer called
         this.updateCountDownLatch.await()
         // Get execution from server and assert that new status matches expected one
-        assertEquals(ExecutionStates.PENDING.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @ParameterizedTest
     @MethodSource("provideOnUpdateTestArguments")
     @DisplayName("Test onUpdate method for execution with different status")
-    fun testOnUpdateWithStatus(beforeState: ExecutionStates, expectedState: ExecutionStates) {
+    fun testOnUpdateWithStatus(beforeState: ExecutionState, expectedState: ExecutionState) {
         // Create first version of execution resource
         val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
         val firstExecution = firstExecutionResource.create()
         val executionName = firstExecution.metadata.name
 
         // Update status of execution
-        firstExecution.status.executionState = beforeState.value
+        firstExecution.status.executionState = beforeState
         firstExecutionResource.patchStatus(firstExecution)
 
         // Start informer
@@ -179,7 +179,7 @@ class ExecutionEventHandlerTestWithInformer {
         // Get execution from server
         val firstExecutionResponse = this.executionClient.withName(executionName).get()
         // Assert that status at server matches set status
-        assertEquals(beforeState.value, firstExecutionResponse.status.executionState)
+        assertEquals(beforeState, firstExecutionResponse.status.executionState)
 
         // Create new version of execution and update at server
         getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
@@ -187,7 +187,7 @@ class ExecutionEventHandlerTestWithInformer {
         // Await informer called
         this.updateCountDownLatch.await()
         // Get execution from server and assert that new status matches expected one
-        assertEquals(expectedState.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(expectedState, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
@@ -199,7 +199,7 @@ class ExecutionEventHandlerTestWithInformer {
         val executionName = firstExecution.metadata.name
 
         // Update status of execution to be running
-        firstExecution.status.executionState = ExecutionStates.RUNNING.value
+        firstExecution.status.executionState = ExecutionState.RUNNING
         firstExecutionResource.patchStatus(firstExecution)
 
         // Get execution from server
@@ -235,7 +235,7 @@ class ExecutionEventHandlerTestWithInformer {
         val executionName = firstExecution.metadata.name
 
         // Update status of execution to be running
-        firstExecution.status.executionState = ExecutionStates.RUNNING.value
+        firstExecution.status.executionState = ExecutionState.RUNNING
         firstExecutionResource.patchStatus(firstExecution)
 
         // Get execution from server
@@ -272,11 +272,11 @@ class ExecutionEventHandlerTestWithInformer {
         fun provideOnUpdateTestArguments(): Stream<Arguments> =
             Stream.of(
                 // before state -> expected state
-                Arguments.of(ExecutionStates.PENDING, ExecutionStates.PENDING),
-                Arguments.of(ExecutionStates.FINISHED, ExecutionStates.PENDING),
-                Arguments.of(ExecutionStates.FAILURE, ExecutionStates.PENDING),
+                Arguments.of(ExecutionState.PENDING, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.FINISHED, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.FAILURE, ExecutionState.PENDING),
                 // Arguments.of(ExecutionStates.RUNNING, ExecutionStates.RESTART), // see testOnDeleteWithExecutionRunning
-                Arguments.of(ExecutionStates.RESTART, ExecutionStates.RESTART)
+                Arguments.of(ExecutionState.RESTART, ExecutionState.RESTART)
             )
     }
 

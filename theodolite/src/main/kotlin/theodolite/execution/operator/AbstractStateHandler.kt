@@ -2,8 +2,6 @@ package theodolite.execution.operator
 
 import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResourceList
-import io.fabric8.kubernetes.api.model.Namespaced
-import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
@@ -14,19 +12,19 @@ private val logger = KotlinLogging.logger {}
 
 private const val MAX_RETRIES: Int = 5
 
-abstract class AbstractStateHandler<T : HasMetadata>(
+abstract class AbstractStateHandler<S : HasMetadata>(
     private val client: NamespacedKubernetesClient,
-    private val crd: Class<T>
+    private val crd: Class<S>
 ) {
 
-    private val crdClient: MixedOperation<T, KubernetesResourceList<T>, Resource<T>> = this.client.resources(this.crd)
+    private val crdClient: MixedOperation<S, KubernetesResourceList<S>, Resource<S>> = this.client.resources(this.crd)
 
     @Synchronized
-    fun setState(resourceName: String, f: (T) -> T?) {
+    fun setState(resourceName: String, setter: (S) -> S?) {
         try {
             val resource = this.crdClient.withName(resourceName).get()
             if (resource != null) {
-                val resourcePatched = f(resource)
+                val resourcePatched = setter(resource)
                 this.crdClient.patchStatus(resourcePatched)
             }
         } catch (e: KubernetesClientException) {
@@ -35,7 +33,7 @@ abstract class AbstractStateHandler<T : HasMetadata>(
     }
 
     @Synchronized
-    fun getState(resourceName: String, f: (T) -> String?): String? {
+    fun getState(resourceName: String, f: (S) -> String?): String? {
         return this.crdClient
             .list().items
             .filter { it.metadata.name == resourceName }
@@ -47,7 +45,7 @@ abstract class AbstractStateHandler<T : HasMetadata>(
     fun blockUntilStateIsSet(
         resourceName: String,
         desiredStatusString: String,
-        f: (T) -> String?,
+        f: (S) -> String?,
         maxRetries: Int = MAX_RETRIES
     ): Boolean {
         for (i in 0.rangeTo(maxRetries)) {

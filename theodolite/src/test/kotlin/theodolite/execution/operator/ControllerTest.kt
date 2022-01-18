@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.model.crd.BenchmarkCRD
-import theodolite.model.crd.BenchmarkStates
+import theodolite.model.crd.BenchmarkState
 import theodolite.model.crd.ExecutionCRD
 
 @QuarkusTest
@@ -41,7 +41,7 @@ class ControllerTest {
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
-        benchmark1.getCR().status.resourceSetsState = BenchmarkStates.READY.value
+        benchmark1.getCR().status.resourceSetsState = BenchmarkState.READY
         val benchmark2 = BenchmarkCRDummy(name = "Test-Benchmark-123")
         benchmarkResourceList.items = listOf(benchmark1.getCR(), benchmark2.getCR())
 

@@ -1,12 +1,10 @@
 package theodolite.execution.operator
 
+import io.fabric8.kubernetes.api.model.MicroTime
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
-import theodolite.model.crd.BenchmarkExecutionList
 import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.ExecutionStatus
-import theodolite.model.crd.ExecutionStates
+import theodolite.model.crd.ExecutionState
 import java.lang.Thread.sleep
-import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -18,58 +16,39 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
 
     private var runExecutionDurationTimer: AtomicBoolean = AtomicBoolean(false)
 
-    private fun getExecutionLambda() = { cr: ExecutionCRD -> cr.status.executionState }
+    private fun getExecutionLambda() = { cr: ExecutionCRD -> cr.status.executionState.value }
 
-    private fun getDurationLambda() = { cr: ExecutionCRD -> cr.status.executionDuration }
-
-    fun setExecutionState(resourceName: String, status: ExecutionStates): Boolean {
-        super.setState(resourceName) { cr -> cr.status.executionState = status.value; cr }
+    fun setExecutionState(resourceName: String, status: ExecutionState): Boolean {
+        super.setState(resourceName) { cr -> cr.status.executionState = status; cr }
         return blockUntilStateIsSet(resourceName, status.value, getExecutionLambda())
     }
 
-    fun getExecutionState(resourceName: String): ExecutionStates {
-        val status = this.getState(resourceName, getExecutionLambda())
-        return if (status.isNullOrBlank()) {
-            ExecutionStates.NO_STATE
-        } else {
-            ExecutionStates.values().first { it.value == status }
-        }
+    fun getExecutionState(resourceName: String): ExecutionState {
+        val statusString = this.getState(resourceName, getExecutionLambda())
+        return ExecutionState.values().first { it.value == statusString }
     }
 
-    fun setDurationState(resourceName: String, duration: Duration): Boolean {
-        setState(resourceName) { cr -> cr.status.executionDuration = durationToK8sString(duration); cr }
-        return blockUntilStateIsSet(resourceName, durationToK8sString(duration), getDurationLambda())
-    }
-
-    fun getDurationState(resourceName: String): String {
-        val status = getState(resourceName, getDurationLambda())
-        return if (status.isNullOrBlank()) "-" else status
-    }
-
-    private fun durationToK8sString(duration: Duration): String {
-        val sec = duration.seconds
-        return when {
-            sec <= 120 -> "${sec}s" // max 120s
-            sec < 60 * 99 -> "${duration.toMinutes()}m" // max 99m
-            sec < 60 * 60 * 99 -> "${duration.toHours()}h"   // max 99h
-            else -> "${duration.toDays()}d + ${duration.minusDays(duration.toDays()).toHours()}h"
-        }
+    private fun updateDurationState(resourceName: String) {
+        super.setState(resourceName) { cr -> cr }
     }
 
     fun startDurationStateTimer(resourceName: String) {
         this.runExecutionDurationTimer.set(true)
-        val startTime = Instant.now().toEpochMilli()
+
+        super.setState(resourceName) { cr -> cr.status.completionTime = null; cr }
+        super.setState(resourceName) { cr -> cr.status.startTime = MicroTime(Instant.now().toString()); cr }
+
         Thread {
             while (this.runExecutionDurationTimer.get()) {
-                val duration = Duration.ofMillis(Instant.now().minusMillis(startTime).toEpochMilli())
-                setDurationState(resourceName, duration)
+                updateDurationState(resourceName)
                 sleep(100 * 1)
             }
         }.start()
     }
 
     @Synchronized
-    fun stopDurationStateTimer() {
+    fun stopDurationStateTimer(resourceName: String) {
+        super.setState(resourceName) { cr -> cr.status.completionTime = MicroTime(Instant.now().toString()); cr }
         this.runExecutionDurationTimer.set(false)
         sleep(100 * 2)
     }

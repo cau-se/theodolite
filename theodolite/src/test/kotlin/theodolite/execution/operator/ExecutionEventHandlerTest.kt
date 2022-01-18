@@ -17,10 +17,8 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
 import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.ExecutionStates
-import theodolite.model.crd.ExecutionStatus
+import theodolite.model.crd.ExecutionState
 import java.io.FileInputStream
-import java.lang.Thread.sleep
 import java.util.stream.Stream
 
 // TODO move somewhere else
@@ -99,7 +97,7 @@ class ExecutionEventHandlerTest {
         val executionResponse = this.executionClient.withName(executionName).get()
         this.eventHandler.onAdd(executionResponse)
 
-        assertEquals(ExecutionStates.PENDING.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
@@ -109,24 +107,24 @@ class ExecutionEventHandlerTest {
         val executionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
         val execution = executionResource.create()
         val executionName = execution.metadata.name
-        stateHandler.setExecutionState(executionName, ExecutionStates.RUNNING)
+        stateHandler.setExecutionState(executionName, ExecutionState.RUNNING)
 
         // Update status of execution
-        execution.status.executionState = ExecutionStates.RUNNING.value
+        execution.status.executionState = ExecutionState.RUNNING
         executionResource.patchStatus(execution)
 
 
         // Get execution from server
         val executionResponse = this.executionClient.withName(executionName).get()
         // Assert that status at server matches set status
-        assertEquals(ExecutionStates.RUNNING.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(ExecutionState.RUNNING, this.executionClient.withName(executionName).get().status.executionState)
 
         whenever(this.controller.isExecutionRunning(executionName)).thenReturn(true)
 
         this.eventHandler.onAdd(executionResponse)
 
         verify(this.controller).stop(true)
-        assertEquals(ExecutionStates.RESTART.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(ExecutionState.RESTART, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
@@ -140,7 +138,7 @@ class ExecutionEventHandlerTest {
         // Get execution from server
         val firstExecutionResponse = this.executionClient.withName(executionName).get()
         // Assert that execution at server has no status
-        assertEquals("", firstExecutionResponse.status.executionState)
+        assertEquals(ExecutionState.NO_STATE, firstExecutionResponse.status.executionState)
 
         // Create new version of execution and update at server
         getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
@@ -150,26 +148,26 @@ class ExecutionEventHandlerTest {
         this.eventHandler.onUpdate(firstExecutionResponse, secondExecutionResponse)
 
         // Get execution from server and assert that new status matches expected one
-        assertEquals(ExecutionStates.PENDING.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @ParameterizedTest
     @MethodSource("provideOnUpdateTestArguments")
     @DisplayName("Test onUpdate method for execution with different status")
-    fun testOnUpdateWithStatus(beforeState: ExecutionStates, expectedState: ExecutionStates) {
+    fun testOnUpdateWithStatus(beforeState: ExecutionState, expectedState: ExecutionState) {
         // Create first version of execution resource
         val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
         val firstExecution = firstExecutionResource.create()
         val executionName = firstExecution.metadata.name
 
         // Update status of execution
-        firstExecution.status.executionState = beforeState.value
+        firstExecution.status.executionState = beforeState
         firstExecutionResource.patchStatus(firstExecution)
 
         // Get execution from server
         val firstExecutionResponse = this.executionClient.withName(executionName).get()
         // Assert that status at server matches set status
-        assertEquals(beforeState.value, firstExecutionResponse.status.executionState)
+        assertEquals(beforeState, firstExecutionResponse.status.executionState)
 
         // Create new version of execution and update at server
         getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
@@ -179,7 +177,7 @@ class ExecutionEventHandlerTest {
         this.eventHandler.onUpdate(firstExecutionResponse, secondExecutionResponse)
 
         // Get execution from server and assert that new status matches expected one
-        assertEquals(expectedState.value, this.executionClient.withName(executionName).get().status.executionState)
+        assertEquals(expectedState, this.executionClient.withName(executionName).get().status.executionState)
     }
 
     @Test
@@ -190,7 +188,7 @@ class ExecutionEventHandlerTest {
         val executionName = firstExecution.metadata.name
 
         // Update status of execution to be running
-        firstExecution.status.executionState = ExecutionStates.RUNNING.value
+        firstExecution.status.executionState = ExecutionState.RUNNING
         firstExecutionResource.patchStatus(firstExecution)
 
         // Get execution from server
@@ -222,7 +220,7 @@ class ExecutionEventHandlerTest {
         val executionName = firstExecution.metadata.name
 
         // Update status of execution to be running
-        firstExecution.status.executionState = ExecutionStates.RUNNING.value
+        firstExecution.status.executionState = ExecutionState.RUNNING
         firstExecutionResource.patchStatus(firstExecution)
 
         // Get execution from server
@@ -240,7 +238,7 @@ class ExecutionEventHandlerTest {
 
         // We consider execution to be running
         whenever(this.controller.isExecutionRunning(executionName)).thenReturn(false)
-        
+
         this.eventHandler.onDelete(firstExecutionResponse, true)
 
         verify(this.controller, never()).stop(false)
@@ -255,11 +253,11 @@ class ExecutionEventHandlerTest {
         fun provideOnUpdateTestArguments(): Stream<Arguments> =
             Stream.of(
                 // before state -> expected state
-                Arguments.of(ExecutionStates.PENDING, ExecutionStates.PENDING),
-                Arguments.of(ExecutionStates.FINISHED, ExecutionStates.PENDING),
-                Arguments.of(ExecutionStates.FAILURE, ExecutionStates.PENDING),
-                Arguments.of(ExecutionStates.RUNNING, ExecutionStates.RESTART),
-                Arguments.of(ExecutionStates.RESTART, ExecutionStates.RESTART)
+                Arguments.of(ExecutionState.PENDING, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.FINISHED, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.FAILURE, ExecutionState.PENDING),
+                Arguments.of(ExecutionState.RUNNING, ExecutionState.RESTART),
+                Arguments.of(ExecutionState.RESTART, ExecutionState.RESTART)
             )
     }
 
