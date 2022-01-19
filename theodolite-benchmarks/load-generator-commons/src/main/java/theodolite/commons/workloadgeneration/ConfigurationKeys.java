@@ -37,7 +37,7 @@ public final class ConfigurationKeys {
 
   public static final String KAFKA_BUFFER_MEMORY = "KAFKA_BUFFER_MEMORY";
 
-  public static final String HTTP_URI = "HTTP_URI";
+  public static final String HTTP_URL = "HTTP_URL";
 
   private ConfigurationKeys() {}
 
