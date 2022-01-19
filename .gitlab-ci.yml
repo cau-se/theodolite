@@ -71,7 +71,7 @@ test-docs-links:
   extends: .docs
   needs:
     - build-docs
-  script: bundle exec htmlproofer --assume-extension --allow_hash_href --url-ignore "/favicon.ico" ./_site
+  script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
 
 test-docs-crds-regression:
   stage: test
