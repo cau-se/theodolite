@@ -26,7 +26,7 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
                 .withName(name)
                 .get() ?: throw DeploymentFailedException("Cannot find ConfigMap with name '$name'."))
                 .data
-                .filter { it.key.endsWith(".yaml") }
+                .filter { it.key.endsWith(".yaml") || it.key.endsWith(".yml")}
         } catch (e: KubernetesClientException) {
             throw DeploymentFailedException("Cannot find or read ConfigMap with name '$name'.", e)
         }
