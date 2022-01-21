@@ -11,7 +11,7 @@ kubectl create configmap benchmark-resources-uc3-kstreams --from-file uc3-kstrea
 kubectl create configmap benchmark-resources-uc4-kstreams --from-file uc4-kstreams/resources
 
 # Beam flink
-kubectl create configmap benchmark-resources-uc1-flink --from-file uc1-beam-flink/resources
+kubectl create configmap benchmark-resources-uc1-beam-flink --from-file uc1-beam-flink/resources
 
 
 # Load Generator
