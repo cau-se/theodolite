@@ -94,13 +94,6 @@ Resource Types:
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspeckafkaconfig">kafkaConfig</a></b></td>
-        <td>object</td>
-        <td>
-          Contains the Kafka configuration.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b><a href="#benchmarkspecloadgenerator">loadGenerator</a></b></td>
         <td>object</td>
         <td>
@@ -138,102 +131,19 @@ Resource Types:
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b><a href="#benchmarkspeckafkaconfig">kafkaConfig</a></b></td>
+        <td>object</td>
+        <td>
+          Contains the Kafka configuration.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
           <br/>
             <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.kafkaConfig
-<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
-
-
-
-Contains the Kafka configuration.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>bootstrapServer</b></td>
-        <td>string</td>
-        <td>
-          The bootstrap servers connection string.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspeckafkaconfigtopicsindex">topics</a></b></td>
-        <td>[]object</td>
-        <td>
-          List of topics to be created for each experiment. Alternative theodolite offers the possibility to remove certain topics after each experiment.<br/>
-        </td>
-        <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.kafkaConfig.topics[index]
-<sup><sup>[↩ Parent](#benchmarkspeckafkaconfig)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          The name of the topic.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>numPartitions</b></td>
-        <td>integer</td>
-        <td>
-          The number of partitions of the topic.<br/>
-          <br/>
-            <i>Default</i>: 0<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>removeOnly</b></td>
-        <td>boolean</td>
-        <td>
-          Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.<br/>
-          <br/>
-            <i>Default</i>: false<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>replicationFactor</b></td>
-        <td>integer</td>
-        <td>
-          The replication factor of the topic.<br/>
-          <br/>
-            <i>Default</i>: 0<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -789,6 +699,96 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td>string</td>
         <td>
           The path to the folder which contains the Kubernetes manifests files.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.kafkaConfig
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+Contains the Kafka configuration.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>bootstrapServer</b></td>
+        <td>string</td>
+        <td>
+          The bootstrap servers connection string.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspeckafkaconfigtopicsindex">topics</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of topics to be created for each experiment. Alternative theodolite offers the possibility to remove certain topics after each experiment.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.kafkaConfig.topics[index]
+<sup><sup>[↩ Parent](#benchmarkspeckafkaconfig)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the topic.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>numPartitions</b></td>
+        <td>integer</td>
+        <td>
+          The number of partitions of the topic.<br/>
+          <br/>
+            <i>Default</i>: 0<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>removeOnly</b></td>
+        <td>boolean</td>
+        <td>
+          Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.<br/>
+          <br/>
+            <i>Default</i>: false<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>replicationFactor</b></td>
+        <td>integer</td>
+        <td>
+          The replication factor of the topic.<br/>
+          <br/>
+            <i>Default</i>: 0<br/>
         </td>
         <td>false</td>
       </tr></tbody>

@@ -20,7 +20,7 @@ spec:
         properties:
           spec:
             type: object
-            required: ["sut", "loadGenerator", "resourceTypes", "loadTypes", "kafkaConfig"]
+            required: ["sut", "loadGenerator", "resourceTypes", "loadTypes"]
             properties:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
