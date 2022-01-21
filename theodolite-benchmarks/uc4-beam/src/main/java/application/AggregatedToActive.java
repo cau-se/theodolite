@@ -8,8 +8,8 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
 /**
  * Converts AggregatedActivePowerRecord to ActivePowerRecord.
  */
-public class AggregatedToActive extends SimpleFunction<KV<String, AggregatedActivePowerRecord>,
-    KV<String, ActivePowerRecord>> {
+public class AggregatedToActive
+    extends SimpleFunction<KV<String, AggregatedActivePowerRecord>, KV<String, ActivePowerRecord>> {
 
   private static final long serialVersionUID = -8275252527964065889L;
 

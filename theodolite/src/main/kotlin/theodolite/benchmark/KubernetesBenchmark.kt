@@ -1,6 +1,5 @@
 package theodolite.benchmark
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
@@ -44,10 +43,10 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var infrastructure: Resources
     lateinit var sut: Resources
     lateinit var loadGenerator: Resources
-    var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+    private var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
 
     @Transient
-    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+    private var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
     /**
      * Loads [KubernetesResource]s.
@@ -59,6 +58,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     }
 
     override fun setupInfrastructure() {
+        this.infrastructure.beforeActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
@@ -70,7 +70,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
         loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
             .forEach { kubernetesManager.remove(it) }
-        }
+        this.infrastructure.afterActions.forEach { it.exec(client = client) }
+    }
 
     /**
      * Builds a deployment.
@@ -110,6 +111,10 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             }
         }
         return KubernetesBenchmarkDeployment(
+            sutBeforeActions = sut.beforeActions,
+            sutAfterActions = sut.afterActions,
+            loadGenBeforeActions = loadGenerator.beforeActions,
+            loadGenAfterActions = loadGenerator.afterActions,
             appResources = appResources.map { it.second },
             loadGenResources = loadGenResources.map { it.second },
             loadGenerationDelay = loadGenerationDelay,
@@ -118,5 +123,14 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             topics = kafkaConfig.topics,
             client = this.client
         )
+    }
+
+    /**
+     * This function can be used to set the Kubernetes client manually. This is for example necessary for testing.
+     *
+     * @param client
+     */
+    fun setClient(client: NamespacedKubernetesClient) {
+        this.client = client
     }
 }

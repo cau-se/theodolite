@@ -2,8 +2,6 @@ package theodolite.execution.operator
 
 import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResourceList
-import io.fabric8.kubernetes.api.model.Namespaced
-import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
@@ -12,30 +10,30 @@ import mu.KotlinLogging
 import java.lang.Thread.sleep
 private val logger = KotlinLogging.logger {}
 
-abstract class AbstractStateHandler<T, L, D>(
-    private val client: NamespacedKubernetesClient,
-    private val crd: Class<T>,
-    private val crdList: Class<L>
-) : StateHandler<T> where T : CustomResource<*, *>?, T : HasMetadata, T : Namespaced, L : KubernetesResourceList<T> {
+private const val MAX_RETRIES: Int = 5
 
-    private val crdClient: MixedOperation<T, L, Resource<T>> =
-        this.client.customResources(this.crd, this.crdList)
+abstract class AbstractStateHandler<S : HasMetadata>(
+    private val client: NamespacedKubernetesClient,
+    private val crd: Class<S>
+) {
+
+    private val crdClient: MixedOperation<S, KubernetesResourceList<S>, Resource<S>> = this.client.resources(this.crd)
 
     @Synchronized
-    override fun setState(resourceName: String, f: (T) -> T?) {
+    fun setState(resourceName: String, setter: (S) -> S?) {
         try {
-            this.crdClient
-                .list().items
-                .filter { it.metadata.name == resourceName }
-                .map { customResource -> f(customResource) }
-                .forEach { this.crdClient.updateStatus(it) }
+            val resource = this.crdClient.withName(resourceName).get()
+            if (resource != null) {
+                val resourcePatched = setter(resource)
+                this.crdClient.patchStatus(resourcePatched)
+            }
         } catch (e: KubernetesClientException) {
-            logger.warn { "Status cannot be set for resource $resourceName" }
+            logger.warn(e) { "Status cannot be set for resource $resourceName." }
         }
     }
 
     @Synchronized
-    override fun getState(resourceName: String, f: (T) -> String?): String? {
+    fun getState(resourceName: String, f: (S) -> String?): String? {
         return this.crdClient
             .list().items
             .filter { it.metadata.name == resourceName }
@@ -44,13 +42,13 @@ abstract class AbstractStateHandler<T, L, D>(
     }
 
     @Synchronized
-    override fun blockUntilStateIsSet(
+    fun blockUntilStateIsSet(
         resourceName: String,
         desiredStatusString: String,
-        f: (T) -> String?,
-        maxTries: Int
+        f: (S) -> String?,
+        maxRetries: Int = MAX_RETRIES
     ): Boolean {
-        for (i in 0.rangeTo(maxTries)) {
+        for (i in 0.rangeTo(maxRetries)) {
             val currentStatus = getState(resourceName, f)
             if (currentStatus == desiredStatusString) {
                 return true

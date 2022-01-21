@@ -15,7 +15,6 @@ import titan.ccp.model.records.AggregatedActivePowerRecord;
 public class RecordAggregation
     extends CombineFn<ActivePowerRecord, RecordAggregation.Accum, AggregatedActivePowerRecord> {
 
-
   private static final long serialVersionUID = 4362213539553233529L;
 
   /**

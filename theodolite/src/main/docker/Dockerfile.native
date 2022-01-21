@@ -14,8 +14,8 @@
 # docker run -i --rm -p 8080:8080 quarkus/theodolite
 #
 ###
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
-WORKDIR /deployments
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
+WORKDIR /deployments/
 RUN chown 1001 /deployments \
     && chmod "g+rwX" /deployments \
     && chown 1001:root /deployments

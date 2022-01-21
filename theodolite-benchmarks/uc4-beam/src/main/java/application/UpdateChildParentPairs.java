@@ -20,6 +20,7 @@ public class UpdateChildParentPairs extends DoFn<KV<String, Set<String>>, KV<Str
 
   /**
    * Match the changes accordingly.
+   *
    * @param kv the sensor parents set that contains the changes.
    */
   @ProcessElement

@@ -1,11 +1,13 @@
 package theodolite.commons.workloadgeneration;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * A Theodolite load generator.
@@ -20,9 +22,11 @@ public final class LoadGenerator {
   private static final int PERIOD_MS_DEFAULT = 1000;
   private static final int VALUE_DEFAULT = 10;
   private static final int THREADS_DEFAULT = 4;
+  private static final LoadGeneratorTarget TARGET_DEFAULT = LoadGeneratorTarget.KAFKA;
   private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   private static final String KAFKA_TOPIC_DEFAULT = "input";
-  private static final String KAFKA_BOOTSTRAP_SERVERS_DEFAULT = "localhost:19092"; // NOPMD
+  private static final String KAFKA_BOOTSTRAP_SERVERS_DEFAULT = "localhost:9092"; // NOPMD
+  private static final String HTTP_URI_DEFAULT = "http://localhost:8080";
 
   private ClusterConfig clusterConfig;
   private WorkloadDefinition loadDefinition;
@@ -91,7 +95,7 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, NUMBER_OF_KEYS_DEFAULT),
             Duration.ofMillis(PERIOD_MS_DEFAULT)))
         .setGeneratorConfig(new LoadGeneratorConfig(
-            TitanRecordGeneratorFactory.forConstantValue(VALUE_DEFAULT),
+            TitanRecordGenerator.forConstantValue(VALUE_DEFAULT),
             TitanKafkaSenderFactory.forKafkaConfig(
                 KAFKA_BOOTSTRAP_SERVERS_DEFAULT,
                 KAFKA_TOPIC_DEFAULT,
@@ -134,6 +138,47 @@ public final class LoadGenerator {
       clusterConfig.setClusterNamePrefix(portAutoIncrement);
     }
 
+    final LoadGeneratorTarget target = LoadGeneratorTarget.from(
+        Objects.requireNonNullElse(System.getenv(ConfigurationKeys.TARGET),
+            TARGET_DEFAULT.getValue()));
+
+    final RecordSender<ActivePowerRecord> recordSender; // NOPMD
+    if (target == LoadGeneratorTarget.KAFKA) {
+      final String kafkaBootstrapServers = Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS),
+          KAFKA_BOOTSTRAP_SERVERS_DEFAULT);
+      final String kafkaInputTopic = Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.KAFKA_INPUT_TOPIC),
+          KAFKA_TOPIC_DEFAULT);
+      final String schemaRegistryUrl = Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.SCHEMA_REGISTRY_URL),
+          SCHEMA_REGISTRY_URL_DEFAULT);
+      final Properties kafkaProperties = new Properties();
+      kafkaProperties.compute(ProducerConfig.BATCH_SIZE_CONFIG,
+          (k, v) -> System.getenv(ConfigurationKeys.KAFKA_BATCH_SIZE));
+      kafkaProperties.compute(ProducerConfig.LINGER_MS_CONFIG,
+          (k, v) -> System.getenv(ConfigurationKeys.KAFKA_LINGER_MS));
+      kafkaProperties.compute(ProducerConfig.BUFFER_MEMORY_CONFIG,
+          (k, v) -> System.getenv(ConfigurationKeys.KAFKA_BUFFER_MEMORY));
+      recordSender = TitanKafkaSenderFactory.forKafkaConfig(
+          kafkaBootstrapServers,
+          kafkaInputTopic,
+          schemaRegistryUrl);
+      LOGGER.info(
+          "Use Kafka as target with bootstrap server '{}', schema registry url '{}' and topic '{}'.", // NOCS
+          kafkaBootstrapServers, schemaRegistryUrl, kafkaInputTopic);
+    } else if (target == LoadGeneratorTarget.HTTP) {
+      final URI url = URI.create(
+          Objects.requireNonNullElse(
+              System.getenv(ConfigurationKeys.HTTP_URL),
+              HTTP_URI_DEFAULT));
+      recordSender = new HttpRecordSender<>(url);
+      LOGGER.info("Use HTTP server as target with url '{}'.", url);
+    } else {
+      // Should never happen
+      throw new IllegalStateException("Target " + target + " is not handled yet.");
+    }
+
     final int numSensors = Integer.parseInt(Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.NUM_SENSORS),
         Integer.toString(NUMBER_OF_KEYS_DEFAULT)));
@@ -146,22 +191,6 @@ public final class LoadGenerator {
     final int threads = Integer.parseInt(Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.THREADS),
         Integer.toString(THREADS_DEFAULT)));
-    final String kafkaBootstrapServers = Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS),
-        KAFKA_BOOTSTRAP_SERVERS_DEFAULT);
-    final String kafkaInputTopic = Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.KAFKA_INPUT_TOPIC),
-        KAFKA_TOPIC_DEFAULT);
-    final String schemaRegistryUrl = Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.SCHEMA_REGISTRY_URL),
-        SCHEMA_REGISTRY_URL_DEFAULT);
-    final Properties kafkaProperties = new Properties();
-    kafkaProperties.compute(ProducerConfig.BATCH_SIZE_CONFIG,
-        (k, v) -> System.getenv(ConfigurationKeys.KAFKA_BATCH_SIZE));
-    kafkaProperties.compute(ProducerConfig.LINGER_MS_CONFIG,
-        (k, v) -> System.getenv(ConfigurationKeys.KAFKA_LINGER_MS));
-    kafkaProperties.compute(ProducerConfig.BUFFER_MEMORY_CONFIG,
-        (k, v) -> System.getenv(ConfigurationKeys.KAFKA_BUFFER_MEMORY));
 
     return new LoadGenerator()
         .setClusterConfig(clusterConfig)
@@ -169,11 +198,8 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))
         .setGeneratorConfig(new LoadGeneratorConfig(
-            TitanRecordGeneratorFactory.forConstantValue(value),
-            TitanKafkaSenderFactory.forKafkaConfig(
-                kafkaBootstrapServers,
-                kafkaInputTopic,
-                schemaRegistryUrl)))
+            TitanRecordGenerator.forConstantValue(value),
+            recordSender))
         .withThreads(threads);
   }
 

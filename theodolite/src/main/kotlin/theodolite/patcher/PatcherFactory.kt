@@ -1,7 +1,6 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import theodolite.util.DeploymentFailedException
 import theodolite.util.InvalidPatcherConfigurationException
 import theodolite.util.PatcherDefinition
 

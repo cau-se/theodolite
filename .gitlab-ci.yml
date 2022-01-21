@@ -41,6 +41,60 @@ default:
     - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
 
 
+# Theodolite Docs
+
+.docs:
+  image: alpine/bundle:3.0.3
+  cache:
+    paths:
+      - docs/vendor
+  before_script:
+    - cd docs
+    - bundle config set --local path 'vendor'
+    - bundle install
+  rules:
+    - changes:
+      - docs/**/*
+    - when: manual
+      allow_failure: true
+
+build-docs:
+  stage: build
+  extends: .docs
+  script: bundle exec jekyll build
+  artifacts:
+    paths:
+      - docs/_site
+
+test-docs-links:
+  stage: test
+  extends: .docs
+  needs:
+    - build-docs
+  script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
+
+test-docs-crds-regression:
+  stage: test
+  image: golang
+  before_script:
+    - cd docs
+    - go install fybrik.io/crdoc@latest
+  script:
+    - crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.ref.md
+    - cmp api-reference/crds.md api-reference/crds.ref.md
+  artifacts:
+    when: on_failure
+    paths:
+      - docs/api-reference/crds.ref.md
+    expire_in: 1 week
+  rules:
+    - changes:
+      - docs/api-reference/crds.tmpl
+      - theodolite/crd/**/*
+    - when: manual
+      allow_failure: true
+
+
 # Theodolite Helm Chart
 
 lint-helm:
@@ -89,6 +143,7 @@ test-benchmarks:
     - build-benchmarks
   script: ./gradlew test --continue
   artifacts:
+    when: always
     reports:
       junit:
         - "theodolite-benchmarks/**/build/test-results/test/TEST-*.xml"
@@ -319,8 +374,10 @@ build-theodolite-jvm:
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "theodolite/build/lib/*"
-      - "theodolite/build/*-runner.jar"
+      - "theodolite/build/quarkus-app/lib/"
+      - "theodolite/build/quarkus-app/*.jar"
+      - "theodolite/build/quarkus-app/app/"
+      - "theodolite/build/quarkus-app/quarkus/"
     expire_in: 6 hours
 
 build-theodolite-native:
@@ -342,6 +399,7 @@ test-theodolite:
     #- build-theodolite-native
   script: ./gradlew test --stacktrace
   artifacts:
+    when: always
     reports:
       junit:
         - "theodolite/**/build/test-results/test/TEST-*.xml"
@@ -420,6 +478,22 @@ test-slo-checker-dropped-records-kstreams:
     - when: manual
       allow_failure: true
 
+test-slo-checker-generic:
+  stage: test
+  needs: []
+  image: python:3.7-slim
+  before_script:
+    - cd slo-checker/generic
+  script:
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
+    - when: manual
+      allow_failure: true
+
 deploy-slo-checker-lag-trend:
   stage: deploy
   extends:
@@ -451,6 +525,24 @@ deploy-slo-checker-dropped-records-kstreams:
   rules:
     - changes:
       - slo-checker/dropped-records/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+deploy-slo-checker-generic:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs:
+    - test-slo-checker-generic
+  before_script:
+    - cd slo-checker/generic
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-generic
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual

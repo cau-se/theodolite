@@ -14,4 +14,5 @@ public class StatsToString extends SimpleFunction<KV<String, Stats>, KV<String, 
   public KV<String, String> apply(final KV<String, Stats> kv) {
     return KV.of(kv.getKey(), kv.getValue().toString());
   }
+
 }

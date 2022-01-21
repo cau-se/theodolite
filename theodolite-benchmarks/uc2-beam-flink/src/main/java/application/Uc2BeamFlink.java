@@ -15,7 +15,7 @@ public final class Uc2BeamFlink extends AbstractBeamService {
   /**
    * Private constructor setting specific options for this use case.
    */
-  private Uc2BeamFlink(final String[] args) { //NOPMD
+  private Uc2BeamFlink(final String[] args) { // NOPMD
     super(args);
     this.options.setRunner(FlinkRunner.class);
   }

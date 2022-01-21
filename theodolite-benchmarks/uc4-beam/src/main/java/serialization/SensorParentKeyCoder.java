@@ -16,6 +16,7 @@ import org.apache.kafka.common.serialization.Serde;
  * Wrapper Class that encapsulates a SensorParentKey Serde in a org.apache.beam.sdk.coders.Coder.
  */
 public class SensorParentKeyCoder extends Coder<SensorParentKey> implements Serializable {
+
   private static final long serialVersionUID = -3480141901035692398L;
   private static final boolean DETERMINISTIC = true;
   private static final int VALUE_SIZE = 4;

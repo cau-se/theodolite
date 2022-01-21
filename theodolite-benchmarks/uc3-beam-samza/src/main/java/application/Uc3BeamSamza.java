@@ -5,7 +5,7 @@ import theodolite.commons.beam.AbstractBeamService;
 
 /**
  * Implementation of the use case Aggregation based on Time Attributes using Apache Beam with the
- * Flink Runner. To run locally in standalone start Kafka, Zookeeper, the schema-registry and the
+ * Samza Runner. To run locally in standalone start Kafka, Zookeeper, the schema-registry and the
  * workload generator using the delayed_startup.sh script. And configure the Kafka, Zookeeper and
  * Schema Registry urls accordingly. Start a Flink cluster and pass its REST adress
  * using--flinkMaster as run parameter. To persist logs add
