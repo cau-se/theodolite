@@ -71,7 +71,7 @@ test-docs-links:
   extends: .docs
   needs:
     - build-docs
-  script: bundle exec htmlproofer --assume-extension --allow_hash_href --url-ignore "/favicon.ico" ./_site
+  script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
 
 test-docs-crds-regression:
   stage: test
@@ -374,8 +374,10 @@ build-theodolite-jvm:
   script: ./gradlew --build-cache assemble
   artifacts:
     paths:
-      - "theodolite/build/lib/*"
-      - "theodolite/build/*-runner.jar"
+      - "theodolite/build/quarkus-app/lib/"
+      - "theodolite/build/quarkus-app/*.jar"
+      - "theodolite/build/quarkus-app/app/"
+      - "theodolite/build/quarkus-app/quarkus/"
     expire_in: 6 hours
 
 build-theodolite-native:

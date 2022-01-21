@@ -15,7 +15,7 @@ import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 /**
  * Sends monitoring records to Kafka.
  *
- * @param <T> {@link IMonitoringRecord} to send
+ * @param <T> {@link SpecificRecord} to send
  */
 public class KafkaRecordSender<T extends SpecificRecord> implements RecordSender<T> {
 

@@ -1,12 +1,12 @@
 ---
 title: Available Benchmarks
-has_children: false
+has_children: true
 nav_order: 7
 ---
 
 # Theodolite Benchmarks
 
-Theodolite comes with 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding load generator is provided. Currently, Theodolite provides benchmark implementations for Apache Kafka Streams and Apache Flink.
+Theodolite comes with 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding [load generator](load-generator) is provided. Currently, Theodolite provides benchmark implementations for Apache Kafka Streams and Apache Flink.
 
 
 Theodolite's benchmarks are based on typical use cases for stream processing within microservices. Specifically, all benchmarks represent some sort of microservice doing Industrial Internet of Things data analytics. 
