@@ -7,10 +7,10 @@ nav_order: 1
 
 # Load Generator Framework
 
-Theodolite's benchmarks come with a flexible load generator framework. It is used to create load on the [4 Theodolite benchmarks](#prebuild-container-images), but can also be applied to create [custom load generators](#creating-a-custom-load-generator).
+Theodolite's benchmarks come with a flexible load generator framework. It is used to create load on the [4 Theodolite benchmarks](#prebuilt-container-images), but can also be applied to create [custom load generators](#creating-a-custom-load-generator).
 It is particularly designed for scalability: Just spin up multiple instances of the load generator and the instances automatically divide the load to be generated among themselves.
 
-## Prebuild container images
+## Prebuilt container images
 
 For each benchmark, we provide a [load generator as OCI container image](https://github.com/orgs/cau-se/packages?tab=packages&q=workload-generator). These load generators simulate smart power meters in an industrial facility, which generate measurement records at a fixed rate. Records are published to an Apache Kafka topic (default) or sent as POST requests to an HTTP endpoint.
 
@@ -38,7 +38,7 @@ If the load generator is configured to send records as HTTP POST requests, recor
 
 ### Configuration
 
-The prebuild container images can be configured with the following environment variables:
+The prebuilt container images can be configured with the following environment variables:
 
 | Environment Variable | Description | Default |
 |:----|:----|:----|
