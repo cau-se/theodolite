@@ -55,13 +55,19 @@ You can then execute your native executable with:
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
-## Building docker images
+## Building container images
 
-For the jvm version use:
+For the JVM version use:
 
 ```sh
 ./gradlew build
 docker build -f src/main/docker/Dockerfile.jvm -t theodolite-jvm .
+```
+
+Alternatively, you can also use Kaniko to build the image:
+
+```sh
+docker run -it --rm --name kaniko -v "`pwd`":/theodolite --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --context /theodolite --dockerfile src/main/docker/Dockerfile.jvm --no-push
 ```
 
 For the native image version use:
@@ -71,7 +77,7 @@ For the native image version use:
 docker build -f src/main/docker/Dockerfile.native -t theodolite-native .
 ```
 
-## Execute docker images
+## Run a container
 
 Remember to set the environment variables first.
 
