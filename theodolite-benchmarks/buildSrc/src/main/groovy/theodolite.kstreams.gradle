@@ -22,7 +22,7 @@ dependencies {
     // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
     implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
     implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
-    implementation 'org.apache.kafka:kafka-streams:2.6.0' // enable TransformerSuppliers
+    implementation 'org.apache.kafka:kafka-streams:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.google.guava:guava:24.1-jre'
     implementation 'org.slf4j:slf4j-simple:1.7.25'
