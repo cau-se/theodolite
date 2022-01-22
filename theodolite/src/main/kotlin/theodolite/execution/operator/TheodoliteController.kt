@@ -110,8 +110,7 @@ class TheodoliteController(
                 type = "WARNING",
                 reason = "Execution failed",
                 message = "An error occurs while executing:  ${e.message}")
-            logger.error { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
-            logger.error { "Problem is: $e" }
+            logger.error(e) { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
             executionStateHandler.setExecutionState(execution.name, ExecutionStates.FAILURE)
         }
         executionStateHandler.stopDurationStateTimer()
