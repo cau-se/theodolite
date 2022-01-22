@@ -39,7 +39,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
-    lateinit var kafkaConfig: KafkaConfig
+    var kafkaConfig: KafkaConfig? = null
     lateinit var infrastructure: Resources
     lateinit var sut: Resources
     lateinit var loadGenerator: Resources
@@ -110,6 +110,9 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
                 patcherFactory.createPatcher(it.patcher, appResources + loadGenResources).patch(override.value)
             }
         }
+
+        val kafkaConfig = this.kafkaConfig
+
         return KubernetesBenchmarkDeployment(
             sutBeforeActions = sut.beforeActions,
             sutAfterActions = sut.afterActions,
@@ -119,8 +122,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             loadGenResources = loadGenResources.map { it.second },
             loadGenerationDelay = loadGenerationDelay,
             afterTeardownDelay = afterTeardownDelay,
-            kafkaConfig = hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer),
-            topics = kafkaConfig.topics,
+            kafkaConfig = if (kafkaConfig != null) hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
+            topics = kafkaConfig?.topics ?: listOf(),
             client = this.client
         )
     }
