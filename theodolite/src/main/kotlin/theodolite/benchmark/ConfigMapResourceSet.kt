@@ -31,7 +31,7 @@ class ConfigMapResourceSet: ResourceSet, KubernetesResource {
                 .withName(name)
                 .get()
                 .data
-                .filter { it.key.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
+                .filter { it.key.endsWith(".yaml") || it.key.endsWith(".yml")}
         } catch (e: KubernetesClientException) {
             throw DeploymentFailedException("can not find or read configmap:  $name", e)
         } catch (e: IllegalStateException) {

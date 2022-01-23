@@ -32,7 +32,7 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
         return try {
             File(path)
                 .list() !!
-                .filter { it.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
+                .filter { it.endsWith(".yaml") || it.endsWith(".yml") }
                 .map {
                     loadSingleResource(resourceURL = it, client = client)
                 }
