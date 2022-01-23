@@ -21,17 +21,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-
             # - name: MODE
             #   value: yaml-executor # Default is `yaml-executor`
             - name: THEODOLITE_EXECUTION
-              value: "execution/execution.yaml" # The name of this file must correspond to the filename of the execution, from which the config map is created.
+              value: "/deployments/execution/execution.yaml" # The name of this file must correspond to the filename of the execution, from which the config map is created.
             - name: THEODOLITE_BENCHMARK
-              value: "benchmark/benchmark.yaml" # The name of this file must correspond to the filename of the benchmark, from which the config map is created.
+              value: "/deployments/benchmark/benchmark.yaml" # The name of this file must correspond to the filename of the benchmark, from which the config map is created.
             - name: THEODOLITE_APP_RESOURCES
-              value: "benchmark-resources"
+              value: "/deployments/benchmark-resources"
             - name: RESULTS_FOLDER # Folder for saving results
-              value: results # Default is the pwd (/deployments)
+              value: /deployments/results # Default is the pwd (/deployments)
             # - name: CREATE_RESULTS_FOLDER # Specify whether the specified result folder should be created if it does not exist.
             #   value: "false" # Default is false.
           volumeMounts:
