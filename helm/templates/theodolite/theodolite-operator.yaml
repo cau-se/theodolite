@@ -31,7 +31,7 @@ spec:
           volumeMounts:
             - name: theodolite-results-volume
               mountPath: "/deployments/results"
-        {{- if .Values.operator.sloChecker.droppedRecordsKStreams.enabled }}
+        {{- if .Values.operator.sloChecker.generic.enabled }}
         - name: slo-checker-generic
           image: "{{ .Values.operator.sloChecker.generic.image }}:{{ .Values.operator.sloChecker.generic.imageTag }}"
           imagePullPolicy: "{{ .Values.operator.sloChecker.generic.imagePullPolicy }}"
