@@ -27,7 +27,7 @@ spec:
             - name: MODE
               value: operator
             - name: RESULTS_FOLDER
-              value: "./results"
+              value: "/deployments/results"
           volumeMounts:
             - name: theodolite-results-volume
               mountPath: "/deployments/results"
