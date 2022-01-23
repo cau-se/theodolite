@@ -1,5 +1,5 @@
 from fastapi import FastAPI,Request
-import trend_slope_computer as trend_slope_computer
+from .trend_slope_computer import compute
 import logging
 import os
 import pandas as pd
@@ -33,7 +33,7 @@ def calculate_slope_trend(results, warmup):
 
     logger.info("Calculating trend slope with warmup of %s seconds for data frame:\n %s", warmup, df)
     try:
-        trend_slope = trend_slope_computer.compute(df, warmup)
+        trend_slope = compute(df, warmup)
     except Exception as e:
         err_msg = 'Computing trend slope failed.'
         logger.exception(err_msg)
