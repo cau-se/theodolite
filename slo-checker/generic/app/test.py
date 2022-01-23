@@ -1,5 +1,5 @@
 import unittest
-from .main import app, get_aggr_func, check_result
+from main import app, get_aggr_func, check_result
 import json
 from fastapi.testclient import TestClient
 
