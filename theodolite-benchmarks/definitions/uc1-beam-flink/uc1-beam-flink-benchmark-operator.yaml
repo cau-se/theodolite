@@ -1,7 +1,7 @@
 apiVersion: theodolite.com/v1
 kind: benchmark
 metadata:
-  name: uc1-flink
+  name: uc1-beam-flink
 spec:
   sut:
     resources:
