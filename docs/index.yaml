@@ -2,6 +2,41 @@ apiVersion: v1
 entries:
   theodolite:
   - apiVersion: v2
+    appVersion: 0.6.3
+    created: "2022-01-24T13:37:45.410029138+01:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.5
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 20.0.1
+    - condition: cp-helm-charts.enabled
+      name: cp-helm-charts
+      repository: https://soerenhenning.github.io/cp-helm-charts
+      version: 0.6.0
+    - condition: kafka-lag-exporter.enabled
+      name: kafka-lag-exporter
+      repository: https://lightbend.github.io/kafka-lag-exporter/repo/
+      version: 0.6.7
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: ebf08e3bf084fcd96eb2ee0588d495258d1741c74019257e55ba40f574874525
+    home: https://www.theodolite.rocks
+    maintainers:
+    - email: soeren.henning@email.uni-kiel.de
+      name: Sören Henning
+      url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.6.3/theodolite-0.6.3.tgz
+    version: 0.6.3
+  - apiVersion: v2
     appVersion: 0.6.2
     created: "2022-01-23T19:16:53.434981952+01:00"
     dependencies:
@@ -211,4 +246,4 @@ entries:
     urls:
     - https://github.com/cau-se/theodolite/releases/download/v0.4.0/theodolite-0.4.0.tgz
     version: 0.4.0
-generated: "2022-01-23T19:16:53.395244017+01:00"
+generated: "2022-01-24T13:37:45.371191415+01:00"
