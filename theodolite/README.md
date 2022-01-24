@@ -29,7 +29,7 @@ The application can be packaged using:
 ./gradlew build
 ```
 
-It produces the `theodolite-0.6.1-runner.jar` file in the `/build` directory. Be aware that it’s not
+It produces the `theodolite-0.6.2-runner.jar` file in the `/build` directory. Be aware that it’s not
 an _über-jar_ as the dependencies are copied into the `build/lib` directory.
 
 If you want to build an _über-jar_, execute the following command:
@@ -38,7 +38,7 @@ If you want to build an _über-jar_, execute the following command:
 ./gradlew build -Dquarkus.package.type=uber-jar
 ```
 
-The application is now runnable using `java -jar build/theodolite-0.6.1-runner.jar`.
+The application is now runnable using `java -jar build/theodolite-0.6.2-runner.jar`.
 
 ## Creating a native executable
 
@@ -57,7 +57,7 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ```
 
 You can then execute your native executable with:
-```./build/theodolite-0.6.1-runner```
+```./build/theodolite-0.6.2-runner```
 
 If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
 

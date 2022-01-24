@@ -29,6 +29,6 @@ dependencies:
     repository: https://lightbend.github.io/kafka-lag-exporter/repo/
     condition: kafka-lag-exporter.enabled
 
-version: 0.6.1
+version: 0.6.2
 
-appVersion: 0.6.1
+appVersion: 0.6.2
