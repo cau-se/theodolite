@@ -2,8 +2,6 @@ package theodolite.strategies.searchstrategy
 
 import mu.KotlinLogging
 import theodolite.execution.BenchmarkExecutor
-import theodolite.util.LoadDimension
-import theodolite.util.Resources
 import theodolite.util.Results
 
 private val logger = KotlinLogging.logger {}
@@ -19,7 +17,7 @@ private val logger = KotlinLogging.logger {}
 class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStrategy: GuessStrategy, results: Results) :
         SearchStrategy(benchmarkExecutor, guessStrategy, results) {
 
-    override fun findSuitableResource(load: LoadDimension, resources: List<Int>): Int? {
+    override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
 
         if(resources.isEmpty()) {
             logger.info { "You need to specify resources to be checked for the InitialGuessSearchStrategy to work." }
@@ -41,7 +39,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
 
         // Getting the lastLowestResource from results and calling firstGuess() with it
         if (!results.isEmpty()) {
-            val maxLoad: LoadDimension? = this.results.getMaxBenchmarkedLoad(load)
+            val maxLoad: Int? = this.results.getMaxBenchmarkedLoad(load)
             lastLowestResource = this.results.getMinRequiredInstances(maxLoad)
             if (lastLowestResource == Int.MAX_VALUE) lastLowestResource = null
         }
@@ -51,7 +49,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
             val resourcesToCheck: List<Int>
             val startIndex: Int = resources.indexOf(lastLowestResource)
 
-            logger.info { "Running experiment with load '${load.get()}' and resources '$lastLowestResource'" }
+            logger.info { "Running experiment with load '${load}' and resources '$lastLowestResource'" }
 
             // If the first experiment passes, starting downward linear search
             // otherwise starting upward linear search
@@ -63,7 +61,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
                 var currentMin: Int = lastLowestResource
                 for (res in resourcesToCheck) {
 
-                    logger.info { "Running experiment with load '${load.get()}' and resources '$res'" }
+                    logger.info { "Running experiment with load '${load}' and resources '$res'" }
                     if (this.benchmarkExecutor.runExperiment(load, res)) {
                         currentMin = res
                     }
@@ -79,7 +77,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
 
                 for (res in resourcesToCheck) {
 
-                    logger.info { "Running experiment with load '${load.get()}' and resources '$res'" }
+                    logger.info { "Running experiment with load '${load}' and resources '$res'" }
                     if (this.benchmarkExecutor.runExperiment(load, res)) return res
                 }
             }
@@ -91,7 +89,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
         return null
     }
 
-    override fun findSuitableLoad(resource: Int, loads: List<LoadDimension>): LoadDimension? {
+    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int? {
         TODO("Not yet implemented")
     }
 }

@@ -2,8 +2,6 @@ package theodolite.strategies.searchstrategy
 
 import mu.KotlinLogging
 import theodolite.execution.BenchmarkExecutor
-import theodolite.util.LoadDimension
-import theodolite.util.Resources
 
 private val logger = KotlinLogging.logger {}
 
@@ -17,12 +15,11 @@ private val logger = KotlinLogging.logger {}
  */
 class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
 
-    override fun findSuitableResource(load: LoadDimension, resources: List<Int>): Int? {
+    override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
         var minimalSuitableResources: Int? = null
         for (res in resources) {
-            logger.info { "Running experiment with load '${load.get()}' and resources '$res'" }
+            logger.info { "Running experiment with load '$load' and resources '$res'" }
             val result = this.benchmarkExecutor.runExperiment(load, res)
-            //TODO: that actually doesnt make sense no? Shouldnt it be == null?
             if (result && minimalSuitableResources == null) {
                 minimalSuitableResources = res
             }
@@ -30,10 +27,10 @@ class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmar
         return minimalSuitableResources
     }
 
-    override fun findSuitableLoad(resource: Int, loads: List<LoadDimension>): LoadDimension? {
-        var maxSuitableLoad: LoadDimension? = null
+    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int? {
+        var maxSuitableLoad: Int? = null
         for (load in loads) {
-            logger.info { "Running experiment with resources '$resource' and load '${load.get()}'" }
+            logger.info { "Running experiment with resources '$resource' and load '$load'" }
             if (this.benchmarkExecutor.runExperiment(load, resource)) maxSuitableLoad = load
         }
         return maxSuitableLoad

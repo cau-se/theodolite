@@ -1,6 +1,5 @@
 package theodolite.strategies.searchstrategy
 
-import theodolite.util.Resources
 
 /**
  * This Guess strategy takes the minimal resource demand of the previous load, which is given as an argument for the
@@ -10,7 +9,7 @@ import theodolite.util.Resources
 class PrevResourceMinGuess() : GuessStrategy(){
 
     /**
-     * @param resources List of all possible [Resources]s.
+     * @param resources List of all possible Resources.
      * @param lastLowestResource Previous resource demand needed for the given load.
      *
      * @return the value of lastLowestResource if given otherwise the first element of the resource list or null

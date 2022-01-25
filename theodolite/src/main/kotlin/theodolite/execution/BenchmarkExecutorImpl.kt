@@ -23,7 +23,9 @@ class BenchmarkExecutorImpl(
     executionId: Int,
     loadGenerationDelay: Long,
     afterTeardownDelay: Long,
-    executionName: String
+    executionName: String,
+    loadPatcherDefinitions: List<PatcherDefinition>,
+    resourcePatcherDefinitions: List<PatcherDefinition>
 ) : BenchmarkExecutor(
     benchmark,
     results,
@@ -34,19 +36,22 @@ class BenchmarkExecutorImpl(
     executionId,
     loadGenerationDelay,
     afterTeardownDelay,
-    executionName
+    executionName,
+    loadPatcherDefinitions,
+    resourcePatcherDefinitions
 ) {
     private val eventCreator = EventCreator()
     private val mode = Configuration.EXECUTION_MODE
 
-    override fun runExperiment(load: LoadDimension, res: Int): Boolean {
+    override fun runExperiment(load: Int, resource: Int): Boolean {
         var result = false
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList()
 
         for (i in 1.rangeTo(repetitions)) {
             if (this.run.get()) {
                 logger.info { "Run repetition $i/$repetitions" }
-                executionIntervals.add(runSingleExperiment(load, res))
+                executionIntervals.add(runSingleExperiment(
+                        load, resource))
             } else {
                 break
             }
@@ -60,13 +65,13 @@ class BenchmarkExecutorImpl(
                 AnalysisExecutor(slo = it, executionId = executionId)
                     .analyze(
                         load = load,
-                        res = res,
+                        resource = resource,
                         executionIntervals = executionIntervals
                     )
             }
 
             result = (false !in experimentResults)
-            this.results.setResult(Pair(load, res), result)
+            this.results.setResult(Pair(load, resource), result)
         }
 
         if(!this.run.get()) {
@@ -76,11 +81,12 @@ class BenchmarkExecutorImpl(
         return result
     }
 
-    private fun runSingleExperiment(load: LoadDimension, res: Int): Pair<Instant, Instant> {
-        // TODO res muss eigentlich eine Resource (Int) + Patcher sein
+    private fun runSingleExperiment(load: Int, resource: Int): Pair<Instant, Instant> {
         val benchmarkDeployment = benchmark.buildDeployment(
             load,
-            res,
+            this.loadPatcherDefinitions,
+            resource,
+            this.resourcePatcherDefinitions,
             this.configurationOverrides,
             this.loadGenerationDelay,
             this.afterTeardownDelay
@@ -95,7 +101,7 @@ class BenchmarkExecutorImpl(
                     executionName = executionName,
                     type = "NORMAL",
                     reason = "Start experiment",
-                    message = "load: ${load.get()}, resources: $res")
+                    message = "load: $load, resources: $resource")
             }
         } catch (e: Exception) {
             this.run.set(false)
@@ -105,7 +111,7 @@ class BenchmarkExecutorImpl(
                     executionName = executionName,
                     type = "WARNING",
                     reason = "Start experiment failed",
-                    message = "load: ${load.get()}, resources: $res")
+                    message = "load: $load, resources: $resource")
             }
             throw ExecutionFailedException("Error during setup the experiment", e)
         }

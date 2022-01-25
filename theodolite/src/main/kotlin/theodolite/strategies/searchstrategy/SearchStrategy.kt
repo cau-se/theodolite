@@ -2,8 +2,6 @@ package theodolite.strategies.searchstrategy
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.execution.BenchmarkExecutor
-import theodolite.util.LoadDimension
-import theodolite.util.Resources
 import theodolite.util.Results
 
 /**
@@ -19,20 +17,21 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
     /**
      * Find smallest suitable resource from the specified resource list for the given load.
      *
-     * @param load the [LoadDimension] to be tested.
-     * @param resources List of all possible [Resource]s.
+     * @param load the load to be tested.
+     * @param resources List of all possible resources.
      *
      * @return suitable resource for the specified load, or null if no suitable resource exists.
      */
-    abstract fun findSuitableResource(load: LoadDimension, resources: List<Int>): Int?
+    abstract fun findSuitableResource(load: Int, resources: List<Int>): Int?
 
+    // TODO findSuitableLoad und findSuitableResource zusammenfuehren?
     /**
      * Find biggest suitable load from the specified load list for the given resource amount.
      *
-     * @param resource the [Resource] to be tested.
-     * @param loads List of all possible [LoadDimension]s.
+     * @param resource the resource to be tested.
+     * @param loads List of all possible loads.
      *
      * @return suitable load for the specified resource amount, or null if no suitable load exists.
      */
-    abstract fun findSuitableLoad(resource: Int, loads: List<LoadDimension>) : LoadDimension?
+    abstract fun findSuitableLoad(resource: Int, loads: List<Int>) : Int?
 }

@@ -50,7 +50,7 @@ class StrategyFactory {
      *
      * @param results The [Results] saves the state of the Theodolite benchmark run.
      * @param restrictionStrings Specifies the list of [RestrictionStrategy] that are used to restrict the amount
-     * of [theodolite.util.Resources] for a fixed LoadDimension. Must equal the string
+     * of Resource for a fixed LoadDimension. Must equal the string
      * 'LowerBound'.
      *
      * @throws IllegalArgumentException if param searchStrategyString was not one of the allowed options.

@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import theodolite.util.LoadDimension
-import theodolite.util.Resources
 import theodolite.util.Results
 
 internal class LowerBoundRestrictionTest {
@@ -14,12 +12,8 @@ internal class LowerBoundRestrictionTest {
     fun testNoPreviousResults() {
         val results = Results()
         val strategy = LowerBoundRestriction(results)
-        val load = buildLoadDimension(10000)
-        val resources = listOf(
-            buildResourcesDimension(1),
-            buildResourcesDimension(2),
-            buildResourcesDimension(3)
-        )
+        val load = 10000
+        val resources = listOf(1, 2, 3)
         val restriction = strategy.apply(load, resources)
 
         assertEquals(3, restriction.size)
@@ -33,12 +27,8 @@ internal class LowerBoundRestrictionTest {
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, true)
         val strategy = LowerBoundRestriction(results)
-        val load = buildLoadDimension(30000)
-        val resources = listOf(
-            buildResourcesDimension(1),
-            buildResourcesDimension(2),
-            buildResourcesDimension(3)
-        )
+        val load = 30000
+        val resources = listOf(1, 2, 3)
         val restriction = strategy.apply(load, resources)
 
         assertEquals(2, restriction.size)
@@ -55,16 +45,12 @@ internal class LowerBoundRestrictionTest {
         results.setResult(20000, 2, false)
         results.setResult(20000, 3, false)
         val strategy = LowerBoundRestriction(results)
-        val load = buildLoadDimension(30000)
-        val resources = listOf(
-            buildResourcesDimension(1),
-            buildResourcesDimension(2),
-            buildResourcesDimension(3)
-        )
+        val load = 30000
+        val resources = listOf(1, 2, 3)
         val restriction = strategy.apply(load, resources)
 
         assertEquals(0, restriction.size)
-        assertEquals(emptyList<Resources>(), restriction)
+        assertEquals(emptyList<Int>(), restriction)
     }
 
 
@@ -76,7 +62,7 @@ internal class LowerBoundRestrictionTest {
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, true)
 
-        val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
+        val minRequiredInstances = results.getMinRequiredInstances(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
@@ -92,27 +78,15 @@ internal class LowerBoundRestrictionTest {
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, false)
 
-        val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
+        val minRequiredInstances = results.getMinRequiredInstances(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
     }
 
-    private fun buildLoadDimension(load: Int): LoadDimension {
-        return LoadDimension(load, emptyList())
-    }
 
-    private fun buildResourcesDimension(resources: Int): Int {
-        return resources
-    }
 
-    private fun Results.setResult(load: Int, resources: Int, successful: Boolean) {
-        this.setResult(
-            Pair(
-                buildLoadDimension(load),
-                buildResourcesDimension(resources)
-            ),
-            successful
-        )
+    private fun Results.setResult(load: Int, resource: Int, successful: Boolean) {
+        this.setResult(Pair(load, resource),successful)
     }
 }

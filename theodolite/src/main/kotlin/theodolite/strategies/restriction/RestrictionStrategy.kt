@@ -1,8 +1,6 @@
 package theodolite.strategies.restriction
 
 import io.quarkus.runtime.annotations.RegisterForReflection
-import theodolite.util.LoadDimension
-import theodolite.util.Resources
 import theodolite.util.Results
 
 /**
@@ -16,10 +14,10 @@ abstract class RestrictionStrategy(val results: Results) {
     /**
      * Apply the restriction of the given resource list for the given load based on the results object.
      *
-     * @param load [LoadDimension] for which a subset of resources are required.
-     * @param resources List of [Resources]s to be restricted.
+     * @param load LoadDimension for which a subset of resources are required.
+     * @param resources List of Resource s to be restricted.
      * @return Returns a list containing only elements that have not been filtered out by the
      * restriction (possibly empty).
      */
-    abstract fun apply(load: LoadDimension, resources: List<Int>): List<Int>
+    abstract fun apply(load: Int, resources: List<Int>): List<Int>
 }

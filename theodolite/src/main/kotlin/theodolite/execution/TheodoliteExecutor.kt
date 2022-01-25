@@ -32,8 +32,8 @@ class TheodoliteExecutor(
     /**
      * Creates all required components to start Theodolite.
      *
-     * @return a [Config], that contains a list of [LoadDimension]s,
-     *          a list of [Resource]s , and the [restrictionSearch].
+     * @return a [Config], that contains a list of LoadDimension s,
+     *          a list of Resource s , and the [restrictionSearch].
      * The [searchStrategy] is configured and able to find the minimum required resource for the given load.
      */
     private fun buildConfig(): Config {
@@ -65,7 +65,9 @@ class TheodoliteExecutor(
                 executionId = config.executionId,
                 loadGenerationDelay = config.execution.loadGenerationDelay,
                 afterTeardownDelay = config.execution.afterTeardownDelay,
-                executionName = config.name
+                executionName = config.name,
+                loadPatcherDefinitions = loadDimensionPatcherDefinition,
+                resourcePatcherDefinitions = resourcePatcherDefinition
             )
 
         if (config.load.loadValues != config.load.loadValues.sorted()) {
@@ -85,8 +87,10 @@ class TheodoliteExecutor(
         }
 
         return Config(
-            loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },
-            resources = Resources(config.resources.resourceValues, resourcePatcherDefinition),
+            loads = config.load.loadValues,
+            loadPatcherDefinitions = loadDimensionPatcherDefinition,
+            resources = config.resources.resourceValues,
+            resourcePatcherDefinitions = resourcePatcherDefinition,
             searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results),
             metric = config.execution.metric
         )
@@ -120,12 +124,12 @@ class TheodoliteExecutor(
                 //demand metric
                 for (load in config.loads) {
                     if (executor.run.get()) {
-                        config.searchStrategy.findSuitableResource(load, config.resources.get())
+                        config.searchStrategy.findSuitableResource(load, config.resources)
                     }
                 }
             } else {
                 //capacity metric
-                for (resource in config.resources.get()) {
+                for (resource in config.resources) {
                     if (executor.run.get()) {
                         config.searchStrategy.findSuitableLoad(resource, config.loads)
                     }

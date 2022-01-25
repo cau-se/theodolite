@@ -98,7 +98,7 @@ spec:
                       items:
                         type: string
                     guessStrategy: string
-                    searchStrategy: object
+                    searchStrategy: string
                 properties:
                   duration:
                     description: Defines the duration of each experiment in seconds.

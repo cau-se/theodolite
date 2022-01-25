@@ -8,6 +8,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sManager
 import theodolite.k8s.resourceLoader.K8sResourceLoader
+import theodolite.patcher.Patcher
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
 
@@ -81,8 +82,10 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * @return a [BenchmarkDeployment]
      */
     override fun buildDeployment(
-            load: LoadDimension,
-            res: theodolite.util.Resources,
+            load: Int,
+            loadPatcherDefinitions: List<PatcherDefinition>,
+            resource: Int,
+            resourcePatcherDefinitions: List<PatcherDefinition>,
             configurationOverrides: List<ConfigurationOverride?>,
             loadGenerationDelay: Long,
             afterTeardownDelay: Long
@@ -95,11 +98,11 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
         val patcherFactory = PatcherFactory()
 
         // patch the load dimension the resources
-        load.getType().forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, loadGenResources).patch(load.get().toString())
+        loadPatcherDefinitions.forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, loadGenResources).patch(load.toString())
         }
-        res.getType().forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, appResources).patch(res.get().toString())
+        resourcePatcherDefinitions.forEach { patcherDefinition ->
+            patcherFactory.createPatcher(patcherDefinition, appResources).patch(resource.toString())
         }
 
         // Patch the given overrides

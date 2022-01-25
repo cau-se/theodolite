@@ -3,7 +3,6 @@ package theodolite.benchmark
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.quarkus.runtime.annotations.RegisterForReflection
-import theodolite.strategies.searchstrategy.SearchStrategy
 import theodolite.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
@@ -14,7 +13,7 @@ import kotlin.properties.Delegates
  *  - A [name].
  *  - The [benchmark] that should be executed.
  *  - The [load] that should be checked in the benchmark.
- *  - The [resources] that should be checked in the benchmark.
+ *  - The resources that should be checked in the benchmark.
  *  - A list of [slos] that are used for the evaluation of the experiments.
  *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
  *  for the execution of the benchmark.

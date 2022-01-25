@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.strategies.searchstrategy.InitialGuessSearchStrategy
-import theodolite.util.LoadDimension
 import theodolite.util.Results
 import mu.KotlinLogging
 import theodolite.strategies.searchstrategy.PrevResourceMinGuess
@@ -26,7 +25,7 @@ class InitialGuessSearchStrategyTest {
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
         )
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
+        val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()
@@ -64,7 +63,7 @@ class InitialGuessSearchStrategyTest {
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
         )
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
+        val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()
@@ -102,7 +101,7 @@ class InitialGuessSearchStrategyTest {
                 arrayOf(false, false, false, false, false, false, true),
                 arrayOf(false, false, false, false, false, false, false)
         )
-        val mockLoads: List<LoadDimension> = (0..6).map { number -> LoadDimension(number, emptyList()) }
+        val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
         val results = Results()
         val benchmark = TestBenchmark()

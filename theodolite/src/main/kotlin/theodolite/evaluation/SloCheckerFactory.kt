@@ -1,6 +1,5 @@
 package theodolite.evaluation
 
-import theodolite.util.LoadDimension
 
 /**
  * Factory used to potentially create different [SloChecker]s.
@@ -41,7 +40,7 @@ class SloCheckerFactory {
     fun create(
         sloType: String,
         properties: MutableMap<String, String>,
-        load: LoadDimension
+        load: Int
     ): SloChecker {
         return when (sloType.toLowerCase()) {
             SloTypes.LAG_TREND.value, SloTypes.DROPPED_RECORDS.value -> ExternalSloChecker(
@@ -59,7 +58,7 @@ class SloCheckerFactory {
                     throw IllegalArgumentException("Threshold ratio needs to be an Double greater or equal 0.0")
                 }
                 // cast to int, as rounding is not really necessary
-                val threshold = (load.get() * thresholdRatio).toInt()
+                val threshold = (load * thresholdRatio).toInt()
 
                 ExternalSloChecker(
                     externalSlopeURL = properties["externalSloUrl"]

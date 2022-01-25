@@ -4,8 +4,7 @@ import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.ConfigurationOverride
-import theodolite.util.LoadDimension
-import theodolite.util.Resources
+import theodolite.util.PatcherDefinition
 import theodolite.util.Results
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
@@ -30,7 +29,9 @@ abstract class BenchmarkExecutor(
     val executionId: Int,
     val loadGenerationDelay: Long,
     val afterTeardownDelay: Long,
-    val executionName: String
+    val executionName: String,
+    val loadPatcherDefinitions: List<PatcherDefinition>,
+    val resourcePatcherDefinitions: List<PatcherDefinition>
 ) {
 
     var run: AtomicBoolean = AtomicBoolean(true)
@@ -44,7 +45,7 @@ abstract class BenchmarkExecutor(
      * @return True, if the number of resources are suitable for the
      *     given load, false otherwise.
      */
-    abstract fun runExperiment(load: LoadDimension, res: Int): Boolean
+    abstract fun runExperiment(load: Int, resource: Int): Boolean
 
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.

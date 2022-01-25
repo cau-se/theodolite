@@ -17,10 +17,10 @@ internal class ResultsTest {
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, true)
 
-        val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
+        val minRequiredInstances = results.getMinRequiredInstances(20000)
 
         assertNotNull(minRequiredInstances)
-        assertEquals(2, minRequiredInstances!!.get())
+        assertEquals(2, minRequiredInstances!!)
     }
 
     @Test
@@ -33,20 +33,14 @@ internal class ResultsTest {
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, false)
 
-        val minRequiredInstances = results.getMinRequiredInstances(LoadDimension(20000, emptyList()))
+        val minRequiredInstances = results.getMinRequiredInstances(20000)
 
         assertNotNull(minRequiredInstances)
-        assertEquals(2, minRequiredInstances!!.get())
+        assertEquals(2, minRequiredInstances!!)
     }
 
-    private fun Results.setResult(load: Int, resources: Int, successful: Boolean) {
-        this.setResult(
-            Pair(
-                LoadDimension(load, emptyList()),
-                Resources(resources, emptyList())
-            ),
-            successful
-        )
+    private fun Results.setResult(load: Int, resource: Int, successful: Boolean) {
+        this.setResult(Pair(load, resource), successful)
     }
 
 
@@ -56,7 +50,7 @@ internal class ResultsTest {
         results.setResult(10000, 1, true)
         results.setResult(10000, 2, true)
 
-        val test1 = results.getMaxBenchmarkedLoad(LoadDimension(100000, emptyList()))!!.get()
+        val test1 = results.getMaxBenchmarkedLoad(100000)!!
 
         assertEquals(10000, test1)
     }
@@ -68,7 +62,7 @@ internal class ResultsTest {
         results.setResult(10000, 2, true)
         results.setResult(20000, 1, false)
 
-        val test2 = results.getMaxBenchmarkedLoad(LoadDimension(100000, emptyList()))!!.get()
+        val test2 = results.getMaxBenchmarkedLoad(100000)!!
 
         assertEquals(20000, test2)
     }
