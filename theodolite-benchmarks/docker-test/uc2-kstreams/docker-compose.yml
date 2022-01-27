@@ -1,4 +1,4 @@
-version: '2'
+version: '2.2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper
@@ -37,8 +37,17 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+  benchmark:
+    image: ghcr.io/cau-se/theodolite-uc2-kstreams-app:${THEODOLITE_TAG:-latest}
+    depends_on:
+      - schema-registry
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KAFKA_WINDOW_DURATION_MINUTES: 60
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc3-workload-generator:${THEODOLITE_TAG:-latest}
+    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:
       - schema-registry
       - kafka
@@ -48,28 +57,3 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       NUM_SENSORS: 10
-  benchmark-jobmanager:
-    image: ghcr.io/cau-se/theodolite-uc3-flink:${THEODOLITE_TAG:-latest}
-    #ports:
-    #  - "8080:8081"
-    command: standalone-job --job-classname theodolite.uc3.application.HistoryServiceFlinkJob
-    environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: benchmark-jobmanager
-        parallelism.default: 1
-    depends_on:
-      - schema-registry
-      - kafka
-  benchmark-taskmanager:
-    image: ghcr.io/cau-se/theodolite-uc3-flink:${THEODOLITE_TAG:-latest}
-    command: taskmanager
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: benchmark-jobmanager
-    depends_on:
-      - schema-registry
-      - kafka
