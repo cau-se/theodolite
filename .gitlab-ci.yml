@@ -365,7 +365,7 @@ deploy-uc4-load-generator:
     - cd theodolite-benchmarks/docker-test
   script:
     - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
-    - ./smoketest ./$DOCKER_COMPOSE_DIR
+    - ./smoketest-runner.sh ./$DOCKER_COMPOSE_DIR
   rules:
     - changes:
       - theodolite-benchmarks/*
