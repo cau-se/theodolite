@@ -361,13 +361,19 @@ deploy-uc4-load-generator:
   extends:
     - .dind
   image: docker/compose:1.29.2
-  variables:
-    CONTEXT: "/$JAVA_PROJECT_NAME"
   before_script:
     - cd theodolite-benchmarks/docker-test
   script:
     - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
-    - ./smoketest ./$PROJECT_NAME
+    - ./smoketest ./$DOCKER_COMPOSE_DIR
+  rules:
+    - changes:
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/{$JAVA_PROJECT_DEPS}/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+      when: manual
+      allow_failure: true
 
 smoketest-uc1-kstreams:
   extends: .smoketest-benchmarks
@@ -375,7 +381,8 @@ smoketest-uc1-kstreams:
     - deploy-uc1-kstreams
     - deploy-uc1-load-generator
   variables:
-    PROJECT_NAME: "uc1-kstreams"
+    DOCKER_COMPOSE_DIR: "uc1-kstreams"
+    JAVA_PROJECT_DEPS: "uc1-kstreams,kstreams-commons,uc1-load-generator,load-generator-commons"
 
 
 # Theodolite Framework
