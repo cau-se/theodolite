@@ -115,15 +115,13 @@ If a benchmark is [executed by an Execution](running-benchmarks), these patchers
 
 ## Kafka Configuration
 
-Theodolite allows to automatically create and remove Kafka topics for each SLO experiment.
-Use the `removeOnly: True` property for topics which are created automatically by the SUT.
-For those topics, also wildcards are allowed in the topic name.
+Theodolite allows to automatically create and remove Kafka topics for each SLO experiment by setting a `kafkaConfig`.
+It `bootstrapServer` needs to point your Kafka cluster and `topics` configures the list of Kafka topics to be created/removed.
+For each topic, you configure its name, the number of partitions and the replication factor.
 
-If no Kafka topics should be created, simply set:
-
-```yaml
-kafkaConfig: []
-```
+With the `removeOnly: True` property, you can also instruct Theodolite to only remove topics and not create them.
+This is useful when benchmarking SUTs, which create topics on their own (e.g., Kafka Streams and Samza applications).
+For those topics, also wildcards are allowed in the topic name and, of course, no partition count or replication factor must be provided.
 
 
 <!-- Further information: API Reference -->
