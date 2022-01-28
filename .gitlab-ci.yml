@@ -632,3 +632,23 @@ deploy-buildimage-docker-compose-jq:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
       allow_failure: true
+
+deploy-buildimage-k3d-helm:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    DOCKER_VERSION: 20.10.12
+    KUBECTL: v1.21.3
+    IMAGE_NAME: theodolite-build-k3d-helm
+    IMAGE_TAG: $DOCKER_VERSION
+  before_script:
+    - cd buildimages/k3d-helm
+  rules:
+    - changes:
+      - buildimages/k3d-helm/Dockerfile
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      when: manual
+      allow_failure: true
