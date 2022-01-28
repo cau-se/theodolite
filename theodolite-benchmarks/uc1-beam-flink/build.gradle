@@ -1,0 +1,9 @@
+plugins {
+  id 'theodolite.beam.flink'
+}
+
+dependencies {
+      implementation project(':uc1-beam')
+}
+
+mainClassName = "application.Uc1BeamFlink"

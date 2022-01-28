@@ -2,7 +2,6 @@ package theodolite.commons.workloadgeneration;
 
 import org.junit.Assert;
 import org.junit.Test;
-import theodolite.commons.workloadgeneration.KeySpace;
 
 public class KeySpaceTest {
 
