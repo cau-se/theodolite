@@ -8,6 +8,8 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+// Dummy commit change
+
 allprojects {
   eclipse {
       classpath {
