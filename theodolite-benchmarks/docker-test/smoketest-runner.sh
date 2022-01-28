@@ -10,7 +10,7 @@ sleep 10s
 docker-compose up -d
 sleep 5s
 docker-compose ps
-sleep 55s
+
 if test -f "./test.sh"; then
     ./test.sh
     RETURN=$?
