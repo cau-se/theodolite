@@ -366,18 +366,15 @@ deploy-uc4-load-generator:
   stage: smoketest
   extends:
     - .dind
+  image: ghcr.io/cau-se/theodolite-build-docker-compose-jq:20.10.12
   before_script:
-    - apk update
-    - apk add -U jq
-    - apk add py-pip python3-dev libffi-dev openssl-dev gcc libc-dev rust cargo make
-    - pip install docker-compose
-  variables:
-    TEST_LOG_FILE: "test.log"
-  script:
     - cd theodolite-benchmarks/docker-test
+  # variables:
+  #   TEST_LOG_FILE: "test.log"
+  script:
     - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
     - ./smoketest-runner.sh ./$DOCKER_COMPOSE_DIR
-    - cat test.log
+    # - cat test.log
   after_script:
     - cd ./$DOCKER_COMPOSE_DIR
     - docker-compose down
