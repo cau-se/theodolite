@@ -586,6 +586,6 @@ deploy-buildimage-docker-compose-jq:
     - changes:
       - buildimages/docker-compose-jq/Dockerfile
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == web"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
       allow_failure: true
