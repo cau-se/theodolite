@@ -36,9 +36,9 @@ default:
     - echo "{\"auths\":{\"${CR_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_USER}" "${CR_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
     - >
       if [ $IMAGE_TAG ]; then
-        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
-      elif [ $CI_COMMIT_TAG ]; then
         KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$IMAGE_TAG"
+      elif [ $CI_COMMIT_TAG ]; then
+        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
       else
         DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
         KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
@@ -621,7 +621,7 @@ deploy-buildimage-docker-compose-jq:
   variables:
     DOCKER_VERSION: 20.10.12
     IMAGE_NAME: theodolite-build-docker-compose-jq
-    IMAGE_TAG: 20.10.12
+    IMAGE_TAG: $DOCKER_VERSION
   before_script:
     - cd buildimages/docker-compose-jq
   rules:
