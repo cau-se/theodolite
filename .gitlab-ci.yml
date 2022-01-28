@@ -115,6 +115,11 @@ lint-helm:
     name: alpine/helm:3.5.2
     entrypoint: [""]
   script: helm lint helm/
+  rules:
+  - changes:
+    - helm/*
+  - when: manual
+    allow_failure: true
 
 
 # Theodolite Benchmarks
@@ -412,6 +417,11 @@ smoketest-uc1-kstreams:
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - cd theodolite
+  rules:
+    - changes:
+      - theodolite/**/*
+    - when: manual
+      allow_failure: true
 
 build-theodolite-jvm:
   stage: build
