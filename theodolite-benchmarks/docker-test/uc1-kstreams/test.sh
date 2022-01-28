@@ -2,7 +2,7 @@
 
 docker-compose logs --tail 100 benchmark |
     sed -n "s/^.*Record:\s\(\S*\)$/\1/p" |
-    tee /dev/tty |
+    tee /dev/stderr |
     jq .identifier |
     sort |
     uniq |
