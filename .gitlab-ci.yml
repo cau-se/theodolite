@@ -573,4 +573,19 @@ deploy-random-scheduler:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
-      
+
+deploy-buildimage-docker-compose-jq:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    DOCKER_VERSION: 20.10.12
+    IMAGE_TAG: $DOCKER_VERSION
+  rules:
+    - changes:
+      - buildimages/docker-compose-jq/Dockerfile
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == web"
+      when: manual
+      allow_failure: true
