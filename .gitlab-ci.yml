@@ -582,7 +582,7 @@ deploy-buildimage-docker-compose-jq:
   variables:
     DOCKER_VERSION: 20.10.12
     IMAGE_NAME: theodolite-build-docker-compose-jq
-    IMAGE_TAG: 20.10.12
+    IMAGE_TAG: $DOCKER_VERSION
   before_script:
     - cd buildimages/docker-compose-jq
   rules:
