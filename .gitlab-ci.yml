@@ -84,17 +84,13 @@ test-docs-links:
     - build-docs
   script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
 
-test-docs-crds-regression:
-  stage: test
-  image: golang
-  before_script:
-    - cd docs
-    - go install fybrik.io/crdoc@latest
-  script:
-    - crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.ref.md
-    - cmp api-reference/crds.md api-reference/crds.ref.md
+build-docs-crds:
+  stage: build
+  image:
+    name: ghcr.io/fybrik/crdoc:0.6.1
+    entrypoint: [""]
+  script: /crdoc --resources theodolite/crd/ --template docs/api-reference/crds.tmpl --output docs/api-reference/crds.ref.md
   artifacts:
-    when: on_failure
     paths:
       - docs/api-reference/crds.ref.md
     expire_in: 1 week
@@ -104,6 +100,21 @@ test-docs-crds-regression:
       - theodolite/crd/**/*
     - when: manual
       allow_failure: true
+
+test-docs-crds-regression:
+  stage: test
+  needs:
+    - build-docs-crds
+  image: alpine:3.15
+  before_script:
+    - cd docs
+  script:
+    - cmp api-reference/crds.md api-reference/crds.ref.md
+  artifacts:
+    when: on_failure
+    paths:
+      - docs/api-reference/crds.ref.md
+    expire_in: 1 week
 
 
 # Theodolite Helm Chart

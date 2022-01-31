@@ -16,11 +16,11 @@ import titan.ccp.model.records.ActivePowerRecord;
 /**
  * Duplicates the Kv containing the (Children,Parents) pair as a flat map.
  */
-public class DuplicateAsFlatMap extends DoFn
-    <KV<String, ActivePowerRecord>, KV<SensorParentKey, ActivePowerRecord>> {
+public class DuplicateAsFlatMap
+    extends DoFn<KV<String, ActivePowerRecord>, KV<SensorParentKey, ActivePowerRecord>> {
   private static final long serialVersionUID = -5132355515723961647L;
   @StateId("parents")
-  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();//NOPMD
+  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();// NOPMD
   private final PCollectionView<Map<String, Set<String>>> childParentPairMap;
 
   public DuplicateAsFlatMap(final PCollectionView<Map<String, Set<String>>> childParentPairMap) {
@@ -30,19 +30,20 @@ public class DuplicateAsFlatMap extends DoFn
 
 
   /**
-   *  Generate a KV-pair for every child-parent match.
+   * Generate a KV-pair for every child-parent match.
    */
   @ProcessElement
-  public void processElement(@Element final KV<String, ActivePowerRecord> kv,
-                             final OutputReceiver<KV<SensorParentKey, ActivePowerRecord>> out,
-                             @StateId("parents") final ValueState<Set<String>> state,
-                             final ProcessContext c) {
+  public void processElement(
+      @Element final KV<String, ActivePowerRecord> kv,
+      final OutputReceiver<KV<SensorParentKey, ActivePowerRecord>> out,
+      @StateId("parents") final ValueState<Set<String>> state,
+      final ProcessContext c) {
 
     final ActivePowerRecord record = kv.getValue() == null ? null : kv.getValue();
     final Set<String> newParents =
-        c.sideInput(childParentPairMap).get(kv.getKey()) == null
+        c.sideInput(this.childParentPairMap).get(kv.getKey()) == null
             ? Collections.emptySet()
-            : c.sideInput(childParentPairMap).get(kv.getKey());
+            : c.sideInput(this.childParentPairMap).get(kv.getKey());
     final Set<String> oldParents =
         MoreObjects.firstNonNull(state.read(), Collections.emptySet());
     // Forward new Pairs if they exist
