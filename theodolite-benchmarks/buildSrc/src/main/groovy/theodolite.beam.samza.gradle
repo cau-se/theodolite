@@ -6,4 +6,5 @@ dependencies {
     implementation('org.apache.beam:beam-runners-samza:2.35.0') {
         exclude group: 'org.apache.samza', module: 'samza-yarn_2.11'
     }
+    implementation 'org.apache.samza:samza-kafka_2.11:1.5.0'
 }

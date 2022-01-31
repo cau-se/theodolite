@@ -24,7 +24,7 @@ class BenchmarkStateChecker(
         Thread {
             while (running) {
                 updateBenchmarkStatus()
-                Thread.sleep(100 * 1)
+                Thread.sleep(1000)
             }
         }.start()
     }
