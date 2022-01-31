@@ -1,5 +1,6 @@
 package theodolite.commons.workloadgeneration;
 
+import java.io.IOException;
 import java.util.Properties;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -37,6 +38,15 @@ public final class TitanPubSubSenderFactory {
             schemaRegistryUrl)
         .keyAccessor(r -> r.getIdentifier())
         .timestampAccessor(r -> r.getTimestamp())
+        .recordSerializer(r -> {
+          try {
+            return r.toByteBuffer();
+          } catch (final IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+          }
+        })
         .build();
   }
 }
