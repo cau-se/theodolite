@@ -12,8 +12,9 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
  */
 public class AbstractPipeline extends Pipeline {
 
-  private static final String KAFKA_CONFIG_SPECIFIC_AVRO_READER = "specific.avro.reader";
-  private static final String KAFKA_CONFIG_SCHEMA_REGISTRY_URL = "schema.registry.url";
+  private static final String KAFKA_CONFIG_SPECIFIC_AVRO_READER = "specific.avro.reader"; // NOPMD
+  private static final String KAFKA_CONFIG_SCHEMA_REGISTRY_URL = "schema.registry.url"; // NOPMD
+
   protected final String inputTopic;
   protected final String bootstrapServer;
   // Application Configurations

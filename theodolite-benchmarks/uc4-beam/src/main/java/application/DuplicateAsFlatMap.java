@@ -24,7 +24,8 @@ public class DuplicateAsFlatMap
   private static final String STATE_STORE_NAME = "DuplicateParents";
 
   @StateId(STATE_STORE_NAME)
-  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();
+  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value(); // NOPMD
+
   private final PCollectionView<Map<String, Set<String>>> childParentPairMap;
 
   public DuplicateAsFlatMap(final PCollectionView<Map<String, Set<String>>> childParentPairMap) {
