@@ -14,20 +14,23 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 
 /**
- * Duplicates the Kv containing the (Children,Parents) pair as a flat map.
+ * Duplicates the {@link KV} containing the (children,parents) pairs as flatMap.
  */
 public class DuplicateAsFlatMap
     extends DoFn<KV<String, ActivePowerRecord>, KV<SensorParentKey, ActivePowerRecord>> {
+
   private static final long serialVersionUID = -5132355515723961647L;
-  @StateId("parents")
-  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();// NOPMD
+
+  private static final String STATE_STORE_NAME = "DuplicateParents";
+
+  @StateId(STATE_STORE_NAME)
+  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();
   private final PCollectionView<Map<String, Set<String>>> childParentPairMap;
 
   public DuplicateAsFlatMap(final PCollectionView<Map<String, Set<String>>> childParentPairMap) {
     super();
     this.childParentPairMap = childParentPairMap;
   }
-
 
   /**
    * Generate a KV-pair for every child-parent match.
@@ -36,7 +39,7 @@ public class DuplicateAsFlatMap
   public void processElement(
       @Element final KV<String, ActivePowerRecord> kv,
       final OutputReceiver<KV<SensorParentKey, ActivePowerRecord>> out,
-      @StateId("parents") final ValueState<Set<String>> state,
+      @StateId(STATE_STORE_NAME) final ValueState<Set<String>> state,
       final ProcessContext c) {
 
     final ActivePowerRecord record = kv.getValue() == null ? null : kv.getValue();
