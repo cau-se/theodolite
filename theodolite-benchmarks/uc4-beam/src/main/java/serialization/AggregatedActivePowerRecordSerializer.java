@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 /**
- * Wrapper Class that encapsulates a IMonitoringRecordSerde.serializer in a Serializer
+ * {@link Serializer} for an {@link AggregatedActivePowerRecord}.
  */
 public class AggregatedActivePowerRecordSerializer
     implements Serializer<AggregatedActivePowerRecord> {
@@ -26,14 +26,14 @@ public class AggregatedActivePowerRecordSerializer
     try {
       this.avroEnCoder.encode(data, out);
     } catch (final IOException e) {
-      LOGGER.error("Could not serialize AggregatedActivePowerRecord", e);
+      LOGGER.error("Could not serialize AggregatedActivePowerRecord.", e);
     }
     final byte[] result = out.toByteArray();
     try {
       out.close();
     } catch (final IOException e) {
       LOGGER.error(
-          "Could not close output stream after serialization of AggregatedActivePowerRecord", e);
+          "Could not close output stream after serialization of AggregatedActivePowerRecord.", e);
     }
     return result;
   }

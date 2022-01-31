@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 /**
- * Wrapper Class that encapsulates a IMonitoringRecordSerde.serializer in a Deserializer
+ * {@link Deserializer} for an {@link AggregatedActivePowerRecord}.
  */
 public class AggregatedActivePowerRecordDeserializer
     implements Deserializer<AggregatedActivePowerRecord> {
@@ -22,13 +22,12 @@ public class AggregatedActivePowerRecordDeserializer
 
   @Override
   public AggregatedActivePowerRecord deserialize(final String topic, final byte[] data) {
-    AggregatedActivePowerRecord value = null;
     try {
-      value = this.avroEnCoder.decode(new ByteArrayInputStream(data));
+      return this.avroEnCoder.decode(new ByteArrayInputStream(data));
     } catch (final IOException e) {
-      LOGGER.error("Could not deserialize AggregatedActivePowerRecord", e);
+      LOGGER.error("Could not deserialize AggregatedActivePowerRecord.", e);
+      return null;
     }
-    return value;
   }
 
 }
