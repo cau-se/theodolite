@@ -33,10 +33,16 @@ default:
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CR_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_USER}" "${CR_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
-    - DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest\""
-    - "[ ! $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA\""
-    - "[ $CI_COMMIT_TAG ] && KANIKO_D=\"$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG\""
+    - >
+      if [ $IMAGE_TAG ]; then
+        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$IMAGE_TAG"
+      elif [ $CI_COMMIT_TAG ]; then
+        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
+      else
+        DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
+        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
+        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+      fi
     - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
     - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
 
@@ -73,17 +79,13 @@ test-docs-links:
     - build-docs
   script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
 
-test-docs-crds-regression:
-  stage: test
-  image: golang
-  before_script:
-    - cd docs
-    - go install fybrik.io/crdoc@latest
-  script:
-    - crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.ref.md
-    - cmp api-reference/crds.md api-reference/crds.ref.md
+build-docs-crds:
+  stage: build
+  image:
+    name: ghcr.io/fybrik/crdoc:0.6.1
+    entrypoint: [""]
+  script: /crdoc --resources theodolite/crd/ --template docs/api-reference/crds.tmpl --output docs/api-reference/crds.ref.md
   artifacts:
-    when: on_failure
     paths:
       - docs/api-reference/crds.ref.md
     expire_in: 1 week
@@ -93,6 +95,21 @@ test-docs-crds-regression:
       - theodolite/crd/**/*
     - when: manual
       allow_failure: true
+
+test-docs-crds-regression:
+  stage: test
+  needs:
+    - build-docs-crds
+  image: alpine:3.15
+  before_script:
+    - cd docs
+  script:
+    - cmp api-reference/crds.md api-reference/crds.ref.md
+  artifacts:
+    when: on_failure
+    paths:
+      - docs/api-reference/crds.ref.md
+    expire_in: 1 week
 
 
 # Theodolite Helm Chart
@@ -104,6 +121,11 @@ lint-helm:
     name: alpine/helm:3.5.2
     entrypoint: [""]
   script: helm lint helm/
+  rules:
+  - changes:
+    - helm/*
+  - when: manual
+    allow_failure: true
 
 
 # Theodolite Benchmarks
@@ -367,6 +389,11 @@ deploy-uc4-load-generator:
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - cd theodolite
+  rules:
+    - changes:
+      - theodolite/**/*
+    - when: manual
+      allow_failure: true
 
 build-theodolite-jvm:
   stage: build
@@ -567,4 +594,22 @@ deploy-random-scheduler:
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
       allow_failure: true
-      
+
+deploy-buildimage-docker-compose-jq:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    DOCKER_VERSION: 20.10.12
+    IMAGE_NAME: theodolite-build-docker-compose-jq
+    IMAGE_TAG: $DOCKER_VERSION
+  before_script:
+    - cd buildimages/docker-compose-jq
+  rules:
+    - changes:
+      - buildimages/docker-compose-jq/Dockerfile
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      when: manual
+      allow_failure: true
