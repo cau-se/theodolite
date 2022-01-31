@@ -17,7 +17,7 @@ public class UpdateChildParentPairs extends DoFn<KV<String, Set<String>>, KV<Str
   private static final long serialVersionUID = 1L;
 
   @StateId(STATE_STORE_NAME)
-  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value();
+  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value(); // NOPMD
 
   /**
    * Match the changes accordingly.
