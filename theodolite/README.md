@@ -1,25 +1,19 @@
-# Theodolite project
+# Theodolite
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/> .
+If you want to learn more about Quarkus, please visit its website: https://quarkus.io/.
 
 ## Running the application in dev mode
 
-You can run your application in dev mode using:
+You can run your application in dev mode that enables live coding using:
 
 ```sh
 ./gradlew quarkusDev
 ```
 
-### Hint for running with k3s (or k3d)
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
 
-You may need to add the following dependencies to the `build.gradle` file when running Theodolite with k3s.
-
-```
-implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.68'
-implementation 'org.bouncycastle:bcpkix-jdk15on:1.68'
-```
 
 ## Packaging and running the application
 
@@ -29,8 +23,10 @@ The application can be packaged using:
 ./gradlew build
 ```
 
-It produces the `theodolite-0.6.0-SNAPSHOT-runner.jar` file in the `/build` directory. Be aware that it’s not
-an _über-jar_ as the dependencies are copied into the `build/lib` directory.
+It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
+Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
+
+The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
 
 If you want to build an _über-jar_, execute the following command:
 
@@ -38,11 +34,9 @@ If you want to build an _über-jar_, execute the following command:
 ./gradlew build -Dquarkus.package.type=uber-jar
 ```
 
-The application is now runnable using `java -jar build/theodolite-0.6.0-SNAPSHOT-runner.jar`.
+The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
 
 ## Creating a native executable
-
-It is recommended to use the native GraalVM images to create executable jars from Theodolite. For more information please visit the [Native Image guide](https://www.graalvm.org/reference-manual/native-image/).
 
 You can create a native executable using:
 
@@ -57,17 +51,23 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ```
 
 You can then execute your native executable with:
-```./build/theodolite-0.6.0-SNAPSHOT-runner```
+```./build/theodolite-0.7.0-SNAPSHOT-runner```
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
-## Build docker images
+## Building container images
 
-For the jvm version use:
+For the JVM version use:
 
 ```sh
 ./gradlew build
 docker build -f src/main/docker/Dockerfile.jvm -t theodolite-jvm .
+```
+
+Alternatively, you can also use Kaniko to build the image:
+
+```sh
+docker run -it --rm --name kaniko -v "`pwd`":/theodolite --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --context /theodolite --dockerfile src/main/docker/Dockerfile.jvm --no-push
 ```
 
 For the native image version use:
@@ -77,7 +77,7 @@ For the native image version use:
 docker build -f src/main/docker/Dockerfile.native -t theodolite-native .
 ```
 
-## Execute docker images
+## Run a container
 
 Remember to set the environment variables first.
 

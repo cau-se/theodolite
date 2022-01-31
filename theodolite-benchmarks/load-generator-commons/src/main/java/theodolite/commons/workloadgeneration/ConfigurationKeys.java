@@ -23,6 +23,8 @@ public final class ConfigurationKeys {
 
   public static final String THREADS = "THREADS";
 
+  public static final String TARGET = "TARGET";
+
   public static final String KAFKA_BOOTSTRAP_SERVERS = "KAFKA_BOOTSTRAP_SERVERS";
 
   public static final String SCHEMA_REGISTRY_URL = "SCHEMA_REGISTRY_URL";
@@ -34,6 +36,8 @@ public final class ConfigurationKeys {
   public static final String KAFKA_LINGER_MS = "KAFKA_LINGER_MS";
 
   public static final String KAFKA_BUFFER_MEMORY = "KAFKA_BUFFER_MEMORY";
+
+  public static final String HTTP_URL = "HTTP_URL";
 
   private ConfigurationKeys() {}
 

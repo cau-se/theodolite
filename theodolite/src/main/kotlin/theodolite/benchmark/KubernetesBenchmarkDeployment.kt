@@ -23,11 +23,15 @@ private val logger = KotlinLogging.logger {}
  */
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
+    private val sutBeforeActions: List<Action>,
+    private val sutAfterActions: List<Action>,
+    private val loadGenBeforeActions: List<Action>,
+    private val loadGenAfterActions: List<Action>,
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
     private val loadGenerationDelay: Long,
     private val afterTeardownDelay: Long,
-    private val kafkaConfig: HashMap<String, Any>,
+    private val kafkaConfig: Map<String, Any>,
     private val topics: List<KafkaConfig.TopicWrapper>,
     private val client: NamespacedKubernetesClient
 ) : BenchmarkDeployment {
@@ -42,13 +46,19 @@ class KubernetesBenchmarkDeployment(
      *  - Deploy the needed resources.
      */
     override fun setup() {
-        val kafkaTopics = this.topics.filter { !it.removeOnly }
-            .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
-        kafkaController.createTopics(kafkaTopics)
+        if (this.topics.isNotEmpty()) {
+            val kafkaTopics = this.topics
+                .filter { !it.removeOnly }
+                .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
+            kafkaController.createTopics(kafkaTopics)
+        }
+        sutBeforeActions.forEach { it.exec(client = client) }
         appResources.forEach { kubernetesManager.deploy(it) }
         logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
         Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
+        loadGenBeforeActions.forEach { it.exec(client = client) }
         loadGenResources.forEach { kubernetesManager.deploy(it) }
+
     }
 
     /**
@@ -59,8 +69,12 @@ class KubernetesBenchmarkDeployment(
      */
     override fun teardown() {
         loadGenResources.forEach { kubernetesManager.remove(it) }
+        loadGenAfterActions.forEach { it.exec(client = client) }
         appResources.forEach { kubernetesManager.remove(it) }
-        kafkaController.removeTopics(this.topics.map { topic -> topic.name })
+        sutAfterActions.forEach { it.exec(client = client) }
+        if (this.topics.isNotEmpty()) {
+            kafkaController.removeTopics(this.topics.map { topic -> topic.name })
+        }
         ResourceByLabelHandler(client).removePods(
             labelName = LAG_EXPORTER_POD_LABEL_NAME,
             labelValue = LAG_EXPORTER_POD_LABEL_VALUE

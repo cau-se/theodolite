@@ -94,13 +94,6 @@ Resource Types:
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspeckafkaconfig">kafkaConfig</a></b></td>
-        <td>object</td>
-        <td>
-          Contains the Kafka configuration.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b><a href="#benchmarkspecloadgenerator">loadGenerator</a></b></td>
         <td>object</td>
         <td>
@@ -138,102 +131,19 @@ Resource Types:
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b><a href="#benchmarkspeckafkaconfig">kafkaConfig</a></b></td>
+        <td>object</td>
+        <td>
+          Contains the Kafka configuration.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
           <br/>
             <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.kafkaConfig
-<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
-
-
-
-Contains the Kafka configuration.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>bootstrapServer</b></td>
-        <td>string</td>
-        <td>
-          The bootstrap servers connection string.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspeckafkaconfigtopicsindex">topics</a></b></td>
-        <td>[]object</td>
-        <td>
-          List of topics to be created for each experiment. Alternative theodolite offers the possibility to remove certain topics after each experiment.<br/>
-        </td>
-        <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.kafkaConfig.topics[index]
-<sup><sup>[↩ Parent](#benchmarkspeckafkaconfig)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          The name of the topic.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>numPartitions</b></td>
-        <td>integer</td>
-        <td>
-          The number of partitions of the topic.<br/>
-          <br/>
-            <i>Default</i>: 0<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>removeOnly</b></td>
-        <td>boolean</td>
-        <td>
-          Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.<br/>
-          <br/>
-            <i>Default</i>: false<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>replicationFactor</b></td>
-        <td>integer</td>
-        <td>
-          The replication factor of the topic.<br/>
-          <br/>
-            <i>Default</i>: 0<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -257,12 +167,296 @@ The loadGenResourceSets specifies all Kubernetes resources required to start the
         </tr>
     </thead>
     <tbody><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindex">afterActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          Load generator after actions are executed after the teardown of the load generator.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindex">beforeActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          Load generator before actions are executed before the load generator is started.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecloadgeneratorresourcesindex">resources</a></b></td>
         <td>[]object</td>
         <td>
           <br/>
           <br/>
             <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.afterActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecloadgenerator)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.afterActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.afterActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.afterActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.beforeActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecloadgenerator)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.beforeActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.beforeActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.beforeActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -550,12 +744,296 @@ The appResourceSets specifies all Kubernetes resources required to start the sut
         </tr>
     </thead>
     <tbody><tr>
+        <td><b><a href="#benchmarkspecsutafteractionsindex">afterActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          <br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindex">beforeActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          SUT before actions are executed before the SUT is started.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecsutresourcesindex">resources</a></b></td>
         <td>[]object</td>
         <td>
           <br/>
           <br/>
             <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.afterActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecsut)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecsutafteractionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsutafteractionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.afterActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.afterActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsutafteractionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.afterActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.beforeActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecsut)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.beforeActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.beforeActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.beforeActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -681,12 +1159,296 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindex">afterActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          Infrastructure after actions are executed after the teardown of the infrastructure.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindex">beforeActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          Infrastructure before actions are executed before the infrastructure is set up.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecinfrastructureresourcesindex">resources</a></b></td>
         <td>[]object</td>
         <td>
           <br/>
           <br/>
             <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -789,6 +1551,96 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td>string</td>
         <td>
           The path to the folder which contains the Kubernetes manifests files.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.kafkaConfig
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+Contains the Kafka configuration.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>bootstrapServer</b></td>
+        <td>string</td>
+        <td>
+          The bootstrap servers connection string.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspeckafkaconfigtopicsindex">topics</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of topics to be created for each experiment. Alternative theodolite offers the possibility to remove certain topics after each experiment.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.kafkaConfig.topics[index]
+<sup><sup>[↩ Parent](#benchmarkspeckafkaconfig)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the topic.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>numPartitions</b></td>
+        <td>integer</td>
+        <td>
+          The number of partitions of the topic.<br/>
+          <br/>
+            <i>Default</i>: 0<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>removeOnly</b></td>
+        <td>boolean</td>
+        <td>
+          Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.<br/>
+          <br/>
+            <i>Default</i>: false<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>replicationFactor</b></td>
+        <td>integer</td>
+        <td>
+          The replication factor of the topic.<br/>
+          <br/>
+            <i>Default</i>: 0<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -1217,10 +2069,19 @@ Specifies the scaling resource that is benchmarked.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>completionTime</b></td>
+        <td>string</td>
+        <td>
+          Time when this execution was stopped<br/>
+          <br/>
+            <i>Format</i>: date-time<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>executionDuration</b></td>
         <td>string</td>
         <td>
-          Duration of the execution in seconds<br/>
+          Duration of the execution<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -1228,6 +2089,15 @@ Specifies the scaling resource that is benchmarked.
         <td>string</td>
         <td>
           <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>startTime</b></td>
+        <td>string</td>
+        <td>
+          Time this execution started<br/>
+          <br/>
+            <i>Format</i>: date-time<br/>
         </td>
         <td>false</td>
       </tr></tbody>

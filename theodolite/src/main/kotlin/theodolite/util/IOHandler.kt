@@ -85,7 +85,7 @@ class IOHandler {
      * @param data the data to write in the file as String
      */
     fun writeStringToTextFile(fileURL: String, data: String) {
-        val outputFile = File("$fileURL")
+        val outputFile = File(fileURL)
         outputFile.printWriter().use {
             it.println(data)
         }

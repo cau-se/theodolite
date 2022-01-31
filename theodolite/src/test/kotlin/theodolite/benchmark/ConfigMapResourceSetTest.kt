@@ -8,16 +8,17 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
-import io.smallrye.common.constraint.Assert.assertTrue
-import junit.framework.Assert.assertEquals
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import theodolite.k8s.CustomResourceWrapper
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
 
-private val testResourcePath = "./src/test/resources/k8s-resource-files/"
+private const val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
 @QuarkusTest
 class ConfigMapResourceSetTest {
@@ -206,21 +207,17 @@ class ConfigMapResourceSetTest {
 
         val createdResourcesSet = resourceSet.getResourceSet(server.client)
 
-        assertEquals(1,createdResourcesSet.size )
+        assertEquals(1, createdResourcesSet.size )
         assert(createdResourcesSet.toMutableSet().first().second is Deployment)
     }
 
 
-    @Test()
+    @Test
     fun testConfigMapNotExist() {
         val resourceSet = ConfigMapResourceSet()
         resourceSet.name = "test-configmap1"
-        lateinit var ex: Exception
-        try {
+        assertThrows<DeploymentFailedException> {
             resourceSet.getResourceSet(server.client)
-        } catch (e: Exception) {
-            ex = e
         }
-        assertTrue(ex is DeploymentFailedException)
     }
 }

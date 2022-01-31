@@ -1,10 +1,9 @@
 title: "Theodolite"
 description: >-
   Theodolite is a framework for benchmarking the horizontal and vertical
-  scalability of stream processing engines.
+  scalability of cloud-native applications.
 
 remote_theme: pmarsceill/just-the-docs
-#color_scheme: "dark"
 aux_links:
     "Theodolite on GitHub":
       - "//github.com/cau-se/theodolite"
@@ -14,4 +13,5 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - README.md
-  - vendor
+  - vendor/
+  - drafts/

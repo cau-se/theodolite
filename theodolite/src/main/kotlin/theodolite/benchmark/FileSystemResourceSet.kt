@@ -2,18 +2,14 @@ package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
-import mu.KotlinLogging
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
 import theodolite.util.YamlParserFromFile
 import java.io.File
 import java.io.FileNotFoundException
 import java.lang.IllegalArgumentException
-
-private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 @JsonDeserialize
@@ -32,7 +28,7 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
         return try {
             File(path)
                 .list() !!
-                .filter { it.endsWith(".yaml") } // consider only yaml files, e.g. ignore readme files
+                .filter { it.endsWith(".yaml") || it.endsWith(".yml") }
                 .map {
                     loadSingleResource(resourceURL = it, client = client)
                 }
