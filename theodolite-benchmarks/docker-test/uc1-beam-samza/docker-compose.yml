@@ -21,7 +21,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
-      KAFKA_CREATE_TOPICS: "input:3:1,output:3:1,configuration:3:1,aggregation-feedback:3:1"
+      KAFKA_CREATE_TOPICS: "input:3:1"
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
     depends_on:
@@ -35,7 +35,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
   benchmark:
-    image: ghcr.io/cau-se/theodolite-uc1-beam-samza:latest
+    image: ghcr.io/cau-se/theodolite-uc1-beam-samza:${THEODOLITE_TAG:-latest}
     scale: 1
     depends_on:
       - schema-registry
@@ -47,7 +47,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc1-workload-generator:latest
+    image: ghcr.io/cau-se/theodolite-uc1-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:
       - schema-registry
       - kafka

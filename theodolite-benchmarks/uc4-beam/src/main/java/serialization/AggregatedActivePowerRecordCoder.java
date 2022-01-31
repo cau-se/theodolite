@@ -11,8 +11,7 @@ import org.apache.beam.sdk.coders.CoderException;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 /**
- * Wrapper Class that encapsulates a AggregatedActivePowerRecord Serde in a
- * org.apache.beam.sdk.coders.Coder.
+ * {@link Coder} for an {@link AggregatedActivePowerRecord}.
  */
 @SuppressWarnings("serial")
 public class AggregatedActivePowerRecordCoder extends Coder<AggregatedActivePowerRecord>
@@ -51,7 +50,7 @@ public class AggregatedActivePowerRecordCoder extends Coder<AggregatedActivePowe
   @Override
   public void verifyDeterministic() throws NonDeterministicException {
     if (!DETERMINISTIC) {
-      throw new NonDeterministicException(this, "This class should be deterministic!");
+      throw new NonDeterministicException(this, "This class should be deterministic.");
     }
   }
 }
