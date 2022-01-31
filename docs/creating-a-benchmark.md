@@ -108,13 +108,20 @@ Suppose the resources needed by your benchmark are defined as YAML files, locate
 Benchmarks need to specify at least one supported load and resource type for which scalability can be benchmarked.
 
 Load and resource types are described by a name (used for reference from an Execution) and a list of patchers.
+Patchers can be seen as functions, which take a value as input and modify a Kubernetes resource in a patcher-specific way. Examples of patchers are the *ReplicaPatcher*, which modifies the replica specification of a deployment, or the *EnvVarPatcher*, which modifies an environment variable.
+See the [patcher API reference](api-reference/patchers) for an overview of available patchers.
+
 If a benchmark is [executed by an Execution](running-benchmarks), these patchers are used to configure SUT and load generator according to the [load and resource values](creating-an-execution) set in the Execution.
 
 ## Kafka Configuration
 
-Theodolite allows to automatically create and remove Kafka topics for each SLO experiment.
-Use the `removeOnly: True` property for topics which are created automatically by the SUT.
-For those topics, also wildcards are allowed in the topic name.
+Theodolite allows to automatically create and remove Kafka topics for each SLO experiment by setting a `kafkaConfig`.
+It `bootstrapServer` needs to point your Kafka cluster and `topics` configures the list of Kafka topics to be created/removed.
+For each topic, you configure its name, the number of partitions and the replication factor.
+
+With the `removeOnly: True` property, you can also instruct Theodolite to only remove topics and not create them.
+This is useful when benchmarking SUTs, which create topics on their own (e.g., Kafka Streams and Samza applications).
+For those topics, also wildcards are allowed in the topic name and, of course, no partition count or replication factor must be provided.
 
 
 <!-- Further information: API Reference -->

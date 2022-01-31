@@ -37,9 +37,9 @@ class TheodoliteController(
      */
     fun run() {
         sleep(5000) // wait until all states are correctly set
+        benchmarkStateChecker.start(true)
         while (true) {
             reconcile()
-            benchmarkStateChecker.start(true)
             sleep(2000)
         }
     }
@@ -98,11 +98,11 @@ class TheodoliteController(
                     }
                 else -> {
                     executionStateHandler.setExecutionState(execution.name, ExecutionState.FAILURE)
-                    logger.warn { "Unexpected execution state, set state to ${ExecutionState.FAILURE.value}" }
+                    logger.warn { "Unexpected execution state, set state to ${ExecutionState.FAILURE.value}." }
                 }
             }
         } catch (e: Exception) {
-                EventCreator().createEvent(
+            EventCreator().createEvent(
                 executionName = execution.name,
                 type = "WARNING",
                 reason = "Execution failed",

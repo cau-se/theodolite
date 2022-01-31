@@ -95,7 +95,7 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, NUMBER_OF_KEYS_DEFAULT),
             Duration.ofMillis(PERIOD_MS_DEFAULT)))
         .setGeneratorConfig(new LoadGeneratorConfig(
-            TitanRecordGeneratorFactory.forConstantValue(VALUE_DEFAULT),
+            TitanRecordGenerator.forConstantValue(VALUE_DEFAULT),
             TitanKafkaSenderFactory.forKafkaConfig(
                 KAFKA_BOOTSTRAP_SERVERS_DEFAULT,
                 KAFKA_TOPIC_DEFAULT,
@@ -164,12 +164,16 @@ public final class LoadGenerator {
           kafkaBootstrapServers,
           kafkaInputTopic,
           schemaRegistryUrl);
+      LOGGER.info(
+          "Use Kafka as target with bootstrap server '{}', schema registry url '{}' and topic '{}'.", // NOCS
+          kafkaBootstrapServers, schemaRegistryUrl, kafkaInputTopic);
     } else if (target == LoadGeneratorTarget.HTTP) {
-      final URI uri = URI.create(
+      final URI url = URI.create(
           Objects.requireNonNullElse(
-              System.getenv(ConfigurationKeys.HTTP_URI),
+              System.getenv(ConfigurationKeys.HTTP_URL),
               HTTP_URI_DEFAULT));
-      recordSender = new HttpRecordSender<>(uri);
+      recordSender = new HttpRecordSender<>(url);
+      LOGGER.info("Use HTTP server as target with url '{}'.", url);
     } else {
       // Should never happen
       throw new IllegalStateException("Target " + target + " is not handled yet.");
@@ -194,7 +198,7 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))
         .setGeneratorConfig(new LoadGeneratorConfig(
-            TitanRecordGeneratorFactory.forConstantValue(value),
+            TitanRecordGenerator.forConstantValue(value),
             recordSender))
         .withThreads(threads);
   }
