@@ -146,7 +146,7 @@ public class TopologyBuilder {
         .groupByKey(Grouped.with(
             SensorParentKeySerde.serde(),
             this.srAvroSerdeFactory.forValues()))
-        .windowedBy(TimeWindows.of(this.emitPeriod).grace(this.gracePeriod))
+        .windowedBy(TimeWindows.ofSizeAndGrace(this.emitPeriod, this.gracePeriod))
         .reduce(
             // TODO Configurable window aggregation function
             (oldVal, newVal) -> newVal.getTimestamp() >= oldVal.getTimestamp() ? newVal : oldVal,
