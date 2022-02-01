@@ -84,17 +84,13 @@ test-docs-links:
     - build-docs
   script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
 
-test-docs-crds-regression:
-  stage: test
-  image: golang
-  before_script:
-    - cd docs
-    - go install fybrik.io/crdoc@latest
-  script:
-    - crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.ref.md
-    - cmp api-reference/crds.md api-reference/crds.ref.md
+build-docs-crds:
+  stage: build
+  image:
+    name: ghcr.io/fybrik/crdoc:0.6.1
+    entrypoint: [""]
+  script: /crdoc --resources theodolite/crd/ --template docs/api-reference/crds.tmpl --output docs/api-reference/crds.ref.md
   artifacts:
-    when: on_failure
     paths:
       - docs/api-reference/crds.ref.md
     expire_in: 1 week
@@ -104,6 +100,21 @@ test-docs-crds-regression:
       - theodolite/crd/**/*
     - when: manual
       allow_failure: true
+
+test-docs-crds-regression:
+  stage: test
+  needs:
+    - build-docs-crds
+  image: alpine:3.15
+  before_script:
+    - cd docs
+  script:
+    - cmp api-reference/crds.md api-reference/crds.ref.md
+  artifacts:
+    when: on_failure
+    paths:
+      - docs/api-reference/crds.ref.md
+    expire_in: 1 week
 
 
 # Theodolite Helm Chart
@@ -456,6 +467,33 @@ smoketest-uc2-beam-flink:
     JAVA_PROJECT_DEPS: "uc2-beam-flink,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
 
 smoketest-uc2-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-beam-samza
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-samza"
+    JAVA_PROJECT_DEPS: "uc2-beam-samza,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc3-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-kstreams
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-kstreams"
+    JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-beam-flink
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-flink"
+    JAVA_PROJECT_DEPS: "uc2-beam-flink,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc3-beam-samza:
   extends: .smoketest-benchmarks
   needs:
     - deploy-uc2-beam-samza

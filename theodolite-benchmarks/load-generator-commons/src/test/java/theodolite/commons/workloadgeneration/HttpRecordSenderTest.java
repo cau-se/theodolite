@@ -10,7 +10,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.google.gson.Gson;
 import java.net.URI;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,8 +20,6 @@ public class HttpRecordSenderTest {
 
   private HttpRecordSender<ActivePowerRecord> httpRecordSender;
 
-  private Gson gson;
-
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
@@ -30,7 +27,6 @@ public class HttpRecordSenderTest {
   public void setup() {
     this.httpRecordSender =
         new HttpRecordSender<>(URI.create("http://localhost:" + this.wireMockRule.port()));
-    this.gson = new Gson();
   }
 
   @Test
