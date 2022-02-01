@@ -32,11 +32,11 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
         }
 
         if (::files.isInitialized) {
-            resources = resources.filter { files.contains(it.key) }
-
-            if (resources.size != files.size) {
+            val filteredResources = resources.filter { files.contains(it.key) }
+            if (filteredResources.size != files.size) {
                 throw DeploymentFailedException("Could not find all specified Kubernetes manifests files")
             }
+            resources = filteredResources
         }
 
         return try {
