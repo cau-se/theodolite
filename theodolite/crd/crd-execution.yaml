@@ -143,10 +143,18 @@ spec:
                 description: ""
                 type: string
               executionDuration:
-                description: "Duration of the execution in seconds"
+                description: "Duration of the execution"
                 type: string
+              startTime:
+                description: "Time this execution started"
+                type: string
+                format: date-time
+              completionTime:
+                description: "Time when this execution was stopped"
+                type: string
+                format: date-time
     additionalPrinterColumns:
-    - name: STATUS
+    - name: Status
       type: string
       description: State of the execution
       jsonPath: .status.executionState

@@ -3,7 +3,7 @@ package theodolite
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.quarkus.test.junit.QuarkusTest
-import io.smallrye.common.constraint.Assert.assertTrue
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.patcher.PatcherFactory

@@ -21,7 +21,7 @@ class RestrictionSearch(
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
         var restrictedResources = resources
         for (strategy in this.restrictionStrategies) {
-            restrictedResources = restrictedResources.intersect(strategy.apply(load, resources)).toList()
+            restrictedResources = restrictedResources.intersect(strategy.apply(load, resources).toSet()).toList()
         }
         return this.searchStrategy.findSuitableResource(load, restrictedResources)
     }

@@ -1,0 +1,10 @@
+plugins {
+  id 'theodolite.beam.samza'
+}
+
+
+dependencies {
+  implementation project(':uc2-beam')
+}
+
+mainClassName = "application.Uc2BeamSamza"

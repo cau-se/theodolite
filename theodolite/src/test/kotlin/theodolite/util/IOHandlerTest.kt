@@ -96,7 +96,7 @@ internal class IOHandlerTest {
     }
 
 
-    @Test()
+    @Test
     @SetEnvironmentVariable.SetEnvironmentVariables(
         SetEnvironmentVariable(key = "RESULTS_FOLDER", value = "./src/test/resources"),
         SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "false")
@@ -105,7 +105,7 @@ internal class IOHandlerTest {
         assertEquals("./src/test/resources/", IOHandler().getResultFolderURL())
     }
 
-    @Test()
+    @Test
     @SetEnvironmentVariable.SetEnvironmentVariables(
         SetEnvironmentVariable(key = "RESULTS_FOLDER", value = "$FOLDER_URL-0"),
         SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "false")
@@ -121,7 +121,7 @@ internal class IOHandlerTest {
         assertTrue(exceptionWasThrown)
     }
 
-    @Test()
+    @Test
     @SetEnvironmentVariable.SetEnvironmentVariables(
         SetEnvironmentVariable(key = "RESULTS_FOLDER", value = FOLDER_URL),
         SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "true")
@@ -130,7 +130,7 @@ internal class IOHandlerTest {
         assertEquals("$FOLDER_URL/", IOHandler().getResultFolderURL())
     }
 
-    @Test()
+    @Test
     @ClearEnvironmentVariable(key = "RESULTS_FOLDER")
     @SetEnvironmentVariable(key = "CREATE_RESULTS_FOLDER", value = "true")
     fun testGetResultFolderURL_CreateFolderButNoFolderGiven() {

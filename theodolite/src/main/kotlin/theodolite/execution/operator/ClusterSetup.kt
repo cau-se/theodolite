@@ -3,13 +3,10 @@ package theodolite.execution.operator
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
-import mu.KotlinLogging
 import theodolite.execution.Shutdown
 import theodolite.k8s.K8sContextFactory
 import theodolite.k8s.ResourceByLabelHandler
 import theodolite.model.crd.*
-
-private val logger = KotlinLogging.logger {}
 
 class ClusterSetup(
     private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
@@ -41,7 +38,7 @@ class ClusterSetup(
             .list()
             .items
             .asSequence()
-            .filter { it.status.executionState == ExecutionStates.RUNNING.value }
+            .filter { it.status.executionState == ExecutionState.RUNNING }
             .forEach { execution ->
                 val benchmark = benchmarkCRDClient
                     .inNamespace(client.namespace)
@@ -52,9 +49,9 @@ class ClusterSetup(
                 if (benchmark != null) {
                     execution.spec.name = execution.metadata.name
                     benchmark.spec.name = benchmark.metadata.name
-                    Shutdown(execution.spec, benchmark.spec).start()
+                    Shutdown(execution.spec, benchmark.spec).run()
                 } else {
-                    throw IllegalStateException("Execution with state ${ExecutionStates.RUNNING.value} was found, but no corresponding benchmark. " +
+                    throw IllegalStateException("Execution with state ${ExecutionState.RUNNING.value} was found, but no corresponding benchmark. " +
                             "Could not initialize cluster.")
                 }
             }

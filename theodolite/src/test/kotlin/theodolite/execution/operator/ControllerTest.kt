@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.model.crd.BenchmarkCRD
-import theodolite.model.crd.BenchmarkStates
+import theodolite.model.crd.BenchmarkState
 import theodolite.model.crd.ExecutionCRD
 
 @QuarkusTest
@@ -32,15 +32,16 @@ class ControllerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        this.controller = TheodoliteOperator().getController(
+        val operator = TheodoliteOperator()
+        this.controller = operator.getController(
             client = server.client,
-            executionStateHandler = ExecutionStateHandler(server.client),
-            benchmarkStateHandler =  BenchmarkStateHandler(server.client)
+            executionStateHandler = operator.getExecutionStateHandler(client = server.client),
+            benchmarkStateChecker = operator.getBenchmarkStateChecker(client = server.client)
         )
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
-        benchmark1.getCR().status.resourceSetsState = BenchmarkStates.READY.value
+        benchmark1.getCR().status.resourceSetsState = BenchmarkState.READY
         val benchmark2 = BenchmarkCRDummy(name = "Test-Benchmark-123")
         benchmarkResourceList.items = listOf(benchmark1.getCR(), benchmark2.getCR())
 

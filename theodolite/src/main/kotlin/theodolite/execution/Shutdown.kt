@@ -12,14 +12,13 @@ private val logger = KotlinLogging.logger {}
  * @property benchmarkExecution
  * @property benchmark
  */
-class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val benchmark: KubernetesBenchmark) :
-    Thread() {
+class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val benchmark: KubernetesBenchmark) {
 
     /**
      * Run
      * Delete all Kubernetes resources which are related to the execution and the benchmark.
      */
-    override fun run() {
+    fun run() {
         // Build Configuration to teardown
         try {
             logger.info { "Received shutdown signal -> Shutting down" }
@@ -34,9 +33,7 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
                     afterTeardownDelay = 5L
                 )
             deployment.teardown()
-            logger.info {
-                "Finished teardown of all benchmark resources."
-            }
+            logger.info { "Finished teardown of all benchmark resources." }
         } catch (e: Exception) {
             logger.warn {
                 "Could not delete all specified resources from Kubernetes. " +
