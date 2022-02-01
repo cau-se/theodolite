@@ -14,7 +14,7 @@ abstract class RestrictionStrategy(val results: Results) {
     /**
      * Apply the restriction of the given resource list for the given load based on the results object.
      *
-     * @param load LoadDimension for which a subset of resources are required.
+     * @param load LoadDimension for which a subset of resources is required.
      * @param resources List of Resource s to be restricted.
      * @return Returns a list containing only elements that have not been filtered out by the
      * restriction (possibly empty).

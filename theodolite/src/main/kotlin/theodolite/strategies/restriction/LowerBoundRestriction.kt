@@ -12,8 +12,8 @@ class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
 
     override fun apply(load: Int, resources: List<Int>): List<Int> {
         val maxLoad: Int? = this.results.getMaxBenchmarkedLoad(load)
-        var lowerBound: Int? = this.results.getMinRequiredInstances(maxLoad)
-        if (lowerBound == null) {
+        var lowerBound: Int = this.results.getMinRequiredInstances(maxLoad)
+        if (lowerBound == Int.MIN_VALUE || lowerBound == Int.MAX_VALUE) {
             lowerBound = resources[0]
         }
         return resources.filter { x -> x >= lowerBound }

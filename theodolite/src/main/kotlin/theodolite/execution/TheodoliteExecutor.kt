@@ -120,21 +120,7 @@ class TheodoliteExecutor(
 
         //execute benchmarks for each load for the demand metric, or for each resource amount for capacity metric
         try {
-            if (config.metric == "demand") {
-                //demand metric
-                for (load in config.loads) {
-                    if (executor.run.get()) {
-                        config.searchStrategy.findSuitableResource(load, config.resources)
-                    }
-                }
-            } else {
-                //capacity metric
-                for (resource in config.resources) {
-                    if (executor.run.get()) {
-                        config.searchStrategy.findSuitableLoad(resource, config.loads)
-                    }
-                }
-            }
+            config.searchStrategy.findSuitableCapacity(config.loads, config.resources, config.metric)
 
         } finally {
             ioHandler.writeToJSONFile(

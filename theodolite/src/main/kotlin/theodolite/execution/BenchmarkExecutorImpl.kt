@@ -71,6 +71,9 @@ class BenchmarkExecutorImpl(
             }
 
             result = (false !in experimentResults)
+            // differentiate metric here on first/second ele pairs, also wenn demand so und wenn capacity dann mit (resource,load)
+            // so könnten wir die Methoden in Results so lassen und müssten keine Dopplung einbauen
+            // wird alles sehr undurchsichtig damit wenn man die vertauscht, evtl mit metric zu den Results klarer machen
             this.results.setResult(Pair(load, resource), result)
         }
 

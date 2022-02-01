@@ -26,9 +26,10 @@ class RestrictionSearch(
         return this.searchStrategy.findSuitableResource(load, restrictedResources)
     }
 
-    //TODO: not sure if it makes sense but actually doing the same as for finding suitable resource with the restrictions
     override fun findSuitableLoad(resource: Int, loads: List<Int>): Int? {
-        //erste Zeile komisch, wird auch bei resource so gemacht aber warum? das ist doch ne liste warum also toList?
-        TODO("Not yet implemented")
+        var restrictedLoads = loads
+        for (strategy in this.restrictionStrategies) {
+            restrictedLoads = restrictedLoads.intersect(strategy.apply(resource, loads).toSet()).toList()
+        }
     }
 }

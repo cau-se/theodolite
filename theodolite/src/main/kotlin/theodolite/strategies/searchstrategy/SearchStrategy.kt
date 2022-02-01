@@ -14,6 +14,27 @@ import theodolite.util.Results
 @RegisterForReflection
 abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val guessStrategy: GuessStrategy? = null,
                               val results: Results? = null) {
+
+
+    fun findSuitableCapacity(loads: List<Int>, resources: List<Int>, metric: String) {
+
+        if (metric == "demand") {
+            //demand metric
+            for (load in loads) {
+                if (benchmarkExecutor.run.get()) {
+                    this.findSuitableResource(load, resources)
+                }
+            }
+        } else {
+            //capacity metric
+            for (resource in resources) {
+                if (benchmarkExecutor.run.get()) {
+                    this.findSuitableLoad(resource, loads)
+                }
+            }
+        }
+    }
+
     /**
      * Find smallest suitable resource from the specified resource list for the given load.
      *
