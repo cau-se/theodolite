@@ -144,7 +144,7 @@ class TheodoliteExecutor(
             // Create expXYZ_demand.csv file
             ioHandler.writeToCSVFile(
                 "${resultsFolder}exp${this.config.executionId}_demand",
-                calculateDemandMetric(config.loads, config.compositeStrategy.benchmarkExecutor.results),
+                calculateDemandMetric(config.loads, config.searchStrategy.benchmarkExecutor.results),
                 listOf("load","resources")
             )
         }
@@ -161,8 +161,8 @@ class TheodoliteExecutor(
         return executionID
     }
 
-    private fun calculateDemandMetric(loadDimensions: List<LoadDimension>, results: Results): List<List<String>> {
-        return loadDimensions.map { listOf(it.get().toString(), results.getMinRequiredInstances(it).get().toString()) }
+    private fun calculateDemandMetric(loads: List<Int>, results: Results): List<List<String>> {
+        return loads.map { listOf(it.toString(), results.getMinRequiredInstances(it).toString()) }
     }
 
 }
