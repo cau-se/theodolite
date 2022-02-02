@@ -12,7 +12,8 @@ sleep 5s
 docker-compose ps
 
 if test -f "./test.sh"; then
-    timeout --foreground 3m ./test.sh
+    #timeout --foreground 3m ./test.sh
+    ./test.sh
     RETURN=$?
 else
     RETURN=$?
