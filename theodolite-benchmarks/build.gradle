@@ -8,7 +8,7 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-// Dummy change...
+// Dummy change.....
 
 allprojects {
   eclipse {
