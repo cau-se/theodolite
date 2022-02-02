@@ -12,7 +12,7 @@ sleep 5s
 docker-compose ps
 
 if test -f "./test.sh"; then
-    ./test.sh
+    timeout 3m ./test.sh
     RETURN=$?
 else
     RETURN=$?
