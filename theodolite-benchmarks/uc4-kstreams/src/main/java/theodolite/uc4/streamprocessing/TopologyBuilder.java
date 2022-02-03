@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.Topology.AutoOffsetReset;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
@@ -18,6 +19,8 @@ import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.WindowedSerdes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.configuration.events.EventSerde;
@@ -29,6 +32,9 @@ import titan.ccp.model.sensorregistry.SensorRegistry;
  * Builds Kafka Stream Topology for the History microservice.
  */
 public class TopologyBuilder {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
+
   // Streams Variables
   private final String inputTopic;
   private final String feedbackTopic;
@@ -121,7 +127,10 @@ public class TopologyBuilder {
 
   private KTable<String, Set<String>> buildParentSensorTable() {
     final KStream<Event, String> configurationStream = this.builder
-        .stream(this.configurationTopic, Consumed.with(EventSerde.serde(), Serdes.String()))
+        .stream(this.configurationTopic, Consumed
+            .with(EventSerde.serde(), Serdes.String())
+            .withOffsetResetPolicy(AutoOffsetReset.EARLIEST))
+        .peek((key, value) -> LOGGER.info("Received event: '{}'->'{}'", key, value))
         .filter((key, value) -> key == Event.SENSOR_REGISTRY_CHANGED
             || key == Event.SENSOR_REGISTRY_STATUS);
 
