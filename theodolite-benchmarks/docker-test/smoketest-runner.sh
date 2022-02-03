@@ -2,6 +2,7 @@
 
 COMPOSE_FILE_PATH=$1
 echo "Run test for '$COMPOSE_FILE_PATH'."
+echo "Use image tag '${THEODOLITE_TAG:-latest}'."
 
 cd $COMPOSE_FILE_PATH
 docker-compose pull -q
