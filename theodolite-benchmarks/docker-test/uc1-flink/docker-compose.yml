@@ -1,4 +1,4 @@
-version: '2'
+version: '2.2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper
@@ -20,26 +20,23 @@ services:
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_CREATE_TOPICS: "input:3:1"
+  kcat:
+    image: edenhill/kcat:1.7.1
+    entrypoint: "sh"
+    tty: true
   schema-registry:
-    image: confluentinc/cp-schema-registry:5.3.1
+    image: confluentinc/cp-schema-registry:7.0.1
     depends_on:
       - zookeeper
       - kafka
+    restart: "on-failure"
     expose:
       - "8081"
     #ports:
     #  - 8081:8081
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-  benchmark:
-    image: ghcr.io/cau-se/theodolite-uc1-kstreams-app:${THEODOLITE_TAG:-latest}
-    depends_on:
-      - schema-registry
-      - kafka
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
   load-generator: 
     image: ghcr.io/cau-se/theodolite-uc1-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:
@@ -51,3 +48,28 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       NUM_SENSORS: 10
+  benchmark-jobmanager:
+    image: ghcr.io/cau-se/theodolite-uc1-flink:${THEODOLITE_TAG:-latest}
+    #ports:
+    #  - "8080:8081"
+    command: standalone-job --job-classname theodolite.uc1.application.HistoryServiceFlinkJob
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: benchmark-jobmanager
+        parallelism.default: 1
+    depends_on:
+      - schema-registry
+      - kafka
+  benchmark-taskmanager:
+    image: ghcr.io/cau-se/theodolite-uc1-flink:${THEODOLITE_TAG:-latest}
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: benchmark-jobmanager
+    depends_on:
+      - schema-registry
+      - kafka    
