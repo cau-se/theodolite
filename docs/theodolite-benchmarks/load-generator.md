@@ -17,7 +17,7 @@ For each benchmark, we provide a [load generator as OCI container image](https:/
 You can simply run a load generator container, for example, for benchmark UC1 with:
 
 ```sh
-docker run ghcr.io/cau-se/theodolite-uc1-workload-generator
+docker run -it ghcr.io/cau-se/theodolite-uc1-workload-generator
 ```
 
 ### Message format
