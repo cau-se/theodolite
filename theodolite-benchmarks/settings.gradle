@@ -34,3 +34,4 @@ include 'uc4-flink'
 include 'uc4-beam-flink'
 include 'uc4-beam-samza'
 
+include 'http-bridge'
