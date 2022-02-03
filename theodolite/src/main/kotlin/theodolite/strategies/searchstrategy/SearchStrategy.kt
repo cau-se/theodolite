@@ -2,6 +2,7 @@ package theodolite.strategies.searchstrategy
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.execution.BenchmarkExecutor
+import theodolite.strategies.Metric
 import theodolite.util.Results
 
 /**
@@ -16,9 +17,9 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
                               val results: Results? = null) {
 
 
-    fun findSuitableCapacity(loads: List<Int>, resources: List<Int>, metric: String) {
+    fun applySearchStrategyByMetric(loads: List<Int>, resources: List<Int>, metric: Metric) {
 
-        if (metric == "demand") {
+        if (metric.value == "demand") {
             //demand metric
             for (load in loads) {
                 if (benchmarkExecutor.run.get()) {

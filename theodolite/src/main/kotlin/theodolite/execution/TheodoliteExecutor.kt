@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
+import theodolite.strategies.Metric
 import theodolite.strategies.StrategyFactory
 import theodolite.util.*
 import java.io.File
@@ -37,7 +38,7 @@ class TheodoliteExecutor(
      * The [searchStrategy] is configured and able to find the minimum required resource for the given load.
      */
     private fun buildConfig(): Config {
-        val results = Results()
+        val results = Results(Metric.from(config.execution.metric))
         val strategyFactory = StrategyFactory()
 
         val executionDuration = Duration.ofSeconds(config.execution.duration)
@@ -92,7 +93,7 @@ class TheodoliteExecutor(
             resources = config.resources.resourceValues,
             resourcePatcherDefinitions = resourcePatcherDefinition,
             searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results),
-            metric = config.execution.metric
+            metric = Metric.from(config.execution.metric)
         )
     }
 
@@ -120,7 +121,7 @@ class TheodoliteExecutor(
 
         //execute benchmarks for each load for the demand metric, or for each resource amount for capacity metric
         try {
-            config.searchStrategy.findSuitableCapacity(config.loads, config.resources, config.metric)
+            config.searchStrategy.applySearchStrategyByMetric(config.loads, config.resources, config.metric)
 
         } finally {
             ioHandler.writeToJSONFile(
@@ -148,7 +149,7 @@ class TheodoliteExecutor(
     }
 
     private fun calculateDemandMetric(loads: List<Int>, results: Results): List<List<String>> {
-        return loads.map { listOf(it.toString(), results.getMinRequiredInstances(it).toString()) }
+        return loads.map { listOf(it.toString(), results.getMinRequiredYDimensionValue(it).toString()) }
     }
 
 }

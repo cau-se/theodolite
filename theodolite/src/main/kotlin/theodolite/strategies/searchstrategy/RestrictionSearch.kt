@@ -31,5 +31,6 @@ class RestrictionSearch(
         for (strategy in this.restrictionStrategies) {
             restrictedLoads = restrictedLoads.intersect(strategy.apply(resource, loads).toSet()).toList()
         }
+        return this.searchStrategy.findSuitableLoad(resource, restrictedLoads)
     }
 }

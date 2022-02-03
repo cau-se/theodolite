@@ -4,6 +4,7 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.strategies.Metric
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.BinarySearch
 import theodolite.strategies.searchstrategy.FullSearch
@@ -28,7 +29,7 @@ class RestrictionSearchTest {
         )
         val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
@@ -61,7 +62,7 @@ class RestrictionSearchTest {
         )
         val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
@@ -94,7 +95,7 @@ class RestrictionSearchTest {
         )
         val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutorImpl =
@@ -127,7 +128,7 @@ class RestrictionSearchTest {
         )
         val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..7).toList()
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)

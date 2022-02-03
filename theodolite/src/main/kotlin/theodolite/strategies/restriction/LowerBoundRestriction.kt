@@ -10,13 +10,13 @@ import theodolite.util.Results
  */
 class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
 
-    override fun apply(load: Int, resources: List<Int>): List<Int> {
-        val maxLoad: Int? = this.results.getMaxBenchmarkedLoad(load)
-        var lowerBound: Int = this.results.getMinRequiredInstances(maxLoad)
+    override fun apply(xValue: Int, yValues: List<Int>): List<Int> {
+        val maxXValue: Int? = this.results.getMaxBenchmarkedXDimensionValue(xValue)
+        var lowerBound: Int = this.results.getMinRequiredYDimensionValue(maxXValue)
         if (lowerBound == Int.MIN_VALUE || lowerBound == Int.MAX_VALUE) {
-            lowerBound = resources[0]
+            lowerBound = yValues[0]
         }
-        return resources.filter { x -> x >= lowerBound }
+        return yValues.filter { x -> x >= lowerBound }
     }
 
 }

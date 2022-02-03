@@ -19,5 +19,5 @@ abstract class RestrictionStrategy(val results: Results) {
      * @return Returns a list containing only elements that have not been filtered out by the
      * restriction (possibly empty).
      */
-    abstract fun apply(load: Int, resources: List<Int>): List<Int>
+    abstract fun apply(xValue: Int, yValues: List<Int>): List<Int>
 }

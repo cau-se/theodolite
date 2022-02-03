@@ -4,13 +4,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import theodolite.strategies.Metric
 import theodolite.util.Results
 
 internal class LowerBoundRestrictionTest {
 
     @Test
     fun testNoPreviousResults() {
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val strategy = LowerBoundRestriction(results)
         val load = 10000
         val resources = listOf(1, 2, 3)
@@ -22,7 +23,7 @@ internal class LowerBoundRestrictionTest {
 
     @Test
     fun testWithSuccessfulPreviousResults() {
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         results.setResult(10000, 1, true)
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, true)
@@ -39,7 +40,7 @@ internal class LowerBoundRestrictionTest {
     @Disabled
     fun testWithNoSuccessfulPreviousResults() {
         // This test is currently not implemented this way, but might later be the desired behavior.
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         results.setResult(10000, 1, true)
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, false)
@@ -56,13 +57,13 @@ internal class LowerBoundRestrictionTest {
 
     @Test
     fun testNoPreviousResults2() {
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         results.setResult(10000, 1, true)
         results.setResult(20000, 2, true)
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, true)
 
-        val minRequiredInstances = results.getMinRequiredInstances(20000)
+        val minRequiredInstances = results.getMinRequiredYDimensionValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
@@ -72,13 +73,13 @@ internal class LowerBoundRestrictionTest {
     @Disabled
     fun testMinRequiredInstancesWhenNotSuccessful() {
         // This test is currently not implemented this way, but might later be the desired behavior.
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         results.setResult(10000, 1, true)
         results.setResult(20000, 2, true)
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, false)
 
-        val minRequiredInstances = results.getMinRequiredInstances(20000)
+        val minRequiredInstances = results.getMinRequiredYDimensionValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)

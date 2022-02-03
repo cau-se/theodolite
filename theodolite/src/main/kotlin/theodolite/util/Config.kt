@@ -1,6 +1,7 @@
 package theodolite.util
 
 import io.quarkus.runtime.annotations.RegisterForReflection
+import theodolite.strategies.Metric
 import theodolite.strategies.searchstrategy.SearchStrategy
 
 /**
@@ -18,5 +19,5 @@ data class Config(
         val resources: List<Int>,
         val resourcePatcherDefinitions : List<PatcherDefinition>,
         val searchStrategy: SearchStrategy,
-        val metric: String
+        val metric: Metric
 )

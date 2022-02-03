@@ -6,6 +6,7 @@ import theodolite.util.Results
 
 private val logger = KotlinLogging.logger {}
 
+// TODO: Is actually just a heuristic approach. Not ensured to have opt solution. Maybe Talk to Sören about it.
 /**
  *  Search strategy implementation for determining the smallest suitable resource demand.
  *  Starting with a resource amount provided by a guess strategy.
@@ -39,8 +40,8 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
 
         // Getting the lastLowestResource from results and calling firstGuess() with it
         if (!results.isEmpty()) {
-            val maxLoad: Int? = this.results.getMaxBenchmarkedLoad(load)
-            lastLowestResource = this.results.getMinRequiredInstances(maxLoad)
+            val maxLoad: Int? = this.results.getMaxBenchmarkedXDimensionValue(load)
+            lastLowestResource = this.results.getMinRequiredYDimensionValue(maxLoad)
             if (lastLowestResource == Int.MAX_VALUE) lastLowestResource = null
         }
         lastLowestResource = this.guessStrategy.firstGuess(resources, lastLowestResource)

@@ -1,6 +1,7 @@
 package theodolite.util
 
 import io.quarkus.runtime.annotations.RegisterForReflection
+import theodolite.strategies.Metric
 
 /**
  * Central class that saves the state of an execution of Theodolite. For an execution, it is used to save the result of
@@ -8,7 +9,9 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  * perform the [theodolite.strategies.restriction.RestrictionStrategy].
  */
 @RegisterForReflection
-class Results {
+//TODO: Initializing überall anpassen
+class Results (val metric: Metric) {
+    //TODO: enum statt Boolean
     private val results: MutableMap<Pair<Int, Int>, Boolean> = mutableMapOf()
 
     /**
@@ -43,24 +46,27 @@ class Results {
      * If no experiments have been marked as either successful or unsuccessful
      * yet, a Resource with the constant value Int.MIN_VALUE is returned.
      */
-    fun getMinRequiredInstances(load: Int?): Int {
-        if (this.results.isEmpty()) {
+    fun getMinRequiredYDimensionValue(xValue: Int?): Int {
+        if (this.results.isEmpty()) { //should add || xValue == null
             return Int.MIN_VALUE
         }
 
-        var minRequiredInstances = Int.MAX_VALUE
+        var minRequiredYValue = Int.MAX_VALUE
         for (experiment in results) {
             // Get all successful experiments for requested load
-            if (experiment.key.first == load && experiment.value) {
-                if (experiment.key.second < minRequiredInstances) {
+            if (getXDimensionValue(experiment.key) == xValue && experiment.value) {
+                val experimentYValue = getYDimensionValue(experiment.key)
+                if (experimentYValue < minRequiredYValue) {
                     // Found new smallest resources
-                    minRequiredInstances = experiment.key.second
+                    minRequiredYValue = experimentYValue
                 }
             }
         }
-        return minRequiredInstances
+        return minRequiredYValue
     }
 
+    // TODO: SÖREN FRAGEN WARUM WIR DAS BRAUCHEN UND NICHT EINFACH PREV, WEIL NICHT DURCHGELAUFEN?
+    // TODO Kommentar zu XDimension und YDimension
     /**
      * Get the largest LoadDimension that has been reported executed successfully (or unsuccessfully) so far, for a
      * LoadDimension and is smaller than the given LoadDimension.
@@ -69,18 +75,19 @@ class Results {
      *
      * @return the largest LoadDimension or null, if there is none for this LoadDimension
      */
-    fun getMaxBenchmarkedLoad(load: Int): Int? {
-        var maxBenchmarkedLoad: Int? = null
+    fun getMaxBenchmarkedXDimensionValue(xValue: Int): Int? {
+        var maxBenchmarkedXValue: Int? = null
         for (experiment in results) {
-            if (experiment.key.first <= load) {
-                if (maxBenchmarkedLoad == null) {
-                    maxBenchmarkedLoad = experiment.key.first
-                } else if (maxBenchmarkedLoad < experiment.key.first) {
-                    maxBenchmarkedLoad = experiment.key.first
+            val experimentXValue = getXDimensionValue(experiment.key)
+            if (experimentXValue <= xValue) { //warum \leq?
+                if (maxBenchmarkedXValue == null) {
+                    maxBenchmarkedXValue = experimentXValue
+                } else if (maxBenchmarkedXValue < experimentXValue) {
+                    maxBenchmarkedXValue = experimentXValue
                 }
             }
         }
-        return maxBenchmarkedLoad
+        return maxBenchmarkedXValue
     }
 
     /**
@@ -90,5 +97,19 @@ class Results {
      */
     fun isEmpty(): Boolean{
         return results.isEmpty()
+    }
+
+    fun getYDimensionValue(experimentKey: Pair<Int, Int>): Int{
+        if(metric.value == "demand"){
+            return experimentKey.second
+        }
+        return experimentKey.first
+    }
+
+    fun getXDimensionValue(experimentKey: Pair<Int, Int>): Int{
+        if(metric.value == "demand"){
+            return experimentKey.first
+        }
+        return experimentKey.second
     }
 }

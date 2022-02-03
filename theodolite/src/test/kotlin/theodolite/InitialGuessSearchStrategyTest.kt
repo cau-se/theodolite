@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.strategies.searchstrategy.InitialGuessSearchStrategy
+import theodolite.strategies.Metric
 import theodolite.util.Results
 import mu.KotlinLogging
 import theodolite.strategies.searchstrategy.PrevResourceMinGuess
@@ -27,7 +28,7 @@ class InitialGuessSearchStrategyTest {
         )
         val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -65,7 +66,7 @@ class InitialGuessSearchStrategyTest {
         )
         val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
@@ -103,7 +104,7 @@ class InitialGuessSearchStrategyTest {
         )
         val mockLoads: List<Int> = (0..6).toList()
         val mockResources: List<Int> = (0..6).toList()
-        val results = Results()
+        val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
