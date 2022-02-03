@@ -7,7 +7,7 @@ echo "Use image tag '${THEODOLITE_TAG:-latest}'."
 cd $COMPOSE_FILE_PATH
 docker-compose pull -q
 docker-compose up -d kafka zookeeper schema-registry
-sleep 40s
+sleep 30s
 docker-compose up -d
 sleep 5s
 docker-compose ps
