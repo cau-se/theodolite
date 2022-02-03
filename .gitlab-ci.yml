@@ -1,7 +1,7 @@
 workflow:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_PROTECTED != "true"'
       when: never
     - when: always
 
@@ -10,6 +10,7 @@ stages:
   - test
   - check
   - deploy
+  - smoketest
 
 default:
   tags:
@@ -20,9 +21,9 @@ default:
     - exec-dind
   # see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   # for image usage and settings for building with TLS and docker in docker
-  image: docker:19.03.1
+  image: docker:20.10.12
   services:
-    - docker:19.03.1-dind
+    - docker:20.10.12-dind
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
 
@@ -45,6 +46,10 @@ default:
       fi
     - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
     - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
+    - echo "PUBLISHED_IMAGE_TAG=${CI_COMMIT_TAG-$CI_COMMIT_SHORT_SHA}" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
 
 
 # Theodolite Docs
@@ -372,7 +377,167 @@ deploy-uc4-load-generator:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-load-generator"
     JAVA_PROJECT_DEPS: "load-generator-commons"
-      
+
+.smoketest-benchmarks:
+  stage: smoketest
+  extends:
+    - .dind
+  image: ghcr.io/cau-se/theodolite-build-docker-compose-jq:20.10.12
+  before_script:
+    - cd theodolite-benchmarks/docker-test
+  # variables:
+  #   TEST_LOG_FILE: "test.log"
+  script:
+    - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
+    - ./smoketest-runner.sh ./$DOCKER_COMPOSE_DIR
+    # - cat test.log
+  after_script:
+    - cd ./$DOCKER_COMPOSE_DIR
+    - docker-compose down
+  rules:
+    - changes:
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/{$JAVA_PROJECT_DEPS}/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+      when: manual
+      allow_failure: true
+
+smoketest-uc1-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-kstreams
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-kstreams"
+    JAVA_PROJECT_DEPS: "uc1-kstreams,kstreams-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-flink
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-flink"
+    JAVA_PROJECT_DEPS: "uc1-flink,flink-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-beam-flink
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-beam-flink"
+    JAVA_PROJECT_DEPS: "uc1-beam-flink,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-beam-samza
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-beam-samza"
+    JAVA_PROJECT_DEPS: "uc1-beam-samza,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc2-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-kstreams
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-kstreams"
+    JAVA_PROJECT_DEPS: "uc2-kstreams,kstreams-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-flink
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-flink"
+    JAVA_PROJECT_DEPS: "uc2-flink,flink-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-beam-flink
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-flink"
+    JAVA_PROJECT_DEPS: "uc2-beam-flink,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-beam-samza
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-samza"
+    JAVA_PROJECT_DEPS: "uc2-beam-samza,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc3-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-kstreams
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-kstreams"
+    JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-beam-flink
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-beam-flink"
+    JAVA_PROJECT_DEPS: "uc3-beam-flink,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-beam-samza
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-beam-samza"
+    JAVA_PROJECT_DEPS: "uc3-beam-samza,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc4-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-kstreams
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-kstreams"
+    JAVA_PROJECT_DEPS: "uc4-kstreams,kstreams-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-flink
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-flink"
+    JAVA_PROJECT_DEPS: "uc4-flink,flink-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-beam-flink
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-beam-flink"
+    JAVA_PROJECT_DEPS: "uc4-beam-flink,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-beam-samza
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-beam-samza"
+    JAVA_PROJECT_DEPS: "uc4-beam-samza,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
+
 
 # Theodolite Framework
 
