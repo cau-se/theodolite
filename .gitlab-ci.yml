@@ -505,8 +505,9 @@ smoketest-uc3-beam-samza:
 smoketest-uc4-kstreams:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc4-kstreams
-    - deploy-uc4-load-generator
+    - job: deploy-uc4-kstreams
+    - job: deploy-uc4-load-generator
+      optional: true
   variables:
     DOCKER_COMPOSE_DIR: "uc4-kstreams"
     JAVA_PROJECT_DEPS: "uc4-kstreams,kstreams-commons,uc4-load-generator,load-generator-commons"

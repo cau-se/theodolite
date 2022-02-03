@@ -3,3 +3,5 @@ plugins {
 }
 
 mainClassName = "theodolite.uc4.application.AggregationService"
+
+// Dummy change...
