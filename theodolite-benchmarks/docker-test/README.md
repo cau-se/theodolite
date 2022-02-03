@@ -46,3 +46,9 @@ The `smoketest-runner.sh` script can be used to run a simple test for a specific
 ```
 
 where `<docker-compose-dir>` is the directory of a Docker-Compose file, for example, `uc2-beam-samza`. The script exists with a zero exit code in case of success and a non-zero exit code otherwise.
+
+You can also run the set of all smoke test with:
+
+```sh
+./smoketest-runner-all.sh
+```
