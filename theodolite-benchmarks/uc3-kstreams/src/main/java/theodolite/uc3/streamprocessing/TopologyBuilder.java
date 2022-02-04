@@ -60,17 +60,18 @@ public class TopologyBuilder {
     final Serde<HourOfDayKey> keySerde = HourOfDayKeySerde.create();
 
     this.builder
-        .stream(this.inputTopic,
-            Consumed.with(Serdes.String(),
-                this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
+        .stream(this.inputTopic, Consumed.with(
+            Serdes.String(),
+            this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
         .selectKey((key, value) -> {
           final Instant instant = Instant.ofEpochMilli(value.getTimestamp());
           final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, this.zone);
           return keyFactory.createKey(value.getIdentifier(), dateTime);
         })
-        .groupByKey(
-            Grouped.with(keySerde, this.srAvroSerdeFactory.forValues()))
-        .windowedBy(TimeWindows.of(this.aggregtionDuration).advanceBy(this.aggregationAdvance))
+        .groupByKey(Grouped.with(keySerde, this.srAvroSerdeFactory.forValues()))
+        .windowedBy(TimeWindows
+            .ofSizeWithNoGrace(this.aggregtionDuration)
+            .advanceBy(this.aggregationAdvance))
         .aggregate(
             () -> Stats.of(),
             (k, record, stats) -> StatsFactory.accumulate(stats, record.getValueInW()),
