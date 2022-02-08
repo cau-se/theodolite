@@ -14,6 +14,8 @@ class Results (val metric: Metric) {
     //TODO: enum statt Boolean
     private val results: MutableMap<Pair<Int, Int>, Boolean> = mutableMapOf()
 
+    //TODO: min instance (or max respectively) also as fields so we do not loop over results, speichert alle results für alle load/resource pairs
+
     /**
      * Set the result for an experiment.
      *
@@ -39,12 +41,12 @@ class Results (val metric: Metric) {
     /**
      * Get the smallest suitable number of instances for a specified LoadDimension.
      *
-     * @param load the LoadDimension
+     * @param xValue the Value of the x-dimension of the current metric
      *
-     * @return the smallest suitable number of resources. If the experiment was not executed yet,
-     * a @see Resource with the constant Int.MAX_VALUE as value is returned.
-     * If no experiments have been marked as either successful or unsuccessful
-     * yet, a Resource with the constant value Int.MIN_VALUE is returned.
+     * @return the smallest suitable number of resources/loads (depending on metric).
+     * If there is no experiment that has been executed yet, Int.MIN_VALUE is returned.
+     * If there is no experiment for the given [xValue] or there is none marked successful yet,
+     * Int.MAX_VALUE is returned.
      */
     fun getMinRequiredYDimensionValue(xValue: Int?): Int {
         if (this.results.isEmpty()) { //should add || xValue == null
@@ -53,7 +55,7 @@ class Results (val metric: Metric) {
 
         var minRequiredYValue = Int.MAX_VALUE
         for (experiment in results) {
-            // Get all successful experiments for requested load
+            // Get all successful experiments for requested xValue
             if (getXDimensionValue(experiment.key) == xValue && experiment.value) {
                 val experimentYValue = getYDimensionValue(experiment.key)
                 if (experimentYValue < minRequiredYValue) {
@@ -63,6 +65,37 @@ class Results (val metric: Metric) {
             }
         }
         return minRequiredYValue
+    }
+
+
+    /**
+     * Get the largest y-Value for which the given x-Value has a positive experiment outcome.
+     * x- and y-values depend on the metric in use.
+     *
+     * @param xValue the Value of the x-dimension of the current metric
+     *
+     * @return the largest suitable number of resources/loads (depending on metric).
+     * If there wasn't any experiment executed yet, Int.MAX_VALUE is returned.
+     * If the experiments for the specified [xValue] wasn't executed yet or the experiments were not successful
+     * Int.MIN_VALUE is returned.
+     */
+    fun getMaxRequiredYDimensionValue(xValue: Int?): Int {
+        if (this.results.isEmpty()) { //should add || xValue == null
+            return Int.MAX_VALUE
+        }
+
+        var maxRequiredYValue = Int.MIN_VALUE
+        for (experiment in results) {
+            // Get all successful experiments for requested xValue
+            if (getXDimensionValue(experiment.key) == xValue && experiment.value) {
+                val experimentYValue = getYDimensionValue(experiment.key)
+                if (experimentYValue > maxRequiredYValue) {
+                    // Found new largest value
+                    maxRequiredYValue = experimentYValue
+                }
+            }
+        }
+        return maxRequiredYValue
     }
 
     // TODO: SÖREN FRAGEN WARUM WIR DAS BRAUCHEN UND NICHT EINFACH PREV, WEIL NICHT DURCHGELAUFEN?

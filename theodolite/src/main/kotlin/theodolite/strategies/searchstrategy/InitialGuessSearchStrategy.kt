@@ -35,7 +35,6 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
             return null
         }
 
-
         var lastLowestResource : Int? = null
 
         // Getting the lastLowestResource from results and calling firstGuess() with it
@@ -50,7 +49,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
             val resourcesToCheck: List<Int>
             val startIndex: Int = resources.indexOf(lastLowestResource)
 
-            logger.info { "Running experiment with load '${load}' and resources '$lastLowestResource'" }
+            logger.info { "Running experiment with load '$load' and resources '$lastLowestResource'" }
 
             // If the first experiment passes, starting downward linear search
             // otherwise starting upward linear search
@@ -62,7 +61,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
                 var currentMin: Int = lastLowestResource
                 for (res in resourcesToCheck) {
 
-                    logger.info { "Running experiment with load '${load}' and resources '$res'" }
+                    logger.info { "Running experiment with load '$load' and resources '$res'" }
                     if (this.benchmarkExecutor.runExperiment(load, res)) {
                         currentMin = res
                     }
@@ -78,19 +77,86 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
 
                 for (res in resourcesToCheck) {
 
-                    logger.info { "Running experiment with load '${load}' and resources '$res'" }
+                    logger.info { "Running experiment with load '$load' and resources '$res'" }
                     if (this.benchmarkExecutor.runExperiment(load, res)) return res
                 }
             }
         }
         else {
-            logger.info { "InitialGuessSearchStrategy called without lastLowestResource value, which is needed as a " +
-                    "starting point!" }
+            logger.info { "lastLowestResource was null." }
         }
         return null
     }
 
     override fun findSuitableLoad(resource: Int, loads: List<Int>): Int? {
-        TODO("Not yet implemented")
+
+        if(loads.isEmpty()) {
+            logger.info { "You need to specify resources to be checked for the InitialGuessSearchStrategy to work." }
+            return null
+        }
+
+        if(guessStrategy == null){
+            logger.info { "Your InitialGuessSearchStrategy doesn't have a GuessStrategy. This is not supported." }
+            return null
+        }
+
+        if(results == null){
+            logger.info { "The results need to be initialized." }
+            return null
+        }
+
+        var lastMaxLoad : Int? = null
+
+        // Getting the lastLowestLoad from results and calling firstGuess() with it
+        if (!results.isEmpty()) {
+            val maxResource: Int? = this.results.getMaxBenchmarkedXDimensionValue(resource)
+            lastMaxLoad = this.results.getMaxRequiredYDimensionValue(maxResource)
+            if (lastMaxLoad == Int.MIN_VALUE) lastMaxLoad = null
+        }
+        lastMaxLoad = this.guessStrategy.firstGuess(loads, lastMaxLoad)
+
+        if (lastMaxLoad != null) {
+            val loadsToCheck: List<Int>
+            val startIndex: Int = loads.indexOf(lastMaxLoad)
+
+            logger.info { "Running experiment with resource '$resource' and load '$lastMaxLoad'" }
+
+            // If the first experiment passes, starting upwards linear search
+            // otherwise starting downward linear search
+            if (!this.benchmarkExecutor.runExperiment(resource, lastMaxLoad)) {
+                // downward search
+
+                loadsToCheck = loads.subList(0, startIndex).reversed()
+                if (loadsToCheck.isNotEmpty()) {
+                    for (load in loadsToCheck) {
+
+                        logger.info { "Running experiment with resource '$resource' and load '$load'" }
+                        if (this.benchmarkExecutor.runExperiment(resource, load)) {
+                            return load
+                        }
+                    }
+                }
+            }
+            else {
+                // upward search
+                if (loads.size <= startIndex + 1) {
+                    return lastMaxLoad
+                }
+                loadsToCheck = loads.subList(startIndex + 1, loads.size)
+
+                var currentMax: Int = lastMaxLoad
+                for (load in loadsToCheck) {
+                    logger.info { "Running experiment with resource '$resource' and load '$load'" }
+                    if (this.benchmarkExecutor.runExperiment(resource, load)) {
+                        currentMax = load
+                    }
+                }
+                return currentMax
+            }
+        }
+        else {
+            logger.info { "lastMaxLoad was null." }
+        }
+        return null
     }
 }

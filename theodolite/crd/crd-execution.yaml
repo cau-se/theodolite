@@ -81,25 +81,25 @@ spec:
                 description: Defines the overall parameter for the execution.
                 type: object
                 required: ["strategy", "duration", "repetitions", "restrictions"]
-                metric:
-                  default: "demand"
-                  type: string
-                  oneOf:
-                    - "demand"
-                    - "capacity"
-                strategy:
-                  description: Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'
-                  type: object
-                  name: string
-                  properties:
-                    restrictions:
-                      description: List of restriction strategies used to delimit the search space.
-                      type: array
-                      items:
-                        type: string
-                    guessStrategy: string
-                    searchStrategy: string
                 properties:
+                  metric:
+                    default: "demand"
+                    type: string
+                    oneOf:
+                      - "demand"
+                      - "capacity"
+                  strategy:
+                    description: Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'
+                    type: object
+                    name: string
+                    properties:
+                      restrictions:
+                        description: List of restriction strategies used to delimit the search space.
+                        type: array
+                        items:
+                          type: string
+                      guessStrategy: string
+                      searchStrategy: string
                   duration:
                     description: Defines the duration of each experiment in seconds.
                     type: integer

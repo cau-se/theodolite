@@ -20,10 +20,14 @@ spec:
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
   execution:
-    strategy: "LinearSearch"
+    metric: "demand"
+    strategy: "RestrictionSearch"
+      properties:
+        restrictions:
+          - "LowerBound"
+        searchStrategy: "LinearSearch"
     duration: 300 # in seconds
     repetitions: 1
     loadGenerationDelay: 30 # in seconds
-    restrictions:
-      - "LowerBound"
+
   configOverrides: []

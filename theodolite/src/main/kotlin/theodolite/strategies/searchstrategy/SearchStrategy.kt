@@ -46,7 +46,6 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
      */
     abstract fun findSuitableResource(load: Int, resources: List<Int>): Int?
 
-    // TODO findSuitableLoad und findSuitableResource zusammenfuehren?
     /**
      * Find biggest suitable load from the specified load list for the given resource amount.
      *

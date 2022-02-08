@@ -14,6 +14,7 @@ class PrevResourceMinGuess() : GuessStrategy(){
      *
      * @return the value of lastLowestResource if given otherwise the first element of the resource list or null
      */
+    // TODO verallgemeinern  für loads
     override fun firstGuess(resources: List<Int>, lastLowestResource: Int?): Int? {
 
         if (lastLowestResource != null) return lastLowestResource
