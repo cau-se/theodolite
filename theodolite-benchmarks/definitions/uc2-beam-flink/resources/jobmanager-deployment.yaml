@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: jobmanager
-          image: ghcr.io/cau-se/theodolite-uc2-beam-flink
+          image: ghcr.io/cau-se/theodolite-uc2-beam-flink:latest
           args: ["standalone-job", "--job-classname", "application.Uc2BeamFlink",
                   "--parallelism=$(PARALLELISM)",
                   "--disableMetrics=true",

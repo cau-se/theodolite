@@ -17,8 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: jobmanager
-          image: uc1-beam-flink:latest # TODO Change when ready
-          imagePullPolicy: Never # TODO Change when ready
+          image: ghcr.io/cau-se/theodolite-uc1-beam-flink:latest
           args: ["standalone-job", "--job-classname", "application.Uc1BeamFlink",
                   "--parallelism=$(PARALLELISM)",
                   "--disableMetrics=true",

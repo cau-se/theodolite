@@ -17,8 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: taskmanager
-          image: uc1-beam-flink:latest # TODO Change when ready
-          imagePullPolicy: Never # TODO Change when ready
+          image: ghcr.io/cau-se/theodolite-uc1-beam-flink:latest
           args: ["taskmanager"]
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
