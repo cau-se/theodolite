@@ -15,8 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: uc1-beam-samza
-          image: uc1-beam-samza:latest
-          imagePullPolicy: Never # for local testing 
+          image: ghcr.io/cau-se/theodolite-uc1-beam-samza:latest
           ports:
             - containerPort: 5555
               name: jmx
