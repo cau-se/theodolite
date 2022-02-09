@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: titan-ccp-aggregation
+  name: uc1-beam-samza
 spec:
   selector:
     matchLabels:
-      app: titan-ccp-aggregation
+      app: uc1-beam-samza
   replicas: 1
   template:
     metadata:
       labels:
-        app: titan-ccp-aggregation
+        app: uc1-beam-samza
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-        - name: uc-application
+        - name: uc1-beam-samza
           image: uc1-beam-samza:latest
           imagePullPolicy: Never # for local testing 
           ports:
@@ -22,41 +22,43 @@ spec:
               name: jmx
           env:
             - name: SAMZA_JOB_COORDINATOR_ZK_CONNECT
-              value: "HelloThere"
-            - name: SAMZA_SYSTEMS_KAFKA_CONSUMER_ZOOKEEPER_CONNECT
-              value: "HelloThere"
+              value: "theodolite-cp-zookeeper:2181"
+            - name: SAMZA_SYSTEMS_KAFKA_PRODUCER_BOOTSTRAP_SERVERS
+              value: "theodolite-cp-kafka:9092"
+            - name: SAMZA_SYSTEMS_KAFKA_CONSUMER_BOOTSTRAP_SERVERS
+              value: "theodolite-cp-kafka:9092"
             - name: MAX_SOURCE_PARALLELISM
               value: "1024"
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "theodolite-cp-kafka:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-cp-schema-registry:8081"
-            - name: JAVA_OPTS
-              value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5555"
+            # - name: JAVA_OPTS
+            #   value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5555"
             - name: COMMIT_INTERVAL_MS # Set as default for the applications
               value: "100"
           resources:
             limits:
               memory: 4Gi
               cpu: 1000m
-        - name: prometheus-jmx-exporter
-          image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
-          command:
-            - java
-            - -XX:+UnlockExperimentalVMOptions
-            - -XX:+UseCGroupMemoryLimitForHeap
-            - -XX:MaxRAMFraction=1
-            - -XshowSettings:vm
-            - -jar
-            - jmx_prometheus_httpserver.jar
-            - "5556"
-            - /etc/jmx-aggregation/jmx-kafka-prometheus.yml
-          ports:
-            - containerPort: 5556
-          volumeMounts:
-            - name: jmx-config
-              mountPath: /etc/jmx-aggregation
-      volumes:
-        - name: jmx-config
-          configMap:
-            name: uc1-jmx-configmap
+      #   - name: prometheus-jmx-exporter
+      #     image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
+      #     command:
+      #       - java
+      #       - -XX:+UnlockExperimentalVMOptions
+      #       - -XX:+UseCGroupMemoryLimitForHeap
+      #       - -XX:MaxRAMFraction=1
+      #       - -XshowSettings:vm
+      #       - -jar
+      #       - jmx_prometheus_httpserver.jar
+      #       - "5556"
+      #       - /etc/jmx-aggregation/jmx-kafka-prometheus.yml
+      #     ports:
+      #       - containerPort: 5556
+      #     volumeMounts:
+      #       - name: jmx-config
+      #         mountPath: /etc/jmx-aggregation
+      # volumes:
+      #   - name: jmx-config
+      #     configMap:
+      #       name: uc1-jmx-configmap
