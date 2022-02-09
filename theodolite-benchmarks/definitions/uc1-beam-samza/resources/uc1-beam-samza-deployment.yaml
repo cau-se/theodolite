@@ -1,24 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uc1-beam-samza
+  name: titan-ccp-aggregation
 spec:
   selector:
     matchLabels:
-      app: uc1-beam-samza
+      app: titan-ccp-aggregation
   replicas: 1
   template:
     metadata:
       labels:
-        app: uc1-beam-samza
+        app: titan-ccp-aggregation
     spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: uc1-beam-samza
           image: ghcr.io/cau-se/theodolite-uc1-beam-samza:latest
           ports:
-            - containerPort: 5555
-              name: jmx
           env:
             - name: SAMZA_JOB_COORDINATOR_ZK_CONNECT
               value: "theodolite-cp-zookeeper:2181"

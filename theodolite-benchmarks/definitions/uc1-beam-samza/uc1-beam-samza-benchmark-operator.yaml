@@ -9,10 +9,9 @@ spec:
           name: "benchmark-resources-uc1-beam-samza"
           files:
           - "uc1-beam-samza-deployment.yaml"
-          - "uc1-beam-samza-service.yaml"
-          - "uc1-jmx-configmap.yaml"
-          - "uc1-service-monitor.yaml"
-          afterActions:
+          - "beam-samza-service.yaml"
+          - "service-monitor.yaml"
+    afterActions:
       - selector: # delete zookeeper nodes to reset zookeeper
           pod:
             matchLabels:
@@ -20,7 +19,7 @@ spec:
           container: "cp-zookeeper-server"
         exec:
           command: ["zookeeper-shell", "localhost:2181",
-           "deleteall", "/app-theodolite-uc2-application-1"]
+          "deleteall", "/app-theodolite-uc2-application-1"]
           timeoutSeconds: 60
   loadGenerator:
     resources:

@@ -9,8 +9,8 @@ spec:
           name: "benchmark-resources-uc2-beam-samza"
           files:
           - "uc2-beam-samza-deployment.yaml"
-          - "uc2-beam-samza-service.yaml"
-          - "uc2-service-monitor.yaml"
+          - "beam-samza-service.yaml"
+          - "service-monitor.yaml"
     # beforeActions:
     #   - selector: # delete zookeeper nodes to reset zookeeper
     #       pod:
