@@ -23,6 +23,10 @@ private val logger = KotlinLogging.logger {}
  */
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
+    private val sutBeforeActions: List<Action>,
+    private val sutAfterActions: List<Action>,
+    private val loadGenBeforeActions: List<Action>,
+    private val loadGenAfterActions: List<Action>,
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
     private val loadGenerationDelay: Long,
@@ -45,10 +49,13 @@ class KubernetesBenchmarkDeployment(
         val kafkaTopics = this.topics.filter { !it.removeOnly }
             .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
         kafkaController.createTopics(kafkaTopics)
+        sutBeforeActions.forEach { it.exec(client = client) }
         appResources.forEach { kubernetesManager.deploy(it) }
         logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
         Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
+        loadGenBeforeActions.forEach { it.exec(client = client) }
         loadGenResources.forEach { kubernetesManager.deploy(it) }
+
     }
 
     /**
@@ -59,7 +66,9 @@ class KubernetesBenchmarkDeployment(
      */
     override fun teardown() {
         loadGenResources.forEach { kubernetesManager.remove(it) }
+        loadGenAfterActions.forEach { it.exec(client = client) }
         appResources.forEach { kubernetesManager.remove(it) }
+        sutAfterActions.forEach { it.exec(client = client) }
         kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         ResourceByLabelHandler(client).removePods(
             labelName = LAG_EXPORTER_POD_LABEL_NAME,

@@ -5,16 +5,16 @@ import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
-import io.smallrye.common.constraint.Assert.assertTrue
-import junit.framework.Assert.assertEquals
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import theodolite.k8s.CustomResourceWrapper
 import theodolite.util.DeploymentFailedException
-import java.lang.IllegalStateException
 
-private val testResourcePath = "./src/test/resources/k8s-resource-files/"
+private const val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
 class FileSystemResourceSetTest {
 
@@ -104,12 +104,8 @@ class FileSystemResourceSetTest {
     fun testWrongPath() {
         val resourceSet = FileSystemResourceSet()
         resourceSet.path = "/abc/not-exist"
-        lateinit var ex: Exception
-        try {
+        assertThrows<DeploymentFailedException> {
             resourceSet.getResourceSet(server.client)
-        } catch (e: Exception) {
-            println(e)
-            ex = e
         }
-        assertTrue(ex is DeploymentFailedException)    }
+    }
 }

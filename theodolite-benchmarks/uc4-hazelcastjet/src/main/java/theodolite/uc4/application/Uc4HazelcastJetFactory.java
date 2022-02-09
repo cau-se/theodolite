@@ -283,7 +283,7 @@ public class Uc4HazelcastJetFactory {
 
   /**
    * Sets the window size for the pipeline used in this builder.
-   * 
+   *
    * @param windowSize the window size to be used for this pipeline.
    * @return A Uc4HazelcastJetFactory with a set windowSize.
    */
@@ -295,14 +295,14 @@ public class Uc4HazelcastJetFactory {
 
   /**
    * Sets the window size for the pipeline used in this builder from the environment.
-   * 
+   *
    * @param defaultWindowSize the default window size to be used for this pipeline when none is set
    *        in the environment.
    * @return A Uc4HazelcastJetFactory with a set windowSize.
    */
   public Uc4HazelcastJetFactory setWindowSizeFromEnv(// NOPMD
       final String defaultWindowSize) {
-    final String windowSize = (String) Objects.requireNonNullElse(
+    final String windowSize = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.WINDOW_SIZE_UC4),
         defaultWindowSize);
     final int windowSizeNumber = Integer.parseInt(windowSize);
@@ -312,7 +312,7 @@ public class Uc4HazelcastJetFactory {
 
   /**
    * Sets the configuration topic for the pipeline used in this builder.
-   * 
+   *
    * @param kafkaConfigurationTopic the configuration topic to be used for this pipeline.
    * @return A Uc4HazelcastJetFactory with a set configuration topic.
    */
@@ -324,14 +324,14 @@ public class Uc4HazelcastJetFactory {
 
   /**
    * Sets the configuration topic for the pipeline used in this builder from the environment.
-   * 
+   *
    * @param defaultKafkaConfigurationTopic the default configuration topic to be used for this
    *        pipeline when none is set in the environment.
    * @return A Uc4HazelcastJetFactory with a set kafkaConfigurationTopic.
    */
   public Uc4HazelcastJetFactory setKafkaConfigurationTopicFromEnv(// NOPMD
       final String defaultKafkaConfigurationTopic) {
-    this.kafkaConfigurationTopic = (String) Objects.requireNonNullElse(
+    this.kafkaConfigurationTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC),
         defaultKafkaConfigurationTopic);
     return this;
@@ -339,7 +339,7 @@ public class Uc4HazelcastJetFactory {
 
   /**
    * Sets the Feedback topic for the pipeline used in this builder.
-   * 
+   *
    * @param kafkaFeedbackTopic the Feedback topic to be used for this pipeline.
    * @return A Uc4HazelcastJetFactory with a set Feedback topic.
    */
@@ -351,14 +351,14 @@ public class Uc4HazelcastJetFactory {
 
   /**
    * Sets the Feedback topic for the pipeline used in this builder from the environment.
-   * 
+   *
    * @param defaultKafkaFeedbackTopic the default Feedback topic to be used for this pipeline when
    *        none is set in the environment.
    * @return A Uc4HazelcastJetFactory with a set kafkaFeedbackTopic.
    */
   public Uc4HazelcastJetFactory setKafkaFeedbackTopicFromEnv(// NOPMD
       final String defaultKafkaFeedbackTopic) {
-    this.kafkaFeedbackTopic = (String) Objects.requireNonNullElse(
+    this.kafkaFeedbackTopic = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC),
         defaultKafkaFeedbackTopic);
     return this;

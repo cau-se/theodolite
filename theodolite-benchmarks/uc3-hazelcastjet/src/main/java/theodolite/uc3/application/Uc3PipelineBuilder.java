@@ -57,8 +57,8 @@ public class Uc3PipelineBuilder {
 
     // Extend topology for UC3
     final StreamStage<Map.Entry<String, String>> uc3Product =
-        extendUc3Topology(pipe, kafkaSource, hoppingSizeInSeconds, windowSizeInSeconds);
-    
+        this.extendUc3Topology(pipe, kafkaSource, hoppingSizeInSeconds, windowSizeInSeconds);
+
     // Add Sink1: Logger
     uc3Product.writeTo(Sinks.logger());
     // Add Sink2: Write back to kafka for the final benchmark
@@ -70,10 +70,12 @@ public class Uc3PipelineBuilder {
 
   /**
    * Extends to a blank Hazelcast Jet Pipeline the UC3 topology defined by theodolite.
-   * 
-   * <p>UC3 takes {@code ActivePowerRecord} object, groups them by keys and calculates 
-   * average double values for a sliding window and sorts them into the hour of the day.
-   * 
+   *
+   * <p>
+   * UC3 takes {@code ActivePowerRecord} object, groups them by keys and calculates average double
+   * values for a sliding window and sorts them into the hour of the day.
+   * </p>
+   *
    * @param pipe The blank hazelcast jet pipeline to extend the logic to.
    * @param source A streaming source to fetch data from.
    * @param hoppingSizeInSeconds The jump distance of the "sliding" window.
@@ -105,7 +107,7 @@ public class Uc3PipelineBuilder {
           return Map.entry(newKey, record.getValue());
         })
         // group by new keys
-        .groupingKey(newRecord -> newRecord.getKey())
+        .groupingKey(Entry::getKey)
         // Sliding/Hopping Window
         .window(WindowDefinition.sliding(TimeUnit.SECONDS.toMillis(windowSizeInSeconds),
             TimeUnit.SECONDS.toMillis(hoppingSizeInSeconds)))

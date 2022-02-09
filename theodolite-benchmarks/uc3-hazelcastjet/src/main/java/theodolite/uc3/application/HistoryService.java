@@ -24,7 +24,6 @@ public class HistoryService {
   // -- (default) job name for this history serivce
   private static final String JOB_NAME = "uc3-hazelcastjet";
 
-
   /**
    * Entrypoint for UC3 using Gradle Run.
    */

@@ -1,5 +1,4 @@
 plugins {
-  // common java conventions
   id 'theodolite.hazelcastjet'
 }
 

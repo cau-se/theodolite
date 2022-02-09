@@ -34,9 +34,8 @@ public class Uc1HazelcastJetFactory {
    * JetInstance as a job.
    *
    * @param jobName The name of the job.
-   * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
-  public void runUc1Job(final String jobName) throws IllegalStateException {
+  public void runUc1Job(final String jobName) {
 
     // Check if a Jet Instance for UC1 is set.
     if (this.uc1JetInstance == null) {
@@ -83,10 +82,8 @@ public class Uc1HazelcastJetFactory {
    * topic and kafka properties defined in this factory beforehand.
    *
    * @return A Uc1HazelcastJetFactory containg a set pipeline.
-   * @throws Exception If the input topic or the kafka properties are not defined, the pipeline
-   *         cannot be built.
    */
-  public Uc1HazelcastJetFactory buildUc1Pipeline() throws IllegalStateException {
+  public Uc1HazelcastJetFactory buildUc1Pipeline() {
 
     // Check if Properties for the Kafka Input are set.
     if (this.kafkaPropertiesForPipeline == null) {

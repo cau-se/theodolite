@@ -9,7 +9,7 @@ import com.hazelcast.function.SupplierEx;
  */
 public class StatsAccumulatorSupplier implements SupplierEx<StatsAccumulator> {
 
-  private static final long serialVersionUID = -656395626316842910L;//NOPMD
+  private static final long serialVersionUID = -656395626316842910L; // NOPMD
 
   /**
    * Gets a StatsAccumulator.

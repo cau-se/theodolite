@@ -21,9 +21,9 @@ public class Uc1PipelineBuilder {
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
    *
-   * @param kafkaPropsForPipeline Properties Object containing the necessary kafka attributes.
+   * @param kafkaPropsForPipeline Properties object containing the necessary Kafka attributes.
    * @param kafkaInputTopic The name of the input topic used for the pipeline.
-   * @return A hazelcast jet pipeline which processes data for Uc1.
+   * @return A Hazelcast Jet pipeline which processes data for Uc1.
    */
   public Pipeline build(final Properties kafkaPropsForPipeline, final String kafkaInputTopic) {
 
@@ -44,10 +44,12 @@ public class Uc1PipelineBuilder {
   }
 
   /**
-   * Extends to a blank Hazelcast Jet Pipeline the UC1 topology defines by theodolite.
-   * 
-   * <p>UC1 takes {@code Entry<String,ActivePowerRecord>} objects and turns them into Json strings
+   * Extends to a blank Hazelcast Jet Pipeline the UC1 topology defines by Theodolite.
+   *
+   * <p>
+   * UC1 takes {@code Entry<String,ActivePowerRecord>} objects and turns them into JSON strings
    * using GSON.
+   * </p>
    *
    * @param pipe The blank hazelcast jet pipeline to extend the logic to.
    * @param source A streaming source to fetch data from.

@@ -3,7 +3,7 @@ plugins {
 }
 
 repositories {
-  jcenter()
+  mavenCentral()
   maven {
     url "https://oss.sonatype.org/content/repositories/snapshots/"
   }
@@ -20,5 +20,4 @@ dependencies {
     implementation 'com.hazelcast:hazelcast-kubernetes:2.2.2'
     implementation 'io.confluent:kafka-avro-serializer:5.3.0'
     implementation 'org.slf4j:slf4j-api:1.7.25'
- 	 
 }

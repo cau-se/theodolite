@@ -51,7 +51,7 @@ public class Uc2PipelineBuilder {
 
     // Extend UC2 topology to the pipeline
     final StreamStage<Map.Entry<String, String>> uc2TopologyProduct =
-        extendUc2Topology(pipe, kafkaSource, downsampleIntervalInMs);
+        this.extendUc2Topology(pipe, kafkaSource, downsampleIntervalInMs);
 
     // Add Sink1: Logger
     uc2TopologyProduct.writeTo(Sinks.logger());
@@ -64,12 +64,14 @@ public class Uc2PipelineBuilder {
 
   /**
    * Extends to a blank Hazelcast Jet Pipeline the UC2 topology defined by theodolite.
-   * 
-   * <p>UC2 takes {@code ActivePowerRecord} objects, groups them by keys, windows them in a tumbling
+   *
+   * <p>
+   * UC2 takes {@code ActivePowerRecord} objects, groups them by keys, windows them in a tumbling
    * window and aggregates them into {@code Stats} objects. The final map returns an
    * {@code Entry<String,String>} where the key is the key of the group and the String is the
    * {@code .toString()} representation of the {@code Stats} object.
-   * 
+   * </p>
+   *
    * @param pipe The blank hazelcast jet pipeline to extend the logic to.
    * @param source A streaming source to fetch data from.
    * @param downsampleIntervalInMs The size of the tumbling window.
@@ -86,7 +88,7 @@ public class Uc2PipelineBuilder {
         .setLocalParallelism(1)
         .groupingKey(record -> record.getValue().getIdentifier())
         .window(WindowDefinition.tumbling(downsampleIntervalInMs))
-        .aggregate(uc2AggregateOperation())
+        .aggregate(this.uc2AggregateOperation())
         .map(agg -> {
           final String theKey = agg.key();
           final String theValue = agg.getValue().toString();
@@ -97,10 +99,12 @@ public class Uc2PipelineBuilder {
   /**
    * Defines an AggregateOperation1 for Hazelcast Jet which is used in the Pipeline of the Hazelcast
    * Jet implementation of UC2.
-   * 
-   * <p>Takes a windowed and keyed {@code Entry<String,ActivePowerRecord>} elements and returns a
-   * {@Stats} Object.
-   * 
+   *
+   * <p>
+   * Takes a windowed and keyed {@code Entry<String,ActivePowerRecord>} elements and returns a
+   * {@Stats} object.
+   * </p>
+   *
    * @return An AggregateOperation used by Hazelcast Jet in a streaming stage which aggregates
    *         ActivePowerRecord Objects into Stats Objects.
    */
@@ -114,7 +118,7 @@ public class Uc2PipelineBuilder {
         .withCreate(new StatsAccumulatorSupplier())
         // Defines the accumulation
         .andAccumulate((accumulator, item) -> {
-          final Entry<String, ActivePowerRecord> castedEntry = 
+          final Entry<String, ActivePowerRecord> castedEntry =
               (Entry<String, ActivePowerRecord>) item;
           accumulator.add(castedEntry.getValue().getValueInW());
         })

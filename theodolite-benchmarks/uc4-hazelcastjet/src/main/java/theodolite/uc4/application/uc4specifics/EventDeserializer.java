@@ -7,11 +7,12 @@ import titan.ccp.configuration.events.EventSerde;
 
 /**
  * Deserializer for Event Objects.
+ *
  */
 public class EventDeserializer implements Deserializer<Event> {
 
   private final Deserializer<Event> deserializer = EventSerde.serde().deserializer();
-  
+
   @Override
   public void configure(final Map<String, ?> configs, final boolean isKey) {
     this.deserializer.configure(configs, isKey);
@@ -27,5 +28,5 @@ public class EventDeserializer implements Deserializer<Event> {
     this.deserializer.close();
   }
 
-  
+
 }

@@ -47,7 +47,7 @@ public class Uc3KafkaPropertiesBuilder {
 
   /**
    * Builds Kafka Properties used for the UC3 Benchmark pipeline.
-   * 
+   *
    * @param kafkaBootstrapServerDefault Default bootstrap server if not set by environment.
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC3
    *         Pipeline.

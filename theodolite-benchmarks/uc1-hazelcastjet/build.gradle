@@ -1,5 +1,4 @@
 plugins {
-  // hazelcastjet common stuff
   id 'theodolite.hazelcastjet'
 }
 

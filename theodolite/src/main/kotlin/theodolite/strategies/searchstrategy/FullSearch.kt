@@ -22,7 +22,7 @@ class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmar
         for (res in resources) {
             logger.info { "Running experiment with load '${load.get()}' and resources '${res.get()}'" }
             val result = this.benchmarkExecutor.runExperiment(load, res)
-            if (result && minimalSuitableResources != null) {
+            if (result && minimalSuitableResources == null) {
                 minimalSuitableResources = res
             }
         }

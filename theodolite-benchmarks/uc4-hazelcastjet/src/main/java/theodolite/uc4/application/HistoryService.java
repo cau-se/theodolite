@@ -33,7 +33,7 @@ public class HistoryService {
     try {
       uc4HistoryService.run();
     } catch (final Exception e) { // NOPMD
-      e.printStackTrace(); // NOPMD     
+      e.printStackTrace(); // NOPMD
       LOGGER.error("An Exception occured. "// NOPMD
           + "No history service is deployed! ABORT MISSION!");
       LOGGER.error(e.toString());
@@ -66,7 +66,7 @@ public class HistoryService {
         .setKafkaFeedbackTopicFromEnv(KAFKA_FEEDBACK_TOPIC_DEFAULT)
         .setWindowSizeFromEnv(WINDOW_SIZE_DEFAULT_MS)
         .buildUc4JetInstanceFromEnv(LOGGER, BOOTSTRAP_SERVER_DEFAULT, HZ_KUBERNETES_SERVICE_DNS_KEY)
-        .buildUc4Pipeline()        
+        .buildUc4Pipeline()
         .runUc4Job(JOB_NAME);
   }
 
