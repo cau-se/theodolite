@@ -66,8 +66,8 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     final Duration gracePeriod =
         Duration.standardSeconds(config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
 
-    // Build kafka configuration
-    final Map<String, Object> consumerConfig = this.buildConsumerConfig();
+    // Build Kafka configuration
+    final Map<String, Object> consumerConfig = super.buildConsumerConfig();
     final Map<String, Object> configurationConfig = this.configurationConfig(config);
 
     // Set Coders for Classes that will be distributed
@@ -77,25 +77,34 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     // Read from Kafka
     // ActivePowerRecords
     final KafkaActivePowerTimestampReader kafkaActivePowerRecordReader =
-        new KafkaActivePowerTimestampReader(this.bootstrapServer, this.inputTopic, consumerConfig);
+        new KafkaActivePowerTimestampReader(
+            this.bootstrapServer,
+            this.inputTopic,
+            consumerConfig);
 
     // Configuration Events
     final KafkaGenericReader<Event, String> kafkaConfigurationReader =
         new KafkaGenericReader<>(
-            this.bootstrapServer, configurationTopic, configurationConfig,
-            EventDeserializer.class, StringDeserializer.class);
-
-    // Transform into AggregatedActivePowerRecords into ActivePowerRecords
-    final AggregatedToActive aggregatedToActive = new AggregatedToActive();
+            this.bootstrapServer,
+            configurationTopic,
+            configurationConfig,
+            EventDeserializer.class,
+            StringDeserializer.class);
 
     // Write to Kafka
     final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaOutput =
         new KafkaWriterTransformation<>(
-            this.bootstrapServer, outputTopic, AggregatedActivePowerRecordSerializer.class);
+            this.bootstrapServer,
+            outputTopic,
+            AggregatedActivePowerRecordSerializer.class,
+            super.buildProducerConfig());
 
     final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaFeedback =
         new KafkaWriterTransformation<>(
-            this.bootstrapServer, feedbackTopic, AggregatedActivePowerRecordSerializer.class);
+            this.bootstrapServer,
+            feedbackTopic,
+            AggregatedActivePowerRecordSerializer.class,
+            super.buildProducerConfig());
 
     // Apply pipeline transformations
     final PCollection<KV<String, ActivePowerRecord>> values = this
@@ -115,7 +124,10 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
             .withBootstrapServers(this.bootstrapServer)
             .withTopic(feedbackTopic)
             .withKeyDeserializer(StringDeserializer.class)
-            .withValueDeserializer(AggregatedActivePowerRecordDeserializer.class)
+            .withValueDeserializerAndCoder(
+                AggregatedActivePowerRecordDeserializer.class,
+                AvroCoder.of(AggregatedActivePowerRecord.class))
+            .withConsumerConfigUpdates(consumerConfig)
             .withTimestampPolicyFactory(
                 (tp, previousWaterMark) -> new AggregatedActivePowerRecordEventTimePolicy(
                     previousWaterMark))
@@ -123,11 +135,12 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
         .apply("Apply Windows", Window.into(FixedWindows.of(duration)))
         // Convert into the correct data format
         .apply("Convert AggregatedActivePowerRecord to ActivePowerRecord",
-            MapElements.via(aggregatedToActive))
+            MapElements.via(new AggregatedToActive()))
         .apply("Set trigger for feedback", Window
             .<KV<String, ActivePowerRecord>>configure()
             .triggering(Repeatedly.forever(
-                AfterProcessingTime.pastFirstElementInPane()
+                AfterProcessingTime
+                    .pastFirstElementInPane()
                     .plusDelayOf(triggerDelay)))
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes());
@@ -170,17 +183,13 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
                 .accumulatingFiredPanes())
             .apply(View.asMap());
 
-    final FilterNullValues filterNullValues = new FilterNullValues();
-
     // Build pairs of every sensor reading and parent
     final PCollection<KV<SensorParentKey, ActivePowerRecord>> flatMappedValues =
         inputCollection.apply(
             "Duplicate as flatMap",
-            ParDo.of(new DuplicateAsFlatMap(childParentPairMap))
-                .withSideInputs(childParentPairMap))
+            ParDo.of(new DuplicateAsFlatMap(childParentPairMap)).withSideInputs(childParentPairMap))
             .apply("Filter only latest changes", Latest.perKey())
-            .apply("Filter out null values",
-                Filter.by(filterNullValues));
+            .apply("Filter out null values", Filter.by(new FilterNullValues()));
 
     final SetIdForAggregated setIdForAggregated = new SetIdForAggregated();
     final SetKeyToGroup setKeyToGroup = new SetKeyToGroup();
@@ -204,8 +213,7 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
 
     aggregations.apply("Write to aggregation results", kafkaOutput);
 
-    aggregations
-        .apply("Write to feedback topic", kafkaFeedback);
+    aggregations.apply("Write to feedback topic", kafkaFeedback);
 
   }
 
@@ -217,14 +225,15 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
    */
   public Map<String, Object> configurationConfig(final Configuration config) {
     final Map<String, Object> consumerConfig = new HashMap<>();
-    consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
+    consumerConfig.put(
+        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
         config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
-    consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-        config
-            .getString(ConfigurationKeys.AUTO_OFFSET_RESET_CONFIG));
-
-    consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, config
-        .getString(ConfigurationKeys.APPLICATION_NAME) + "-configuration");
+    consumerConfig.put(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        config.getString(ConfigurationKeys.AUTO_OFFSET_RESET_CONFIG));
+    consumerConfig.put(
+        ConsumerConfig.GROUP_ID_CONFIG, config
+            .getString(ConfigurationKeys.APPLICATION_NAME) + "-configuration");
     return consumerConfig;
   }
 

@@ -20,7 +20,7 @@ shadowJar {
 tasks.distZip.enabled = false
 
 ext {
-  flinkVersion = '1.12.2'
+  flinkVersion = '1.13.5'
   scalaBinaryVersion = '2.12'
 }
 
