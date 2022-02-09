@@ -151,4 +151,9 @@ public class Uc4PipelineTest extends JetTestSupport {
     Jet.shutdownAll();
   }
 
+  @Test
+  public void test(){
+    System.out.println("Hello There")
+  }
+
 }
