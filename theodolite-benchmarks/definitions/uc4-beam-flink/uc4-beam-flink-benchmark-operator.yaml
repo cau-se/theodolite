@@ -1,0 +1,69 @@
+apiVersion: theodolite.com/v1
+kind: benchmark
+metadata:
+  name: uc4-beam-flink
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-beam-flink"
+          files:
+          - "flink-configuration-configmap.yaml"
+          - "taskmanager-deployment.yaml"
+          - "taskmanager-service.yaml"
+          - "service-monitor.yaml"
+          - "jobmanager-service.yaml"
+          - "jobmanager-deployment.yaml"
+          #- "jobmanager-rest-service.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-load-generator"
+          files:
+          - "uc4-load-generator-deployment.yaml"
+          - "uc4-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "taskmanager-deployment.yaml"
+        - type: "EnvVarPatcher"
+          resource: "jobmanager-deployment.yaml"
+          properties:
+            container: "jobmanager"
+            variableName: "PARALLELISM"
+        - type: "EnvVarPatcher" # required?
+          resource: "taskmanager-deployment.yaml"
+          properties:
+            container: "taskmanager"
+            variableName: "PARALLELISM"
+  loadTypes:
+    - typeName: "NumNestedGroups"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_NESTED_GROUPS"
+        - type: NumNestedGroupsLoadGeneratorReplicaPatcher
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "150000"
+            numSensors: "4.0"
+  kafkaConfig:
+    bootstrapServer: "theodolite-cp-kafka:9092"
+    topics:
+      - name: "input"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "output"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "configuration"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "aggregation-feedback"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "theodolite-.*"
+        removeOnly: True
