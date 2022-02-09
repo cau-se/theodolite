@@ -16,16 +16,11 @@ kubectl create configmap benchmark-resources-uc2-beam-flink --from-file uc2-beam
 kubectl create configmap benchmark-resources-uc3-beam-flink --from-file uc3-beam-flink/resources
 kubectl create configmap benchmark-resources-uc4-beam-flink --from-file uc4-beam-flink/resources
 
-
 #Beam samza
 kubectl create configmap benchmark-resources-uc1-beam-samza --from-file uc1-beam-samza/resources
 kubectl create configmap benchmark-resources-uc2-beam-samza --from-file uc2-beam-samza/resources
 kubectl create configmap benchmark-resources-uc3-beam-samza --from-file uc3-beam-samza/resources
 kubectl create configmap benchmark-resources-uc4-beam-samza --from-file uc4-beam-samza/resources
-
-#beam samza infrastructure
-kubectl create configmap benchmark-resources-uc1-beam-samza --from-file uc1-beam-samza/infrastructure
-
 
 # Load Generator
 kubectl create configmap benchmark-resources-uc1-load-generator --from-file uc1-load-generator/resources
