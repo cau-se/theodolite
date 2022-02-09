@@ -147,13 +147,9 @@ public class Uc4PipelineTest extends JetTestSupport {
 
   @After
   public void after() {
+    System.out.println("Shuting down");
     // Shuts down all running Jet Instances
     Jet.shutdownAll();
-  }
-
-  @Test
-  public void test(){
-    System.out.println("Hello There")
   }
 
 }
