@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-client
+  labels:
+    app: kafka-client
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kafka-client
+  template:
+    metadata:
+      labels:
+        app: kafka-client
+    spec:
+      containers:
+      - name: kafka-client
+        image: confluentinc/cp-enterprise-kafka:5.4.0
+        command: 
+          - sh
+          - -c
+          - "exec tail -f /dev/null"
+        restartPolicy: Never
