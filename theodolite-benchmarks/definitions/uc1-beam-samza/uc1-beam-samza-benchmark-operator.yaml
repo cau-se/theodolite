@@ -19,7 +19,7 @@ spec:
           container: "cp-zookeeper-server"
         exec:
           command: ["zookeeper-shell", "localhost:2181",
-          "deleteall", "/app-theodolite-uc2-application-1"]
+          "deleteall", "/app-theodolite-uc1-application-1"]
           timeoutSeconds: 60
   loadGenerator:
     resources:
