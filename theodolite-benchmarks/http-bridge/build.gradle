@@ -24,7 +24,8 @@ dependencies {
   implementation project(':load-generator-commons')
   
   implementation 'io.javalin:javalin:4.3.0'
-  implementation 'org.slf4j:slf4j-simple:1.7.25'
+  implementation 'com.google.code.gson:gson:2.8.2'
+  runtimeOnly 'org.slf4j:slf4j-simple:1.7.25'
 
   testImplementation 'junit:junit:4.12'
 }

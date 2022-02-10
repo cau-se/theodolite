@@ -2,6 +2,11 @@ package theodolite.commons.httpbridge;
 
 import com.google.gson.Gson;
 
+/**
+ * A {@link Deserializer} based on GSON.
+ *
+ * @param <T> Type to be serialized from.
+ */
 public class GsonDeserializer<T> implements Deserializer<T> {
 
   private final Gson gson;

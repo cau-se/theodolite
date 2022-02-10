@@ -3,6 +3,9 @@ package theodolite.commons.httpbridge;
 import io.javalin.Javalin;
 import java.util.Collection;
 
+/**
+ * Implementation of a webserver based on the Javalin framework.
+ */
 public class JavalinWebServer {
 
   private static final int HTTP_SUCCESS = 200;
@@ -12,6 +15,9 @@ public class JavalinWebServer {
   private final String host;
   private final int port;
 
+  /**
+   * Create a new instance, running on the specified host and port with the configured endpoints.
+   */
   public JavalinWebServer(
       final Collection<Endpoint<?>> converters,
       final String host,
