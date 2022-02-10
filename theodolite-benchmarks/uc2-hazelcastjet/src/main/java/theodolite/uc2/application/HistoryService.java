@@ -30,10 +30,7 @@ public class HistoryService {
     try {
       uc2HistoryService.run();
     } catch (final Exception e) { // NOPMD
-      e.printStackTrace(); // NOPMD
-      LOGGER.error("An Exception occured. "// NOPMD
-          + "No history service is deployed! ABORT MISSION!");
-      LOGGER.error(e.toString());
+      LOGGER.error("ABORT MISSION!: {}", e);
     }
   }
 
