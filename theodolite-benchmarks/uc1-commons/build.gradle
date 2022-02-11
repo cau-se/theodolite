@@ -1,0 +1,22 @@
+plugins {
+    id 'theodolite.java-commons'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+    url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+  implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+
+  implementation 'com.google.code.gson:gson:2.8.9'
+
+  testImplementation 'junit:junit:4.12'
+}
