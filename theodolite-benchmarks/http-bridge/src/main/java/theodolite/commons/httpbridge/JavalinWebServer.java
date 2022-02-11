@@ -2,11 +2,15 @@ package theodolite.commons.httpbridge;
 
 import io.javalin.Javalin;
 import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of a webserver based on the Javalin framework.
  */
 public class JavalinWebServer {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JavalinWebServer.class);
 
   private static final int HTTP_SUCCESS = 200;
 
@@ -30,7 +34,9 @@ public class JavalinWebServer {
   private void configureRoutes(final Collection<Endpoint<?>> endpoints) {
     for (final Endpoint<?> endpoint : endpoints) {
       this.app.post(endpoint.getPath(), ctx -> {
-        endpoint.convert(ctx.body());
+        final String record = ctx.body();
+        LOGGER.debug("Received record at '{}': {}", ctx.path(), record);
+        endpoint.convert(record);
         ctx.status(HTTP_SUCCESS);
       });
     }
