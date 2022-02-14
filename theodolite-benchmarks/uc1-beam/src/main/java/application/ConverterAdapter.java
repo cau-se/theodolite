@@ -15,7 +15,8 @@ public class ConverterAdapter<T> extends SimpleFunction<ActivePowerRecord, T> {
   private final RecordConverter<T> recordConverter;
   private final TypeDescriptor<T> type;
 
-  public ConverterAdapter(final RecordConverter<T> recordConverter, Class<T> type) {
+  public ConverterAdapter(final RecordConverter<T> recordConverter, final Class<T> type) {
+    super();
     this.recordConverter = recordConverter;
     this.type = TypeDescriptor.of(type);
   }

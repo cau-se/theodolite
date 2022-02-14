@@ -14,6 +14,7 @@ public class WriterAdapter<T> extends DoFn<T, Void> {
   private final DatabaseWriter<T> databaseWriter;
 
   public WriterAdapter(final DatabaseWriter<T> databaseWriter) {
+    super();
     this.databaseWriter = databaseWriter;
   }
 
