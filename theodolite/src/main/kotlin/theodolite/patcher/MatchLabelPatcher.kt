@@ -4,6 +4,12 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 
+/**
+ * This patcher is able to set the `spec.selector.matchLabels` for a `Deployment` or `StatefulSet` Kubernetes resource.
+ *
+ * @property k8sResource The Kubernetes manifests to patch
+ * @property variableName The matchLabel which should be set
+ */
 class MatchLabelPatcher(private val k8sResource: KubernetesResource, val variableName: String) :
     AbstractPatcher(k8sResource) {
 
