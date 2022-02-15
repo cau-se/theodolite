@@ -63,7 +63,7 @@ internal class LowerBoundRestrictionTest {
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, true)
 
-        val minRequiredInstances = results.getMinRequiredYDimensionValue(20000)
+        val minRequiredInstances = results.getOptYDimensionValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
@@ -79,7 +79,7 @@ internal class LowerBoundRestrictionTest {
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, false)
 
-        val minRequiredInstances = results.getMinRequiredYDimensionValue(20000)
+        val minRequiredInstances = results.getOptYDimensionValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)

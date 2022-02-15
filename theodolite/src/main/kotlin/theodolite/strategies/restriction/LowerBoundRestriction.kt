@@ -12,8 +12,8 @@ class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
 
     override fun apply(xValue: Int, yValues: List<Int>): List<Int> {
         val maxXValue: Int? = this.results.getMaxBenchmarkedXDimensionValue(xValue)
-        var lowerBound: Int = this.results.getMinRequiredYDimensionValue(maxXValue)
-        if (lowerBound == Int.MIN_VALUE || lowerBound == Int.MAX_VALUE) {
+        var lowerBound: Int? = this.results.getOptYDimensionValue(maxXValue)
+        if (lowerBound == null) {
             lowerBound = yValues[0]
         }
         return yValues.filter { x -> x >= lowerBound }

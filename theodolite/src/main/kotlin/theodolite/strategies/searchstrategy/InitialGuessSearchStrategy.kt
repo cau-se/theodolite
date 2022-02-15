@@ -40,8 +40,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
         // Getting the lastLowestResource from results and calling firstGuess() with it
         if (!results.isEmpty()) {
             val maxLoad: Int? = this.results.getMaxBenchmarkedXDimensionValue(load)
-            lastLowestResource = this.results.getMinRequiredYDimensionValue(maxLoad)
-            if (lastLowestResource == Int.MAX_VALUE) lastLowestResource = null
+            lastLowestResource = this.results.getOptYDimensionValue(maxLoad)
         }
         lastLowestResource = this.guessStrategy.firstGuess(resources, lastLowestResource)
 
@@ -110,8 +109,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
         // Getting the lastLowestLoad from results and calling firstGuess() with it
         if (!results.isEmpty()) {
             val maxResource: Int? = this.results.getMaxBenchmarkedXDimensionValue(resource)
-            lastMaxLoad = this.results.getMaxRequiredYDimensionValue(maxResource)
-            if (lastMaxLoad == Int.MIN_VALUE) lastMaxLoad = null
+            lastMaxLoad = this.results.getOptYDimensionValue(maxResource)
         }
         lastMaxLoad = this.guessStrategy.firstGuess(loads, lastMaxLoad)
 
