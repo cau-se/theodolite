@@ -53,21 +53,21 @@ Patchers can be seen as functions which take a value as input and modify a Kuber
   * **resource**: "uc1-kstreams-deployment.yaml"
   * **example value**: "random-scheduler"
 
-* **LabelPatcher**: Changes the label of a Kubernetes Deployment or StatefulSet. The patches field is: `metadata.labels`
+* **LabelPatcher**: Changes the label of a Kubernetes Deployment or StatefulSet. The patched field is: `metadata.labels`
   * **type**: "LabelPatcher"
   * **resource**: "uc1-kstreams-deployment.yaml"
   * **properties**:
     * variableName: "app"
   * **example value**: "theodolite-sut"
 
-* **MatchLabelPatcher**: Changes the match labels of a Kubernetes Deployment or StatefulSet. The patches field is: `spec.selector.matchLabels`
+* **MatchLabelPatcher**: Changes the match labels of a Kubernetes Deployment or StatefulSet. The patched field is: `spec.selector.matchLabels`
   * **type**: "MatchLabelPatcher"
   * **resource**: "uc1-kstreams-deployment.yaml"
   * **properties**:
     * variableName: "app"
   * **example value**: "theodolite-sut"
 
-* **TemplateLabelPatcher**: Changes the template labels of a Kubernetes Deployment or StatefulSet. The patches field is: `spec.template.metadata.labels`
+* **TemplateLabelPatcher**: Changes the template labels of a Kubernetes Deployment or StatefulSet. The patched field is: `spec.template.metadata.labels`
   * **type**: "MatchLabelPatcher"
   * **resource**: "uc1-kstreams-deployment.yaml"
   * **properties**:
