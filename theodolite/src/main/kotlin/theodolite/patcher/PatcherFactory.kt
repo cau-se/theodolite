@@ -79,6 +79,14 @@ class PatcherFactory {
                     k8sResource = resource,
                     variableName = patcherDefinition.properties["variableName"]!!
                 )
+                "MatchLabelPatcher" -> MatchLabelPatcher(
+                    k8sResource = resource,
+                    variableName = patcherDefinition.properties["variableName"]!!
+                )
+                "TemplateLabelPatcher" -> TemplateLabelPatcher(
+                    k8sResource = resource,
+                    variableName = patcherDefinition.properties["variableName"]!!
+                )
                 "ImagePatcher" -> ImagePatcher(
                     k8sResource = resource,
                     container = patcherDefinition.properties["container"]!!
