@@ -29,6 +29,6 @@ dependencies:
     version: 0.27.1
     repository: https://strimzi.io/charts/
 
-version: 0.7.0-SNAPSHOT
+version: 0.6.3
 
-appVersion: 0.7.0-SNAPSHOT
+appVersion: 0.6.3
