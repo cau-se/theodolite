@@ -1,6 +1,15 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+FROM python:3.8
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+WORKDIR /code
 
-COPY ./app /app
+COPY ./requirements.txt /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+COPY ./app /code/app
+
+WORKDIR /code/app
+
+ENV HOST 0.0.0.0
+ENV PORT 80
+
+CMD ["sh", "-c", "uvicorn main:app --host $HOST --port $PORT"]
