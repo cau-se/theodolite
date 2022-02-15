@@ -154,7 +154,7 @@ cp-helm-charts:
 # Kafka Lag Exporter
 ###
 kafka-lag-exporter:
-  enabled: true
+  enabled: false
   image:
     pullPolicy: IfNotPresent
   nodeSelector: {}
