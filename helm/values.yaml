@@ -247,14 +247,14 @@ operator:
   enabled: true
   
   image: ghcr.io/cau-se/theodolite
-  imageTag: v0.5.1
+  imageTag: v0.5.2
   imagePullPolicy: IfNotPresent
 
   sloChecker:
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
-      imageTag: v0.5.1
+      imageTag: v0.5.2
       imagePullPolicy: IfNotPresent
 
   resultsVolume:
@@ -277,7 +277,7 @@ rbac:
 randomScheduler:
   enabled: true
   image: ghcr.io/cau-se/theodolite-random-scheduler
-  imageTag: v0.5.1
+  imageTag: v0.5.2
   imagePullPolicy: IfNotPresent
   rbac:
     create: true
