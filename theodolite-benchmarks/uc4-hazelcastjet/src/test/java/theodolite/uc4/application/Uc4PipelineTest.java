@@ -23,8 +23,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import theodolite.uc4.application.uc4specifics.ImmutableSensorRegistryUc4Serializer;
+import theodolite.uc4.application.uc4specifics.SensorGroupKey;
+import theodolite.uc4.application.uc4specifics.SensorGroupKeySerializer;
+import theodolite.uc4.application.uc4specifics.ValueGroup;
+import theodolite.uc4.application.uc4specifics.ValueGroupSerializer;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
+import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 import titan.ccp.model.sensorregistry.MachineSensor;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
@@ -120,20 +126,19 @@ public class Uc4PipelineTest extends JetTestSupport {
     String testLevel1GroupName = "TEST-LEVEL1-GROUP";
     String testLevel2GroupName = "TEST-LEVEL2-GROUP";
     Double testValueInW = 10.0;
-    
+
     // Assertion
     this.uc4Topology.apply(Assertions.assertCollectedEventually(timeout, 
         collection -> {
-          
-          // TODO Try to find out why this test does not work or why the pipeline seems
-          // TODO to crash!
-          // but whyyy cant i get in here
-          
           System.out.println("DEBUG DEBUG DEBUG || ENTERED ASSERTION COLLECTED EVENTUALLY");
+          Thread.sleep(2000);
           
           boolean allOkay = true;
           
           if (collection != null) {
+            System.out.println("Collection size: " + collection.size());
+
+
             for(int i = 0; i < collection.size(); i++) {
               System.out.println("DEBUG DEBUG DEBUG || " + collection.get(i).toString());         
             }
@@ -142,8 +147,28 @@ public class Uc4PipelineTest extends JetTestSupport {
           Assert.assertTrue("Assertion did not complete!", allOkay);
           
         }));
-    
+
+    try{
+
+      final JobConfig jobConfig = new JobConfig()
+          .registerSerializer(ValueGroup.class, ValueGroupSerializer.class)
+          .registerSerializer(SensorGroupKey.class, SensorGroupKeySerializer.class)
+          .registerSerializer(ImmutableSensorRegistry.class,
+              ImmutableSensorRegistryUc4Serializer.class);
+      this.testInstance.newJob(this.testPipeline, jobConfig).join();
+
+    } catch (final CompletionException e) {
+      final String errorMsg = e.getCause().getMessage();
+      Assert.assertTrue(
+          "Job was expected to complete with AssertionCompletedException, but completed with: "
+              + e.getCause(),
+          errorMsg.contains(AssertionCompletedException.class.getName()));
+    } catch (Exception e){
+      System.out.println("ERRORORORO TEST BROKEN !!!!");
+      System.out.println(e);
+    }
   }
+
 
   @After
   public void after() {
