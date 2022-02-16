@@ -70,18 +70,15 @@ public abstract class KafkaStreamsBuilder {
 
     // optional configurations
     this.setOptionalProperty(propBuilder, StreamsConfig.ACCEPTABLE_RECOVERY_LAG_CONFIG,
-        this.config::getLong,
-        p -> p >= 0);
+        this.config::getLong, p -> p >= 0);
     this.setOptionalProperty(propBuilder, StreamsConfig.BUFFERED_RECORDS_PER_PARTITION_CONFIG,
         this.config::getInt, p -> p > 0);
     this.setOptionalProperty(propBuilder, StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG,
-        this.config::getInt,
-        p -> p >= 0);
+        this.config::getInt, p -> p >= 0);
     this.setOptionalProperty(propBuilder, StreamsConfig.COMMIT_INTERVAL_MS_CONFIG,
         this.config::getInt, p -> p >= 0);
     this.setOptionalProperty(propBuilder, StreamsConfig.MAX_TASK_IDLE_MS_CONFIG,
-        this.config::getLong,
-        p -> p >= 0);
+        this.config::getLong, p -> p >= 0);
     this.setOptionalProperty(propBuilder, StreamsConfig.MAX_WARMUP_REPLICAS_CONFIG,
         this.config::getInt, p -> p >= 1);
     this.setOptionalProperty(propBuilder, StreamsConfig.NUM_STANDBY_REPLICAS_CONFIG,
@@ -89,20 +86,26 @@ public abstract class KafkaStreamsBuilder {
     this.setOptionalProperty(propBuilder, StreamsConfig.NUM_STREAM_THREADS_CONFIG,
         this.config::getInt, p -> p > 0);
     this.setOptionalProperty(propBuilder, StreamsConfig.POLL_MS_CONFIG,
-        this.config::getLong,
-        p -> p >= 0);
+        this.config::getLong, p -> p >= 0);
     this.setOptionalProperty(propBuilder, StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
-        this.config::getString, p -> StreamsConfig.AT_LEAST_ONCE.equals(p)
-            || StreamsConfig.EXACTLY_ONCE.equals(p) || StreamsConfig.EXACTLY_ONCE_BETA.equals(p));
+        this.config::getString, this::validateProcessingGuarantee);
     this.setOptionalProperty(propBuilder, StreamsConfig.REPLICATION_FACTOR_CONFIG,
         this.config::getInt, p -> p >= 0);
 
-    if (this.config.containsKey(StreamsConfig.TOPOLOGY_OPTIMIZATION)
-        && this.config.getBoolean(StreamsConfig.TOPOLOGY_OPTIMIZATION)) {
-      propBuilder.set(StreamsConfig.TOPOLOGY_OPTIMIZATION, StreamsConfig.OPTIMIZE);
+    if (this.config.containsKey(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG)
+        && this.config.getBoolean(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG)) {
+      propBuilder.set(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG, StreamsConfig.OPTIMIZE);
     }
 
     return propBuilder.build();
+  }
+
+  @SuppressWarnings("deprecation")
+  private boolean validateProcessingGuarantee(final String processingGuarantee) {
+    return StreamsConfig.AT_LEAST_ONCE.equals(processingGuarantee)
+        // We continue support EXACTLY_ONCE to allow benchmarking it against v2
+        || StreamsConfig.EXACTLY_ONCE.equals(processingGuarantee)
+        || StreamsConfig.EXACTLY_ONCE_V2.equals(processingGuarantee);
   }
 
   /**
@@ -116,7 +119,7 @@ public abstract class KafkaStreamsBuilder {
    * Builds the {@link KafkaStreams} instance.
    */
   public KafkaStreams build() {
-    // Create the Kafka streams instance.
+    // Create the Kafka Streams instance.
     final Properties properties = this.buildProperties();
     return new KafkaStreams(this.buildTopology(properties), properties);
   }
