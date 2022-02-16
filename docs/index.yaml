@@ -3,7 +3,7 @@ entries:
   theodolite:
   - apiVersion: v2
     appVersion: 0.6.4
-    created: "2022-02-16T15:33:45.470833588+01:00"
+    created: "2022-02-16T16:09:11.967649304+01:00"
     dependencies:
     - condition: grafana.enabled
       name: grafana
@@ -23,7 +23,7 @@ entries:
       version: 0.6.7
     description: Theodolite is a framework for benchmarking the horizontal and vertical
       scalability of cloud-native applications.
-    digest: b7554caf7295ae27ee0fe42b89903e7c02dd255816d1a1717e20f2fe0783427f
+    digest: 10156d9917233ffa297aab093532038667d25b2babb2b2058a0a32e1dccb0cca
     home: https://www.theodolite.rocks
     maintainers:
     - email: soeren.henning@email.uni-kiel.de
@@ -316,4 +316,4 @@ entries:
     urls:
     - https://github.com/cau-se/theodolite/releases/download/v0.4.0/theodolite-0.4.0.tgz
     version: 0.4.0
-generated: "2022-02-16T15:43:43.50278176+01:00"
+generated: "2022-02-16T16:09:11.93111234+01:00"
