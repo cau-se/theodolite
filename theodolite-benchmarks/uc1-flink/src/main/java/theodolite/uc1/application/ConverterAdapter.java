@@ -6,6 +6,8 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * {@link MapFunction} which wraps a {@link RecordConverter} to be used with Flink.
+ *
+ * @param <T> type the {@link RecordConverter} is associated with.
  */
 public class ConverterAdapter<T> implements MapFunction<ActivePowerRecord, T> {
 
