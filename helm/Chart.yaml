@@ -29,6 +29,6 @@ dependencies:
     repository: https://seanglover.com/kafka-lag-exporter/repo
     condition: kafka-lag-exporter.enabled
 
-version: 0.6.3
+version: 0.6.4
 
-appVersion: 0.6.3
+appVersion: 0.6.4
