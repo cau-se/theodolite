@@ -26,7 +26,7 @@ dependencies:
     condition: cp-helm-charts.enabled
   - name: kafka-lag-exporter
     version: 0.6.6
-    repository: https://lightbend.github.io/kafka-lag-exporter/repo/
+    repository: https://seanglover.com/kafka-lag-exporter/repo
     condition: kafka-lag-exporter.enabled
 
 version: 0.5.2
