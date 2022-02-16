@@ -5,4 +5,7 @@
     <Rank value="16" />
   </Match>
 
+  <!-- Temporary disabled due to potential false positive reported in https://github.com/spotbugs/spotbugs/issues/1923. -->
+  <Bug code="NP" />
+
 </FindBugsFilter>

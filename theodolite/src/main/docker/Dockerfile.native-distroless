@@ -15,8 +15,7 @@
 #
 ###
 FROM quay.io/quarkus/quarkus-distroless-image:1.0
-WORKDIR /deployments/
-COPY build/*-runner /deployments/application
+COPY build/*-runner /application
 
 EXPOSE 8080
 USER nonroot

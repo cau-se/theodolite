@@ -143,7 +143,7 @@ The easiest way to use them is at MyBinder:
 
 Alternatively, you can also [run these notebook locally](https://github.com/cau-se/theodolite/tree/master/analysis), for example, with Docker or Visual Studio Code.
 
-The notebooks allow to compute a scalability function using its *demand* metric and to visualize multiple such functions in plots:
+The notebooks allow to compute a scalability function using Theodolite's *demand* metric and to visualize multiple such functions in plots:
 
 ### Computing the *demand* metric with `demand-metric.ipynb` (optional)
 

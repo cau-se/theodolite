@@ -53,7 +53,7 @@ public class TopologyBuilder {
             Consumed.with(Serdes.String(),
                 this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
         .groupByKey()
-        .windowedBy(TimeWindows.of(this.duration))
+        .windowedBy(TimeWindows.ofSizeWithNoGrace(this.duration))
         // .aggregate(
         // () -> 0.0,
         // (key, activePowerRecord, agg) -> agg + activePowerRecord.getValueInW(),

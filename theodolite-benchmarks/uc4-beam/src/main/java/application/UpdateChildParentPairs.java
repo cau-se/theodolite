@@ -12,11 +12,12 @@ import org.apache.beam.sdk.values.KV;
  */
 public class UpdateChildParentPairs extends DoFn<KV<String, Set<String>>, KV<String, Set<String>>> {
 
+  private static final String STATE_STORE_NAME = "UpdateParents";
+
   private static final long serialVersionUID = 1L;
 
-  @StateId("parents")
-  private final StateSpec<ValueState<Set<String>>> parents = // NOPMD
-      StateSpecs.value();
+  @StateId(STATE_STORE_NAME)
+  private final StateSpec<ValueState<Set<String>>> parents = StateSpecs.value(); // NOPMD
 
   /**
    * Match the changes accordingly.
@@ -24,9 +25,10 @@ public class UpdateChildParentPairs extends DoFn<KV<String, Set<String>>, KV<Str
    * @param kv the sensor parents set that contains the changes.
    */
   @ProcessElement
-  public void processElement(@Element final KV<String, Set<String>> kv,
+  public void processElement(
+      @Element final KV<String, Set<String>> kv,
       final OutputReceiver<KV<String, Set<String>>> out,
-      @StateId("parents") final ValueState<Set<String>> state) {
+      @StateId(STATE_STORE_NAME) final ValueState<Set<String>> state) {
     if (kv.getValue() == null || !kv.getValue().equals(state.read())) {
       out.output(kv);
       state.write(kv.getValue());
