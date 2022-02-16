@@ -64,7 +64,7 @@ cp-helm-charts:
   ## Zookeeper
   ## ------------------------------------------------------
   cp-zookeeper:
-    enabled: true
+    enabled: false
     nodeSelector: {}
     servers: 3
     image: confluentinc/cp-zookeeper
@@ -81,7 +81,7 @@ cp-helm-charts:
   ## Kafka
   ## ------------------------------------------------------
   cp-kafka:
-    enabled: true
+    enabled: false
     nodeSelector: {}
     brokers: 3
     image: confluentinc/cp-enterprise-kafka
@@ -137,6 +137,10 @@ cp-helm-charts:
       nodePort: 30099
       annotations: {}
 
+
+    kafka:
+      bootstrapServers: theodolite-strimzi-kafka-bootstrap:9092
+
   cp-kafka-rest:
     enabled: false
 
@@ -148,20 +152,6 @@ cp-helm-charts:
 
   cp-control-center:
     enabled: false
-
-
-###
-# Kafka Lag Exporter
-###
-kafka-lag-exporter:
-  enabled: true
-  image:
-    pullPolicy: IfNotPresent
-  nodeSelector: {}
-  
-  clusters:
-    - name: "theodolite-cp-kafka"
-      bootstrapBrokers: "theodolite-cp-kafka:9092"
 
   ## The interval between refreshing metrics
   pollIntervalSeconds: 15
