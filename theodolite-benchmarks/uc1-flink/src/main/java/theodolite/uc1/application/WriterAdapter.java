@@ -7,6 +7,8 @@ import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 
 /**
  * {@link FlatMapFunction} which wraps a {@link DatabaseAdapter} to be used with Flink.
+ *
+ * @param <T> type the {@link DatabaseWriter} is associated with.
  */
 public class WriterAdapter<T> implements FlatMapFunction<T, Void> {
 
