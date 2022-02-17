@@ -80,31 +80,37 @@ spec:
               execution: # def execution config
                 description: Defines the overall parameter for the execution.
                 type: object
-                required: ["strategy", "duration", "repetitions", "restrictions"]
+                required: ["strategy", "duration", "repetitions"]
                 properties:
                   metric:
-                    default: "demand"
                     type: string
-                    oneOf:
-                      - "demand"
-                      - "capacity"
+                    # default: "demand"
+                    # oneOf:
+                    #  - "demand"
+                    #  - "capacity"
                   strategy:
                     description: Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'
                     type: object
-                    name: string
+                    required: ["name"]
                     properties:
+                      name:
+                        type: string
+                      #properties:
+                      #  type: object
                       restrictions:
                         description: List of restriction strategies used to delimit the search space.
                         type: array
                         items:
                           type: string
-                      guessStrategy: string
-                      searchStrategy: string
+                      guessStrategy:
+                        type: string
+                      searchStrategy:
+                        type: string
                   duration:
                     description: Defines the duration of each experiment in seconds.
                     type: integer
                   repetitions:
-                    description: Numper of repititions for each experiments.
+                    description: Number of repititions for each experiments.
                     type: integer
                   loadGenerationDelay:
                     description: Seconds to wait between the start of the SUT and the load generator.

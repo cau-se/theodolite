@@ -25,23 +25,6 @@ internal class ResultsTest {
     }
 
     @Test
-    @Disabled
-    // TODO necessary?
-    fun testMinRequiredInstancesWhenNotSuccessful() {
-        // This test is currently not implemented this way, but might later be the desired behavior.
-        val results = Results(Metric.from("demand"))
-        results.setResult(Pair(10000, 1), true)
-        results.setResult(Pair(10000, 2), true)
-        results.setResult(Pair(20000, 1), false)
-        results.setResult(Pair(20000, 2), false)
-
-        val minRequiredInstances = results.getOptYDimensionValue(20000)
-
-        assertNotNull(minRequiredInstances)
-        assertEquals(2, minRequiredInstances!!)
-    }
-
-    @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulDemand() {
         val results = Results(Metric.from("demand"))
         results.setResult(Pair(10000, 1), true)

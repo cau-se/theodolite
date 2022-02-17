@@ -41,7 +41,7 @@ class BenchmarkExecution : KubernetesResource {
     @JsonDeserialize
     @RegisterForReflection
     class Execution : KubernetesResource {
-        lateinit var metric: String
+        var metric = "demand" //irgendwie mag er es nicht mit den default laden, wenn lateinit dann gibt es bei den tests fehler und muss bei var setzen
         lateinit var strategy: Strategy
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
@@ -56,9 +56,9 @@ class BenchmarkExecution : KubernetesResource {
     @RegisterForReflection
     class Strategy : KubernetesResource {
         lateinit var name: String
-        lateinit var restrictions: List<String>
-        lateinit var guessStrategy: String
-        lateinit var searchStrategy: String
+        var restrictions = emptyList<String>()
+        var guessStrategy = ""
+        var searchStrategy = ""
     }
 
     /**
