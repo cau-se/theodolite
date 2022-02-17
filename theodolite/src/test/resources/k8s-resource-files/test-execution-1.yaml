@@ -19,7 +19,8 @@ spec:
       offset: 0
       warmup: 60 # in seconds
   execution:
-    name: "RestrictionSearch"
+    strategy:
+      name: "RestrictionSearch"
       restrictions:
         - "LowerBound"
       searchStrategy: "LinearSearch"
