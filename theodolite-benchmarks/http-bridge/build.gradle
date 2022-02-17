@@ -1,0 +1,31 @@
+plugins {
+  // common java conventions
+  id 'theodolite.java-conventions'
+
+  // make executable
+  id 'application'
+}
+
+tasks.distZip.enabled = false
+
+repositories {
+  mavenCentral()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+      url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+  implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+  implementation project(':load-generator-commons')
+  
+  implementation 'io.javalin:javalin:4.3.0'
+  implementation 'com.google.code.gson:gson:2.8.2'
+  runtimeOnly 'org.slf4j:slf4j-simple:1.7.25'
+
+  testImplementation 'junit:junit:4.12'
+}

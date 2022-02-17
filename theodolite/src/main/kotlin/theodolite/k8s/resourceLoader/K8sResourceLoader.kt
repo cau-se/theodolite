@@ -11,5 +11,6 @@ interface K8sResourceLoader {
     fun loadBenchmark(resource: String): KubernetesResource
     fun loadConfigmap(resource: String): KubernetesResource
     fun loadServiceMonitor(resource: String): KubernetesResource
+    fun loadPodMonitor(resource: String): KubernetesResource
     fun loadCustomResourceWrapper(resource: String, context: CustomResourceDefinitionContext): KubernetesResource
 }

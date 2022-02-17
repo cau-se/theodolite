@@ -36,3 +36,19 @@ the host, for example, from the IDE or Gradle. In such cases, the following adju
 
 You can now connect to Kafka from your host system with bootstrap server `localhost:19092` and contact the Schema
 Registry via `localhost:8081`. **Pay attention to the Kafka port, which is *19092* instead of the default one *9092*.**
+
+## Running Smoke Tests
+
+The `smoketest-runner.sh` script can be used to run a simple test for a specific Docker Compose file. You can call it with
+
+```sh
+./smoketest-runner.sh <docker-compose-dir>
+```
+
+where `<docker-compose-dir>` is the directory of a Docker-Compose file, for example, `uc2-beam-samza`. The script exists with a zero exit code in case of success and a non-zero exit code otherwise.
+
+You can also run the set of all smoke test with:
+
+```sh
+./smoketest-runner-all.sh
+```
