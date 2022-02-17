@@ -1906,16 +1906,16 @@ Defines the overall parameter for the execution.
         <td><b>repetitions</b></td>
         <td>integer</td>
         <td>
-          Numper of repititions for each experiments.<br/>
+          Number of repititions for each experiment.<br/>
         </td>
         <td>true</td>
       </tr><tr>
         <td><b>restrictions</b></td>
         <td>[]string</td>
         <td>
-          List of restriction strategys used to delimit the search space.<br/>
+          List of restriction strategies used to delimit the search space.<br/>
         </td>
-        <td>true</td>
+        <td>false</td>
       </tr><tr>
         <td><b>strategy</b></td>
         <td>string</td>

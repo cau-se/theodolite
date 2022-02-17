@@ -110,7 +110,7 @@ spec:
                     description: Defines the duration of each experiment in seconds.
                     type: integer
                   repetitions:
-                    description: Number of repititions for each experiments.
+                    description: Number of repititions for each experiment.
                     type: integer
                   loadGenerationDelay:
                     description: Seconds to wait between the start of the SUT and the load generator.
