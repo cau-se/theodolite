@@ -71,7 +71,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(kafka_server_brokertopicmetrics_messagesin_total{topic='input'})",
+            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total[60s]))",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{Messages In Per Second}}",
@@ -344,7 +344,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "count(count (kafka_consumer_consumer_fetch_manager_metrics_records_lag) by(pod))",
+            "expr": "sum by(consumergroup) (kafka_consumergroup_members >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "instances",

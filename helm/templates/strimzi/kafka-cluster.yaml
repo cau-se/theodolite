@@ -4,6 +4,7 @@ metadata:
   name: theodolite-strimzi
 spec:
   kafka:
+    jmxOptions: {}
     listeners:
       - name: plain
         port: 9092
