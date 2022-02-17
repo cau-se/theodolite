@@ -5,13 +5,8 @@ metadata:
   name: {{ template "theodolite.fullname" . }}-prometheus
 spec:
   serviceAccountName: {{ template "theodolite.fullname" . }}-prometheus
-  podMonitorSelector:
-    matchLabels:
-      app: theodolite
-  serviceMonitorSelector:
-    matchLabels:
-      #app: cp-kafka
-      appScope: theodolite
+  podMonitorSelector: {}
+  serviceMonitorSelector: {}
   resources:
     requests:
       memory: 400Mi
