@@ -6,7 +6,6 @@ import theodolite.util.Results
 
 private val logger = KotlinLogging.logger {}
 
-// TODO: Is actually just a heuristic approach. Not ensured to have opt solution. Maybe Talk to Sören about it.
 /**
  *  Search strategy implementation for determining the smallest suitable resource demand.
  *  Starting with a resource amount provided by a guess strategy.

@@ -8,7 +8,7 @@ import theodolite.strategies.searchstrategy.InitialGuessSearchStrategy
 import theodolite.strategies.Metric
 import theodolite.util.Results
 import mu.KotlinLogging
-import theodolite.strategies.searchstrategy.PrevResourceMinGuess
+import theodolite.strategies.searchstrategy.PrevInstanceOptGuess
 
 private val logger = KotlinLogging.logger {}
 
@@ -30,7 +30,7 @@ class InitialGuessSearchStrategyTest {
         val mockResources: List<Int> = (0..6).toList()
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
-        val guessStrategy = PrevResourceMinGuess()
+        val guessStrategy = PrevInstanceOptGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
@@ -68,7 +68,7 @@ class InitialGuessSearchStrategyTest {
         val mockResources: List<Int> = (0..6).toList()
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
-        val guessStrategy = PrevResourceMinGuess()
+        val guessStrategy = PrevInstanceOptGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
@@ -106,7 +106,7 @@ class InitialGuessSearchStrategyTest {
         val mockResources: List<Int> = (0..6).toList()
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
-        val guessStrategy = PrevResourceMinGuess()
+        val guessStrategy = PrevInstanceOptGuess()
         val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)

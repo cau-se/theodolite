@@ -6,7 +6,8 @@ import theodolite.execution.BenchmarkExecutor
 private val logger = KotlinLogging.logger {}
 
 /**
- *  Linear-search-like implementation for determining the smallest suitable number of instances.
+ *  Linear-search-like implementation for determining the smallest/biggest suitable number of resources/loads,
+ *  depending on the metric.
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  */

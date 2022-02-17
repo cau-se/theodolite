@@ -3,8 +3,10 @@ package theodolite.strategies.restriction
 import theodolite.util.Results
 
 /**
- * The [LowerBoundRestriction] sets the lower bound of the resources to be examined to the value
- * needed to successfully execute the next smaller load.
+ * The [LowerBoundRestriction] sets the lower bound of the resources to be examined in the experiment to the value
+ * needed to successfully execute the previous smaller load (demand metric), or sets the lower bound of the loads
+ * to be examined in the experiment to the largest value, which still successfully executed the previous smaller
+ * resource (capacity metric).
  *
  * @param results [Result] object used as a basis to restrict the resources.
  */

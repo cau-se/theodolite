@@ -56,7 +56,6 @@ class BenchmarkExecutorImpl(
                 break
             }
         }
-
         /**
          * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
          */
@@ -71,16 +70,10 @@ class BenchmarkExecutorImpl(
             }
 
             result = (false !in experimentResults)
-            // differentiate metric here on first/second ele pairs, also wenn demand so und wenn capacity dann mit (resource,load)
-            // so könnten wir die Methoden in Results so lassen und müssten keine Dopplung einbauen
-            // wird alles sehr undurchsichtig damit wenn man die vertauscht, evtl mit metric zu den Results klarer machen
             this.results.setResult(Pair(load, resource), result)
-        }
-
-        if(!this.run.get()) {
+        } else {
             throw ExecutionFailedException("The execution was interrupted")
         }
-
         return result
     }
 

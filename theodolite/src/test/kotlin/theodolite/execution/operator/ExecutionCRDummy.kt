@@ -53,7 +53,7 @@ class ExecutionCRDummy(name: String, benchmark: String) {
 
 
         execution.benchmark = benchmark
-        execution.load = loadType
+        execution.loads = loadType
         execution.resources = resourceDef
         execution.slos = emptyList()
         execution.execution = exec

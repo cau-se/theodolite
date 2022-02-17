@@ -12,8 +12,8 @@ import kotlin.properties.Delegates
  * A BenchmarkExecution consists of:
  *  - A [name].
  *  - The [benchmark] that should be executed.
- *  - The [load] that should be checked in the benchmark.
- *  - The resources that should be checked in the benchmark.
+ *  - The [loads]s that should be checked in the benchmark.
+ *  - The [resources] that should be checked in the benchmark.
  *  - A list of [slos] that are used for the evaluation of the experiments.
  *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
  *  for the execution of the benchmark.
@@ -28,7 +28,7 @@ class BenchmarkExecution : KubernetesResource {
     var executionId: Int = 0
     lateinit var name: String
     lateinit var benchmark: String
-    lateinit var load: LoadDefinition
+    lateinit var loads: LoadDefinition
     lateinit var resources: ResourceDefinition
     lateinit var slos: List<Slo>
     lateinit var execution: Execution
@@ -41,7 +41,7 @@ class BenchmarkExecution : KubernetesResource {
     @JsonDeserialize
     @RegisterForReflection
     class Execution : KubernetesResource {
-        var metric = "demand" //irgendwie mag er es nicht mit den default laden, wenn lateinit dann gibt es bei den tests fehler und muss bei var setzen
+        var metric = "demand"
         lateinit var strategy: Strategy
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
@@ -50,7 +50,9 @@ class BenchmarkExecution : KubernetesResource {
     }
 
     /**
-     * This Strategy encapsulates the [restrictions] which is used for restricting the resources.
+     * This Strategy encapsulates the [restrictions], [guessStrategy] and [searchStrategy],
+     * which are used for restricting the resources, the guess Strategy for the [InitialGuessSearchStrategy] and
+     * the actual [SearchStrategy] which is used.
      */
     @JsonDeserialize
     @RegisterForReflection
@@ -80,8 +82,8 @@ class BenchmarkExecution : KubernetesResource {
     }
 
     /**
-     * Represents a Load that should be created and checked.
-     * It can be set to [loadValues].
+     * Represents the Loads that should be created and checked if the demand metric is in use or
+     * represents a Load that can be scaled to [loadValues] if the capacity metric is in use.
      */
     @JsonDeserialize
     @RegisterForReflection
@@ -91,7 +93,8 @@ class BenchmarkExecution : KubernetesResource {
     }
 
     /**
-     * Represents a resource that can be scaled to [resourceValues].
+     * Represents a resource that can be scaled to [resourceValues] if the demand metric is in use or
+     * represents the Resources that should be created and checked if the capacity metric is in use.
      */
     @JsonDeserialize
     @RegisterForReflection

@@ -28,12 +28,12 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
     }
 
     /**
-     * Apply binary search for metric demand.
+     * Apply binary search for the demand metric.
      *
-     * @param load the load dimension to perform experiments for
-     * @param resources the list in which binary search is performed
-     * @param lower lower bound for binary search (inclusive)
-     * @param upper upper bound for binary search (inclusive)
+     * @param load the load to perform experiments for.
+     * @param resources the list of resources in which binary search is performed.
+     * @param lower lower bound for binary search (inclusive).
+     * @param upper upper bound for binary search (inclusive).
      */
     private fun binarySearchDemand(load: Int, resources: List<Int>, lower: Int, upper: Int): Int {
         if (lower > upper) {
@@ -68,12 +68,12 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
 
 
     /**
-     * Apply binary search for metric capacity.
+     * Apply binary search for the capacity metric.
      *
-     * @param resource the load dimension to perform experiments for
-     * @param loads the list in which binary search is performed
-     * @param lower lower bound for binary search (inclusive)
-     * @param upper upper bound for binary search (inclusive)
+     * @param resource the resource to perform experiments for.
+     * @param loads the list of loads in which binary search is performed.
+     * @param lower lower bound for binary search (inclusive).
+     * @param upper upper bound for binary search (inclusive).
      */
     private fun binarySearchCapacity(resource: Int, loads: List<Int>, lower: Int, upper: Int): Int {
         if (lower > upper) {

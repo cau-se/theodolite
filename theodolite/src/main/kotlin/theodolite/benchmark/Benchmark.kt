@@ -6,8 +6,8 @@ import theodolite.util.PatcherDefinition
 
 /**
  * A Benchmark contains:
- * - The [Resource]s that can be scaled for the benchmark.
- * - The [LoadDimension]s that can be scaled the benchmark.
+ * - The Resource that can be scaled for the benchmark.
+ * - The Load that can be scaled the benchmark.
  * - additional [ConfigurationOverride]s.
  */
 @RegisterForReflection

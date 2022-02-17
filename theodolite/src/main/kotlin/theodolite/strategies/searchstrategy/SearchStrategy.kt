@@ -6,7 +6,8 @@ import theodolite.strategies.Metric
 import theodolite.util.Results
 
 /**
- *  Base class for the implementation for SearchStrategies. SearchStrategies determine the smallest suitable number of instances.
+ *  Base class for the implementation for SearchStrategies. SearchStrategies determine the smallest suitable number
+ *  of resources/loads for a load/resource (depending on the metric).
  *
  * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
  * @param guessStrategy Guess strategy for the initial resource amount in case the InitialGuessStrategy is selected.
@@ -17,17 +18,24 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
                               val results: Results? = null) {
 
 
+    /**
+     * Calling findSuitableResource or findSuitableLoad for each load/resource depending on the chosen metric.
+     *
+     * @param loads List of possible loads for the experiments.
+     * @param resources List of possible resources for the experiments.
+     * @param metric The [Metric] for the experiments, either "demand" or "capacity".
+     */
     fun applySearchStrategyByMetric(loads: List<Int>, resources: List<Int>, metric: Metric) {
 
         if (metric.value == "demand") {
-            //demand metric
+            // demand metric
             for (load in loads) {
                 if (benchmarkExecutor.run.get()) {
                     this.findSuitableResource(load, resources)
                 }
             }
         } else {
-            //capacity metric
+            // capacity metric
             for (resource in resources) {
                 if (benchmarkExecutor.run.get()) {
                     this.findSuitableLoad(resource, loads)
@@ -37,7 +45,7 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
     }
 
     /**
-     * Find smallest suitable resource from the specified resource list for the given load.
+     * Find the smallest suitable resource from the specified resource list for the given load.
      *
      * @param load the load to be tested.
      * @param resources List of all possible resources.
@@ -47,7 +55,7 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
     abstract fun findSuitableResource(load: Int, resources: List<Int>): Int?
 
     /**
-     * Find biggest suitable load from the specified load list for the given resource amount.
+     * Find the biggest suitable load from the specified load list for the given resource amount.
      *
      * @param resource the resource to be tested.
      * @param loads List of all possible loads.

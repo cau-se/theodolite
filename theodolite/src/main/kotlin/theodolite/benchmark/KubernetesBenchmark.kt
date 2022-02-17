@@ -8,7 +8,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sManager
 import theodolite.k8s.resourceLoader.K8sResourceLoader
-import theodolite.patcher.Patcher
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
 
@@ -76,10 +75,11 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
 
     /**
      * Builds a deployment.
-     * First loads all required resources and then patches them to the concrete load and resources for the experiment.
-     * Afterwards patches additional configurations(cluster depending) into the resources.
-     * @param load concrete load that will be benchmarked in this experiment.
-     * @param res concrete resource that will be scaled for this experiment.
+     * First loads all required resources and then patches them to the concrete load and resources for the experiment for the demand metric
+     * or loads all loads and then patches them to the concrete load and resources for the experiment.
+     * Afterwards patches additional configurations(cluster depending) into the resources (or loads).
+     * @param load concrete load that will be benchmarked in this experiment (demand metric), or scaled (capacity metric).
+     * @param resource concrete resource that will be scaled for this experiment (demand metric), or benchmarked (capacity metric).
      * @param configurationOverrides
      * @return a [BenchmarkDeployment]
      */

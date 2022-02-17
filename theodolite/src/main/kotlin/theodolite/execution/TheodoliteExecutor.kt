@@ -51,7 +51,7 @@ class TheodoliteExecutor(
 
         val loadDimensionPatcherDefinition =
             PatcherDefinitionFactory().createPatcherDefinition(
-                config.load.loadType,
+                config.loads.loadType,
                 this.kubernetesBenchmark.loadTypes
             )
 
@@ -71,11 +71,11 @@ class TheodoliteExecutor(
                 resourcePatcherDefinitions = resourcePatcherDefinition
             )
 
-        if (config.load.loadValues != config.load.loadValues.sorted()) {
-            config.load.loadValues = config.load.loadValues.sorted()
+        if (config.loads.loadValues != config.loads.loadValues.sorted()) {
+            config.loads.loadValues = config.loads.loadValues.sorted()
             logger.info {
                 "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
-                        "New order is: ${config.load.loadValues}"
+                        "New order is: ${config.loads.loadValues}"
             }
         }
 
@@ -88,7 +88,7 @@ class TheodoliteExecutor(
         }
 
         return Config(
-            loads = config.load.loadValues,
+            loads = config.loads.loadValues,
             loadPatcherDefinitions = loadDimensionPatcherDefinition,
             resources = config.resources.resourceValues,
             resourcePatcherDefinitions = resourcePatcherDefinition,

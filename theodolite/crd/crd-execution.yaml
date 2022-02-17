@@ -29,7 +29,7 @@ spec:
               benchmark:
                 description: The name of the benchmark this execution is referring to.
                 type: string
-              load: # definition of the load dimension
+              loads: # definition of the load dimension
                 description: Specifies the load values that are benchmarked.
                 type: object
                 required: ["loadType", "loadValues"]

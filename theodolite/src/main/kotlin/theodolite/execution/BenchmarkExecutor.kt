@@ -40,10 +40,12 @@ abstract class BenchmarkExecutor(
      * Run a experiment for the given parametrization, evaluate the
      * experiment and save the result.
      *
-     * @param load load to be tested.
-     * @param res resources to be tested.
+     * @param load to be tested.
+     * @param resource to be tested.
      * @return True, if the number of resources are suitable for the
-     *     given load, false otherwise.
+     *     given load, false otherwise (demand metric), or
+     *     True, if there is a load suitable for the
+     *     given resource, false otherwise.
      */
     abstract fun runExperiment(load: Int, resource: Int): Boolean
 

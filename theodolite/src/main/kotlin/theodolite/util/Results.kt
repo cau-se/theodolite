@@ -10,13 +10,11 @@ import theodolite.strategies.Metric
  */
 @RegisterForReflection
 class Results (val metric: Metric) {
-    //TODO: enum statt Boolean für successful
-
-    // (load,resource) -> Boolean map
+    // (load, resource) -> Boolean map
     private val results: MutableMap<Pair<Int, Int>, Boolean> = mutableMapOf()
 
-    // if metric is   "demand"  : load     -> resource
-    // if metric is   "capacity": resource -> load
+    // if metric is "demand"  : load     -> resource
+    // if metric is "capacity": resource -> load
     private var optInstances: MutableMap<Int, Int> = mutableMapOf()
 
 
