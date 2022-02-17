@@ -5,6 +5,7 @@ metadata:
   name: {{ template "theodolite.fullname" . }}-prometheus
 spec:
   serviceAccountName: {{ template "theodolite.fullname" . }}-prometheus
+  podMonitorSelector: {}
   serviceMonitorSelector: {}
   resources:
     requests:
