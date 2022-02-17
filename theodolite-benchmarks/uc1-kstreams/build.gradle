@@ -2,4 +2,8 @@ plugins {
   id 'theodolite.kstreams'
 }
 
+dependencies {
+    implementation project(':uc1-commons')
+}
+
 mainClassName = "theodolite.uc1.application.HistoryService"

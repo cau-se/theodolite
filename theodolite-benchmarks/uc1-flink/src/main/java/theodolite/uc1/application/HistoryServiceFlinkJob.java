@@ -7,6 +7,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
+import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import theodolite.commons.flink.KafkaConnectorFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 import titan.ccp.model.records.ActivePowerRecord;
@@ -21,6 +23,8 @@ public final class HistoryServiceFlinkJob {
   private final Configuration config = ServiceConfigurations.createWithDefaults();
   private final StreamExecutionEnvironment env;
   private final String applicationId;
+
+  private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
 
   /**
    * Create a new instance of the {@link HistoryServiceFlinkJob}.
@@ -69,9 +73,10 @@ public final class HistoryServiceFlinkJob {
 
     stream
         // .rebalance()
-        .map(new GsonMapper())
-        .flatMap((record, c) -> LOGGER.info("Record: {}", record))
-        .returns(Types.GENERIC(Object.class)); // Will never be used
+        .map(new ConverterAdapter<>(this.databaseAdapter.getRecordConverter()))
+        .returns(Types.STRING)
+        .flatMap(new WriterAdapter<>(this.databaseAdapter.getDatabaseWriter()))
+        .returns(Types.VOID); // Will never be used
   }
 
   /**

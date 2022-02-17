@@ -6,7 +6,10 @@ import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Values;
 import org.apache.commons.configuration2.Configuration;
+import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
+import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import theodolite.commons.beam.AbstractPipeline;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import titan.ccp.model.records.ActivePowerRecord;
@@ -22,6 +25,8 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public final class Uc1BeamPipeline extends AbstractPipeline {
 
+  private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
+
   protected Uc1BeamPipeline(final PipelineOptions options, final Configuration config) {
     super(options, config);
 
@@ -36,17 +41,14 @@ public final class Uc1BeamPipeline extends AbstractPipeline {
     final KafkaActivePowerTimestampReader kafka =
         new KafkaActivePowerTimestampReader(this.bootstrapServer, this.inputTopic, consumerConfig);
 
-    final LogKeyValue logKeyValue = new LogKeyValue();
-    final MapToGson mapToGson = new MapToGson();
-
     // Apply pipeline transformations
     // Read from Kafka
     this.apply(kafka)
-        // Map to Gson
-        .apply(MapElements
-            .via(mapToGson))
-        // Print to console
-        .apply(ParDo.of(logKeyValue));
+        .apply(Values.create())
+        .apply(MapElements.via(new ConverterAdapter<>(
+            this.databaseAdapter.getRecordConverter(),
+            String.class)))
+        .apply(ParDo.of(new WriterAdapter<>(this.databaseAdapter.getDatabaseWriter())));
   }
 }
 
