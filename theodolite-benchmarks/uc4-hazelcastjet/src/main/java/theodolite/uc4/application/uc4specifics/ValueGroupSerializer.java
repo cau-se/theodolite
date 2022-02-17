@@ -19,13 +19,13 @@ public class ValueGroupSerializer implements StreamSerializer<ValueGroup> {
 
   @Override
   public void write(final ObjectDataOutput out, final ValueGroup key) throws IOException {
-    out.writeDouble(key.getValueInW());
+    out.writeObject(key);
     out.writeString(String.join(",", key.getGroups()));
   }
 
   @Override
   public ValueGroup read(final ObjectDataInput in) throws IOException {
-    return new ValueGroup(in.readDouble(),
+    return new ValueGroup(in.readObject(ValueGroup.class),
         new HashSet<>(Arrays.asList(in.readString().split(","))));
   }
 

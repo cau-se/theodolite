@@ -56,7 +56,7 @@ public class HistoryService {
   private void createHazelcastJetApplication() throws Exception { // NOPMD
     new Uc4HazelcastJetFactory()
         .setReadPropertiesFromEnv(KAFKA_BSERVER_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
-        .setWritePropertiesFromEnv(KAFKA_BSERVER_DEFAULT)
+        .setWritePropertiesFromEnv(KAFKA_BSERVER_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
         .setKafkaInputTopicFromEnv(KAFKA_INPUT_TOPIC_DEFAULT)
         .setKafkaOutputTopicFromEnv(KAFKA_OUTPUT_TOPIC_DEFAULT)
         .setKafkaConfigurationTopicFromEnv(KAFKA_CONFIG_TOPIC_DEFAULT)

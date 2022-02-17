@@ -218,11 +218,11 @@ public class Uc4HazelcastJetFactory {
    * @return The Uc4HazelcastJetBuilder factory with set kafkaWritePropertiesForPipeline.
    */
   public Uc4HazelcastJetFactory setWritePropertiesFromEnv(// NOPMD
-      final String bootstrapServersDefault) {
+      final String bootstrapServersDefault, final String schemaRegistryUrlDefault) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
     final Uc4KafkaPropertiesBuilder propsBuilder = new Uc4KafkaPropertiesBuilder();
     final Properties kafkaWriteProps =
-        propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault);
+        propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault, schemaRegistryUrlDefault);
     this.kafkaWritePropsForPipeline = kafkaWriteProps;
     return this;
   }

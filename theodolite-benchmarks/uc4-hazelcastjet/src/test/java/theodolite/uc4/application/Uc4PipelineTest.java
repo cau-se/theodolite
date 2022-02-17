@@ -12,10 +12,7 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
@@ -34,7 +31,6 @@ import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 import titan.ccp.model.sensorregistry.MachineSensor;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;
-import titan.ccp.model.sensorregistry.SensorRegistry;
 
 @Category(SerialTest.class)
 public class Uc4PipelineTest extends JetTestSupport {
@@ -42,7 +38,7 @@ public class Uc4PipelineTest extends JetTestSupport {
   // TEst Machinery
   JetInstance testInstance = null;
   Pipeline testPipeline = null;
-  StreamStage<Entry<String, Double>> uc4Topology = null;
+  StreamStage<Entry<String, ActivePowerRecord>> uc4Topology = null;
 
   @Before
   public void buildUc4Pipeline() {
@@ -72,10 +68,10 @@ public class Uc4PipelineTest extends JetTestSupport {
         });
 
     // Create test source 2 : Mock aggregation Values
-    final StreamSource<Entry<String, Double>> testAggregationSource =
+    final StreamSource<Entry<String, ActivePowerRecord>> testAggregationSource =
         TestSources.itemStream(testItemsPerSecond, (timestamp, item) -> {
-          final Double testAggValue = testValueInW;
-          final Entry<String, Double> testEntry =
+          final ActivePowerRecord testAggValue = new ActivePowerRecord(testSensorName,System.currentTimeMillis(),testValueInW);
+          final Entry<String, ActivePowerRecord> testEntry =
               Map.entry(testLevel1GroupName, testAggValue);
           return testEntry;
         });

@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import theodolite.uc4.application.uc4specifics.ChildParentsTransformer;
 import theodolite.uc4.application.uc4specifics.SensorGroupKey;
 import theodolite.uc4.application.uc4specifics.ValueGroup;
@@ -33,8 +35,10 @@ import titan.ccp.model.sensorregistry.SensorRegistry;
  * Builder to build a HazelcastJet Pipeline for UC4 which can be used for stream processing using
  * Hazelcast Jet.
  */
+@SuppressWarnings("PMD.ExcessiveImports")
 public class Uc4PipelineBuilder {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(Uc4PipelineBuilder.class);
   private static final String SENSOR_PARENT_MAP_NAME = "SensorParentMap";
 
   /**
@@ -66,6 +70,14 @@ public class Uc4PipelineBuilder {
       final String kafkaFeedbackTopic,
       final int windowSize) {
 
+    if (LOGGER.isInfoEnabled()) {
+      LOGGER.info("kafkaConfigProps: " + kafkaConfigPropsForPipeline);
+      LOGGER.info("kafkaFeedbackProps: " + kafkaFeedbackPropsForPipeline);
+      LOGGER.info("kafkaWriteProps: " + kafkaWritePropsForPipeline);
+    }
+
+
+
     // The pipeline for this Use Case
     final Pipeline uc4Pipeline = Pipeline.create();
 
@@ -75,19 +87,20 @@ public class Uc4PipelineBuilder {
     final StreamSource<Entry<String, ActivePowerRecord>> inputSource =
         KafkaSources.<String, ActivePowerRecord>kafka(
             kafkaInputReadPropsForPipeline, kafkaInputTopic);
-    final StreamSource<Entry<String, Double>> aggregationSource =
-        KafkaSources.<String, Double>kafka(kafkaFeedbackPropsForPipeline, kafkaFeedbackTopic);
+    final StreamSource<Entry<String, ActivePowerRecord>> aggregationSource =
+        KafkaSources.<String, ActivePowerRecord>
+            kafka(kafkaFeedbackPropsForPipeline, kafkaFeedbackTopic);
 
     // Extend UC4 topology to pipeline
-    final StreamStage<Entry<String, Double>> uc4Product =
+    final StreamStage<Entry<String, ActivePowerRecord>> uc4Product =
         this.extendUc4Topology(uc4Pipeline, inputSource, aggregationSource, configSource,
             windowSize);
 
     // Add Sink1: Write back to kafka output topic
-    uc4Product.writeTo(KafkaSinks.<String, Double>kafka(
+    uc4Product.writeTo(KafkaSinks.kafka(
         kafkaWritePropsForPipeline, kafkaOutputTopic));
     // Add Sink2: Write back to kafka feedback/aggregation topic
-    uc4Product.writeTo(KafkaSinks.<String, Double>kafka(
+    uc4Product.writeTo(KafkaSinks.kafka(
         kafkaWritePropsForPipeline, kafkaFeedbackTopic));
     // Add Sink3: Logger
     uc4Product.writeTo(Sinks.logger());
@@ -125,9 +138,10 @@ public class Uc4PipelineBuilder {
    *         according aggregated values. The data can be further modified or directly be linked to
    *         a Hazelcast Jet sink.
    */
-  public StreamStage<Entry<String, Double>> extendUc4Topology(final Pipeline pipe, // NOPMD
+  public StreamStage<Entry<String, ActivePowerRecord>> extendUc4Topology(// NOPMD
+      final Pipeline pipe,
       final StreamSource<Entry<String, ActivePowerRecord>> inputSource,
-      final StreamSource<Entry<String, Double>> aggregationSource,
+      final StreamSource<Entry<String, ActivePowerRecord>> aggregationSource,
       final StreamSource<Entry<Event, String>> configurationSource, final int windowSize) {
 
     //////////////////////////////////
@@ -145,26 +159,20 @@ public class Uc4PipelineBuilder {
 
     //////////////////////////////////
     // (1) Sensor Input Stream
-    final StreamStage<Entry<String, Double>> inputStream = pipe
+    final StreamStage<Entry<String, ActivePowerRecord>> inputStream = pipe
         .readFrom(inputSource)
-        .withNativeTimestamps(0)
-        .map(stream -> {
-          // Build data for next pipeline stage
-          final String sensorId = stream.getValue().getIdentifier();
-          final Double valueInW = stream.getValue().getValueInW();
-          // Return data for next pipeline stage
-          return Util.entry(sensorId, valueInW);
-        });
+        .withNativeTimestamps(0);
 
     //////////////////////////////////
     // (1) Aggregation Stream
-    final StreamStage<Entry<String, Double>> aggregations = pipe
+    final StreamStage<Entry<String, ActivePowerRecord>> aggregations = pipe
         .readFrom(aggregationSource)
         .withNativeTimestamps(0);
 
     //////////////////////////////////
     // (2) UC4 Merge Input with aggregation stream
-    final StreamStageWithKey<Entry<String, Double>, String> mergedInputAndAggregations = inputStream
+    final StreamStageWithKey<Entry<String, ActivePowerRecord>, String>
+        mergedInputAndAggregations = inputStream
         .merge(aggregations)
         .groupingKey(Entry::getKey);
 
@@ -194,21 +202,21 @@ public class Uc4PipelineBuilder {
     //////////////////////////////////
     // (4) UC4 Duplicate as flatmap joined Stream
     // [(sensorKey, Group) , value]
-    final StreamStage<Entry<SensorGroupKey, Double>> dupliAsFlatmappedStage = joinedStage
+    final StreamStage<Entry<SensorGroupKey, ActivePowerRecord>> dupliAsFlatmappedStage = joinedStage
         .flatMap(entry -> {
 
           // Supplied data
           final String keyGroupId = entry.getKey();
-          final Double valueInW = entry.getValue().getValueInW();
+          final ActivePowerRecord record = entry.getValue().getRecord();
           final Set<String> groups = entry.getValue().getGroups();
 
           // Transformed Data
           final String[] groupList = groups.toArray(String[]::new);
           final SensorGroupKey[] newKeyList = new SensorGroupKey[groupList.length];
-          final List<Entry<SensorGroupKey, Double>> newEntryList = new ArrayList<>();
+          final List<Entry<SensorGroupKey, ActivePowerRecord>> newEntryList = new ArrayList<>();
           for (int i = 0; i < groupList.length; i++) {
             newKeyList[i] = new SensorGroupKey(keyGroupId, groupList[i]);
-            newEntryList.add(Util.entry(newKeyList[i], valueInW));
+            newEntryList.add(Util.entry(newKeyList[i], record));
           }
 
           // Return traversable list of new entry elements
@@ -218,7 +226,8 @@ public class Uc4PipelineBuilder {
     //////////////////////////////////
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
-    final StageWithWindow<Entry<SensorGroupKey, Double>> windowedLastValues = dupliAsFlatmappedStage
+    final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>>
+        windowedLastValues = dupliAsFlatmappedStage
         .window(WindowDefinition.tumbling(windowSize));
 
     //////////////////////////////////
@@ -226,15 +235,16 @@ public class Uc4PipelineBuilder {
     // Group using the group out of the sensorGroupKey keys
     return windowedLastValues
         .groupingKey(entry -> entry.getKey().getGroup())
-        .aggregate(AggregateOperations.summingDouble(Entry::getValue))
+        .aggregate(AggregateOperations.summingDouble(entry -> entry.getValue().getValueInW()))
         .map(agg -> {
-
           // Construct data for return pair
           final String theGroup = agg.getKey();
           final Double summedValueInW = agg.getValue();
 
           // Return aggregates group value pair
-          return Util.entry(theGroup, summedValueInW);
+          return Util.entry(
+              theGroup,
+              new ActivePowerRecord(theGroup, System.currentTimeMillis(), summedValueInW));
         });
   }
 

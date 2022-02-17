@@ -2,22 +2,27 @@ package theodolite.uc4.application.uc4specifics;
 
 import java.util.Objects;
 import java.util.Set;
+import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Structure: (valueInW, Set(Groups)).
  */
 public class ValueGroup {
 
-  private final Double valueInW;
+  private final ActivePowerRecord record;
   private final Set<String> groups;
 
-  public ValueGroup(final Double valueInW, final Set<String> groups) {
-    this.valueInW = valueInW;
+  public ValueGroup(final ActivePowerRecord record, final Set<String> groups) {
+    this.record = record;
     this.groups = groups;
   }
 
+  public ActivePowerRecord getRecord() {
+    return this.record;
+  }
+
   public Double getValueInW() {
-    return this.valueInW;
+    return this.record.getValueInW();
   }
 
   public Set<String> getGroups() {
@@ -30,12 +35,12 @@ public class ValueGroup {
     for (final String group : this.groups) {
       groupString = groupString + group + "/";// NOPMD
     }
-    return this.valueInW.toString() + ";" + groupString + "]";
+    return this.record.getValueInW() + ";" + groupString + "]";
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.valueInW, this.groups);
+    return Objects.hash(this.record, this.groups);
   }
 
   @Override
@@ -45,7 +50,7 @@ public class ValueGroup {
     }
     if (obj instanceof ValueGroup) {
       final ValueGroup other = (ValueGroup) obj;
-      return Objects.equals(this.valueInW, other.valueInW)
+      return Objects.equals(this.record.getValueInW(), other.getValueInW())
           && this.groups.containsAll(other.groups);
     }
     return false;

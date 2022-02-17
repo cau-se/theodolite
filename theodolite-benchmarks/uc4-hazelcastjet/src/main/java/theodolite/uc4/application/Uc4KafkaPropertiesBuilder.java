@@ -1,12 +1,11 @@
 package theodolite.uc4.application;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.DoubleDeserializer;
-import org.apache.kafka.common.serialization.DoubleSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import theodolite.commons.hazelcastjet.ConfigurationKeys;
@@ -74,9 +73,10 @@ public class Uc4KafkaPropertiesBuilder {
     props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-        DoubleDeserializer.class.getCanonicalName());
+        KafkaAvroDeserializer.class.getCanonicalName());
     props.put(SPECIFIC_AVRO_READER_CONFIG, true);
     props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+
     return props;
   }
 
@@ -117,18 +117,25 @@ public class Uc4KafkaPropertiesBuilder {
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC4
    *         Pipeline.
    */
-  public Properties buildKafkaWritePropsFromEnv(final String kafkaBootstrapServerDefault) {
+  public Properties buildKafkaWritePropsFromEnv(final String kafkaBootstrapServerDefault,
+                                                final String schemaRegistryUrlDefault) {
 
     final String kafkaBootstrapServers = Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS),
         kafkaBootstrapServerDefault);
+    final String schemaRegistryUrl = Objects.requireNonNullElse(
+        System.getenv(ConfigurationKeys.SCHEMA_REGISTRY_URL),
+        schemaRegistryUrlDefault);
 
     final Properties props = new Properties();
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         StringSerializer.class.getCanonicalName());
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-        DoubleSerializer.class.getCanonicalName());
+        KafkaAvroSerializer.class.getCanonicalName());
+    props.put("specific.avro.writer", true);
+    props.put(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+
     return props;
   }
 
