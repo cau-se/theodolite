@@ -1,3 +1,4 @@
+{{- if .Values.strimzi.enabled -}}
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
@@ -5,6 +6,22 @@ metadata:
 spec:
   kafka:
     jmxOptions: {}
+    {{- with .Values.strimzi.kafka.listeners }}
+    listeners:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.strimzi.kafka.replicas }}
+    replicas:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.strimzi.kafka.config }}
+    config:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.strimzi.kafka.jvmOptions }}
+    jvmOptions:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     storage:
       type: ephemeral
     metricsConfig:
@@ -17,5 +34,10 @@ spec:
   kafkaExporter: {}
 
   zookeeper:
+    {{- with .Values.strimzi.zookeeper.replicas }}
+    replicas:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     storage:
       type: ephemeral
+{{- end }}

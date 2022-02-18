@@ -137,7 +137,6 @@ cp-helm-charts:
       nodePort: 30099
       annotations: {}
 
-
     kafka:
       bootstrapServers: theodolite-strimzi-kafka-bootstrap:9092
 
@@ -156,9 +155,8 @@ cp-helm-charts:
   ## The interval between refreshing metrics
   pollIntervalSeconds: 15
 
-strimzi-kafka-operator:
+strimzi:
   enabled: true
-
   kafka:
     listeners:
       - name: plain
@@ -255,7 +253,7 @@ prometheus:
 operator:
   enabled: true
   
-  image: ghcr.io/cau-se/theodolite
+  image: sehrenstein/theodolite-operator-jvm # old: ghcr.io/cau-se/theodolite
   imageTag: latest
   imagePullPolicy: Always
 
