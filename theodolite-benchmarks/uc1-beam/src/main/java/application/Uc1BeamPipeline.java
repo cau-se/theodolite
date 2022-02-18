@@ -1,15 +1,10 @@
 package application;
 
-import java.util.Map;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.Values;
 import org.apache.commons.configuration2.Configuration;
-import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
-import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import theodolite.commons.beam.AbstractPipeline;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import titan.ccp.model.records.ActivePowerRecord;
@@ -25,30 +20,29 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public final class Uc1BeamPipeline extends AbstractPipeline {
 
-  private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
+  public static final String SINK_TYPE_KEY = "sink.type";
 
   protected Uc1BeamPipeline(final PipelineOptions options, final Configuration config) {
     super(options, config);
+
+    final SinkType sinkType = SinkType.from(config.getString(SINK_TYPE_KEY));
 
     // Set Coders for Classes that will be distributed
     final CoderRegistry cr = this.getCoderRegistry();
     cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
 
-    // build KafkaConsumerConfig
-    final Map<String, Object> consumerConfig = this.buildConsumerConfig();
-
     // Create Pipeline transformations
-    final KafkaActivePowerTimestampReader kafka =
-        new KafkaActivePowerTimestampReader(this.bootstrapServer, this.inputTopic, consumerConfig);
+    final KafkaActivePowerTimestampReader kafka = new KafkaActivePowerTimestampReader(
+        this.bootstrapServer,
+        this.inputTopic,
+        this.buildConsumerConfig());
 
     // Apply pipeline transformations
     // Read from Kafka
     this.apply(kafka)
         .apply(Values.create())
-        .apply(MapElements.via(new ConverterAdapter<>(
-            this.databaseAdapter.getRecordConverter(),
-            String.class)))
-        .apply(ParDo.of(new WriterAdapter<>(this.databaseAdapter.getDatabaseWriter())));
+        .apply(sinkType.create(config));
   }
+
 }
 
