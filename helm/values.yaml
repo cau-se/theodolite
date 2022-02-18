@@ -156,12 +156,25 @@ cp-helm-charts:
   ## The interval between refreshing metrics
   pollIntervalSeconds: 15
 
-  prometheus:
-    serviceMonitor:
-      enabled: true
-      interval: "5s"
-      additionalLabels:
-        appScope: titan-ccp
+strimzi-kafka-operator:
+  enabled: true
+
+  kafka:
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    replicas: 3
+    config:
+      message.max.bytes: "134217728" # 128 MB
+      replica.fetch.max.bytes: "134217728" #128 MB
+      auto.create.topics.enable: false
+      log.retention.ms: "7200000" # 2h
+      metrics.sample.window.ms: "5000" #5s
+  
+  zookeeper:
+    replicas: 3
 
 
 ###

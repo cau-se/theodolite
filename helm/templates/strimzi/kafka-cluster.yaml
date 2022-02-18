@@ -5,30 +5,17 @@ metadata:
 spec:
   kafka:
     jmxOptions: {}
-    listeners:
-      - name: plain
-        port: 9092
-        type: internal
-        tls: false
     storage:
       type: ephemeral
-    replicas: 3
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:
         configMapKeyRef:
           name: kafka-metrics
           key: kafka-metrics-config.yml
-    config:
-      message.max.bytes: "134217728" # 128 MB
-      replica.fetch.max.bytes: "134217728" #128 MB
-      auto.create.topics.enable: false
-      log.retention.ms: "7200000" # 2h
-      metrics.sample.window.ms: "5000" #5s
   
   kafkaExporter: {}
 
   zookeeper:
-    replicas: 3
     storage:
       type: ephemeral
