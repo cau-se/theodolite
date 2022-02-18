@@ -253,7 +253,7 @@ prometheus:
 operator:
   enabled: true
   
-  image: sehrenstein/theodolite-operator-jvm # old: ghcr.io/cau-se/theodolite
+  image: ghcr.io/cau-se/theodolite
   imageTag: latest
   imagePullPolicy: Always
 
