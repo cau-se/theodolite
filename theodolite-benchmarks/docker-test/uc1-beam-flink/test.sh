@@ -2,7 +2,7 @@
 
 sleep 55s # to let the benchmark and produce some output
 docker-compose logs --tail 100 benchmark-taskmanager |
-    sed -n "s/^.*Key:\s\(\S*\), Value:\s\(\S*\).*$/\2/p" |
+    sed -n "s/^.*Record:\s\(\S*\)$/\1/p" |
     tee /dev/stderr |
     jq .identifier |
     sort |
