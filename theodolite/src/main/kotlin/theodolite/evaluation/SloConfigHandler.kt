@@ -4,7 +4,7 @@ import theodolite.benchmark.BenchmarkExecution
 import theodolite.util.InvalidPatcherConfigurationException
 import javax.enterprise.context.ApplicationScoped
 
-private const val CONSUMER_LAG_QUERY = "sum by(group)(kafka_consumergroup_group_lag >= 0)"
+private const val CONSUMER_LAG_QUERY = "sum by(group) (kafka_consumergroup_lag >= 0)"
 private const val DROPPED_RECORDS_QUERY = "sum by(job) (kafka_streams_stream_task_metrics_dropped_records_total>=0)"
 
 @ApplicationScoped
