@@ -71,7 +71,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total[60s]))",
+            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='input'}[60s]))",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{Messages In Per Second}}",
@@ -162,7 +162,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(kafka_server_brokertopicmetrics_messagesin_total{topic='output'})",
+            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='output'}[60s]))",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{Messages Out Per Second}}",
