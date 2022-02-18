@@ -10,7 +10,7 @@ spec:
   resources:
     requests:
       memory: 400Mi
-  #scrapeInterval: 1s
+  scrapeInterval: 15s
   enableAdminAPI: true
   {{- with .Values.prometheus.nodeSelector }}
   nodeSelector:

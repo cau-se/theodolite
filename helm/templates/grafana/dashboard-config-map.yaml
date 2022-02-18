@@ -71,10 +71,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='input'}[60s]))",
+            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='input'}[30s]))",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "{{Messages In Per Second}}",
+            "legendFormat": "{{topic}}",
             "refId": "D"
           }
         ],
@@ -162,10 +162,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='output'}[60s]))",
+            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='output'}[30s]))",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "{{Messages Out Per Second}}",
+            "legendFormat": "{{topic}}",
             "refId": "D"
           }
         ],
@@ -347,7 +347,7 @@ data:
             "expr": "sum by(consumergroup) (kafka_consumergroup_members >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "instances",
+            "legendFormat": "{{consumergroup}}",
             "refId": "D"
           }
         ],
