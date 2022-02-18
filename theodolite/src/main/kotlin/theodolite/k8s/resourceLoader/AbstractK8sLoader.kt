@@ -13,6 +13,7 @@ abstract class AbstractK8sLoader: K8sResourceLoader {
             "Deployment" -> loadDeployment(resourceString)
             "Service" -> loadService(resourceString)
             "ServiceMonitor" -> loadServiceMonitor(resourceString)
+            "PodMonitor" -> loadPodMonitor(resourceString)
             "ConfigMap" -> loadConfigmap(resourceString)
             "StatefulSet" -> loadStatefulSet(resourceString)
             "Execution" -> loadExecution(resourceString)
@@ -47,6 +48,16 @@ abstract class AbstractK8sLoader: K8sResourceLoader {
             scope = "Namespaced",
             group = "monitoring.coreos.com",
             plural = "servicemonitors"
+        )
+        return loadCustomResourceWrapper(resource, context)
+    }
+
+    override fun loadPodMonitor(resource: String): KubernetesResource {
+        val context = K8sContextFactory().create(
+            api = "v1",
+            scope = "Namespaced",
+            group = "monitoring.coreos.com",
+            plural = "podmonitors"
         )
         return loadCustomResourceWrapper(resource, context)
     }
