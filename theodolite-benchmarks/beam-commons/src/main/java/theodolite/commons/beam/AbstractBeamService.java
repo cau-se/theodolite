@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
- * Abstraction of a Beam microservice.
- * Encapsulates the corresponding {@link PipelineOptions} and the beam Runner.
+ * Abstraction of a Beam microservice. Encapsulates the corresponding {@link PipelineOptions} and
+ * the beam Runner.
  */
 public class AbstractBeamService {
 
@@ -20,26 +20,24 @@ public class AbstractBeamService {
 
   // Application Configurations
   private final Configuration config = ServiceConfigurations.createWithDefaults();
-  private final String applicationName =
-      config.getString(ConfigurationKeys.APPLICATION_NAME);
-
+  private final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
 
   /**
    * Creates AbstractBeamService with options.
    */
-  public AbstractBeamService(final String[] args) { //NOPMD
+  public AbstractBeamService(final String[] args) { // NOPMD
     super();
     LOGGER.info("Pipeline options:");
     for (final String s : args) {
       LOGGER.info("{}", s);
     }
-    options = PipelineOptionsFactory.fromArgs(args).create();
-    options.setJobName(applicationName);
-    LOGGER.info("Starting BeamService with PipelineOptions {}:", this.options.toString());
+    this.options = PipelineOptionsFactory.fromArgs(args).create();
+    this.options.setJobName(this.applicationName);
+    LOGGER.info("Starting BeamService with PipelineOptions: {}", this.options.toString());
   }
 
   public Configuration getConfig() {
-    return config;
+    return this.config;
   }
 
 }
