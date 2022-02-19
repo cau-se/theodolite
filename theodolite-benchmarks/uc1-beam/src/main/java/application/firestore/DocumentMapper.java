@@ -14,7 +14,8 @@ final class DocumentMapper extends SimpleFunction<ActivePowerRecord, Document> {
 
   private final String collection;
 
-  public DocumentMapper(String collection) {
+  public DocumentMapper(final String collection) {
+    super();
     this.collection = collection;
   }
 
@@ -30,7 +31,7 @@ final class DocumentMapper extends SimpleFunction<ActivePowerRecord, Document> {
         .build();
   }
 
-  private String createDocumentName(String documentId) {
+  private String createDocumentName(final String documentId) {
     this.initFirestoreConfig();
     return "projects/" + this.firestoreConfig.getProjectId()
         + "/databases/" + this.firestoreConfig.getDatabaseDdlRequest()

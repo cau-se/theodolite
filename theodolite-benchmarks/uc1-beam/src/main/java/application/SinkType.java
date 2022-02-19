@@ -8,6 +8,10 @@ import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import titan.ccp.model.records.ActivePowerRecord;
 
+/**
+ * Supported Sink types, i.e., {@link PTransform} for converting and storing
+ * {@link ActivePowerRecord}s.
+ */
 public enum SinkType implements SinkFactory {
 
   LOGGER("logger") {
@@ -31,10 +35,13 @@ public enum SinkType implements SinkFactory {
     this.value = value;
   }
 
-  String getValue() {
+  public String getValue() {
     return this.value;
   }
 
+  /**
+   * Create a new {@link SinkType} from its string representation.
+   */
   public static SinkType from(final String value) {
     return Stream.of(SinkType.values())
         .filter(t -> t.value.equals(value))

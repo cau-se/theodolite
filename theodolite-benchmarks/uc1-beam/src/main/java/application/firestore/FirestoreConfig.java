@@ -6,9 +6,9 @@ import java.io.IOException;
 
 final class FirestoreConfig {
 
-  final FirestoreOptions firestoreOptions;
+  private final FirestoreOptions firestoreOptions;
 
-  private FirestoreConfig(FirestoreOptions firestoreOptions) {
+  private FirestoreConfig(final FirestoreOptions firestoreOptions) {
     this.firestoreOptions = firestoreOptions;
   }
 

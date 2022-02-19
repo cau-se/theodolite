@@ -7,6 +7,11 @@ import org.apache.beam.sdk.values.PCollection;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import titan.ccp.model.records.ActivePowerRecord;
 
+/**
+ * A {@link PTransform} for a generic {@link DatabaseAdapter}.
+ *
+ * @param <T> Type parameter of {@link DatabaseAdapter}.
+ */
 public class GenericSink<T> extends PTransform<PCollection<ActivePowerRecord>, PCollection<?>> {
 
   private static final long serialVersionUID = 1L;
@@ -14,13 +19,18 @@ public class GenericSink<T> extends PTransform<PCollection<ActivePowerRecord>, P
   private final DatabaseAdapter<T> databaseAdapter;
   private final Class<T> type;
 
-  public GenericSink(DatabaseAdapter<T> databaseAdapter, Class<T> type) {
+  /**
+   * Create a {@link GenericSink} for the provided {@link DatabaseAdapter}. Requires also the
+   * corresponding {@link Class} object for Beam.
+   */
+  public GenericSink(final DatabaseAdapter<T> databaseAdapter, final Class<T> type) {
+    super();
     this.databaseAdapter = databaseAdapter;
     this.type = type;
   }
 
   @Override
-  public PCollection<?> expand(PCollection<ActivePowerRecord> activePowerRecords) {
+  public PCollection<?> expand(final PCollection<ActivePowerRecord> activePowerRecords) {
     return activePowerRecords
         .apply(MapElements
             .via(new ConverterAdapter<>(this.databaseAdapter.getRecordConverter(), this.type)))
