@@ -18,13 +18,12 @@ repositories {
     }
 }
 
-def apacheBeamVersion =  '2.22.0' //'2.27.0' // '2.34.0'
+def apacheBeamVersion =  '2.35.0'
 
 dependencies {
     // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
     implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
     implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
-    implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.google.guava:guava:24.1-jre'
     implementation 'org.slf4j:slf4j-simple:1.7.25'
     implementation project(':beam-commons')
