@@ -102,7 +102,7 @@ public final class LoadGenerator {
    * Create a basic {@link LoadGenerator} from environment variables.
    */
   public static LoadGenerator fromEnvironment() {
-    return new EnvVarLoadGeneratorFactory().create();
+    return new EnvVarLoadGeneratorFactory().create(new LoadGenerator());
   }
 
 }

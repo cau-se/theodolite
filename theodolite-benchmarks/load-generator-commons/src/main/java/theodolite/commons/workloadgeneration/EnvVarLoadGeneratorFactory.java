@@ -13,7 +13,7 @@ class EnvVarLoadGeneratorFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EnvVarLoadGeneratorFactory.class);
 
-  public LoadGenerator create() {
+  public LoadGenerator create(final LoadGenerator loadGeneratorTemplate) {
     final int numSensors = Integer.parseInt(Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.NUM_SENSORS),
         Integer.toString(LoadGenerator.NUMBER_OF_KEYS_DEFAULT)));
@@ -27,7 +27,7 @@ class EnvVarLoadGeneratorFactory {
         System.getenv(ConfigurationKeys.THREADS),
         Integer.toString(LoadGenerator.THREADS_DEFAULT)));
 
-    return LoadGenerator.fromDefaults()
+    return loadGeneratorTemplate
         .setClusterConfig(this.buildClusterConfig())
         .setLoadDefinition(new WorkloadDefinition(
             new KeySpace(LoadGenerator.SENSOR_PREFIX_DEFAULT, numSensors),
