@@ -6,23 +6,18 @@ import com.google.protobuf.util.Timestamps;
 import com.google.pubsub.v1.PubsubMessage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.apache.avro.specific.SpecificRecord;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 /**
  * Sends monitoring records to Kafka.
  *
  * @param <T> {@link SpecificRecord} to send
  */
-public class PubSubRecordSender<T extends SpecificRecord> implements RecordSender<T> {
+public class PubSubRecordSender<T> implements RecordSender<T> {
 
   private static final int SHUTDOWN_TIMEOUT_SEC = 5;
 
@@ -30,13 +25,11 @@ public class PubSubRecordSender<T extends SpecificRecord> implements RecordSende
 
   private final String topic;
 
-  private final Function<T, String> keyAccessor;
+  private final Function<T, ByteBuffer> recordSerializer;
 
   private final Function<T, Long> timestampAccessor;
 
-  private final Function<T, ByteBuffer> recordSerializer;
-
-  private final Producer<String, T> producer; // TODO remove
+  private final Function<T, String> orderingKeyAccessor;
 
   private final Publisher publisher;
 
@@ -45,59 +38,20 @@ public class PubSubRecordSender<T extends SpecificRecord> implements RecordSende
    */
   private PubSubRecordSender(final Builder<T> builder) {
     this.topic = builder.topic;
-    this.keyAccessor = builder.keyAccessor;
+    this.orderingKeyAccessor = builder.orderingKeyAccessor;
     this.timestampAccessor = builder.timestampAccessor;
     this.recordSerializer = builder.recordSerializer;
-
-    final Properties properties = new Properties();
-    properties.putAll(builder.defaultProperties);
-    properties.put("bootstrap.servers", builder.bootstrapServers);
-    // properties.put("acks", this.acknowledges);
-    // properties.put("batch.size", this.batchSize);
-    // properties.put("linger.ms", this.lingerMs);
-    // properties.put("buffer.memory", this.bufferMemory);
-
-    final SchemaRegistryAvroSerdeFactory avroSerdeFactory =
-        new SchemaRegistryAvroSerdeFactory(builder.schemaRegistryUrl);
-    this.producer = new KafkaProducer<>(
-        properties,
-        new StringSerializer(),
-        avroSerdeFactory.<T>forKeys().serializer());
 
     try {
       this.publisher = Publisher.newBuilder(this.topic).build();
     } catch (final IOException e) {
-      // TODO Auto-generated catch block
-      // e.printStackTrace();
       throw new IllegalStateException(e);
     }
   }
 
   /**
-   * Write the passed monitoring record to Kafka.
+   * Terminate this {@link PubSubRecordSender} and shutdown the underlying {@link Publisher}.
    */
-  public void write(final T record) {
-
-    // TODO fix this
-    final ByteBuffer byteBuffer = this.recordSerializer.apply(record);
-    // try {
-    // byteBuffer = ((ActivePowerRecord) monitoringRecord).toByteBuffer();
-    // } catch (final IOException e1) {
-    // // TODO Auto-generated catch block
-    // e1.printStackTrace();
-    // throw new IllegalStateException(e1);
-    // }
-    final ByteString data = ByteString.copyFrom(byteBuffer);
-
-    final PubsubMessage message = PubsubMessage.newBuilder()
-        .setOrderingKey(this.keyAccessor.apply(record))
-        .setPublishTime(Timestamps.fromMillis(this.timestampAccessor.apply(record)))
-        .setData(data)
-        .build();
-    this.publisher.publish(message);
-    LOGGER.debug("Send message to PubSub topic {}: {}", this.topic, message);
-  }
-
   public void terminate() {
     this.publisher.shutdown();
     try {
@@ -105,54 +59,51 @@ public class PubSubRecordSender<T extends SpecificRecord> implements RecordSende
     } catch (final InterruptedException e) {
       throw new IllegalStateException(e);
     }
-    this.producer.close();
   }
 
   @Override
-  public void send(final T message) {
-    this.write(message);
+  public void send(final T record) {
+    final ByteBuffer byteBuffer = this.recordSerializer.apply(record);
+    final ByteString data = ByteString.copyFrom(byteBuffer);
+
+    final PubsubMessage.Builder messageBuilder = PubsubMessage.newBuilder().setData(data);
+    if (this.orderingKeyAccessor != null) {
+      messageBuilder.setOrderingKey(this.orderingKeyAccessor.apply(record));
+    }
+    if (this.timestampAccessor != null) {
+      messageBuilder.setPublishTime(Timestamps.fromMillis(this.timestampAccessor.apply(record)));
+    }
+    this.publisher.publish(messageBuilder.build());
+    LOGGER.debug("Send message to PubSub topic {}: {}", this.topic, messageBuilder);
   }
 
-  public static <T extends SpecificRecord> Builder<T> builder(
-      final String bootstrapServers,
+  public static <T> Builder<T> builder(
       final String topic,
-      final String schemaRegistryUrl) {
-    return new Builder<>(bootstrapServers, topic, schemaRegistryUrl);
+      final Function<T, ByteBuffer> recordSerializer) {
+    return new Builder<>(topic, recordSerializer);
   }
 
   /**
-   * Builder class to build a new {@link KafkaRecordSender}.
+   * Builder class to build a new {@link PubSubRecordSender}.
    *
    * @param <T> Type of the records that should later be send.
    */
-  public static class Builder<T extends SpecificRecord> {
+  public static class Builder<T> {
 
-    private final String bootstrapServers;
     private final String topic;
-    private final String schemaRegistryUrl;
-    private Function<T, String> keyAccessor = x -> ""; // NOPMD
-    private Function<T, Long> timestampAccessor = x -> null; // NOPMD
-    // TODO
-    private Function<T, ByteBuffer> recordSerializer = null; // NOPMD
-    private Properties defaultProperties = new Properties(); // NOPMD
+    private final Function<T, ByteBuffer> recordSerializer; // NOPMD
+    private Function<T, Long> timestampAccessor = null; // NOPMD
+    private Function<T, String> orderingKeyAccessor = null; // NOPMD
 
     /**
-     * Creates a Builder object for a {@link KafkaRecordSender}.
+     * Creates a Builder object for a {@link PubSubRecordSender}.
      *
-     * @param bootstrapServers The Server to for accessing Kafka.
      * @param topic The topic where to write.
-     * @param schemaRegistryUrl URL to the schema registry for avro.
+     * @param recordSerializer A function serializing objects to {@link ByteBuffer}.
      */
-    private Builder(final String bootstrapServers, final String topic,
-        final String schemaRegistryUrl) {
-      this.bootstrapServers = bootstrapServers;
+    private Builder(final String topic, final Function<T, ByteBuffer> recordSerializer) {
       this.topic = topic;
-      this.schemaRegistryUrl = schemaRegistryUrl;
-    }
-
-    public Builder<T> keyAccessor(final Function<T, String> keyAccessor) {
-      this.keyAccessor = keyAccessor;
-      return this;
+      this.recordSerializer = recordSerializer;
     }
 
     public Builder<T> timestampAccessor(final Function<T, Long> timestampAccessor) {
@@ -160,13 +111,8 @@ public class PubSubRecordSender<T extends SpecificRecord> implements RecordSende
       return this;
     }
 
-    public Builder<T> recordSerializer(final Function<T, ByteBuffer> recordSerializer) {
-      this.recordSerializer = recordSerializer;
-      return this;
-    }
-
-    public Builder<T> defaultProperties(final Properties defaultProperties) {
-      this.defaultProperties = defaultProperties;
+    public Builder<T> orderingKeyAccessor(final Function<T, String> keyAccessor) {
+      this.orderingKeyAccessor = keyAccessor;
       return this;
     }
 

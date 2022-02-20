@@ -39,6 +39,8 @@ public final class ConfigurationKeys {
 
   public static final String HTTP_URL = "HTTP_URL";
 
+  public static final String PUBSUB_INPUT_TOPIC = "PUBSUB_INPUT_TOPIC";
+
   private ConfigurationKeys() {}
 
 }
