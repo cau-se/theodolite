@@ -1765,13 +1765,6 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecload">load</a></b></td>
-        <td>object</td>
-        <td>
-          Specifies the load values that are benchmarked.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b><a href="#executionspecresources">resources</a></b></td>
         <td>object</td>
         <td>
@@ -1785,6 +1778,13 @@ Contains the Kafka configuration.
           List of resource values for the specified resource type.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b><a href="#executionspecloads">loads</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the load values that are benchmarked.<br/>
+        </td>
+        <td>false</td>
       </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
@@ -1910,17 +1910,10 @@ Defines the overall parameter for the execution.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>restrictions</b></td>
-        <td>[]string</td>
+        <td><b><a href="#executionspecexecutionstrategy">strategy</a></b></td>
+        <td>object</td>
         <td>
-          List of restriction strategies used to delimit the search space.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>strategy</b></td>
-        <td>string</td>
-        <td>
-          Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'<br/>
+          Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1930,16 +1923,23 @@ Defines the overall parameter for the execution.
           Seconds to wait between the start of the SUT and the load generator.<br/>
         </td>
         <td>false</td>
+      </tr><tr>
+        <td><b>metric</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
 
-### execution.spec.load
-<sup><sup>[↩ Parent](#executionspec)</sup></sup>
+### execution.spec.execution.strategy
+<sup><sup>[↩ Parent](#executionspecexecution)</sup></sup>
 
 
 
-Specifies the load values that are benchmarked.
+Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.
 
 <table>
     <thead>
@@ -1951,19 +1951,33 @@ Specifies the load values that are benchmarked.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>loadType</b></td>
+        <td><b>name</b></td>
         <td>string</td>
         <td>
-          The type of the load. It must match one of the load types specified in the referenced benchmark.<br/>
+          <br/>
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>loadValues</b></td>
-        <td>[]integer</td>
+        <td><b>guessStrategy</b></td>
+        <td>string</td>
         <td>
-          List of load values for the specified load type.<br/>
+          <br/>
         </td>
-        <td>true</td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>restrictions</b></td>
+        <td>[]string</td>
+        <td>
+          List of restriction strategies used to delimit the search space.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>searchStrategy</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -2048,6 +2062,40 @@ Specifies the scaling resource that is benchmarked.
             <i>Default</i>: map[]<br/>
         </td>
         <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### execution.spec.loads
+<sup><sup>[↩ Parent](#executionspec)</sup></sup>
+
+
+
+Specifies the load values that are benchmarked.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>loadType</b></td>
+        <td>string</td>
+        <td>
+          The type of the load. It must match one of the load types specified in the referenced benchmark.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>loadValues</b></td>
+        <td>[]integer</td>
+        <td>
+          List of load values for the specified load type.<br/>
+        </td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
