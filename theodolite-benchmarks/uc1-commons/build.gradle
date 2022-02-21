@@ -13,8 +13,10 @@ repositories {
 }
 
 dependencies {
-  implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
-  implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+  // Make this implementation once this is a local subproject.
+  // Currently, Flink needs its own version of these dependencies.
+  compileOnly('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
+  compileOnly('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
 
   implementation 'com.google.code.gson:gson:2.8.9'
 
