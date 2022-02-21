@@ -24,6 +24,7 @@ elif os.getenv('LOG_LEVEL') == 'DEBUG':
 def calculate_slope_trend(results, warmup):
     d = []
     for result in results:
+        print(result)
         group = result['metric']['consumergroup']
         for value in result['values']:
             d.append({'group': group, 'timestamp': int(
