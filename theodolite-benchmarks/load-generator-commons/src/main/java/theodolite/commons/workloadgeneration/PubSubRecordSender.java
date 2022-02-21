@@ -1,29 +1,36 @@
 package theodolite.commons.workloadgeneration;
 
+import com.google.api.core.ApiFuture;
+import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.grpc.GrpcTransportChannel;
+import com.google.api.gax.rpc.FixedTransportChannelProvider;
+import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.util.Timestamps;
 import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.TopicName;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import org.apache.avro.specific.SpecificRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sends monitoring records to Kafka.
+ * Sends monitoring records to Pub/Sub.
  *
- * @param <T> {@link SpecificRecord} to send
+ * @param <T> Record type to send
  */
 public class PubSubRecordSender<T> implements RecordSender<T> {
 
   private static final int SHUTDOWN_TIMEOUT_SEC = 5;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordSender.class);
-
-  private final String topic;
 
   private final Function<T, ByteBuffer> recordSerializer;
 
@@ -33,19 +40,15 @@ public class PubSubRecordSender<T> implements RecordSender<T> {
 
   private final Publisher publisher;
 
-  /**
-   * Create a new {@link KafkaRecordSender}.
-   */
   private PubSubRecordSender(final Builder<T> builder) {
-    this.topic = builder.topic;
     this.orderingKeyAccessor = builder.orderingKeyAccessor;
     this.timestampAccessor = builder.timestampAccessor;
     this.recordSerializer = builder.recordSerializer;
 
     try {
-      this.publisher = Publisher.newBuilder(this.topic).build();
+      this.publisher = builder.buildPublisher();
     } catch (final IOException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Can not create Pub/Sub publisher.", e);
     }
   }
 
@@ -73,14 +76,44 @@ public class PubSubRecordSender<T> implements RecordSender<T> {
     if (this.timestampAccessor != null) {
       messageBuilder.setPublishTime(Timestamps.fromMillis(this.timestampAccessor.apply(record)));
     }
-    this.publisher.publish(messageBuilder.build());
-    LOGGER.debug("Send message to PubSub topic {}: {}", this.topic, messageBuilder);
+    final PubsubMessage message = messageBuilder.build();
+    LOGGER.debug("Send message to PubSub topic {}: {}", this.publisher.getTopicName(), message);
+    final ApiFuture<String> publishResult = this.publisher.publish(message);
+    if (LOGGER.isDebugEnabled()) {
+      try {
+        LOGGER.debug("Publishing result is {}.", publishResult.get());
+      } catch (InterruptedException | ExecutionException e) {
+        LOGGER.warn("Can not get publishing result.", e);
+      }
+    }
   }
 
-  public static <T> Builder<T> builder(
+  /**
+   * Creates a {@link Builder} object for a {@link PubSubRecordSender}.
+   *
+   * @param project The project where to write.
+   * @param topic The topic where to write.
+   * @param recordSerializer A function serializing objects to {@link ByteBuffer}.
+   */
+  public static <T> Builder<T> builderForProject(
+      final String project,
       final String topic,
       final Function<T, ByteBuffer> recordSerializer) {
-    return new Builder<>(topic, recordSerializer);
+    return new Builder<>(project, topic, recordSerializer);
+  }
+
+  /**
+   * Creates a {@link Builder} object for a {@link PubSubRecordSender}.
+   *
+   * @param emulatorHost Host of the emulator.
+   * @param topic The topic where to write.
+   * @param recordSerializer A function serializing objects to {@link ByteBuffer}.
+   */
+  public static <T> Builder<T> builderForEmulator(
+      final String emulatorHost,
+      final String topic,
+      final Function<T, ByteBuffer> recordSerializer) {
+    return new WithEmulatorBuilder<>(emulatorHost, topic, recordSerializer);
   }
 
   /**
@@ -90,7 +123,7 @@ public class PubSubRecordSender<T> implements RecordSender<T> {
    */
   public static class Builder<T> {
 
-    private final String topic;
+    protected final TopicName topicName;
     private final Function<T, ByteBuffer> recordSerializer; // NOPMD
     private Function<T, Long> timestampAccessor = null; // NOPMD
     private Function<T, String> orderingKeyAccessor = null; // NOPMD
@@ -101,8 +134,11 @@ public class PubSubRecordSender<T> implements RecordSender<T> {
      * @param topic The topic where to write.
      * @param recordSerializer A function serializing objects to {@link ByteBuffer}.
      */
-    private Builder(final String topic, final Function<T, ByteBuffer> recordSerializer) {
-      this.topic = topic;
+    private Builder(
+        final String project,
+        final String topic,
+        final Function<T, ByteBuffer> recordSerializer) {
+      this.topicName = TopicName.of(project, topic);
       this.recordSerializer = recordSerializer;
     }
 
@@ -119,6 +155,51 @@ public class PubSubRecordSender<T> implements RecordSender<T> {
     public PubSubRecordSender<T> build() {
       return new PubSubRecordSender<>(this);
     }
+
+    protected Publisher buildPublisher() throws IOException {
+      return Publisher.newBuilder(this.topicName).build();
+    }
+
+  }
+
+  private static class WithEmulatorBuilder<T> extends Builder<T> {
+
+    private static final String DUMMY_PROJECT = "dummy-project-id";
+
+    private final String emulatorHost;
+
+    /**
+     * Creates a Builder object for a {@link PubSubRecordSender}.
+     *
+     * @param emulatorHost host of the emulator.
+     * @param topic The topic where to write.
+     * @param recordSerializer A function serializing objects to {@link ByteBuffer}.
+     */
+    private WithEmulatorBuilder(
+        final String emulatorHost,
+        final String topic,
+        final Function<T, ByteBuffer> recordSerializer) {
+      super(DUMMY_PROJECT, topic, recordSerializer);
+      this.emulatorHost = emulatorHost;
+    }
+
+    @Override
+    protected Publisher buildPublisher() throws IOException {
+      final ManagedChannel channel = ManagedChannelBuilder
+          .forTarget(this.emulatorHost)
+          .usePlaintext()
+          .build();
+
+      final TransportChannelProvider channelProvider = FixedTransportChannelProvider
+          .create(GrpcTransportChannel.create(channel));
+      final CredentialsProvider credentialsProvider = NoCredentialsProvider.create();
+
+      return Publisher.newBuilder(super.topicName)
+          .setChannelProvider(channelProvider)
+          .setCredentialsProvider(credentialsProvider)
+          .build();
+    }
+
   }
 
 }

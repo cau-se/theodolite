@@ -112,11 +112,22 @@ class EnvVarLoadGeneratorFactory {
       recordSender = new HttpRecordSender<>(url);
       LOGGER.info("Use HTTP server as target with url '{}'.", url);
     } else if (target == LoadGeneratorTarget.PUBSUB) {
-      final String pubSubInputTopic = Objects.requireNonNullElse(
+      final String project = System.getenv(ConfigurationKeys.PUBSUB_PROJECT);
+      final String inputTopic = Objects.requireNonNullElse(
           System.getenv(ConfigurationKeys.PUBSUB_INPUT_TOPIC),
           LoadGenerator.PUBSUB_TOPIC_DEFAULT);
-      recordSender = TitanPubSubSenderFactory.forPubSubConfig(pubSubInputTopic);
-      LOGGER.info("Use Pub/Sub as target with topic '{}'.", pubSubInputTopic);
+      final String emulatorHost = System.getenv(ConfigurationKeys.PUBSUB_EMULATOR_HOST);
+      if (emulatorHost != null) { // NOPMD
+        LOGGER.info("Use Pub/Sub as target with emulator host {} and topic '{}'.",
+            emulatorHost,
+            inputTopic);
+        recordSender = TitanPubSubSenderFactory.forEmulatedPubSubConfig(emulatorHost, inputTopic);
+      } else if (project != null) { // NOPMD
+        LOGGER.info("Use Pub/Sub as target with project {} and topic '{}'.", project, inputTopic);
+        recordSender = TitanPubSubSenderFactory.forPubSubConfig(project, inputTopic);
+      } else {
+        throw new IllegalStateException("Neither an emulator host nor  a project was provided.");
+      }
     } else {
       // Should never happen
       throw new IllegalStateException("Target " + target + " is not handled yet.");

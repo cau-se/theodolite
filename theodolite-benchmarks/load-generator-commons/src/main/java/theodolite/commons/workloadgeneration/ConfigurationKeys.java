@@ -41,6 +41,10 @@ public final class ConfigurationKeys {
 
   public static final String PUBSUB_INPUT_TOPIC = "PUBSUB_INPUT_TOPIC";
 
+  public static final String PUBSUB_PROJECT = "PUBSUB_PROJECT";
+
+  public static final String PUBSUB_EMULATOR_HOST = "PUBSUB_EMULATOR_HOST";
+
   private ConfigurationKeys() {}
 
 }
