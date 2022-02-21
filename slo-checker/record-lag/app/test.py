@@ -15,7 +15,6 @@ class TestSloEvaluation(unittest.TestCase):
     def test_3_rep(self):
         with open('../resources/test-3-rep-success.json') as json_file:
             data = json.load(json_file)
-            print(data)
             response = self.client.post("/evaluate-slope", json=data)
             self.assertEquals(response.json(), True)
 
