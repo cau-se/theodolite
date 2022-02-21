@@ -27,6 +27,7 @@ import theodolite.uc4.application.uc4specifics.ValueGroup;
 import theodolite.uc4.application.uc4specifics.ValueGroupSerializer;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
+import titan.ccp.model.records.AggregatedActivePowerRecord;
 import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 import titan.ccp.model.sensorregistry.MachineSensor;
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
@@ -38,7 +39,7 @@ public class Uc4PipelineTest extends JetTestSupport {
   // TEst Machinery
   JetInstance testInstance = null;
   Pipeline testPipeline = null;
-  StreamStage<Entry<String, ActivePowerRecord>> uc4Topology = null;
+  StreamStage<Entry<String, AggregatedActivePowerRecord>> uc4Topology = null;
 
   @Before
   public void buildUc4Pipeline() {
@@ -67,12 +68,22 @@ public class Uc4PipelineTest extends JetTestSupport {
           return testEntry;
         });
 
+    final AggregatedActivePowerRecord.Builder aggregationBuilder = AggregatedActivePowerRecord.newBuilder();
+
     // Create test source 2 : Mock aggregation Values
-    final StreamSource<Entry<String, ActivePowerRecord>> testAggregationSource =
+    final StreamSource<Entry<String, AggregatedActivePowerRecord>> testAggregationSource =
         TestSources.itemStream(testItemsPerSecond, (timestamp, item) -> {
+
+          AggregatedActivePowerRecord test =
+              new AggregatedActivePowerRecord(testSensorName,
+                  System.currentTimeMillis(),
+                  1L,
+                  testValueInW,
+                  testValueInW);
+
           final ActivePowerRecord testAggValue = new ActivePowerRecord(testSensorName,System.currentTimeMillis(),testValueInW);
-          final Entry<String, ActivePowerRecord> testEntry =
-              Map.entry(testLevel1GroupName, testAggValue);
+          final Entry<String, AggregatedActivePowerRecord> testEntry =
+              Map.entry(testLevel1GroupName, test);
           return testEntry;
         });
 
@@ -114,7 +125,7 @@ public class Uc4PipelineTest extends JetTestSupport {
   @Test
   public void testOutput() {
 
-    System.out.println("DEBUG DEBUG DEBUG || ENTERED TEST 1");
+//    System.out.println("DEBUG DEBUG DEBUG || ENTERED TEST 1");
     
     // Assertion Configuration
     int timeout = 10;
@@ -127,7 +138,7 @@ public class Uc4PipelineTest extends JetTestSupport {
     this.uc4Topology.apply(Assertions.assertCollectedEventually(timeout, 
         collection -> {
           System.out.println("DEBUG DEBUG DEBUG || ENTERED ASSERTION COLLECTED EVENTUALLY");
-          Thread.sleep(2000);
+          Thread.sleep(20_000);
           
           boolean allOkay = true;
           
