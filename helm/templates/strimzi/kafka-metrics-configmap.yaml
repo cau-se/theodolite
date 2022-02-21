@@ -2,7 +2,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: kafka-metrics
+  name: {{ template "theodolite.fullname" . }}-kafka-metrics
   labels:
     app: strimzi
 data:
