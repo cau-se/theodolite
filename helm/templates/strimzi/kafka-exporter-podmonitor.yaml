@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: kafka-exporter-podmonitor
+  name: {{ template "theodolite.fullname" . }}-kafka-exporter-podmonitor
   labels:
     app: theodolite
 spec:

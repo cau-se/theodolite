@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: kafka-resources-metrics
+  name: {{ template "theodolite.fullname" . }}-kafka-resources-metrics
   labels:
     app: theodolite
 spec:
