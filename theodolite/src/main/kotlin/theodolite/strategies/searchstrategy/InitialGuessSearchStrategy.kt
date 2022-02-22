@@ -19,12 +19,7 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
 
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
 
-        if(resources.isEmpty()) {
-            logger.info { "You need to specify resources to be checked for the InitialGuessSearchStrategy to work." }
-            return null
-        }
-
-        if(guessStrategy == null){
+        if(this.guessStrategy == null){
             logger.info { "Your InitialGuessSearchStrategy doesn't have a GuessStrategy. This is not supported." }
             return null
         }
@@ -86,14 +81,9 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
         return null
     }
 
-    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int? {
+    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int?{
 
-        if(loads.isEmpty()) {
-            logger.info { "You need to specify resources to be checked for the InitialGuessSearchStrategy to work." }
-            return null
-        }
-
-        if(guessStrategy == null){
+        if(this.guessStrategy == null){
             logger.info { "Your InitialGuessSearchStrategy doesn't have a GuessStrategy. This is not supported." }
             return null
         }

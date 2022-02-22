@@ -128,12 +128,21 @@ class TheodoliteExecutor(
                 config.searchStrategy.benchmarkExecutor.results,
                 "${resultsFolder}exp${this.config.executionId}-result"
             )
-            // Create expXYZ_demand.csv file
-            ioHandler.writeToCSVFile(
-                "${resultsFolder}exp${this.config.executionId}_demand",
-                calculateDemandMetric(config.loads, config.searchStrategy.benchmarkExecutor.results),
-                listOf("load","resources")
-            )
+            // Create expXYZ_demand.csv file or expXYZ_capacity.csv depending on metric
+            when(config.metric) {
+                Metric.DEMAND ->
+                    ioHandler.writeToCSVFile(
+                        "${resultsFolder}exp${this.config.executionId}_demand",
+                        calculateMetric(config.loads, config.searchStrategy.benchmarkExecutor.results),
+                        listOf("load","resources")
+                    )
+                Metric.CAPACITY ->
+                    ioHandler.writeToCSVFile(
+                        "${resultsFolder}exp${this.config.executionId}_capacity",
+                        calculateMetric(config.resources, config.searchStrategy.benchmarkExecutor.results),
+                        listOf("resource", "loads")
+                    )
+            }
         }
         kubernetesBenchmark.teardownInfrastructure()
     }
@@ -148,8 +157,8 @@ class TheodoliteExecutor(
         return executionID
     }
 
-    private fun calculateDemandMetric(loads: List<Int>, results: Results): List<List<String>> {
-        return loads.map { listOf(it.toString(), results.getOptYDimensionValue(it).toString()) }
+    private fun calculateMetric(xValues: List<Int>, results: Results): List<List<String>> {
+        return xValues.map { listOf(it.toString(), results.getOptYDimensionValue(it).toString()) }
     }
 
 }

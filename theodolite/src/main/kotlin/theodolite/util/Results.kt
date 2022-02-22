@@ -27,30 +27,31 @@ class Results (val metric: Metric) {
     fun setResult(experiment: Pair<Int, Int>, successful: Boolean) {
         this.results[experiment] = successful
 
-        if(metric.value == "demand" && optInstances.containsKey(experiment.first)){
-
-            if (optInstances[experiment.first]!! > experiment.second){
-                optInstances[experiment.first] = experiment.second
-            }
-        }
-        else if(metric.value == "demand" && !optInstances.containsKey(experiment.first)){
-            if(!successful){
-                optInstances[experiment.first] = Int.MAX_VALUE
-            }else {
-                optInstances[experiment.first] = experiment.second
-            }
-        }
-        else if(metric.value == "capacity" && optInstances.containsKey(experiment.second)){
-            if (optInstances[experiment.second]!! < experiment.first){
-                optInstances[experiment.second] = experiment.first
-            }
-        }
-        else if(metric.value == "capacity" && !optInstances.containsKey(experiment.second)){
-            if(!successful){
-                optInstances[experiment.second] = Int.MIN_VALUE
-            } else {
-                optInstances[experiment.second] = experiment.first
-            }
+        when (metric) {
+            Metric.DEMAND ->
+                if (optInstances.containsKey(experiment.first)) {
+                    if(optInstances[experiment.first]!! > experiment.second) {
+                        optInstances[experiment.first] = experiment.second
+                    }
+                } else {
+                    if(!successful){
+                        optInstances[experiment.first] = Int.MAX_VALUE
+                    }else {
+                        optInstances[experiment.first] = experiment.second
+                    }
+                }
+            Metric.CAPACITY ->
+                if (optInstances.containsKey(experiment.second)) {
+                    if (optInstances[experiment.second]!! < experiment.first){
+                        optInstances[experiment.second] = experiment.first
+                    }
+                } else {
+                    if(!successful){
+                        optInstances[experiment.second] = Int.MIN_VALUE
+                    } else {
+                        optInstances[experiment.second] = experiment.first
+                    }
+                }
         }
     }
 

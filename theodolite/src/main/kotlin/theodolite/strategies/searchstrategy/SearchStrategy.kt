@@ -27,20 +27,19 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val gues
      */
     fun applySearchStrategyByMetric(loads: List<Int>, resources: List<Int>, metric: Metric) {
 
-        if (metric.value == "demand") {
-            // demand metric
-            for (load in loads) {
-                if (benchmarkExecutor.run.get()) {
-                    this.findSuitableResource(load, resources)
+        when(metric) {
+            Metric.DEMAND ->
+                for (load in loads) {
+                    if (benchmarkExecutor.run.get()) {
+                        this.findSuitableResource(load, resources)
+                    }
                 }
-            }
-        } else {
-            // capacity metric
-            for (resource in resources) {
-                if (benchmarkExecutor.run.get()) {
-                    this.findSuitableLoad(resource, loads)
+            Metric.CAPACITY ->
+                for (resource in resources) {
+                    if (benchmarkExecutor.run.get()) {
+                        this.findSuitableLoad(resource, loads)
+                    }
                 }
-            }
         }
     }
 
