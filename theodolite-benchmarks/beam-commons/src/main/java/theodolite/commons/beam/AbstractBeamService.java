@@ -11,6 +11,7 @@ import titan.ccp.common.configuration.ServiceConfigurations;
  * Abstraction of a Beam microservice. Encapsulates the corresponding {@link PipelineOptions} and
  * the beam Runner.
  */
+@Deprecated
 public class AbstractBeamService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBeamService.class);

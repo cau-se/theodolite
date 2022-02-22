@@ -2,7 +2,7 @@ package application;
 
 import org.apache.beam.runners.samza.SamzaRunner;
 import org.apache.beam.sdk.Pipeline;
-import theodolite.commons.beam.AbstractBeamService;
+import theodolite.commons.beam.BeamService;
 
 /**
  * Implementation of the use case Downsampling using Apache Beam with the Samza Runner. To run
@@ -14,26 +14,11 @@ import theodolite.commons.beam.AbstractBeamService;
  * persist logs add ${workspace_loc:/uc3-application-samza/eclipseConsoleLogs.log} as Output File
  * under Standard Input Output in Common in the Run Configuration Start via Eclipse Run.
  */
-public final class Uc2BeamSamza extends AbstractBeamService {
+public final class Uc2BeamSamza {
 
-  /**
-   * Private constructor setting specific options for this use case.
-   */
-  private Uc2BeamSamza(final String[] args) { //NOPMD
-    super(args);
-    this.options.setRunner(SamzaRunner.class);
-  }
-
-  /**
-   * Start running this microservice.
-   */
   public static void main(final String[] args) {
-
-    final Uc2BeamSamza uc2BeamSamza = new Uc2BeamSamza(args);
-
-    final Pipeline pipeline = new Uc2BeamPipeline(uc2BeamSamza.options, uc2BeamSamza.getConfig());
-
-    pipeline.run().waitUntilFinish();
+    new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).run();
   }
+  
 }
 

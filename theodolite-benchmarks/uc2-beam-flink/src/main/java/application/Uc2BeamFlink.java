@@ -3,6 +3,7 @@ package application;
 import org.apache.beam.runners.flink.FlinkRunner;
 import org.apache.beam.sdk.Pipeline;
 import theodolite.commons.beam.AbstractBeamService;
+import theodolite.commons.beam.BeamService;
 
 /**
  * Implementation of the use case Downsampling using Apache Beam with the Flink Runner. To execute
@@ -10,26 +11,10 @@ import theodolite.commons.beam.AbstractBeamService;
  * using the delayed_startup.sh script. Start a Flink cluster and pass its REST adress
  * using--flinkMaster as run parameter.
  */
-public final class Uc2BeamFlink extends AbstractBeamService {
+public final class Uc2BeamFlink {
 
-  /**
-   * Private constructor setting specific options for this use case.
-   */
-  private Uc2BeamFlink(final String[] args) { // NOPMD
-    super(args);
-    this.options.setRunner(FlinkRunner.class);
-  }
-
-  /**
-   * Start running this microservice.
-   */
   public static void main(final String[] args) {
-
-    final Uc2BeamFlink uc2BeamFlink = new Uc2BeamFlink(args);
-
-    final Pipeline pipeline = new Uc2BeamPipeline(uc2BeamFlink.options, uc2BeamFlink.getConfig());
-
-    pipeline.run().waitUntilFinish();
+	  new BeamService(PipelineFactory.factory(), FlinkRunner.class, args).run();
   }
 }
 
