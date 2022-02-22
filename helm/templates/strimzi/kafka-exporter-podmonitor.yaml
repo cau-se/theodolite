@@ -9,10 +9,7 @@ spec:
   selector:
     selector:
     matchLabels:
-      strimzi.io/name: {{ template "theodolite.fullname" . }}-kafka-kafka-exporter
-  namespaceSelector:
-    matchNames:
-      - default
+      strimzi.io/name: {{ template "theodolite.fullname" . }}-strimzi-kafka-exporter
   podMetricsEndpoints:
   - path: /metrics
     port: tcp-prometheus
