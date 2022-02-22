@@ -1,7 +1,7 @@
 package application;
 
 import org.apache.beam.runners.samza.SamzaRunner;
-import theodolite.commons.beam.AbstractBeamService;
+import theodolite.commons.beam.BeamService;
 
 /**
  * Implementation of the use case Database Storage using Apache Beam with the Samza Runner. To
@@ -13,29 +13,13 @@ import theodolite.commons.beam.AbstractBeamService;
  * persist logs add ${workspace_loc:/uc4-application-samza/eclipseConsoleLogs.log} as Output File
  * under Standard Input Output in Common in the Run Configuration Start via Eclipse Run.
  */
-public final class Uc1BeamSamza extends AbstractBeamService {
-
-  /**
-   * Private constructor setting specific options for this use case.
-   */
-  private Uc1BeamSamza(final String[] args) { //NOPMD
-    super(args);
-    this.options.setRunner(SamzaRunner.class);
-  }
+public final class Uc1BeamSamza {
 
   /**
    * Main method.
    */
   public static void main(final String[] args) {
-
-    // Create application via configurations
-    final Uc1BeamSamza uc1 = new Uc1BeamSamza(args);
-
-    // Create pipeline with configurations
-    final Uc1BeamPipeline pipeline = new Uc1BeamPipeline(uc1.options, uc1.getConfig());
-
-    // Submit job and start execution
-    pipeline.run().waitUntilFinish();
+	  new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).run();
   }
 }
 

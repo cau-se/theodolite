@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 /**
  * Abstraction of a Beam {@link Pipeline}.
  */
+@Deprecated
 public class AbstractPipeline extends Pipeline {
 
   private static final String KAFKA_CONFIG_SPECIFIC_AVRO_READER = "specific.avro.reader"; // NOPMD

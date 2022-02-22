@@ -2,7 +2,8 @@ package application;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
-import java.util.Map;
+import java.util.function.Function;
+import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.KvCoder;
@@ -17,48 +18,49 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.joda.time.Duration;
-import theodolite.commons.beam.AbstractPipeline;
+import theodolite.commons.beam.AbstractPipelineFactory;
 import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import theodolite.commons.beam.kafka.KafkaWriterTransformation;
 import titan.ccp.model.records.ActivePowerRecord;
 
+public class PipelineFactory extends AbstractPipelineFactory {
 
-/**
- * Implementation of the use case Downsampling using Apache Beam.
- */
-public final class Uc2BeamPipeline extends AbstractPipeline {
+  public static final String SINK_TYPE_KEY = "sink.type";
 
-  protected Uc2BeamPipeline(final PipelineOptions options, final Configuration config) {
-    super(options, config);
-    // Additional needed variables
+  public PipelineFactory(final Configuration configuration) {
+    super(configuration);
+  }
+
+  @Override
+  protected void expandOptions(final PipelineOptions options) {
+    // TODO Add for PubSub
+    // final String pubSubEmulatorHost = super.config.getString(null);
+    // if (pubSubEmulatorHost != null) {
+    // final PubsubOptions pubSubOptions = options.as(PubsubOptions.class);
+    // pubSubOptions.setPubsubRootUrl("http://" + pubSubEmulatorHost);
+    // }
+  }
+
+  @Override
+  protected void constructPipeline(Pipeline pipeline) {
     final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
-    final Duration duration =
-        Duration.standardMinutes(config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+    final Duration duration = Duration.standardMinutes(
+        config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
 
-    // Build kafka configuration
-    final Map<String, Object> consumerConfig = buildConsumerConfig();
-
-    // Set Coders for Classes that will be distributed
-    final CoderRegistry cr = getCoderRegistry();
-    cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
-    cr.registerCoderForClass(StatsAggregation.class, SerializableCoder.of(StatsAggregation.class));
-    cr.registerCoderForClass(StatsAccumulator.class, AvroCoder.of(StatsAccumulator.class));
-
-    // Read from Kafka
-    final KafkaActivePowerTimestampReader kafkaActivePowerRecordReader =
-        new KafkaActivePowerTimestampReader(bootstrapServer, inputTopic, consumerConfig);
+    final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
 
     // Transform into String
     final StatsToString statsToString = new StatsToString();
 
     // Write to Kafka
+    final String bootstrapServer = config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final KafkaWriterTransformation<String> kafkaWriter =
         new KafkaWriterTransformation<>(bootstrapServer, outputTopic, StringSerializer.class);
 
     // Apply pipeline transformations
-    this.apply(kafkaActivePowerRecordReader)
+    pipeline.apply(kafkaReader)
         // Apply a fixed window
         .apply(Window.<KV<String, ActivePowerRecord>>into(FixedWindows.of(duration)))
         // Aggregate per window for every key
@@ -69,5 +71,19 @@ public final class Uc2BeamPipeline extends AbstractPipeline {
         // Write to Kafka
         .apply(kafkaWriter);
   }
-}
 
+  @Override
+  protected void registerCoders(CoderRegistry registry) {
+    registry.registerCoderForClass(ActivePowerRecord.class,
+        AvroCoder.of(ActivePowerRecord.SCHEMA$));
+    registry.registerCoderForClass(StatsAggregation.class,
+        SerializableCoder.of(StatsAggregation.class));
+    registry.registerCoderForClass(StatsAccumulator.class,
+        AvroCoder.of(StatsAccumulator.class));
+  }
+
+  public static Function<Configuration, AbstractPipelineFactory> factory() {
+    return config -> new PipelineFactory(config);
+  }
+
+}
