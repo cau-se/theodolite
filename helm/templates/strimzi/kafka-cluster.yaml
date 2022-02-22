@@ -2,7 +2,7 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: {{ template "theodolite.fullname" . }}-strimzi
+  name: {{ template "theodolite.fullname" . }}-kafka
 spec:
   kafka:
     jmxOptions: {}

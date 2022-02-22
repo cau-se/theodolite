@@ -31,7 +31,7 @@ loadTypes:
         properties:
           loadGenMaxRecords: "150000"
 kafkaConfig:
-  bootstrapServer: "theodolite-strimzi-kafka-bootstrap:9092"
+  bootstrapServer: "theodlite-kafka-kafka-bootstrap:9092"
   topics:
     - name: "input"
       numPartitions: 40

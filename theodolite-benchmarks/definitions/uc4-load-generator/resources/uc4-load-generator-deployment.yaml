@@ -27,7 +27,7 @@ spec:
             - name: KUBERNETES_DNS_NAME
               value: "titan-ccp-load-generator.$(KUBERNETES_NAMESPACE).svc.cluster.local"
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "theodolite-strimzi-kafka-bootstrap:9092"
+              value: "theodlite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-cp-schema-registry:8081"
             - name: NUM_NESTED_GROUPS
