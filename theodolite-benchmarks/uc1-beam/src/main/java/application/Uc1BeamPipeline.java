@@ -4,6 +4,7 @@ import application.pubsub.PubSubEncoder;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
+import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO.PubsubTopic;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO.Read;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubMessage;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -38,11 +39,13 @@ public final class Uc1BeamPipeline extends AbstractPipeline {
     PCollection<ActivePowerRecord> activePowerRecords;
 
     if (sourceType == "pubsub") {
-      final String topic = "input";
-      final String project = "dummy-project-id";
+      final String topicName = "input";
+      final String projectName = "dummy-project-id";
+      final PubsubTopic topic =
+          PubsubTopic.fromPath("projects/" + projectName + "/topics/" + topicName);
       final Read<PubsubMessage> pubsub = PubsubIO
           .readMessages()
-          .fromTopic("projects/" + project + "/topics/" + topic);
+          .fromTopic(topic.asPath());
 
       activePowerRecords = super.apply(pubsub).apply(MapElements.via(new PubSubEncoder()));
     } else {
