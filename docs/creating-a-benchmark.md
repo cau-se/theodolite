@@ -42,7 +42,7 @@ spec:
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
-    bootstrapServer: "theodolite-cp-kafka:9092"
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
       - name: "input"
         numPartitions: 40
@@ -54,7 +54,7 @@ spec:
 
 ## System under Test (SUT), Load Generator and Infrastructure
 
-In Thedolite, the system under test (SUT), the load generator as well as additional infrastructure (e.g., a middleware) are described by Kubernetes resources files.
+In Theodolite, the system under test (SUT), the load generator as well as additional infrastructure (e.g., a middleware) are described by Kubernetes resources files.
 All resources defined for the SUT and the load generator are started and stopped for each SLO experiment, with SUT resources being started before the load generator.
 Infrastructure resources live over the entire duration of a benchmark run. They avoid time-consuming recreation of software components like middlewares, but should be used with caution to not let previous SLO experiments influence latte ones.
 
