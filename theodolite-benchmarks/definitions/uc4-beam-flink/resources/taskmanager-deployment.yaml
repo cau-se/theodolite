@@ -54,11 +54,11 @@ spec:
               name: query-state
             - containerPort: 9249
               name: metrics
-          livenessProbe:
-            tcpSocket:
-              port: 6122
-            initialDelaySeconds: 30
-            periodSeconds: 60
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 6122
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 60
           securityContext:
             runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
 
