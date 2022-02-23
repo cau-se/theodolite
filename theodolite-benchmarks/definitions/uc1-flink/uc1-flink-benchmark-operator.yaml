@@ -50,7 +50,7 @@ spec:
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
-    bootstrapServer: "theodlite-kafka-kafka-bootstrap:9092"
+    bootstrapServer: "theodolitee-kafka-kafka-bootstrap:9092"
     topics:
       - name: "input"
         numPartitions: 40

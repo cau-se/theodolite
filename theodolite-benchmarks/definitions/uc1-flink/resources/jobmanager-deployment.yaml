@@ -20,7 +20,7 @@ spec:
           image: ghcr.io/cau-se/theodolite-uc1-flink:latest
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "theodlite-kafka-kafka-bootstrap:9092"
+              value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-cp-schema-registry:8081"
             - name: COMMIT_INTERVAL_MS

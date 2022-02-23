@@ -138,7 +138,7 @@ cp-helm-charts:
       annotations: {}
 
     kafka:
-      bootstrapServers: theodlite-kafka-kafka-bootstrap:9092
+      bootstrapServers: theodolite-kafka-kafka-bootstrap:9092
 
   cp-kafka-rest:
     enabled: false
