@@ -13,9 +13,9 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.commons.flink.KafkaConnectorFactory;
-import theodolite.commons.flink.StateBackends;
-import theodolite.commons.flink.serialization.StatsSerializer;
+import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
+import rocks.theodolite.benchmarks.commons.flink.StateBackends;
+import rocks.theodolite.benchmarks.commons.flink.serialization.StatsSerializer;
 import titan.ccp.common.configuration.ServiceConfigurations;
 import titan.ccp.model.records.ActivePowerRecord;
 

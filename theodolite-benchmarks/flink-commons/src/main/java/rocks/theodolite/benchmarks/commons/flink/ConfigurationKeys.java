@@ -1,4 +1,4 @@
-package theodolite.commons.flink;
+package rocks.theodolite.benchmarks.commons.flink;
 
 /**
  * Keys to access configuration parameters.

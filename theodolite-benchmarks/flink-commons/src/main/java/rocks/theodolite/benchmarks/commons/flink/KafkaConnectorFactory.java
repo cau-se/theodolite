@@ -1,4 +1,4 @@
-package theodolite.commons.flink;
+package rocks.theodolite.benchmarks.commons.flink;
 
 import java.time.Duration;
 import java.util.Properties;
@@ -15,8 +15,8 @@ import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serde;
-import theodolite.commons.flink.serialization.FlinkKafkaKeyValueSerde;
-import theodolite.commons.flink.util.SerializableSupplier;
+import rocks.theodolite.benchmarks.commons.flink.serialization.FlinkKafkaKeyValueSerde;
+import rocks.theodolite.benchmarks.commons.flink.util.SerializableSupplier;
 
 /**
  * A class for creating {@link FlinkKafkaConsumer} and {@link FlinkKafkaProducer}.

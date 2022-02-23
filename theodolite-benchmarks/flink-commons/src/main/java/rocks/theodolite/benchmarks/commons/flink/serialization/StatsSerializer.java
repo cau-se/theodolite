@@ -1,4 +1,4 @@
-package theodolite.commons.flink.serialization;
+package rocks.theodolite.benchmarks.commons.flink.serialization;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;

@@ -1,4 +1,4 @@
-package theodolite.commons.kafkastreams;
+package rocks.theodolite.benchmarks.commons.kstreams;
 
 /**
  * Keys to access configuration parameters.

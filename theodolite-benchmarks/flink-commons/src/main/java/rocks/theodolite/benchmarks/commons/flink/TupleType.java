@@ -1,4 +1,4 @@
-package theodolite.commons.flink;
+package rocks.theodolite.benchmarks.commons.flink;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;

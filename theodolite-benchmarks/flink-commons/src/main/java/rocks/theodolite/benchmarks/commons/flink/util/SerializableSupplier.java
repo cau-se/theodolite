@@ -1,4 +1,4 @@
-package theodolite.commons.flink.util;
+package rocks.theodolite.benchmarks.commons.flink.util;
 
 import java.io.Serializable;
 import java.util.function.Supplier;

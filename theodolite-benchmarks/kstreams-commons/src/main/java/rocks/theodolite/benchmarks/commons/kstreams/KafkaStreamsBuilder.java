@@ -1,4 +1,4 @@
-package theodolite.commons.kafkastreams;
+package rocks.theodolite.benchmarks.commons.kstreams;
 
 import java.util.Properties;
 import java.util.function.Function;

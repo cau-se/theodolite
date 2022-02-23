@@ -1,4 +1,4 @@
-package theodolite.commons.flink.serialization;
+package rocks.theodolite.benchmarks.commons.flink.serialization;
 
 import javax.annotation.Nullable;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -8,7 +8,7 @@ import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
-import theodolite.commons.flink.util.SerializableSupplier;
+import rocks.theodolite.benchmarks.commons.flink.util.SerializableSupplier;
 
 /**
  * A {@link KafkaSerializationSchema} and {@link KafkaDeserializationSchema} for an arbitrary
