@@ -24,10 +24,11 @@ dependencies:
     version: 0.6.0
     repository: https://soerenhenning.github.io/cp-helm-charts
     condition: cp-helm-charts.enabled
-  - name: kafka-lag-exporter
-    version: 0.6.7
-    repository: https://lightbend.github.io/kafka-lag-exporter/repo/
-    condition: kafka-lag-exporter.enabled
+  - name: strimzi-kafka-operator
+    version: 0.28.0
+    repository: https://strimzi.io/charts/
+    condition: strimzi.enabled
+
 
 version: 0.7.0-SNAPSHOT
 

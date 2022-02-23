@@ -378,6 +378,13 @@ deploy-uc4-load-generator:
     JAVA_PROJECT_NAME: "uc4-load-generator"
     JAVA_PROJECT_DEPS: "load-generator-commons"
 
+deploy-http-bridge:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-http-bridge"
+    JAVA_PROJECT_NAME: "http-bridge"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
 .smoketest-benchmarks:
   stage: smoketest
   extends:
