@@ -1,4 +1,4 @@
-package theodolite.commons.httpbridge;
+package rocks.theodolite.benchmarks.httpbridge;
 
 import theodolite.commons.workloadgeneration.RecordSender;
 
