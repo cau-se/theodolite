@@ -1,6 +1,6 @@
 package rocks.theodolite.benchmarks.httpbridge;
 
-import theodolite.commons.workloadgeneration.RecordSender;
+import rocks.theodolite.benchmarks.loadgenerator.RecordSender;
 
 /**
  * Class describing an endpoint of the {@link HttpBridge}, which converts JSON objects to Java

@@ -3,7 +3,7 @@ package theodolite.uc4.workloadgenerator;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.commons.workloadgeneration.KeySpace;
+import rocks.theodolite.benchmarks.loadgenerator.KeySpace;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.sensorregistry.SensorRegistry;
 
@@ -40,7 +40,7 @@ public final class LoadGenerator {
         new SensorRegistryBuilder(numNestedGroups, numSensors).build();
 
     LOGGER.info("Start workload generator for use case UC4");
-    theodolite.commons.workloadgeneration.LoadGenerator.fromEnvironment()
+    rocks.theodolite.benchmarks.loadgenerator.LoadGenerator.fromEnvironment()
         .withKeySpace(new KeySpace("s_", sensorRegistry.getMachineSensors().size()))
         .withBeforeAction(() -> {
           if (sendRegistry) {

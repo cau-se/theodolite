@@ -18,6 +18,6 @@ public final class LoadGenerator {
    */
   public static void main(final String[] args) throws InterruptedException, IOException {
     LOGGER.info("Start workload generator for use case UC1.");
-    theodolite.commons.workloadgeneration.LoadGenerator.fromEnvironment().run();
+    rocks.theodolite.benchmarks.loadgenerator.LoadGenerator.fromEnvironment().run();
   }
 }

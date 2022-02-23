@@ -16,7 +16,7 @@ public final class LoadGenerator {
 
   public static void main(final String[] args) {
     LOGGER.info("Start workload generator for use case UC3");
-    theodolite.commons.workloadgeneration.LoadGenerator.fromEnvironment().run();
+    rocks.theodolite.benchmarks.loadgenerator.LoadGenerator.fromEnvironment().run();
   }
 
 }

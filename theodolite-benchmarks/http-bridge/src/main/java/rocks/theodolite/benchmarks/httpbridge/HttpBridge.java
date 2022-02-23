@@ -1,7 +1,7 @@
 package rocks.theodolite.benchmarks.httpbridge;
 
 import java.util.List;
-import theodolite.commons.workloadgeneration.RecordSender;
+import rocks.theodolite.benchmarks.loadgenerator.RecordSender;
 
 /**
  * Class that creates a webserver with potentially multiple {@link Endpoint}s, which receives JSON
