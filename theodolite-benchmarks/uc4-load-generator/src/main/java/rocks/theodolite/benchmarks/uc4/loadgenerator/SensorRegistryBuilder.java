@@ -1,4 +1,4 @@
-package theodolite.uc4.workloadgenerator;
+package rocks.theodolite.benchmarks.uc4.loadgenerator;
 
 import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
 import titan.ccp.model.sensorregistry.MutableSensorRegistry;

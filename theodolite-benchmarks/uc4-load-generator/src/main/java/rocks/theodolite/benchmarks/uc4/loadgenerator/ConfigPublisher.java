@@ -1,4 +1,4 @@
-package theodolite.uc4.workloadgenerator;
+package rocks.theodolite.benchmarks.uc4.loadgenerator;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;

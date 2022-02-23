@@ -1,4 +1,4 @@
-package theodolite.uc1.workloadgenerator;
+package rocks.theodolite.benchmarks.uc1.loadgenerator;
 
 import java.io.IOException;
 import org.slf4j.Logger;

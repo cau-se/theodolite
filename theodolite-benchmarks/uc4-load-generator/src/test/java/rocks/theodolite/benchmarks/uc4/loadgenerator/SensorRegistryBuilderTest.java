@@ -1,5 +1,4 @@
-package theodolite.uc4.workloadgenerator;
-
+package rocks.theodolite.benchmarks.uc4.loadgenerator;
 
 import java.util.Collection;
 import java.util.Set;
