@@ -11,6 +11,9 @@ import theodolite.commons.beam.AbstractPipelineFactory;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import titan.ccp.model.records.ActivePowerRecord;
 
+/**
+ * {@link AbstractPipelineFactory} for UC1.
+ */
 public class PipelineFactory extends AbstractPipelineFactory {
 
   public static final String SINK_TYPE_KEY = "sink.type";
@@ -21,6 +24,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   @Override
   protected void expandOptions(final PipelineOptions options) {
+    // No options to set
     // TODO Add for PubSub
     // final String pubSubEmulatorHost = super.config.getString(null);
     // if (pubSubEmulatorHost != null) {

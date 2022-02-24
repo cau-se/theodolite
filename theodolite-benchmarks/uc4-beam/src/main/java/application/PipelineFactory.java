@@ -1,4 +1,4 @@
-package application;
+package application; // NOPMD
 
 import com.google.common.math.StatsAccumulator;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
@@ -50,6 +50,9 @@ import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
+/**
+ * {@link AbstractPipelineFactory} for UC4.
+ */
 public class PipelineFactory extends AbstractPipelineFactory {
 
   public PipelineFactory(final Configuration configuration) {
@@ -57,10 +60,12 @@ public class PipelineFactory extends AbstractPipelineFactory {
   }
 
   @Override
-  protected void expandOptions(final PipelineOptions options) {}
+  protected void expandOptions(final PipelineOptions options) {
+    // No options to set
+  }
 
   @Override
-  protected void constructPipeline(final Pipeline pipeline) {
+  protected void constructPipeline(final Pipeline pipeline) { // NOPMD
     // Additional needed variables
     final String feedbackTopic = this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);

@@ -11,6 +11,11 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 
+/**
+ * Abstract factory class for creating Beam pipelines from a {@link Configuration} and
+ * {@link PipelineOptions}. Implementations may expand the {@link PipelineOptions}, construct a
+ * {@link Pipeline} and register coders.
+ */
 public abstract class AbstractPipelineFactory {
 
   protected final Configuration config;
@@ -19,6 +24,9 @@ public abstract class AbstractPipelineFactory {
     this.config = configuration;
   }
 
+  /**
+   * Create a Pipeline with the configured {@link PipelineOptions}.
+   */
   public final Pipeline create(final PipelineOptions options) {
     this.expandOptions(options);
     final Pipeline pipeline = Pipeline.create(options);
