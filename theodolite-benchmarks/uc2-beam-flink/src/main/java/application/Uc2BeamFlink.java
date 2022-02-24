@@ -1,8 +1,6 @@
 package application;
 
 import org.apache.beam.runners.flink.FlinkRunner;
-import org.apache.beam.sdk.Pipeline;
-import theodolite.commons.beam.AbstractBeamService;
 import theodolite.commons.beam.BeamService;
 
 /**
@@ -13,8 +11,10 @@ import theodolite.commons.beam.BeamService;
  */
 public final class Uc2BeamFlink {
 
+  private Uc2BeamFlink() {}
+
   public static void main(final String[] args) {
-	  new BeamService(PipelineFactory.factory(), FlinkRunner.class, args).run();
+    new BeamService(PipelineFactory.factory(), FlinkRunner.class, args).run();
   }
 }
 

@@ -26,28 +26,19 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 public class PipelineFactory extends AbstractPipelineFactory {
 
-  public static final String SINK_TYPE_KEY = "sink.type";
-
   public PipelineFactory(final Configuration configuration) {
     super(configuration);
   }
 
   @Override
-  protected void expandOptions(final PipelineOptions options) {
-    // TODO Add for PubSub
-    // final String pubSubEmulatorHost = super.config.getString(null);
-    // if (pubSubEmulatorHost != null) {
-    // final PubsubOptions pubSubOptions = options.as(PubsubOptions.class);
-    // pubSubOptions.setPubsubRootUrl("http://" + pubSubEmulatorHost);
-    // }
-  }
+  protected void expandOptions(final PipelineOptions options) {}
 
   @Override
-  protected void constructPipeline(Pipeline pipeline) {
-    final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+  protected void constructPipeline(final Pipeline pipeline) {
+    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final Duration duration = Duration.standardMinutes(
-        config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
 
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
 
@@ -55,7 +46,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
     final StatsToString statsToString = new StatsToString();
 
     // Write to Kafka
-    final String bootstrapServer = config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
+    final String bootstrapServer = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final KafkaWriterTransformation<String> kafkaWriter =
         new KafkaWriterTransformation<>(bootstrapServer, outputTopic, StringSerializer.class);
 
@@ -73,7 +64,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
   }
 
   @Override
-  protected void registerCoders(CoderRegistry registry) {
+  protected void registerCoders(final CoderRegistry registry) {
     registry.registerCoderForClass(ActivePowerRecord.class,
         AvroCoder.of(ActivePowerRecord.SCHEMA$));
     registry.registerCoderForClass(StatsAggregation.class,
