@@ -1,7 +1,6 @@
 package application;
 
 import org.apache.beam.runners.samza.SamzaRunner;
-import org.apache.beam.sdk.Pipeline;
 import theodolite.commons.beam.BeamService;
 
 /**
@@ -16,9 +15,11 @@ import theodolite.commons.beam.BeamService;
  */
 public final class Uc2BeamSamza {
 
+  private Uc2BeamSamza() {}
+
   public static void main(final String[] args) {
     new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).run();
   }
-  
+
 }
 

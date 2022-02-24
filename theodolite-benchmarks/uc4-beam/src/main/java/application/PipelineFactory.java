@@ -1,9 +1,13 @@
-package application; // NOPMD
+package application;
 
 import com.google.common.math.StatsAccumulator;
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.SetCoder;
@@ -37,7 +41,7 @@ import serialization.AggregatedActivePowerRecordSerializer;
 import serialization.EventCoder;
 import serialization.EventDeserializer;
 import serialization.SensorParentKeyCoder;
-import theodolite.commons.beam.AbstractPipeline;
+import theodolite.commons.beam.AbstractPipelineFactory;
 import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import theodolite.commons.beam.kafka.KafkaGenericReader;
@@ -46,68 +50,62 @@ import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;
 
-/**
- * Implementation of the use case Hierarchical Aggregation using Apache Beam.
- */
-public final class Uc4BeamPipeline extends AbstractPipeline {
+public class PipelineFactory extends AbstractPipelineFactory {
 
-  protected Uc4BeamPipeline(final PipelineOptions options, final Configuration config) { // NOPMD
-    super(options, config);
+  public PipelineFactory(final Configuration configuration) {
+    super(configuration);
+  }
 
+  @Override
+  protected void expandOptions(final PipelineOptions options) {}
+
+  @Override
+  protected void constructPipeline(final Pipeline pipeline) {
     // Additional needed variables
-    final String feedbackTopic = config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
-    final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
-    final String configurationTopic = config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
+    final String feedbackTopic = this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
+    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String configurationTopic =
+        this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
-    final Duration duration =
-        Duration.standardSeconds(config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
-    final Duration triggerDelay =
-        Duration.standardSeconds(config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
-    final Duration gracePeriod =
-        Duration.standardSeconds(config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
-
-    // Build Kafka configuration
-    final Map<String, Object> consumerConfig = super.buildConsumerConfig();
-    final Map<String, Object> configurationConfig = this.configurationConfig(config);
-
-    // Set Coders for Classes that will be distributed
-    final CoderRegistry cr = this.getCoderRegistry();
-    registerCoders(cr);
+    final Duration duration = Duration.standardSeconds(
+        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+    final Duration triggerDelay = Duration.standardSeconds(
+        this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
+    final Duration gracePeriod = Duration.standardSeconds(
+        this.config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
 
     // Read from Kafka
+    final String bootstrapServer = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
+
     // ActivePowerRecords
-    final KafkaActivePowerTimestampReader kafkaActivePowerRecordReader =
-        new KafkaActivePowerTimestampReader(
-            this.bootstrapServer,
-            this.inputTopic,
-            consumerConfig);
+    final KafkaActivePowerTimestampReader kafkaActivePowerRecordReader = super.buildKafkaReader();
 
     // Configuration Events
     final KafkaGenericReader<Event, String> kafkaConfigurationReader =
         new KafkaGenericReader<>(
-            this.bootstrapServer,
+            bootstrapServer,
             configurationTopic,
-            configurationConfig,
+            this.configurationConfig(),
             EventDeserializer.class,
             StringDeserializer.class);
 
     // Write to Kafka
     final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaOutput =
         new KafkaWriterTransformation<>(
-            this.bootstrapServer,
+            bootstrapServer,
             outputTopic,
             AggregatedActivePowerRecordSerializer.class,
-            super.buildProducerConfig());
+            this.buildProducerConfig());
 
     final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaFeedback =
         new KafkaWriterTransformation<>(
-            this.bootstrapServer,
+            bootstrapServer,
             feedbackTopic,
             AggregatedActivePowerRecordSerializer.class,
-            super.buildProducerConfig());
+            this.buildProducerConfig());
 
     // Apply pipeline transformations
-    final PCollection<KV<String, ActivePowerRecord>> values = this
+    final PCollection<KV<String, ActivePowerRecord>> values = pipeline
         .apply("Read from Kafka", kafkaActivePowerRecordReader)
         .apply("Read Windows", Window.into(FixedWindows.of(duration)))
         .apply("Set trigger for input", Window
@@ -119,15 +117,15 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
             .discardingFiredPanes());
 
     // Read the results of earlier aggregations.
-    final PCollection<KV<String, ActivePowerRecord>> aggregationsInput = this
+    final PCollection<KV<String, ActivePowerRecord>> aggregationsInput = pipeline
         .apply("Read aggregation results", KafkaIO.<String, AggregatedActivePowerRecord>read()
-            .withBootstrapServers(this.bootstrapServer)
+            .withBootstrapServers(bootstrapServer)
             .withTopic(feedbackTopic)
             .withKeyDeserializer(StringDeserializer.class)
             .withValueDeserializerAndCoder(
                 AggregatedActivePowerRecordDeserializer.class,
                 AvroCoder.of(AggregatedActivePowerRecord.class))
-            .withConsumerConfigUpdates(consumerConfig)
+            .withConsumerConfigUpdates(this.buildConsumerConfig())
             .withTimestampPolicyFactory(
                 (tp, previousWaterMark) -> new AggregatedActivePowerRecordEventTimePolicy(
                     previousWaterMark))
@@ -155,7 +153,7 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
             Flatten.pCollections());
 
     // Build the configuration stream from a changelog.
-    final PCollection<KV<String, Set<String>>> configurationStream = this
+    final PCollection<KV<String, Set<String>>> configurationStream = pipeline
         .apply("Read sensor groups", kafkaConfigurationReader)
         // Only forward relevant changes in the hierarchy
         .apply("Filter changed and status events",
@@ -214,7 +212,28 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
     aggregations.apply("Write to aggregation results", kafkaOutput);
 
     aggregations.apply("Write to feedback topic", kafkaFeedback);
+  }
 
+  @Override
+  protected void registerCoders(final CoderRegistry registry) {
+    registry.registerCoderForClass(
+        ActivePowerRecord.class,
+        AvroCoder.of(ActivePowerRecord.class));
+    registry.registerCoderForClass(
+        AggregatedActivePowerRecord.class,
+        new AggregatedActivePowerRecordCoder());
+    registry.registerCoderForClass(
+        Set.class,
+        SetCoder.of(StringUtf8Coder.of()));
+    registry.registerCoderForClass(
+        Event.class,
+        new EventCoder());
+    registry.registerCoderForClass(
+        SensorParentKey.class,
+        new SensorParentKeyCoder());
+    registry.registerCoderForClass(
+        StatsAccumulator.class,
+        AvroCoder.of(StatsAccumulator.class));
   }
 
 
@@ -223,35 +242,58 @@ public final class Uc4BeamPipeline extends AbstractPipeline {
    *
    * @return the build configuration.
    */
-  public Map<String, Object> configurationConfig(final Configuration config) {
+  private Map<String, Object> configurationConfig() {
     final Map<String, Object> consumerConfig = new HashMap<>();
     consumerConfig.put(
         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-        config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
+        this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
     consumerConfig.put(
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-        config.getString(ConfigurationKeys.AUTO_OFFSET_RESET_CONFIG));
+        this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET_CONFIG));
     consumerConfig.put(
-        ConsumerConfig.GROUP_ID_CONFIG, config
+        ConsumerConfig.GROUP_ID_CONFIG, this.config
             .getString(ConfigurationKeys.APPLICATION_NAME) + "-configuration");
     return consumerConfig;
   }
 
+  private Map<String, Object> buildConsumerConfig() {
+    final Map<String, Object> consumerConfig = new HashMap<>();
+    consumerConfig.put(
+        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
+        this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
+    consumerConfig.put(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET_CONFIG));
+    consumerConfig.put(
+        AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
+        this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL));
+    consumerConfig.put(
+        KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG,
+        this.config.getString(ConfigurationKeys.SPECIFIC_AVRO_READER));
+    consumerConfig.put(
+        ConsumerConfig.GROUP_ID_CONFIG,
+        this.config.getString(ConfigurationKeys.APPLICATION_NAME));
+    return consumerConfig;
+  }
 
   /**
-   * Registers all Coders for all needed Coders.
+   * Builds a simple configuration for a Kafka producer transformation.
    *
-   * @param cr CoderRegistry.
+   * @return the build configuration.
    */
-  private static void registerCoders(final CoderRegistry cr) {
-    cr.registerCoderForClass(ActivePowerRecord.class,
-        AvroCoder.of(ActivePowerRecord.class));
-    cr.registerCoderForClass(AggregatedActivePowerRecord.class,
-        new AggregatedActivePowerRecordCoder());
-    cr.registerCoderForClass(Set.class, SetCoder.of(StringUtf8Coder.of()));
-    cr.registerCoderForClass(Event.class, new EventCoder());
-    cr.registerCoderForClass(SensorParentKey.class, new SensorParentKeyCoder());
-    cr.registerCoderForClass(StatsAccumulator.class, AvroCoder.of(StatsAccumulator.class));
+  private Map<String, Object> buildProducerConfig() {
+    final Map<String, Object> config = new HashMap<>();
+    config.put(
+        AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
+        this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL));
+    config.put(
+        KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG,
+        this.config.getString(ConfigurationKeys.SPECIFIC_AVRO_READER));
+    return config;
   }
-}
 
+  public static Function<Configuration, AbstractPipelineFactory> factory() {
+    return config -> new PipelineFactory(config);
+  }
+
+}

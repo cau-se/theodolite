@@ -2,7 +2,8 @@ package application;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
-import java.util.Map;
+import java.util.function.Function;
+import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.KvCoder;
@@ -18,40 +19,34 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.joda.time.Duration;
-import theodolite.commons.beam.AbstractPipeline;
+import theodolite.commons.beam.AbstractPipelineFactory;
 import theodolite.commons.beam.ConfigurationKeys;
 import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import theodolite.commons.beam.kafka.KafkaWriterTransformation;
 import titan.ccp.model.records.ActivePowerRecord;
 
+public class PipelineFactory extends AbstractPipelineFactory {
 
-/**
- * Implementation of the use case Aggregation based on Time Attributes using Apache Beam.
- */
-public final class Uc3BeamPipeline extends AbstractPipeline {
+  public PipelineFactory(final Configuration configuration) {
+    super(configuration);
+  }
 
-  protected Uc3BeamPipeline(final PipelineOptions options, final Configuration config) {
-    super(options, config);
-    // Additional needed variables
-    final String outputTopic = config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+  @Override
+  protected void expandOptions(final PipelineOptions options) {}
+
+  @Override
+  protected void constructPipeline(final Pipeline pipeline) {
+    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final Duration duration =
-        Duration.standardDays(config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+        Duration.standardDays(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
     final Duration aggregationAdvanceDuration =
-        Duration.standardDays(config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+        Duration.standardDays(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
     final Duration triggerDelay =
-        Duration.standardSeconds(config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
-
-    // Build Kafka configuration
-    final Map<String, Object> consumerConfig = this.buildConsumerConfig();
-
-    // Set Coders for classes that will be distributed
-    final CoderRegistry cr = this.getCoderRegistry();
-    registerCoders(cr);
+        Duration.standardSeconds(this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
 
     // Read from Kafka
-    final KafkaActivePowerTimestampReader kafka =
-        new KafkaActivePowerTimestampReader(this.bootstrapServer, this.inputTopic, consumerConfig);
+    final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
 
     // Map the time format
     final MapTimeFormat mapTimeFormat = new MapTimeFormat();
@@ -60,10 +55,11 @@ public final class Uc3BeamPipeline extends AbstractPipeline {
     final HourOfDayWithStats hourOfDayWithStats = new HourOfDayWithStats();
 
     // Write to Kafka
+    final String bootstrapServer = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final KafkaWriterTransformation<String> kafkaWriter =
-        new KafkaWriterTransformation<>(this.bootstrapServer, outputTopic, StringSerializer.class);
+        new KafkaWriterTransformation<>(bootstrapServer, outputTopic, StringSerializer.class);
 
-    this.apply(kafka)
+    pipeline.apply(kafkaReader)
         // Map to correct time format
         .apply(MapElements.via(mapTimeFormat))
         // Apply a sliding window
@@ -86,17 +82,24 @@ public final class Uc3BeamPipeline extends AbstractPipeline {
         .apply(kafkaWriter);
   }
 
-
-  /**
-   * Registers all Coders for all needed Coders.
-   *
-   * @param cr CoderRegistry.
-   */
-  private static void registerCoders(final CoderRegistry cr) {
-    cr.registerCoderForClass(ActivePowerRecord.class, AvroCoder.of(ActivePowerRecord.SCHEMA$));
-    cr.registerCoderForClass(HourOfDayKey.class, new HourOfDaykeyCoder());
-    cr.registerCoderForClass(StatsAggregation.class, SerializableCoder.of(StatsAggregation.class));
-    cr.registerCoderForClass(StatsAccumulator.class, AvroCoder.of(StatsAccumulator.class));
+  @Override
+  protected void registerCoders(final CoderRegistry registry) {
+    registry.registerCoderForClass(
+        ActivePowerRecord.class,
+        AvroCoder.of(ActivePowerRecord.SCHEMA$));
+    registry.registerCoderForClass(
+        HourOfDayKey.class,
+        new HourOfDaykeyCoder());
+    registry.registerCoderForClass(
+        StatsAggregation.class,
+        SerializableCoder.of(StatsAggregation.class));
+    registry.registerCoderForClass(
+        StatsAccumulator.class,
+        AvroCoder.of(StatsAccumulator.class));
   }
-}
 
+  public static Function<Configuration, AbstractPipelineFactory> factory() {
+    return config -> new PipelineFactory(config);
+  }
+
+}

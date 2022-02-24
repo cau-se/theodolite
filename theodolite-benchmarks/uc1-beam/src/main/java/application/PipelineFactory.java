@@ -30,7 +30,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
   }
 
   @Override
-  protected void constructPipeline(Pipeline pipeline) {
+  protected void constructPipeline(final Pipeline pipeline) {
     final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
 
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
@@ -41,7 +41,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
   }
 
   @Override
-  protected void registerCoders(CoderRegistry registry) {
+  protected void registerCoders(final CoderRegistry registry) {
     registry.registerCoderForClass(
         ActivePowerRecord.class,
         AvroCoder.of(ActivePowerRecord.SCHEMA$));
