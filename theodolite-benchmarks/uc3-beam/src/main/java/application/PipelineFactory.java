@@ -25,6 +25,9 @@ import theodolite.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import theodolite.commons.beam.kafka.KafkaWriterTransformation;
 import titan.ccp.model.records.ActivePowerRecord;
 
+/**
+ * {@link AbstractPipelineFactory} for UC3.
+ */
 public class PipelineFactory extends AbstractPipelineFactory {
 
   public PipelineFactory(final Configuration configuration) {
@@ -32,7 +35,9 @@ public class PipelineFactory extends AbstractPipelineFactory {
   }
 
   @Override
-  protected void expandOptions(final PipelineOptions options) {}
+  protected void expandOptions(final PipelineOptions options) {
+    // No options to set
+  }
 
   @Override
   protected void constructPipeline(final Pipeline pipeline) {

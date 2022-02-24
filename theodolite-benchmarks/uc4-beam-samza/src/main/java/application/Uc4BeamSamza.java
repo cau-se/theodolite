@@ -1,6 +1,5 @@
 package application;
 
-
 import org.apache.beam.runners.samza.SamzaRunner;
 import theodolite.commons.beam.BeamService;
 
