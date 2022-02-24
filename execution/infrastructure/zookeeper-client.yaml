@@ -2,10 +2,12 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: zookeeper-client
+  labels:
+    app: zookeeper-client
 spec:
   containers:
   - name: zookeeper-client
-    image: confluentinc/cp-zookeeper:5.4.0
+    image: zookeeper:3.7.0
     command:
       - sh
       - -c
