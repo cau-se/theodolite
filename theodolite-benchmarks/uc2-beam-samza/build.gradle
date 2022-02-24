@@ -16,4 +16,4 @@ sourceSets {
   }
 }
 
-mainClassName = "application.Uc2BeamSamza"
+mainClassName = "rocks.theodolite.benchmarks.uc2.beam.samza.Uc2BeamSamza"

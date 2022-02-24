@@ -16,4 +16,4 @@ sourceSets {
   }
 }
 
-mainClassName = 'application.Uc4BeamFlink'
+mainClassName = 'rocks.theodolite.benchmarks.uc4.beam.flink.Uc4BeamFlink'
