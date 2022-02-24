@@ -178,6 +178,9 @@ strimzi:
     replicas: 3
     zooEntrance:
       enabled: true
+      zookeeperClient:
+        enabled: true
+        nodeSelector: {}
 
 
 ###
