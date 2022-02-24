@@ -1765,6 +1765,13 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b><a href="#executionspecloads">loads</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the load values that are benchmarked.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b><a href="#executionspecresources">resources</a></b></td>
         <td>object</td>
         <td>
@@ -1776,13 +1783,6 @@ Contains the Kafka configuration.
         <td>[]object</td>
         <td>
           List of resource values for the specified resource type.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#executionspecloads">loads</a></b></td>
-        <td>object</td>
-        <td>
-          Specifies the load values that are benchmarked.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1982,6 +1982,40 @@ Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearc
 </table>
 
 
+### execution.spec.loads
+<sup><sup>[↩ Parent](#executionspec)</sup></sup>
+
+
+
+Specifies the load values that are benchmarked.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>loadType</b></td>
+        <td>string</td>
+        <td>
+          The type of the load. It must match one of the load types specified in the referenced benchmark.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>loadValues</b></td>
+        <td>[]integer</td>
+        <td>
+          List of load values for the specified load type.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
 ### execution.spec.resources
 <sup><sup>[↩ Parent](#executionspec)</sup></sup>
 
@@ -2062,40 +2096,6 @@ Specifies the scaling resource that is benchmarked.
             <i>Default</i>: map[]<br/>
         </td>
         <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### execution.spec.loads
-<sup><sup>[↩ Parent](#executionspec)</sup></sup>
-
-
-
-Specifies the load values that are benchmarked.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>loadType</b></td>
-        <td>string</td>
-        <td>
-          The type of the load. It must match one of the load types specified in the referenced benchmark.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>loadValues</b></td>
-        <td>[]integer</td>
-        <td>
-          List of load values for the specified load type.<br/>
-        </td>
-        <td>true</td>
       </tr></tbody>
 </table>
 
