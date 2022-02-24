@@ -1,5 +1,7 @@
 package theodolite.evaluation
 
+import theodolite.strategies.Metric
+
 
 /**
  * Factory used to potentially create different [SloChecker]s.
@@ -40,7 +42,9 @@ class SloCheckerFactory {
     fun create(
         sloType: String,
         properties: MutableMap<String, String>,
-        load: Int
+        load: Int,
+        resource: Int,
+        metric: Metric
     ): SloChecker {
         return when (SloTypes.from(sloType)) {
             SloTypes.GENERIC -> ExternalSloChecker(

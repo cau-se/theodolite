@@ -65,7 +65,8 @@ class BenchmarkExecutorImpl(
                     .analyze(
                         load = load,
                         resource = resource,
-                        executionIntervals = executionIntervals
+                        executionIntervals = executionIntervals,
+                        metric = this.results.metric
                     )
             }
 

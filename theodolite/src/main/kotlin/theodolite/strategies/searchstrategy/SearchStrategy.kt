@@ -14,8 +14,7 @@ import theodolite.util.Results
  * @param results the [Results] object.
  */
 @RegisterForReflection
-abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor, val guessStrategy: GuessStrategy? = null,
-                              val results: Results? = null) {
+abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor) {
 
 
     /**

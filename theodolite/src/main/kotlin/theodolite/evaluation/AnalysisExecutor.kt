@@ -1,6 +1,7 @@
 package theodolite.evaluation
 
 import theodolite.benchmark.BenchmarkExecution
+import theodolite.strategies.Metric
 import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
 import java.text.Normalizer
@@ -31,7 +32,7 @@ class AnalysisExecutor(
      *  @param executionIntervals list of start and end points of experiments
      *  @return true if the experiment succeeded.
      */
-    fun analyze(load: Int, resource: Int, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
+    fun analyze(load: Int, resource: Int, executionIntervals: List<Pair<Instant, Instant>>, metric: Metric): Boolean {
         var repetitionCounter = 1
 
         try {
@@ -56,11 +57,12 @@ class AnalysisExecutor(
                 )
             }
 
-            //TODO: CHECK WHETHER WE NEED TO DIFFERENTIATE BETWEEN METRICS AND HAVE SOME NEW KIND OF SLOCHECKER WHICH GETS RESOURCE AS PARAMETER
             val sloChecker = SloCheckerFactory().create(
                 sloType = slo.sloType,
                 properties = slo.properties,
-                load = load
+                load = load,
+                resource = resource,
+                metric = metric
             )
 
             return sloChecker.evaluate(prometheusData)

@@ -14,20 +14,13 @@ private val logger = KotlinLogging.logger {}
  * @param guessStrategy Strategy that provides us with a guess for the first resource amount.
  * @param results current results of all previously performed benchmarks.
  */
-class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStrategy: GuessStrategy, results: Results) :
-        SearchStrategy(benchmarkExecutor, guessStrategy, results) {
+class InitialGuessSearchStrategy(
+        benchmarkExecutor: BenchmarkExecutor,
+        private val guessStrategy: GuessStrategy,
+        private var results: Results
+) : SearchStrategy(benchmarkExecutor) {
 
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
-
-        if(this.guessStrategy == null){
-            logger.info { "Your InitialGuessSearchStrategy doesn't have a GuessStrategy. This is not supported." }
-            return null
-        }
-
-        if(results == null){
-            logger.info { "The results need to be initialized." }
-            return null
-        }
 
         var lastLowestResource : Int? = null
 
@@ -82,16 +75,6 @@ class InitialGuessSearchStrategy(benchmarkExecutor: BenchmarkExecutor, guessStra
     }
 
     override fun findSuitableLoad(resource: Int, loads: List<Int>): Int?{
-
-        if(this.guessStrategy == null){
-            logger.info { "Your InitialGuessSearchStrategy doesn't have a GuessStrategy. This is not supported." }
-            return null
-        }
-
-        if(results == null){
-            logger.info { "The results need to be initialized." }
-            return null
-        }
 
         var lastMaxLoad : Int? = null
 
