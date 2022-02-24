@@ -6,4 +6,4 @@ dependencies {
     implementation project(':uc1-commons')
 }
 
-mainClassName = "theodolite.uc1.application.HistoryServiceFlinkJob"
+mainClassName = "rocks.theodolite.benchmarks.uc1.flink.HistoryServiceFlinkJob"
