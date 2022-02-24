@@ -3,7 +3,7 @@
         [
             {
                 "metric": {
-                    "group": "theodolite-uc1-application-0.0.1"
+                    "consumergroup": "theodolite-uc1-application-0.0.1"
                 },
                 "values": [
                     [

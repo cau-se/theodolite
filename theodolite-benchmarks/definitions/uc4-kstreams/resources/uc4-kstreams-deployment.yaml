@@ -21,7 +21,7 @@ spec:
               name: jmx
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "theodolite-cp-kafka:9092"
+              value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-cp-schema-registry:8081"
             - name: JAVA_OPTS

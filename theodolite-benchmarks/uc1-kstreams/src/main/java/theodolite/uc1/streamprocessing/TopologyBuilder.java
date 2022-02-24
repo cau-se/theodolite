@@ -1,13 +1,12 @@
 package theodolite.uc1.streamprocessing;
 
-import com.google.gson.Gson;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
+import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -16,11 +15,10 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public class TopologyBuilder {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
-  private static final Gson GSON = new Gson();
-
   private final String inputTopic;
   private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
+
+  private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
 
   private final StreamsBuilder builder = new StreamsBuilder();
 
@@ -42,8 +40,8 @@ public class TopologyBuilder {
         .stream(this.inputTopic, Consumed.with(
             Serdes.String(),
             this.srAvroSerdeFactory.<ActivePowerRecord>forValues()))
-        .mapValues(v -> GSON.toJson(v))
-        .foreach((k, record) -> LOGGER.info("Record: {}", record));
+        .mapValues(this.databaseAdapter.getRecordConverter()::convert)
+        .foreach((k, record) -> this.databaseAdapter.getDatabaseWriter().write(record));
 
     return this.builder.build(properties);
   }
