@@ -18,7 +18,7 @@ spec:
           image: ghcr.io/cau-se/theodolite-uc1-beam-samza:latest
           env:
             - name: SAMZA_JOB_COORDINATOR_ZK_CONNECT
-              value: "theodolite-cp-zookeeper:2181"
+              value: "theodolite-kafka-zoo-entrance:2181"
             - name: SAMZA_SYSTEMS_KAFKA_PRODUCER_BOOTSTRAP_SERVERS
               value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SAMZA_SYSTEMS_KAFKA_CONSUMER_BOOTSTRAP_SERVERS
