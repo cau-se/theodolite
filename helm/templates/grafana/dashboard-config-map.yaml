@@ -527,7 +527,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "count by(topic) (kafka_topic_partitions >= 0)",
+            "expr": "sum by(topic) (kafka_topic_partitions >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",
