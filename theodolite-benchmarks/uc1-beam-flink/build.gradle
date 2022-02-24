@@ -3,7 +3,17 @@ plugins {
 }
 
 dependencies {
-      implementation project(':uc1-beam')
+  implementation project(':uc1-beam')
+}
+
+sourceSets {
+  main {
+    resources {
+      srcDirs += [
+        project(':uc1-beam').sourceSets.main.resources
+      ]
+    }
+  }
 }
 
 mainClassName = "application.Uc1BeamFlink"
