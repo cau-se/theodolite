@@ -295,24 +295,32 @@ operator:
       uc1LoadGenerator: true
       uc1Kstreams: true
       uc1Flink: true
+      uc1BeamFlink: true
       uc2LoadGenerator: true
       uc2Kstreams: true
       uc2Flink: true
+      uc2BeamFlink: true
       uc3LoadGenerator: true
       uc3Kstreams: true
       uc3Flink: true
+      uc3BeamFlink: true
       uc4LoadGenerator: true
       uc4Kstreams: true
       uc4Flink: true
+      uc4BeamFlink: true
     benchmarks:
       uc1Kstreams: true
       uc1Flink: true
+      uc1BeamFlink: true
       uc2Kstreams: true
       uc2Flink: true
+      uc2BeamFlink: true
       uc3Kstreams: true
       uc3Flink: true
+      uc3BeamFlink: true
       uc4Kstreams: true
       uc4Flink: true
+      uc4BeamFlink: true
 
 serviceAccount:
   create: true
