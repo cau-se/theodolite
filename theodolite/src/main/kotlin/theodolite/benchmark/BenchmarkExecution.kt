@@ -35,7 +35,7 @@ class BenchmarkExecution : KubernetesResource {
     lateinit var configOverrides: MutableList<ConfigurationOverride?>
 
     /**
-     * This execution encapsulates the [strategy], the [duration], the [repetitions], and the [restrictions]
+     * This execution encapsulates the [strategy], the [duration], and the [repetitions],
      *  which are used for the concrete benchmark experiments.
      */
     @JsonDeserialize
@@ -51,8 +51,9 @@ class BenchmarkExecution : KubernetesResource {
 
     /**
      * This Strategy encapsulates the [restrictions], [guessStrategy] and [searchStrategy],
-     * which are used for restricting the resources, the guess Strategy for the [InitialGuessSearchStrategy] and
-     * the actual [SearchStrategy] which is used.
+     * which are used for restricting the resources, the guess Strategy for the
+     * [theodolite.strategies.searchstrategy.InitialGuessSearchStrategy] and the name of the actual
+     * [theodolite.strategies.searchstrategy.SearchStrategy] which is used.
      */
     @JsonDeserialize
     @RegisterForReflection

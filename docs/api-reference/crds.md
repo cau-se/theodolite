@@ -1784,7 +1784,7 @@ Contains the Kafka configuration.
         <td>
           Specifies the load values that are benchmarked.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
