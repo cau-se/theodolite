@@ -15,11 +15,10 @@ spec:
       - selector: # delete zookeeper nodes to reset zookeeper
           pod:
             matchLabels:
-              app: "cp-zookeeper"
-          container: "cp-zookeeper-server"
+              app: "zookeeper-client"
+          container: "zookeeper-client"
         exec:
-          command: ["zookeeper-shell", "localhost:2181",
-           "deleteall", "/app-theodolite-uc4-application-1"]
+          command: ["bin/zkCli.sh", "-server", "theodolite-kafka-zoo-entrance:2181", "deleteall", "/app-theodolite-uc4-application-1"]
           timeoutSeconds: 60
   loadGenerator:
     resources:
