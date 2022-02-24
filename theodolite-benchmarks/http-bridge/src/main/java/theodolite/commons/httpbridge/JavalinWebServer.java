@@ -1,6 +1,10 @@
 package theodolite.commons.httpbridge;
 
 import io.javalin.Javalin;
+import io.javalin.plugin.metrics.MicrometerPlugin;
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
+import io.prometheus.client.exporter.common.TextFormat;
 import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +18,9 @@ public class JavalinWebServer {
 
   private static final int HTTP_SUCCESS = 200;
 
-  private final Javalin app = Javalin.create();
+  private final Javalin app;
+
+  private final PrometheusMeterRegistry registry;
 
   private final String host;
   private final int port;
@@ -28,6 +34,10 @@ public class JavalinWebServer {
       final int port) {
     this.host = host;
     this.port = port;
+    this.registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+    this.app = Javalin.create(config -> {
+      config.registerPlugin(new MicrometerPlugin(this.registry));
+    });
     this.configureRoutes(converters);
   }
 
@@ -40,6 +50,9 @@ public class JavalinWebServer {
         ctx.status(HTTP_SUCCESS);
       });
     }
+    this.app.get("/metrics", ctx -> ctx
+        .contentType(TextFormat.CONTENT_TYPE_004)
+        .result(this.registry.scrape()));
   }
 
   public void start() {
