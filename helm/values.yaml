@@ -176,6 +176,8 @@ strimzi:
 
   zookeeper:
     replicas: 3
+    zooEntrance:
+      enabled: true
 
 
 ###
