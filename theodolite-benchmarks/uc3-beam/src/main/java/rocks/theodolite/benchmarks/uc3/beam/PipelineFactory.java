@@ -78,8 +78,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
             .accumulatingFiredPanes())
 
         // Aggregate per window for every key
-        .apply(Combine.<HourOfDayKey, ActivePowerRecord, Stats>perKey(new StatsAggregation()))
-        .setCoder(KvCoder.of(new HourOfDaykeyCoder(), SerializableCoder.of(Stats.class)))
+        .apply(Combine.perKey(new StatsAggregation()))
+        .setCoder(KvCoder.of(new HourOfDayKeyCoder(), SerializableCoder.of(Stats.class)))
 
         // Map into correct output format
         .apply(MapElements.via(hourOfDayWithStats))
@@ -94,7 +94,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
         AvroCoder.of(ActivePowerRecord.SCHEMA$));
     registry.registerCoderForClass(
         HourOfDayKey.class,
-        new HourOfDaykeyCoder());
+        new HourOfDayKeyCoder());
     registry.registerCoderForClass(
         StatsAggregation.class,
         SerializableCoder.of(StatsAggregation.class));

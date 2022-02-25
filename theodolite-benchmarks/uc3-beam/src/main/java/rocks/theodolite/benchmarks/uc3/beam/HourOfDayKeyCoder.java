@@ -12,9 +12,9 @@ import org.apache.beam.sdk.coders.CoderException;
 import org.apache.kafka.common.serialization.Serde;
 
 /**
- * Wrapper Class that encapsulates a HourOfDayKeySerde in a org.apache.beam.sdk.coders.Coder.
+ * Wrapper Class that encapsulates a {@link HourOfDayKeySerde} in a {@link Coder}.
  */
-public class HourOfDaykeyCoder extends Coder<HourOfDayKey> implements Serializable {
+public class HourOfDayKeyCoder extends Coder<HourOfDayKey> implements Serializable {
   public static final long serialVersionUID = 4444444;
   private static final boolean DETERMINISTIC = true;
   private static final int VALUE_SIZE = 4;
