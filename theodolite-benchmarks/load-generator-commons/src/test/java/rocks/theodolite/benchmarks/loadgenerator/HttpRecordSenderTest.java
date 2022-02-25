@@ -14,7 +14,6 @@ import java.net.URI;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import rocks.theodolite.benchmarks.loadgenerator.HttpRecordSender;
 import titan.ccp.model.records.ActivePowerRecord;
 
 public class HttpRecordSenderTest {

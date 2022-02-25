@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
-import rocks.theodolite.benchmarks.loadgenerator.KeySpace;
-import rocks.theodolite.benchmarks.loadgenerator.WorkloadDefinition;
 
 public class WorkloadDefinitionTest {
 

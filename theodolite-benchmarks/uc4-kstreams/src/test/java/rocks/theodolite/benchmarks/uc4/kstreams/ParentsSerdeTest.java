@@ -2,7 +2,6 @@ package rocks.theodolite.benchmarks.uc4.kstreams;
 
 import java.util.Set;
 import org.junit.Test;
-import rocks.theodolite.benchmarks.uc4.kstreams.ParentsSerde;
 
 public class ParentsSerdeTest {
 

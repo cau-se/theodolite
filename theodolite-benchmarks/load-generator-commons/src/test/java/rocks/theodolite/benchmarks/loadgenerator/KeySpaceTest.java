@@ -2,7 +2,6 @@ package rocks.theodolite.benchmarks.loadgenerator;
 
 import org.junit.Assert;
 import org.junit.Test;
-import rocks.theodolite.benchmarks.loadgenerator.KeySpace;
 
 public class KeySpaceTest {
 
