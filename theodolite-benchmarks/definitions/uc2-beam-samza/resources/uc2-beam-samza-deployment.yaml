@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: uc2-beam-samza
-          image: ghcr.io/cau-se/theodolite-uc1-beam-samza:latest
+          image: ghcr.io/cau-se/theodolite-uc2-beam-samza:latest
           env:
             - name: SAMZA_JOB_COORDINATOR_ZK_CONNECT
               value: "theodolite-kafka-zoo-entrance:2181"
