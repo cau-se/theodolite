@@ -30,8 +30,8 @@ public abstract class AbstractPipelineFactory {
   public final Pipeline create(final PipelineOptions options) {
     this.expandOptions(options);
     final Pipeline pipeline = Pipeline.create(options);
-    this.constructPipeline(pipeline);
     this.registerCoders(pipeline.getCoderRegistry());
+    this.constructPipeline(pipeline);
     return pipeline;
   }
 
