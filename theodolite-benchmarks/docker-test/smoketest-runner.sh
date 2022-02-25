@@ -6,7 +6,7 @@ echo "Run test for '$COMPOSE_FILE_PATH'."
 cd $COMPOSE_FILE_PATH
 docker-compose pull -q
 docker-compose up -d kafka zookeeper schema-registry
-sleep 30s
+sleep 40s
 docker-compose up -d
 sleep 5s
 docker-compose ps
