@@ -18,7 +18,7 @@ spec:
               app: "zookeeper-client"
           container: "zookeeper-client"
         exec:
-          command: ["bin/zkCli.sh", "-server", "$ZOOKEEPER_SERVER", "deleteall", "/app-theodolite-uc1-application-1"]
+          command: ["bash", "-c", "bin/zkCli.sh -server $ZOOKEEPER_SERVER deleteall /app-theodolite-uc1-application-1"]
           timeoutSeconds: 60
   loadGenerator:
     resources:
