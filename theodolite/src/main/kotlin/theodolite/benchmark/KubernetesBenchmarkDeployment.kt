@@ -38,7 +38,7 @@ class KubernetesBenchmarkDeployment(
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(client)
     private val LAG_EXPORTER_POD_LABEL_NAME = "app.kubernetes.io/name"
-    private val LAG_EXPORTER_POD_LABEL_VALUE = "kafka-lag-exporter"
+    private val LAG_EXPORTER_POD_LABEL_VALUE = "kafka-exporter"
 
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
