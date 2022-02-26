@@ -22,6 +22,7 @@ fi
 
 docker-compose ps
 docker-compose logs benchmark-jobmanager
+docker inspect $(docker-compose ps -q benchmark-jobmanager)
 
 docker-compose down
 
