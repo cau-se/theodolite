@@ -396,7 +396,7 @@ deploy-http-bridge:
   #   TEST_LOG_FILE: "test.log"
   script:
     - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
-    - echo "Use image tag: $THEODOLITE_TAG"
+    - echo "Use image tag $THEODOLITE_TAG"
     - ./smoketest-runner.sh ./$DOCKER_COMPOSE_DIR
     # - cat test.log
   after_script:
