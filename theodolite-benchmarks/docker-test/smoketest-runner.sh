@@ -21,6 +21,7 @@ else
 fi
 
 docker-compose ps
+docker-compose logs benchmark-jobmanager
 
 docker-compose down
 
