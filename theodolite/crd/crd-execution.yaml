@@ -84,10 +84,6 @@ spec:
                 properties:
                   metric:
                     type: string
-                    # default: "demand"
-                    # oneOf:
-                    #  - "demand"
-                    #  - "capacity"
                   strategy:
                     description: Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.
                     type: object
@@ -95,8 +91,6 @@ spec:
                     properties:
                       name:
                         type: string
-                      # properties:
-                      #  type: object
                       restrictions:
                         description: List of restriction strategies used to delimit the search space.
                         type: array
