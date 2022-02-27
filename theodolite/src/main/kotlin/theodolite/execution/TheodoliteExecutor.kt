@@ -55,13 +55,16 @@ class TheodoliteExecutor(
                 this.kubernetesBenchmark.loadTypes
             )
 
+        val slos = SloFactory().createSlos(this.config, this.kubernetesBenchmark)
+
+        // TODO not config.slos!, maybe change naming here cause its kinda missleading due to the Config.kt file
         executor =
             BenchmarkExecutorImpl(
                 benchmark = kubernetesBenchmark,
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = config.configOverrides,
-                slos = config.slos,
+                slos = slos,
                 repetitions = config.execution.repetitions,
                 executionId = config.executionId,
                 loadGenerationDelay = config.execution.loadGenerationDelay,

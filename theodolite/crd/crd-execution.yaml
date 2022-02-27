@@ -20,7 +20,7 @@ spec:
         properties:
           spec:
             type: object
-            required: ["benchmark", "load", "resources", "slos", "execution", "configOverrides"]
+            required: ["benchmark", "load", "resources", "execution", "configOverrides"]
             properties:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
@@ -56,12 +56,16 @@ spec:
                     items:
                       type: integer
               slos: # def of service level objectives
-                description:  List of resource values for the specified resource type.
+                description:  List of SLOs with their properties, which differ from the benchmark definition.
                 type: array
                 items:
                   type: object
-                  required: ["sloType", "prometheusUrl", "offset"]
+                  required: ["name"]
                   properties:
+                    name:
+                      description: The name of the SLO. It must match a SLO specified in the Benchmark.
+                      type: string
+                    # TODO Do we need to keep it here or just move to the Benchmark? Does it make sense to override the type at this point?
                     sloType:
                       description: The type of the SLO. It must match 'lag trend'.
                       type: string

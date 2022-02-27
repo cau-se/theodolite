@@ -1,7 +1,7 @@
 package theodolite
 
 import theodolite.benchmark.Benchmark
-import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.KubernetesBenchmark
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.LoadDimension
 import theodolite.util.Resource
@@ -9,13 +9,13 @@ import theodolite.util.Results
 import java.time.Duration
 
 class TestBenchmarkExecutorImpl(
-    private val mockResults: Array<Array<Boolean>>,
-    benchmark: Benchmark,
-    results: Results,
-    slo: List<BenchmarkExecution.Slo>,
-    executionId: Int,
-    loadGenerationDelay: Long,
-    afterTeardownDelay: Long
+        private val mockResults: Array<Array<Boolean>>,
+        benchmark: Benchmark,
+        results: Results,
+        slo: List<KubernetesBenchmark.Slo>,
+        executionId: Int,
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long
 ) :
     BenchmarkExecutor(
         benchmark,

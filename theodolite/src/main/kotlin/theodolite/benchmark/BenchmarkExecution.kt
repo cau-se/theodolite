@@ -30,7 +30,7 @@ class BenchmarkExecution : KubernetesResource {
     lateinit var benchmark: String
     lateinit var load: LoadDefinition
     lateinit var resources: ResourceDefinition
-    lateinit var slos: List<Slo>
+    lateinit var slos: List<KubernetesBenchmark.Slo>
     lateinit var execution: Execution
     lateinit var configOverrides: MutableList<ConfigurationOverride?>
 
@@ -49,6 +49,7 @@ class BenchmarkExecution : KubernetesResource {
         var afterTeardownDelay = 5L
     }
 
+    //TODO: use new SLO class since the values do not need to be set (just optional)
     /**
      * Measurable metric.
      * [sloType] determines the type of the metric.
@@ -58,14 +59,15 @@ class BenchmarkExecution : KubernetesResource {
      * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.
      * The [warmup] time unit depends on the Slo: for the lag trend it is in seconds.
      */
-    @JsonDeserialize
+  /*  @JsonDeserialize
     @RegisterForReflection
     class Slo : KubernetesResource {
+        lateinit var name: String
         lateinit var sloType: String
         lateinit var prometheusUrl: String
         var offset by Delegates.notNull<Int>()
         lateinit var properties: MutableMap<String, String>
-    }
+    }*/
 
     /**
      * Represents a Load that should be created and checked.

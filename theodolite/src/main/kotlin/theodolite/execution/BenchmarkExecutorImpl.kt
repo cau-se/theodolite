@@ -3,7 +3,7 @@ package theodolite.execution
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
-import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.KubernetesBenchmark
 import theodolite.evaluation.AnalysisExecutor
 import theodolite.execution.operator.EventCreator
 import theodolite.util.*
@@ -14,16 +14,16 @@ private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 class BenchmarkExecutorImpl(
-    benchmark: Benchmark,
-    results: Results,
-    executionDuration: Duration,
-    configurationOverrides: List<ConfigurationOverride?>,
-    slos: List<BenchmarkExecution.Slo>,
-    repetitions: Int,
-    executionId: Int,
-    loadGenerationDelay: Long,
-    afterTeardownDelay: Long,
-    executionName: String
+        benchmark: Benchmark,
+        results: Results,
+        executionDuration: Duration,
+        configurationOverrides: List<ConfigurationOverride?>,
+        slos: List<KubernetesBenchmark.Slo>,
+        repetitions: Int,
+        executionId: Int,
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long,
+        executionName: String
 ) : BenchmarkExecutor(
     benchmark,
     results,

@@ -10,6 +10,7 @@ import theodolite.k8s.K8sManager
 import theodolite.k8s.resourceLoader.K8sResourceLoader
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
+import kotlin.properties.Delegates
 
 
 private val logger = KotlinLogging.logger {}
@@ -39,11 +40,31 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
+    lateinit var slos: List<Slo>
     var kafkaConfig: KafkaConfig? = null
     lateinit var infrastructure: Resources
     lateinit var sut: Resources
     lateinit var loadGenerator: Resources
     private var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+
+    /**
+     * Measurable metric.
+     * [sloType] determines the type of the metric.
+     * It is evaluated using the [theodolite.evaluation.ExternalSloChecker] by data measured by Prometheus.
+     * The evaluation checks if a [threshold] is reached or not.
+     * [offset] determines the shift in hours by which the start and end timestamps should be shifted.
+     * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.
+     * The [warmup] time unit depends on the Slo: for the lag trend it is in seconds.
+     */
+    @JsonDeserialize
+    @RegisterForReflection
+    class Slo : KubernetesResource {
+        lateinit var name: String
+        lateinit var sloType: String
+        lateinit var prometheusUrl: String
+        var offset by Delegates.notNull<Int>()
+        lateinit var properties: MutableMap<String, String>
+    }
 
     @Transient
     private var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
