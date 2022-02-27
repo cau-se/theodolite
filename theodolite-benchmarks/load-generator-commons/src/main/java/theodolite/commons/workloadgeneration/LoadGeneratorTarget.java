@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 enum LoadGeneratorTarget {
 
-  KAFKA("kafka"), HTTP("http");
+  HTTP("http"), KAFKA("kafka"), PUBSUB("pubsub");
 
   private final String value;
 

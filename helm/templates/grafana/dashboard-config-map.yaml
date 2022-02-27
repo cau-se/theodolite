@@ -71,10 +71,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_input)",
+            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='input'}[30s]))",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "{{Messages In Per Second}}",
+            "legendFormat": "{{topic}}",
             "refId": "D"
           }
         ],
@@ -162,10 +162,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(cp_kafka_server_brokertopicmetrics_messagesinpersec_topic_output)",
+            "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='output'}[30s]))",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "{{Messages Out Per Second}}",
+            "legendFormat": "{{topic}}",
             "refId": "D"
           }
         ],
@@ -253,7 +253,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by(group, topic) (kafka_consumergroup_group_lag >= 0)",
+            "expr": "sum by(consumergroup, topic) (kafka_consumergroup_lag >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",
@@ -344,10 +344,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "count(count (kafka_consumer_consumer_fetch_manager_metrics_records_lag) by(pod))",
+            "expr": "sum by(consumergroup) (kafka_consumergroup_members >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "instances",
+            "legendFormat": "{{consumergroup}}",
             "refId": "D"
           }
         ],
@@ -436,7 +436,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by(group,topic) (kafka_consumergroup_group_offset >= 0)",
+            "expr": "sum by(consumergroup,topic) (kafka_consumergroup_current_offset{topic='input'} >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",
@@ -527,7 +527,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "count by(group,topic) (kafka_consumergroup_group_offset >= 0)",
+            "expr": "kafka_topic_partitions",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",
@@ -618,7 +618,7 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by(group,topic) (kafka_partition_latest_offset)",
+            "expr": "sum by(topic) (kafka_topic_partition_current_offset)",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",
