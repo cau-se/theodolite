@@ -13,6 +13,8 @@ import theodolite.commons.hazelcastjet.ConfigurationKeys;
  */
 public class Uc1KafkaPropertiesBuilder {
 
+  private static final String TRUE = "true";
+
   /**
    * Builds Kafka Properties used for the UC1 Benchmark pipeline.
    *
@@ -42,7 +44,7 @@ public class Uc1KafkaPropertiesBuilder {
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    props.put("specific.avro.reader", true);
+    props.setProperty("specific.avro.reader", TRUE);
 
 
     return props;

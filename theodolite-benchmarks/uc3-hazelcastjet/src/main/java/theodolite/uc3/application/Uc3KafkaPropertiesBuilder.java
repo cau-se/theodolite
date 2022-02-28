@@ -15,6 +15,8 @@ import theodolite.commons.hazelcastjet.ConfigurationKeys;
  */
 public class Uc3KafkaPropertiesBuilder {
 
+  private static final String TRUE = "true";
+
   /**
    * Builds Kafka Properties used for the UC3 Benchmark pipeline.
    *
@@ -39,7 +41,7 @@ public class Uc3KafkaPropertiesBuilder {
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
-    props.put("specific.avro.reader", true);
+    props.setProperty("specific.avro.reader", TRUE);
     props.setProperty("schema.registry.url", schemaRegistryUrl);
     props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     return props;

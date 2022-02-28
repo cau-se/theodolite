@@ -19,6 +19,7 @@ public class Uc4KafkaPropertiesBuilder {
 
   private static final String SPECIFIC_AVRO_READER_CONFIG = "specific.avro.reader";
   private static final String SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
+  private static final String TRUE = "true";
 
   /**
    * Builds Kafka Properties used for the UC4 Benchmark pipeline.
@@ -44,7 +45,7 @@ public class Uc4KafkaPropertiesBuilder {
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
-    props.put(SPECIFIC_AVRO_READER_CONFIG, true);
+    props.setProperty(SPECIFIC_AVRO_READER_CONFIG, TRUE);
     props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
     props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
     return props;
@@ -74,7 +75,7 @@ public class Uc4KafkaPropertiesBuilder {
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
-    props.put(SPECIFIC_AVRO_READER_CONFIG, true);
+    props.setProperty(SPECIFIC_AVRO_READER_CONFIG, TRUE);
     props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
 
     return props;
@@ -104,7 +105,7 @@ public class Uc4KafkaPropertiesBuilder {
         EventDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
-    props.put(SPECIFIC_AVRO_READER_CONFIG, true);
+    props.setProperty(SPECIFIC_AVRO_READER_CONFIG, TRUE);
     props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
     props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     return props;
@@ -128,13 +129,13 @@ public class Uc4KafkaPropertiesBuilder {
         schemaRegistryUrlDefault);
 
     final Properties props = new Properties();
-    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         StringSerializer.class.getCanonicalName());
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+    props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         KafkaAvroSerializer.class.getCanonicalName());
-    props.put("specific.avro.writer", true);
-    props.put(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+    props.setProperty("specific.avro.writer", TRUE);
+    props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
 
     return props;
   }
