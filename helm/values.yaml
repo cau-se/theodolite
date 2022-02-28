@@ -306,7 +306,7 @@ operator:
       uc2Kstreams: true
       uc2Flink: true
       uc2BeamFlink: true
-      uc21BeamSamza: true
+      uc2BeamSamza: true
       uc3LoadGenerator: true
       uc3Kstreams: true
       uc3Flink: true
