@@ -34,7 +34,7 @@ final class DocumentMapper extends SimpleFunction<ActivePowerRecord, Document> {
   private String createDocumentName(final String documentId) {
     this.initFirestoreConfig();
     return "projects/" + this.firestoreConfig.getProjectId()
-        + "/databases/" + this.firestoreConfig.getDatabaseDdlRequest()
+        + "/databases/" + this.firestoreConfig.getDatabase()
         + "/documents/" + this.collection
         + "/" + documentId;
   }
