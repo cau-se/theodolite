@@ -18,7 +18,7 @@ spec:
       containers:
         - name: jobmanager
           image: ghcr.io/cau-se/theodolite-uc2-beam-flink:latest
-          args: ["standalone-job", "--job-classname", "application.Uc2BeamFlink",
+          args: ["standalone-job", "--job-classname", "rocks.theodolite.benchmarks.uc2.beam.flink.Uc2BeamFlink",
                   "--parallelism=$(PARALLELISM)",
                   "--disableMetrics=true",
                   "--fasterCopy"]
