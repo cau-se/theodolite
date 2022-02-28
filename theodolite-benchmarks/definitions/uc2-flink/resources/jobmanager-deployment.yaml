@@ -46,7 +46,7 @@ spec:
             limits:
               memory: 4Gi
               cpu: 1000m
-          args: ["standalone-job", "--job-classname", "theodolite.uc2.application.HistoryServiceFlinkJob"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
+          args: ["standalone-job", "--job-classname", "rocks.theodolite.benchmarks.uc2.flink.HistoryServiceFlinkJob"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
           #command: ['sleep', '60m']
           ports:
             - containerPort: 6123
