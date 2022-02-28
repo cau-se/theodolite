@@ -53,6 +53,27 @@ public class AggregatedActivePowerRecordAccumulator {
     this.averageInW = sumInW / count;
   }
 
+  /**
+   * Adds the records from another aggregator.
+   */
+  public void addInputs(final double sumInW, final long count, final long timestamp) {
+    this.sumInW += sumInW;
+    this.count += count;
+    this.timestamp = Math.max(this.timestamp, timestamp);
+    this.averageInW = this.sumInW / this.count;
+  }
+
+  /**
+   * Removes the values of another aggreagator.
+   * Not a complete reset since the old timestamp is lost.
+   */
+  public void removeInputs(final double sumInW, final long count) {
+    this.sumInW -= sumInW;
+    this.count -= count;
+    this.averageInW = this.count == 0 ? 0.0 : this.sumInW / this.count;
+    this.timestamp = -1L;
+  }
+
   public long getCount() {
     return count;
   }
