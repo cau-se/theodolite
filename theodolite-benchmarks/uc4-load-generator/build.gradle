@@ -2,4 +2,4 @@ plugins {
   id 'theodolite.load-generator'
 }
 
-mainClassName = "theodolite.uc4.workloadgenerator.LoadGenerator"
+mainClassName = "rocks.theodolite.benchmarks.uc4.loadgenerator.LoadGenerator"

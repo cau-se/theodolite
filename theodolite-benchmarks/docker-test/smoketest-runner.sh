@@ -19,11 +19,15 @@ else
     RETURN=$?
     echo "test.sh does not exists for '$COMPOSE_FILE_PATH'." 
 fi
+
+docker-compose ps
+
+docker-compose down
+
 if [ $RETURN -eq 0 ]; then
     echo "Test for '$COMPOSE_FILE_PATH' has passed."
 else
     echo "Test for '$COMPOSE_FILE_PATH' has failed."
 fi
 
-docker-compose down
 exit $RETURN

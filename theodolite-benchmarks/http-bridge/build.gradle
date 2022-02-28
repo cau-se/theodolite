@@ -6,8 +6,6 @@ plugins {
   id 'application'
 }
 
-tasks.distZip.enabled = false
-
 repositories {
   mavenCentral()
   maven {
@@ -24,8 +22,15 @@ dependencies {
   implementation project(':load-generator-commons')
   
   implementation 'io.javalin:javalin:4.3.0'
+  implementation 'io.micrometer:micrometer-core:1.8.3'
+  implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
   implementation 'com.google.code.gson:gson:2.8.2'
   runtimeOnly 'org.slf4j:slf4j-simple:1.7.25'
 
   testImplementation 'junit:junit:4.12'
 }
+
+
+tasks.distZip.enabled = false
+
+mainClassName = "rocks.theodolite.benchmarks.httpbridge.HttpBridge"

@@ -1,0 +1,16 @@
+{{- if .Values.strimzi.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ template "theodolite.fullname" . }}-kafka-resources-metrics
+  labels:
+    app: theodolite
+spec:
+  selector:
+    selector:
+    matchLabels:
+      strimzi.io/name: {{ template "theodolite.fullname" . }}-kafka-kafka
+  podMetricsEndpoints:
+  - path: /metrics
+    port: tcp-prometheus
+{{- end }}
