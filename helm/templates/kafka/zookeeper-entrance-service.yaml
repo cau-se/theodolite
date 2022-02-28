@@ -1,0 +1,17 @@
+{{- if .Values.strimzi.zookeeper.zooEntrance.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: zoo-entrance
+  name: {{ template "theodolite.fullname" . }}-kafka-zoo-entrance
+spec:
+  ports:
+    - name: zoo
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+  selector:
+    app: zoo-entrance
+  type: ClusterIP
+{{- end }}

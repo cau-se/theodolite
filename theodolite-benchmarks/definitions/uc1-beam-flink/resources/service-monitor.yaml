@@ -1,16 +1,14 @@
-{{- if .Values.kafkaClient.enabled -}}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    app: cp-kafka
+    app: flink
     appScope: titan-ccp
-  name: {{ template "theodolite.fullname" . }}-cp-kafka
+  name: flink
 spec:
   selector:
     matchLabels:
-      app: cp-kafka
+        app: flink
   endpoints:
     - port: metrics
-      interval: 7s
-{{- end}}
+      interval: 10s
