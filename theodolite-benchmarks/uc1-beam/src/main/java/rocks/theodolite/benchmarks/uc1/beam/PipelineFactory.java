@@ -57,12 +57,15 @@ public class PipelineFactory extends AbstractPipelineFactory {
           .readMessages()
           .fromTopic(topic.asPath());
 
+      // Read messages from Pub/Sub and encode them as Avro records
       activePowerRecords = pipeline.apply(pubsub).apply(MapElements.via(new PubSubEncoder()));
     } else {
       final KafkaActivePowerTimestampReader kafka = super.buildKafkaReader();
+      // Read messages from Kafka as Avro records and drop keys
       activePowerRecords = pipeline.apply(kafka).apply(Values.create());
     }
 
+    // Forward Avro records to configured sink
     activePowerRecords.apply(sinkType.create(this.config));
   }
 
