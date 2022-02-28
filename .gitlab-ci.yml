@@ -37,16 +37,19 @@ default:
     - >
       if [ $IMAGE_TAG ]; then
         KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$IMAGE_TAG"
+        export PUBLISHED_IMAGE_TAG=$IMAGE_TAG
       elif [ $CI_COMMIT_TAG ]; then
         KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
+        export PUBLISHED_IMAGE_TAG=$CI_COMMIT_TAG
       else
         DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
         KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
         KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+        export PUBLISHED_IMAGE_TAG=$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA
       fi
     - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
     - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
-    - echo "PUBLISHED_IMAGE_TAG=${CI_COMMIT_TAG-$CI_COMMIT_SHORT_SHA}" >> build.env
+    - echo "PUBLISHED_IMAGE_TAG=$PUBLISHED_IMAGE_TAG" >> $CI_PROJECT_DIR/build.env
   artifacts:
     reports:
       dotenv: build.env

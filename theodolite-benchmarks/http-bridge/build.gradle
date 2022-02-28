@@ -6,8 +6,6 @@ plugins {
   id 'application'
 }
 
-tasks.distZip.enabled = false
-
 repositories {
   mavenCentral()
   maven {
@@ -31,3 +29,8 @@ dependencies {
 
   testImplementation 'junit:junit:4.12'
 }
+
+
+tasks.distZip.enabled = false
+
+mainClassName = "rocks.theodolite.benchmarks.httpbridge.HttpBridge"
