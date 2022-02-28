@@ -56,7 +56,10 @@ public class AggregatedActivePowerRecordAccumulator {
   /**
    * Adds the records from another aggregator.
    */
-  public void addInputs(final String id, final double sumInW, final long count, final long timestamp) {
+  public void addInputs(final String id,
+                        final double sumInW,
+                        final long count,
+                        final long timestamp) {
     this.id = this.id == null ? id : this.id;
     this.sumInW += sumInW;
     this.count += count;
