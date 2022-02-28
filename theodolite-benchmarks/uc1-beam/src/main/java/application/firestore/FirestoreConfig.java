@@ -16,8 +16,8 @@ final class FirestoreConfig {
     return this.firestoreOptions.getProjectId();
   }
 
-  public String getDatabaseDdlRequest() {
-    return this.firestoreOptions.getProjectId();
+  public String getDatabase() {
+    return this.firestoreOptions.getDatabaseId();
   }
 
   public static FirestoreConfig createFromDefaults() throws IOException {
