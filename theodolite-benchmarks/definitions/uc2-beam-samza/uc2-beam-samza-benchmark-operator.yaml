@@ -11,24 +11,6 @@ spec:
           - "uc2-beam-samza-deployment.yaml"
           - "beam-samza-service.yaml"
           - "service-monitor.yaml"
-    # beforeActions:
-    #   - selector: # delete zookeeper nodes to reset zookeeper
-    #       pod:
-    #         matchLabels:
-    #           app: "cp-zookeeper"
-    #       container: "cp-zookeeper-server"
-    #     exec:
-    #       command: ["/usr/bin/zookeeper-shell", "localhost:2181", "ls" , "/"]
-    #       timeoutSeconds: 60
-      # - selector: #Create input topic for samza with 10 partitions
-      #     pod:
-      #        matchLabels:
-      #          app: "cp-zookeeper"
-      #      container: "cp-zookeeper-server"
-      #    exec:
-      #      command: ["kafka-topics", "--zookeeper", "localhost:2181",
-      #               "--topic", "input", "--partitions", "10", "--create"]
-      #      timeoutSeconds: 90
     afterActions:
       - selector: # delete zookeeper nodes to reset zookeeper
           pod:
