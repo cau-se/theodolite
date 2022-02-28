@@ -52,7 +52,7 @@ services:
     image: ghcr.io/cau-se/theodolite-uc2-flink:${THEODOLITE_TAG:-latest}
     #ports:
     #  - "8080:8081"
-    command: standalone-job --job-classname theodolite.uc2.application.HistoryServiceFlinkJob
+    command: standalone-job --job-classname rocks.theodolite.benchmarks.uc2.flink.HistoryServiceFlinkJob
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - SCHEMA_REGISTRY_URL=http://schema-registry:8081

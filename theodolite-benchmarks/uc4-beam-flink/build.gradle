@@ -2,9 +2,18 @@ plugins {
   id 'theodolite.beam.flink'
 }
 
-
 dependencies {
   implementation project(':uc4-beam')
 }
 
-mainClassName = 'application.Uc4BeamFlink'
+sourceSets {
+  main {
+    resources {
+      srcDirs += [
+        project(':uc4-beam').sourceSets.main.resources
+      ]
+    }
+  }
+}
+
+mainClassName = 'rocks.theodolite.benchmarks.uc4.beam.flink.Uc4BeamFlink'
