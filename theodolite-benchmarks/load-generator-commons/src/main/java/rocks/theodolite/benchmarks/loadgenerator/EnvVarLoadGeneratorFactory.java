@@ -11,9 +11,9 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 class EnvVarLoadGeneratorFactory {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(EnvVarLoadGeneratorFactory.class);
-
   public static final boolean DISABLE_DNS_CACHING_DEFAULT = false;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(EnvVarLoadGeneratorFactory.class);
 
   public LoadGenerator create(final LoadGenerator loadGeneratorTemplate) {
 
