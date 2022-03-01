@@ -63,7 +63,7 @@ The prebuilt container images can be configured with the following environment v
 | `VALUE` | The constant `valueInW` of an `ActivePowerRecord`. | 10 |
 | `THREADS` | Number of worker threads used to generate the load. | 4 |
 
-Please note that there are some additional configuration options for benchmark [UC4's load generator](https://github.com/cau-se/theodolite/blob/master/theodolite-benchmarks/uc4-load-generator/src/main/java/theodolite/uc4/workloadgenerator/LoadGenerator.java).
+Please note that there are some additional configuration options for benchmark [UC4's load generator](hhttps://github.com/cau-se/theodolite/blob/master/theodolite-benchmarks/uc4-load-generator/src/main/java/rocks/theodolite/benchmarks/uc4/loadgenerator/LoadGenerator.java).
 
 ## Creating a custom load generator
 

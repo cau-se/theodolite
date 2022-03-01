@@ -1,0 +1,23 @@
+{{- if .Values.strimzi.zookeeper.zooEntrance.zookeeperClient.enabled -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ template "theodolite.fullname" . }}-kafka-zookeeper-client
+  labels:
+    app: zookeeper-client
+spec:
+  containers:
+  - name: zookeeper-client
+    image: zookeeper:3.7.0
+    command:
+      - sh
+      - -c
+      - "exec tail -f /dev/null"
+    env:
+    - name: ZOOKEEPER_SERVER
+      value: {{ template "theodolite.fullname" . }}-kafka-zoo-entrance:2181
+  {{- with .Values.strimzi.zookeeper.zooEntrance.zookeeperClient.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+{{- end }}

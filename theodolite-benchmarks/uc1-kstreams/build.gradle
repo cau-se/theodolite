@@ -6,4 +6,4 @@ dependencies {
     implementation project(':uc1-commons')
 }
 
-mainClassName = "theodolite.uc1.application.HistoryService"
+mainClassName = "rocks.theodolite.benchmarks.uc1.kstreams.HistoryService"
