@@ -11,13 +11,9 @@ spec:
     resourceType: "Instances"
     resourceValues: [1, 2, 3, 4, 5]
   slos:
-    - sloType: "lag trend"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
+    - name: "lag trend"
       properties:
         threshold: 2000
-        externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
   execution:
     strategy: "LinearSearch"
     duration: 300 # in seconds
