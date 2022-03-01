@@ -62,6 +62,7 @@ The prebuilt container images can be configured with the following environment v
 | `PERIOD_MS` | The time in milliseconds between generating two messages for the same sensor. With our Theodolite benchmarks, we apply an [open workload model](https://www.usenix.org/legacy/event/nsdi06/tech/full_papers/schroeder/schroeder.pdf) in which new messages are generated at a fixed rate, without considering the think time of the target server nor the time required for generating a message. | 1000 |
 | `VALUE` | The constant `valueInW` of an `ActivePowerRecord`. | 10 |
 | `THREADS` | Number of worker threads used to generate the load. | 4 |
+| `DISABLE_DNS_CACHING` | Set to `true` to disable DNS caching by the underlying JVM. You might want to do so when generating load via HTTP that should be sent to different target instances. | `false` |
 
 Please note that there are some additional configuration options for benchmark [UC4's load generator](hhttps://github.com/cau-se/theodolite/blob/master/theodolite-benchmarks/uc4-load-generator/src/main/java/rocks/theodolite/benchmarks/uc4/loadgenerator/LoadGenerator.java).
 

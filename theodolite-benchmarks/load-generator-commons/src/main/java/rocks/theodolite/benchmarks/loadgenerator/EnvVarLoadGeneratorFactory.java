@@ -13,7 +13,17 @@ class EnvVarLoadGeneratorFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EnvVarLoadGeneratorFactory.class);
 
+  public static final boolean DISABLE_DNS_CACHING_DEFAULT = false;
+
   public LoadGenerator create(final LoadGenerator loadGeneratorTemplate) {
+
+    final boolean disableDnsCaching = Boolean.parseBoolean(Objects.requireNonNullElse(
+        System.getenv(ConfigurationKeys.DISABLE_DNS_CACHING),
+        Boolean.toString(DISABLE_DNS_CACHING_DEFAULT)));
+    if (disableDnsCaching) {
+      this.disableDnsCaching();
+    }
+
     final int numSensors = Integer.parseInt(Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.NUM_SENSORS),
         Integer.toString(LoadGenerator.NUMBER_OF_KEYS_DEFAULT)));
@@ -133,6 +143,11 @@ class EnvVarLoadGeneratorFactory {
       throw new IllegalStateException("Target " + target + " is not handled yet.");
     }
     return recordSender;
+  }
+
+  private void disableDnsCaching() {
+    LOGGER.info("Disable DNS caching.");
+    java.security.Security.setProperty("networkaddress.cache.ttl", "0");
   }
 
 }

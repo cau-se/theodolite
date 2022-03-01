@@ -23,6 +23,8 @@ public final class ConfigurationKeys {
 
   public static final String THREADS = "THREADS";
 
+  public static final String DISABLE_DNS_CACHING = "DISABLE_DNS_CACHING";
+
   public static final String TARGET = "TARGET";
 
   public static final String KAFKA_BOOTSTRAP_SERVERS = "KAFKA_BOOTSTRAP_SERVERS";
@@ -44,6 +46,7 @@ public final class ConfigurationKeys {
   public static final String PUBSUB_PROJECT = "PUBSUB_PROJECT";
 
   public static final String PUBSUB_EMULATOR_HOST = "PUBSUB_EMULATOR_HOST";
+
 
   private ConfigurationKeys() {}
 
