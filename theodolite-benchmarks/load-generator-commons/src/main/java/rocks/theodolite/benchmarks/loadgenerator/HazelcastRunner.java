@@ -94,7 +94,9 @@ public class HazelcastRunner {
         .getJoin();
     joinConfig.getMulticastConfig().setEnabled(false);
     if (cluster.hasBootstrapServer()) {
-      joinConfig.getTcpIpConfig().addMember(cluster.getBootstrapServer());
+      joinConfig.getTcpIpConfig()
+          .setEnabled(true)
+          .addMember(cluster.getBootstrapServer());
     } else if (cluster.hasKubernetesDnsName()) {
       joinConfig.getKubernetesConfig()
           .setEnabled(true)
