@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc1.kstreams.streamprocessing;
+package rocks.theodolite.benchmarks.uc1.kstreams;
 
 import java.util.Objects;
 import java.util.Properties;
