@@ -7,6 +7,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory;
 public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<T> {
 
   private static final int HTTP_OK = 200;
+
+  private static final Duration CONNECTION_TIMEOUT = Duration.ofSeconds(1);
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpRecordSender.class);
 
@@ -63,6 +66,7 @@ public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<
     final String json = this.gson.toJson(message);
     final HttpRequest request = HttpRequest.newBuilder()
         .uri(this.uri)
+        .timeout(CONNECTION_TIMEOUT)
         .POST(HttpRequest.BodyPublishers.ofString(json))
         .build();
     final BodyHandler<Void> bodyHandler = BodyHandlers.discarding();
@@ -81,13 +85,17 @@ public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<
                     response.statusCode());
               }
             });
-    if (this.async) {
+    if (this.isSync()) {
       try {
         result.get();
       } catch (InterruptedException | ExecutionException e) {
         LOGGER.error("Couldn't get result for request to {}.", this.uri, e);
       }
     }
+  }
+
+  private boolean isSync() {
+    return !this.async;
   }
 
 }
