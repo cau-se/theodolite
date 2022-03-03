@@ -41,7 +41,7 @@ spec:
 
   kafkaExporter: {}
 
-  {{- if .Values.strimzi.topicOperator.enabled -}}
+  {{- if .Values.strimzi.topicOperator.enabled }}
   entityOperator:
     topicOperator: {}
   {{- end }}
