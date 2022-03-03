@@ -2090,20 +2090,6 @@ Specifies the scaling resource that is benchmarked.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>offset</b></td>
-        <td>integer</td>
-        <td>
-          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>prometheusUrl</b></td>
-        <td>string</td>
-        <td>
-          Connection string for Promehteus.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>properties</b></td>
         <td>map[string]string</td>
         <td>
@@ -2111,14 +2097,7 @@ Specifies the scaling resource that is benchmarked.
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>sloType</b></td>
-        <td>string</td>
-        <td>
-          The type of the SLO. It must match 'lag trend'.<br/>
-        </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 

@@ -1,6 +1,6 @@
 package theodolite.evaluation
 
-import theodolite.benchmark.KubernetesBenchmark
+import theodolite.benchmark.Slo
 import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
 import theodolite.util.LoadDimension
@@ -16,7 +16,7 @@ import java.util.regex.Pattern
  * @param slo Slo that is used for the analysis.
  */
 class AnalysisExecutor(
-        private val slo: KubernetesBenchmark.Slo,
+        private val slo: Slo,
         private val executionId: Int
 ) {
 

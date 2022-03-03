@@ -8,7 +8,7 @@ import theodolite.util.LoadDimension
 import theodolite.util.Resource
 import theodolite.util.Results
 import mu.KotlinLogging
-import theodolite.benchmark.KubernetesBenchmark
+import theodolite.benchmark.Slo
 import theodolite.strategies.searchstrategy.PrevResourceMinGuess
 
 private val logger = KotlinLogging.logger {}
@@ -32,7 +32,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results()
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
-        val sloChecker: KubernetesBenchmark.Slo = KubernetesBenchmark.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
@@ -70,7 +70,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results()
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
-        val sloChecker: KubernetesBenchmark.Slo = KubernetesBenchmark.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
@@ -108,7 +108,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results()
         val benchmark = TestBenchmark()
         val guessStrategy = PrevResourceMinGuess()
-        val sloChecker: KubernetesBenchmark.Slo = KubernetesBenchmark.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)
 

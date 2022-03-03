@@ -3,7 +3,7 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.KubernetesBenchmark
+import theodolite.benchmark.Slo
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.BinarySearch
 import theodolite.strategies.searchstrategy.CompositeStrategy
@@ -30,7 +30,7 @@ class CompositeStrategyTest {
         val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
-        val sloChecker: KubernetesBenchmark.Slo = KubernetesBenchmark.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val linearSearch = LinearSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
@@ -63,7 +63,7 @@ class CompositeStrategyTest {
         val mockResources: List<Resource> = (0..6).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
-        val sloChecker: KubernetesBenchmark.Slo = KubernetesBenchmark.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutorImpl =
             TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutorImpl)
@@ -97,7 +97,7 @@ class CompositeStrategyTest {
         val mockResources: List<Resource> = (0..7).map { number -> Resource(number, emptyList()) }
         val results = Results()
         val benchmark = TestBenchmark()
-        val sloChecker: KubernetesBenchmark.Slo = KubernetesBenchmark.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)

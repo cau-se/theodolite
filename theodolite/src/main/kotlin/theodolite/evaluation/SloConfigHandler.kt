@@ -1,6 +1,6 @@
 package theodolite.evaluation
 
-import theodolite.benchmark.KubernetesBenchmark
+import theodolite.benchmark.Slo
 import theodolite.util.InvalidPatcherConfigurationException
 import javax.enterprise.context.ApplicationScoped
 
@@ -10,7 +10,7 @@ private const val DROPPED_RECORDS_QUERY = "sum by(job) (kafka_streams_stream_tas
 @ApplicationScoped
 class SloConfigHandler {
     companion object {
-        fun getQueryString(slo: KubernetesBenchmark.Slo): String {
+        fun getQueryString(slo: Slo): String {
             return when (slo.sloType.lowercase()) {
                 SloTypes.GENERIC.value -> slo.properties["promQLQuery"] ?: throw IllegalArgumentException("promQLQuery expected")
                 SloTypes.LAG_TREND.value, SloTypes.LAG_TREND_RATIO.value -> CONSUMER_LAG_QUERY
