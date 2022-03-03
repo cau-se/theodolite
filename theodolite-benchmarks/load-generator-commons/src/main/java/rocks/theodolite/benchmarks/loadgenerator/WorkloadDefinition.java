@@ -42,16 +42,16 @@ public class WorkloadDefinition implements Serializable {
    * distributing its {@link KeySpace} (almost) equally among all {@link WorkloadDefinition}s.
    */
   public Set<WorkloadDefinition> divide(final int parts) {
-    final int effParts = Math.min(parts, this.keySpace.getCount());
-    final int minSize = this.keySpace.getCount() / effParts;
-    final int largerParts = this.keySpace.getCount() % effParts;
-    return IntStream.range(0, effParts)
+    // final int effParts = Math.min(parts, this.keySpace.getCount());
+    final int minSize = this.keySpace.getCount() / parts;
+    final int largerParts = this.keySpace.getCount() % parts;
+    return IntStream.range(0, parts)
         .mapToObj(part -> {
           final int thisSize = part < largerParts ? minSize + 1 : minSize;
           final int largePartsBefore = Math.min(largerParts, part);
           final int smallPartsBefore = part - largePartsBefore;
           final int start = largePartsBefore * (minSize + 1) + smallPartsBefore * minSize;
-          final int end = start + thisSize - 1;
+          final int end = start + thisSize;
           return new KeySpace(
               this.keySpace.getPrefix(),
               start,
