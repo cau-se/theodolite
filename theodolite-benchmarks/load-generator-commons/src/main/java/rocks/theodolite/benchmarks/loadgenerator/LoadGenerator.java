@@ -17,6 +17,7 @@ public final class LoadGenerator {
   public static final LoadGeneratorTarget TARGET_DEFAULT = LoadGeneratorTarget.KAFKA;
   // Target: HTTP
   public static final String HTTP_URI_DEFAULT = "http://localhost:8080";
+  public static final boolean HTTP_ASYNC_DEFAULT = false;
   // Target: Kafka
   public static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   public static final String KAFKA_TOPIC_DEFAULT = "input"; // NOCS

@@ -44,7 +44,17 @@ public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<
    * @param uri the {@link URI} records should be sent to
    */
   public HttpRecordSender(final URI uri) {
-    this(uri, true, List.of(HTTP_OK));
+    this(uri, false, List.of(HTTP_OK));
+  }
+
+  /**
+   * Create a new {@link HttpRecordSender}.
+   *
+   * @param uri the {@link URI} records should be sent to
+   * @param async whether HTTP requests should be sent asynchronous
+   */
+  public HttpRecordSender(final URI uri, final boolean async) {
+    this(uri, async, List.of(HTTP_OK));
   }
 
   /**

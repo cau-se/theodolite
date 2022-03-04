@@ -119,7 +119,10 @@ class EnvVarLoadGeneratorFactory {
           Objects.requireNonNullElse(
               System.getenv(ConfigurationKeys.HTTP_URL),
               LoadGenerator.HTTP_URI_DEFAULT));
-      recordSender = new HttpRecordSender<>(url);
+      final boolean async = Boolean.parseBoolean(Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.HTTP_ASYNC),
+          Boolean.toString(LoadGenerator.HTTP_ASYNC_DEFAULT)));
+      recordSender = new HttpRecordSender<>(url, async);
       LOGGER.info("Use HTTP server as target with url '{}'.", url);
     } else if (target == LoadGeneratorTarget.PUBSUB) {
       final String project = System.getenv(ConfigurationKeys.PUBSUB_PROJECT);
