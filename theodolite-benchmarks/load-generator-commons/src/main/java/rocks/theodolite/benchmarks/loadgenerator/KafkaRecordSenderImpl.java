@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
   }
 
   @Override
-  public void terminate() {
+  public void close() {
     this.producer.close();
   }
 

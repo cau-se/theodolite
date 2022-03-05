@@ -79,6 +79,7 @@ public final class LoadGenerator {
         this.clusterConfig,
         this.generatorConfig,
         this.loadDefinition);
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> runner.stop()));
     runner.runBlocking();
   }
 
@@ -92,11 +93,12 @@ public final class LoadGenerator {
             new KeySpace(SENSOR_PREFIX_DEFAULT, NUMBER_OF_KEYS_DEFAULT),
             Duration.ofMillis(PERIOD_MS_DEFAULT)))
         .setGeneratorConfig(new LoadGeneratorConfig(
-            TitanRecordGenerator.forConstantValue(VALUE_DEFAULT),
-            TitanKafkaSenderFactory.forKafkaConfig(
-                KAFKA_BOOTSTRAP_SERVERS_DEFAULT,
-                KAFKA_TOPIC_DEFAULT,
-                SCHEMA_REGISTRY_URL_DEFAULT)));
+            GeneratorAction.from(
+                TitanRecordGenerator.forConstantValue(VALUE_DEFAULT),
+                TitanKafkaSenderFactory.forKafkaConfig(
+                    KAFKA_BOOTSTRAP_SERVERS_DEFAULT,
+                    KAFKA_TOPIC_DEFAULT,
+                    SCHEMA_REGISTRY_URL_DEFAULT))));
   }
 
   /**

@@ -42,9 +42,9 @@ class EnvVarLoadGeneratorFactory {
         .setLoadDefinition(new WorkloadDefinition(
             new KeySpace(LoadGenerator.SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))
-        .setGeneratorConfig(new LoadGeneratorConfig(
+        .setGeneratorConfig(new LoadGeneratorConfig(GeneratorAction.from(
             TitanRecordGenerator.forConstantValue(value),
-            this.buildRecordSender()))
+            this.buildRecordSender())))
         .withThreads(threads);
   }
 

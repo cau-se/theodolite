@@ -17,7 +17,8 @@ import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
  */
 public interface KafkaRecordSender<T> extends RecordSender<T> {
 
-  public void terminate();
+  @Override
+  public void close();
 
   /**
    * Creates a builder object for a {@link KafkaRecordSender} based on a Kafka {@link Serializer}.
