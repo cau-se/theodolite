@@ -5,14 +5,18 @@ package rocks.theodolite.benchmarks.loadgenerator;
  * it.
  */
 @FunctionalInterface
-interface GeneratorAction {
+public interface GeneratorAction {
 
   void generate(final String key);
+
+  default void shutdown() {
+    // Nothing to do per default
+  }
 
   public static <T> GeneratorAction from(
       final RecordGenerator<? extends T> generator,
       final RecordSender<? super T> sender) {
-    return key -> sender.send(generator.generate(key));
+    return new GeneratorActionImpl<>(generator, sender);
   }
 
 }

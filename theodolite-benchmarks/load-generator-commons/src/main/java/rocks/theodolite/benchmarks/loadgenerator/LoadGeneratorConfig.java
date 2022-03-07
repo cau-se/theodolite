@@ -5,21 +5,16 @@ package rocks.theodolite.benchmarks.loadgenerator;
  */
 public class LoadGeneratorConfig {
 
-  private final GeneratorAction messageGenerator;
+  private final GeneratorAction generatorAction;
   private BeforeAction beforeAction = BeforeAction.doNothing();
   private int threads = 1;
 
-  public <T> LoadGeneratorConfig(
-      final RecordGenerator<? extends T> generator,
-      final RecordSender<? super T> sender) {
-    this.messageGenerator = GeneratorAction.from(generator, sender);
+  public LoadGeneratorConfig(final GeneratorAction generatorAction) {
+    this.generatorAction = generatorAction;
   }
 
-  public <T> LoadGeneratorConfig(
-      final RecordGenerator<? extends T> generator,
-      final RecordSender<? super T> sender,
-      final int threads) {
-    this(generator, sender);
+  public LoadGeneratorConfig(final GeneratorAction generatorAction, final int threads) {
+    this(generatorAction);
     this.threads = threads;
   }
 
@@ -37,7 +32,7 @@ public class LoadGeneratorConfig {
 
   public LoadGeneratorExecution buildLoadGeneratorExecution(
       final WorkloadDefinition workloadDefinition) {
-    return new LoadGeneratorExecution(workloadDefinition, this.messageGenerator, this.threads);
+    return new LoadGeneratorExecution(workloadDefinition, this.generatorAction, this.threads);
   }
 
 }
