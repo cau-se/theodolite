@@ -108,19 +108,16 @@ public class Uc2PipelineBuilder {
    * @return An AggregateOperation used by Hazelcast Jet in a streaming stage which aggregates
    *         ActivePowerRecord Objects into Stats Objects.
    */
-  @SuppressWarnings("unchecked")
-  public AggregateOperation1<Object, StatsAccumulator, Stats> uc2AggregateOperation() {
-
+  public AggregateOperation1<Entry<String, ActivePowerRecord>,
+      StatsAccumulator, Stats> uc2AggregateOperation() {
     // Aggregate Operation to Create a Stats Object from Entry<String,ActivePowerRecord> items using
     // the Statsaccumulator.
     return AggregateOperation
         // Creates the accumulator
         .withCreate(new StatsAccumulatorSupplier())
         // Defines the accumulation
-        .andAccumulate((accumulator, item) -> {
-          final Entry<String, ActivePowerRecord> castedEntry =
-              (Entry<String, ActivePowerRecord>) item;
-          accumulator.add(castedEntry.getValue().getValueInW());
+        .<Entry<String, ActivePowerRecord>>andAccumulate((accumulator, item) -> {
+          accumulator.add(item.getValue().getValueInW());
         })
         // Defines the combination of spread out instances
         .andCombine((left, right) -> {
@@ -129,9 +126,10 @@ public class Uc2PipelineBuilder {
 
         })
         // Finishes the aggregation
-        .andExportFinish((accumulator) -> {
-          return accumulator.snapshot();
-        });
+        .andExportFinish(
+            (accumulator) -> {
+              return accumulator.snapshot();
+          });
   }
 
 }
