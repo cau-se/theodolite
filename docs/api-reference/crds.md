@@ -115,6 +115,13 @@ Resource Types:
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b><a href="#benchmarkspecslosindex">slos</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of resource values for the specified resource type.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecsut">sut</a></b></td>
         <td>object</td>
         <td>
@@ -719,6 +726,63 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td>map[string]string</td>
         <td>
           (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.slos[index]
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the SLO.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>offset</b></td>
+        <td>integer</td>
+        <td>
+          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>prometheusUrl</b></td>
+        <td>string</td>
+        <td>
+          Connection string for Promehteus.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>sloType</b></td>
+        <td>string</td>
+        <td>
+          The type of the SLO. It must match 'lag trend'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) SLO specific additional arguments.<br/>
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
@@ -1779,19 +1843,19 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecslosindex">slos</a></b></td>
-        <td>[]object</td>
-        <td>
-          List of resource values for the specified resource type.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
           <br/>
             <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#executionspecslosindex">slos</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of SLOs with their properties, which differ from the benchmark definition.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -2067,24 +2131,10 @@ Specifies the scaling resource that is benchmarked.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>offset</b></td>
-        <td>integer</td>
-        <td>
-          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>prometheusUrl</b></td>
+        <td><b>name</b></td>
         <td>string</td>
         <td>
-          Connection string for Promehteus.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>sloType</b></td>
-        <td>string</td>
-        <td>
-          The type of the SLO. It must match 'lag trend'.<br/>
+          The name of the SLO. It must match a SLO specified in the Benchmark.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2095,7 +2145,7 @@ Specifies the scaling resource that is benchmarked.
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 

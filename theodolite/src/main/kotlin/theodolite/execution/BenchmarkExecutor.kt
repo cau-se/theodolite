@@ -2,7 +2,7 @@ package theodolite.execution
 
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
-import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.Slo
 import theodolite.util.ConfigurationOverride
 import theodolite.util.PatcherDefinition
 import theodolite.util.Results
@@ -24,7 +24,7 @@ abstract class BenchmarkExecutor(
     val results: Results,
     val executionDuration: Duration,
     val configurationOverrides: List<ConfigurationOverride?>,
-    val slos: List<BenchmarkExecution.Slo>,
+    val slos: List<Slo>,
     val repetitions: Int,
     val executionId: Int,
     val loadGenerationDelay: Long,

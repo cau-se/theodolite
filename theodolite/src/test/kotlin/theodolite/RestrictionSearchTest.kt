@@ -3,7 +3,7 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.Slo
 import theodolite.strategies.Metric
 import theodolite.strategies.restriction.LowerBoundRestriction
 import theodolite.strategies.searchstrategy.BinarySearch
@@ -31,7 +31,7 @@ class RestrictionSearchTest {
         val mockResources: List<Int> = (0..6).toList()
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
-        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val linearSearch = LinearSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
@@ -64,7 +64,7 @@ class RestrictionSearchTest {
         val mockResources: List<Int> = (0..6).toList()
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
-        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val fullSearch = FullSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
@@ -97,7 +97,7 @@ class RestrictionSearchTest {
         val mockResources: List<Int> = (0..6).toList()
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
-        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutorImpl =
             TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutorImpl)
@@ -130,7 +130,7 @@ class RestrictionSearchTest {
         val mockResources: List<Int> = (0..7).toList()
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
-        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val sloChecker: Slo = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)

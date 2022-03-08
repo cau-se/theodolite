@@ -1,19 +1,19 @@
 package theodolite
 
 import theodolite.benchmark.Benchmark
-import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.Slo
 import theodolite.execution.BenchmarkExecutor
 import theodolite.util.Results
 import java.time.Duration
 
 class TestBenchmarkExecutorImpl(
-    private val mockResults: Array<Array<Boolean>>,
-    benchmark: Benchmark,
-    results: Results,
-    slo: List<BenchmarkExecution.Slo>,
-    executionId: Int,
-    loadGenerationDelay: Long,
-    afterTeardownDelay: Long
+        private val mockResults: Array<Array<Boolean>>,
+        benchmark: Benchmark,
+        results: Results,
+        slo: List<Slo>,
+        executionId: Int,
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long
 ) :
     BenchmarkExecutor(
         benchmark,
