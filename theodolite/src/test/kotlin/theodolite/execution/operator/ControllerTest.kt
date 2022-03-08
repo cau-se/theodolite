@@ -10,11 +10,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.BenchmarkExecution
-import theodolite.benchmark.KubernetesBenchmark
-import theodolite.model.crd.BenchmarkCRD
-import theodolite.model.crd.BenchmarkState
-import theodolite.model.crd.ExecutionCRD
+import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.execution.operator.TheodoliteController
+import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
+import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
+import rocks.theodolite.kubernetes.model.crd.BenchmarkState
+import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
+
 
 @QuarkusTest
 class ControllerTest {

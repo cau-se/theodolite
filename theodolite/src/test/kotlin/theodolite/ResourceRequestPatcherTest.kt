@@ -5,9 +5,9 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.quarkus.test.junit.QuarkusTest
 import io.smallrye.common.constraint.Assert.assertTrue
 import org.junit.jupiter.api.Test
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.patcher.PatcherFactory
-import theodolite.util.PatcherDefinition
+import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
+import rocks.theodolite.kubernetes.patcher.PatcherFactory
+import rocks.theodolite.kubernetes.util.PatcherDefinition
 
 /**
  * Resource patcher test

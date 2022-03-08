@@ -1,9 +1,9 @@
 package theodolite.execution.operator
 
-import theodolite.benchmark.KubernetesBenchmark
-import theodolite.benchmark.Resources
-import theodolite.model.crd.BenchmarkCRD
-import theodolite.util.KafkaConfig
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.benchmark.Resources
+import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
+import rocks.theodolite.kubernetes.model.crd.KafkaConfig
 
 class BenchmarkCRDummy(name: String) {
 

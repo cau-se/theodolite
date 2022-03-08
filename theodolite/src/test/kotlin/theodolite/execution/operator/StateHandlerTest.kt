@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import theodolite.k8s.K8sManager
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.model.crd.ExecutionState
-import java.time.Duration
+import rocks.theodolite.kubernetes.execution.operator.ExecutionStateHandler
+import rocks.theodolite.kubernetes.k8s.K8sManager
+import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
+import rocks.theodolite.kubernetes.model.crd.ExecutionState
 
 @QuarkusTest
 @WithKubernetesTestServer

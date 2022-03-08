@@ -1,9 +1,9 @@
 package theodolite
 
-import theodolite.benchmark.Benchmark
-import theodolite.benchmark.BenchmarkDeployment
-import theodolite.util.ConfigurationOverride
-import theodolite.util.PatcherDefinition
+import rocks.theodolite.kubernetes.benchmark.Benchmark
+import rocks.theodolite.kubernetes.benchmark.BenchmarkDeployment
+import rocks.theodolite.kubernetes.util.ConfigurationOverride
+import rocks.theodolite.kubernetes.util.PatcherDefinition
 
 class TestBenchmark : Benchmark {
 

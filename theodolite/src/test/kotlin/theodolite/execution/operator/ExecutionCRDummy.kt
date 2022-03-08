@@ -1,9 +1,9 @@
 package theodolite.execution.operator
 
-import theodolite.benchmark.BenchmarkExecution
-import theodolite.model.crd.ExecutionCRD
-import theodolite.model.crd.ExecutionStatus
-import theodolite.model.crd.ExecutionState
+import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
+import rocks.theodolite.kubernetes.model.crd.ExecutionState
+import rocks.theodolite.kubernetes.model.crd.ExecutionStatus
 
 class ExecutionCRDummy(name: String, benchmark: String) {
 

@@ -8,9 +8,11 @@ import io.fabric8.kubernetes.client.utils.Utils
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import theodolite.execution.operator.TheodoliteController
-import theodolite.execution.operator.TheodoliteOperator
-import theodolite.util.ActionCommandFailedException
+import rocks.theodolite.kubernetes.benchmark.*
+import rocks.theodolite.kubernetes.execution.operator.TheodoliteController
+import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
+import rocks.theodolite.kubernetes.util.exception.ActionCommandFailedException
+
 
 @QuarkusTest
 class ActionCommandTest {

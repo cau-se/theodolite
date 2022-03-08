@@ -4,8 +4,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import theodolite.strategies.Metric
-import theodolite.util.Results
+import rocks.theodolite.core.strategies.Metric
+import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
+import rocks.theodolite.core.util.Results
 
 internal class LowerBoundRestrictionTest {
 

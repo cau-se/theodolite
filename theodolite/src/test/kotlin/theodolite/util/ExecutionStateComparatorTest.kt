@@ -4,7 +4,8 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import theodolite.execution.operator.ExecutionCRDummy
-import theodolite.model.crd.ExecutionState
+import rocks.theodolite.kubernetes.model.crd.ExecutionState
+import rocks.theodolite.kubernetes.util.ExecutionStateComparator
 
 
 @QuarkusTest

@@ -11,8 +11,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import theodolite.k8s.CustomResourceWrapper
-import theodolite.util.DeploymentFailedException
+import rocks.theodolite.kubernetes.benchmark.FileSystemResourceSet
+import rocks.theodolite.kubernetes.k8s.CustomResourceWrapper
+import rocks.theodolite.kubernetes.util.exception.DeploymentFailedException
 
 private const val testResourcePath = "./src/test/resources/k8s-resource-files/"
 

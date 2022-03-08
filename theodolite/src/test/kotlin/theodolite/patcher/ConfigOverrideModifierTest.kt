@@ -4,8 +4,9 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.BenchmarkExecution
-import theodolite.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
 import theodolite.execution.operator.BenchmarkCRDummy
 import theodolite.execution.operator.ExecutionCRDummy
 

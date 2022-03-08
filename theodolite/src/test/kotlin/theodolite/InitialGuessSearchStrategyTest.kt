@@ -3,12 +3,12 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import theodolite.strategies.searchstrategy.InitialGuessSearchStrategy
-import theodolite.strategies.Metric
-import theodolite.util.Results
+import rocks.theodolite.core.strategies.Metric
 import mu.KotlinLogging
-import theodolite.benchmark.Slo
-import theodolite.strategies.searchstrategy.PrevInstanceOptGuess
+import rocks.theodolite.core.strategies.guessstrategy.PrevInstanceOptGuess
+import rocks.theodolite.core.strategies.searchstrategy.InitialGuessSearchStrategy
+import rocks.theodolite.core.util.Results
+import rocks.theodolite.kubernetes.benchmark.Slo
 
 private val logger = KotlinLogging.logger {}
 

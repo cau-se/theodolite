@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.rules.TemporaryFolder
 import org.junitpioneer.jupiter.ClearEnvironmentVariable
 import org.junitpioneer.jupiter.SetEnvironmentVariable
+import rocks.theodolite.core.util.IOHandler
 
 
 const val FOLDER_URL = "Test-Folder"

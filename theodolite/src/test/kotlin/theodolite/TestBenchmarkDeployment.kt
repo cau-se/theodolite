@@ -1,6 +1,6 @@
 package theodolite
 
-import theodolite.benchmark.BenchmarkDeployment
+import rocks.theodolite.kubernetes.benchmark.BenchmarkDeployment
 
 class TestBenchmarkDeployment : BenchmarkDeployment {
     override fun setup() {}

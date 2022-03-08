@@ -3,14 +3,15 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.Slo
-import theodolite.strategies.Metric
-import theodolite.strategies.restriction.LowerBoundRestriction
-import theodolite.strategies.searchstrategy.BinarySearch
-import theodolite.strategies.searchstrategy.FullSearch
-import theodolite.strategies.searchstrategy.RestrictionSearch
-import theodolite.strategies.searchstrategy.LinearSearch
-import theodolite.util.Results
+
+import rocks.theodolite.core.strategies.Metric
+import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
+import rocks.theodolite.core.strategies.searchstrategy.BinarySearch
+import rocks.theodolite.core.strategies.searchstrategy.FullSearch
+import rocks.theodolite.core.strategies.searchstrategy.LinearSearch
+import rocks.theodolite.core.strategies.searchstrategy.RestrictionSearch
+import rocks.theodolite.core.util.Results
+import rocks.theodolite.kubernetes.benchmark.Slo
 
 @QuarkusTest
 class RestrictionSearchTest {

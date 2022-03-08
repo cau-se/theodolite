@@ -2,12 +2,12 @@ package theodolite.execution.operator
 
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.BenchmarkExecution
-import theodolite.benchmark.BenchmarkExecution.SloConfiguration
-import theodolite.benchmark.KubernetesBenchmark
-import theodolite.benchmark.Slo
-import theodolite.execution.SloFactory
+import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution.SloConfiguration
+import rocks.theodolite.kubernetes.execution.SloFactory
 import org.junit.jupiter.api.Assertions.*
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.benchmark.Slo
 
 @QuarkusTest
 internal class SloFactoryTest {

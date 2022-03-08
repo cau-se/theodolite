@@ -7,6 +7,8 @@ import io.fabric8.kubernetes.api.model.Duration as K8sDuration
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import rocks.theodolite.kubernetes.model.crd.ExecutionState
+import rocks.theodolite.kubernetes.model.crd.ExecutionStatus
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant

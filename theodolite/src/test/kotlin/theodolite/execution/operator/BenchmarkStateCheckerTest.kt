@@ -13,8 +13,10 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
-import theodolite.benchmark.*
-import theodolite.model.crd.BenchmarkState
+import rocks.theodolite.kubernetes.benchmark.*
+import rocks.theodolite.kubernetes.execution.operator.BenchmarkStateChecker
+import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
+import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 
 internal class BenchmarkStateCheckerTest {
     private val server = KubernetesServer(false, false)

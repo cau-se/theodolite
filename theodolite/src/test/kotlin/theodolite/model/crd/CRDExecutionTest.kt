@@ -11,15 +11,13 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals
-import org.apache.commons.lang3.builder.EqualsBuilder
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.instanceOf
-import org.mockito.kotlin.isA
 import org.mockito.kotlin.mock
-import theodolite.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.execution.operator.ExecutionEventHandler
+import rocks.theodolite.kubernetes.execution.operator.ExecutionStateHandler
+import rocks.theodolite.kubernetes.execution.operator.TheodoliteController
+import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import theodolite.execution.operator.*
-import theodolite.util.ConfigurationOverride
+import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import java.io.FileInputStream
 
 

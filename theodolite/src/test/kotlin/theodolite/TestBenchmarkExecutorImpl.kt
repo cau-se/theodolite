@@ -1,9 +1,9 @@
 package theodolite
 
-import theodolite.benchmark.Benchmark
-import theodolite.benchmark.Slo
-import theodolite.execution.BenchmarkExecutor
-import theodolite.util.Results
+import rocks.theodolite.core.util.Results
+import rocks.theodolite.kubernetes.benchmark.Benchmark
+import rocks.theodolite.kubernetes.benchmark.Slo
+import rocks.theodolite.kubernetes.execution.BenchmarkExecutor
 import java.time.Duration
 
 class TestBenchmarkExecutorImpl(

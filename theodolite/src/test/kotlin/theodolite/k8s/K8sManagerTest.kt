@@ -14,7 +14,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
+import rocks.theodolite.kubernetes.k8s.K8sContextFactory
+import rocks.theodolite.kubernetes.k8s.K8sManager
+import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
 
 @QuarkusTest
 @JsonIgnoreProperties(ignoreUnknown = true)

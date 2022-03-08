@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
+import rocks.theodolite.kubernetes.k8s.CustomResourceWrapper
+import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
 
 @QuarkusTest
 class K8sResourceLoaderTest {
