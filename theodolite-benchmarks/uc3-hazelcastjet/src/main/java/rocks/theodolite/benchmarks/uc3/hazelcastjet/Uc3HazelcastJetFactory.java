@@ -1,4 +1,4 @@
-package theodolite.uc3.application;
+package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
@@ -8,8 +8,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
-import theodolite.uc3.application.uc3specifics.HourOfDayKey;
-import theodolite.uc3.application.uc3specifics.HourOfDayKeySerializer;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKeySerializer;
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC3

@@ -1,4 +1,4 @@
-package theodolite.uc3.application.uc3specifics;
+package rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics;
 
 import java.util.Objects;
 

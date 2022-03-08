@@ -1,4 +1,4 @@
-package theodolite.uc3.application;
+package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
 import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.kafka.KafkaSinks;
@@ -15,9 +15,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import theodolite.uc3.application.uc3specifics.HourOfDayKey;
-import theodolite.uc3.application.uc3specifics.HoursOfDayKeyFactory;
-import theodolite.uc3.application.uc3specifics.StatsKeyFactory;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HoursOfDayKeyFactory;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**

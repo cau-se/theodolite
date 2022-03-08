@@ -24,8 +24,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import theodolite.uc3.application.uc3specifics.HourOfDayKey;
-import theodolite.uc3.application.uc3specifics.HourOfDayKeySerializer;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.Uc3PipelineBuilder;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKeySerializer;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
