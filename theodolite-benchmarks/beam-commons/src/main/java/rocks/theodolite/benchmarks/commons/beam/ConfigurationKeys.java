@@ -35,6 +35,8 @@ public final class ConfigurationKeys {
   // BEAM
   public static final String ENABLE_AUTO_COMMIT = "enable.auto.commit";
 
+  public static final String MAX_POLL_RECORDS = "max.poll.records";
+
   public static final String AUTO_OFFSET_RESET = "auto.offset.reset";
 
   public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";

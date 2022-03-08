@@ -50,6 +50,9 @@ public abstract class AbstractPipelineFactory {
         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
         this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT));
     consumerConfig.put(
+        ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
+        this.config.getString(ConfigurationKeys.MAX_POLL_RECORDS));
+    consumerConfig.put(
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
         this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET));
     consumerConfig.put(
