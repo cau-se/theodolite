@@ -43,14 +43,14 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
             resources
                 .map {
                     Pair(
-                        getKind(resource = it.value),
+                        getKind(resourceYaml = it.value),
                         it
                     )
                 }
                 .map {
                     Pair(
-                        it.second.key,
-                        loader.loadK8sResource(it.first, it.second.value)
+                        it.second.key, // filename
+                        loader.loadK8sResource(kind = it.first, resourceString = it.second.value) // K8s resource
                     )
                 }
         } catch (e: IllegalArgumentException) {
@@ -59,11 +59,11 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
 
     }
 
-    private fun getKind(resource: String): String {
+    private fun getKind(resourceYaml: String): String {
         val parser = YamlParserFromString()
-        val resourceAsMap = parser.parse(resource, HashMap<String, String>()::class.java)
+        val resourceAsMap = parser.parse(resourceYaml, HashMap<String, String>()::class.java)
 
         return resourceAsMap?.get("kind")
-            ?: throw DeploymentFailedException("Could not find field kind of Kubernetes resource: ${resourceAsMap?.get("name")}")
+            ?: throw DeploymentFailedException("Could not find 'kind' field of Kubernetes resource: ${resourceAsMap?.get("name")}")
     }
 }
