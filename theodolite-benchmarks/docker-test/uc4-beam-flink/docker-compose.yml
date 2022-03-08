@@ -55,7 +55,7 @@ services:
       #  - "8080:8081"
       command: >
         standalone-job
-        --job-classname application.Uc4BeamFlink
+        --job-classname rocks.theodolite.benchmarks.uc4.beam.flink.Uc4BeamFlink
         --disableMetrics=true 
         --fasterCopy 
       environment:
