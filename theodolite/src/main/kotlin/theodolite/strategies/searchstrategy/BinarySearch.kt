@@ -42,8 +42,8 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         // special case:  length == 1, so lower and upper bounds are the same
         if (lower == upper) {
             val res = resources[lower]
-            logger.info { "Running experiment with load '${load}' and resources '$res'" }
-            if (this.benchmarkExecutor.runExperiment(load, resources[lower])) return lower
+            logger.info { "Running experiment with load '$load' and resource '$res'" }
+            if (this.benchmarkExecutor.runExperiment(load, res)) return lower
             else {
                 if (lower + 1 == resources.size) return -1
                 return lower + 1
@@ -53,8 +53,8 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
             // length >= 2 and adjust upper and lower depending on the result for `resources[mid]`
             val mid = (upper + lower) / 2
             val res = resources[mid]
-            logger.info { "Running experiment with load '${load}' and resources '$res'" }
-            if (this.benchmarkExecutor.runExperiment(load, resources[mid])) {
+            logger.info { "Running experiment with load '$load' and resource '$res'" }
+            if (this.benchmarkExecutor.runExperiment(load, res)) {
                 // case length = 2
                 if (mid == lower) {
                     return lower
@@ -81,9 +81,9 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         }
         // length = 1, so lower and upper bounds are the same
         if (lower == upper) {
-            val res = loads[lower]
-            logger.info { "Running experiment with load '$resource' and resources '$res'" }
-            if (this.benchmarkExecutor.runExperiment(resource, loads[lower])) return lower
+            val load = loads[lower]
+            logger.info { "Running experiment with load '$load' and resource '$resource'" }
+            if (this.benchmarkExecutor.runExperiment(load, resource)) return lower
             else {
                 if (lower + 1 == loads.size) return -1
                 return lower - 1
@@ -92,9 +92,9 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
             // apply binary search for a list with
             // length > 2 and adjust upper and lower depending on the result for `resources[mid]`
             val mid = (upper + lower + 1) / 2 //round to next int
-            val res = loads[mid]
-            logger.info { "Running experiment with load '$resource' and resources '$res'" }
-            if (this.benchmarkExecutor.runExperiment(resource, loads[mid])) {
+            val load = loads[mid]
+            logger.info { "Running experiment with load '$load' and resource '$resource'" }
+            if (this.benchmarkExecutor.runExperiment(load, resource)) {
                 // length = 2, so since we round down mid is equal to lower
                 if (mid == upper) {
                     return upper

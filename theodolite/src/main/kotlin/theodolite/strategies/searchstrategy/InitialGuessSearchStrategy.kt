@@ -93,7 +93,7 @@ class InitialGuessSearchStrategy(
 
             // If the first experiment passes, starting upwards linear search
             // otherwise starting downward linear search
-            if (!this.benchmarkExecutor.runExperiment(resource, lastMaxLoad)) {
+            if (!this.benchmarkExecutor.runExperiment(lastMaxLoad, resource)) {
                 // downward search
 
                 loadsToCheck = loads.subList(0, startIndex).reversed()
@@ -101,7 +101,7 @@ class InitialGuessSearchStrategy(
                     for (load in loadsToCheck) {
 
                         logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                        if (this.benchmarkExecutor.runExperiment(resource, load)) {
+                        if (this.benchmarkExecutor.runExperiment(load, resource)) {
                             return load
                         }
                     }
@@ -117,7 +117,7 @@ class InitialGuessSearchStrategy(
                 var currentMax: Int = lastMaxLoad
                 for (load in loadsToCheck) {
                     logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                    if (this.benchmarkExecutor.runExperiment(resource, load)) {
+                    if (this.benchmarkExecutor.runExperiment(load, resource)) {
                         currentMax = load
                     }
                 }
