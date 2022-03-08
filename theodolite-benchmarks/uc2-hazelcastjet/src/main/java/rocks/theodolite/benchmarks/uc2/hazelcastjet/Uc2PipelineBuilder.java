@@ -1,4 +1,4 @@
-package theodolite.uc2.application;
+package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
@@ -14,7 +14,7 @@ import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import theodolite.uc2.application.uc2specifics.StatsAccumulatorSupplier;
+import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSupplier;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**

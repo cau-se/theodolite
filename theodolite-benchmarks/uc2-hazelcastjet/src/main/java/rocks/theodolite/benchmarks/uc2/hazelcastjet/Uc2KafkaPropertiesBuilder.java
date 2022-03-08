@@ -1,4 +1,4 @@
-package theodolite.uc2.application;
+package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.Objects;

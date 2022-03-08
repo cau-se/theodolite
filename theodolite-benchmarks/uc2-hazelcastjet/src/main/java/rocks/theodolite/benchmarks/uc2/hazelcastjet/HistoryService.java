@@ -1,4 +1,4 @@
-package theodolite.uc2.application;
+package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

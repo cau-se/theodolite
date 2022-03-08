@@ -1,4 +1,4 @@
-package theodolite.uc2.application;
+package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
 import com.google.common.math.StatsAccumulator;
 import com.hazelcast.jet.JetInstance;
@@ -9,7 +9,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
-import theodolite.uc2.application.uc2specifics.StatsAccumulatorSerializer;
+import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSerializer;
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC2

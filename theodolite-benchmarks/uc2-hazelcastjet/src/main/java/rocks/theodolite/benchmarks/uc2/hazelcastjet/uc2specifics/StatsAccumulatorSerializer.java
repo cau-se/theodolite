@@ -1,4 +1,4 @@
-package theodolite.uc2.application.uc2specifics;
+package rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
