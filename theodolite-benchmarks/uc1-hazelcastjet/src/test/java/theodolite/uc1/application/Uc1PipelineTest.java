@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import rocks.theodolite.benchmarks.uc1.hazelcastjet.Uc1PipelineBuilder;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**

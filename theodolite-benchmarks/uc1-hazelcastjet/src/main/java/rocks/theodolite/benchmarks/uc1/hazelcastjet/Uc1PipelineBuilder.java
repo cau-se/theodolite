@@ -1,4 +1,4 @@
-package theodolite.uc1.application;
+package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
 import com.google.gson.Gson;
 import com.hazelcast.jet.kafka.KafkaSources;

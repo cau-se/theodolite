@@ -2,4 +2,4 @@ plugins {
   id 'theodolite.hazelcastjet'
 }
 
-mainClassName = "theodolite.uc1.application.HistoryService"
+mainClassName = "rocks.theodolite.benchmarks.uc1.hazelcastjet.HistoryService"
