@@ -8,7 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import theodolite.commons.hazelcastjet.ConfigurationKeys;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import theodolite.uc4.application.uc4specifics.EventDeserializer;
 
 /**

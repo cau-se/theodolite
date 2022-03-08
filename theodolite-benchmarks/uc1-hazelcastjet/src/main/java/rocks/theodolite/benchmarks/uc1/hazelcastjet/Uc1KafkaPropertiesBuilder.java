@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import theodolite.commons.hazelcastjet.ConfigurationKeys;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 
 /**
  * Builds a Properties object containing the needed kafka properties used for the UC1 benchmark of

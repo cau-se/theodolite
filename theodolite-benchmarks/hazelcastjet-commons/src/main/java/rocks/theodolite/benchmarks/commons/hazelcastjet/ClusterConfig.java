@@ -1,4 +1,4 @@
-package theodolite.commons.hazelcastjet;
+package rocks.theodolite.benchmarks.commons.hazelcastjet;
 
 /**
  * Configuration of a load generator cluster.

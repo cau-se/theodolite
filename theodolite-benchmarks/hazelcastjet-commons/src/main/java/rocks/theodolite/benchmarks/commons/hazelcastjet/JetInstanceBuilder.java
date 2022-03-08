@@ -1,4 +1,4 @@
-package theodolite.commons.hazelcastjet;
+package rocks.theodolite.benchmarks.commons.hazelcastjet;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.jet.Jet;
@@ -36,9 +36,8 @@ public class JetInstanceBuilder {
       final String bootstrapServerDefault, final String hzKubernetesServiceDnsKey) {
     // Use ClusterConfigBuilder to build a cluster config for this microservice
     final BenchmarkConfigBuilder configBuilder = new BenchmarkConfigBuilder();
-    final Config config =
+    this.config =
         configBuilder.buildFromEnv(logger, bootstrapServerDefault, hzKubernetesServiceDnsKey);
-    this.config = config;
     return this;
   }
 
@@ -46,7 +45,7 @@ public class JetInstanceBuilder {
    * Builds and returns a JetInstance. If a config is set, the JetInstance will contain the set
    * config.
    *
-   * @return
+   * @return JetInstance
    */
   public JetInstance build() {
     final JetInstance jet = Jet.newJetInstance();

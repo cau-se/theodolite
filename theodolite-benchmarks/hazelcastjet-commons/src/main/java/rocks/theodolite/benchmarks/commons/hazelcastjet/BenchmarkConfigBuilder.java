@@ -1,4 +1,4 @@
-package theodolite.commons.hazelcastjet;
+package rocks.theodolite.benchmarks.commons.hazelcastjet;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;

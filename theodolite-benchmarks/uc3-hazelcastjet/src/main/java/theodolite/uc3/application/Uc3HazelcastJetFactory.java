@@ -6,8 +6,8 @@ import com.hazelcast.jet.pipeline.Pipeline;
 import java.util.Objects;
 import java.util.Properties;
 import org.slf4j.Logger;
-import theodolite.commons.hazelcastjet.ConfigurationKeys;
-import theodolite.commons.hazelcastjet.JetInstanceBuilder;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
 import theodolite.uc3.application.uc3specifics.HourOfDayKey;
 import theodolite.uc3.application.uc3specifics.HourOfDayKeySerializer;
 
