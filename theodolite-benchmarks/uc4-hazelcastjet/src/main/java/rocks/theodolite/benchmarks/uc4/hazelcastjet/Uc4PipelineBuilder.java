@@ -1,4 +1,4 @@
-package theodolite.uc4.application;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import com.hazelcast.function.BiFunctionEx;
 import com.hazelcast.jet.Traverser;
@@ -25,10 +25,10 @@ import java.util.Properties;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import theodolite.uc4.application.uc4specifics.AggregatedActivePowerRecordAccumulator;
-import theodolite.uc4.application.uc4specifics.ChildParentsTransformer;
-import theodolite.uc4.application.uc4specifics.SensorGroupKey;
-import theodolite.uc4.application.uc4specifics.ValueGroup;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.AggregatedActivePowerRecordAccumulator;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ChildParentsTransformer;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
 import titan.ccp.configuration.events.Event;
 import titan.ccp.model.records.ActivePowerRecord;
 import titan.ccp.model.records.AggregatedActivePowerRecord;

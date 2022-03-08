@@ -1,4 +1,4 @@
-package theodolite.uc4.application;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
@@ -9,7 +9,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
-import theodolite.uc4.application.uc4specifics.EventDeserializer;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.EventDeserializer;
 
 /**
  * Builds a read and write Properties objects containing the needed kafka properties used for the

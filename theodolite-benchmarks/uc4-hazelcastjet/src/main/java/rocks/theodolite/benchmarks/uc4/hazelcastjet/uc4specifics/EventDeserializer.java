@@ -1,4 +1,4 @@
-package theodolite.uc4.application.uc4specifics;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics;
 
 import java.util.Map;
 import org.apache.kafka.common.serialization.Deserializer;

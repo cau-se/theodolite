@@ -1,4 +1,4 @@
-package theodolite.uc4.application;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
@@ -8,12 +8,14 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
-import theodolite.uc4.application.uc4specifics.ImmutableSensorRegistryUc4Serializer;
-import theodolite.uc4.application.uc4specifics.SensorGroupKey;
-import theodolite.uc4.application.uc4specifics.SensorGroupKeySerializer;
-import theodolite.uc4.application.uc4specifics.ValueGroup;
-import theodolite.uc4.application.uc4specifics.ValueGroupSerializer;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
 import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
+
+
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC4
