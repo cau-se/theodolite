@@ -9,6 +9,7 @@ import org.apache.beam.sdk.transforms.Values;
 import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.commons.beam.AbstractPipelineFactory;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
+import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreOptionsExpander;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
@@ -17,6 +18,8 @@ import titan.ccp.model.records.ActivePowerRecord;
 public class PipelineFactory extends AbstractPipelineFactory {
 
   public static final String SINK_TYPE_KEY = "sink.type";
+  
+  private final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
 
   public PipelineFactory(final Configuration configuration) {
     super(configuration);
@@ -31,17 +34,18 @@ public class PipelineFactory extends AbstractPipelineFactory {
     // final PubsubOptions pubSubOptions = options.as(PubsubOptions.class);
     // pubSubOptions.setPubsubRootUrl("http://" + pubSubEmulatorHost);
     // }
+    if (this.sinkType == SinkType.FIRESTORE) {
+      FirestoreOptionsExpander.expandOptions(options);
+    }
   }
 
   @Override
   protected void constructPipeline(final Pipeline pipeline) {
-    final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
-
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
 
     pipeline.apply(kafkaReader)
         .apply(Values.create())
-        .apply(sinkType.create(this.config));
+        .apply(this.sinkType.create(this.config));
   }
 
   @Override
