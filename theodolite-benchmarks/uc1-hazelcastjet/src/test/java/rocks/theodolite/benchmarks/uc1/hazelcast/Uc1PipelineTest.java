@@ -1,4 +1,4 @@
-package theodolite.uc1.application;
+package rocks.theodolite.benchmarks.uc1.hazelcast;
 
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
