@@ -3,33 +3,39 @@ kind: benchmark
 metadata:
   name: uc1-hazelcastjet
 spec:
-  appResource:
-    - "uc1-hazelcastjet/uc1-hazelcastjet-deployment.yaml"
-    - "uc1-hazelcastjet/uc1-hazelcastjet-service.yaml"
-    #- "uc1-hazelcastjet/uc1-jmx-configmap.yaml"
-    #- "uc1-hazelcastjet/uc1-service-monitor.yaml"
-  loadGenResource:
-    - "uc1-kstreams/uc1-load-generator-deployment.yaml"
-    - "uc1-kstreams/uc1-load-generator-service.yaml"
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc1-hazelcastjet"
+          files:
+          - "uc1-hazelcastjet-deployment.yaml"
+          - "uc1-hazelcastjet-service.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc1-load-generator"
+          files:
+          - "uc1-load-generator-deployment.yaml"
+          - "uc1-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc1-hazelcsatjet/uc1-hazelcastjet-deployment.yaml"
+          resource: "uc1-hazelcastjet-deployment.yaml"
   loadTypes:
     - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc1-kstreams/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumSensorsLoadGeneratorReplicaPatcher
-          resource: "uc1-kstreams/uc1-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
   kafkaConfig:
-    bootstrapServer: "theodolite-cp-kafka:9092"
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
       - name: "input"
         numPartitions: 40

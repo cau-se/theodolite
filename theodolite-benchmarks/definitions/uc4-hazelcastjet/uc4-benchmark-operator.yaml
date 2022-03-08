@@ -3,34 +3,40 @@ kind: benchmark
 metadata:
   name: uc4-hazelcastjet
 spec:
-  appResource:
-    - "uc4-hazelcastjet/uc4-hazelcastjet-deployment.yaml"
-    - "uc4-hazelcastjet/uc4-hazelcastjet-service.yaml"
-    #- "uc4-hazelcastjet/uc4-jmx-configmap.yaml"
-    #- "uc4-hazelcastjet/uc4-service-monitor.yaml"
-  loadGenResource:
-    - "uc4-kstreams/uc4-load-generator-deployment.yaml"
-    - "uc4-kstreams/uc4-load-generator-service.yaml"
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-hazelcastjet"
+          files:
+            - "uc4-hazelcastjet-deployment.yaml"
+            - "uc4-hazelcastjet-service.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-load-generator"
+          files:
+            - "uc4-load-generator-deployment.yaml"
+            - "uc4-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc4-hazelcastjet/uc4-hazelcastjet-deployment.yaml"
+          resource: "uc4-hazelcastjet-deployment.yaml"
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
         - type: NumNestedGroupsLoadGeneratorReplicaPatcher
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
             numSensors: "4.0"
   kafkaConfig:
-    bootstrapServer: "theodolite-cp-kafka:9092"
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
       - name: "input"
         numPartitions: 40
@@ -44,3 +50,5 @@ spec:
       - name: "aggregation-feedback"
         numPartitions: 40
         replicationFactor: 1
+      - name: "theodolite-.*"
+        removeOnly: True
