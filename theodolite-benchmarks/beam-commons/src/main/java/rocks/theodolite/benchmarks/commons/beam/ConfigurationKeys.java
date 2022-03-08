@@ -33,16 +33,15 @@ public final class ConfigurationKeys {
 
 
   // BEAM
-  public static final String ENABLE_AUTO_COMMIT_CONFIG = "enable.auto.commit.config";
+  public static final String ENABLE_AUTO_COMMIT = "enable.auto.commit";
 
-  public static final String AUTO_OFFSET_RESET_CONFIG = "auto.offset.reset.config";
+  public static final String AUTO_OFFSET_RESET = "auto.offset.reset";
 
   public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";
 
-  public static final String TRIGGER_INTERVAL  = "trigger.interval";
+  public static final String TRIGGER_INTERVAL = "trigger.interval";
 
 
-  private ConfigurationKeys() {
-  }
+  private ConfigurationKeys() {}
 
 }

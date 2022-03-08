@@ -251,10 +251,10 @@ public class PipelineFactory extends AbstractPipelineFactory {
     final Map<String, Object> consumerConfig = new HashMap<>();
     consumerConfig.put(
         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-        this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
+        this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT));
     consumerConfig.put(
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-        this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET_CONFIG));
+        this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET));
     consumerConfig.put(
         ConsumerConfig.GROUP_ID_CONFIG, this.config
             .getString(ConfigurationKeys.APPLICATION_NAME) + "-configuration");
@@ -265,10 +265,10 @@ public class PipelineFactory extends AbstractPipelineFactory {
     final Map<String, Object> consumerConfig = new HashMap<>();
     consumerConfig.put(
         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-        this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT_CONFIG));
+        this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT));
     consumerConfig.put(
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-        this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET_CONFIG));
+        this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET));
     consumerConfig.put(
         AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
         this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL));
