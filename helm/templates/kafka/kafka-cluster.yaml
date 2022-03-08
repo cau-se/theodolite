@@ -30,8 +30,6 @@ spec:
         configMapKeyRef:
           name: {{ template "theodolite.fullname" . }}-kafka-metrics
           key: kafka-metrics-config.yml
-  
-  kafkaExporter: {}
 
   zookeeper:
     {{- with .Values.strimzi.zookeeper.replicas }}
@@ -39,5 +37,14 @@ spec:
       {{- toYaml . | nindent 6 }}
     {{- end }}
     storage:
-      type: ephemeral
+      type: ephemeral 
+
+  kafkaExporter: {}
+
+  {{- if .Values.strimzi.topicOperator.enabled }}
+  entityOperator:
+    topicOperator: {}
+  {{- end }}
+
+
 {{- end }}

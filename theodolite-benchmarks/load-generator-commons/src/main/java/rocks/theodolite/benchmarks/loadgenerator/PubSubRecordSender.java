@@ -55,7 +55,8 @@ public class PubSubRecordSender<T> implements RecordSender<T> {
   /**
    * Terminate this {@link PubSubRecordSender} and shutdown the underlying {@link Publisher}.
    */
-  public void terminate() {
+  @Override
+  public void close() {
     this.publisher.shutdown();
     try {
       this.publisher.awaitTermination(SHUTDOWN_TIMEOUT_SEC, TimeUnit.SECONDS);

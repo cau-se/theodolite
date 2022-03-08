@@ -36,7 +36,7 @@ public class HazelcastRunner {
   }
 
   /**
-   * Start the workload generation and blocks until the workload generation is stopped again.
+   * Start the load generation and blocks until the load generation is stopped again.
    */
   public void runBlocking() {
     while (!this.stopAction.isDone()) {
@@ -52,19 +52,24 @@ public class HazelcastRunner {
   }
 
   public void restart() {
-    this.stopRunnerState();
+    this.stopRunnerStateAsync();
   }
 
+  /**
+   * Stop generating load and clean up the entire state.
+   */
   public void stop() {
     this.stopAction.complete(null);
-    this.stopRunnerState();
+    this.stopRunnerStateAsync().join();
+    this.hzInstance.shutdown();
   }
 
-  private void stopRunnerState() {
+  private CompletableFuture<Void> stopRunnerStateAsync() {
     synchronized (this) {
       if (this.runnerState != null) {
-        this.runnerState.stopAsync();
+        return this.runnerState.stopAsync();
       }
+      return CompletableFuture.completedFuture(null);
     }
   }
 
@@ -94,7 +99,9 @@ public class HazelcastRunner {
         .getJoin();
     joinConfig.getMulticastConfig().setEnabled(false);
     if (cluster.hasBootstrapServer()) {
-      joinConfig.getTcpIpConfig().addMember(cluster.getBootstrapServer());
+      joinConfig.getTcpIpConfig()
+          .setEnabled(true)
+          .addMember(cluster.getBootstrapServer());
     } else if (cluster.hasKubernetesDnsName()) {
       joinConfig.getKubernetesConfig()
           .setEnabled(true)

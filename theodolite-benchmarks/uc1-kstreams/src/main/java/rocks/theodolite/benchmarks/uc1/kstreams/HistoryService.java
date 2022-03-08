@@ -1,9 +1,8 @@
-package rocks.theodolite.benchmarks.uc1.kstreams.application;
+package rocks.theodolite.benchmarks.uc1.kstreams;
 
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
-import rocks.theodolite.benchmarks.uc1.kstreams.streamprocessing.Uc1KafkaStreamsBuilder;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**

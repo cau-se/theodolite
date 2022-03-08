@@ -27,6 +27,7 @@ public class HazelcastRunnerStateInstance {
   private static final Duration TASK_ASSIGNMENT_WAIT_DURATION = Duration.ofMillis(500);
 
   private final CompletableFuture<Void> stopAction = new CompletableFuture<>();
+  private final CompletableFuture<Void> stopFinished = new CompletableFuture<>();
   private LoadGeneratorExecution loadGeneratorExecution;
 
   private final LoadGeneratorConfig loadGeneratorConfig;
@@ -61,10 +62,12 @@ public class HazelcastRunnerStateInstance {
     }
     this.stopAction.join();
     this.stopLoadGeneration();
+    this.stopFinished.complete(null);
   }
 
-  public void stopAsync() {
+  public CompletableFuture<Void> stopAsync() {
     this.stopAction.complete(null);
+    return this.stopFinished;
   }
 
   private void tryPerformBeforeAction() {
