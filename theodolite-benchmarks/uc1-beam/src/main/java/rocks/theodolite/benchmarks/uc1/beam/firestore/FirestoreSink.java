@@ -86,7 +86,7 @@ public class FirestoreSink extends PTransform<PCollection<ActivePowerRecord>, PC
    * Create a {@link FirestoreSink} from the provided {@link Configuration} object.
    */
   public static FirestoreSink fromConfig(final Configuration config) {
-    final String collectionName = config.getString(SINK_FIRESTORE_MAX_WORKERS_KEY);
+    final String collectionName = config.getString(SINK_FIRESTORE_COLLECTION_KEY);
     final int maxWorkers = config.getInt(SINK_FIRESTORE_MAX_WORKERS_KEY, 500);
     return new FirestoreSink(collectionName, maxWorkers);
   }
