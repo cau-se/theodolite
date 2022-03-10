@@ -5,4 +5,9 @@ plugins {
 dependencies {
   implementation project(':uc1-commons')
   implementation 'org.apache.beam:beam-sdks-java-io-google-cloud-platform:2.35.0'
+  implementation ('com.spotify:scio-core_2.13:0.11.5') {
+    transitive = false
+  }
+  implementation group: 'com.spotify', name: 'futures-extra', version: '4.3.1'
+  
 }

@@ -5,6 +5,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreSink;
+import rocks.theodolite.benchmarks.uc1.beam.firestore.custom.CustomFirestoreSink;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -26,6 +27,13 @@ public enum SinkType implements SinkFactory {
     public PTransform<PCollection<ActivePowerRecord>, PCollection<?>> create(
         final Configuration config) {
       return FirestoreSink.fromConfig(config);
+    }
+  },
+  FIRESTORE_CUSTOM("firestoreCustom") {
+    @Override
+    public PTransform<PCollection<ActivePowerRecord>, PCollection<?>> create(
+        final Configuration config) {
+      return CustomFirestoreSink.fromConfig(config);
     }
   };
 
