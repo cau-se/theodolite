@@ -1,9 +1,8 @@
-package rocks.theodolite.core.util
+package rocks.theodolite.core
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.strategies.searchstrategy.SearchStrategy
-import rocks.theodolite.kubernetes.util.PatcherDefinition
 
 /**
  * Config class that represents a configuration of a theodolite run.
@@ -16,9 +15,7 @@ import rocks.theodolite.kubernetes.util.PatcherDefinition
 @RegisterForReflection
 data class Config(
         val loads: List<Int>,
-        val loadPatcherDefinitions : List<PatcherDefinition>,
         val resources: List<Int>,
-        val resourcePatcherDefinitions : List<PatcherDefinition>,
         val searchStrategy: SearchStrategy,
         val metric: Metric
 )

@@ -2,9 +2,10 @@ package rocks.theodolite.kubernetes.execution
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.core.ExperimentRunner
+import rocks.theodolite.core.Results
 import rocks.theodolite.kubernetes.benchmark.Benchmark
-import rocks.theodolite.kubernetes.benchmark.Slo
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import rocks.theodolite.kubernetes.execution.operator.EventCreator
 import rocks.theodolite.kubernetes.slo.evaluation.AnalysisExecutor
@@ -17,32 +18,21 @@ import java.time.Instant
 private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
-class BenchmarkExecutorImpl(
-        benchmark: Benchmark,
+class ExperimentRunnerImpl(
         results: Results,
-        executionDuration: Duration,
-        configurationOverrides: List<ConfigurationOverride?>,
-        slos: List<Slo>,
-        repetitions: Int,
-        executionId: Int,
-        loadGenerationDelay: Long,
-        afterTeardownDelay: Long,
-        executionName: String,
-        loadPatcherDefinitions: List<PatcherDefinition>,
-        resourcePatcherDefinitions: List<PatcherDefinition>
-) : BenchmarkExecutor(
-    benchmark,
-    results,
-    executionDuration,
-    configurationOverrides,
-    slos,
-    repetitions,
-    executionId,
-    loadGenerationDelay,
-    afterTeardownDelay,
-    executionName,
-    loadPatcherDefinitions,
-    resourcePatcherDefinitions
+        private val benchmark: Benchmark,
+        private val executionDuration: Duration,
+        private val configurationOverrides: List<ConfigurationOverride?>,
+        private val slos: List<Slo>,
+        private val repetitions: Int,
+        private val executionId: Int,
+        private val loadGenerationDelay: Long,
+        private val afterTeardownDelay: Long,
+        private val executionName: String,
+        private val loadPatcherDefinitions: List<PatcherDefinition>,
+        private val resourcePatcherDefinitions: List<PatcherDefinition>
+) : ExperimentRunner(
+        results
 ) {
     private val eventCreator = EventCreator()
     private val mode = Configuration.EXECUTION_MODE
@@ -137,5 +127,27 @@ class BenchmarkExecutorImpl(
             throw ExecutionFailedException("Error during teardown the experiment", e)
         }
         return Pair(from, to)
+    }
+
+    /**
+     * Wait while the benchmark is running and log the number of minutes executed every 1 minute.
+     *
+     */
+    fun waitAndLog() {
+        logger.info { "Execution of a new experiment started." }
+
+        var secondsRunning = 0L
+
+        while (run.get() && secondsRunning < executionDuration.toSeconds()) {
+            secondsRunning++
+            Thread.sleep(Duration.ofSeconds(1).toMillis())
+
+            if ((secondsRunning % 60) == 0L) {
+                logger.info { "Executed: ${secondsRunning / 60} minutes." }
+            }
+        }
+
+        logger.debug { "Executor shutdown gracefully." }
+
     }
 }

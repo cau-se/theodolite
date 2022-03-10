@@ -1,6 +1,6 @@
 package rocks.theodolite.kubernetes.slo.evaluation
 
-import rocks.theodolite.kubernetes.benchmark.Slo
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.util.exception.InvalidPatcherConfigurationException
 import javax.enterprise.context.ApplicationScoped
 

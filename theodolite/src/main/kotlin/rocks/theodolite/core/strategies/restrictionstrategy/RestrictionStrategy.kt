@@ -1,7 +1,7 @@
 package rocks.theodolite.core.strategies.restrictionstrategy
 
 import io.quarkus.runtime.annotations.RegisterForReflection
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.core.Results
 
 /**
  * A 'Restriction Strategy' restricts a list of resources or loads depending on the metric based on the current

@@ -1,4 +1,4 @@
-package rocks.theodolite.core.util
+package rocks.theodolite.core
 
 import com.google.gson.GsonBuilder
 import mu.KotlinLogging

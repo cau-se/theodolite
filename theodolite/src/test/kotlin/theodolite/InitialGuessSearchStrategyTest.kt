@@ -7,8 +7,8 @@ import rocks.theodolite.core.strategies.Metric
 import mu.KotlinLogging
 import rocks.theodolite.core.strategies.guessstrategy.PrevInstanceOptGuess
 import rocks.theodolite.core.strategies.searchstrategy.InitialGuessSearchStrategy
-import rocks.theodolite.core.util.Results
-import rocks.theodolite.kubernetes.benchmark.Slo
+import rocks.theodolite.core.Results
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
 
 private val logger = KotlinLogging.logger {}
 
@@ -32,7 +32,7 @@ class InitialGuessSearchStrategyTest {
         val benchmark = TestBenchmark()
         val guessStrategy = PrevInstanceOptGuess()
         val sloChecker: Slo = Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmark, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
         val actual: ArrayList<Int?> = ArrayList()
@@ -70,7 +70,7 @@ class InitialGuessSearchStrategyTest {
         val benchmark = TestBenchmark()
         val guessStrategy = PrevInstanceOptGuess()
         val sloChecker: Slo = Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmark, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
         val actual: ArrayList<Int?> = ArrayList()
@@ -108,7 +108,7 @@ class InitialGuessSearchStrategyTest {
         val benchmark = TestBenchmark()
         val guessStrategy = PrevInstanceOptGuess()
         val sloChecker: Slo = Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmark, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)
 
         val actual: ArrayList<Int?> = ArrayList()

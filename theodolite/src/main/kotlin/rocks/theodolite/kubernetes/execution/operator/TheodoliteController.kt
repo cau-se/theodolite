@@ -8,6 +8,7 @@ import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
@@ -18,7 +19,7 @@ private val logger = KotlinLogging.logger {}
 const val DEPLOYED_FOR_EXECUTION_LABEL_NAME = "deployed-for-execution"
 const val DEPLOYED_FOR_BENCHMARK_LABEL_NAME = "deployed-for-benchmark"
 const val CREATED_BY_LABEL_NAME = "app.kubernetes.io/created-by"
-const val CREATED_BY_LABEL_VALUE = "rocks/theodolitedolite"
+const val CREATED_BY_LABEL_VALUE = "rocks/theodolite"
 
 /**
  * The controller implementation for Theodolite.
@@ -70,29 +71,30 @@ class TheodoliteController(
      */
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         try {
+            val kubernetesExecutionRunner = KubernetesExecutionRunner(benchmark)
             val modifier = ConfigOverrideModifier(
-            execution = execution,
-            resources = benchmark.loadKubernetesResources(benchmark.sut.resources).map { it.first }
-                    + benchmark.loadKubernetesResources(benchmark.loadGenerator.resources).map { it.first }
-        )
-        modifier.setAdditionalLabels(
-            labelValue = execution.name,
-            labelName = DEPLOYED_FOR_EXECUTION_LABEL_NAME
-        )
-        modifier.setAdditionalLabels(
-            labelValue = benchmark.name,
-            labelName = DEPLOYED_FOR_BENCHMARK_LABEL_NAME
-        )
-        modifier.setAdditionalLabels(
-            labelValue = CREATED_BY_LABEL_VALUE,
-            labelName = CREATED_BY_LABEL_NAME
-        )
+                execution = execution,
+                resources = kubernetesExecutionRunner.loadKubernetesResources(benchmark.sut.resources).map { it.first }
+                        + kubernetesExecutionRunner.loadKubernetesResources(benchmark.loadGenerator.resources).map { it.first }
+            )
+            modifier.setAdditionalLabels(
+                labelValue = execution.name,
+                labelName = DEPLOYED_FOR_EXECUTION_LABEL_NAME
+            )
+            modifier.setAdditionalLabels(
+                labelValue = benchmark.name,
+                labelName = DEPLOYED_FOR_BENCHMARK_LABEL_NAME
+            )
+            modifier.setAdditionalLabels(
+                labelValue = CREATED_BY_LABEL_VALUE,
+                labelName = CREATED_BY_LABEL_NAME
+            )
 
-        executionStateHandler.setExecutionState(execution.name, ExecutionState.RUNNING)
-        executionStateHandler.startDurationStateTimer(execution.name)
+            executionStateHandler.setExecutionState(execution.name, ExecutionState.RUNNING)
+            executionStateHandler.startDurationStateTimer(execution.name)
 
             executor = TheodoliteExecutor(execution, benchmark)
-            executor.run()
+            executor.setupAndRunExecution()
             when (executionStateHandler.getExecutionState(execution.name)) {
                 ExecutionState.RESTART -> runExecution(execution, benchmark)
                 ExecutionState.RUNNING -> {
@@ -122,7 +124,7 @@ class TheodoliteController(
         if (restart) {
             executionStateHandler.setExecutionState(this.executor.getExecution().name, ExecutionState.RESTART)
         }
-        this.executor.executor.run.set(false)
+        this.executor.experimentRunner.run.set(false)
     }
 
     /**

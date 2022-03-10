@@ -5,20 +5,11 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
-import mu.KotlinLogging
-import rocks.theodolite.kubernetes.k8s.K8sManager
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoader
-import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import rocks.theodolite.kubernetes.model.crd.KafkaConfig
-import rocks.theodolite.kubernetes.patcher.PatcherFactory
 import rocks.theodolite.kubernetes.util.PatcherDefinition
-import rocks.theodolite.kubernetes.util.TypeName
-
-
-private val logger = KotlinLogging.logger {}
+import kotlin.properties.Delegates
 
 private var DEFAULT_NAMESPACE = "default"
-private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
 
 /**
  * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
@@ -38,7 +29,7 @@ private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
  */
 @JsonDeserialize
 @RegisterForReflection
-class KubernetesBenchmark : KubernetesResource, Benchmark {
+class KubernetesBenchmark : KubernetesResource {
     lateinit var name: String
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
@@ -52,87 +43,42 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     @Transient
     private var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
+
     /**
-     * Loads [KubernetesResource]s.
-     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
-     * the [K8sResourceLoader]
+     * The TypeName encapsulates a list of [PatcherDefinition] along with a typeName that specifies for what the [PatcherDefinition] should be used.
      */
-    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
-        return resourceSet.flatMap { it.loadResourceSet(this.client) }
-    }
-
-    override fun setupInfrastructure() {
-        this.infrastructure.beforeActions.forEach { it.exec(client = client) }
-        val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(this.infrastructure.resources)
-            .map{it.second}
-            .forEach { kubernetesManager.deploy(it) }
-    }
-
-    override fun teardownInfrastructure() {
-        val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(this.infrastructure.resources)
-            .map{it.second}
-            .forEach { kubernetesManager.remove(it) }
-        this.infrastructure.afterActions.forEach { it.exec(client = client) }
+    @RegisterForReflection
+    @JsonDeserialize
+    class TypeName {
+        lateinit var typeName: String
+        lateinit var patchers: List<PatcherDefinition>
     }
 
     /**
-     * Builds a deployment.
-     * First loads all required resources and then patches them to the concrete load and resources for the experiment for the demand metric
-     * or loads all loads and then patches them to the concrete load and resources for the experiment.
-     * Afterwards patches additional configurations(cluster depending) into the resources (or loads).
-     * @param load concrete load that will be benchmarked in this experiment (demand metric), or scaled (capacity metric).
-     * @param resource concrete resource that will be scaled for this experiment (demand metric), or benchmarked (capacity metric).
-     * @param configurationOverrides
-     * @return a [BenchmarkDeployment]
+     * Measurable metric.
+     * [sloType] determines the type of the metric.
+     * It is evaluated using the [theodolite.evaluation.ExternalSloChecker] by data measured by Prometheus.
+     * The evaluation checks if a [threshold] is reached or not.
+     * [offset] determines the shift in hours by which the start and end timestamps should be shifted.
+     * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.
+     * The [warmup] time unit depends on the Slo: for the lag trend it is in seconds.
      */
-    override fun buildDeployment(
-            load: Int,
-            loadPatcherDefinitions: List<PatcherDefinition>,
-            resource: Int,
-            resourcePatcherDefinitions: List<PatcherDefinition>,
-            configurationOverrides: List<ConfigurationOverride?>,
-            loadGenerationDelay: Long,
-            afterTeardownDelay: Long
-    ): BenchmarkDeployment {
-        logger.info { "Using $namespace as namespace." }
+    @JsonDeserialize
+    @RegisterForReflection
+    class Slo : KubernetesResource {
+        lateinit var name: String
+        lateinit var sloType: String
+        lateinit var prometheusUrl: String
+        var offset by Delegates.notNull<Int>()
+        lateinit var properties: MutableMap<String, String>
+    }
 
-        val appResources = loadKubernetesResources(this.sut.resources)
-        val loadGenResources = loadKubernetesResources(this.loadGenerator.resources)
-
-        val patcherFactory = PatcherFactory()
-
-        // patch the load dimension the resources
-        loadPatcherDefinitions.forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, loadGenResources).patch(load.toString())
-        }
-        resourcePatcherDefinitions.forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, appResources).patch(resource.toString())
-        }
-
-        // Patch the given overrides
-        configurationOverrides.forEach { override ->
-            override?.let {
-                patcherFactory.createPatcher(it.patcher, appResources + loadGenResources).patch(override.value)
-            }
-        }
-
-        val kafkaConfig = this.kafkaConfig
-
-        return KubernetesBenchmarkDeployment(
-            sutBeforeActions = sut.beforeActions,
-            sutAfterActions = sut.afterActions,
-            loadGenBeforeActions = loadGenerator.beforeActions,
-            loadGenAfterActions = loadGenerator.afterActions,
-            appResources = appResources.map { it.second },
-            loadGenResources = loadGenResources.map { it.second },
-            loadGenerationDelay = loadGenerationDelay,
-            afterTeardownDelay = afterTeardownDelay,
-            kafkaConfig = if (kafkaConfig != null) hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
-            topics = kafkaConfig?.topics ?: listOf(),
-            client = this.client
-        )
+    @JsonDeserialize
+    @RegisterForReflection
+    class Resources {
+        lateinit var resources: List<ResourceSets>
+        lateinit var beforeActions: List<Action>
+        lateinit var afterActions: List<Action>
     }
 
     /**
@@ -142,5 +88,13 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      */
     fun setClient(client: NamespacedKubernetesClient) {
         this.client = client
+    }
+
+    fun getClient() : NamespacedKubernetesClient {
+        return this.client
+    }
+
+    fun getNamespace() : String {
+        return this.namespace
     }
 }

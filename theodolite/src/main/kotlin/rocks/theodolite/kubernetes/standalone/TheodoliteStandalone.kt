@@ -55,7 +55,7 @@ class TheodoliteStandalone {
         Runtime.getRuntime().addShutdownHook(shutdown)
 
         try {
-            TheodoliteExecutor(benchmarkExecution, benchmark).run()
+            TheodoliteExecutor(benchmarkExecution, benchmark).setupAndRunExecution()
         } catch (e: EvaluationFailedException) {
             logger.error { "Evaluation failed with error: ${e.message}" }
         }catch (e: ExecutionFailedException) {

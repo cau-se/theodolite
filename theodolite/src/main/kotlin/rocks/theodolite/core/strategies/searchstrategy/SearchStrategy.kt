@@ -2,18 +2,18 @@ package rocks.theodolite.core.strategies.searchstrategy
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.core.strategies.Metric
-import rocks.theodolite.kubernetes.execution.BenchmarkExecutor
+import rocks.theodolite.core.ExperimentRunner
 
 /**
  *  Base class for the implementation for SearchStrategies. SearchStrategies determine the smallest suitable number
  *  of resources/loads for a load/resource (depending on the metric).
  *
- * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
+ * @param experimentRunner Benchmark executor which runs the individual benchmarks.
  * @param guessStrategy Guess strategy for the initial resource amount in case the InitialGuessStrategy is selected.
  * @param results the [Results] object.
  */
 @RegisterForReflection
-abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor) {
+abstract class SearchStrategy(val experimentRunner: ExperimentRunner) {
 
 
     /**
@@ -28,13 +28,13 @@ abstract class SearchStrategy(val benchmarkExecutor: BenchmarkExecutor) {
         when(metric) {
             Metric.DEMAND ->
                 for (load in loads) {
-                    if (benchmarkExecutor.run.get()) {
+                    if (experimentRunner.run.get()) {
                         this.findSuitableResource(load, resources)
                     }
                 }
             Metric.CAPACITY ->
                 for (resource in resources) {
-                    if (benchmarkExecutor.run.get()) {
+                    if (experimentRunner.run.get()) {
                         this.findSuitableLoad(resource, loads)
                     }
                 }

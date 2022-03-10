@@ -4,10 +4,10 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Test
 import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
 import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution.SloConfiguration
-import rocks.theodolite.kubernetes.execution.SloFactory
+import rocks.theodolite.kubernetes.slo.SloFactory
 import org.junit.jupiter.api.Assertions.*
 import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
-import rocks.theodolite.kubernetes.benchmark.Slo
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
 
 @QuarkusTest
 internal class SloFactoryTest {

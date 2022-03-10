@@ -9,6 +9,7 @@ import rocks.theodolite.kubernetes.benchmark.Action
 import rocks.theodolite.kubernetes.benchmark.ActionSelector
 import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
 import rocks.theodolite.kubernetes.benchmark.ResourceSets
+import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
@@ -175,10 +176,11 @@ class BenchmarkStateChecker(
      */
     fun checkResources(benchmark: KubernetesBenchmark): BenchmarkState {
         return try {
+            val kubernetesExecutionRunner = KubernetesExecutionRunner(benchmark)
             val appResources =
-                benchmark.loadKubernetesResources(resourceSet = benchmark.sut.resources)
+                    kubernetesExecutionRunner.loadKubernetesResources(resourceSet = benchmark.sut.resources)
             val loadGenResources =
-                benchmark.loadKubernetesResources(resourceSet = benchmark.loadGenerator.resources)
+                    kubernetesExecutionRunner.loadKubernetesResources(resourceSet = benchmark.loadGenerator.resources)
             if (appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
                 BenchmarkState.READY
             } else {

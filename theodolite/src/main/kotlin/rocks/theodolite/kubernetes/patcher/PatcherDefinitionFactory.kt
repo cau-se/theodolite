@@ -1,7 +1,7 @@
 package rocks.theodolite.kubernetes.patcher
 
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
 import rocks.theodolite.kubernetes.util.PatcherDefinition
-import rocks.theodolite.kubernetes.util.TypeName
 
 /**
  * The PatcherDefinition Factory creates a [PatcherDefinition]s.
@@ -20,7 +20,7 @@ class PatcherDefinitionFactory {
      * @return A list of PatcherDefinitions which corresponds to the
      *     value of the requiredType.
      */
-    fun createPatcherDefinition(requiredType: String, patcherTypes: List<TypeName>): List<PatcherDefinition> {
+    fun createPatcherDefinition(requiredType: String, patcherTypes: List<KubernetesBenchmark.TypeName>): List<PatcherDefinition> {
         return patcherTypes.firstOrNull { type -> type.typeName == requiredType }
             ?.patchers ?: throw IllegalArgumentException("typeName $requiredType not found.")
     }

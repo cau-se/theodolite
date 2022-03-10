@@ -1,14 +1,17 @@
 package rocks.theodolite.kubernetes.execution
 
 import mu.KotlinLogging
+import rocks.theodolite.core.ExecutionRunner
+import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
 import rocks.theodolite.kubernetes.patcher.PatcherDefinitionFactory
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.strategies.StrategyFactory
+import rocks.theodolite.core.Config
+import rocks.theodolite.core.IOHandler
+import rocks.theodolite.core.Results
 import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
-import rocks.theodolite.core.util.Config
-import rocks.theodolite.core.util.IOHandler
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.kubernetes.slo.SloFactory
 import java.io.File
 import java.time.Duration
 
@@ -30,14 +33,15 @@ class TheodoliteExecutor(
      * An executor object, configured with the specified benchmark, evaluation method, experiment duration
      * and overrides which are given in the execution.
      */
-    lateinit var executor: BenchmarkExecutor
+    lateinit var experimentRunner: ExperimentRunner
+    private val kubernetesExecutionRunner = KubernetesExecutionRunner(kubernetesBenchmark)
 
     /**
      * Creates all required components to start Theodolite.
      *
      * @return a [Config], that contains a list of LoadDimension s,
      *          a list of Resource s , and the [restrictionSearch].
-     * The [searchStrategy] is configured and able to find the minimum required resource for the given load.
+     * The [SearchStrategy] is configured and able to find the minimum required resource for the given load.
      */
     private fun buildConfig(): Config {
         val results = Results(Metric.from(benchmarkExecution.execution.metric))
@@ -59,13 +63,13 @@ class TheodoliteExecutor(
 
         val slos = SloFactory().createSlos(this.benchmarkExecution, this.kubernetesBenchmark)
 
-        executor =
-            BenchmarkExecutorImpl(
-                benchmark = kubernetesBenchmark,
+        experimentRunner =
+            ExperimentRunnerImpl(
+                benchmark = kubernetesExecutionRunner,
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = benchmarkExecution.configOverrides,
-                slos = slos,
+                slos = kubernetesBenchmark.slos,
                 repetitions = benchmarkExecution.execution.repetitions,
                 executionId = benchmarkExecution.executionId,
                 loadGenerationDelay = benchmarkExecution.execution.loadGenerationDelay,
@@ -93,24 +97,20 @@ class TheodoliteExecutor(
 
         return Config(
             loads = benchmarkExecution.loads.loadValues,
-            loadPatcherDefinitions = loadDimensionPatcherDefinition,
             resources = benchmarkExecution.resources.resourceValues,
-            resourcePatcherDefinitions = resourcePatcherDefinition,
-            searchStrategy = strategyFactory.createSearchStrategy(executor, benchmarkExecution.execution.strategy, results),
+            searchStrategy = strategyFactory.createSearchStrategy(experimentRunner, benchmarkExecution.execution.strategy.name,
+                    benchmarkExecution.execution.strategy.searchStrategy, benchmarkExecution.execution.strategy.restrictions,
+                    benchmarkExecution.execution.strategy.guessStrategy, results),
             metric = Metric.from(benchmarkExecution.execution.metric)
         )
     }
 
-    fun getExecution(): BenchmarkExecution {
-        return this.benchmarkExecution
-    }
-
     /**
-     * Run all experiments which are specified in the corresponding
-     * execution and benchmark objects.
+     * Sets up the Infrastructure, increments the executionId, calls the [ExecutionRunner] that runs
+     * all experiments which are specified in the corresponding execution and benchmark objects.
      */
-    fun run() {
-        kubernetesBenchmark.setupInfrastructure()
+    fun setupAndRunExecution() {
+        kubernetesExecutionRunner.setupInfrastructure()
 
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
@@ -123,32 +123,12 @@ class TheodoliteExecutor(
 
         val config = buildConfig()
 
-        //execute benchmarks for each load for the demand metric, or for each resource amount for capacity metric
-        try {
-            config.searchStrategy.applySearchStrategyByMetric(config.loads, config.resources, config.metric)
+        val executionRunner = ExecutionRunner(config.searchStrategy, config.resources, config.loads,config.metric,
+                                              this.benchmarkExecution.executionId)
 
-        } finally {
-            ioHandler.writeToJSONFile(
-                config.searchStrategy.benchmarkExecutor.results,
-                "${resultsFolder}exp${this.benchmarkExecution.executionId}-result"
-            )
-            // Create expXYZ_demand.csv file or expXYZ_capacity.csv depending on metric
-            when(config.metric) {
-                Metric.DEMAND ->
-                    ioHandler.writeToCSVFile(
-                        "${resultsFolder}exp${this.benchmarkExecution.executionId}_demand",
-                        calculateMetric(config.loads, config.searchStrategy.benchmarkExecutor.results),
-                        listOf("load","resources")
-                    )
-                Metric.CAPACITY ->
-                    ioHandler.writeToCSVFile(
-                        "${resultsFolder}exp${this.benchmarkExecution.executionId}_capacity",
-                        calculateMetric(config.resources, config.searchStrategy.benchmarkExecutor.results),
-                        listOf("resource", "loads")
-                    )
-            }
-        }
-        kubernetesBenchmark.teardownInfrastructure()
+        executionRunner.run()
+
+        kubernetesExecutionRunner.teardownInfrastructure()
     }
 
     private fun getAndIncrementExecutionID(fileURL: String): Int {
@@ -161,8 +141,7 @@ class TheodoliteExecutor(
         return executionID
     }
 
-    private fun calculateMetric(xValues: List<Int>, results: Results): List<List<String>> {
-        return xValues.map { listOf(it.toString(), results.getOptYDimensionValue(it).toString()) }
+    fun getExecution(): BenchmarkExecution {
+        return this.benchmarkExecution
     }
-
 }

@@ -1,4 +1,4 @@
-package rocks.theodolite.core.util
+package rocks.theodolite.core
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.core.strategies.Metric

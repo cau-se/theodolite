@@ -1,16 +1,16 @@
 package rocks.theodolite.core.strategies.searchstrategy
 
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.execution.BenchmarkExecutor
+import rocks.theodolite.core.ExperimentRunner
 
 private val logger = KotlinLogging.logger {}
 
 /**
  *  Binary-search-like implementation for determining the smallest suitable number of instances.
  *
- * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
+ * @param experimentRunner Benchmark executor which runs the individual benchmarks.
  */
-class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
+class BinarySearch(experimentRunner: ExperimentRunner) : SearchStrategy(experimentRunner) {
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
         val result = binarySearchDemand(load, resources, 0, resources.size - 1)
         if (result == -1) {
@@ -43,7 +43,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         if (lower == upper) {
             val res = resources[lower]
             logger.info { "Running experiment with load '$load' and resource '$res'" }
-            if (this.benchmarkExecutor.runExperiment(load, res)) return lower
+            if (this.experimentRunner.runExperiment(load, res)) return lower
             else {
                 if (lower + 1 == resources.size) return -1
                 return lower + 1
@@ -54,7 +54,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
             val mid = (upper + lower) / 2
             val res = resources[mid]
             logger.info { "Running experiment with load '$load' and resource '$res'" }
-            if (this.benchmarkExecutor.runExperiment(load, res)) {
+            if (this.experimentRunner.runExperiment(load, res)) {
                 // case length = 2
                 if (mid == lower) {
                     return lower
@@ -83,7 +83,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
         if (lower == upper) {
             val load = loads[lower]
             logger.info { "Running experiment with load '$load' and resource '$resource'" }
-            if (this.benchmarkExecutor.runExperiment(load, resource)) return lower
+            if (this.experimentRunner.runExperiment(load, resource)) return lower
             else {
                 if (lower + 1 == loads.size) return -1
                 return lower - 1
@@ -94,7 +94,7 @@ class BinarySearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchm
             val mid = (upper + lower + 1) / 2 //round to next int
             val load = loads[mid]
             logger.info { "Running experiment with load '$load' and resource '$resource'" }
-            if (this.benchmarkExecutor.runExperiment(load, resource)) {
+            if (this.experimentRunner.runExperiment(load, resource)) {
                 // length = 2, so since we round down mid is equal to lower
                 if (mid == upper) {
                     return upper

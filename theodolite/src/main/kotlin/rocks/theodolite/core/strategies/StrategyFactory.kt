@@ -1,12 +1,11 @@
 package rocks.theodolite.core.strategies
 
 import rocks.theodolite.core.strategies.guessstrategy.PrevInstanceOptGuess
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
 import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
 import rocks.theodolite.core.strategies.restrictionstrategy.RestrictionStrategy
 import rocks.theodolite.core.strategies.searchstrategy.*
-import rocks.theodolite.kubernetes.execution.BenchmarkExecutor
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.core.ExperimentRunner
+import rocks.theodolite.core.Results
 
 /**
  * Factory for creating [SearchStrategy] and [RestrictionStrategy] strategies.
@@ -23,28 +22,24 @@ class StrategyFactory {
      *
      * @throws IllegalArgumentException if the [SearchStrategy] was not one of the allowed options.
      */
-    fun createSearchStrategy(executor: BenchmarkExecutor, searchStrategyObject: BenchmarkExecution.Strategy,
-                             results: Results): SearchStrategy {
+    fun createSearchStrategy(executor: ExperimentRunner, name: String, searchStrategy: String, restrictions: List<String>,
+                             guessStrategy: String, results: Results): SearchStrategy {
 
-        var strategy : SearchStrategy = when (searchStrategyObject.name) {
+        var strategy : SearchStrategy = when (name) {
             "FullSearch" -> FullSearch(executor)
             "LinearSearch" -> LinearSearch(executor)
             "BinarySearch" -> BinarySearch(executor)
-            "RestrictionSearch" -> when (searchStrategyObject.searchStrategy){
-                "FullSearch" -> composeSearchRestrictionStrategy(executor, FullSearch(executor), results,
-                        searchStrategyObject.restrictions)
-                "LinearSearch" -> composeSearchRestrictionStrategy(executor, LinearSearch(executor), results,
-                        searchStrategyObject.restrictions)
-                "BinarySearch" -> composeSearchRestrictionStrategy(executor, BinarySearch(executor), results,
-                        searchStrategyObject.restrictions)
-                else -> throw IllegalArgumentException(
-                        "Search Strategy ${searchStrategyObject.searchStrategy} for RestrictionSearch not found")
+            "RestrictionSearch" -> when (searchStrategy){
+                "FullSearch" -> composeSearchRestrictionStrategy(executor, FullSearch(executor), results, restrictions)
+                "LinearSearch" -> composeSearchRestrictionStrategy(executor, LinearSearch(executor), results, restrictions)
+                "BinarySearch" -> composeSearchRestrictionStrategy(executor, BinarySearch(executor), results, restrictions)
+                else -> throw IllegalArgumentException("Search Strategy $searchStrategy for RestrictionSearch not found")
             }
-            "InitialGuessSearch" -> when (searchStrategyObject.guessStrategy){
+            "InitialGuessSearch" -> when (guessStrategy){
                 "PrevResourceMinGuess" -> InitialGuessSearchStrategy(executor, PrevInstanceOptGuess(), results)
-                else -> throw IllegalArgumentException("Guess Strategy ${searchStrategyObject.guessStrategy} not found")
+                else -> throw IllegalArgumentException("Guess Strategy $guessStrategy not found")
             }
-            else -> throw IllegalArgumentException("Search Strategy $searchStrategyObject not found")
+            else -> throw IllegalArgumentException("Search Strategy not found")
         }
 
         return strategy
@@ -79,7 +74,7 @@ class StrategyFactory {
      * @param results The [Results] saves the state of the Theodolite benchmark run.
      * @param restrictions The [RestrictionStrategy]'s to use.
      */
-    private fun composeSearchRestrictionStrategy(executor: BenchmarkExecutor, searchStrategy: SearchStrategy,
+    private fun composeSearchRestrictionStrategy(executor: ExperimentRunner, searchStrategy: SearchStrategy,
                                                  results: Results, restrictions: List<String>): SearchStrategy {
         if(restrictions.isNotEmpty()){
             return RestrictionSearch(executor,searchStrategy,createRestrictionStrategy(results, restrictions))

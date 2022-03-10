@@ -20,10 +20,11 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution, private val b
      */
     fun run() {
         // Build Configuration to teardown
+        val kubernetesExecutionRunner = KubernetesExecutionRunner(benchmark)
         try {
             logger.info { "Received shutdown signal -> Shutting down" }
             val deployment =
-                benchmark.buildDeployment(
+                    kubernetesExecutionRunner.buildDeployment(
                     load = 0,
                     loadPatcherDefinitions = emptyList(),
                     resource = 0,

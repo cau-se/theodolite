@@ -1,7 +1,6 @@
 package theodolite.execution.operator
 
 import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
-import rocks.theodolite.kubernetes.benchmark.Resources
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.KafkaConfig
 
@@ -26,9 +25,9 @@ class BenchmarkCRDummy(name: String) {
         benchmarkCR.apiVersion = "v1"
 
 
-        benchmark.infrastructure = Resources()
-        benchmark.sut = Resources()
-        benchmark.loadGenerator = Resources()
+        benchmark.infrastructure = KubernetesBenchmark.Resources()
+        benchmark.sut = KubernetesBenchmark.Resources()
+        benchmark.loadGenerator = KubernetesBenchmark.Resources()
 
         benchmark.infrastructure.resources = emptyList()
         benchmark.sut.resources = emptyList()

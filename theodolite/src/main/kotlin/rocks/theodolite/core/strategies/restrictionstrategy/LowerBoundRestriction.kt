@@ -1,6 +1,6 @@
 package rocks.theodolite.core.strategies.restrictionstrategy
 
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.core.Results
 
 /**
  * The [LowerBoundRestriction] sets the lower bound of the resources to be examined in the experiment to the value

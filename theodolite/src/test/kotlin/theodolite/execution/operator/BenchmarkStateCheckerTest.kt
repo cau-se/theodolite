@@ -17,6 +17,8 @@ import rocks.theodolite.kubernetes.benchmark.*
 import rocks.theodolite.kubernetes.execution.operator.BenchmarkStateChecker
 import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 
 internal class BenchmarkStateCheckerTest {
     private val server = KubernetesServer(false, false)
@@ -167,8 +169,10 @@ internal class BenchmarkStateCheckerTest {
         val benchmark = BenchmarkCRDummy(
             name = "test-benchmark"
         )
+
         benchmark.getCR().spec.setClient(serverCrud.client)
-        val resourceSet = Resources()
+
+        val resourceSet = KubernetesBenchmark.Resources()
         resourceSet.resources = listOf(createAndDeployConfigmapResourceSet())
         benchmark.getCR().spec.infrastructure = resourceSet
         benchmark.getCR().spec.loadGenerator = resourceSet

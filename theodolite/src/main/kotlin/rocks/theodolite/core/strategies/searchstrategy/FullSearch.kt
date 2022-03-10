@@ -1,7 +1,7 @@
 package rocks.theodolite.core.strategies.searchstrategy
 
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.execution.BenchmarkExecutor
+import rocks.theodolite.core.ExperimentRunner
 
 private val logger = KotlinLogging.logger {}
 
@@ -12,15 +12,15 @@ private val logger = KotlinLogging.logger {}
  *
  * @see LinearSearch for a SearchStrategy that stops once the desired resource (demand) or load (capacity) is found.
  *
- * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
+ * @param experimentRunner Benchmark executor which runs the individual benchmarks.
  */
-class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmarkExecutor) {
+class FullSearch(experimentRunner: ExperimentRunner) : SearchStrategy(experimentRunner) {
 
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
         var minimalSuitableResources: Int? = null
         for (res in resources) {
             logger.info { "Running experiment with load '$load' and resources '$res'" }
-            val result = this.benchmarkExecutor.runExperiment(load, res)
+            val result = this.experimentRunner.runExperiment(load, res)
             if (result && minimalSuitableResources == null) {
                 minimalSuitableResources = res
             }
@@ -32,7 +32,7 @@ class FullSearch(benchmarkExecutor: BenchmarkExecutor) : SearchStrategy(benchmar
         var maxSuitableLoad: Int? = null
         for (load in loads) {
             logger.info { "Running experiment with resources '$resource' and load '$load'" }
-            if (this.benchmarkExecutor.runExperiment(load, resource)) maxSuitableLoad = load
+            if (this.experimentRunner.runExperiment(load, resource)) maxSuitableLoad = load
         }
         return maxSuitableLoad
     }

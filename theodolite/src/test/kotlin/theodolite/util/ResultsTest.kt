@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import rocks.theodolite.core.strategies.Metric
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.core.Results
 
 @QuarkusTest
 internal class ResultsTest {

@@ -2,8 +2,8 @@ package rocks.theodolite.core.strategies.searchstrategy
 
 import mu.KotlinLogging
 import rocks.theodolite.core.strategies.guessstrategy.GuessStrategy
-import rocks.theodolite.kubernetes.execution.BenchmarkExecutor
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.core.ExperimentRunner
+import rocks.theodolite.core.Results
 
 private val logger = KotlinLogging.logger {}
 
@@ -11,15 +11,15 @@ private val logger = KotlinLogging.logger {}
  *  Search strategy implementation for determining the smallest suitable resource demand.
  *  Starting with a resource amount provided by a guess strategy.
  *
- * @param benchmarkExecutor Benchmark executor which runs the individual benchmarks.
+ * @param experimentRunner Benchmark executor which runs the individual benchmarks.
  * @param guessStrategy Strategy that provides us with a guess for the first resource amount.
  * @param results current results of all previously performed benchmarks.
  */
 class InitialGuessSearchStrategy(
-        benchmarkExecutor: BenchmarkExecutor,
+        experimentRunner: ExperimentRunner,
         private val guessStrategy: GuessStrategy,
         private var results: Results
-) : SearchStrategy(benchmarkExecutor) {
+) : SearchStrategy(experimentRunner) {
 
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
 
@@ -40,7 +40,7 @@ class InitialGuessSearchStrategy(
 
             // If the first experiment passes, starting downward linear search
             // otherwise starting upward linear search
-            if (this.benchmarkExecutor.runExperiment(load, lastLowestResource)) {
+            if (this.experimentRunner.runExperiment(load, lastLowestResource)) {
 
                 resourcesToCheck = resources.subList(0, startIndex).reversed()
                 if (resourcesToCheck.isEmpty()) return lastLowestResource
@@ -49,7 +49,7 @@ class InitialGuessSearchStrategy(
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '$load' and resources '$res'" }
-                    if (this.benchmarkExecutor.runExperiment(load, res)) {
+                    if (this.experimentRunner.runExperiment(load, res)) {
                         currentMin = res
                     }
                 }
@@ -65,7 +65,7 @@ class InitialGuessSearchStrategy(
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '$load' and resources '$res'" }
-                    if (this.benchmarkExecutor.runExperiment(load, res)) return res
+                    if (this.experimentRunner.runExperiment(load, res)) return res
                 }
             }
         }
@@ -94,7 +94,7 @@ class InitialGuessSearchStrategy(
 
             // If the first experiment passes, starting upwards linear search
             // otherwise starting downward linear search
-            if (!this.benchmarkExecutor.runExperiment(lastMaxLoad, resource)) {
+            if (!this.experimentRunner.runExperiment(lastMaxLoad, resource)) {
                 // downward search
 
                 loadsToCheck = loads.subList(0, startIndex).reversed()
@@ -102,7 +102,7 @@ class InitialGuessSearchStrategy(
                     for (load in loadsToCheck) {
 
                         logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                        if (this.benchmarkExecutor.runExperiment(load, resource)) {
+                        if (this.experimentRunner.runExperiment(load, resource)) {
                             return load
                         }
                     }
@@ -118,7 +118,7 @@ class InitialGuessSearchStrategy(
                 var currentMax: Int = lastMaxLoad
                 for (load in loadsToCheck) {
                     logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                    if (this.benchmarkExecutor.runExperiment(load, resource)) {
+                    if (this.experimentRunner.runExperiment(load, resource)) {
                         currentMax = load
                     }
                 }

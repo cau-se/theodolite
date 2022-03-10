@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
-import rocks.theodolite.core.util.Results
+import rocks.theodolite.core.Results
 
 internal class LowerBoundRestrictionTest {
 

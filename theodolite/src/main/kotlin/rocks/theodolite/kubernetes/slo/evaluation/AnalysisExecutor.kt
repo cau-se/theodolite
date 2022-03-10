@@ -1,8 +1,8 @@
 package rocks.theodolite.kubernetes.slo.evaluation
 
 import rocks.theodolite.core.strategies.Metric
-import rocks.theodolite.core.util.IOHandler
-import rocks.theodolite.kubernetes.benchmark.Slo
+import rocks.theodolite.core.IOHandler
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.util.exception.EvaluationFailedException
 import java.text.Normalizer
 import java.time.Duration

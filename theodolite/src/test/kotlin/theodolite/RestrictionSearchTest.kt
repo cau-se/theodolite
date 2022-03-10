@@ -10,8 +10,8 @@ import rocks.theodolite.core.strategies.searchstrategy.BinarySearch
 import rocks.theodolite.core.strategies.searchstrategy.FullSearch
 import rocks.theodolite.core.strategies.searchstrategy.LinearSearch
 import rocks.theodolite.core.strategies.searchstrategy.RestrictionSearch
-import rocks.theodolite.core.util.Results
-import rocks.theodolite.kubernetes.benchmark.Slo
+import rocks.theodolite.core.Results
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
 
 @QuarkusTest
 class RestrictionSearchTest {
@@ -33,7 +33,7 @@ class RestrictionSearchTest {
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val sloChecker: Slo = Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmark, listOf(sloChecker), 0, 0, 5)
         val linearSearch = LinearSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
@@ -66,7 +66,7 @@ class RestrictionSearchTest {
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val sloChecker: Slo = Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmark, listOf(sloChecker), 0, 0, 5)
         val fullSearch = FullSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
@@ -100,7 +100,7 @@ class RestrictionSearchTest {
         val benchmark = TestBenchmark()
         val sloChecker: Slo = Slo()
         val benchmarkExecutorImpl =
-            TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
+            TestExperimentRunnerImpl(results, mockResults, benchmark, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutorImpl)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy = RestrictionSearch(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
@@ -132,7 +132,7 @@ class RestrictionSearchTest {
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val sloChecker: Slo = Slo()
-        val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 0)
+        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmark, listOf(sloChecker), 0, 0, 0)
         val binarySearch = BinarySearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy =
