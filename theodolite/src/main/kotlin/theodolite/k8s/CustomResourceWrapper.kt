@@ -7,6 +7,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
+@Deprecated("")
 class CustomResourceWrapper(
     val crAsMap: Map<String, String>,
     private val context: CustomResourceDefinitionContext

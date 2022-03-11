@@ -12,13 +12,13 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
+import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.ExecutionState
 import java.time.Duration
 
 @QuarkusTest
 @WithKubernetesTestServer
 class StateHandlerTest {
-    private val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
     @KubernetesTestServer
     private lateinit var server: KubernetesServer
@@ -26,8 +26,8 @@ class StateHandlerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        val executionResource = K8sResourceLoaderFromFile(server.client)
-            .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
+        val executionStream = javaClass.getResourceAsStream("/k8s-resource-files/test-execution.yaml")
+        val executionResource = server.client.resources(ExecutionCRD::class.java).load(executionStream).get()
 
         K8sManager(server.client).deploy(executionResource)
     }

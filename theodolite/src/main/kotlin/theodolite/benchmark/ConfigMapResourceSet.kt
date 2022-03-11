@@ -1,6 +1,7 @@
 package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
@@ -16,7 +17,7 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
     lateinit var name: String
     lateinit var files: List<String> // load all files, iff files is not set
 
-    override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {
+    override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
         val loader = K8sResourceLoaderFromString(client)
         var resources: Map<String, String>
 
@@ -50,7 +51,8 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
                 .map {
                     Pair(
                         it.second.key, // filename
-                        loader.loadK8sResource(kind = it.first, resourceString = it.second.value) // K8s resource
+                        client.resource(it.second.value).get()
+                        //loader.loadK8sResource(kind = it.first, resourceString = it.second.value) // K8s resource
                     )
                 }
         } catch (e: IllegalArgumentException) {

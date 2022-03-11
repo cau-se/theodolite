@@ -6,15 +6,19 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
+import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
+import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.fabric8.kubernetes.client.utils.Utils
 import io.quarkus.test.junit.QuarkusTest
-import org.json.JSONObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
+import registerResource
+
 
 @QuarkusTest
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -121,32 +125,31 @@ class K8sManagerTest {
     @Test
     @DisplayName("Test handling of custom resources")
     fun handleCustomResourcesTest() {
+        val serviceMonitorContext = ResourceDefinitionContext.Builder()
+            .withGroup("monitoring.coreos.com")
+            .withKind("ServiceMonitor")
+            .withPlural("servicemonitors")
+            .withNamespaced(true)
+            .withVersion("v1")
+            .build()
+        server.registerResource(serviceMonitorContext)
+
         val manager = K8sManager(server.client)
-        val servicemonitor = K8sResourceLoaderFromFile(server.client)
-            .loadK8sResource("ServiceMonitor", testResourcePath + "test-service-monitor.yaml")
 
-        val serviceMonitorContext = K8sContextFactory().create(
-            api = "v1",
-            scope = "Namespaced",
-            group = "monitoring.coreos.com",
-            plural = "servicemonitors"
-        )
-        manager.deploy(servicemonitor)
+        val serviceMonitorStream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
+        // TODO Will be usable with Kubernetes Client 6.0+
+        // val serviceMonitorResources = server.client.load(serviceMonitorStream).get()[]
+        val serviceMonitorResource = server.client.genericKubernetesResources(serviceMonitorContext).load(serviceMonitorStream).get()
 
-        var serviceMonitors = JSONObject(server.client.customResource(serviceMonitorContext).list())
-            .getJSONArray("items")
+        manager.deploy(serviceMonitorResource)
 
-        assertEquals(1, serviceMonitors.length())
-        assertEquals(
-            "test-service-monitor",
-            serviceMonitors.getJSONObject(0).getJSONObject("metadata").getString("name")
-        )
+        val serviceMonitorsDeployed = server.client.genericKubernetesResources(serviceMonitorContext).list()
+        assertEquals(1, serviceMonitorsDeployed.items.size)
+        assertEquals("test-service-monitor", serviceMonitorsDeployed.items[0].metadata.name)
 
-        manager.remove(servicemonitor)
+        manager.remove(serviceMonitorResource)
 
-        serviceMonitors = JSONObject(server.client.customResource(serviceMonitorContext).list())
-            .getJSONArray("items")
-
-        assertEquals(0, serviceMonitors.length())
+        val serviceMonitorsDeleted = server.client.genericKubernetesResources(serviceMonitorContext).list()
+        assertEquals(0, serviceMonitorsDeleted.items.size)
     }
 }

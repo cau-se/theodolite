@@ -3,6 +3,7 @@ package theodolite.k8s.resourceLoader
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 
+@Deprecated("Use Kubernetes Client directly")
 interface K8sResourceLoader {
     fun loadDeployment(resource: String): KubernetesResource
     fun loadService(resource: String): KubernetesResource

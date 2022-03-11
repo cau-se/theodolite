@@ -1,6 +1,7 @@
 package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
@@ -8,6 +9,7 @@ import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.util.DeploymentFailedException
 import theodolite.util.YamlParserFromFile
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.lang.IllegalArgumentException
 
@@ -17,7 +19,7 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
     lateinit var path: String
     lateinit var files: List<String>
 
-    override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {
+    override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
 
         //if files is set ...
         if(::files.isInitialized){
@@ -37,7 +39,7 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
         }
     }
 
-    private fun loadSingleResource(resourceURL: String, client: NamespacedKubernetesClient): Pair<String, KubernetesResource> {
+    private fun loadSingleResource(resourceURL: String, client: NamespacedKubernetesClient): Pair<String, HasMetadata> {
         val parser = YamlParserFromFile()
         val loader = K8sResourceLoaderFromFile(client)
         val resourcePath = "$path/$resourceURL"
@@ -53,7 +55,8 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
         }
 
         return try {
-            val k8sResource = loader.loadK8sResource(kind, resourcePath)
+            // val k8sResource = loader.loadK8sResource(kind, resourcePath)
+            val k8sResource = client.load(FileInputStream(resourcePath)).get()[0]
             Pair(resourceURL, k8sResource)
         } catch (e: IllegalArgumentException) {
             throw DeploymentFailedException("Could not load resource: $resourcePath", e)

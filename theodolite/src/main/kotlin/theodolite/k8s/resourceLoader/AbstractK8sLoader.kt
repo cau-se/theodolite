@@ -6,6 +6,7 @@ import theodolite.k8s.K8sContextFactory
 
 private val logger = KotlinLogging.logger {}
 
+@Deprecated("Use Kubernetes Client directly")
 abstract class AbstractK8sLoader: K8sResourceLoader {
 
     fun loadK8sResource(kind: String, resourceString: String): KubernetesResource {

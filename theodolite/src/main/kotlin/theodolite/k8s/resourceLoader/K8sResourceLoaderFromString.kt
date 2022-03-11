@@ -12,6 +12,7 @@ import theodolite.util.YamlParserFromString
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 
+@Deprecated("Use Kubernetes Client directly")
 class K8sResourceLoaderFromString(private val client: NamespacedKubernetesClient): AbstractK8sLoader(),
     K8sResourceLoader {
 

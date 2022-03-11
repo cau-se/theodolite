@@ -1,6 +1,7 @@
 package theodolite.benchmark
 
 import io.fabric8.kubernetes.api.model.ConfigMap
+import io.fabric8.kubernetes.api.model.GenericKubernetesResource
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
@@ -36,7 +37,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-deployment.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is Deployment)
+        assertTrue(resourceSet.getResourceSet(server.client).toList().first().second is Deployment)
     }
 
     @Test
@@ -45,7 +46,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-service.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is Service)
+        assertTrue(resourceSet.getResourceSet(server.client).toList().first().second is Service)
     }
 
     @Test
@@ -54,7 +55,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-statefulset.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is StatefulSet)
+        assertTrue(resourceSet.getResourceSet(server.client).toList().first().second is StatefulSet)
     }
 
     @Test
@@ -63,7 +64,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-configmap.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is ConfigMap)
+        assertTrue(resourceSet.getResourceSet(server.client).toList().first().second is ConfigMap)
     }
 
     @Test
@@ -71,8 +72,8 @@ class FileSystemResourceSetTest {
         val resourceSet = FileSystemResourceSet()
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-service-monitor.yaml")
-        assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is CustomResourceWrapper)
+        assertEquals(1, resourceSet.getResourceSet(server.client).size)
+        assertTrue(resourceSet.getResourceSet(server.client).toList().first().second is GenericKubernetesResource)
     }
 
     @Test
@@ -81,7 +82,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-benchmark.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is CustomResourceWrapper)
+        assertTrue(resourceSet.getResourceSet(server.client).toList().first().second is GenericKubernetesResource)
     }
 
     @Test
@@ -90,7 +91,7 @@ class FileSystemResourceSetTest {
         resourceSet.path = testResourcePath
         resourceSet.files = listOf("test-execution.yaml")
         assertEquals(1,resourceSet.getResourceSet(server.client).size)
-        assertTrue(resourceSet.getResourceSet(server.client).toMutableSet().first().second is CustomResourceWrapper)
+        assertTrue(resourceSet.getResourceSet(server.client).toList().first().second is GenericKubernetesResource)
     }
 
     @Test

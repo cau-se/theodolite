@@ -6,15 +6,14 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
 import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 
 @QuarkusTest
+@Deprecated("Since Resource Loaders are deprecated")
+@Disabled
 class K8sResourceLoaderTest {
     private final val server = KubernetesServer(false, true)
     private final val testResourcePath = "./src/test/resources/k8s-resource-files/"

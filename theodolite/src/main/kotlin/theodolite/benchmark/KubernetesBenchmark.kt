@@ -1,6 +1,7 @@
 package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
@@ -53,7 +54,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
      * the [K8sResourceLoader]
      */
-    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
+    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, HasMetadata>> {
         return resourceSet.flatMap { it.loadResourceSet(this.client) }
     }
 
@@ -62,13 +63,14 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(this.infrastructure.resources)
             .map{it.second}
+            // .forEach { client.resource(it).createOrReplace() }
             .forEach { kubernetesManager.deploy(it) }
     }
 
     override fun teardownInfrastructure() {
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(this.infrastructure.resources)
-            .map{it.second}
+            .map { it.second }
             .forEach { kubernetesManager.remove(it) }
         this.infrastructure.afterActions.forEach { it.exec(client = client) }
     }

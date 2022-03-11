@@ -14,6 +14,7 @@ import theodolite.util.YamlParserFromFile
  * Supports: Deployments, Services, ConfigMaps, and CustomResources.
  * @param client KubernetesClient used to deploy or remove.
  */
+@Deprecated("Use Kubernetes Client directly")
 class K8sResourceLoaderFromFile(private val client: NamespacedKubernetesClient): AbstractK8sLoader(),
     K8sResourceLoader {
 
