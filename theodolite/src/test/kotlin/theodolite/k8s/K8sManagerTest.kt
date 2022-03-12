@@ -137,9 +137,7 @@ class K8sManagerTest {
         val manager = K8sManager(server.client)
 
         val serviceMonitorStream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
-        // TODO Will be usable with Kubernetes Client 6.0+
-        // val serviceMonitorResources = server.client.load(serviceMonitorStream).get()[]
-        val serviceMonitorResource = server.client.genericKubernetesResources(serviceMonitorContext).load(serviceMonitorStream).get()
+        val serviceMonitorResource = server.client.load(serviceMonitorStream).get()[0]
 
         manager.deploy(serviceMonitorResource)
 
