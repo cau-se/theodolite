@@ -6,12 +6,11 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
-import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
-import io.fabric8.kubernetes.client.utils.Utils
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -21,11 +20,11 @@ import registerResource
 
 
 @QuarkusTest
-@JsonIgnoreProperties(ignoreUnknown = true)
+@WithKubernetesTestServer
 class K8sManagerTest {
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private final val server = KubernetesServer(false, true)
-    private final val testResourcePath = "./src/test/resources/k8s-resource-files/"
+
+    @KubernetesTestServer
+    private lateinit var server: KubernetesServer
 
     private final val resourceName = "test-resource"
     private final val metadata: ObjectMeta = ObjectMetaBuilder().withName(resourceName).build()
@@ -56,18 +55,6 @@ class K8sManagerTest {
     val defaultConfigMap: ConfigMap = ConfigMapBuilder()
         .withMetadata(metadata)
         .build()
-
-    @BeforeEach
-    fun setUp() {
-        server.before()
-
-    }
-
-    @AfterEach
-    fun tearDown() {
-        server.after()
-
-    }
 
     @Test
     @DisplayName("Test handling of Deployments")
@@ -137,15 +124,15 @@ class K8sManagerTest {
         val manager = K8sManager(server.client)
 
         val serviceMonitorStream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
-        val serviceMonitorResource = server.client.load(serviceMonitorStream).get()[0]
+        val serviceMonitor = server.client.load(serviceMonitorStream).get()[0]
 
-        manager.deploy(serviceMonitorResource)
+        manager.deploy(serviceMonitor)
 
         val serviceMonitorsDeployed = server.client.genericKubernetesResources(serviceMonitorContext).list()
         assertEquals(1, serviceMonitorsDeployed.items.size)
         assertEquals("test-service-monitor", serviceMonitorsDeployed.items[0].metadata.name)
 
-        manager.remove(serviceMonitorResource)
+        manager.remove(serviceMonitor)
 
         val serviceMonitorsDeleted = server.client.genericKubernetesResources(serviceMonitorContext).list()
         assertEquals(0, serviceMonitorsDeleted.items.size)
