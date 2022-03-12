@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.execution.operator
+package rocks.theodolite.kubernetes.operator
 
 import io.fabric8.kubernetes.api.model.EventBuilder
 import io.fabric8.kubernetes.api.model.EventSource

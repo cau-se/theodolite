@@ -1,6 +1,6 @@
 package theodolite.execution.operator
 
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.KafkaConfig
 

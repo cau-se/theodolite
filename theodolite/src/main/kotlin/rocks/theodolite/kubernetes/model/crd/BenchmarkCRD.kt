@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.client.CustomResource
 import io.fabric8.kubernetes.model.annotation.Group
 import io.fabric8.kubernetes.model.annotation.Kind
 import io.fabric8.kubernetes.model.annotation.Version
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 
 @JsonDeserialize
 @Version("v1")

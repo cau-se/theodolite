@@ -2,7 +2,7 @@ package rocks.theodolite.kubernetes.benchmark
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
-import rocks.theodolite.kubernetes.util.PatcherDefinition
+import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 
 /**
  * A Benchmark contains:

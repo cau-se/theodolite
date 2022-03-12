@@ -1,7 +1,7 @@
 package theodolite.execution.operator
 
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
-import rocks.theodolite.kubernetes.execution.operator.ExecutionEventHandler
+import rocks.theodolite.kubernetes.operator.ExecutionEventHandler
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 
 class ExecutionEventHandlerWrapper(

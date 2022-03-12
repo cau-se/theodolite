@@ -1,18 +1,18 @@
-package rocks.theodolite.kubernetes.execution.operator
+package rocks.theodolite.kubernetes.operator
 
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
-import rocks.theodolite.kubernetes.util.ExecutionStateComparator
+import rocks.theodolite.kubernetes.model.crd.ExecutionStateComparator
 import java.lang.Thread.sleep
 
 private val logger = KotlinLogging.logger {}
@@ -93,7 +93,7 @@ class TheodoliteController(
             executionStateHandler.setExecutionState(execution.name, ExecutionState.RUNNING)
             executionStateHandler.startDurationStateTimer(execution.name)
 
-            executor = TheodoliteExecutor(execution, benchmark)
+            executor = TheodoliteExecutor(execution, kubernetesExecutionRunner)
             executor.setupAndRunExecution()
             when (executionStateHandler.getExecutionState(execution.name)) {
                 ExecutionState.RESTART -> runExecution(execution, benchmark)

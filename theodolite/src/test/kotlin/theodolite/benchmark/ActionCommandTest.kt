@@ -9,8 +9,8 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import rocks.theodolite.kubernetes.benchmark.*
-import rocks.theodolite.kubernetes.execution.operator.TheodoliteController
-import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
+import rocks.theodolite.kubernetes.operator.TheodoliteController
+import rocks.theodolite.kubernetes.operator.TheodoliteOperator
 import rocks.theodolite.kubernetes.util.exception.ActionCommandFailedException
 
 

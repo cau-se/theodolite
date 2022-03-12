@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
-import rocks.theodolite.kubernetes.execution.operator.TheodoliteController
-import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
+import rocks.theodolite.kubernetes.operator.TheodoliteController
+import rocks.theodolite.kubernetes.operator.TheodoliteOperator
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD

@@ -5,12 +5,12 @@ import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
 import rocks.theodolite.kubernetes.benchmark.Benchmark
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
-import rocks.theodolite.kubernetes.execution.operator.EventCreator
-import rocks.theodolite.kubernetes.slo.evaluation.AnalysisExecutor
+import rocks.theodolite.kubernetes.operator.EventCreator
+import rocks.theodolite.kubernetes.slo.AnalysisExecutor
 import rocks.theodolite.kubernetes.util.Configuration
-import rocks.theodolite.kubernetes.util.PatcherDefinition
+import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 import rocks.theodolite.kubernetes.util.exception.ExecutionFailedException
 import java.time.Duration
 import java.time.Instant

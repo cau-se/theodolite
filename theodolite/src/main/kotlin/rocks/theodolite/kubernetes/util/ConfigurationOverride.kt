@@ -2,6 +2,7 @@ package rocks.theodolite.kubernetes.util
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.quarkus.runtime.annotations.RegisterForReflection
+import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 
 /**
  * Representation of a configuration override.

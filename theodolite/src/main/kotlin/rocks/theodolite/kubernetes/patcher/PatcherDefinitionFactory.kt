@@ -1,7 +1,6 @@
 package rocks.theodolite.kubernetes.patcher
 
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
-import rocks.theodolite.kubernetes.util.PatcherDefinition
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 
 /**
  * The PatcherDefinition Factory creates a [PatcherDefinition]s.

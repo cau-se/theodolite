@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.slo.evaluation
+package rocks.theodolite.kubernetes.slo
 
 import rocks.theodolite.core.strategies.Metric
 

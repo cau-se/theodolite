@@ -1,17 +1,28 @@
 package rocks.theodolite.kubernetes.execution
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.benchmark.*
 import rocks.theodolite.kubernetes.k8s.K8sManager
 import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoader
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.patcher.PatcherFactory
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
-import rocks.theodolite.kubernetes.util.PatcherDefinition
+import rocks.theodolite.kubernetes.patcher.PatcherDefinition
+import rocks.theodolite.kubernetes.resourceSet.ResourceSets
 
 private val logger = KotlinLogging.logger {}
 
+private var DEFAULT_NAMESPACE = "default"
+
 class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark) : Benchmark {
+
+    private var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
+
+    @Transient
+    private var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
     /**
      * Loads [KubernetesResource]s.
@@ -19,23 +30,23 @@ class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark) : 
      * the [K8sResourceLoader]
      */
     fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
-        return resourceSet.flatMap { it.loadResourceSet(kubernetesBenchmark.getClient()) }
+        return resourceSet.flatMap { it.loadResourceSet(this.client) }
     }
 
     override fun setupInfrastructure() {
-        kubernetesBenchmark.infrastructure.beforeActions.forEach { it.exec(client = kubernetesBenchmark.getClient()) }
-        val kubernetesManager = K8sManager(kubernetesBenchmark.getClient())
+        kubernetesBenchmark.infrastructure.beforeActions.forEach { it.exec(client = this.client) }
+        val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(kubernetesBenchmark.infrastructure.resources)
                 .map{it.second}
                 .forEach { kubernetesManager.deploy(it) }
     }
 
     override fun teardownInfrastructure() {
-        val kubernetesManager = K8sManager(kubernetesBenchmark.getClient())
+        val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(kubernetesBenchmark.infrastructure.resources)
                 .map{it.second}
                 .forEach { kubernetesManager.remove(it) }
-        kubernetesBenchmark.infrastructure.afterActions.forEach { it.exec(client = kubernetesBenchmark.getClient()) }
+        kubernetesBenchmark.infrastructure.afterActions.forEach { it.exec(client = this.client) }
     }
 
     /**
@@ -57,7 +68,7 @@ class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark) : 
             loadGenerationDelay: Long,
             afterTeardownDelay: Long
     ): BenchmarkDeployment {
-        logger.info { "Using ${kubernetesBenchmark.getNamespace()} as namespace." }
+        logger.info { "Using ${this.namespace} as namespace." }
 
         val appResources = loadKubernetesResources(kubernetesBenchmark.sut.resources)
         val loadGenResources = loadKubernetesResources(kubernetesBenchmark.loadGenerator.resources)
@@ -92,7 +103,16 @@ class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark) : 
                 afterTeardownDelay = afterTeardownDelay,
                 kafkaConfig = if (kafkaConfig != null) hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
                 topics = kafkaConfig?.topics ?: listOf(),
-                client = kubernetesBenchmark.getClient()
+                client = this.client
         )
+    }
+
+    /**
+     * This function can be used to set the Kubernetes client manually. This is for example necessary for testing.
+     *
+     * @param client
+     */
+    fun setClient(client: NamespacedKubernetesClient) {
+        this.client = client
     }
 }

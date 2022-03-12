@@ -1,8 +1,8 @@
 package rocks.theodolite.kubernetes.slo
 
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 
 class SloFactory {
 

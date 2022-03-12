@@ -2,7 +2,6 @@ package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import rocks.theodolite.kubernetes.util.exception.InvalidPatcherConfigurationException
-import rocks.theodolite.kubernetes.util.PatcherDefinition
 
 /**
  * The Patcher factory creates [Patcher]s

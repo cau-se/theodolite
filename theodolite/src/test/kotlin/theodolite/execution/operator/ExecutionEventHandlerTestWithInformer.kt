@@ -11,9 +11,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
-import rocks.theodolite.kubernetes.execution.operator.ExecutionEventHandler
-import rocks.theodolite.kubernetes.execution.operator.ExecutionStateHandler
-import rocks.theodolite.kubernetes.execution.operator.TheodoliteController
+import rocks.theodolite.kubernetes.operator.ExecutionEventHandler
+import rocks.theodolite.kubernetes.operator.ExecutionStateHandler
+import rocks.theodolite.kubernetes.operator.TheodoliteController
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import java.io.FileInputStream

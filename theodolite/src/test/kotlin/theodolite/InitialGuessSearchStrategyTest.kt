@@ -8,7 +8,7 @@ import mu.KotlinLogging
 import rocks.theodolite.core.strategies.guessstrategy.PrevInstanceOptGuess
 import rocks.theodolite.core.strategies.searchstrategy.InitialGuessSearchStrategy
 import rocks.theodolite.core.Results
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 
 private val logger = KotlinLogging.logger {}
 

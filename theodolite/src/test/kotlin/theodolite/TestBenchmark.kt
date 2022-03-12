@@ -3,7 +3,7 @@ package theodolite
 import rocks.theodolite.kubernetes.benchmark.Benchmark
 import rocks.theodolite.kubernetes.benchmark.BenchmarkDeployment
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
-import rocks.theodolite.kubernetes.util.PatcherDefinition
+import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 
 class TestBenchmark : Benchmark {
 

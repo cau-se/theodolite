@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.slo.evaluation
+package rocks.theodolite.kubernetes.slo
 
 enum class SloTypes(val value: String) {
     GENERIC("generic"),

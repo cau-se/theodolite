@@ -14,11 +14,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import rocks.theodolite.kubernetes.benchmark.*
-import rocks.theodolite.kubernetes.execution.operator.BenchmarkStateChecker
-import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
+import rocks.theodolite.kubernetes.operator.BenchmarkStateChecker
+import rocks.theodolite.kubernetes.operator.TheodoliteOperator
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
+import rocks.theodolite.kubernetes.resourceSet.ConfigMapResourceSet
+import rocks.theodolite.kubernetes.resourceSet.ResourceSets
 
 internal class BenchmarkStateCheckerTest {
     private val server = KubernetesServer(false, false)
@@ -166,18 +168,19 @@ internal class BenchmarkStateCheckerTest {
 
     @Test
     fun checkResources() {
-        val benchmark = BenchmarkCRDummy(
+        val benchmarkCR = BenchmarkCRDummy(
             name = "test-benchmark"
         )
-
-        benchmark.getCR().spec.setClient(serverCrud.client)
+        val benchmark = benchmarkCR.getCR().spec
+        val kubernetesExecutionRunner = KubernetesExecutionRunner(benchmark)
+        kubernetesExecutionRunner.setClient(serverCrud.client)
 
         val resourceSet = KubernetesBenchmark.Resources()
         resourceSet.resources = listOf(createAndDeployConfigmapResourceSet())
-        benchmark.getCR().spec.infrastructure = resourceSet
-        benchmark.getCR().spec.loadGenerator = resourceSet
-        benchmark.getCR().spec.sut = resourceSet
+        benchmark.infrastructure = resourceSet
+        benchmark.loadGenerator = resourceSet
+        benchmark.sut = resourceSet
 
-        assertEquals(BenchmarkState.READY,checkerCrud.checkResources(benchmark.getCR().spec))
+        assertEquals(BenchmarkState.READY,checkerCrud.checkResources(kubernetesExecutionRunner))
     }
 }

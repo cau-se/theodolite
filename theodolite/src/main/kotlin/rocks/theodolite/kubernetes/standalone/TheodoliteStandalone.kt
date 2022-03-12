@@ -1,13 +1,14 @@
 package rocks.theodolite.kubernetes.standalone
 
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
+import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
 import rocks.theodolite.kubernetes.util.YamlParserFromFile
 import rocks.theodolite.kubernetes.util.exception.EvaluationFailedException
 import rocks.theodolite.kubernetes.util.exception.ExecutionFailedException
-import rocks.theodolite.kubernetes.execution.Shutdown
+import rocks.theodolite.kubernetes.Shutdown
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
@@ -55,7 +56,7 @@ class TheodoliteStandalone {
         Runtime.getRuntime().addShutdownHook(shutdown)
 
         try {
-            TheodoliteExecutor(benchmarkExecution, benchmark).setupAndRunExecution()
+            TheodoliteExecutor(benchmarkExecution, KubernetesExecutionRunner(benchmark)).setupAndRunExecution()
         } catch (e: EvaluationFailedException) {
             logger.error { "Evaluation failed with error: ${e.message}" }
         }catch (e: ExecutionFailedException) {

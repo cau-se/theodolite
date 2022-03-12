@@ -1,8 +1,9 @@
-package rocks.theodolite.kubernetes.execution
+package rocks.theodolite.kubernetes
 
 import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.execution.operator.TheodoliteOperator
+import rocks.theodolite.kubernetes.execution.ExecutionModes
+import rocks.theodolite.kubernetes.operator.TheodoliteOperator
 import rocks.theodolite.kubernetes.standalone.TheodoliteStandalone
 import rocks.theodolite.kubernetes.util.Configuration
 import kotlin.system.exitProcess

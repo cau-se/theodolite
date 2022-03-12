@@ -2,7 +2,7 @@ package theodolite
 
 import rocks.theodolite.core.Results
 import rocks.theodolite.kubernetes.benchmark.Benchmark
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import rocks.theodolite.core.ExperimentRunner
 
 class TestExperimentRunnerImpl(

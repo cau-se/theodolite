@@ -1,15 +1,13 @@
-package rocks.theodolite.kubernetes.benchmark
+package rocks.theodolite.kubernetes.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
+import rocks.theodolite.kubernetes.benchmark.Action
+import rocks.theodolite.kubernetes.resourceSet.ResourceSets
 import rocks.theodolite.kubernetes.model.crd.KafkaConfig
-import rocks.theodolite.kubernetes.util.PatcherDefinition
+import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 import kotlin.properties.Delegates
-
-private var DEFAULT_NAMESPACE = "default"
 
 /**
  * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
@@ -38,11 +36,7 @@ class KubernetesBenchmark : KubernetesResource {
     lateinit var infrastructure: Resources
     lateinit var sut: Resources
     lateinit var loadGenerator: Resources
-    private var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-
-    @Transient
-    private var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
-
+    //TODO: maybe add identifier and in BenchmarkCRD maybe manage them
 
     /**
      * The TypeName encapsulates a list of [PatcherDefinition] along with a typeName that specifies for what the [PatcherDefinition] should be used.
@@ -81,20 +75,11 @@ class KubernetesBenchmark : KubernetesResource {
         lateinit var afterActions: List<Action>
     }
 
-    /**
-     * This function can be used to set the Kubernetes client manually. This is for example necessary for testing.
-     *
-     * @param client
-     */
-    fun setClient(client: NamespacedKubernetesClient) {
-        this.client = client
-    }
-
-    fun getClient() : NamespacedKubernetesClient {
+/*    fun getClient() : NamespacedKubernetesClient {
         return this.client
     }
 
     fun getNamespace() : String {
         return this.namespace
-    }
+    }*/
 }

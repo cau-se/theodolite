@@ -1,8 +1,9 @@
-package rocks.theodolite.kubernetes.execution
+package rocks.theodolite.kubernetes
 
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
+import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 
 private val logger = KotlinLogging.logger {}
 

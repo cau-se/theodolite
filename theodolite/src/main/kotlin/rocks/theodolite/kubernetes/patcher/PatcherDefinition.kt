@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.util
+package rocks.theodolite.kubernetes.patcher
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize

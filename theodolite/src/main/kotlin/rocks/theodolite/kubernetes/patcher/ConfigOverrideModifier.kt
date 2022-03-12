@@ -1,8 +1,7 @@
 package rocks.theodolite.kubernetes.patcher
 
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
-import rocks.theodolite.kubernetes.util.PatcherDefinition
 
 /**
  * The ConfigOverrideModifier makes it possible to update the configuration overrides of an execution.

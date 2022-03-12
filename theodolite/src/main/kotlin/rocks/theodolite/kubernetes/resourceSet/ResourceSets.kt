@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.benchmark
+package rocks.theodolite.kubernetes.resourceSet
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty

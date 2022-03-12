@@ -1,6 +1,6 @@
 package theodolite.execution.operator
 
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import rocks.theodolite.kubernetes.model.crd.ExecutionStatus

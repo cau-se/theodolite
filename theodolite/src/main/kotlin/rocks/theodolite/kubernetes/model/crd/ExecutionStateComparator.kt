@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.util
+package rocks.theodolite.kubernetes.model.crd
 
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState

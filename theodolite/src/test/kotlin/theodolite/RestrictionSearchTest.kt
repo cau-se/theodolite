@@ -11,7 +11,7 @@ import rocks.theodolite.core.strategies.searchstrategy.FullSearch
 import rocks.theodolite.core.strategies.searchstrategy.LinearSearch
 import rocks.theodolite.core.strategies.searchstrategy.RestrictionSearch
 import rocks.theodolite.core.Results
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark.Slo
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 
 @QuarkusTest
 class RestrictionSearchTest {

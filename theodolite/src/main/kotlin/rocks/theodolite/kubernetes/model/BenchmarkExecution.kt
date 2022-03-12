@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.benchmark
+package rocks.theodolite.kubernetes.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource

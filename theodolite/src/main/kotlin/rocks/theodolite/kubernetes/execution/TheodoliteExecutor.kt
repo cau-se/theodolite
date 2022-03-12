@@ -3,14 +3,13 @@ package rocks.theodolite.kubernetes.execution
 import mu.KotlinLogging
 import rocks.theodolite.core.ExecutionRunner
 import rocks.theodolite.core.ExperimentRunner
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.patcher.PatcherDefinitionFactory
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.strategies.StrategyFactory
 import rocks.theodolite.core.Config
 import rocks.theodolite.core.IOHandler
 import rocks.theodolite.core.Results
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmark
 import rocks.theodolite.kubernetes.slo.SloFactory
 import java.io.File
 import java.time.Duration
@@ -27,14 +26,14 @@ private val logger = KotlinLogging.logger {}
  */
 class TheodoliteExecutor(
         private val benchmarkExecution: BenchmarkExecution,
-        private val kubernetesBenchmark: KubernetesBenchmark
+        private val kubernetesExecutionRunner: KubernetesExecutionRunner
 ) {
     /**
      * An executor object, configured with the specified benchmark, evaluation method, experiment duration
      * and overrides which are given in the execution.
      */
     lateinit var experimentRunner: ExperimentRunner
-    private val kubernetesExecutionRunner = KubernetesExecutionRunner(kubernetesBenchmark)
+    private val kubernetesBenchmark = kubernetesExecutionRunner.kubernetesBenchmark
 
     /**
      * Creates all required components to start Theodolite.

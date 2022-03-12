@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import rocks.theodolite.kubernetes.benchmark.ConfigMapResourceSet
+import rocks.theodolite.kubernetes.resourceSet.ConfigMapResourceSet
 import rocks.theodolite.kubernetes.k8s.CustomResourceWrapper
 import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
 import rocks.theodolite.kubernetes.util.exception.DeploymentFailedException

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
 import rocks.theodolite.kubernetes.patcher.PatcherFactory
-import rocks.theodolite.kubernetes.util.PatcherDefinition
+import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 
 /**
  * Resource patcher test

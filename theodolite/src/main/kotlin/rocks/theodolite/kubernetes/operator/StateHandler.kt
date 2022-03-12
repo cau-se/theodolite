@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.execution.operator
+package rocks.theodolite.kubernetes.operator
 
 private const val MAX_RETRIES: Int = 5
 

@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.execution.operator
+package rocks.theodolite.kubernetes.operator
 
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import rocks.theodolite.kubernetes.k8s.K8sContextFactory
 import rocks.theodolite.kubernetes.k8s.ResourceByLabelHandler
 import rocks.theodolite.kubernetes.model.crd.*
-import rocks.theodolite.kubernetes.execution.Shutdown
+import rocks.theodolite.kubernetes.Shutdown
 
 
 class ClusterSetup(

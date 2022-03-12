@@ -1,10 +1,10 @@
-package rocks.theodolite.kubernetes.execution.operator
+package rocks.theodolite.kubernetes.operator
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.benchmark.BenchmarkExecution
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 
