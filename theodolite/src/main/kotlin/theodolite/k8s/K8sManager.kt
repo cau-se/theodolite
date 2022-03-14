@@ -24,20 +24,6 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
      */
     fun deploy(resource: HasMetadata) {
         client.resource(resource).createOrReplace()
-        /*
-        when (resource) {
-            is Deployment ->
-                this.client.apps().deployments().createOrReplace(resource)
-            is Service ->
-                this.client.services().createOrReplace(resource)
-            is ConfigMap ->
-                this.client.configMaps().createOrReplace(resource)
-            is StatefulSet ->
-                this.client.apps().statefulSets().createOrReplace(resource)
-            is CustomResourceWrapper -> resource.deploy(client)
-            else -> throw IllegalArgumentException("Unknown Kubernetes resource.")
-        }
-        */
     }
 
     /**
@@ -48,29 +34,19 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
         client.resource(resource).delete()
         when (resource) {
             is Deployment -> {
-                //this.client.apps().deployments().delete(resource)
                 ResourceByLabelHandler(client = client)
                     .blockUntilPodsDeleted(
                         matchLabels = resource.spec.selector.matchLabels
                     )
                 logger.info { "Deployment '${resource.metadata.name}' deleted." }
             }
-            /*
-            is Service ->
-                this.client.services().delete(resource)
-            is ConfigMap ->
-                this.client.configMaps().delete(resource)
-            */
             is StatefulSet -> {
-                //this.client.apps().statefulSets().delete(resource)
                 ResourceByLabelHandler(client = client)
                     .blockUntilPodsDeleted(
                         matchLabels = resource.spec.selector.matchLabels
                     )
                 logger.info { "StatefulSet '$resource.metadata.name' deleted." }
             }
-            // is CustomResourceWrapper -> resource.delete(client)
-            // else -> client.resource(resource).delete()
         }
     }
 }

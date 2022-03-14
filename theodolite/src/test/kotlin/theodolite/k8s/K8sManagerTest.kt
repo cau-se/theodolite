@@ -26,7 +26,6 @@ internal class K8sManagerTest {
     private final val resourceName = "test-resource"
     private final val metadata: ObjectMeta = ObjectMetaBuilder().withName(resourceName).build()
 
-
     val defaultDeployment: Deployment = DeploymentBuilder()
         .withMetadata(metadata)
         .withNewSpec()

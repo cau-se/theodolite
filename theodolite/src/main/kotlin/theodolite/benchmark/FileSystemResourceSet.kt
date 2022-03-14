@@ -43,7 +43,6 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
 
     private fun loadSingleResource(resource: Path, client: NamespacedKubernetesClient): Pair<String, HasMetadata> {
         return try {
-            //val k8sResource = client.load(FileInputStream(resource.toFile())).get()[0]
             val stream = FileInputStream(resource.toFile())
             val text = BufferedReader(
                 InputStreamReader(stream, StandardCharsets.UTF_8)

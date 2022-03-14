@@ -11,10 +11,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import theodolite.k8s.K8sManager
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
 import theodolite.model.crd.ExecutionCRD
 import theodolite.model.crd.ExecutionState
-import java.time.Duration
 
 @QuarkusTest
 @WithKubernetesTestServer

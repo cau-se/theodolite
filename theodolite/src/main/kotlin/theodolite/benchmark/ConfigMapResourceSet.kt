@@ -6,9 +6,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromString
 import theodolite.util.DeploymentFailedException
-import theodolite.util.YamlParserFromString
 import java.lang.IllegalArgumentException
 
 @RegisterForReflection
@@ -18,7 +16,6 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
     lateinit var files: List<String> // load all files, iff files is not set
 
     override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
-        val loader = K8sResourceLoaderFromString(client)
         var resources: Map<String, String>
 
         try {
@@ -44,15 +41,8 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
             resources
                 .map {
                     Pair(
-                        getKind(resourceYaml = it.value),
-                        it
-                    )
-                }
-                .map {
-                    Pair(
-                        it.second.key, // filename
-                        client.resource(it.second.value).get()
-                        //loader.loadK8sResource(kind = it.first, resourceString = it.second.value) // K8s resource
+                        it.key, // filename
+                        client.resource(it.value).get()
                     )
                 }
         } catch (e: IllegalArgumentException) {
@@ -61,11 +51,4 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
 
     }
 
-    private fun getKind(resourceYaml: String): String {
-        val parser = YamlParserFromString()
-        val resourceAsMap = parser.parse(resourceYaml, HashMap<String, String>()::class.java)
-
-        return resourceAsMap?.get("kind")
-            ?: throw DeploymentFailedException("Could not find 'kind' field of Kubernetes resource: ${resourceAsMap?.get("name")}")
-    }
 }

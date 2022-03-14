@@ -8,12 +8,9 @@ import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import registerResource
 import theodolite.model.crd.BenchmarkCRD

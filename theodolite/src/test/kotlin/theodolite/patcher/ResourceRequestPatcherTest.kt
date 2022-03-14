@@ -1,15 +1,11 @@
-package theodolite
+package theodolite.patcher
 
-import io.fabric8.kubernetes.api.model.apps.Deployment
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
-import org.junit.jupiter.api.Assertions.assertTrue
+import io.smallrye.common.constraint.Assert.assertTrue
 import org.junit.jupiter.api.Test
-import theodolite.k8s.resourceLoader.K8sResourceLoaderFromFile
-import theodolite.patcher.PatcherFactory
 import theodolite.util.PatcherDefinition
 
 /**
@@ -24,41 +20,38 @@ import theodolite.util.PatcherDefinition
  */
 @QuarkusTest
 @WithKubernetesTestServer
-class ResourceLimitPatcherTest {
-    //val testPath = "./src/test/resources/"
-    //val loader = K8sResourceLoaderFromFile(DefaultKubernetesClient().inNamespace(""))
-    val patcherFactory = PatcherFactory()
+class ResourceRequestPatcherTest {
 
     @KubernetesTestServer
     private lateinit var server: KubernetesServer
+
+    val patcherFactory = PatcherFactory()
 
     fun applyTest(fileName: String) {
         val cpuValue = "50m"
         val memValue = "3Gi"
         val k8sResource = server.client.apps().deployments().load(javaClass.getResourceAsStream(fileName)).get()
-        //val k8sResource = loader.loadK8sResource("Deployment", testPath + fileName) as Deployment
 
         val defCPU = PatcherDefinition()
         defCPU.resource = "/cpu-memory-deployment.yaml"
-        defCPU.type = "ResourceLimitPatcher"
-        defCPU.properties = mutableMapOf(
-            "limitedResource" to "cpu",
+        defCPU.type = "ResourceRequestPatcher"
+        defCPU.properties = mapOf(
+            "requestedResource" to "cpu",
             "container" to "application"
         )
 
         val defMEM = PatcherDefinition()
         defMEM.resource = "/cpu-memory-deployment.yaml"
-        defMEM.type = "ResourceLimitPatcher"
-        defMEM.properties = mutableMapOf(
-            "limitedResource" to "memory",
-            "container" to "uc-application"
+        defMEM.type = "ResourceRequestPatcher"
+        defMEM.properties = mapOf(
+            "requestedResource" to "memory",
+            "container" to "application"
         )
 
         patcherFactory.createPatcher(
             patcherDefinition = defCPU,
             k8sResources = listOf(Pair("/cpu-memory-deployment.yaml", k8sResource))
         ).patch(value = cpuValue)
-
         patcherFactory.createPatcher(
             patcherDefinition = defMEM,
             k8sResources = listOf(Pair("/cpu-memory-deployment.yaml", k8sResource))
@@ -66,8 +59,8 @@ class ResourceLimitPatcherTest {
 
         k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"]!! }
             .forEach {
-                assertTrue(it.resources.limits["cpu"].toString() == cpuValue)
-                assertTrue(it.resources.limits["memory"].toString() == memValue)
+                assertTrue(it.resources.requests["cpu"].toString() == cpuValue)
+                assertTrue(it.resources.requests["memory"].toString() == memValue)
             }
     }
 
