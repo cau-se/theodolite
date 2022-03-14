@@ -1,5 +1,6 @@
 package theodolite.benchmark
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
@@ -27,8 +28,8 @@ class KubernetesBenchmarkDeployment(
     private val sutAfterActions: List<Action>,
     private val loadGenBeforeActions: List<Action>,
     private val loadGenAfterActions: List<Action>,
-    val appResources: List<KubernetesResource>,
-    val loadGenResources: List<KubernetesResource>,
+    val appResources: List<HasMetadata>,
+    val loadGenResources: List<HasMetadata>,
     private val loadGenerationDelay: Long,
     private val afterTeardownDelay: Long,
     private val kafkaConfig: Map<String, Any>,

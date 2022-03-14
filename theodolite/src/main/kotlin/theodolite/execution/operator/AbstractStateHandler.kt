@@ -25,7 +25,12 @@ abstract class AbstractStateHandler<S : HasMetadata>(
             val resource = this.crdClient.withName(resourceName).get()
             if (resource != null) {
                 val resourcePatched = setter(resource)
-                this.crdClient.patchStatus(resourcePatched)
+                // TODO replace with this.crdClient.replaceStatus(resourcePatched) with upcoming fabric8 release (> 5.12.1)
+                // find out the difference between patchStatus and replaceStatus
+                // see also https://github.com/fabric8io/kubernetes-client/pull/3798
+                if (resourcePatched != null) {
+                    this.crdClient.withName(resourcePatched.metadata.name).patchStatus(resourcePatched)
+                }
             }
         } catch (e: KubernetesClientException) {
             logger.warn(e) { "Status cannot be set for resource $resourceName." }
