@@ -21,17 +21,16 @@ import kotlin.io.path.listDirectoryEntries
 @JsonDeserialize
 class FileSystemResourceSet: ResourceSet, KubernetesResource {
     lateinit var path: String
-    lateinit var files: List<String>
+    var files: List<String>? = null
 
     override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
         // if files is set ...
-        if(::files.isInitialized){
-            return files
+        return files?.run {
+            return this
                 .map { Paths.get(path, it) }
                 .map { loadSingleResource(resource = it, client = client) }
-        }
-
-        return try {
+        } ?:
+        try {
             Paths.get(path)
                 .listDirectoryEntries()
                 .filter { it.toString().endsWith(".yaml") || it.toString().endsWith(".yml") }

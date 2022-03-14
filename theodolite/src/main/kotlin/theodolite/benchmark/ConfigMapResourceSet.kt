@@ -13,7 +13,7 @@ import java.lang.IllegalArgumentException
 @JsonDeserialize
 class ConfigMapResourceSet : ResourceSet, KubernetesResource {
     lateinit var name: String
-    lateinit var files: List<String> // load all files, iff files is not set
+    var files: List<String>? = null // load all files, iff files is not set
 
     override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
         var resources: Map<String, String>
@@ -29,9 +29,9 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
             throw DeploymentFailedException("Cannot find or read ConfigMap with name '$name'.", e)
         }
 
-        if (::files.isInitialized) {
-            val filteredResources = resources.filter { files.contains(it.key) }
-            if (filteredResources.size != files.size) {
+        files?.run {
+            val filteredResources = resources.filter { this.contains(it.key) }
+            if (filteredResources.size != this.size) {
                 throw DeploymentFailedException("Could not find all specified Kubernetes manifests files")
             }
             resources = filteredResources
