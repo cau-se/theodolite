@@ -59,6 +59,12 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11
 }
 
+test {
+    // Required because of https://github.com/quarkusio/quarkus/issues/18973
+    minHeapSize = "256m"
+    maxHeapSize = "1024m"
+}
+
 detekt {
     failFast = true // fail build on any finding
     buildUponDefaultConfig = true
