@@ -62,7 +62,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
         this.infrastructure.beforeActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(this.infrastructure.resources)
-            .map{it.second}
+            .map { it.second }
             // .forEach { client.resource(it).createOrReplace() }
             .forEach { kubernetesManager.deploy(it) }
     }

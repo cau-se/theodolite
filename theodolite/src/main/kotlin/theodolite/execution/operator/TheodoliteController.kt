@@ -130,8 +130,7 @@ class TheodoliteController(
             .list()
             .items
             .map {
-                it.spec.name = it.metadata.name
-                it
+                it.apply { it.spec.name = it.metadata.name }
             }
     }
 
