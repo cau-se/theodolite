@@ -159,6 +159,8 @@ internal class ConfigMapResourceSetTest {
         val loadedResource = createdResource.toList().first().second
         assertTrue(loadedResource is ExecutionCRD)
         assertEquals("example-execution", loadedResource.metadata.name)
+
+
     }
 
     @Test
