@@ -6,6 +6,10 @@ import org.apache.beam.sdk.io.gcp.pubsub.PubsubMessage;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import titan.ccp.model.records.ActivePowerRecord;
 
+/**
+ * A {@link SimpleFunction}, extracting and decoding {@link ActivePowerRecord}s from
+ * {@link PubsubMessage}s.
+ */
 public final class PubSubEncoder extends SimpleFunction<PubsubMessage, ActivePowerRecord> {
 
   private static final long serialVersionUID = -8872981416931508879L;

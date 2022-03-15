@@ -4,20 +4,14 @@ import java.util.function.Function;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
-import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
-import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO.PubsubTopic;
-import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO.Read;
-import org.apache.beam.sdk.io.gcp.pubsub.PubsubMessage;
 import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.commons.beam.AbstractPipelineFactory;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreOptionsExpander;
-import rocks.theodolite.benchmarks.uc1.beam.pubsub.PubSubEncoder;
-import rocks.theodolite.benchmarks.uc1.beam.pubsub.PubSubTopicFactory;
+import rocks.theodolite.benchmarks.uc1.beam.pubsub.PubSubSource;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
@@ -27,6 +21,9 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   public static final String SOURCE_TYPE_KEY = "source.type";
   public static final String SINK_TYPE_KEY = "sink.type";
+
+  public static final String PUBSSUB_SOURCE_PROJECT_KEY = "source.pubsub.project";
+  public static final String PUBSSUB_SOURCE_TOPIC_KEY = "source.pubsub.topic";
 
   private final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
 
@@ -55,16 +52,11 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
     PCollection<ActivePowerRecord> activePowerRecords;
 
-    if (sourceType.equals("pubsub")) {
-      final String topicName = "input";
-      final String projectName = "dummy-project-id";
-      final PubsubTopic topic = PubSubTopicFactory.create(projectName, topicName);
-      final Read<PubsubMessage> pubsub = PubsubIO
-          .readMessages()
-          .fromTopic(topic.asPath());
-
+    if ("pubsub".equals(sourceType)) {
+      final String projectName = this.config.getString(PUBSSUB_SOURCE_PROJECT_KEY);
+      final String topicName = this.config.getString(PUBSSUB_SOURCE_TOPIC_KEY);
       // Read messages from Pub/Sub and encode them as Avro records
-      activePowerRecords = pipeline.apply(pubsub).apply(MapElements.via(new PubSubEncoder()));
+      activePowerRecords = pipeline.apply(new PubSubSource(topicName, projectName));
     } else {
       final KafkaActivePowerTimestampReader kafka = super.buildKafkaReader();
       // Read messages from Kafka as Avro records and drop keys
