@@ -32,17 +32,17 @@ internal class BenchmarkStateCheckerTest {
     fun setUp() {
         server.before()
         serverCrud.before()
-        val operator = TheodoliteOperator()
+        val operator = TheodoliteOperator(serverCrud.client)
         checker = BenchmarkStateChecker(
             client = server.client,
-            benchmarkCRDClient = operator.getBenchmarkClient(server.client),
-            benchmarkStateHandler = operator.getBenchmarkStateHandler(server.client)
+            benchmarkCRDClient = operator.getBenchmarkClient(),
+            benchmarkStateHandler = operator.getBenchmarkStateHandler()
         )
 
         checkerCrud = BenchmarkStateChecker(
             client = serverCrud.client,
-            benchmarkCRDClient = operator.getBenchmarkClient(serverCrud.client),
-            benchmarkStateHandler = operator.getBenchmarkStateHandler(serverCrud.client)
+            benchmarkCRDClient = operator.getBenchmarkClient(),
+            benchmarkStateHandler = operator.getBenchmarkStateHandler()
         )
 
         val pod: Pod = PodBuilder().withNewMetadata()
@@ -172,8 +172,6 @@ internal class BenchmarkStateCheckerTest {
             name = "test-benchmark"
         )
         val benchmark = benchmarkCR.getCR().spec
-        val kubernetesExecutionRunner = KubernetesExecutionRunner(benchmark)
-        kubernetesExecutionRunner.setClient(serverCrud.client)
 
         val resourceSet = KubernetesBenchmark.Resources()
         resourceSet.resources = listOf(createAndDeployConfigmapResourceSet())
@@ -181,6 +179,6 @@ internal class BenchmarkStateCheckerTest {
         benchmark.loadGenerator = resourceSet
         benchmark.sut = resourceSet
 
-        assertEquals(BenchmarkState.READY,checkerCrud.checkResources(kubernetesExecutionRunner))
+        assertEquals(BenchmarkState.READY,checkerCrud.checkResources(benchmark))
     }
 }

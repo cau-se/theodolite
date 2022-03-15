@@ -36,7 +36,6 @@ class KubernetesBenchmark : KubernetesResource {
     lateinit var infrastructure: Resources
     lateinit var sut: Resources
     lateinit var loadGenerator: Resources
-    //TODO: maybe add identifier and in BenchmarkCRD maybe manage them
 
     /**
      * The TypeName encapsulates a list of [PatcherDefinition] along with a typeName that specifies for what the [PatcherDefinition] should be used.
@@ -74,12 +73,4 @@ class KubernetesBenchmark : KubernetesResource {
         lateinit var beforeActions: List<Action>
         lateinit var afterActions: List<Action>
     }
-
-/*    fun getClient() : NamespacedKubernetesClient {
-        return this.client
-    }
-
-    fun getNamespace() : String {
-        return this.namespace
-    }*/
 }

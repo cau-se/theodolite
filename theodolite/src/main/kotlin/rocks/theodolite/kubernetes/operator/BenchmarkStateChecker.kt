@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.operator
 
+import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
@@ -10,6 +11,7 @@ import rocks.theodolite.kubernetes.benchmark.ActionSelector
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.resourceSet.ResourceSets
 import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
+import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoader
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
@@ -18,7 +20,6 @@ class BenchmarkStateChecker(
         private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
         private val benchmarkStateHandler: BenchmarkStateHandler,
         private val client: NamespacedKubernetesClient,
-        //private val kubernetesExecutionRunnerList: List<KubernetesExecutionRunner>
 
 ) {
 
@@ -54,9 +55,9 @@ class BenchmarkStateChecker(
      * @param benchmark The benchmark to check
      * @return [BenchmarkStates.READY] iff all resource could be loaded and all actions could be executed, [BenchmarkStates.PENDING] else
      */
-    private fun checkState(kubernetesExecutionRunner: KubernetesExecutionRunner): BenchmarkState {
-        return if (checkActionCommands(kubernetesExecutionRunner.kubernetesBenchmark) == BenchmarkState.READY
-            && checkResources(kubernetesExecutionRunner) == BenchmarkState.READY
+    private fun checkState(benchmark: KubernetesBenchmark): BenchmarkState {
+        return if (checkActionCommands(benchmark) == BenchmarkState.READY
+            && checkResources(benchmark) == BenchmarkState.READY
         ) {
             BenchmarkState.READY
         } else {
@@ -175,13 +176,12 @@ class BenchmarkStateChecker(
      * @param benchmark The benchmark to check
      * @return The state of this benchmark. [BenchmarkState.READY] if all resources could be loaded, else [BenchmarkState.PENDING]
      */
-    fun checkResources(kubernetesExecutionRunner: KubernetesExecutionRunner): BenchmarkState {
+    fun checkResources(benchmark: KubernetesBenchmark): BenchmarkState {
         return try {
-            val benchmark = kubernetesExecutionRunner.kubernetesBenchmark
             val appResources =
-                    kubernetesExecutionRunner.loadKubernetesResources(resourceSet = benchmark.sut.resources)
+                    loadKubernetesResources(resourceSet = benchmark.sut.resources)
             val loadGenResources =
-                    kubernetesExecutionRunner.loadKubernetesResources(resourceSet = benchmark.loadGenerator.resources)
+                    loadKubernetesResources(resourceSet = benchmark.loadGenerator.resources)
             if (appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
                 BenchmarkState.READY
             } else {
@@ -190,6 +190,15 @@ class BenchmarkStateChecker(
         } catch (e: Exception) {
             BenchmarkState.PENDING
         }
+    }
+
+    /**
+     * Loads [KubernetesResource]s.
+     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
+     * the [K8sResourceLoader]
+     */
+    private fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
+        return resourceSet.flatMap { it.loadResourceSet(this.client) }
     }
 }
 

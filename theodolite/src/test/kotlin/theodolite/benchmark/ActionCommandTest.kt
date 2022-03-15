@@ -22,11 +22,10 @@ class ActionCommandTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        val operator = TheodoliteOperator()
+        val operator = TheodoliteOperator(server.client)
         this.controller = operator.getController(
-            client = server.client,
-            executionStateHandler = operator.getExecutionStateHandler(client = server.client),
-            benchmarkStateChecker = operator.getBenchmarkStateChecker(client = server.client)
+            executionStateHandler = operator.getExecutionStateHandler(),
+            benchmarkStateChecker = operator.getBenchmarkStateChecker()
         )
 
         val pod: Pod = PodBuilder().withNewMetadata()

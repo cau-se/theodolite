@@ -68,7 +68,7 @@ class TheodoliteExecutor(
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = benchmarkExecution.configOverrides,
-                slos = kubernetesBenchmark.slos,
+                slos = slos,
                 repetitions = benchmarkExecution.execution.repetitions,
                 executionId = benchmarkExecution.executionId,
                 loadGenerationDelay = benchmarkExecution.execution.loadGenerationDelay,

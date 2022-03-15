@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.execution
 
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
@@ -30,7 +31,7 @@ class ExperimentRunnerImpl(
         private val afterTeardownDelay: Long,
         private val executionName: String,
         private val loadPatcherDefinitions: List<PatcherDefinition>,
-        private val resourcePatcherDefinitions: List<PatcherDefinition>
+        private val resourcePatcherDefinitions: List<PatcherDefinition>,
 ) : ExperimentRunner(
         results
 ) {

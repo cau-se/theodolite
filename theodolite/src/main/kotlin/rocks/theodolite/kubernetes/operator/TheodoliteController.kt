@@ -1,5 +1,7 @@
 package rocks.theodolite.kubernetes.operator
 
+import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import mu.KotlinLogging
@@ -10,9 +12,11 @@ import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
+import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoader
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
 import rocks.theodolite.kubernetes.model.crd.ExecutionStateComparator
+import rocks.theodolite.kubernetes.resourceSet.ResourceSets
 import java.lang.Thread.sleep
 
 private val logger = KotlinLogging.logger {}
@@ -29,10 +33,12 @@ const val CREATED_BY_LABEL_VALUE = "rocks/theodolite"
  */
 
 class TheodoliteController(
+        private val client: NamespacedKubernetesClient,
         private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
         private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
         private val executionStateHandler: ExecutionStateHandler,
-        private val benchmarkStateChecker: BenchmarkStateChecker
+        private val benchmarkStateChecker: BenchmarkStateChecker,
+
 ) {
     lateinit var executor: TheodoliteExecutor
 
@@ -71,11 +77,10 @@ class TheodoliteController(
      */
     private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         try {
-            val kubernetesExecutionRunner = KubernetesExecutionRunner(benchmark)
             val modifier = ConfigOverrideModifier(
-                execution = execution,
-                resources = kubernetesExecutionRunner.loadKubernetesResources(benchmark.sut.resources).map { it.first }
-                        + kubernetesExecutionRunner.loadKubernetesResources(benchmark.loadGenerator.resources).map { it.first }
+                    execution = execution,
+                    resources = loadKubernetesResources(benchmark.sut.resources).map { it.first }
+                            + loadKubernetesResources(benchmark.loadGenerator.resources).map { it.first }
             )
             modifier.setAdditionalLabels(
                 labelValue = execution.name,
@@ -93,7 +98,7 @@ class TheodoliteController(
             executionStateHandler.setExecutionState(execution.name, ExecutionState.RUNNING)
             executionStateHandler.startDurationStateTimer(execution.name)
 
-            executor = TheodoliteExecutor(execution, kubernetesExecutionRunner)
+            executor = TheodoliteExecutor(execution, KubernetesExecutionRunner(benchmark, this.client))
             executor.setupAndRunExecution()
             when (executionStateHandler.getExecutionState(execution.name)) {
                 ExecutionState.RESTART -> runExecution(execution, benchmark)
@@ -175,5 +180,14 @@ class TheodoliteController(
     fun isExecutionRunning(executionName: String): Boolean {
         if (!::executor.isInitialized) return false
         return this.executor.getExecution().name == executionName
+    }
+
+    /**
+     * Loads [KubernetesResource]s.
+     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
+     * the [K8sResourceLoader]
+     */
+    private fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
+        return resourceSet.flatMap { it.loadResourceSet(this.client) }
     }
 }

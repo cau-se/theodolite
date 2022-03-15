@@ -17,12 +17,8 @@ private val logger = KotlinLogging.logger {}
 
 private var DEFAULT_NAMESPACE = "default"
 
-class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark) : Benchmark {
-
-    private var namespace = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
-
-    @Transient
-    private var client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
+class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark,
+                                private var client: NamespacedKubernetesClient) : Benchmark {
 
     /**
      * Loads [KubernetesResource]s.
@@ -68,7 +64,7 @@ class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark) : 
             loadGenerationDelay: Long,
             afterTeardownDelay: Long
     ): BenchmarkDeployment {
-        logger.info { "Using ${this.namespace} as namespace." }
+        logger.info { "Using ${this.client.namespace} as namespace." }
 
         val appResources = loadKubernetesResources(kubernetesBenchmark.sut.resources)
         val loadGenResources = loadKubernetesResources(kubernetesBenchmark.loadGenerator.resources)

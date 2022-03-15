@@ -13,7 +13,7 @@ import kotlin.NoSuchElementException
 private val logger = KotlinLogging.logger {}
 
 class EventCreator {
-    val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(Configuration.NAMESPACE)
+    private val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(Configuration.NAMESPACE)
 
     fun createEvent(executionName: String, type: String, message: String, reason: String) {
         val uuid = UUID.randomUUID().toString()
@@ -34,15 +34,15 @@ class EventCreator {
             event.source = source
 
             event.involvedObject = objectRef
-            client.v1().events().inNamespace(Configuration.NAMESPACE).createOrReplace(event)
+            this.client.v1().events().inNamespace(Configuration.NAMESPACE).createOrReplace(event)
         } catch (e: NoSuchElementException) {
                 logger.warn {"Could not create event: type: $type, message: $message, reason: $reason, no corresponding execution found."}
         }
     }
 
     private fun buildObjectReference(executionName: String): ObjectReference {
-        val exec = TheodoliteOperator()
-            .getExecutionClient(client = client)
+        val exec = TheodoliteOperator(this.client)
+            .getExecutionClient()
             .list()
             .items
             .first{it.metadata.name == executionName}

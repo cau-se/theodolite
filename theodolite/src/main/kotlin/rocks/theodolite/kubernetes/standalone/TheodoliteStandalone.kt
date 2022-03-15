@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.standalone
 
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
@@ -31,7 +32,7 @@ private val logger = KotlinLogging.logger {}
  *
  * @constructor Create empty Theodolite yaml executor
  */
-class TheodoliteStandalone {
+class TheodoliteStandalone (private val client: NamespacedKubernetesClient) {
     private val parser = YamlParserFromFile()
 
     fun start() {
@@ -52,11 +53,11 @@ class TheodoliteStandalone {
 
         // Add shutdown hook
         // Use thread{} with start = false, else the thread will start right away
-        val shutdown = thread(start = false) { Shutdown(benchmarkExecution, benchmark).run() }
+        val shutdown = thread(start = false) { Shutdown(benchmarkExecution, benchmark, client).run() }
         Runtime.getRuntime().addShutdownHook(shutdown)
 
         try {
-            TheodoliteExecutor(benchmarkExecution, KubernetesExecutionRunner(benchmark)).setupAndRunExecution()
+            TheodoliteExecutor(benchmarkExecution, KubernetesExecutionRunner(benchmark, client)).setupAndRunExecution()
         } catch (e: EvaluationFailedException) {
             logger.error { "Evaluation failed with error: ${e.message}" }
         }catch (e: ExecutionFailedException) {

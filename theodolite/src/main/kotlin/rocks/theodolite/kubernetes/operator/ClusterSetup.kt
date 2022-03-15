@@ -50,7 +50,7 @@ class ClusterSetup(
                 if (benchmark != null) {
                     execution.spec.name = execution.metadata.name
                     benchmark.spec.name = benchmark.metadata.name
-                    Shutdown(execution.spec, benchmark.spec).run()
+                    Shutdown(execution.spec, benchmark.spec, client).run()
                 } else {
                     throw IllegalStateException("Execution with state ${ExecutionState.RUNNING.value} was found, but no corresponding benchmark. " +
                             "Could not initialize cluster.")
