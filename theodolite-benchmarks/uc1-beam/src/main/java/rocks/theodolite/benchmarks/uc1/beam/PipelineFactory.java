@@ -6,10 +6,12 @@ import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Values;
+import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.commons.beam.AbstractPipelineFactory;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreOptionsExpander;
+import rocks.theodolite.benchmarks.uc1.beam.pubsub.PubSubSource;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
@@ -17,7 +19,11 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public class PipelineFactory extends AbstractPipelineFactory {
 
+  public static final String SOURCE_TYPE_KEY = "source.type";
   public static final String SINK_TYPE_KEY = "sink.type";
+
+  public static final String PUBSSUB_SOURCE_PROJECT_KEY = "source.pubsub.project";
+  public static final String PUBSSUB_SOURCE_TOPIC_KEY = "source.pubsub.topic";
 
   private final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
 
@@ -41,11 +47,24 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   @Override
   protected void constructPipeline(final Pipeline pipeline) {
-    final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
+    final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
+    final String sourceType = this.config.getString(SOURCE_TYPE_KEY);
 
-    pipeline.apply(kafkaReader)
-        .apply(Values.create())
-        .apply(this.sinkType.create(this.config));
+    PCollection<ActivePowerRecord> activePowerRecords;
+
+    if ("pubsub".equals(sourceType)) {
+      final String projectName = this.config.getString(PUBSSUB_SOURCE_PROJECT_KEY);
+      final String topicName = this.config.getString(PUBSSUB_SOURCE_TOPIC_KEY);
+      // Read messages from Pub/Sub and encode them as Avro records
+      activePowerRecords = pipeline.apply(new PubSubSource(topicName, projectName));
+    } else {
+      final KafkaActivePowerTimestampReader kafka = super.buildKafkaReader();
+      // Read messages from Kafka as Avro records and drop keys
+      activePowerRecords = pipeline.apply(kafka).apply(Values.create());
+    }
+
+    // Forward Avro records to configured sink
+    activePowerRecords.apply(sinkType.create(this.config));
   }
 
   @Override

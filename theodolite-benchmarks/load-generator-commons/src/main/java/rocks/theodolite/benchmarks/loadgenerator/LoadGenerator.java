@@ -18,6 +18,7 @@ public final class LoadGenerator {
   // Target: HTTP
   public static final String HTTP_URI_DEFAULT = "http://localhost:8080";
   public static final boolean HTTP_ASYNC_DEFAULT = false;
+  public static final long HTTP_TIMEOUT_MS_DEFAULT = 1_000;
   // Target: Kafka
   public static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   public static final String KAFKA_TOPIC_DEFAULT = "input"; // NOCS
