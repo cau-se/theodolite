@@ -80,7 +80,7 @@ class KubernetesBenchmarkDeployment(
             labelName = LAG_EXPORTER_POD_LABEL_NAME,
             labelValue = LAG_EXPORTER_POD_LABEL_VALUE
         )
-        logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything come down." }
+        logger.info { "Teardown complete. Wait $afterTeardownDelay ms to let everything cool down." }
         Thread.sleep(Duration.ofSeconds(afterTeardownDelay).toMillis())
     }
 }
