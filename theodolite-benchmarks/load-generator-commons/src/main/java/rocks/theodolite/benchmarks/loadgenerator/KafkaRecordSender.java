@@ -4,115 +4,72 @@ import java.util.Properties;
 import java.util.function.Function;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.errors.SerializationException;
+import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 /**
- * Sends monitoring records to Kafka.
+ * Sends records to Kafka.
  *
- * @param <T> {@link SpecificRecord} to send
+ * @param <T> Record type to send.
  */
-public class KafkaRecordSender<T extends SpecificRecord> implements RecordSender<T> {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordSender.class);
-
-  private final String topic;
-
-  private final Function<T, String> keyAccessor;
-
-  private final Function<T, Long> timestampAccessor;
-
-  private final Producer<String, T> producer;
-
-  /**
-   * Create a new {@link KafkaRecordSender}.
-   */
-  private KafkaRecordSender(final Builder<T> builder) {
-    this.topic = builder.topic;
-    this.keyAccessor = builder.keyAccessor;
-    this.timestampAccessor = builder.timestampAccessor;
-
-    final Properties properties = new Properties();
-    properties.putAll(builder.defaultProperties);
-    properties.put("bootstrap.servers", builder.bootstrapServers);
-    // properties.put("acks", this.acknowledges);
-    // properties.put("batch.size", this.batchSize);
-    // properties.put("linger.ms", this.lingerMs);
-    // properties.put("buffer.memory", this.bufferMemory);
-
-    final SchemaRegistryAvroSerdeFactory avroSerdeFactory =
-        new SchemaRegistryAvroSerdeFactory(builder.schemaRegistryUrl);
-    this.producer = new KafkaProducer<>(
-        properties,
-        new StringSerializer(),
-        avroSerdeFactory.<T>forKeys().serializer());
-  }
-
-  /**
-   * Write the passed monitoring record to Kafka.
-   */
-  public void write(final T monitoringRecord) {
-    final ProducerRecord<String, T> record =
-        new ProducerRecord<>(this.topic, null, this.timestampAccessor.apply(monitoringRecord),
-            this.keyAccessor.apply(monitoringRecord), monitoringRecord);
-
-    LOGGER.debug("Send record to Kafka topic {}: {}", this.topic, record);
-    try {
-      this.producer.send(record);
-    } catch (final SerializationException e) {
-      LOGGER.warn(
-          "Record could not be serialized and thus not sent to Kafka due to exception. Skipping this record.", // NOCS
-          e);
-    }
-  }
-
-  public void terminate() {
-    this.producer.close();
-  }
+public interface KafkaRecordSender<T> extends RecordSender<T> {
 
   @Override
-  public void send(final T message) {
-    this.write(message);
+  public void close();
+
+  /**
+   * Creates a builder object for a {@link KafkaRecordSender} based on a Kafka {@link Serializer}.
+   *
+   * @param bootstrapServers The server to for accessing Kafka.
+   * @param topic The topic where to write.
+   * @param serializer The {@link Serializer} for mapping a value to keys.
+   */
+  public static <T> Builder<T> builderWithSerializer(
+      final String bootstrapServers,
+      final String topic,
+      final Serializer<T> serializer) {
+    return new Builder<>(bootstrapServers, topic, serializer);
   }
 
-  public static <T extends SpecificRecord> Builder<T> builder(
+  /**
+   * Creates a Builder object for a {@link KafkaRecordSender} based on a Confluent Schema Registry
+   * URL.
+   *
+   * @param bootstrapServers The Server to for accessing Kafka.
+   * @param topic The topic where to write.
+   * @param schemaRegistryUrl URL to the schema registry for avro.
+   */
+  public static <T extends SpecificRecord> Builder<T> builderWithSchemaRegistry(
       final String bootstrapServers,
       final String topic,
       final String schemaRegistryUrl) {
-    return new Builder<>(bootstrapServers, topic, schemaRegistryUrl);
+    final SchemaRegistryAvroSerdeFactory avroSerdeFactory =
+        new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl);
+    return new Builder<>(bootstrapServers, topic, avroSerdeFactory.<T>forValues().serializer());
   }
 
   /**
-   * Builder class to build a new {@link KafkaRecordSender}.
+   * Builder class to build a new {@link KafkaRecordSenderImpl}.
    *
    * @param <T> Type of the records that should later be send.
    */
-  public static class Builder<T extends SpecificRecord> {
+  public static class Builder<T> {
 
     private final String bootstrapServers;
     private final String topic;
-    private final String schemaRegistryUrl;
+    private final Serializer<T> serializer;
     private Function<T, String> keyAccessor = x -> ""; // NOPMD
     private Function<T, Long> timestampAccessor = x -> null; // NOPMD
     private Properties defaultProperties = new Properties(); // NOPMD
 
-    /**
-     * Creates a Builder object for a {@link KafkaRecordSender}.
-     *
-     * @param bootstrapServers The Server to for accessing Kafka.
-     * @param topic The topic where to write.
-     * @param schemaRegistryUrl URL to the schema registry for avro.
-     */
     private Builder(final String bootstrapServers, final String topic,
-        final String schemaRegistryUrl) {
+        final Serializer<T> serializer) {
       this.bootstrapServers = bootstrapServers;
       this.topic = topic;
-      this.schemaRegistryUrl = schemaRegistryUrl;
+      this.serializer = serializer;
     }
 
     public Builder<T> keyAccessor(final Function<T, String> keyAccessor) {
@@ -130,9 +87,51 @@ public class KafkaRecordSender<T extends SpecificRecord> implements RecordSender
       return this;
     }
 
+    /**
+     * Create a {@link KafkaRecordSender} from this builder.
+     */
     public KafkaRecordSender<T> build() {
-      return new KafkaRecordSender<>(this);
+      final Properties properties = new Properties();
+      properties.putAll(this.defaultProperties);
+      properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapServers);
+      // properties.put("acks", this.acknowledges);
+      // properties.put("batch.size", this.batchSize);
+      // properties.put("linger.ms", this.lingerMs);
+      // properties.put("buffer.memory", this.bufferMemory);
+
+      return new KafkaRecordSenderImpl<>(
+          new KafkaProducer<>(
+              properties,
+              new StringSerializer(),
+              this.serializer),
+          new DefaultRecordFactory<>(),
+          this.topic,
+          this.keyAccessor,
+          this.timestampAccessor);
     }
+
+    private static class DefaultRecordFactory<T> implements KafkaRecordFactory<T, String, T> {
+
+      @Override
+      public ProducerRecord<String, T> create(final String topic, final String key, final T value,
+          final long timestamp) {
+        return new ProducerRecord<>(topic, null, timestamp, key, value);
+      }
+
+    }
+  }
+
+  /**
+   * Create Kafka {@link ProducerRecord}s from a topic, a key, a value and a timestamp.
+   *
+   * @param <T> type the records should be created from.
+   * @param <K> key type of the {@link ProducerRecord}s.
+   * @param <V> value type of the {@link ProducerRecord}s.
+   */
+  public static interface KafkaRecordFactory<T, K, V> {
+
+    ProducerRecord<K, V> create(String topic, String key, T value, long timestamp);
+
   }
 
 }

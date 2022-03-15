@@ -15,6 +15,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.commons.beam.AbstractPipelineFactory;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
+import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreOptionsExpander;
 import rocks.theodolite.benchmarks.uc1.beam.pubsub.PubSubEncoder;
 import rocks.theodolite.benchmarks.uc1.beam.pubsub.PubSubTopicFactory;
 import titan.ccp.model.records.ActivePowerRecord;
@@ -26,6 +27,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   public static final String SOURCE_TYPE_KEY = "source.type";
   public static final String SINK_TYPE_KEY = "sink.type";
+
+  private final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
 
   public PipelineFactory(final Configuration configuration) {
     super(configuration);
@@ -40,6 +43,9 @@ public class PipelineFactory extends AbstractPipelineFactory {
     // final PubsubOptions pubSubOptions = options.as(PubsubOptions.class);
     // pubSubOptions.setPubsubRootUrl("http://" + pubSubEmulatorHost);
     // }
+    if (this.sinkType == SinkType.FIRESTORE) {
+      FirestoreOptionsExpander.expandOptions(options);
+    }
   }
 
   @Override

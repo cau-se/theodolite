@@ -11,9 +11,19 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 class EnvVarLoadGeneratorFactory {
 
+  public static final boolean DISABLE_DNS_CACHING_DEFAULT = false;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(EnvVarLoadGeneratorFactory.class);
 
   public LoadGenerator create(final LoadGenerator loadGeneratorTemplate) {
+
+    final boolean disableDnsCaching = Boolean.parseBoolean(Objects.requireNonNullElse(
+        System.getenv(ConfigurationKeys.DISABLE_DNS_CACHING),
+        Boolean.toString(DISABLE_DNS_CACHING_DEFAULT)));
+    if (disableDnsCaching) {
+      this.disableDnsCaching();
+    }
+
     final int numSensors = Integer.parseInt(Objects.requireNonNullElse(
         System.getenv(ConfigurationKeys.NUM_SENSORS),
         Integer.toString(LoadGenerator.NUMBER_OF_KEYS_DEFAULT)));
@@ -32,9 +42,9 @@ class EnvVarLoadGeneratorFactory {
         .setLoadDefinition(new WorkloadDefinition(
             new KeySpace(LoadGenerator.SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))
-        .setGeneratorConfig(new LoadGeneratorConfig(
+        .setGeneratorConfig(new LoadGeneratorConfig(GeneratorAction.from(
             TitanRecordGenerator.forConstantValue(value),
-            this.buildRecordSender()))
+            this.buildRecordSender())))
         .withThreads(threads);
   }
 
@@ -109,8 +119,14 @@ class EnvVarLoadGeneratorFactory {
           Objects.requireNonNullElse(
               System.getenv(ConfigurationKeys.HTTP_URL),
               LoadGenerator.HTTP_URI_DEFAULT));
-      recordSender = new HttpRecordSender<>(url);
-      LOGGER.info("Use HTTP server as target with url '{}'.", url);
+      final boolean async = Boolean.parseBoolean(Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.HTTP_ASYNC),
+          Boolean.toString(LoadGenerator.HTTP_ASYNC_DEFAULT)));
+      final long timeoutMs = Integer.parseInt(Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.HTTP_TIMEOUT_MS),
+          Long.toString(LoadGenerator.HTTP_TIMEOUT_MS_DEFAULT)));
+      recordSender = new HttpRecordSender<>(url, async, Duration.ofMillis(timeoutMs));
+      LOGGER.info("Use HTTP server as target with URL '{}' and asynchronously: '{}'.", url, async);
     } else if (target == LoadGeneratorTarget.PUBSUB) {
       final String project = System.getenv(ConfigurationKeys.PUBSUB_PROJECT);
       final String inputTopic = Objects.requireNonNullElse(
@@ -133,6 +149,11 @@ class EnvVarLoadGeneratorFactory {
       throw new IllegalStateException("Target " + target + " is not handled yet.");
     }
     return recordSender;
+  }
+
+  private void disableDnsCaching() {
+    LOGGER.info("Disable DNS caching.");
+    java.security.Security.setProperty("networkaddress.cache.ttl", "0");
   }
 
 }

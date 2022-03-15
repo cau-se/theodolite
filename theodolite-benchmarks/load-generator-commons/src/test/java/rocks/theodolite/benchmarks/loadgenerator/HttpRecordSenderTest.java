@@ -46,4 +46,22 @@ public class HttpRecordSenderTest {
         .withRequestBody(equalTo(expectedJson))); // toJson
   }
 
+  @Test
+  public void testTimeout() {
+    this.wireMockRule.stubFor(
+        post(urlPathEqualTo("/"))
+            .willReturn(
+                aResponse()
+                    .withFixedDelay(2_000)
+                    .withStatus(200)
+                    .withBody("received")));
+
+    final ActivePowerRecord record = new ActivePowerRecord("my-id", 12345L, 12.34);
+    this.httpRecordSender.send(record);
+
+    final String expectedJson = "{\"identifier\":\"my-id\",\"timestamp\":12345,\"valueInW\":12.34}";
+    verify(exactly(1), postRequestedFor(urlEqualTo("/"))
+        .withRequestBody(equalTo(expectedJson))); // toJson
+  }
+
 }

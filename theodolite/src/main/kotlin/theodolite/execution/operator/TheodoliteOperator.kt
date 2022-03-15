@@ -41,15 +41,14 @@ class TheodoliteOperator {
         LeaderElector(
             client = client,
             name = Configuration.COMPONENT_NAME
-        )
-            .getLeadership(::startOperator)
+        ).getLeadership(::startOperator)
     }
 
     /**
      * Start the operator.
      */
     private fun startOperator() {
-        logger.info { "Using $namespace as namespace." }
+        logger.info { "Becoming the leading operator. Use namespace '$namespace'." }
         client.use {
             KubernetesDeserializer.registerCustomKind(
                 "$GROUP/$API_VERSION",
