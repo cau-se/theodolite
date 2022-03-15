@@ -1,33 +1,31 @@
 package theodolite.k8s
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
+import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
-import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import rocks.theodolite.kubernetes.k8s.K8sContextFactory
+import registerResource
 import rocks.theodolite.kubernetes.k8s.K8sManager
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
+
 
 @QuarkusTest
-@JsonIgnoreProperties(ignoreUnknown = true)
-class K8sManagerTest {
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private final val server = KubernetesServer(false, true)
-    private final val testResourcePath = "./src/test/resources/k8s-resource-files/"
+@WithKubernetesTestServer
+internal class K8sManagerTest {
+
+    @KubernetesTestServer
+    private lateinit var server: KubernetesServer
 
     private final val resourceName = "test-resource"
     private final val metadata: ObjectMeta = ObjectMetaBuilder().withName(resourceName).build()
-
 
     val defaultDeployment: Deployment = DeploymentBuilder()
         .withMetadata(metadata)
@@ -54,18 +52,6 @@ class K8sManagerTest {
     val defaultConfigMap: ConfigMap = ConfigMapBuilder()
         .withMetadata(metadata)
         .build()
-
-    @BeforeEach
-    fun setUp() {
-        server.before()
-
-    }
-
-    @AfterEach
-    fun tearDown() {
-        server.after()
-
-    }
 
     @Test
     @DisplayName("Test handling of Deployments")
@@ -123,32 +109,29 @@ class K8sManagerTest {
     @Test
     @DisplayName("Test handling of custom resources")
     fun handleCustomResourcesTest() {
+        val serviceMonitorContext = ResourceDefinitionContext.Builder()
+            .withGroup("monitoring.coreos.com")
+            .withKind("ServiceMonitor")
+            .withPlural("servicemonitors")
+            .withNamespaced(true)
+            .withVersion("v1")
+            .build()
+        server.registerResource(serviceMonitorContext)
+
         val manager = K8sManager(server.client)
-        val servicemonitor = K8sResourceLoaderFromFile(server.client)
-            .loadK8sResource("ServiceMonitor", testResourcePath + "test-service-monitor.yaml")
 
-        val serviceMonitorContext = K8sContextFactory().create(
-            api = "v1",
-            scope = "Namespaced",
-            group = "monitoring.coreos.com",
-            plural = "servicemonitors"
-        )
-        manager.deploy(servicemonitor)
+        val serviceMonitorStream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
+        val serviceMonitor = server.client.load(serviceMonitorStream).get()[0]
 
-        var serviceMonitors = JSONObject(server.client.customResource(serviceMonitorContext).list())
-            .getJSONArray("items")
+        manager.deploy(serviceMonitor)
 
-        assertEquals(1, serviceMonitors.length())
-        assertEquals(
-            "test-service-monitor",
-            serviceMonitors.getJSONObject(0).getJSONObject("metadata").getString("name")
-        )
+        val serviceMonitorsDeployed = server.client.genericKubernetesResources(serviceMonitorContext).list()
+        assertEquals(1, serviceMonitorsDeployed.items.size)
+        assertEquals("test-service-monitor", serviceMonitorsDeployed.items[0].metadata.name)
 
-        manager.remove(servicemonitor)
+        manager.remove(serviceMonitor)
 
-        serviceMonitors = JSONObject(server.client.customResource(serviceMonitorContext).list())
-            .getJSONArray("items")
-
-        assertEquals(0, serviceMonitors.length())
+        val serviceMonitorsDeleted = server.client.genericKubernetesResources(serviceMonitorContext).list()
+        assertEquals(0, serviceMonitorsDeleted.items.size)
     }
 }

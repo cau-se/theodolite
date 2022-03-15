@@ -43,6 +43,8 @@ public final class ConfigurationKeys {
 
   public static final String HTTP_ASYNC = "HTTP_ASYNC";
 
+  public static final String HTTP_TIMEOUT_MS = "HTTP_TIMEOUT_MS";
+
   public static final String PUBSUB_INPUT_TOPIC = "PUBSUB_INPUT_TOPIC";
 
   public static final String PUBSUB_PROJECT = "PUBSUB_PROJECT";

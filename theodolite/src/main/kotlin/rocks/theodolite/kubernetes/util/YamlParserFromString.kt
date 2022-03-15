@@ -6,6 +6,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 /**
  * The YamlParser parses a YAML string
  */
+@Deprecated("Use Jackson ObjectMapper instead")
 class YamlParserFromString : Parser {
     override fun <T> parse(fileString: String, E: Class<T>): T? {
         val parser = Yaml(Constructor(E))

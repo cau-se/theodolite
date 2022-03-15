@@ -1,33 +1,64 @@
 package theodolite.benchmark
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
+import io.fabric8.kubernetes.client.dsl.MixedOperation
+import io.fabric8.kubernetes.client.dsl.Resource
+import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import registerResource
+import theodolite.execution.operator.BenchmarkCRDummy
+import theodolite.execution.operator.ExecutionClient
+import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
+import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.resourceSet.ConfigMapResourceSet
-import rocks.theodolite.kubernetes.k8s.CustomResourceWrapper
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
 import rocks.theodolite.kubernetes.util.exception.DeploymentFailedException
+import java.io.FileInputStream
 
-private const val testResourcePath = "./src/test/resources/k8s-resource-files/"
+// TODO move somewhere else
+typealias BenchmarkClient = MixedOperation<BenchmarkCRD, KubernetesResourceList<BenchmarkCRD>, Resource<BenchmarkCRD>>
 
 @QuarkusTest
-class ConfigMapResourceSetTest {
-    private val server = KubernetesServer(false, true)
+@WithKubernetesTestServer
+internal class ConfigMapResourceSetTest {
+
+    @KubernetesTestServer
+    private lateinit var server: KubernetesServer
+
+    private val objectMapper: ObjectMapper = ObjectMapper()
+
+    private lateinit var executionClient: ExecutionClient
+    private lateinit var benchmarkClient: BenchmarkClient
 
     @BeforeEach
     fun setUp() {
         server.before()
+        this.server.client
+            .apiextensions().v1()
+            .customResourceDefinitions()
+            .load(FileInputStream("crd/crd-execution.yaml"))
+            .create()
+        this.server.client
+            .apiextensions().v1()
+            .customResourceDefinitions()
+            .load(FileInputStream("crd/crd-benchmark.yaml"))
+            .create()
+
+        this.executionClient = this.server.client.resources(ExecutionCRD::class.java)
+        this.benchmarkClient = this.server.client.resources(BenchmarkCRD::class.java)
     }
 
     @AfterEach
@@ -35,183 +66,195 @@ class ConfigMapResourceSetTest {
         server.after()
     }
 
-    fun deployAndGetResource(resource: String): Collection<Pair<String, KubernetesResource>> {
-        val configMap1 = ConfigMapBuilder()
+    private fun deployAndGetResource(vararg resources: HasMetadata): ConfigMapResourceSet {
+        val configMap = ConfigMapBuilder()
             .withNewMetadata().withName("test-configmap").endMetadata()
-            .addToData("test-resource.yaml",resource)
+            .let {
+                resources.foldIndexed(it) {
+                    i, b, r -> b.addToData("resource_$i.yaml", objectMapper.writeValueAsString(r))
+                }
+            }
             .build()
 
-        server.client.configMaps().createOrReplace(configMap1)
+        server.client.configMaps().createOrReplace(configMap)
 
         val resourceSet = ConfigMapResourceSet()
         resourceSet.name = "test-configmap"
 
-        return resourceSet.getResourceSet(server.client)
+        return resourceSet
     }
-
 
     @Test
     fun testLoadDeployment() {
-        val resourceBuilder = DeploymentBuilder()
-        resourceBuilder.withNewSpec().endSpec()
-        resourceBuilder.withNewMetadata().endMetadata()
-        val resource = resourceBuilder.build()
-        resource.metadata.name = "test-deployment"
+        val resource = DeploymentBuilder()
+            .withNewSpec()
+            .endSpec()
+            .withNewMetadata()
+            .withName("test-deployment")
+            .endMetadata()
+            .build()
 
-        val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
+        val createdResource = deployAndGetResource(resource).getResourceSet(server.client)
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource.toMutableSet().first().second is Deployment)
-        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toList().first().second is Deployment)
+        assertTrue(createdResource.toList().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
     fun testLoadStateFulSet() {
-        val resourceBuilder = StatefulSetBuilder()
-        resourceBuilder.withNewSpec().endSpec()
-        resourceBuilder.withNewMetadata().endMetadata()
-        val resource = resourceBuilder.build()
-        resource.metadata.name = "test-resource"
+        val resource = StatefulSetBuilder()
+            .withNewSpec()
+            .endSpec()
+            .withNewMetadata()
+            .withName("test-sts")
+            .endMetadata()
+            .build()
 
-        val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
+        val createdResource = deployAndGetResource(resource).getResourceSet(server.client)
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource.toMutableSet().first().second is StatefulSet)
-        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toList().first().second is StatefulSet)
+        assertTrue(createdResource.toList().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
     fun testLoadService() {
-        val resourceBuilder = ServiceBuilder()
-        resourceBuilder.withNewSpec().endSpec()
-        resourceBuilder.withNewMetadata().endMetadata()
-        val resource = resourceBuilder.build()
-        resource.metadata.name = "test-resource"
+        val resource = ServiceBuilder()
+            .withNewSpec()
+            .endSpec()
+            .withNewMetadata()
+            .withName("test-service")
+            .endMetadata()
+            .build()
 
-        val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
+        val createdResource = deployAndGetResource(resource).getResourceSet(server.client)
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource.toMutableSet().first().second is Service)
-        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toList().first().second is Service)
+        assertTrue(createdResource.toList().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
     fun testLoadConfigMap() {
-        val resourceBuilder = ConfigMapBuilder()
-        resourceBuilder.withNewMetadata().endMetadata()
-        val resource = resourceBuilder.build()
-        resource.metadata.name = "test-resource"
+        val resource = ConfigMapBuilder()
+            .withNewMetadata()
+            .withName("test-configmap")
+            .endMetadata()
+            .build()
 
-        val createdResource = deployAndGetResource(resource = Gson().toJson(resource))
+        val createdResource = deployAndGetResource(resource).getResourceSet(server.client)
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource.toMutableSet().first().second is ConfigMap)
-        assertTrue(createdResource.toMutableSet().first().second.toString().contains(other = resource.metadata.name))
+        assertTrue(createdResource.toList().first().second is ConfigMap)
+        assertTrue(createdResource.toList().first().second.toString().contains(other = resource.metadata.name))
     }
 
     @Test
     fun testLoadExecution() {
-        val loader = K8sResourceLoaderFromFile(server.client)
-        val resource = loader.loadK8sResource("Execution", testResourcePath + "test-execution.yaml") as CustomResourceWrapper
-        val createdResource = deployAndGetResource(resource = Gson().toJson(resource.crAsMap))
+        val stream = javaClass.getResourceAsStream("/k8s-resource-files/test-execution.yaml")
+        val execution = this.executionClient.load(stream).get()
+        val createdResource = deployAndGetResource(execution).getResourceSet(server.client)
 
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource.toMutableSet().first().second is CustomResourceWrapper)
+        val loadedResource = createdResource.toList().first().second
+        assertTrue(loadedResource is ExecutionCRD)
+        assertEquals("example-execution", loadedResource.metadata.name)
 
-        val loadedResource = createdResource.toMutableSet().first().second
-        if (loadedResource is CustomResourceWrapper){
-            assertTrue(loadedResource.getName() == "example-execution")
-        }
+
     }
 
     @Test
     fun testLoadBenchmark() {
-        val loader = K8sResourceLoaderFromFile(server.client)
-        val resource = loader.loadK8sResource("Benchmark", testResourcePath + "test-benchmark.yaml") as CustomResourceWrapper
-        val createdResource = deployAndGetResource(resource = Gson().toJson(resource.crAsMap))
+        val benchmark = BenchmarkCRDummy("example-benchmark").getCR()
+        val createdResource = deployAndGetResource(benchmark).getResourceSet(server.client)
 
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource.toMutableSet().first().second is CustomResourceWrapper)
-
-        val loadedResource = createdResource.toMutableSet().first().second
-        if (loadedResource is CustomResourceWrapper){
-            assertTrue(loadedResource.getName() == "example-benchmark")
-        }
+        val loadedResource = createdResource.toList().first().second
+        assertTrue(loadedResource is BenchmarkCRD)
+        assertEquals("example-benchmark", loadedResource.metadata.name)
     }
 
     @Test
     fun testLoadServiceMonitor() {
-        val loader = K8sResourceLoaderFromFile(server.client)
-        val resource = loader.loadK8sResource("ServiceMonitor", testResourcePath + "test-service-monitor.yaml") as CustomResourceWrapper
-        val createdResource = deployAndGetResource(resource = Gson().toJson(resource.crAsMap))
+        val serviceMonitorContext = ResourceDefinitionContext.Builder()
+            .withGroup("monitoring.coreos.com")
+            .withKind("ServiceMonitor")
+            .withPlural("servicemonitors")
+            .withNamespaced(true)
+            .withVersion("v1")
+            .build()
+        server.registerResource(serviceMonitorContext)
+
+        val stream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
+        val serviceMonitor = server.client.load(stream).get()[0]
+        val createdResource = deployAndGetResource(serviceMonitor).getResourceSet(server.client)
 
         assertEquals(1, createdResource.size)
-        assertTrue(createdResource.toMutableSet().first().second is CustomResourceWrapper)
-
-        val loadedResource = createdResource.toMutableSet().first().second
-        if (loadedResource is CustomResourceWrapper){
-            assertTrue(loadedResource.getName() == "test-service-monitor")
-        }
+        val loadedResource = createdResource.toList().first().second
+        assertTrue(loadedResource is GenericKubernetesResource)
+        assertEquals("ServiceMonitor", loadedResource.kind)
+        assertEquals("test-service-monitor", loadedResource.metadata.name)
     }
 
     @Test
     fun testMultipleFiles(){
-        val resourceBuilder = DeploymentBuilder()
-        resourceBuilder.withNewSpec().endSpec()
-        resourceBuilder.withNewMetadata().endMetadata()
-        val resource = resourceBuilder.build()
-        resource.metadata.name = "test-deployment"
-
-        val resourceBuilder1 = ConfigMapBuilder()
-        resourceBuilder1.withNewMetadata().endMetadata()
-        val resource1 = resourceBuilder1.build()
-        resource1.metadata.name = "test-configmap"
-
-        val configMap1 = ConfigMapBuilder()
-            .withNewMetadata().withName("test-configmap").endMetadata()
-            .addToData("test-deployment.yaml",Gson().toJson(resource))
-            .addToData("test-configmap.yaml",Gson().toJson(resource1))
+        val deployment = DeploymentBuilder()
+            .withNewSpec()
+            .endSpec()
+            .withNewMetadata()
+            .withName("test-deployment")
+            .endMetadata()
+            .build()
+        val configMap = ConfigMapBuilder()
+            .withNewMetadata()
+            .withName("test-configmap")
+            .endMetadata()
             .build()
 
-        server.client.configMaps().createOrReplace(configMap1)
+        val createdResourceSet = deployAndGetResource(deployment, configMap).getResourceSet(server.client)
 
-        val resourceSet = ConfigMapResourceSet()
-        resourceSet.name = "test-configmap"
-
-        val createdResourcesSet = resourceSet.getResourceSet(server.client)
-
-        assertEquals(2,createdResourcesSet.size )
-        assert(createdResourcesSet.toMutableList()[0].second is Deployment)
-        assert(createdResourcesSet.toMutableList()[1].second is ConfigMap)
+        assertEquals(2, createdResourceSet.size )
+        assert(createdResourceSet.toList()[0].second is Deployment)
+        assert(createdResourceSet.toList()[1].second is ConfigMap)
     }
 
     @Test
-    fun testFileIsSet(){
-        val resourceBuilder = DeploymentBuilder()
-        resourceBuilder.withNewSpec().endSpec()
-        resourceBuilder.withNewMetadata().endMetadata()
-        val resource = resourceBuilder.build()
-        resource.metadata.name = "test-deployment"
-
-        val resourceBuilder1 = ConfigMapBuilder()
-        resourceBuilder1.withNewMetadata().endMetadata()
-        val resource1 = resourceBuilder1.build()
-        resource1.metadata.name = "test-configmap"
-
-        val configMap1 = ConfigMapBuilder()
-            .withNewMetadata().withName("test-configmap").endMetadata()
-            .addToData("test-deployment.yaml",Gson().toJson(resource))
-            .addToData("test-configmap.yaml",Gson().toJson(resource1))
+    fun testFilesRestricted() {
+        val deployment = DeploymentBuilder()
+            .withNewSpec()
+            .endSpec()
+            .withNewMetadata()
+            .withName("test-deployment")
+            .endMetadata()
+            .build()
+        val configMap = ConfigMapBuilder()
+            .withNewMetadata()
+            .withName("test-configmap")
+            .endMetadata()
             .build()
 
-        server.client.configMaps().createOrReplace(configMap1)
-
-        val resourceSet = ConfigMapResourceSet()
-        resourceSet.name = "test-configmap"
-        resourceSet.files = listOf("test-deployment.yaml")
-
-        val createdResourcesSet = resourceSet.getResourceSet(server.client)
-
-        assertEquals(1, createdResourcesSet.size )
-        assert(createdResourcesSet.toMutableSet().first().second is Deployment)
+        val createdResourceSet = deployAndGetResource(deployment, configMap)
+        val allResources = createdResourceSet.getResourceSet(server.client)
+        assertEquals(2, allResources.size)
+        createdResourceSet.files = listOf(allResources.first().first) // only select first file from ConfigMa
+        val resources = createdResourceSet.getResourceSet(server.client)
+        assertEquals(1, resources.size)
+        assertTrue(resources.toList().first().second is Deployment)
     }
 
+    @Test
+    fun testFileNotExist() {
+        val resource = DeploymentBuilder()
+            .withNewSpec()
+            .endSpec()
+            .withNewMetadata()
+            .withName("test-deployment")
+            .endMetadata()
+            .build()
+
+        val resourceSet = deployAndGetResource(resource)
+        resourceSet.files = listOf("non-existing-file.yaml")
+        assertThrows<DeploymentFailedException> {
+            resourceSet.getResourceSet(server.client)
+        }
+    }
 
     @Test
     fun testConfigMapNotExist() {

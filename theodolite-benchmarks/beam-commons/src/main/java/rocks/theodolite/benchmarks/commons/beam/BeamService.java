@@ -46,7 +46,7 @@ public class BeamService {
    * Start this microservice, by running the underlying Beam pipeline.
    */
   public void run() {
-    LOGGER.info("Construct Beam pipeline with pipeline options: {}",
+    LOGGER.info("Constructing Beam pipeline with pipeline options: {}",
         this.pipelineOptions.toString());
     final Pipeline pipeline = this.pipelineFactory.create(this.pipelineOptions);
     LOGGER.info("Starting BeamService {}.", this.applicationName);

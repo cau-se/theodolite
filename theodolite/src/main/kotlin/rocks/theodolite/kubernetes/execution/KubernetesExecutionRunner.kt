@@ -1,12 +1,11 @@
 package rocks.theodolite.kubernetes.execution
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.benchmark.*
 import rocks.theodolite.kubernetes.k8s.K8sManager
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoader
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.patcher.PatcherFactory
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
@@ -14,8 +13,6 @@ import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 import rocks.theodolite.kubernetes.resourceSet.ResourceSets
 
 private val logger = KotlinLogging.logger {}
-
-private var DEFAULT_NAMESPACE = "default"
 
 class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark,
                                 private var client: NamespacedKubernetesClient) : Benchmark {
@@ -25,25 +22,32 @@ class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark,
      * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
      * the [K8sResourceLoader]
      */
-    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
+    @Deprecated("Use `loadResourceSet` from `ResourceSets`")
+    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, HasMetadata>> {
+        return loadResources(resourceSet)
+    }
+
+    private fun loadResources(resourceSet: List<ResourceSets>): Collection<Pair<String, HasMetadata>> {
         return resourceSet.flatMap { it.loadResourceSet(this.client) }
     }
 
+
     override fun setupInfrastructure() {
-        kubernetesBenchmark.infrastructure.beforeActions.forEach { it.exec(client = this.client) }
+        kubernetesBenchmark.infrastructure.beforeActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(kubernetesBenchmark.infrastructure.resources)
-                .map{it.second}
+        loadResources(kubernetesBenchmark.infrastructure.resources)
+                .map { it.second }
                 .forEach { kubernetesManager.deploy(it) }
     }
 
     override fun teardownInfrastructure() {
         val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(kubernetesBenchmark.infrastructure.resources)
-                .map{it.second}
+        loadResources(kubernetesBenchmark.infrastructure.resources)
+                .map { it.second }
                 .forEach { kubernetesManager.remove(it) }
-        kubernetesBenchmark.infrastructure.afterActions.forEach { it.exec(client = this.client) }
+        kubernetesBenchmark.infrastructure.afterActions.forEach { it.exec(client = client) }
     }
+
 
     /**
      * Builds a deployment.
@@ -66,8 +70,8 @@ class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark,
     ): BenchmarkDeployment {
         logger.info { "Using ${this.client.namespace} as namespace." }
 
-        val appResources = loadKubernetesResources(kubernetesBenchmark.sut.resources)
-        val loadGenResources = loadKubernetesResources(kubernetesBenchmark.loadGenerator.resources)
+        val appResources = loadResources(kubernetesBenchmark.sut.resources)
+        val loadGenResources = loadResources(kubernetesBenchmark.loadGenerator.resources)
 
         val patcherFactory = PatcherFactory()
 
@@ -97,18 +101,10 @@ class KubernetesExecutionRunner(val kubernetesBenchmark: KubernetesBenchmark,
                 loadGenResources = loadGenResources.map { it.second },
                 loadGenerationDelay = loadGenerationDelay,
                 afterTeardownDelay = afterTeardownDelay,
-                kafkaConfig = if (kafkaConfig != null) hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
+                kafkaConfig = if (kafkaConfig != null) mapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
                 topics = kafkaConfig?.topics ?: listOf(),
                 client = this.client
         )
     }
 
-    /**
-     * This function can be used to set the Kubernetes client manually. This is for example necessary for testing.
-     *
-     * @param client
-     */
-    fun setClient(client: NamespacedKubernetesClient) {
-        this.client = client
-    }
 }

@@ -12,7 +12,6 @@ import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoader
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
 import rocks.theodolite.kubernetes.model.crd.ExecutionStateComparator
@@ -140,8 +139,7 @@ class TheodoliteController(
             .list()
             .items
             .map {
-                it.spec.name = it.metadata.name
-                it
+                it.apply { it.spec.name = it.metadata.name }
             }
     }
 
@@ -184,8 +182,7 @@ class TheodoliteController(
 
     /**
      * Loads [KubernetesResource]s.
-     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
-     * the [K8sResourceLoader]
+     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them.
      */
     private fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
         return resourceSet.flatMap { it.loadResourceSet(this.client) }

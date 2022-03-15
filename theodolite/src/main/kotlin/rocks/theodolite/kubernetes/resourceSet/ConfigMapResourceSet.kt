@@ -1,12 +1,11 @@
 package rocks.theodolite.kubernetes.resourceSet
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromString
-import rocks.theodolite.kubernetes.util.YamlParserFromString
 import rocks.theodolite.kubernetes.util.exception.DeploymentFailedException
 import java.lang.IllegalArgumentException
 
@@ -14,10 +13,9 @@ import java.lang.IllegalArgumentException
 @JsonDeserialize
 class ConfigMapResourceSet : ResourceSet, KubernetesResource {
     lateinit var name: String
-    lateinit var files: List<String> // load all files, iff files is not set
+    var files: List<String>? = null // load all files, iff files is not set
 
-    override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, KubernetesResource>> {
-        val loader = K8sResourceLoaderFromString(client)
+    override fun getResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
         var resources: Map<String, String>
 
         try {
@@ -31,9 +29,9 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
             throw DeploymentFailedException("Cannot find or read ConfigMap with name '$name'.", e)
         }
 
-        if (::files.isInitialized) {
-            val filteredResources = resources.filter { files.contains(it.key) }
-            if (filteredResources.size != files.size) {
+        files?.run {
+            val filteredResources = resources.filter { this.contains(it.key) }
+            if (filteredResources.size != this.size) {
                 throw DeploymentFailedException("Could not find all specified Kubernetes manifests files")
             }
             resources = filteredResources
@@ -43,14 +41,8 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
             resources
                 .map {
                     Pair(
-                        getKind(resource = it.value),
-                        it
-                    )
-                }
-                .map {
-                    Pair(
-                        it.second.key,
-                        loader.loadK8sResource(it.first, it.second.value)
+                        it.key, // filename
+                        client.resource(it.value).get()
                     )
                 }
         } catch (e: IllegalArgumentException) {
@@ -59,11 +51,4 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
 
     }
 
-    private fun getKind(resource: String): String {
-        val parser = YamlParserFromString()
-        val resourceAsMap = parser.parse(resource, HashMap<String, String>()::class.java)
-
-        return resourceAsMap?.get("kind")
-            ?: throw DeploymentFailedException("Could not find field kind of Kubernetes resource: ${resourceAsMap?.get("name")}")
-    }
 }

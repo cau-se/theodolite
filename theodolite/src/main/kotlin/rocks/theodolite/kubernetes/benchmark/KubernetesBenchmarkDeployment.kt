@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.benchmark
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
@@ -23,17 +24,17 @@ private val logger = KotlinLogging.logger {}
  */
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
-        private val sutBeforeActions: List<Action>,
-        private val sutAfterActions: List<Action>,
-        private val loadGenBeforeActions: List<Action>,
-        private val loadGenAfterActions: List<Action>,
-        val appResources: List<KubernetesResource>,
-        val loadGenResources: List<KubernetesResource>,
-        private val loadGenerationDelay: Long,
-        private val afterTeardownDelay: Long,
-        private val kafkaConfig: Map<String, Any>,
-        private val topics: List<KafkaConfig.TopicWrapper>,
-        private val client: NamespacedKubernetesClient
+    private val sutBeforeActions: List<Action>,
+    private val sutAfterActions: List<Action>,
+    private val loadGenBeforeActions: List<Action>,
+    private val loadGenAfterActions: List<Action>,
+    val appResources: List<HasMetadata>,
+    val loadGenResources: List<HasMetadata>,
+    private val loadGenerationDelay: Long,
+    private val afterTeardownDelay: Long,
+    private val kafkaConfig: Map<String, Any>,
+    private val topics: List<KafkaConfig.TopicWrapper>,
+    private val client: NamespacedKubernetesClient
 ) : BenchmarkDeployment {
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(client)

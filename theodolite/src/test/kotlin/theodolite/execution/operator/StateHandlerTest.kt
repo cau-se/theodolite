@@ -10,15 +10,14 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import rocks.theodolite.kubernetes.operator.ExecutionStateHandler
 import rocks.theodolite.kubernetes.k8s.K8sManager
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoaderFromFile
+import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
+import rocks.theodolite.kubernetes.operator.ExecutionStateHandler
 
 @QuarkusTest
 @WithKubernetesTestServer
 class StateHandlerTest {
-    private val testResourcePath = "./src/test/resources/k8s-resource-files/"
 
     @KubernetesTestServer
     private lateinit var server: KubernetesServer
@@ -26,8 +25,8 @@ class StateHandlerTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        val executionResource = K8sResourceLoaderFromFile(server.client)
-            .loadK8sResource("Execution", testResourcePath + "test-execution.yaml")
+        val executionStream = javaClass.getResourceAsStream("/k8s-resource-files/test-execution.yaml")
+        val executionResource = server.client.resources(ExecutionCRD::class.java).load(executionStream).get()
 
         K8sManager(server.client).deploy(executionResource)
     }

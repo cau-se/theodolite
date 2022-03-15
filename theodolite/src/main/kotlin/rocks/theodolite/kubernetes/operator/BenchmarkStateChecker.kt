@@ -10,8 +10,6 @@ import rocks.theodolite.kubernetes.benchmark.Action
 import rocks.theodolite.kubernetes.benchmark.ActionSelector
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.resourceSet.ResourceSets
-import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
-import rocks.theodolite.kubernetes.k8s.resourceLoader.K8sResourceLoader
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
@@ -194,8 +192,7 @@ class BenchmarkStateChecker(
 
     /**
      * Loads [KubernetesResource]s.
-     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
-     * the [K8sResourceLoader]
+     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them.
      */
     private fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
         return resourceSet.flatMap { it.loadResourceSet(this.client) }

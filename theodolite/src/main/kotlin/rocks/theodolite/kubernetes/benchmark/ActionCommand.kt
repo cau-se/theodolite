@@ -7,7 +7,6 @@ import io.fabric8.kubernetes.client.dsl.ExecListener
 import io.fabric8.kubernetes.client.dsl.ExecWatch
 import io.fabric8.kubernetes.client.utils.Serialization
 import mu.KotlinLogging
-import okhttp3.Response
 import rocks.theodolite.kubernetes.util.Configuration
 import rocks.theodolite.kubernetes.util.exception.ActionCommandFailedException
 import java.io.ByteArrayOutputStream
@@ -145,10 +144,8 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
     }
 
     private class ActionCommandListener(val execLatch: CountDownLatch) : ExecListener {
-        override fun onOpen(response: Response) {
-        }
 
-        override fun onFailure(throwable: Throwable, response: Response) {
+        override fun onFailure(throwable: Throwable, response: ExecListener.Response) {
             execLatch.countDown()
             throw ActionCommandFailedException("Some error encountered while executing action, caused ${throwable.message})")
         }
