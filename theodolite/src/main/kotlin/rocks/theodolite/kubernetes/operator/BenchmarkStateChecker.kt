@@ -1,6 +1,5 @@
 package rocks.theodolite.kubernetes.operator
 
-import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
@@ -13,6 +12,7 @@ import rocks.theodolite.kubernetes.resourceSet.ResourceSets
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
+import rocks.theodolite.kubernetes.resourceSet.loadKubernetesResources
 
 class BenchmarkStateChecker(
         private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
@@ -130,7 +130,7 @@ class BenchmarkStateChecker(
      * @return true if the required resources are found, else false
      */
     fun checkIfResourceIsInfrastructure(resourcesSets: List<ResourceSets>, selector: ActionSelector): Boolean {
-        val resources = resourcesSets.flatMap { it.loadResourceSet(this.client) }
+        val resources = loadKubernetesResources(resourcesSets, this.client)
         if (resources.isEmpty()) {
             return false
         }
@@ -177,9 +177,9 @@ class BenchmarkStateChecker(
     fun checkResources(benchmark: KubernetesBenchmark): BenchmarkState {
         return try {
             val appResources =
-                    loadKubernetesResources(resourceSet = benchmark.sut.resources)
+                    loadKubernetesResources(resourceSet = benchmark.sut.resources, this.client)
             val loadGenResources =
-                    loadKubernetesResources(resourceSet = benchmark.loadGenerator.resources)
+                    loadKubernetesResources(resourceSet = benchmark.loadGenerator.resources, this.client)
             if (appResources.isNotEmpty() && loadGenResources.isNotEmpty()) {
                 BenchmarkState.READY
             } else {
@@ -190,13 +190,7 @@ class BenchmarkStateChecker(
         }
     }
 
-    /**
-     * Loads [KubernetesResource]s.
-     * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them.
-     */
-    private fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
-        return resourceSet.flatMap { it.loadResourceSet(this.client) }
-    }
+
 }
 
 private fun <K, V> MutableMap<K, V>.containsMatchLabels(matchLabels: MutableMap<V, V>): Boolean {

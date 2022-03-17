@@ -41,6 +41,8 @@ class KubernetesBenchmarkDeployment(
     private val LAG_EXPORTER_POD_LABEL_NAME = "app.kubernetes.io/name"
     private val LAG_EXPORTER_POD_LABEL_VALUE = "kafka-exporter"
 
+
+
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
      *  - Create the needed topics.

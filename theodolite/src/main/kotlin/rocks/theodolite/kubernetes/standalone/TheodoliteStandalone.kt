@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
-import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
 import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
 import rocks.theodolite.kubernetes.util.YamlParserFromFile
 import rocks.theodolite.kubernetes.util.exception.EvaluationFailedException
@@ -57,7 +56,7 @@ class TheodoliteStandalone (private val client: NamespacedKubernetesClient) {
         Runtime.getRuntime().addShutdownHook(shutdown)
 
         try {
-            TheodoliteExecutor(benchmarkExecution, KubernetesExecutionRunner(benchmark, client)).setupAndRunExecution()
+            TheodoliteExecutor(benchmarkExecution, benchmark, client).setupAndRunExecution()
         } catch (e: EvaluationFailedException) {
             logger.error { "Evaluation failed with error: ${e.message}" }
         }catch (e: ExecutionFailedException) {

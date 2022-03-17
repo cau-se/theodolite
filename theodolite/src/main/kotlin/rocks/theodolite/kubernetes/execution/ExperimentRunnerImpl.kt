@@ -1,11 +1,11 @@
 package rocks.theodolite.kubernetes.execution
 
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
-import rocks.theodolite.kubernetes.benchmark.Benchmark
+import rocks.theodolite.kubernetes.benchmark.BenchmarkDeploymentBuilder
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmarkDeploymentBuilder
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import rocks.theodolite.kubernetes.operator.EventCreator
@@ -21,7 +21,7 @@ private val logger = KotlinLogging.logger {}
 @RegisterForReflection
 class ExperimentRunnerImpl(
         results: Results,
-        private val benchmark: Benchmark,
+        private val benchmarkDeploymentBuilder: BenchmarkDeploymentBuilder,
         private val executionDuration: Duration,
         private val configurationOverrides: List<ConfigurationOverride?>,
         private val slos: List<Slo>,
@@ -74,7 +74,7 @@ class ExperimentRunnerImpl(
     }
 
     private fun runSingleExperiment(load: Int, resource: Int): Pair<Instant, Instant> {
-        val benchmarkDeployment = benchmark.buildDeployment(
+        val benchmarkDeployment = benchmarkDeploymentBuilder.buildDeployment(
             load,
             this.loadPatcherDefinitions,
             resource,

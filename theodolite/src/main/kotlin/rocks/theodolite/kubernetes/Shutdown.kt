@@ -2,7 +2,7 @@ package rocks.theodolite.kubernetes
 
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.execution.KubernetesExecutionRunner
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmarkDeploymentBuilder
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 
@@ -24,11 +24,11 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution,
      */
     fun run() {
         // Build Configuration to teardown
-        val kubernetesExecutionRunner = KubernetesExecutionRunner(benchmark, this.client)
+        val benchmarkDeploymentBuilder = KubernetesBenchmarkDeploymentBuilder(benchmark, this.client)
         try {
             logger.info { "Received shutdown signal -> Shutting down" }
             val deployment =
-                    kubernetesExecutionRunner.buildDeployment(
+                    benchmarkDeploymentBuilder.buildDeployment(
                     load = 0,
                     loadPatcherDefinitions = emptyList(),
                     resource = 0,

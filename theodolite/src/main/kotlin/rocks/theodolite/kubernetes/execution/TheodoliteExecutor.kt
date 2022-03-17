@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.execution
 
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.core.ExecutionRunner
 import rocks.theodolite.core.ExperimentRunner
@@ -10,6 +11,10 @@ import rocks.theodolite.core.strategies.StrategyFactory
 import rocks.theodolite.core.Config
 import rocks.theodolite.core.IOHandler
 import rocks.theodolite.core.Results
+import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmarkDeploymentBuilder
+import rocks.theodolite.kubernetes.k8s.K8sManager
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
+import rocks.theodolite.kubernetes.resourceSet.loadKubernetesResources
 import rocks.theodolite.kubernetes.slo.SloFactory
 import java.io.File
 import java.time.Duration
@@ -26,14 +31,14 @@ private val logger = KotlinLogging.logger {}
  */
 class TheodoliteExecutor(
         private val benchmarkExecution: BenchmarkExecution,
-        private val kubernetesExecutionRunner: KubernetesExecutionRunner
+        private val benchmark: KubernetesBenchmark,
+        private val client: NamespacedKubernetesClient
 ) {
     /**
      * An executor object, configured with the specified benchmark, evaluation method, experiment duration
      * and overrides which are given in the execution.
      */
     lateinit var experimentRunner: ExperimentRunner
-    private val kubernetesBenchmark = kubernetesExecutionRunner.kubernetesBenchmark
 
     /**
      * Creates all required components to start Theodolite.
@@ -51,20 +56,20 @@ class TheodoliteExecutor(
         val resourcePatcherDefinition =
             PatcherDefinitionFactory().createPatcherDefinition(
                 benchmarkExecution.resources.resourceType,
-                this.kubernetesBenchmark.resourceTypes
+                this.benchmark.resourceTypes
             )
 
         val loadDimensionPatcherDefinition =
             PatcherDefinitionFactory().createPatcherDefinition(
                 benchmarkExecution.loads.loadType,
-                this.kubernetesBenchmark.loadTypes
+                this.benchmark.loadTypes
             )
 
-        val slos = SloFactory().createSlos(this.benchmarkExecution, this.kubernetesBenchmark)
+        val slos = SloFactory().createSlos(this.benchmarkExecution, this.benchmark)
 
         experimentRunner =
             ExperimentRunnerImpl(
-                benchmark = kubernetesExecutionRunner,
+                benchmarkDeploymentBuilder = KubernetesBenchmarkDeploymentBuilder(this.benchmark,this.client),
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = benchmarkExecution.configOverrides,
@@ -109,14 +114,14 @@ class TheodoliteExecutor(
      * all experiments which are specified in the corresponding execution and benchmark objects.
      */
     fun setupAndRunExecution() {
-        kubernetesExecutionRunner.setupInfrastructure()
+        setupInfrastructure()
 
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
         this.benchmarkExecution.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
         ioHandler.writeToJSONFile(this.benchmarkExecution, "${resultsFolder}exp${this.benchmarkExecution.executionId}-execution-configuration")
         ioHandler.writeToJSONFile(
-            kubernetesBenchmark,
+                benchmark,
             "${resultsFolder}exp${this.benchmarkExecution.executionId}-benchmark-configuration"
         )
 
@@ -127,7 +132,23 @@ class TheodoliteExecutor(
 
         executionRunner.run()
 
-        kubernetesExecutionRunner.teardownInfrastructure()
+        teardownInfrastructure()
+    }
+
+    private fun setupInfrastructure() {
+        benchmark.infrastructure.beforeActions.forEach { it.exec(client = client) }
+        val kubernetesManager = K8sManager(this.client)
+        loadKubernetesResources(benchmark.infrastructure.resources, this.client)
+                .map { it.second }
+                .forEach { kubernetesManager.deploy(it) }
+    }
+
+    private fun teardownInfrastructure() {
+        val kubernetesManager = K8sManager(this.client)
+        loadKubernetesResources(benchmark.infrastructure.resources, this.client)
+                .map { it.second }
+                .forEach { kubernetesManager.remove(it) }
+        benchmark.infrastructure.afterActions.forEach { it.exec(client = client) }
     }
 
     private fun getAndIncrementExecutionID(fileURL: String): Int {
