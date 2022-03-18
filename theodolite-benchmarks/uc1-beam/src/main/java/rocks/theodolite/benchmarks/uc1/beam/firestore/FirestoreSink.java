@@ -2,19 +2,12 @@ package rocks.theodolite.benchmarks.uc1.beam.firestore;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.firestore.v1.Document;
-import com.google.firestore.v1.Value;
-import com.google.firestore.v1.Write;
-import java.util.Map;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
-import org.apache.beam.sdk.io.gcp.firestore.FirestoreV1.WriteSuccessSummary;
 import org.apache.beam.sdk.io.gcp.firestore.RpcQosOptions;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
@@ -29,7 +22,7 @@ public class FirestoreSink extends PTransform<PCollection<ActivePowerRecord>, PC
 
   private static final long serialVersionUID = 1L;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FirestoreSink.class);
+  // private static final Logger LOGGER = LoggerFactory.getLogger(FirestoreSink.class);
 
   private final String collectionName;
 
@@ -52,34 +45,34 @@ public class FirestoreSink extends PTransform<PCollection<ActivePowerRecord>, PC
     return activePowerRecords
         .apply(MapElements.via(new DocumentMapper(this.collectionName)))
         .apply(MapElements.via(new UpdateOperationMapper()))
-        .apply(MapElements.via(
-            new SimpleFunction<Write, Write>() {
-
-              private static final long serialVersionUID = 1L;
-
-              @Override
-              public Write apply(final Write write) {
-                final long time = System.currentTimeMillis();
-                final Map<String, Value> map = write.getUpdate().getFieldsMap();
-                LOGGER.info("[{}] Initiate write record {} {}", time,
-                    map.get("identifier").getStringValue(),
-                    map.get("timestamp").getIntegerValue());
-                return write;
-              }
-            }))
-        .apply(FirestoreIO.v1().write().batchWrite().withRpcQosOptions(this.rpcQosOptions).build())
-        .apply(MapElements.via(
-            new SimpleFunction<WriteSuccessSummary, String>() {
-
-              private static final long serialVersionUID = 1L;
-
-              @Override
-              public String apply(final WriteSuccessSummary summary) {
-                final long time = System.currentTimeMillis();
-                LOGGER.info("[{}] Finished write with result {}", time, summary.toString());
-                return summary.toString();
-              }
-            }));
+        // .apply(MapElements.via(
+        // new SimpleFunction<Write, Write>() {
+        //
+        // private static final long serialVersionUID = 1L;
+        //
+        // @Override
+        // public Write apply(final Write write) {
+        // final long time = System.currentTimeMillis();
+        // final Map<String, Value> map = write.getUpdate().getFieldsMap();
+        // LOGGER.info("[{}] Initiate write record {} {}", time,
+        // map.get("identifier").getStringValue(),
+        // map.get("timestamp").getIntegerValue());
+        // return write;
+        // }
+        // }))
+        .apply(FirestoreIO.v1().write().batchWrite().withRpcQosOptions(this.rpcQosOptions).build());
+    // .apply(MapElements.via(
+    // new SimpleFunction<WriteSuccessSummary, String>() {
+    //
+    // private static final long serialVersionUID = 1L;
+    //
+    // @Override
+    // public String apply(final WriteSuccessSummary summary) {
+    // final long time = System.currentTimeMillis();
+    // LOGGER.info("[{}] Finished write with result {}", time, summary.toString());
+    // return summary.toString();
+    // }
+    // }));
   }
 
   /**
