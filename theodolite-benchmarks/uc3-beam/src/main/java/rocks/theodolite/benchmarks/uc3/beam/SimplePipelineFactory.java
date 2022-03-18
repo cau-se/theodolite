@@ -44,9 +44,6 @@ public class SimplePipelineFactory extends AbstractPipelineFactory {
     final Duration aggregationAdvanceDuration =
         Duration.standardSeconds(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_SECONDS));
 
-    System.out.println(duration);
-    System.out.println(aggregationAdvanceDuration);
-
     // Read from Kafka
     // TODO allow for pubsub
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
