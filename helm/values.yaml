@@ -181,7 +181,7 @@ strimzi:
         enabled: true
         nodeSelector: {}
   topicOperator:
-    enabled: false
+    enabled: true
 
 
 ###
