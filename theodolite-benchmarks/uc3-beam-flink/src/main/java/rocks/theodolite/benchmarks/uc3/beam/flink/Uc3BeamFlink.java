@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.uc3.beam.flink;
 
 import org.apache.beam.runners.flink.FlinkRunner;
 import rocks.theodolite.benchmarks.commons.beam.BeamService;
-import rocks.theodolite.benchmarks.uc3.beam.PipelineFactory;
+import rocks.theodolite.benchmarks.uc3.beam.SimplePipelineFactory;
 
 /**
  * Implementation of the use case Aggregation based on Time Attributes using Apache Beam with the
@@ -21,7 +21,7 @@ public final class Uc3BeamFlink {
    * Start running this microservice.
    */
   public static void main(final String[] args) {
-    new BeamService(PipelineFactory.factory(), FlinkRunner.class, args).run();
+    new BeamService(SimplePipelineFactory.factory(), FlinkRunner.class, args).run();
   }
 }
 
