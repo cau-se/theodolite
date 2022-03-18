@@ -14,6 +14,6 @@ public class HourOfDayWithStats extends
 
   @Override
   public KV<String, String> apply(final KV<HourOfDayKey, Stats> kv) {
-    return KV.of(keyFactory.getSensorId(kv.getKey()), kv.getValue().toString());
+    return KV.of(this.keyFactory.getSensorId(kv.getKey()), kv.getValue().toString());
   }
 }

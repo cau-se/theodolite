@@ -28,6 +28,10 @@ public final class ConfigurationKeys {
 
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
 
+  public static final String AGGREGATION_DURATION_SECONDS = "aggregation.duration.seconds";
+
+  public static final String AGGREGATION_ADVANCE_SECONDS = "aggregation.advance.seconds";
+
   // UC4
   public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
