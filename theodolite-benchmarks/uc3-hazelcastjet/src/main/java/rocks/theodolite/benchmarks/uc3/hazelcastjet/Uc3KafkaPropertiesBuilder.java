@@ -1,6 +1,8 @@
 package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -36,13 +38,13 @@ public class Uc3KafkaPropertiesBuilder {
         schemaRegistryUrlDefault);
 
     final Properties props = new Properties();
-    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
     props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
-    props.setProperty("specific.avro.reader", TRUE);
-    props.setProperty("schema.registry.url", schemaRegistryUrl);
+    props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+    props.setProperty(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, TRUE);
     props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     return props;
   }
@@ -61,11 +63,13 @@ public class Uc3KafkaPropertiesBuilder {
         kafkaBootstrapServerDefault);
 
     final Properties props = new Properties();
-    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
     props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         StringSerializer.class.getCanonicalName());
     props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         StringSerializer.class.getCanonicalName());
+    props.setProperty("specific.avro.writer", TRUE);
+
     return props;
   }
 

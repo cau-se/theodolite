@@ -1,9 +1,12 @@
 package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
@@ -38,14 +41,14 @@ public class Uc2KafkaPropertiesBuilder {
     // > Could not find constant fields for all properties
     // > setProperties not applicable for non string values
     final Properties props = new Properties();
-    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
     props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
-    props.setProperty("specific.avro.reader", TRUE);
-    props.setProperty("schema.registry.url", schemaRegistryUrl);
-    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+    props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+    props.setProperty(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, TRUE);
+    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     return props;
   }
 
@@ -63,9 +66,13 @@ public class Uc2KafkaPropertiesBuilder {
         kafkaBootstrapServerDefault);
 
     final Properties props = new Properties();
-    props.put("bootstrap.servers", kafkaBootstrapServers); // NOCS
-    props.put("key.serializer", StringSerializer.class.getCanonicalName());
-    props.put("value.serializer", StringSerializer.class.getCanonicalName());
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+        StringSerializer.class.getCanonicalName());
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+        StringSerializer.class.getCanonicalName());
+    props.setProperty("specific.avro.writer", TRUE);
+
     return props;
   }
 

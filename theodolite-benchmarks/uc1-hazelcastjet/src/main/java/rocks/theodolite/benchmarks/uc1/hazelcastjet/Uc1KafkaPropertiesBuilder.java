@@ -1,6 +1,8 @@
 package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -38,13 +40,13 @@ public class Uc1KafkaPropertiesBuilder {
     // > setProperties not applicable for non string values
     final Properties props = new Properties();
     props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
-    props.setProperty("schema.registry.url", schemaRegistryUrl);
+    props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
     props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    props.setProperty("specific.avro.reader", TRUE);
+    props.setProperty(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, TRUE);
 
 
     return props;

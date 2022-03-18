@@ -1,6 +1,8 @@
 package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import java.util.Objects;
 import java.util.Properties;
@@ -17,14 +19,13 @@ import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.EventDeserializ
  */
 public class Uc4KafkaPropertiesBuilder {
 
-  private static final String SPECIFIC_AVRO_READER_CONFIG = "specific.avro.reader";
-  private static final String SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
   private static final String TRUE = "true";
+  private static final String AUTO_OFFSET_RESET_CONFIG = "earliest";
 
   /**
    * Builds Kafka Properties used for the UC4 Benchmark pipeline.
    *
-   * @param kafkaBootstrapServerDefault Default bootstrap server if not set by envrionment.
+   * @param kafkaBootstrapServerDefault Default bootstrap server if not set by environment.
    * @param schemaRegistryUrlDefault Default schema registry URL if not set by environment.
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC4
    *         Pipeline.
@@ -40,21 +41,21 @@ public class Uc4KafkaPropertiesBuilder {
         schemaRegistryUrlDefault);
 
     final Properties props = new Properties();
-    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
     props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
-    props.setProperty(SPECIFIC_AVRO_READER_CONFIG, TRUE);
-    props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+    props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+    props.setProperty(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, TRUE);
+    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
     return props;
   }
 
   /**
    * Builds Kafka Properties used for the UC4 Benchmark pipeline.
    *
-   * @param kafkaBootstrapServerDefault Default bootstrap server if not set by envrionment.
+   * @param kafkaBootstrapServerDefault Default bootstrap server if not set by environment.
    * @param schemaRegistryUrlDefault Default schema registry URL if not set by environment.
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC4
    *         Pipeline.
@@ -70,13 +71,13 @@ public class Uc4KafkaPropertiesBuilder {
         schemaRegistryUrlDefault);
 
     final Properties props = new Properties();
-    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
     props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         KafkaAvroDeserializer.class.getCanonicalName());
-    props.setProperty(SPECIFIC_AVRO_READER_CONFIG, TRUE);
-    props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+    props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+    props.setProperty(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, TRUE);
 
     return props;
   }
@@ -84,7 +85,7 @@ public class Uc4KafkaPropertiesBuilder {
   /**
    * Builds Kafka Properties used for the UC4 Benchmark pipeline.
    *
-   * @param kafkaBootstrapServerDefault Default bootstrap server if not set by envrionment.
+   * @param kafkaBootstrapServerDefault Default bootstrap server if not set by environment.
    * @param schemaRegistryUrlDefault Default schema registry URL if not set by environment.
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC4
    *         Pipeline.
@@ -105,9 +106,9 @@ public class Uc4KafkaPropertiesBuilder {
         EventDeserializer.class.getCanonicalName());
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         StringDeserializer.class.getCanonicalName());
-    props.setProperty(SPECIFIC_AVRO_READER_CONFIG, TRUE);
-    props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+    props.setProperty(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, TRUE);
+    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
     return props;
   }
 
@@ -129,13 +130,13 @@ public class Uc4KafkaPropertiesBuilder {
         schemaRegistryUrlDefault);
 
     final Properties props = new Properties();
-    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers); // NOCS
+    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
     props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         StringSerializer.class.getCanonicalName());
     props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         KafkaAvroSerializer.class.getCanonicalName());
+    props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
     props.setProperty("specific.avro.writer", TRUE);
-    props.setProperty(SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
 
     return props;
   }
