@@ -1,6 +1,5 @@
 package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
-import com.google.gson.Gson;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
@@ -8,6 +7,8 @@ import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import java.util.Map.Entry;
 import java.util.Properties;
+import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
+import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
@@ -16,7 +17,7 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public class Uc1PipelineBuilder {
 
-  private static final Gson GSON = new Gson();
+  private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
 
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
@@ -58,14 +59,17 @@ public class Uc1PipelineBuilder {
    */
   public StreamStage<String> extendUc1Topology(final Pipeline pipe,
       final StreamSource<Entry<String, ActivePowerRecord>> source) {
+
     // Build the pipeline topology
     return pipe.readFrom(source)
         .withNativeTimestamps(0)
         .setLocalParallelism(1)
         .setName("Log content")
-        .map(record -> {
-          return GSON.toJson(record);
-        });
+        .map(Entry::getValue)
+        .map(this.databaseAdapter.getRecordConverter()::convert);
+
   }
+
+
 
 }

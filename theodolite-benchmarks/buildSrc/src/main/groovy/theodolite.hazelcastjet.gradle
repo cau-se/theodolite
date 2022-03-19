@@ -19,7 +19,6 @@ repositories {
 dependencies {
   implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
   implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
-  implementation 'com.google.code.gson:gson:2.8.2'
   implementation 'com.google.guava:guava:24.1-jre'
   implementation 'org.slf4j:slf4j-api:1.7.25'
   implementation 'io.confluent:kafka-avro-serializer:5.3.0'
