@@ -9,17 +9,18 @@ import org.slf4j.LoggerFactory;
  */
 public class HistoryService {
 
-  // Default Values of data used in UC1
-  // -- (default) kafkaPropeties data
-  private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
-  private static final String KAFKA_BOOTSTRAP_SERVERS_DEFAULT = "localhost:19092"; // NOPMD
-  // -- (default) JetInstance data
-  private static final String HZ_KUBERNETES_SERVICE_DNS_KEY = "service-dns";
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
+
+  // Hazelcast settings (default)
+  private static final String HZ_KUBERNETES_SERVICE_DNS_KEY = "service-dns";
   private static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
-  // -- (default) Kafka input topic data
+
+  // Kafka settings (default)
+  private static final String KAFKA_BOOTSTRAP_DEFAULT = "localhost:9092";
+  private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   private static final String KAFKA_TOPIC_DEFAULT = "input";
-  // -- (default) job name for this history serivce
+
+  // Job name (default)
   private static final String JOB_NAME = "uc1-hazelcastjet";
 
 
@@ -53,7 +54,7 @@ public class HistoryService {
    */
   private void createHazelcastJetApplication() throws Exception { // NOPMD
     new Uc1HazelcastJetFactory()
-        .setPropertiesFromEnv(KAFKA_BOOTSTRAP_SERVERS_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
+        .setPropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
         .setKafkaInputTopicFromEnv(KAFKA_TOPIC_DEFAULT)
         .buildUc1Pipeline()
         .buildUc1JetInstanceFromEnv(LOGGER, BOOTSTRAP_SERVER_DEFAULT, HZ_KUBERNETES_SERVICE_DNS_KEY)

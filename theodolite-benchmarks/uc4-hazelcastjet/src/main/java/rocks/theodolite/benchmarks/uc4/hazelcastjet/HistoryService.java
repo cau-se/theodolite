@@ -10,19 +10,23 @@ import org.slf4j.LoggerFactory;
 public class HistoryService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
-  // General Information (default)
+
+  // Hazelcast settings (default)
   private static final String HZ_KUBERNETES_SERVICE_DNS_KEY = "service-dns";
   private static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
+
+  // Kafka settings (default)
+  private static final String KAFKA_BOOTSTRAP_DEFAULT = "localhost:9092";
   private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   private static final String KAFKA_INPUT_TOPIC_DEFAULT = "input";
-  private static final String KAFKA_OUTPUT_TOPIC_DEFAULT = "output";
-  private static final String KAFKA_BSERVER_DEFAULT = "localhost:19092";
-  // UC4 specific (default)
   private static final String KAFKA_CONFIG_TOPIC_DEFAULT = "configuration";
   private static final String KAFKA_FEEDBACK_TOPIC_DEFAULT = "aggregation-feedback";
+  private static final String KAFKA_OUTPUT_TOPIC_DEFAULT = "output";
+
+  // UC4 specific (default)
   private static final String WINDOW_SIZE_DEFAULT_MS = "5000";
 
-  // -- (default) job name for this history serivce
+  // Job name (default)
   private static final String JOB_NAME = "uc4-hazelcastjet";
 
   /**
@@ -55,8 +59,8 @@ public class HistoryService {
    */
   private void createHazelcastJetApplication() throws Exception { // NOPMD
     new Uc4HazelcastJetFactory()
-        .setReadPropertiesFromEnv(KAFKA_BSERVER_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
-        .setWritePropertiesFromEnv(KAFKA_BSERVER_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
+        .setReadPropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
+        .setWritePropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
         .setKafkaInputTopicFromEnv(KAFKA_INPUT_TOPIC_DEFAULT)
         .setKafkaOutputTopicFromEnv(KAFKA_OUTPUT_TOPIC_DEFAULT)
         .setKafkaConfigurationTopicFromEnv(KAFKA_CONFIG_TOPIC_DEFAULT)

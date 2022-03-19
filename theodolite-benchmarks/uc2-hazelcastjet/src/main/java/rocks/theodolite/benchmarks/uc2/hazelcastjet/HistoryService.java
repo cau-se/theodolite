@@ -10,16 +10,21 @@ import org.slf4j.LoggerFactory;
 public class HistoryService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
-  // General Information (default)
+
+  // Hazelcast settings (default)
   private static final String HZ_KUBERNETES_SERVICE_DNS_KEY = "service-dns";
   private static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
+
+  // Kafka settings (default)
+  private static final String KAFKA_BOOTSTRAP_DEFAULT = "localhost:9092";
   private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   private static final String KAFKA_INPUT_TOPIC_DEFAULT = "input";
   private static final String KAFKA_OUTPUT_TOPIC_DEFAULT = "output";
-  private static final String KAFKA_BSERVER_DEFAULT = "localhost:19092";
+
   // UC2 specific (default)
-  private static final String DOWNSAMPLE_INTERVAL_DEFAULT_MS = "5000";
-  // -- (default) job name for this history serivce
+  private static final String DOWNSAMPLE_INTERVAL_DEFAULT_MS = "60000";
+
+  // Job name (default)
   private static final String JOB_NAME = "uc2-hazelcastjet";
 
   /**
@@ -52,8 +57,8 @@ public class HistoryService {
    */
   private void createHazelcastJetApplication() throws Exception { // NOPMD
     new Uc2HazelcastJetFactory()
-        .setReadPropertiesFromEnv(KAFKA_BSERVER_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
-        .setWritePropertiesFromEnv(KAFKA_BSERVER_DEFAULT)
+        .setReadPropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
+        .setWritePropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT)
         .setKafkaInputTopicFromEnv(KAFKA_INPUT_TOPIC_DEFAULT)
         .setKafkaOutputTopicFromEnv(KAFKA_OUTPUT_TOPIC_DEFAULT)
         .setDownsampleIntervalFromEnv(DOWNSAMPLE_INTERVAL_DEFAULT_MS)

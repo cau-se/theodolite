@@ -11,17 +11,21 @@ public class HistoryService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
-  // General Information
+  // Hazelcast settings (default)
   private static final String HZ_KUBERNETES_SERVICE_DNS_KEY = "service-dns";
   private static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
+
+  // Kafka settings (default)
+  private static final String KAFKA_BOOTSTRAP_DEFAULT = "localhost:9092";
   private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
   private static final String KAFKA_INPUT_TOPIC_DEFAULT = "input";
   private static final String KAFKA_OUTPUT_TOPIC_DEFAULT = "output";
-  private static final String KAFKA_BSERVERS_DEFAULT = "localhost:19092";
-  // UC3 specific
-  private static final String WINDOW_SIZE_IN_SECONDS_DEFAULT = "50";
-  private static final String HOPSIZE_IN_SEC_DEFAULT = "1";
-  // -- (default) job name for this history serivce
+  
+  // UC3 specific (default)
+  private static final String WINDOW_SIZE_IN_SECONDS_DEFAULT = "2629800";
+  private static final String HOPSIZE_IN_SEC_DEFAULT = "86400";
+
+  // Job name (default)
   private static final String JOB_NAME = "uc3-hazelcastjet";
 
   /**
@@ -54,8 +58,8 @@ public class HistoryService {
    */
   private void createHazelcastJetApplication() throws Exception { // NOPMD
     new Uc3HazelcastJetFactory()
-        .setReadPropertiesFromEnv(KAFKA_BSERVERS_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
-        .setWritePropertiesFromEnv(KAFKA_BSERVERS_DEFAULT)
+        .setReadPropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
+        .setWritePropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT)
         .setKafkaInputTopicFromEnv(KAFKA_INPUT_TOPIC_DEFAULT)
         .setKafkaOutputTopicFromEnv(KAFKA_OUTPUT_TOPIC_DEFAULT)
         .setWindowSizeInSecondsFromEnv(WINDOW_SIZE_IN_SECONDS_DEFAULT)
