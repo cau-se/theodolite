@@ -122,7 +122,10 @@ class EnvVarLoadGeneratorFactory {
       final boolean async = Boolean.parseBoolean(Objects.requireNonNullElse(
           System.getenv(ConfigurationKeys.HTTP_ASYNC),
           Boolean.toString(LoadGenerator.HTTP_ASYNC_DEFAULT)));
-      recordSender = new HttpRecordSender<>(url, async);
+      final long timeoutMs = Integer.parseInt(Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.HTTP_TIMEOUT_MS),
+          Long.toString(LoadGenerator.HTTP_TIMEOUT_MS_DEFAULT)));
+      recordSender = new HttpRecordSender<>(url, async, Duration.ofMillis(timeoutMs));
       LOGGER.info("Use HTTP server as target with URL '{}' and asynchronously: '{}'.", url, async);
     } else if (target == LoadGeneratorTarget.PUBSUB) {
       final String project = System.getenv(ConfigurationKeys.PUBSUB_PROJECT);
@@ -139,7 +142,7 @@ class EnvVarLoadGeneratorFactory {
         LOGGER.info("Use Pub/Sub as target with project {} and topic '{}'.", project, inputTopic);
         recordSender = TitanPubSubSenderFactory.forPubSubConfig(project, inputTopic);
       } else {
-        throw new IllegalStateException("Neither an emulator host nor  a project was provided.");
+        throw new IllegalStateException("Neither an emulator host nor a project was provided.");
       }
     } else {
       // Should never happen
