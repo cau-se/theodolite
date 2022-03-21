@@ -6,7 +6,6 @@ import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.ResourceRequirements
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
-import rocks.theodolite.kubernetes.util.exception.InvalidPatcherConfigurationException
 
 /**
  * The Resource limit [Patcher] set resource limits for deployments and statefulSets.

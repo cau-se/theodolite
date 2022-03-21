@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import rocks.theodolite.core.strategies.Metric
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.benchmark.TestBenchmarkDeploymentBuilder
-import rocks.theodolite.kubernetes.execution.TestExperimentRunnerImpl
+import rocks.theodolite.kubernetes.TestBenchmarkDeploymentBuilder
+import rocks.theodolite.kubernetes.TestExperimentRunnerImpl
 import rocks.theodolite.core.strategies.guessstrategy.PrevInstanceOptGuess
 import rocks.theodolite.core.Results
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo

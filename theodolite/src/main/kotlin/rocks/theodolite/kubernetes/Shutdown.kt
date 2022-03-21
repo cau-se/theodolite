@@ -2,7 +2,6 @@ package rocks.theodolite.kubernetes
 
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.benchmark.KubernetesBenchmarkDeploymentBuilder
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 

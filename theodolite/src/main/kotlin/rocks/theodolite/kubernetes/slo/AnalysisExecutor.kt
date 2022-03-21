@@ -3,7 +3,6 @@ package rocks.theodolite.kubernetes.slo
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.IOHandler
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
-import rocks.theodolite.kubernetes.util.exception.EvaluationFailedException
 import java.text.Normalizer
 import java.time.Duration
 import java.time.Instant

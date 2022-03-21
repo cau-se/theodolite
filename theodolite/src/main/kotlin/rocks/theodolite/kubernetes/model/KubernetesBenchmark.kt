@@ -3,8 +3,8 @@ package rocks.theodolite.kubernetes.model
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.quarkus.runtime.annotations.RegisterForReflection
-import rocks.theodolite.kubernetes.benchmark.Action
-import rocks.theodolite.kubernetes.resourceSet.ResourceSets
+import rocks.theodolite.kubernetes.Action
+import rocks.theodolite.kubernetes.ResourceSets
 import rocks.theodolite.kubernetes.model.crd.KafkaConfig
 import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 import kotlin.properties.Delegates

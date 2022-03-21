@@ -3,8 +3,8 @@ package rocks.theodolite.core.strategies.searchstrategy
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import rocks.theodolite.kubernetes.benchmark.TestBenchmarkDeploymentBuilder
-import rocks.theodolite.kubernetes.execution.TestExperimentRunnerImpl
+import rocks.theodolite.kubernetes.TestBenchmarkDeploymentBuilder
+import rocks.theodolite.kubernetes.TestExperimentRunnerImpl
 
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction

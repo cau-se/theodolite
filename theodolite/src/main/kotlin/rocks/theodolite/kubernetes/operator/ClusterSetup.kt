@@ -3,8 +3,8 @@ package rocks.theodolite.kubernetes.operator
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
-import rocks.theodolite.kubernetes.k8s.K8sContextFactory
-import rocks.theodolite.kubernetes.k8s.ResourceByLabelHandler
+import rocks.theodolite.kubernetes.K8sContextFactory
+import rocks.theodolite.kubernetes.ResourceByLabelHandler
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.Shutdown
 

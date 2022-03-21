@@ -4,10 +4,8 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.QuarkusMain
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.execution.ExecutionModes
 import rocks.theodolite.kubernetes.operator.TheodoliteOperator
 import rocks.theodolite.kubernetes.standalone.TheodoliteStandalone
-import rocks.theodolite.kubernetes.util.Configuration
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}

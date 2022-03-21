@@ -9,11 +9,11 @@ import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
-import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
+import rocks.theodolite.kubernetes.TheodoliteExecutor
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
 import rocks.theodolite.kubernetes.model.crd.ExecutionStateComparator
-import rocks.theodolite.kubernetes.resourceSet.loadKubernetesResources
+import rocks.theodolite.kubernetes.loadKubernetesResources
 import java.lang.Thread.sleep
 
 private val logger = KotlinLogging.logger {}

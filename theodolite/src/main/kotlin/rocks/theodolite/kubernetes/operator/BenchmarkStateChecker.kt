@@ -5,14 +5,14 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
-import rocks.theodolite.kubernetes.benchmark.Action
-import rocks.theodolite.kubernetes.benchmark.ActionSelector
+import rocks.theodolite.kubernetes.Action
+import rocks.theodolite.kubernetes.ActionSelector
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
-import rocks.theodolite.kubernetes.resourceSet.ResourceSets
+import rocks.theodolite.kubernetes.ResourceSets
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
-import rocks.theodolite.kubernetes.resourceSet.loadKubernetesResources
+import rocks.theodolite.kubernetes.loadKubernetesResources
 
 class BenchmarkStateChecker(
         private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,

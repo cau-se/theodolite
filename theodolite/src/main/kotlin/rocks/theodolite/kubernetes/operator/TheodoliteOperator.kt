@@ -6,11 +6,11 @@ import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.client.informers.SharedInformerFactory
 import io.fabric8.kubernetes.internal.KubernetesDeserializer
 import mu.KotlinLogging
+import rocks.theodolite.kubernetes.Configuration
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkExecutionList
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
-import rocks.theodolite.kubernetes.util.Configuration
 
 
 private const val EXECUTION_SINGULAR = "execution"

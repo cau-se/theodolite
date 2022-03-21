@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.api.model.ObjectReference
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.util.Configuration
+import rocks.theodolite.kubernetes.Configuration
 import java.time.Instant
 import java.util.*
 import kotlin.NoSuchElementException

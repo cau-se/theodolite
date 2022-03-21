@@ -4,10 +4,10 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
-import rocks.theodolite.kubernetes.execution.TheodoliteExecutor
+import rocks.theodolite.kubernetes.TheodoliteExecutor
 import rocks.theodolite.kubernetes.util.YamlParserFromFile
-import rocks.theodolite.kubernetes.util.exception.EvaluationFailedException
-import rocks.theodolite.kubernetes.util.exception.ExecutionFailedException
+import rocks.theodolite.kubernetes.slo.EvaluationFailedException
+import rocks.theodolite.kubernetes.ExecutionFailedException
 import rocks.theodolite.kubernetes.Shutdown
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
