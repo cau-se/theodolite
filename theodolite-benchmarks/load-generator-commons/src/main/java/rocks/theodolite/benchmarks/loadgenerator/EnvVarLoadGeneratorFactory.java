@@ -142,7 +142,7 @@ class EnvVarLoadGeneratorFactory {
         LOGGER.info("Use Pub/Sub as target with project {} and topic '{}'.", project, inputTopic);
         recordSender = TitanPubSubSenderFactory.forPubSubConfig(project, inputTopic);
       } else {
-        throw new IllegalStateException("Neither an emulator host nor  a project was provided.");
+        throw new IllegalStateException("Neither an emulator host nor a project was provided.");
       }
     } else {
       // Should never happen
