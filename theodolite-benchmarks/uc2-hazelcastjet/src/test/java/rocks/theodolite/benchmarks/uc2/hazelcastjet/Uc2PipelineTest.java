@@ -1,6 +1,5 @@
 package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
-import com.google.gson.Gson;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
@@ -20,7 +19,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import rocks.theodolite.benchmarks.uc2.hazelcastjet.Uc2PipelineBuilder;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
