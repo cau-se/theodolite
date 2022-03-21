@@ -24,6 +24,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   public static final String PUBSSUB_SOURCE_PROJECT_KEY = "source.pubsub.project";
   public static final String PUBSSUB_SOURCE_TOPIC_KEY = "source.pubsub.topic";
+  public static final String PUBSSUB_SOURCE_SUBSCR_KEY = "source.pubsub.subscription";
 
   private final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
 
@@ -53,10 +54,15 @@ public class PipelineFactory extends AbstractPipelineFactory {
     PCollection<ActivePowerRecord> activePowerRecords;
 
     if ("pubsub".equals(sourceType)) {
-      final String projectName = this.config.getString(PUBSSUB_SOURCE_PROJECT_KEY);
-      final String topicName = this.config.getString(PUBSSUB_SOURCE_TOPIC_KEY);
+      final String project = this.config.getString(PUBSSUB_SOURCE_PROJECT_KEY);
+      final String topic = this.config.getString(PUBSSUB_SOURCE_TOPIC_KEY);
+      final String subscription = this.config.getString(PUBSSUB_SOURCE_SUBSCR_KEY);
       // Read messages from Pub/Sub and encode them as Avro records
-      activePowerRecords = pipeline.apply(new PubSubSource(topicName, projectName));
+      if (subscription == null) {
+        activePowerRecords = pipeline.apply(PubSubSource.forTopic(topic, project));
+      } else {
+        activePowerRecords = pipeline.apply(PubSubSource.forSubscription(topic, subscription));
+      }
     } else {
       final KafkaActivePowerTimestampReader kafka = super.buildKafkaReader();
       // Read messages from Kafka as Avro records and drop keys

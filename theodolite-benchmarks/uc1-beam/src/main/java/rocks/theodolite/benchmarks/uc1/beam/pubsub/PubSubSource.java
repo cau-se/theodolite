@@ -1,7 +1,6 @@
 package rocks.theodolite.benchmarks.uc1.beam.pubsub;
 
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
-import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO.PubsubTopic;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO.Read;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubMessage;
 import org.apache.beam.sdk.transforms.MapElements;
@@ -13,25 +12,40 @@ import titan.ccp.model.records.ActivePowerRecord;
 /**
  * {@link PTransform} reading {@link ActivePowerRecord}s from Pub/Sub.
  */
-public class PubSubSource extends PTransform<PBegin, PCollection<ActivePowerRecord>> {
+public final class PubSubSource extends PTransform<PBegin, PCollection<ActivePowerRecord>> {
 
   private static final long serialVersionUID = 2603286151183186115L;
 
-  private final PubsubTopic topic;
+  private final Read<PubsubMessage> pubsubRead;
 
-  public PubSubSource(final String topicName, final String projectName) {
+  private PubSubSource(final Read<PubsubMessage> pubsubRead) {
     super();
-    this.topic = PubSubTopicFactory.create(projectName, topicName);
+    this.pubsubRead = pubsubRead;
   }
 
   @Override
   public PCollection<ActivePowerRecord> expand(final PBegin input) {
-    final Read<PubsubMessage> pubsub = PubsubIO
-        .readMessages()
-        .fromTopic(this.topic.asPath());
-
     // Read messages from Pub/Sub and encode them as Avro records
-    return input.apply(pubsub).apply(MapElements.via(new PubSubEncoder()));
+    return input.apply(this.pubsubRead).apply(MapElements.via(new PubSubEncoder()));
+  }
+
+  /**
+   * Create a new {@link PubSubSource} for the given project and topic.
+   */
+  public static final PubSubSource forTopic(final String projectName, final String topicName) {
+    return new PubSubSource(PubsubIO
+        .readMessages()
+        .fromTopic(PubSubTopicFactory.create(projectName, topicName).asPath()));
+  }
+
+  /**
+   * Create a new {@link PubSubSource} for the given project and subscription.
+   */
+  public static final PubSubSource forSubscription(final String projectName,
+      final String subscriptionName) {
+    return new PubSubSource(PubsubIO
+        .readMessages()
+        .fromTopic(PubSubSubscriptionFactory.create(projectName, subscriptionName).asPath()));
   }
 
 }
