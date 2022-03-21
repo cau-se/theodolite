@@ -9,6 +9,7 @@ import java.io.InputStream
 /**
  * The YamlParser parses a YAML file
  */
+@Deprecated("Use Jackson ObjectMapper instead")
 class YamlParserFromFile : Parser {
     override fun <T> parse(path: String, E: Class<T>): T? {
         val input: InputStream = FileInputStream(File(path))

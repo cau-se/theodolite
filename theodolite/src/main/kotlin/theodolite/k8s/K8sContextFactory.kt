@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
  *
  * @see CustomResourceDefinitionContext
  */
+@Deprecated("Use `CustomResourceDefinitionContext.Builder` instead.")
 class K8sContextFactory {
 
     /**

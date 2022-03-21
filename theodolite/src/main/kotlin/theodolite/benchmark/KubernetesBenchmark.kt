@@ -1,13 +1,13 @@
 package theodolite.benchmark
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sManager
-import theodolite.k8s.resourceLoader.K8sResourceLoader
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
 
@@ -53,22 +53,27 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * It first loads them via the [YamlParserFromFile] to check for their concrete type and afterwards initializes them using
      * the [K8sResourceLoader]
      */
-    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, KubernetesResource>> {
+    @Deprecated("Use `loadResourceSet` from `ResourceSets`")
+    fun loadKubernetesResources(resourceSet: List<ResourceSets>): Collection<Pair<String, HasMetadata>> {
+        return loadResources(resourceSet)
+    }
+
+    private fun loadResources(resourceSet: List<ResourceSets>): Collection<Pair<String, HasMetadata>> {
         return resourceSet.flatMap { it.loadResourceSet(this.client) }
     }
 
     override fun setupInfrastructure() {
         this.infrastructure.beforeActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(this.infrastructure.resources)
-            .map{it.second}
+        loadResources(this.infrastructure.resources)
+            .map { it.second }
             .forEach { kubernetesManager.deploy(it) }
     }
 
     override fun teardownInfrastructure() {
         val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(this.infrastructure.resources)
-            .map{it.second}
+        loadResources(this.infrastructure.resources)
+            .map { it.second }
             .forEach { kubernetesManager.remove(it) }
         this.infrastructure.afterActions.forEach { it.exec(client = client) }
     }
@@ -94,8 +99,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
 
-        val appResources = loadKubernetesResources(this.sut.resources)
-        val loadGenResources = loadKubernetesResources(this.loadGenerator.resources)
+        val appResources = loadResources(this.sut.resources)
+        val loadGenResources = loadResources(this.loadGenerator.resources)
 
         val patcherFactory = PatcherFactory()
 
@@ -125,7 +130,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             loadGenResources = loadGenResources.map { it.second },
             loadGenerationDelay = loadGenerationDelay,
             afterTeardownDelay = afterTeardownDelay,
-            kafkaConfig = if (kafkaConfig != null) hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
+            kafkaConfig = if (kafkaConfig != null) mapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
             topics = kafkaConfig?.topics ?: listOf(),
             client = this.client
         )

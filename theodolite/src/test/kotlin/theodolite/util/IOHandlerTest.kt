@@ -12,7 +12,6 @@ import org.junit.rules.TemporaryFolder
 import org.junitpioneer.jupiter.ClearEnvironmentVariable
 import org.junitpioneer.jupiter.SetEnvironmentVariable
 
-
 const val FOLDER_URL = "Test-Folder"
 
 @QuarkusTest
@@ -56,11 +55,12 @@ internal class IOHandlerTest {
             columns = columns
         )
 
-        var expected = "Fruit,Color\n"
-        testContent.forEach { expected += it[0] + "," + it[1] + "\n" }
+        val expected = (listOf(listOf("Fruit", "Color")) + testContent)
+            .map { "${it[0]},${it[1]}" }
+            .reduce { left, right -> left + System.lineSeparator() + right }
 
         assertEquals(
-            expected.trim(),
+            expected,
             IOHandler().readFileAsString("${folder.absolutePath}/test-file.csv")
         )
     }
