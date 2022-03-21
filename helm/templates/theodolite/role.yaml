@@ -45,6 +45,16 @@ rules:
     - list
     - create
     - get
+  - apiGroups:
+    - kafka.strimzi.io
+    resources:
+    - kafkatopics
+    verbs:
+    - delete
+    - list
+    - get
+    - create
+    - update
   {{- if .Values.operator.enabled }}
   - apiGroups:
     - theodolite.com

@@ -36,16 +36,15 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
         LeaderElector(
             client = this.client,
             name = Configuration.COMPONENT_NAME
-        )
-            .getLeadership(::startOperator)
+        ).getLeadership(::startOperator)
     }
 
     /**
      * Start the operator.
      */
     private fun startOperator() {
-        logger.info { "Using ${this.client.namespace} as namespace." }
-        this.client.use {
+        logger.info { "Becoming the leading operator. Use namespace '${this.client.namespace}'." }
+        client.use {
             KubernetesDeserializer.registerCustomKind(
                 "$GROUP/$API_VERSION",
                 EXECUTION_SINGULAR,
