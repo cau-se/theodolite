@@ -55,6 +55,7 @@ rules:
     - get
     - create
     - update
+{{ toYaml .Values.rbac.additionalRules | indent 2 }}
   {{- if .Values.operator.enabled }}
   - apiGroups:
     - theodolite.com

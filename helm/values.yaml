@@ -341,6 +341,7 @@ serviceAccount:
 
 rbac:
   create: true
+  additionalRules: []
 
 randomScheduler:
   enabled: true
