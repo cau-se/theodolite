@@ -61,7 +61,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
       if (subscription == null) {
         activePowerRecords = pipeline.apply(PubSubSource.forTopic(topic, project));
       } else {
-        activePowerRecords = pipeline.apply(PubSubSource.forSubscription(topic, subscription));
+        activePowerRecords = pipeline.apply(PubSubSource.forSubscription(project, subscription));
       }
     } else {
       final KafkaActivePowerTimestampReader kafka = super.buildKafkaReader();
