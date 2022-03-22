@@ -45,7 +45,8 @@ public final class PubSubSource extends PTransform<PBegin, PCollection<ActivePow
       final String subscriptionName) {
     return new PubSubSource(PubsubIO
         .readMessages()
-        .fromTopic(PubSubSubscriptionFactory.create(projectName, subscriptionName).asPath()));
+        .fromSubscription(
+            PubSubSubscriptionFactory.create(projectName, subscriptionName).asPath()));
   }
 
 }
