@@ -1,13 +1,16 @@
 package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
+import static com.hazelcast.jet.pipeline.SinkBuilder.sinkBuilder;
+
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
-import com.hazelcast.jet.pipeline.Sinks;
+import com.hazelcast.jet.pipeline.Sink;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import java.util.Map.Entry;
 import java.util.Properties;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
+import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import titan.ccp.model.records.ActivePowerRecord;
 
@@ -39,7 +42,15 @@ public class Uc1PipelineBuilder {
     final StreamStage<String> uc1TopologyProduct = this.extendUc1Topology(pipe, kafkaSource);
 
     // Add Sink: Logger
-    uc1TopologyProduct.writeTo(Sinks.logger());
+    // Do not refactor this to just use the call
+    // (There is a problem with static calls in functions in hazelcastjet)
+    final DatabaseWriter<String> writer = this.databaseAdapter.getDatabaseWriter();
+    final Sink<String> sink = sinkBuilder(
+        "Sink into database", x -> writer)
+        .<String>receiveFn(DatabaseWriter::write)
+        .build();
+
+    uc1TopologyProduct.writeTo(sink);
 
     return pipe;
   }
@@ -64,12 +75,8 @@ public class Uc1PipelineBuilder {
     return pipe.readFrom(source)
         .withNativeTimestamps(0)
         .setLocalParallelism(1)
-        .setName("Log content")
+        .setName("Convert content")
         .map(Entry::getValue)
         .map(this.databaseAdapter.getRecordConverter()::convert);
-
   }
-
-
-
 }
