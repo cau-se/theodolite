@@ -173,6 +173,12 @@ strimzi:
     jvmOptions:
       "-Xmx": "512M"
       "-Xms": "512M"
+    nodeSelectorTerms:
+      - matchExpressions:
+        - key: env
+          operator: In
+          values:
+            - prod
   zookeeper:
     replicas: 3
     zooEntrance:
@@ -180,6 +186,13 @@ strimzi:
       zookeeperClient:
         enabled: true
         nodeSelector: {}
+    nodeSelectorTerms:
+      - matchExpressions:
+        - key: env
+          operator: In
+          values:
+            - prod
+  
   topicOperator:
     enabled: true
 
