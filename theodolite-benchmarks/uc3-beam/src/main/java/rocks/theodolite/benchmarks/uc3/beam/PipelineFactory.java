@@ -11,6 +11,7 @@ import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
+import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
 import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
@@ -43,18 +44,18 @@ public class PipelineFactory extends AbstractPipelineFactory {
   protected void constructPipeline(final Pipeline pipeline) {
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
+    // TODO make seconds
     final Duration duration =
         Duration.standardDays(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+    // TODO make seconds
     final Duration aggregationAdvanceDuration =
         Duration.standardDays(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+    // TODO not needed
     final Duration triggerDelay =
         Duration.standardSeconds(this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
 
     // Read from Kafka
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
-
-    // Map the time format
-    final MapTimeFormat mapTimeFormat = new MapTimeFormat();
 
     // Get the stats per HourOfDay
     final HourOfDayWithStats hourOfDayWithStats = new HourOfDayWithStats();
@@ -65,12 +66,15 @@ public class PipelineFactory extends AbstractPipelineFactory {
         new KafkaWriterTransformation<>(bootstrapServer, outputTopic, StringSerializer.class);
 
     pipeline.apply(kafkaReader)
+        .apply(Values.create()) // TODO drop keys
         // Map to correct time format
-        .apply(MapElements.via(mapTimeFormat))
+        // TODO optional
+        .apply(MapElements.via(new MapTimeFormat()))
         // Apply a sliding window
         .apply(Window
             .<KV<HourOfDayKey, ActivePowerRecord>>into(
                 SlidingWindows.of(duration).every(aggregationAdvanceDuration))
+            // TODO remove trigger
             .triggering(AfterWatermark.pastEndOfWindow()
                 .withEarlyFirings(
                     AfterProcessingTime.pastFirstElementInPane().plusDelayOf(triggerDelay)))

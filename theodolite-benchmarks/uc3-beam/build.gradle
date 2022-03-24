@@ -2,4 +2,6 @@ plugins {
   id 'theodolite.beam'
 }
 
-
+dependencies {
+  implementation 'org.apache.beam:beam-sdks-java-io-google-cloud-platform:2.35.0'
+}
