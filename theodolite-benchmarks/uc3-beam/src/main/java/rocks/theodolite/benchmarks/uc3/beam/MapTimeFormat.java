@@ -11,17 +11,17 @@ import titan.ccp.model.records.ActivePowerRecord;
  * Changes the time format to us Europe/Paris time.
  */
 public class MapTimeFormat
-    extends SimpleFunction<KV<String, ActivePowerRecord>, KV<HourOfDayKey, ActivePowerRecord>> {
+    extends SimpleFunction<ActivePowerRecord, KV<HourOfDayKey, ActivePowerRecord>> {
   private static final long serialVersionUID = -6597391279968647035L;
   private final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
   private final ZoneId zone = ZoneId.of("Europe/Paris");
 
   @Override
-  public KV<HourOfDayKey, ActivePowerRecord> apply(final KV<String, ActivePowerRecord> kv) {
-    final Instant instant = Instant.ofEpochMilli(kv.getValue().getTimestamp());
+  public KV<HourOfDayKey, ActivePowerRecord> apply(final ActivePowerRecord record) {
+    final Instant instant = Instant.ofEpochMilli(record.getTimestamp());
     final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, this.zone);
     return KV.of(
-        this.keyFactory.createKey(kv.getValue().getIdentifier(), dateTime),
-        kv.getValue());
+        this.keyFactory.createKey(record.getIdentifier(), dateTime),
+        record);
   }
 }

@@ -12,20 +12,29 @@ import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
+import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import org.joda.time.Duration;
 import rocks.theodolite.benchmarks.commons.beam.AbstractPipelineFactory;
 import rocks.theodolite.benchmarks.commons.beam.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
+import rocks.theodolite.benchmarks.uc3.beam.pubsub.PubSubSource;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * {@link AbstractPipelineFactory} for UC3.
  */
 public class SimplePipelineFactory extends AbstractPipelineFactory {
+
+  public static final String SOURCE_TYPE_KEY = "source.type";
+
+  public static final String PUBSSUB_SOURCE_PROJECT_KEY = "source.pubsub.project";
+  public static final String PUBSSUB_SOURCE_TOPIC_KEY = "source.pubsub.topic";
+  public static final String PUBSSUB_SOURCE_SUBSCR_KEY = "source.pubsub.subscription";
 
   public SimplePipelineFactory(final Configuration configuration) {
     super(configuration);
@@ -44,9 +53,25 @@ public class SimplePipelineFactory extends AbstractPipelineFactory {
     final Duration aggregationAdvanceDuration =
         Duration.standardSeconds(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_SECONDS));
 
-    // Read from Kafka
-    // TODO allow for pubsub
-    final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
+    final String sourceType = this.config.getString(SOURCE_TYPE_KEY);
+
+    PCollection<ActivePowerRecord> activePowerRecords;
+
+    if ("pubsub".equals(sourceType)) {
+      final String project = this.config.getString(PUBSSUB_SOURCE_PROJECT_KEY);
+      final String topic = this.config.getString(PUBSSUB_SOURCE_TOPIC_KEY);
+      final String subscription = this.config.getString(PUBSSUB_SOURCE_SUBSCR_KEY);
+      // Read messages from Pub/Sub and encode them as Avro records
+      if (subscription == null) {
+        activePowerRecords = pipeline.apply(PubSubSource.forTopic(topic, project));
+      } else {
+        activePowerRecords = pipeline.apply(PubSubSource.forSubscription(project, subscription));
+      }
+    } else {
+      final KafkaActivePowerTimestampReader kafka = super.buildKafkaReader();
+      // Read messages from Kafka as Avro records and drop keys
+      activePowerRecords = pipeline.apply(kafka).apply(Values.create());
+    }
 
     // Map the time format
     final MapTimeFormat mapTimeFormat = new MapTimeFormat();
@@ -54,7 +79,7 @@ public class SimplePipelineFactory extends AbstractPipelineFactory {
     // Get the stats per HourOfDay
     final HourOfDayWithStats hourOfDayWithStats = new HourOfDayWithStats();
 
-    pipeline.apply(kafkaReader)
+    activePowerRecords
         // Map to correct time format
         // TODO optional
         .apply(MapElements.via(mapTimeFormat))
