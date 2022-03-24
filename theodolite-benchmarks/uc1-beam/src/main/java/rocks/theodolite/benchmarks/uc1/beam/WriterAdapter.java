@@ -6,7 +6,7 @@ import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 
 /**
  * {@link DoFn} which wraps a {@link DatabaseAdapter} to be used with Beam.
- * 
+ *
  * @param <T> type the {@link DatabaseWriter} is associated with.
  */
 public class WriterAdapter<T> extends DoFn<T, Void> {

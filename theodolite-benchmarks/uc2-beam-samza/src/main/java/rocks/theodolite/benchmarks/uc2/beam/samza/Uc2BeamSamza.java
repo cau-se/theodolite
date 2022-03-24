@@ -19,7 +19,7 @@ public final class Uc2BeamSamza {
   private Uc2BeamSamza() {}
 
   public static void main(final String[] args) {
-    new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).run();
+    new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).runStandalone();
   }
 
 }
