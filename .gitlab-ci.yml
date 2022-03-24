@@ -353,6 +353,20 @@ deploy-uc4-beam-samza:
     JAVA_PROJECT_NAME: "uc4-beam-samza"
     JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
 
+deploy-uc1-beam-dataflow:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-dataflow"
+    JAVA_PROJECT_NAME: "uc1-beam-dataflow"
+    JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
+
+deploy-uc3-beam-dataflow:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-dataflow"
+    JAVA_PROJECT_NAME: "uc3-beam-dataflow"
+    JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
+
 deploy-uc1-load-generator:
   extends: .deploy-benchmarks
   variables:
