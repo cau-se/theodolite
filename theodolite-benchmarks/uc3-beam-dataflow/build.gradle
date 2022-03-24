@@ -1,0 +1,19 @@
+plugins {
+  id 'theodolite.beam.dataflow'
+}
+
+dependencies {
+  implementation project(':uc3-beam')
+}
+
+sourceSets {
+  main {
+    resources {
+      srcDirs += [
+        project(':uc3-beam').sourceSets.main.resources
+      ]
+    }
+  }
+}
+
+mainClassName = "rocks.theodolite.benchmarks.uc3.beam.dataflow.Uc3BeamDataflow"
