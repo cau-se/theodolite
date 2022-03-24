@@ -131,7 +131,7 @@ lint-helm:
   script: helm lint helm/
   rules:
   - changes:
-    - helm/*
+    - helm/**/*
   - when: manual
     allow_failure: true
 

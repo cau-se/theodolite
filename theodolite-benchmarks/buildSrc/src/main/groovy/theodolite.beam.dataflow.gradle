@@ -1,0 +1,7 @@
+plugins {
+    id 'theodolite.beam'
+}
+
+dependencies {
+    implementation 'org.apache.beam:beam-runners-google-cloud-dataflow-java:2.35.0'
+}
