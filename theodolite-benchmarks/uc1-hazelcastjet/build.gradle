@@ -4,8 +4,6 @@ plugins {
 
 dependencies {
     implementation project(':uc1-commons')
-
-    implementation 'org.slf4j:slf4j-jdk14:1.7.30'
 }
 
 mainClassName = "rocks.theodolite.benchmarks.uc1.hazelcastjet.HistoryService"
