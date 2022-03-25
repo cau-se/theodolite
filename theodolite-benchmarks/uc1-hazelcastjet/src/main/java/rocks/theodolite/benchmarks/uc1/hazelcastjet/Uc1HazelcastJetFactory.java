@@ -3,11 +3,14 @@ package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.pipeline.Pipeline;
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.Objects;
 import java.util.Properties;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.KafkaPropertiesBuilder;
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC1
@@ -131,12 +134,16 @@ public class Uc1HazelcastJetFactory {
    * @return The Uc1HazelcastJetBuilder factory with set kafkaPropertiesForPipeline.
    */
   public Uc1HazelcastJetFactory setPropertiesFromEnv(final String bootstrapServersDefault, // NOPMD
-      final String schemaRegistryUrlDefault) {
+                                                     final String schemaRegistryUrlDefault,
+                                                     final String jobName) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
-    final Uc1KafkaPropertiesBuilder propsBuilder = new Uc1KafkaPropertiesBuilder();
+    final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
     final Properties kafkaProps =
-        propsBuilder.buildKafkaPropsFromEnv(bootstrapServersDefault,
-            schemaRegistryUrlDefault);
+        propsBuilder.buildKafkaInputReadPropsFromEnv(bootstrapServersDefault,
+            schemaRegistryUrlDefault,
+            jobName,
+            StringDeserializer.class.getCanonicalName(),
+            KafkaAvroDeserializer.class.getCanonicalName());
     this.kafkaPropertiesForPipeline = kafkaProps;
     return this;
   }

@@ -20,7 +20,7 @@ public class Uc1KafkaPropertiesBuilder {
   /**
    * Builds Kafka Properties used for the UC1 Benchmark pipeline.
    *
-   * @param kafkaBootstrapServerDefault Default bootstrap server if not net by envrionment.
+   * @param kafkaBootstrapServerDefault Default bootstrap server if not net by environment.
    * @param schemaRegistryUrlDefault Default schema registry URL if not set by environment.
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC1
    *         Pipeline.

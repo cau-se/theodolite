@@ -4,11 +4,15 @@ import com.google.common.math.StatsAccumulator;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.pipeline.Pipeline;
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.Objects;
 import java.util.Properties;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.KafkaPropertiesBuilder;
 import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSerializer;
 
 /**
@@ -176,13 +180,17 @@ public class Uc2HazelcastJetFactory {
    * @return The Uc2HazelcastJetBuilder factory with set kafkaReadPropertiesForPipeline.
    */
   public Uc2HazelcastJetFactory setReadPropertiesFromEnv(// NOPMD
-      final String bootstrapServersDefault,
-      final String schemaRegistryUrlDefault) {
+                                                         final String bootstrapServersDefault,
+                                                         final String schemaRegistryUrlDefault,
+                                                         final String jobName) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
-    final Uc2KafkaPropertiesBuilder propsBuilder = new Uc2KafkaPropertiesBuilder();
+    final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
     final Properties kafkaReadProps =
-        propsBuilder.buildKafkaReadPropsFromEnv(bootstrapServersDefault,
-            schemaRegistryUrlDefault);
+        propsBuilder.buildKafkaInputReadPropsFromEnv(bootstrapServersDefault,
+            schemaRegistryUrlDefault,
+            jobName,
+            StringDeserializer.class.getCanonicalName(),
+            KafkaAvroDeserializer.class.getCanonicalName());
     this.kafkaReadPropsForPipeline = kafkaReadProps;
     return this;
   }
@@ -195,11 +203,14 @@ public class Uc2HazelcastJetFactory {
    * @return The Uc2HazelcastJetBuilder factory with set kafkaWritePropertiesForPipeline.
    */
   public Uc2HazelcastJetFactory setWritePropertiesFromEnv(// NOPMD
-      final String bootstrapServersDefault) {
+      final String bootstrapServersDefault, final String schemaRegistryUrlDefault) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
-    final Uc2KafkaPropertiesBuilder propsBuilder = new Uc2KafkaPropertiesBuilder();
+    final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
     final Properties kafkaWriteProps =
-        propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault);
+        propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault,
+            schemaRegistryUrlDefault,
+            StringSerializer.class.getCanonicalName(),
+            StringSerializer.class.getCanonicalName());
     this.kafkaWritePropsForPipeline = kafkaWriteProps;
     return this;
   }

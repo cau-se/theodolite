@@ -3,11 +3,16 @@ package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.pipeline.Pipeline;
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.Objects;
 import java.util.Properties;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.KafkaPropertiesBuilder;
+import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.EventDeserializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
@@ -15,15 +20,13 @@ import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
 import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
-
-
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC4
  * benchmark and lets you start the Hazelcast Jet job. The JetInstance can be built directly as the
  * Hazelcast Config is managed internally. In order to build the Pipeline, you first have to build
- * the Read and Write Propertiesand set the input, output, and configuration topic. This can be done
- * using internal functions of this factory. Outside data only refers to custom values or default
- * values in case data of the environment cannot the fetched.
+ * the Read and Write Properties and set the input, output, and configuration topic. This can be
+ * done using internal functions of this factory. Outside data only refers to custom values or
+ * default values in case data of the environment cannot the fetched.
  */
 public class Uc4HazelcastJetFactory {
 
@@ -193,19 +196,32 @@ public class Uc4HazelcastJetFactory {
    * @return The Uc4HazelcastJetBuilder factory with set kafkaReadPropertiesForPipeline.
    */
   public Uc4HazelcastJetFactory setReadPropertiesFromEnv(// NOPMD
-      final String bootstrapServersDefault,
-      final String schemaRegistryUrlDefault) {
+                                                         final String bootstrapServersDefault,
+                                                         final String schemaRegistryUrlDefault,
+                                                         final String jobName) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
-    final Uc4KafkaPropertiesBuilder propsBuilder = new Uc4KafkaPropertiesBuilder();
+    final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
+
     final Properties kafkaInputReadProps =
         propsBuilder.buildKafkaInputReadPropsFromEnv(bootstrapServersDefault,
-            schemaRegistryUrlDefault);
+            schemaRegistryUrlDefault, jobName,
+            StringSerializer.class.getCanonicalName(),
+            StringSerializer.class.getCanonicalName());
+
     final Properties kafkaConfigReadProps =
-        propsBuilder.buildKafkaConfigReadPropsFromEnv(bootstrapServersDefault,
-            schemaRegistryUrlDefault);
+        propsBuilder.buildKafkaInputReadPropsFromEnv(bootstrapServersDefault,
+            schemaRegistryUrlDefault,
+            jobName,
+            EventDeserializer.class.getCanonicalName(),
+            StringDeserializer.class.getCanonicalName());
+
     final Properties kafkaAggregationReadProps =
-        propsBuilder.buildKafkaAggregationReadPropsFromEnv(bootstrapServersDefault,
-            schemaRegistryUrlDefault);
+        propsBuilder.buildKafkaInputReadPropsFromEnv(bootstrapServersDefault,
+            schemaRegistryUrlDefault,
+            jobName,
+            StringDeserializer.class.getCanonicalName(),
+            KafkaAvroDeserializer.class.getCanonicalName());
+
     this.kafkaInputReadPropsForPipeline = kafkaInputReadProps;
     this.kafkaConfigPropsForPipeline = kafkaConfigReadProps;
     this.kafkaFeedbackPropsForPipeline = kafkaAggregationReadProps;
