@@ -8,6 +8,11 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 
+/**
+ * Generalized builder for Kafka properties.
+ * Will always set AUTO_OFFSET_RESET_CONFIG to earliest
+ *
+ */
 public class KafkaPropertiesBuilder {
 
   private static final String TRUE = "true";
@@ -19,9 +24,12 @@ public class KafkaPropertiesBuilder {
    *
    * @param kafkaBootstrapServerDefault Default bootstrap server if not set by environment.
    * @param schemaRegistryUrlDefault Default schema registry URL if not set by environment.
+   * @param applicationName Used to set the group id to commit the offsets
+   * @param keyDeserializer Classname for the key deserializer.
+   * @param valueDeserializer Classname for the value deserializer.
    * @return A Kafka Properties Object containing the values needed for a Pipeline.
    */
-  public Properties buildKafkaInputReadPropsFromEnv(final String kafkaBootstrapServerDefault,
+  public Properties buildKafkaInputReadPropsFromEnv(final String kafkaBootstrapServerDefault,//NOPMD
                                                     final String schemaRegistryUrlDefault,
                                                     final String applicationName,
                                                     final String keyDeserializer,
@@ -54,10 +62,13 @@ public class KafkaPropertiesBuilder {
    * Builds Kafka Properties used for the UC4 Benchmark pipeline.
    *
    * @param kafkaBootstrapServerDefault Default bootstrap server if not set by environment.
+   * @param schemaRegistryUrlDefault Default schema registry URL if not set by environment.
+   * @param keySerializer Classname for the key serializer.
+   * @param valueSerializer Classname for the value serializer.
    * @return A Kafka Properties Object containing the values needed for a Hazelcast Jet UC4
    *         Pipeline.
    */
-  public Properties buildKafkaWritePropsFromEnv(final String kafkaBootstrapServerDefault,
+  public Properties buildKafkaWritePropsFromEnv(final String kafkaBootstrapServerDefault,//NOPMD
                                                 final String schemaRegistryUrlDefault,
                                                 final String keySerializer,
                                                 final String valueSerializer) {
