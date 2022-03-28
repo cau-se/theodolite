@@ -103,7 +103,8 @@ public class SimplePipelineFactory extends AbstractPipelineFactory {
   protected void registerCoders(final CoderRegistry registry) {
     registry.registerCoderForClass(
         ActivePowerRecord.class,
-        AvroCoder.of(ActivePowerRecord.SCHEMA$));
+        // AvroCoder.of(ActivePowerRecord.SCHEMA$));
+        AvroCoder.of(ActivePowerRecord.class, false));
     registry.registerCoderForClass(
         HourOfDayKey.class,
         new HourOfDayKeyCoder());
