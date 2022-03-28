@@ -29,28 +29,28 @@ class Results (val metric: Metric) {
 
         when (metric) {
             Metric.DEMAND ->
-                if (optInstances.containsKey(experiment.first)) {
-                    if(optInstances[experiment.first]!! > experiment.second) {
+                if (successful) {
+                    if (optInstances.containsKey(experiment.first)) {
+                        if (optInstances[experiment.first]!! > experiment.second) {
+                            optInstances[experiment.first] = experiment.second
+                        }
+                    } else {
                         optInstances[experiment.first] = experiment.second
                     }
-                } else {
-                    if(!successful){
-                        optInstances[experiment.first] = Int.MAX_VALUE
-                    }else {
-                        optInstances[experiment.first] = experiment.second
-                    }
+                } else if (!optInstances.containsKey(experiment.first)) {
+                    optInstances[experiment.first] = Int.MAX_VALUE
                 }
             Metric.CAPACITY ->
-                if (optInstances.containsKey(experiment.second)) {
-                    if (optInstances[experiment.second]!! < experiment.first){
-                        optInstances[experiment.second] = experiment.first
-                    }
-                } else {
-                    if(!successful){
-                        optInstances[experiment.second] = Int.MIN_VALUE
+                if (successful) {
+                    if (optInstances.containsKey(experiment.second)) {
+                        if (optInstances[experiment.second]!! < experiment.first) {
+                            optInstances[experiment.second] = experiment.first
+                        }
                     } else {
                         optInstances[experiment.second] = experiment.first
                     }
+                } else if (!optInstances.containsKey(experiment.second)) {
+                    optInstances[experiment.second] = Int.MIN_VALUE
                 }
         }
     }
