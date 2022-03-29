@@ -18,22 +18,22 @@ class LeaderElector(
 ) {
 
     // TODO(what is the name of the lock? .withName() or LeaseLock(..,name..) ?)
-    fun getLeadership(leader: KFunction0<Unit>) {
+    fun getLeadership(leader: () -> Unit) {
         val lockIdentity: String = UUID.randomUUID().toString()
         DefaultKubernetesClient().use { kc ->
             kc.leaderElector()
                 .withConfig(
                     LeaderElectionConfigBuilder()
                         .withName("Theodolite")
-                        .withLeaseDuration(Duration.ofSeconds(15L))
+                        .withLeaseDuration(Duration.ofSeconds(15))
                         .withLock(LeaseLock(client.namespace, name, lockIdentity))
-                        .withRenewDeadline(Duration.ofSeconds(10L))
-                        .withRetryPeriod(Duration.ofSeconds(2L))
+                        .withRenewDeadline(Duration.ofSeconds(10))
+                        .withRetryPeriod(Duration.ofSeconds(2))
                         .withLeaderCallbacks(LeaderCallbacks(
                             { Thread { leader() }.start() },
-                            { logger.info { "STOPPED LEADERSHIP" } }
+                            { logger.info { "Stop being the leading operator." } }
                         ) { newLeader: String? ->
-                            logger.info { "New leader elected $newLeader" }
+                            logger.info { "New leader elected: $newLeader" }
                         })
                         .build()
                 )

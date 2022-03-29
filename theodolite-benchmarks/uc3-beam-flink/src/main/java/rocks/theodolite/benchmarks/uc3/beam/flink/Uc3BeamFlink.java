@@ -21,7 +21,7 @@ public final class Uc3BeamFlink {
    * Start running this microservice.
    */
   public static void main(final String[] args) {
-    new BeamService(PipelineFactory.factory(), FlinkRunner.class, args).run();
+    new BeamService(PipelineFactory.factory(), FlinkRunner.class, args).runStandalone();
   }
 }
 
