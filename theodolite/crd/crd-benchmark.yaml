@@ -26,6 +26,12 @@ spec:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
                 type: string
                 default: ""
+              rolloutMode:
+                  type: string
+                  default: "default"
+                  enum:
+                  - "no-waiting"
+                  - "default"
               infrastructure:
                 description: (Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
                 type: object

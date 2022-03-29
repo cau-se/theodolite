@@ -37,6 +37,7 @@ private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
 @RegisterForReflection
 class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
+    lateinit var rolloutMode: RolloutMode
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     var kafkaConfig: KafkaConfig? = null
@@ -59,10 +60,8 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
 
     override fun setupInfrastructure() {
         this.infrastructure.beforeActions.forEach { it.exec(client = client) }
-        val kubernetesManager = K8sManager(this.client)
-        loadKubernetesResources(this.infrastructure.resources)
-            .map{it.second}
-            .forEach { kubernetesManager.deploy(it) }
+        RolloutManager(rolloutMode, this.client)
+            .rollout(loadKubernetesResources(this.infrastructure.resources).map { it.second })
     }
 
     override fun teardownInfrastructure() {
@@ -124,7 +123,9 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             afterTeardownDelay = afterTeardownDelay,
             kafkaConfig = if (kafkaConfig != null) hashMapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
             topics = kafkaConfig?.topics ?: listOf(),
-            client = this.client
+            client = this.client,
+            rolloutMode = rolloutMode
+
         )
     }
 

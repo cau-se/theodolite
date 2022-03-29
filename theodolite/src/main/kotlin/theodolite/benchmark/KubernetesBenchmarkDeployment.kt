@@ -27,6 +27,7 @@ class KubernetesBenchmarkDeployment(
     private val sutAfterActions: List<Action>,
     private val loadGenBeforeActions: List<Action>,
     private val loadGenAfterActions: List<Action>,
+    private val rolloutMode: RolloutMode,
     val appResources: List<KubernetesResource>,
     val loadGenResources: List<KubernetesResource>,
     private val loadGenerationDelay: Long,
@@ -46,19 +47,20 @@ class KubernetesBenchmarkDeployment(
      *  - Deploy the needed resources.
      */
     override fun setup() {
+        val rolloutManager = RolloutManager(rolloutMode, client)
         if (this.topics.isNotEmpty()) {
             val kafkaTopics = this.topics
                 .filter { !it.removeOnly }
                 .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
             kafkaController.createTopics(kafkaTopics)
         }
+
         sutBeforeActions.forEach { it.exec(client = client) }
-        appResources.forEach { kubernetesManager.deploy(it) }
+        rolloutManager.rollout(appResources)
         logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
         Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
         loadGenBeforeActions.forEach { it.exec(client = client) }
-        loadGenResources.forEach { kubernetesManager.deploy(it) }
-
+        rolloutManager.rollout(loadGenResources)
     }
 
     /**
