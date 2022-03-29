@@ -2,6 +2,7 @@ package theodolite.execution.operator
 
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.benchmark.Resources
+import theodolite.benchmark.RolloutMode
 import theodolite.model.crd.BenchmarkCRD
 import theodolite.util.KafkaConfig
 
@@ -20,11 +21,12 @@ class BenchmarkCRDummy(name: String) {
         kafkaConfig.bootstrapServer = ""
         kafkaConfig.topics = emptyList()
 
+
         benchmarkCR.spec = benchmark
         benchmarkCR.metadata.name = name
         benchmarkCR.kind = "Benchmark"
         benchmarkCR.apiVersion = "v1"
-
+        benchmark.rolloutMode = RolloutMode.DEFAULT
 
         benchmark.infrastructure = Resources()
         benchmark.sut = Resources()
