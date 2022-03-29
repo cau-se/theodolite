@@ -42,9 +42,9 @@ class EnvVarLoadGeneratorFactory {
         .setLoadDefinition(new WorkloadDefinition(
             new KeySpace(LoadGenerator.SENSOR_PREFIX_DEFAULT, numSensors),
             Duration.ofMillis(periodMs)))
-        .setGeneratorConfig(new LoadGeneratorConfig(
+        .setGeneratorConfig(new LoadGeneratorConfig(GeneratorAction.from(
             TitanRecordGenerator.forConstantValue(value),
-            this.buildRecordSender()))
+            this.buildRecordSender())))
         .withThreads(threads);
   }
 
@@ -119,8 +119,14 @@ class EnvVarLoadGeneratorFactory {
           Objects.requireNonNullElse(
               System.getenv(ConfigurationKeys.HTTP_URL),
               LoadGenerator.HTTP_URI_DEFAULT));
-      recordSender = new HttpRecordSender<>(url);
-      LOGGER.info("Use HTTP server as target with url '{}'.", url);
+      final boolean async = Boolean.parseBoolean(Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.HTTP_ASYNC),
+          Boolean.toString(LoadGenerator.HTTP_ASYNC_DEFAULT)));
+      final long timeoutMs = Integer.parseInt(Objects.requireNonNullElse(
+          System.getenv(ConfigurationKeys.HTTP_TIMEOUT_MS),
+          Long.toString(LoadGenerator.HTTP_TIMEOUT_MS_DEFAULT)));
+      recordSender = new HttpRecordSender<>(url, async, Duration.ofMillis(timeoutMs));
+      LOGGER.info("Use HTTP server as target with URL '{}' and asynchronously: '{}'.", url, async);
     } else if (target == LoadGeneratorTarget.PUBSUB) {
       final String project = System.getenv(ConfigurationKeys.PUBSUB_PROJECT);
       final String inputTopic = Objects.requireNonNullElse(
@@ -136,7 +142,7 @@ class EnvVarLoadGeneratorFactory {
         LOGGER.info("Use Pub/Sub as target with project {} and topic '{}'.", project, inputTopic);
         recordSender = TitanPubSubSenderFactory.forPubSubConfig(project, inputTopic);
       } else {
-        throw new IllegalStateException("Neither an emulator host nor  a project was provided.");
+        throw new IllegalStateException("Neither an emulator host nor a project was provided.");
       }
     } else {
       // Should never happen

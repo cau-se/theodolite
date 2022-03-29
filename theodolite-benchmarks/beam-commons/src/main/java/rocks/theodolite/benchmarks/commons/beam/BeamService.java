@@ -1,7 +1,9 @@
 package rocks.theodolite.benchmarks.commons.beam;
 
+import java.io.IOException;
 import java.util.function.Function;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.PipelineRunner;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -23,6 +25,7 @@ public class BeamService {
 
   private final AbstractPipelineFactory pipelineFactory;
   private final PipelineOptions pipelineOptions;
+  private PipelineResult pipelineResult;
 
   /**
    * Create a new {@link BeamService}.
@@ -43,14 +46,43 @@ public class BeamService {
   }
 
   /**
-   * Start this microservice, by running the underlying Beam pipeline.
+   * Start this microservice by running the underlying Beam pipeline.
    */
   public void run() {
-    LOGGER.info("Construct Beam pipeline with pipeline options: {}",
+    LOGGER.info("Constructing Beam pipeline with pipeline options: {}",
         this.pipelineOptions.toString());
     final Pipeline pipeline = this.pipelineFactory.create(this.pipelineOptions);
     LOGGER.info("Starting BeamService {}.", this.applicationName);
-    pipeline.run().waitUntilFinish();
+    this.pipelineResult = pipeline.run();
+  }
+
+  /**
+   * Start this microservice by running the underlying Beam pipeline and block until this process is
+   * terminated.
+   */
+  public void runStandalone() {
+    this.run();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> this.stop()));
+    this.pipelineResult.waitUntilFinish();
+  }
+
+  /**
+   * Stop this microservice by canceling the underlying Beam pipeline.
+   */
+  public void stop() {
+    LOGGER.info("Initiate shutdown of Beam service {}.", this.applicationName);
+    if (this.pipelineResult == null) {
+      throw new IllegalStateException("Cannot stop service since it has never been started.");
+    }
+    LOGGER.info("Stopping Beam pipeline.");
+    try {
+      this.pipelineResult.cancel();
+      this.pipelineResult = null; // NOPMD use null to indicate absence
+    } catch (final IOException e) {
+      throw new IllegalStateException(
+          "Stopping the service failed due to failed stop of Beam pipeline.", e);
+    }
+    LOGGER.info("Shutdown of Beam service {} complete.", this.applicationName);
   }
 
 }

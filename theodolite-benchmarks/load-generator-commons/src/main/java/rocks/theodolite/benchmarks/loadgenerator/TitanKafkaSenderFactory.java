@@ -31,7 +31,7 @@ public final class TitanKafkaSenderFactory {
       final String schemaRegistryUrl,
       final Properties properties) {
     return KafkaRecordSender
-        .<ActivePowerRecord>builder(
+        .<ActivePowerRecord>builderWithSchemaRegistry(
             bootstrapServers,
             topic,
             schemaRegistryUrl)
