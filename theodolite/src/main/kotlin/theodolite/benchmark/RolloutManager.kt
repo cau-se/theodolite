@@ -1,6 +1,6 @@
 package theodolite.benchmark
 
-import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.apps.DaemonSet
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet
@@ -13,8 +13,7 @@ private var SLEEP_TIME_MS = 500L
 
 class RolloutManager(private val rolloutMode: RolloutMode, private val client: NamespacedKubernetesClient) {
 
-    fun rollout(resources: List<KubernetesResource>) {
-        println("MODE IS: ${rolloutMode.value}")
+    fun rollout(resources: List<HasMetadata>) {
         resources
             .forEach { K8sManager(client).deploy(it) }
 
