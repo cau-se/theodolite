@@ -173,6 +173,8 @@ strimzi:
     jvmOptions:
       "-Xmx": "512M"
       "-Xms": "512M"
+    nodeSelectorTerms: []
+    
   zookeeper:
     replicas: 3
     zooEntrance:
@@ -180,6 +182,8 @@ strimzi:
       zookeeperClient:
         enabled: true
         nodeSelector: {}
+    nodeSelectorTerms: []
+  
   topicOperator:
     enabled: true
 
@@ -341,6 +345,7 @@ serviceAccount:
 
 rbac:
   create: true
+  additionalRules: []
 
 randomScheduler:
   enabled: true
