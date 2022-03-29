@@ -74,13 +74,13 @@ public class BeamService {
     if (this.pipelineResult == null) {
       throw new IllegalStateException("Cannot stop service since it has never been started.");
     }
-    LOGGER.info("Stoping Beam pipeline.");
+    LOGGER.info("Stopping Beam pipeline.");
     try {
       this.pipelineResult.cancel();
       this.pipelineResult = null; // NOPMD use null to indicate absence
     } catch (final IOException e) {
       throw new IllegalStateException(
-          "Stoping the service failed due to failed stop of Beam pipeline.", e);
+          "Stopping the service failed due to failed stop of Beam pipeline.", e);
     }
     LOGGER.info("Shutdown of Beam service {} complete.", this.applicationName);
   }
