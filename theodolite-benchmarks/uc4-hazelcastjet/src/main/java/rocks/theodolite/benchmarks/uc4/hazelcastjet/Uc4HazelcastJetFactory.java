@@ -4,6 +4,7 @@ import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.pipeline.Pipeline;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -205,8 +206,8 @@ public class Uc4HazelcastJetFactory {
     final Properties kafkaInputReadProps =
         propsBuilder.buildKafkaInputReadPropsFromEnv(bootstrapServersDefault,
             schemaRegistryUrlDefault, jobName,
-            StringSerializer.class.getCanonicalName(),
-            StringSerializer.class.getCanonicalName());
+            StringDeserializer.class.getCanonicalName(),
+            KafkaAvroDeserializer.class.getCanonicalName());
 
     final Properties kafkaConfigReadProps =
         propsBuilder.buildKafkaInputReadPropsFromEnv(bootstrapServersDefault,
@@ -238,9 +239,12 @@ public class Uc4HazelcastJetFactory {
   public Uc4HazelcastJetFactory setWritePropertiesFromEnv(// NOPMD
       final String bootstrapServersDefault, final String schemaRegistryUrlDefault) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
-    final Uc4KafkaPropertiesBuilder propsBuilder = new Uc4KafkaPropertiesBuilder();
+    final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
     final Properties kafkaWriteProps =
-        propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault, schemaRegistryUrlDefault);
+        propsBuilder.buildKafkaWritePropsFromEnv(bootstrapServersDefault,
+            schemaRegistryUrlDefault,
+            StringSerializer.class.getCanonicalName(),
+            KafkaAvroSerializer.class.getCanonicalName());
     this.kafkaWritePropsForPipeline = kafkaWriteProps;
     return this;
   }
