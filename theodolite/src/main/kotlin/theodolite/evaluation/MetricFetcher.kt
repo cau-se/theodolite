@@ -45,10 +45,11 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
         )
 
         while (counter < RETRIES) {
+            logger.info { "Request collected metrics from Prometheus for interval [$offsetStart,$offsetEnd]." }
             val response = get("$prometheusURL/api/v1/query_range", params = parameter, timeout = TIMEOUT)
             if (response.statusCode != 200) {
                 val message = response.jsonObject.toString()
-                logger.warn { "Could not connect to Prometheus: $message. Retrying now." }
+                logger.warn { "Could not connect to Prometheus: $message. Retry $counter/$RETRIES." }
                 counter++
             } else {
                 val values = parseValues(response)
