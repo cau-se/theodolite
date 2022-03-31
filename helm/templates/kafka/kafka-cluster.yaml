@@ -39,6 +39,11 @@ spec:
               nodeSelectorTerms:
                 {{- toYaml . | nindent 16 }}
     {{- end}}
+    {{- with .Values.strimzi.kafka.resources}}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
+
 
   zookeeper:
     {{- with .Values.strimzi.zookeeper.replicas }}
