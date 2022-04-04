@@ -78,7 +78,7 @@ class ClusterSetup(
             labelName = "app.kubernetes.io/created-by",
             labelValue = "theodolite"
         )
-        try{
+        try {
             resourceRemover.removeCR(
                 labelName = "app.kubernetes.io/created-by",
                 labelValue = "theodolite",
