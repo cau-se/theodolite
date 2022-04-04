@@ -1,5 +1,6 @@
 package theodolite.execution.operator
 
+import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
@@ -84,8 +85,9 @@ class ClusterSetup(
                 labelValue = "theodolite",
                 context = serviceMonitorContext
             )
-        } catch (e: Exception) {
-            logger.warn { "Service monitors could not be cleaned up. It may be that service monitors are not registered by the Kubernetes API." }
+        } catch (e: KubernetesClientException) {
+            logger.warn { "Service monitors could not be cleaned up. It may be that service monitors are not registered by the Kubernetes API."}
+            logger.debug { "Error is: ${e.message}" }
         }
     }
 }
