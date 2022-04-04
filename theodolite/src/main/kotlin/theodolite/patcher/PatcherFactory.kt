@@ -1,7 +1,5 @@
 package theodolite.patcher
 
-import io.fabric8.kubernetes.api.model.HasMetadata
-import io.fabric8.kubernetes.api.model.KubernetesResource
 import theodolite.util.InvalidPatcherConfigurationException
 import theodolite.util.PatcherDefinition
 

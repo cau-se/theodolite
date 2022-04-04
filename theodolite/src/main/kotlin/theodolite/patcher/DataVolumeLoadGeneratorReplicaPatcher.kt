@@ -1,7 +1,6 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.HasMetadata
-import io.fabric8.kubernetes.api.model.KubernetesResource
 
 /**
  * The DataVolumeLoadGeneratorReplicaPatcher takes the total load that should be generated
@@ -11,7 +10,6 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
  * The number of instances are set for the load generator and the given variable is set to the
  * load per instance.
  *
- * @property k8sResource Kubernetes resource to be patched.
  * @property maxVolume per load generator instance
  * @property container Container to be patched.
  * @property variableName Name of the environment variable to be patched.

@@ -3,7 +3,6 @@ package theodolite.patcher
 import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
-import io.fabric8.kubernetes.client.utils.Serialization
 import theodolite.util.InvalidPatcherConfigurationException
 
 /**

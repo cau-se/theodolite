@@ -1,7 +1,6 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.HasMetadata
-import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.utils.Serialization
@@ -9,7 +8,6 @@ import io.fabric8.kubernetes.client.utils.Serialization
 /**
  * The Image patcher allows to change the image of a container.
  *
- * @param k8sResource Kubernetes resource to be patched.
  * @param container Container to be patched.
  */
 class ImagePatcher(

@@ -1,13 +1,11 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.ConfigMap
+import io.fabric8.kubernetes.api.model.GenericKubernetesResource
 import io.fabric8.kubernetes.api.model.HasMetadata
-import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
-import io.fabric8.kubernetes.client.CustomResource
-import io.fabric8.kubernetes.client.utils.Serialization
 
 class LabelPatcher(
     val variableName: String) :
@@ -40,7 +38,7 @@ class LabelPatcher(
                 }
                 resource.metadata.labels[this.variableName] = value
             }
-            is CustomResource<*, *> -> {
+            is GenericKubernetesResource -> {
                 if (resource.metadata.labels == null) {
                     resource.metadata.labels = mutableMapOf()
                 }

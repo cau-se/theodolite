@@ -1,9 +1,7 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.HasMetadata
-import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
-import io.fabric8.kubernetes.client.utils.Serialization
 
 /**
  * The Scheduler name [Patcher] make it possible to set the scheduler which should

@@ -1,13 +1,11 @@
 package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.ConfigMap
+import io.fabric8.kubernetes.api.model.GenericKubernetesResource
 import io.fabric8.kubernetes.api.model.HasMetadata
-import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
-import io.fabric8.kubernetes.client.CustomResource
-import io.fabric8.kubernetes.client.utils.Serialization
 
 class NamePatcher : AbstractPatcher() {
 
@@ -28,7 +26,7 @@ class NamePatcher : AbstractPatcher() {
             is io.fabric8.kubernetes.api.model.networking.v1.Ingress -> {
                 resource.metadata.name = value
             }
-            is CustomResource<*, *> -> {
+            is GenericKubernetesResource -> {
                 resource.metadata.name = value
             }
         }
