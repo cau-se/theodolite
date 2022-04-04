@@ -1,34 +1,36 @@
 package theodolite.patcher
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
+import io.fabric8.kubernetes.client.utils.Serialization
 
 /**
  * This patcher is able to set the field `spec.template.metadata.labels` for a `Deployment` or `StatefulSet` Kubernetes resource.
  *
- * @property k8sResource The Kubernetes manifests to patch
  * @property variableName The label which should be set
  */
-class TemplateLabelPatcher(private val k8sResource: KubernetesResource, val variableName: String) :
-    AbstractPatcher(k8sResource) {
+class TemplateLabelPatcher(
+    val variableName: String) :
+    AbstractPatcher() {
 
-    override fun <String> patch(labelValue: String) {
-        if (labelValue is kotlin.String) {
-            when (k8sResource) {
-                is Deployment -> {
-                    if (k8sResource.spec.template.metadata.labels == null) {
-                        k8sResource.spec.template.metadata.labels = mutableMapOf()
-                    }
-                    k8sResource.spec.template.metadata.labels[this.variableName] = labelValue
+
+    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+        when (resource) {
+            is Deployment -> {
+                if (resource.spec.template.metadata.labels == null) {
+                    resource.spec.template.metadata.labels = mutableMapOf()
                 }
-                is StatefulSet -> {
-                    if (k8sResource.spec.template.metadata.labels == null) {
-                        k8sResource.spec.template.metadata.labels = mutableMapOf()
-                    }
-                    k8sResource.spec.template.metadata.labels[this.variableName] = labelValue
+                resource.spec.template.metadata.labels[this.variableName] = value
+            }
+            is StatefulSet -> {
+                if (resource.spec.template.metadata.labels == null) {
+                    resource.spec.template.metadata.labels = mutableMapOf()
                 }
+                resource.spec.template.metadata.labels[this.variableName] = value
             }
         }
+        return resource
     }
 }

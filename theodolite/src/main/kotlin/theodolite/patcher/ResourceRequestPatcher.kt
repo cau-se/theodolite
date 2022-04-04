@@ -1,11 +1,9 @@
 package theodolite.patcher
 
-import io.fabric8.kubernetes.api.model.Container
-import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.api.model.Quantity
-import io.fabric8.kubernetes.api.model.ResourceRequirements
+import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
+import io.fabric8.kubernetes.client.utils.Serialization
 import theodolite.util.InvalidPatcherConfigurationException
 
 /**
@@ -16,29 +14,29 @@ import theodolite.util.InvalidPatcherConfigurationException
  * @param requestedResource The resource to be requested (e.g. **cpu or memory**)
  */
 class ResourceRequestPatcher(
-    private val k8sResource: KubernetesResource,
     private val container: String,
     private val requestedResource: String
-) : AbstractPatcher(k8sResource) {
+) : AbstractPatcher() {
 
-    override fun <String> patch(value: String) {
-        when (k8sResource) {
+
+    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+        when (resource) {
             is Deployment -> {
-                k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setRequests(it, value as kotlin.String)
+                resource.spec.template.spec.containers.filter { it.name == container }.forEach {
+                    setRequests(it, value)
                 }
             }
             is StatefulSet -> {
-                k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setRequests(it, value as kotlin.String)
+                resource.spec.template.spec.containers.filter { it.name == container }.forEach {
+                    setRequests(it, value)
                 }
             }
             else -> {
-                throw InvalidPatcherConfigurationException("ResourceRequestPatcher not applicable for $k8sResource")
+                throw InvalidPatcherConfigurationException("ResourceRequestPatcher is not applicable for $resource")
             }
         }
+        return resource
     }
-
     private fun setRequests(container: Container, value: String) {
         when {
             container.resources == null -> {

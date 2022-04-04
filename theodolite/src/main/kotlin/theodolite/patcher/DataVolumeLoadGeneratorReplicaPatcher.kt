@@ -1,5 +1,6 @@
 package theodolite.patcher
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
 
 /**
@@ -16,23 +17,24 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
  * @property variableName Name of the environment variable to be patched.
  */
 class DataVolumeLoadGeneratorReplicaPatcher(
-    k8sResource: KubernetesResource,
     private val maxVolume: Int,
-    container: String,
-    variableName: String
-) : AbstractPatcher(k8sResource) {
+    private val container: String,
+    private val variableName: String
+) : Patcher {
 
-    private val replicaPatcher = ReplicaPatcher(k8sResource)
-    private val envVarPatcher = EnvVarPatcher(k8sResource, container, variableName)
+    override fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata> {
+        return resources.flatMap { patchSingeResource(it, value)}
+    }
 
-    override fun <T> patch(value: T) {
+    fun patchSingeResource(k8sResource: HasMetadata, value: String): List<HasMetadata> {
+        var resource = k8sResource
         // calculate number of load generator instances and load per instance
-        val load = Integer.parseInt(value.toString())
+        val load = Integer.parseInt(value)
         val loadGenInstances = (load + maxVolume - 1) / maxVolume
         val loadPerInstance = load / loadGenInstances
 
         // Patch instance values and load value of generators
-        replicaPatcher.patch(loadGenInstances.toString())
-        envVarPatcher.patch(loadPerInstance.toString())
+        val resourceList = ReplicaPatcher().patch(listOf(resource), loadGenInstances.toString())
+        return EnvVarPatcher(this.container, this.variableName).patch(resourceList, loadPerInstance.toString())
     }
 }
