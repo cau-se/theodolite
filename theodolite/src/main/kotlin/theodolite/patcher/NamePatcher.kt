@@ -29,7 +29,6 @@ class NamePatcher : AbstractPatcher() {
                 resource.metadata.name = value
             }
             is CustomResource<*, *> -> {
-                // TODO(How to clone custom resources?)
                 resource.metadata.name = value
             }
         }
