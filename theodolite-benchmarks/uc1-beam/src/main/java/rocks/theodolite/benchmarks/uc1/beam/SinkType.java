@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
+import rocks.theodolite.benchmarks.uc1.beam.dynamodb.DynamoDbSink;
 import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreSink;
 import rocks.theodolite.benchmarks.uc1.beam.firestore.custom.CustomFirestoreSink;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
@@ -34,6 +35,13 @@ public enum SinkType implements SinkFactory {
     public PTransform<PCollection<ActivePowerRecord>, PCollection<?>> create(
         final Configuration config) {
       return CustomFirestoreSink.fromConfig(config);
+    }
+  },
+  DYNAMO_DB("dynamodb") {
+    @Override
+    public PTransform<PCollection<ActivePowerRecord>, PCollection<?>> create(
+        final Configuration config) {
+      return DynamoDbSink.fromConfig(config);
     }
   };
 
