@@ -23,7 +23,7 @@ class Action {
                 timeout = exec.timeoutSeconds,
                 command = exec.command
         )
-            if(exitCode != 0){
+        if (exitCode != 0){
             throw ActionCommandFailedException("Error while executing action, finished with exit code $exitCode")
         }
     }
@@ -38,7 +38,7 @@ class ActionSelector {
 @JsonDeserialize
 @RegisterForReflection
 class PodSelector {
-    lateinit var matchLabels: MutableMap<String, String>
+    lateinit var matchLabels: Map<String, String>
 }
 @JsonDeserialize
 @RegisterForReflection

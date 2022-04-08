@@ -18,7 +18,7 @@ import titan.ccp.model.records.ActivePowerRecord;
 public class PipelineFactory extends AbstractPipelineFactory {
 
   public static final String SINK_TYPE_KEY = "sink.type";
-  
+
   private final SinkType sinkType = SinkType.from(this.config.getString(SINK_TYPE_KEY));
 
   public PipelineFactory(final Configuration configuration) {
@@ -52,7 +52,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
   protected void registerCoders(final CoderRegistry registry) {
     registry.registerCoderForClass(
         ActivePowerRecord.class,
-        AvroCoder.of(ActivePowerRecord.SCHEMA$));
+        // AvroCoder.of(ActivePowerRecord.SCHEMA$));
+        AvroCoder.of(ActivePowerRecord.class, false));
   }
 
   public static Function<Configuration, AbstractPipelineFactory> factory() {
