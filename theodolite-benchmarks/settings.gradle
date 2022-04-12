@@ -1,5 +1,14 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
 rootProject.name = 'theodolite-benchmarks'
 
+
+
+include 'commons'
 include 'load-generator-commons'
 include 'kstreams-commons'
 include 'flink-commons'

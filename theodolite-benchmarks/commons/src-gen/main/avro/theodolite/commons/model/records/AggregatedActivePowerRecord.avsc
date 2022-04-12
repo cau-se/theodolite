@@ -1,0 +1,26 @@
+{
+  "type" : "record",
+  "name" : "AggregatedActivePowerRecord",
+  "namespace" : "theodolite.commons.model.records",
+  "fields" : [ {
+    "name" : "identifier",
+    "type" : "string",
+    "doc" : "*"
+  }, {
+    "name" : "timestamp",
+    "type" : "long",
+    "doc" : "*"
+  }, {
+    "name" : "count",
+    "type" : "long",
+    "doc" : "*"
+  }, {
+    "name" : "sumInW",
+    "type" : "double",
+    "doc" : "*"
+  }, {
+    "name" : "averageInW",
+    "type" : "double",
+    "doc" : "*"
+  } ]
+}

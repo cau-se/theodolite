@@ -1,0 +1,65 @@
+@namespace("theodolite.commons.model.records")
+protocol StatsActivePower {
+
+  record HourOfDayActivePowerRecord {
+    string identifier;
+    int hourOfDay;
+    long periodStart;
+    long periodEnd;
+    long count;
+    double mean;
+    double populationVariance;
+    double min;
+    double max;
+  }
+  
+  record DayOfWeekActivePowerRecord {
+    string identifier;
+    int dayOfWeek;
+    long periodStart;
+    long periodEnd;
+    long count;
+    double mean;
+    double populationVariance;
+    double min;
+    double max;
+  }
+
+  record HourOfWeekActivePowerRecord {
+    string identifier;
+    int dayOfWeek;
+    int hourOfDay;
+    long periodStart;
+    long periodEnd;
+    long count;
+    double mean;
+    double populationVariance;
+    double min;
+    double max;
+  }
+  
+  record MonthOfYearActivePowerRecord {
+    string identifier;
+    int monthOfYear;
+    long periodStart;
+    long periodEnd;
+    long count;
+    double mean;
+    double populationVariance;
+    double min;
+    double max;
+  }
+
+  record YearActivePowerRecord {
+    string identifier;
+    int year;
+    long periodStart;
+    long periodEnd;
+    long count;
+    double mean;
+    double populationVariance;
+    double min;
+    double max;
+  }
+
+}
