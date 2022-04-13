@@ -8,10 +8,10 @@ import com.google.gson.GsonBuilder;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import titan.ccp.model.sensorregistry.serialization.AggregatedSensorSerializer;
-import titan.ccp.model.sensorregistry.serialization.MachineSensorSerializer;
-import titan.ccp.model.sensorregistry.serialization.SensorRegistryDeserializer;
-import titan.ccp.model.sensorregistry.serialization.SensorRegistrySerializer;
+import theodolite.commons.model.sensorregistry.serialization.AggregatedSensorSerializer;
+import theodolite.commons.model.sensorregistry.serialization.MachineSensorSerializer;
+import theodolite.commons.model.sensorregistry.serialization.SensorRegistryDeserializer;
+import theodolite.commons.model.sensorregistry.serialization.SensorRegistrySerializer;
 
 /**
  * Implementation of a {@link SensorRegistry} that is immutable.
