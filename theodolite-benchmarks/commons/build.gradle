@@ -77,4 +77,13 @@ task ("generateAvroJava", type: com.github.davidmc24.gradle.plugin.avro.Generate
     outputDir = file("src-gen/main/java")
 }
 
+tasks.withType(Checkstyle) {
+    source = fileTree('src/main/java')
+}
+
+tasks.withType(Pmd) {
+    exclude '**/commons/src-gen/.*'
+}
+
+
 
