@@ -1,8 +1,8 @@
 package rocks.theodolite.benchmarks.uc4.kstreams;
 
 import org.apache.kafka.streams.kstream.Windowed;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.AggregatedActivePowerRecord;
 
 /**
  * Updates an {@link AggregatedActivePowerRecord} by a new {@link ActivePowerRecord}.

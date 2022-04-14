@@ -5,7 +5,7 @@ import java.util.Properties;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.Topology;
 import rocks.theodolite.benchmarks.commons.kstreams.KafkaStreamsBuilder;
-import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import rocks.theodolite.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
 
 /**
  * Builder for the Kafka Streams configuration.

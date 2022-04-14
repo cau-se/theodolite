@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.uc4.kstreams;
 
 import java.util.Objects;
 import java.util.Set;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * A joined pair of an {@link ActivePowerRecord} and its associated parents. Both the record and the

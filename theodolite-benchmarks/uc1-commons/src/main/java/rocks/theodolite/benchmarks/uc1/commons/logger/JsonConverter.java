@@ -3,7 +3,7 @@ package rocks.theodolite.benchmarks.uc1.commons.logger;
 import com.google.gson.Gson;
 import java.io.Serializable;
 import rocks.theodolite.benchmarks.uc1.commons.RecordConverter;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * {@link RecordConverter} that converts {@link ActivePowerRecord}s to JSON strings.
