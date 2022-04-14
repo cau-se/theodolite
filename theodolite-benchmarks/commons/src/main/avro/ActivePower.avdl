@@ -1,4 +1,4 @@
-@namespace("theodolite.commons.model.records")
+@namespace("rocks.theodolite.commons.model.records")
 protocol ActivePower {
 
   record ActivePowerRecord {

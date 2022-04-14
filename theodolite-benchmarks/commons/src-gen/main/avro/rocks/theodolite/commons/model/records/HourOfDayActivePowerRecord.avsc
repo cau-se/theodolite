@@ -1,0 +1,33 @@
+{
+  "type" : "record",
+  "name" : "HourOfDayActivePowerRecord",
+  "namespace" : "rocks.theodolite.commons.model.records",
+  "fields" : [ {
+    "name" : "identifier",
+    "type" : "string"
+  }, {
+    "name" : "hourOfDay",
+    "type" : "int"
+  }, {
+    "name" : "periodStart",
+    "type" : "long"
+  }, {
+    "name" : "periodEnd",
+    "type" : "long"
+  }, {
+    "name" : "count",
+    "type" : "long"
+  }, {
+    "name" : "mean",
+    "type" : "double"
+  }, {
+    "name" : "populationVariance",
+    "type" : "double"
+  }, {
+    "name" : "min",
+    "type" : "double"
+  }, {
+    "name" : "max",
+    "type" : "double"
+  } ]
+}
