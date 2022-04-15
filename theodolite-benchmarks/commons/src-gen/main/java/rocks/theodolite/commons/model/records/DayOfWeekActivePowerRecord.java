@@ -158,6 +158,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'identifier' field.
+   * @param value the value to set.
+   */
+  public void setIdentifier(java.lang.String value) {
+    this.identifier = value;
+  }
 
   /**
    * Gets the value of the 'dayOfWeek' field.
@@ -168,6 +175,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'dayOfWeek' field.
+   * @param value the value to set.
+   */
+  public void setDayOfWeek(int value) {
+    this.dayOfWeek = value;
+  }
 
   /**
    * Gets the value of the 'periodStart' field.
@@ -178,6 +192,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'periodStart' field.
+   * @param value the value to set.
+   */
+  public void setPeriodStart(long value) {
+    this.periodStart = value;
+  }
 
   /**
    * Gets the value of the 'periodEnd' field.
@@ -188,6 +209,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'periodEnd' field.
+   * @param value the value to set.
+   */
+  public void setPeriodEnd(long value) {
+    this.periodEnd = value;
+  }
 
   /**
    * Gets the value of the 'count' field.
@@ -198,6 +226,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'count' field.
+   * @param value the value to set.
+   */
+  public void setCount(long value) {
+    this.count = value;
+  }
 
   /**
    * Gets the value of the 'mean' field.
@@ -208,6 +243,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'mean' field.
+   * @param value the value to set.
+   */
+  public void setMean(double value) {
+    this.mean = value;
+  }
 
   /**
    * Gets the value of the 'populationVariance' field.
@@ -218,6 +260,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'populationVariance' field.
+   * @param value the value to set.
+   */
+  public void setPopulationVariance(double value) {
+    this.populationVariance = value;
+  }
 
   /**
    * Gets the value of the 'min' field.
@@ -228,6 +277,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'min' field.
+   * @param value the value to set.
+   */
+  public void setMin(double value) {
+    this.min = value;
+  }
 
   /**
    * Gets the value of the 'max' field.
@@ -238,6 +294,13 @@ public class DayOfWeekActivePowerRecord extends org.apache.avro.specific.Specifi
   }
 
 
+  /**
+   * Sets the value of the 'max' field.
+   * @param value the value to set.
+   */
+  public void setMax(double value) {
+    this.max = value;
+  }
 
   /**
    * Creates a new DayOfWeekActivePowerRecord RecordBuilder.

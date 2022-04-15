@@ -143,6 +143,14 @@ public class AggregatedActivePowerRecord extends org.apache.avro.specific.Specif
   }
 
 
+  /**
+   * Sets the value of the 'identifier' field.
+   * *
+   * @param value the value to set.
+   */
+  public void setIdentifier(java.lang.String value) {
+    this.identifier = value;
+  }
 
   /**
    * Gets the value of the 'timestamp' field.
@@ -153,6 +161,14 @@ public class AggregatedActivePowerRecord extends org.apache.avro.specific.Specif
   }
 
 
+  /**
+   * Sets the value of the 'timestamp' field.
+   * *
+   * @param value the value to set.
+   */
+  public void setTimestamp(long value) {
+    this.timestamp = value;
+  }
 
   /**
    * Gets the value of the 'count' field.
@@ -163,6 +179,14 @@ public class AggregatedActivePowerRecord extends org.apache.avro.specific.Specif
   }
 
 
+  /**
+   * Sets the value of the 'count' field.
+   * *
+   * @param value the value to set.
+   */
+  public void setCount(long value) {
+    this.count = value;
+  }
 
   /**
    * Gets the value of the 'sumInW' field.
@@ -173,6 +197,14 @@ public class AggregatedActivePowerRecord extends org.apache.avro.specific.Specif
   }
 
 
+  /**
+   * Sets the value of the 'sumInW' field.
+   * *
+   * @param value the value to set.
+   */
+  public void setSumInW(double value) {
+    this.sumInW = value;
+  }
 
   /**
    * Gets the value of the 'averageInW' field.
@@ -183,6 +215,14 @@ public class AggregatedActivePowerRecord extends org.apache.avro.specific.Specif
   }
 
 
+  /**
+   * Sets the value of the 'averageInW' field.
+   * *
+   * @param value the value to set.
+   */
+  public void setAverageInW(double value) {
+    this.averageInW = value;
+  }
 
   /**
    * Creates a new AggregatedActivePowerRecord RecordBuilder.
