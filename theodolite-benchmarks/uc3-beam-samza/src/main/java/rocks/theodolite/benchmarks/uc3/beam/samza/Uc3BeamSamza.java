@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.uc3.beam.samza;
 
 import org.apache.beam.runners.samza.SamzaRunner;
 import rocks.theodolite.benchmarks.commons.beam.BeamService;
-import rocks.theodolite.benchmarks.uc3.beam.PipelineFactory;
+import rocks.theodolite.benchmarks.uc3.beam.SimplePipelineFactory;
 
 /**
  * Implementation of the use case Aggregation based on Time Attributes using Apache Beam with the
@@ -21,7 +21,7 @@ public final class Uc3BeamSamza {
    * Start running this microservice.
    */
   public static void main(final String[] args) {
-    new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).runStandalone();
+    new BeamService(SimplePipelineFactory.factory(), SamzaRunner.class, args).runStandalone();
   }
 
 }
