@@ -24,8 +24,8 @@ import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeySerde;
 import rocks.theodolite.benchmarks.uc3.flink.util.StatsKeyFactory;
-import titan.ccp.common.configuration.ServiceConfigurations;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.commons.configuration.ServiceConfigurations;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * The History microservice implemented as a Flink job.

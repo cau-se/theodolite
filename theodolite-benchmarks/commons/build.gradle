@@ -22,6 +22,7 @@ dependencies {
     implementation 'org.apache.kafka:kafka-clients:2.4.0'
     api 'org.apache.commons:commons-configuration2:2.0'
     api "org.apache.avro:avro:1.11.0"
+    api 'org.apache.kafka:kafka-streams:2.4.0' // needed in flink uc3
 
     // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
     implementation 'commons-beanutils:commons-beanutils:1.9.2' // necessary for commons-configuration2
@@ -53,7 +54,8 @@ sourceSets {
 //// Local avro creation
 avro {
     fieldVisibility = "PRIVATE"
-    createSetters = false
+    // Setters required for flink because of https://issues.apache.org/jira/browse/FLINK-13703
+    createSetters = true
 }
 
 task("generateAvroProtocol", type: com.github.davidmc24.gradle.plugin.avro.GenerateAvroProtocolTask) {

@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import org.junit.Assert;
 import org.junit.Test;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 public class TitanRecordGeneratorTest {
 

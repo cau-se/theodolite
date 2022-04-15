@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import rocks.theodolite.benchmarks.loadgenerator.ConfigurationKeys;
 import rocks.theodolite.benchmarks.loadgenerator.TitanKafkaSenderFactory;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 class EnvVarHttpBridgeFactory {
 

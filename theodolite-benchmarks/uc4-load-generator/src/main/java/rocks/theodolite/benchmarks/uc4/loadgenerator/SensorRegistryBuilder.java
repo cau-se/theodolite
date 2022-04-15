@@ -1,8 +1,8 @@
 package rocks.theodolite.benchmarks.uc4.loadgenerator;
 
-import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
-import titan.ccp.model.sensorregistry.MutableSensorRegistry;
-import titan.ccp.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.commons.model.sensorregistry.MutableAggregatedSensor;
+import rocks.theodolite.commons.model.sensorregistry.MutableSensorRegistry;
+import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * Builder for creating a nested {@link SensorRegistry} with {@code numNestedGroups} levels and

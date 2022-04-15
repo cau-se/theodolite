@@ -46,9 +46,9 @@ import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerR
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventCoder;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventDeserializer;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.SensorParentKeyCoder;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.commons.configuration.events.Event;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.AggregatedActivePowerRecord;
 
 /**
  * {@link AbstractPipelineFactory} for UC4.

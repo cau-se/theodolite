@@ -5,7 +5,7 @@ import org.apache.beam.sdk.io.kafka.KafkaRecord;
 import org.apache.beam.sdk.io.kafka.TimestampPolicy;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.joda.time.Instant;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * TimeStampPolicy to use event time based on the timestamp of the record value.

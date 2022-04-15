@@ -5,10 +5,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
-import titan.ccp.model.sensorregistry.AggregatedSensor;
-import titan.ccp.model.sensorregistry.MachineSensor;
-import titan.ccp.model.sensorregistry.Sensor;
-import titan.ccp.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.commons.model.sensorregistry.AggregatedSensor;
+import rocks.theodolite.commons.model.sensorregistry.MachineSensor;
+import rocks.theodolite.commons.model.sensorregistry.Sensor;
+import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
 
 public class SensorRegistryBuilderTest {
 

@@ -6,7 +6,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreSink;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * Supported Sink types, i.e., {@link PTransform} for converting and storing

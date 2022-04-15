@@ -12,8 +12,8 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKey;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.AggregatedActivePowerRecord;
 
 /**
  * A {@link ProcessWindowFunction} which performs the windowed aggregation of all

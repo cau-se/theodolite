@@ -26,14 +26,14 @@ import rocks.theodolite.benchmarks.uc4.flink.util.ImmutableSensorRegistrySeriali
 import rocks.theodolite.benchmarks.uc4.flink.util.ImmutableSetSerializer;
 import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKey;
 import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKeySerializer;
-import titan.ccp.common.configuration.ServiceConfigurations;
-import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.configuration.events.EventSerde;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
-import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
-import titan.ccp.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.commons.commons.configuration.ServiceConfigurations;
+import rocks.theodolite.commons.configuration.events.Event;
+import rocks.theodolite.commons.configuration.events.EventSerde;
+import rocks.theodolite.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.commons.model.sensorregistry.ImmutableSensorRegistry;
+import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * The Aggregation microservice implemented as a Flink job.

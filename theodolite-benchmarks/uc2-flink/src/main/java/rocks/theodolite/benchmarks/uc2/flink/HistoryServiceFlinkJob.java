@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.commons.flink.StateBackends;
 import rocks.theodolite.benchmarks.commons.flink.serialization.StatsSerializer;
-import titan.ccp.common.configuration.ServiceConfigurations;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.commons.configuration.ServiceConfigurations;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 
 /**

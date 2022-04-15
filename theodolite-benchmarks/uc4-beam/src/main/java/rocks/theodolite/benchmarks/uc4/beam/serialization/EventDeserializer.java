@@ -3,7 +3,7 @@ package rocks.theodolite.benchmarks.uc4.beam.serialization;
 import java.util.Map;
 import org.apache.kafka.common.serialization.ByteBufferDeserializer;
 import org.apache.kafka.common.serialization.Deserializer;
-import titan.ccp.configuration.events.Event;
+import rocks.theodolite.commons.configuration.events.Event;
 
 /**
  * Deserializer for Events(SensorRegistry changes).

@@ -4,7 +4,7 @@ import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import java.io.IOException;
 import org.apache.beam.sdk.transforms.SimpleFunction;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 final class DocumentMapper extends SimpleFunction<ActivePowerRecord, Document> {
 

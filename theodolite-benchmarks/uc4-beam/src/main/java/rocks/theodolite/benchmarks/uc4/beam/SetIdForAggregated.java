@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.uc4.beam;
 
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.commons.model.records.AggregatedActivePowerRecord;
 
 /**
  * Sets the identifier for new {@link AggregatedActivePowerRecord}.

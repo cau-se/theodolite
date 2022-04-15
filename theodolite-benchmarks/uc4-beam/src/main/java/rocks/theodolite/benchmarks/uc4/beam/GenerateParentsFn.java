@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.sensorregistry.AggregatedSensor;
-import titan.ccp.model.sensorregistry.Sensor;
-import titan.ccp.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.commons.configuration.events.Event;
+import rocks.theodolite.commons.model.sensorregistry.AggregatedSensor;
+import rocks.theodolite.commons.model.sensorregistry.Sensor;
+import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * DoFn class to generate a child-parent pair for every sensor in the hierarchy.

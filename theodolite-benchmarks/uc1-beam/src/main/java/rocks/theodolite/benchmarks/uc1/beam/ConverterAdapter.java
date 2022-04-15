@@ -3,7 +3,7 @@ package rocks.theodolite.benchmarks.uc1.beam;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.TypeDescriptor;
 import rocks.theodolite.benchmarks.uc1.commons.RecordConverter;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * {@link SimpleFunction} which wraps a {@link RecordConverter} to be used with Beam.

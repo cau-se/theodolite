@@ -22,7 +22,7 @@ import rocks.theodolite.benchmarks.commons.beam.AbstractPipelineFactory;
 import rocks.theodolite.benchmarks.commons.beam.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaWriterTransformation;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * {@link AbstractPipelineFactory} for UC2.

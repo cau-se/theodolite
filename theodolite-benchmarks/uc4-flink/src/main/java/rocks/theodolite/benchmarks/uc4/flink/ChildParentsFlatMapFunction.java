@@ -13,9 +13,9 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
-import titan.ccp.model.sensorregistry.AggregatedSensor;
-import titan.ccp.model.sensorregistry.Sensor;
-import titan.ccp.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.commons.model.sensorregistry.AggregatedSensor;
+import rocks.theodolite.commons.model.sensorregistry.Sensor;
+import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * Transforms a {@link SensorRegistry} into key value pairs of Sensor identifiers and their parents'
