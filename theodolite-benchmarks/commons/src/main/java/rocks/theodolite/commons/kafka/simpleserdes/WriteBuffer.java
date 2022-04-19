@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  */
 public class WriteBuffer {
 
-  private static final int BYTE_BUFFER_CAPACITY = 65536; // Is only virtual memory
+  private static final int BYTE_BUFFER_CAPACITY = 65_536; // Is only virtual memory
 
   private final ByteBuffer buffer = ByteBuffer.allocateDirect(BYTE_BUFFER_CAPACITY);
 
