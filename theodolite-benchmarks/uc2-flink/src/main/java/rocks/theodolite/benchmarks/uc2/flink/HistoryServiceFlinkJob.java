@@ -24,13 +24,7 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryServiceFlinkJob.class);
 
 
-  /**
-   * Create a new instance of the {@link HistoryServiceFlinkJob}.
-   */
-  public HistoryServiceFlinkJob() {
-    super();
-  }
-
+  @Override
   protected void configureSerializers() {
     this.env.getConfig().registerTypeWithKryoSerializer(Stats.class, new StatsSerializer());
     this.env.getConfig().getRegisteredTypesWithKryoSerializers()
@@ -39,7 +33,7 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
   }
 
-
+  @Override
   protected void buildPipeline() {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);

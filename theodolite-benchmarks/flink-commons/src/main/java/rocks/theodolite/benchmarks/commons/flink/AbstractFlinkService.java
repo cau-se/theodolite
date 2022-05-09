@@ -5,7 +5,6 @@ import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rocks.theodolite.benchmarks.commons.flink.StateBackends;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
@@ -31,7 +30,7 @@ public abstract class AbstractFlinkService {
 
     this.env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-    this.configureEnv();
+    this.configureEnv(); //NOPMD
 
     this.buildPipeline();
   }
@@ -39,7 +38,7 @@ public abstract class AbstractFlinkService {
   /**
    * Configures the service using environment variables.
    */
-  public void configureEnv() {
+  protected void configureEnv() {
     this.configureCheckpointing();
     this.configureParallelism();
     this.configureStateBackend();

@@ -30,13 +30,7 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryServiceFlinkJob.class);
 
-  /**
-   * Create a new instance of the {@link HistoryServiceFlinkJob}.
-   */
-  public HistoryServiceFlinkJob() {
-    super();
-  }
-
+  @Override
   protected void configureSerializers() {
     this.env.getConfig().registerTypeWithKryoSerializer(HourOfDayKey.class,
         new HourOfDayKeySerde());
@@ -49,6 +43,7 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
     }
   }
 
+  @Override
   protected void buildPipeline() {
     // Configurations
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);

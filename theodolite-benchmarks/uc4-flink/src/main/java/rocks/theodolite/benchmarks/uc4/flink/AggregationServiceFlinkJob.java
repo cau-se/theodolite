@@ -38,13 +38,7 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AggregationServiceFlinkJob.class);
 
-  /**
-   * Create a new {@link AggregationServiceFlinkJob}.
-   */
-  public AggregationServiceFlinkJob() {
-    super();
-  }
-
+  @Override
   protected void configureSerializers() {
     this.env.getConfig().registerTypeWithKryoSerializer(ImmutableSensorRegistry.class,
         new ImmutableSensorRegistrySerializer());
@@ -65,6 +59,7 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
             s.getSerializer().getClass().getName()));
   }
 
+  @Override
   protected void buildPipeline() {
     // Get configurations
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);

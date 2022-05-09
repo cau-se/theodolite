@@ -3,8 +3,6 @@ package rocks.theodolite.benchmarks.uc1.flink;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
@@ -16,24 +14,21 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(HistoryServiceFlinkJob.class);
-  private static final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
+  private static final DatabaseAdapter<String> DATABASE_ADAPTER = LogWriterFactory.forJson();
 
-  /**
-   * Create a new instance of the {@link HistoryServiceFlinkJob}.
-   */
-  public HistoryServiceFlinkJob() {
-    super();
-  }
-
+  @Override
   public void configureEnv() {
     super.configureCheckpointing();
     super.configureParallelism();
   }
 
+  @Override
   protected void configureSerializers() {
+  // No serializers needed here
   }
 
+
+  @Override
   protected void buildPipeline() {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
@@ -50,9 +45,9 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
     stream
         // .rebalance()
-        .map(new ConverterAdapter<>(this.databaseAdapter.getRecordConverter()))
+        .map(new ConverterAdapter<>(this.DATABASE_ADAPTER.getRecordConverter()))
         .returns(Types.STRING)
-        .flatMap(new WriterAdapter<>(this.databaseAdapter.getDatabaseWriter()))
+        .flatMap(new WriterAdapter<>(this.DATABASE_ADAPTER.getDatabaseWriter()))
         .returns(Types.VOID); // Will never be used
   }
 
