@@ -1,6 +1,5 @@
 plugins {
     id 'theodolite.java-commons'
-    id 'theodolite.flink'
 }
 
 repositories {
