@@ -1,63 +1,40 @@
 package rocks.theodolite.benchmarks.uc1.flink;
 
-import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
-import titan.ccp.common.configuration.ServiceConfigurations;
 import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * The History microservice implemented as a Flink job.
  */
-public final class HistoryServiceFlinkJob {
+public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryServiceFlinkJob.class);
-
-  private final Configuration config = ServiceConfigurations.createWithDefaults();
-  private final StreamExecutionEnvironment env;
-  private final String applicationId;
-
-  private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
+  private static final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
 
   /**
    * Create a new instance of the {@link HistoryServiceFlinkJob}.
    */
   public HistoryServiceFlinkJob() {
-    final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
-    final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
-    this.applicationId = applicationName + "-" + applicationVersion;
-
-    this.env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-    this.configureEnv();
-
-    this.buildPipeline();
+    super();
   }
 
-  private void configureEnv() {
-    final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
-    final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
-    if (checkpointing) {
-      this.env.enableCheckpointing(commitIntervalMs);
-    }
-
-    // Parallelism
-    final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
-    if (parallelism != null) {
-      LOGGER.info("Set parallelism: {}.", parallelism);
-      this.env.setParallelism(parallelism);
-    }
-
+  public void configureEnv() {
+    super.configureCheckpointing();
+    super.configureParallelism();
   }
 
-  private void buildPipeline() {
+  protected void configureSerializers() {
+  }
+
+  protected void buildPipeline() {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
@@ -77,17 +54,6 @@ public final class HistoryServiceFlinkJob {
         .returns(Types.STRING)
         .flatMap(new WriterAdapter<>(this.databaseAdapter.getDatabaseWriter()))
         .returns(Types.VOID); // Will never be used
-  }
-
-  /**
-   * Start running this microservice.
-   */
-  public void run() {
-    try {
-      this.env.execute(this.applicationId);
-    } catch (final Exception e) { // NOPMD Execution thrown by Flink
-      LOGGER.error("An error occured while running this job.", e);
-    }
   }
 
   public static void main(final String[] args) {
