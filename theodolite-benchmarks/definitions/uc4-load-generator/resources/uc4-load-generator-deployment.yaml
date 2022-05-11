@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: workload-generator
-          image: ghcr.io/cau-se/theodolite-uc4-workload-generator:latest
+          image: ghcr.io/cau-se/theodolite-uc4-workload-generator:v0.7.0
           ports:
             - containerPort: 5701
               name: coordination

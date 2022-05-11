@@ -281,7 +281,7 @@ operator:
   enabled: true
   
   image: ghcr.io/cau-se/theodolite
-  imageTag: latest
+  imageTag: v0.7.0
   imagePullPolicy: Always
 
   nodeSelector: {}
@@ -290,17 +290,17 @@ operator:
     generic:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-generic
-      imageTag: latest
+      imageTag: v0.7.0
       imagePullPolicy: Always
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
-      imageTag: latest
+      imageTag: v0.7.0
       imagePullPolicy: Always
     droppedRecordsKStreams:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
-      imageTag: latest
+      imageTag: v0.7.0
       imagePullPolicy: Always
 
   resultsVolume:
@@ -367,7 +367,7 @@ rbac:
 randomScheduler:
   enabled: false
   image: ghcr.io/cau-se/theodolite-random-scheduler
-  imageTag: latest
+  imageTag: v0.7.0
   imagePullPolicy: Always
   rbac:
     create: true
