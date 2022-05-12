@@ -3,8 +3,9 @@
 sleep 55s # to let the benchmark and produce some output
 
 docker-compose logs --tail 100 benchmark |
-    sed -n 's/^.*identifier":"//p' | # cut the first part before the key
-    sed 's/","timestamp.*//' | # cut the rest after the key
+    sed -n "s/^.*Record:\s\(\S*\)$/\1/p" |
+    tee /dev/stderr |
+    jq .identifier |
     sort |
     uniq |
     wc -l |
