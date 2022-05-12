@@ -14,7 +14,7 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
-  private static final DatabaseAdapter<String> DATABASE_ADAPTER = LogWriterFactory.forJson();
+  private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
 
   @Override
   public void configureEnv() {
@@ -45,9 +45,9 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
     stream
         // .rebalance()
-        .map(new ConverterAdapter<>(this.DATABASE_ADAPTER.getRecordConverter()))
+        .map(new ConverterAdapter<>(this.databaseAdapter.getRecordConverter()))
         .returns(Types.STRING)
-        .flatMap(new WriterAdapter<>(this.DATABASE_ADAPTER.getDatabaseWriter()))
+        .flatMap(new WriterAdapter<>(this.databaseAdapter.getDatabaseWriter()))
         .returns(Types.VOID); // Will never be used
   }
 

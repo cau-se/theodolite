@@ -9,19 +9,20 @@ import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
  * A general Apache Flink-based microservice. It is configured by {@link #configureEnv()},
- * and extended by implementing business logic in {@link #buildPipeline()}
+ * and extended by implementing business logic in {@link #buildPipeline()}.
+ * The configuration of the serializer needs to be implemented in {@link #configureSerializers()}.
  */
 public abstract class AbstractFlinkService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFlinkService.class);
   protected final StreamExecutionEnvironment env;
 
-  protected final Configuration config = ServiceConfigurations.createWithDefaults();
+  protected Configuration config = ServiceConfigurations.createWithDefaults();
 
   protected final String applicationId;
 
   /**
-   * Abstract Service constructing and configuring the application.
+   * Abstract Service constructing the name and {@link StreamExecutionEnvironment}.
    */
   public AbstractFlinkService() {
     final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
@@ -30,10 +31,21 @@ public abstract class AbstractFlinkService {
 
     this.env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-    this.configureEnv(); //NOPMD
-
-    this.buildPipeline();
   }
+
+  /**
+   *  Abstract Service constructing the name and {@link StreamExecutionEnvironment}.
+   * @param config the configuration for the service.
+   */
+  public AbstractFlinkService(final Configuration config) {
+    this.config = config;
+    final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
+    final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
+    this.applicationId = applicationName + "-" + applicationVersion;
+    this.env = StreamExecutionEnvironment.getExecutionEnvironment();
+  }
+
+
 
   /**
    * Configures the service using environment variables.
@@ -86,6 +98,8 @@ public abstract class AbstractFlinkService {
    *  Starts the service.
    */
   public void run() {
+    this.configureEnv();
+    this.buildPipeline();
     LOGGER.info("Execution plan: {}", this.env.getExecutionPlan());
 
     try {
