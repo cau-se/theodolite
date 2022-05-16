@@ -10,6 +10,7 @@ import mu.KotlinLogging
 import theodolite.k8s.K8sManager
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
+import kotlin.properties.Delegates
 
 
 private val logger = KotlinLogging.logger {}
@@ -37,7 +38,7 @@ private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
 @RegisterForReflection
 class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
-    lateinit var rolloutMode: RolloutMode
+    var waitForResourcesEnabled = false
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     var kafkaConfig: KafkaConfig? = null
@@ -65,7 +66,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
 
     override fun setupInfrastructure() {
         this.infrastructure.beforeActions.forEach { it.exec(client = client) }
-        RolloutManager(rolloutMode, this.client)
+        RolloutManager(waitForResourcesEnabled, this.client)
             .rollout(loadResources(this.infrastructure.resources).map { it.second })
     }
 
@@ -129,7 +130,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             kafkaConfig = if (kafkaConfig != null) mapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
             topics = kafkaConfig?.topics ?: listOf(),
             client = this.client,
-            rolloutMode = rolloutMode
+            rolloutMode = waitForResourcesEnabled
 
         )
     }

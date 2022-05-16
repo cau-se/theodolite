@@ -28,7 +28,7 @@ class KubernetesBenchmarkDeployment(
     private val sutAfterActions: List<Action>,
     private val loadGenBeforeActions: List<Action>,
     private val loadGenAfterActions: List<Action>,
-    private val rolloutMode: RolloutMode,
+    private val rolloutMode: Boolean,
     val appResources: List<HasMetadata>,
     val loadGenResources: List<HasMetadata>,
     private val loadGenerationDelay: Long,

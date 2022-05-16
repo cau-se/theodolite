@@ -138,13 +138,12 @@ Resource Types:
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>rolloutMode</b></td>
-        <td>enum</td>
+        <td><b>waitForResourcesEnabled</b></td>
+        <td>boolean</td>
         <td>
+          If true, Theodolite waits to create the resource for the SUT until the infrastructure resources are ready, and analogously, Theodolite waits to create the load-gen resource until the resources of the SUT are ready.<br/>
           <br/>
-          <br/>
-            <i>Enum</i>: no-waiting, default<br/>
-            <i>Default</i>: default<br/>
+            <i>Default</i>: false<br/>
         </td>
         <td>false</td>
       </tr><tr>
