@@ -2,4 +2,4 @@ plugins {
   id 'theodolite.flink'
 }
 
-mainClassName = "rocks.theodolite.benchmarks.uc1.flink.HistoryServiceFlinkJob"
+mainClassName = "rocks.theodolite.benchmarks.uc2.flink.HistoryServiceFlinkJob"
