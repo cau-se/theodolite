@@ -5,7 +5,7 @@
 kafkaClient:
   enabled: false
   nodeSelector: {}
-  
+
 
 ####
 ## configuration of sub charts
@@ -52,6 +52,9 @@ grafana:
   service:
     nodePort: 31199
     type: NodePort
+  rbac:
+    pspEnabled: false
+    namespaced: true
 
 
 ###
@@ -155,6 +158,9 @@ cp-helm-charts:
   ## The interval between refreshing metrics
   pollIntervalSeconds: 15
 
+strimzi-kafka-operator:
+  createGlobalResources: true
+
 strimzi:
   enabled: true
   kafka:
@@ -174,6 +180,7 @@ strimzi:
       "-Xmx": "512M"
       "-Xms": "512M"
     nodeSelectorTerms: []
+    resources: {}
     
   zookeeper:
     replicas: 3
@@ -192,6 +199,10 @@ strimzi:
 # Prometheus Monitoring Stack (Prometheus Operator)
 ###
 kube-prometheus-stack:
+  global:
+    rbac:
+      create: false
+
   commonLabels:
     appScope: titan-ccp
   
@@ -237,7 +248,14 @@ kube-prometheus-stack:
       releaseNamespace: true
       additional: []
     nodeSelector: {}
+    admissionWebhooks:
+      enabled: false
+    tls:
+      enabled: false
+    serviceAccount:
+      create: true
   
+  # We use our own Prometheus
   prometheus:
     enabled: false
 
@@ -249,12 +267,11 @@ prometheus:
   enabled: true
   nodeSelector: {}
   
-  # depends on your cluster security and permission settings, you may need to create the following resources
   serviceAccount:
     enabled: true
-  clusterRole:
+  role:
     enabled: true
-  clusterRoleBinding:
+  roleBinding:
     enabled: true
 
 ###
@@ -348,7 +365,7 @@ rbac:
   additionalRules: []
 
 randomScheduler:
-  enabled: true
+  enabled: false
   image: ghcr.io/cau-se/theodolite-random-scheduler
   imageTag: latest
   imagePullPolicy: Always
