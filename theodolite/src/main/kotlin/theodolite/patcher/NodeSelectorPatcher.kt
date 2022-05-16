@@ -13,7 +13,7 @@ class NodeSelectorPatcher(
     AbstractPatcher() {
 
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {
             resource.spec.template.spec.nodeSelector = mapOf(variableName to value)
         }

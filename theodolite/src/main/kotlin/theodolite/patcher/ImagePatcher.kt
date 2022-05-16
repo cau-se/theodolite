@@ -17,10 +17,10 @@ class ImagePatcher(
     override fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata> {
         return resources
             .map { Serialization.clone(it) }
-            .map { patchSingeResource(it, value as kotlin.String) }
+            .map { patchSingleResource(it, value as kotlin.String) }
     }
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {
             (resource).spec.template.spec.containers.filter { it.name == container }.forEach {
                 it.image = value

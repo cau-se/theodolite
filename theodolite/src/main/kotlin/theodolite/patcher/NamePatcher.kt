@@ -9,7 +9,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 
 class NamePatcher : AbstractPatcher() {
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
             is Deployment -> {
                 resource.metadata.name = value

@@ -17,7 +17,7 @@ class ResourceLimitPatcher(
     private val limitedResource: String
 ) : AbstractPatcher() {
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
             is Deployment -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {

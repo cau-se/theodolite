@@ -11,7 +11,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 class SchedulerNamePatcher : AbstractPatcher() {
 
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {
             resource.spec.template.spec.schedulerName = value
         }

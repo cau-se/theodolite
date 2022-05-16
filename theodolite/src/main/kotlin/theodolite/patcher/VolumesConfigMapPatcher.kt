@@ -7,7 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 class VolumesConfigMapPatcher(private var volumeName: String
 ) : AbstractPatcher() {
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {
             if (resource.spec.template.spec.volumes == null) {
                 resource.spec.template.spec.volumes = mutableListOf()

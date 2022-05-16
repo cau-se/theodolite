@@ -22,9 +22,9 @@ abstract class AbstractPatcher : Patcher {
     override fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata> {
         return resources
             .map { Serialization.clone(it)}
-            .map { patchSingeResource(it, value) }
+            .map { patchSingleResource(it, value) }
     }
 
-    abstract fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata
+    abstract fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata
 
 }

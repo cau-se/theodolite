@@ -9,7 +9,7 @@ class NumNestedGroupsLoadGeneratorReplicaPatcher(
     private val loadGenMaxRecords: String,
 ) : AbstractPatcher() {
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {
             val approxNumSensors = numSensors.toDouble().pow(Integer.parseInt(value).toDouble())
             val loadGenInstances =

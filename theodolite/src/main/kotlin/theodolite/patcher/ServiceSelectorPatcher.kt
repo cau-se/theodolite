@@ -7,7 +7,7 @@ class ServiceSelectorPatcher(
     private var variableName: String
     ) : AbstractPatcher() {
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Service) {
             if (resource.spec.selector == null) {
                 resource.spec.selector = mutableMapOf()

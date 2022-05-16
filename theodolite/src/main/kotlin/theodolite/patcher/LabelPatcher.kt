@@ -11,7 +11,7 @@ class LabelPatcher(
     val variableName: String) :
     AbstractPatcher() {
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
             is Deployment -> {
                 if (resource.metadata.labels == null) {

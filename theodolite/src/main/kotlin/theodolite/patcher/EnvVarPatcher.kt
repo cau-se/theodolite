@@ -17,7 +17,7 @@ class EnvVarPatcher(
 ) : AbstractPatcher() {
 
 
-    override fun patchSingeResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {
             this.setEnv(
                 resource, this.container,
