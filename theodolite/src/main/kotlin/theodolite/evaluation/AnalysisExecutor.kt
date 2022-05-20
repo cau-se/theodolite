@@ -50,9 +50,11 @@ class AnalysisExecutor(
                     )
                 }
 
+            val sloName = slo.properties["name"] ?: ""
+
             prometheusData.forEach { data ->
                 ioHandler.writeToCSVFile(
-                    fileURL = "${fileURL}_${repetitionCounter++}",
+                    fileURL = "${fileURL}_${sloName}_${repetitionCounter++}",
                     data = data.getResultAsList(),
                     columns = listOf("labels", "timestamp", "value")
                 )
