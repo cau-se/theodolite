@@ -50,11 +50,15 @@ class AnalysisExecutor(
                     )
                 }
 
-            val sloName = slo.properties["name"] ?: ""
+            // set name if not defined in properties
+            var sloName = slo.properties["name"] ?: ""
+            if (sloName.length > 0){
+                sloName = "_" + sloName
+            }
 
-            prometheusData.forEach { data ->
+            prometheusData.forEachIndexed{ index, data ->
                 ioHandler.writeToCSVFile(
-                    fileURL = "${fileURL}_${sloName}_${repetitionCounter++}",
+                    fileURL = "${fileURL}_${index}${sloName}_${repetitionCounter++}",
                     data = data.getResultAsList(),
                     columns = listOf("labels", "timestamp", "value")
                 )
