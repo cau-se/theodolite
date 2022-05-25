@@ -1,38 +1,32 @@
 package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import java.util.Properties;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
 
-import java.util.Properties;
-
+/**
+ * A microservice that records incoming measurements.
+ */
 public class NewHistoryService extends HazelcastJetService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
-  public NewHistoryService(final Logger logger) {
-    super(logger);
+  /**
+   * Constructs the use case logic for UC1.
+   * Retrieves the needed values and instantiates a pipeline factory.
+   */
+  public NewHistoryService() {
+    super(LOGGER);
     final Properties kafkaProps =
-        this.propsBuilder.buildKafkaInputReadPropsFromEnv(this.kafkaBootstrapServer,
-            schemaRegistryUrl,
-            jobName,
+        this.propsBuilder.buildReadProperties(
             StringDeserializer.class.getCanonicalName(),
             KafkaAvroDeserializer.class.getCanonicalName());
 
     this.pipelineFactory = new Uc1PipelineFactory(kafkaProps, this.kafkaInputTopic);
 
-  }
-
-
-  @Override
-  public void run() {
-    try {
-      super.run();
-    } catch (final Exception e) { // NOPMD
-      LOGGER.error("ABORT MISSION!: {}", e);
-    }
   }
 
   @Override
@@ -41,7 +35,7 @@ public class NewHistoryService extends HazelcastJetService {
   }
 
   public static void main(final String[] args) {
-    new NewHistoryService(LOGGER).run();
+    new NewHistoryService().run();
   }
 
 
