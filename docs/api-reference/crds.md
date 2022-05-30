@@ -1,3 +1,11 @@
+---
+title: Theodolite CRDs
+has_children: false
+parent: API Reference
+nav_order: 1
+---
+
+
 # API Reference
 
 Packages:
@@ -52,44 +60,17 @@ Resource Types:
       <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
       <td>true</td>
       </tr><tr>
-        <td><b><a href="#benchmarkstatus">status</a></b></td>
-        <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b><a href="#benchmarkspec">spec</a></b></td>
         <td>object</td>
         <td>
           <br/>
         </td>
         <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.status
-<sup><sup>[↩ Parent](#benchmark)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>resourceSetsState</b></td>
-        <td>string</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkstatus">status</a></b></td>
+        <td>object</td>
         <td>
-          The status of a Benchmark indicates whether all resources are available to start the benchmark or not.<br/>
+          <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -113,6 +94,34 @@ Resource Types:
         </tr>
     </thead>
     <tbody><tr>
+        <td><b><a href="#benchmarkspecloadgenerator">loadGenerator</a></b></td>
+        <td>object</td>
+        <td>
+          The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadtypesindex">loadTypes</a></b></td>
+        <td>[]object</td>
+        <td>
+          A list of load types that can be scaled for this benchmark. For each load type the concrete values are defined in the execution object.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecresourcetypesindex">resourceTypes</a></b></td>
+        <td>[]object</td>
+        <td>
+          A list of resource types that can be scaled for this `benchmark` resource. For each resource type the concrete values are defined in the `execution` object.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsut">sut</a></b></td>
+        <td>object</td>
+        <td>
+          The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecinfrastructure">infrastructure</a></b></td>
         <td>object</td>
         <td>
@@ -146,539 +155,6 @@ Resource Types:
             <i>Default</i>: false<br/>
         </td>
         <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecloadgenerator">loadGenerator</a></b></td>
-        <td>object</td>
-        <td>
-          The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecloadtypesindex">loadTypes</a></b></td>
-        <td>[]object</td>
-        <td>
-          A list of load types that can be scaled for this benchmark. For each load type the concrete values are defined in the execution object.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecresourcetypesindex">resourceTypes</a></b></td>
-        <td>[]object</td>
-        <td>
-          A list of resource types that can be scaled for this `benchmark` resource. For each resource type the concrete values are defined in the `execution` object.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecsut">sut</a></b></td>
-        <td>object</td>
-        <td>
-          The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.<br/>
-        </td>
-        <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure
-<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
-
-
-
-(Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructureafteractionsindex">afterActions</a></b></td>
-        <td>[]object</td>
-        <td>
-          Infrastructure after actions are executed after the teardown of the infrastructure.<br/>
-          <br/>
-            <i>Default</i>: []<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindex">beforeActions</a></b></td>
-        <td>[]object</td>
-        <td>
-          Infrastructure before actions are executed before the infrastructure is set up.<br/>
-          <br/>
-            <i>Default</i>: []<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureresourcesindex">resources</a></b></td>
-        <td>[]object</td>
-        <td>
-          <br/>
-          <br/>
-            <i>Default</i>: []<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.afterActions[index]
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexexec">exec</a></b></td>
-        <td>object</td>
-        <td>
-          Specifies command to be executed.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselector">selector</a></b></td>
-        <td>object</td>
-        <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.afterActions[index].exec
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
-
-
-
-Specifies command to be executed.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>command</b></td>
-        <td>[]string</td>
-        <td>
-          The command to be executed as string array.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>timeoutSeconds</b></td>
-        <td>integer</td>
-        <td>
-          Specifies the timeout (in seconds) for the specified command.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.afterActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
-
-
-
-The selector specifies which resource should be selected for the execution of the command.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>container</b></td>
-        <td>string</td>
-        <td>
-          Specifies the container.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselectorpod">pod</a></b></td>
-        <td>object</td>
-        <td>
-          Specifies the pod.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.afterActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindexselector)</sup></sup>
-
-
-
-Specifies the pod.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>matchLabels</b></td>
-        <td>map[string]string</td>
-        <td>
-          The matchLabels of the desired pod.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.beforeActions[index]
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexexec">exec</a></b></td>
-        <td>object</td>
-        <td>
-          Specifies command to be executed.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselector">selector</a></b></td>
-        <td>object</td>
-        <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.beforeActions[index].exec
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
-
-
-
-Specifies command to be executed.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>command</b></td>
-        <td>[]string</td>
-        <td>
-          The command to be executed as string array.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>timeoutSeconds</b></td>
-        <td>integer</td>
-        <td>
-          Specifies the timeout (in seconds) for the specified command.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.beforeActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
-
-
-
-The selector specifies which resource should be selected for the execution of the command.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>container</b></td>
-        <td>string</td>
-        <td>
-          Specifies the container.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselectorpod">pod</a></b></td>
-        <td>object</td>
-        <td>
-          Specifies the pod.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.beforeActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindexselector)</sup></sup>
-
-
-
-Specifies the pod.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>matchLabels</b></td>
-        <td>map[string]string</td>
-        <td>
-          The matchLabels of the desired pod.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.resources[index]
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructureresourcesindexconfigmap">configMap</a></b></td>
-        <td>object</td>
-        <td>
-          The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureresourcesindexfilesystem">fileSystem</a></b></td>
-        <td>object</td>
-        <td>
-          The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.resources[index].configMap
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
-
-
-
-The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>files</b></td>
-        <td>[]string</td>
-        <td>
-          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          The name of the configMap<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.infrastructure.resources[index].fileSystem
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
-
-
-
-The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>files</b></td>
-        <td>[]string</td>
-        <td>
-          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>path</b></td>
-        <td>string</td>
-        <td>
-          The path to the folder which contains the Kubernetes manifests files.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.kafkaConfig
-<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
-
-
-
-Contains the Kafka configuration.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>bootstrapServer</b></td>
-        <td>string</td>
-        <td>
-          The bootstrap servers connection string.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#benchmarkspeckafkaconfigtopicsindex">topics</a></b></td>
-        <td>[]object</td>
-        <td>
-          List of topics to be created for each experiment. Alternative theodolite offers the possibility to remove certain topics after each experiment.<br/>
-        </td>
-        <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### benchmark.spec.kafkaConfig.topics[index]
-<sup><sup>[↩ Parent](#benchmarkspeckafkaconfig)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>numPartitions</b></td>
-        <td>integer</td>
-        <td>
-          The number of partitions of the topic.<br/>
-          <br/>
-            <i>Default</i>: 0<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>removeOnly</b></td>
-        <td>boolean</td>
-        <td>
-          Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.<br/>
-          <br/>
-            <i>Default</i>: false<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>replicationFactor</b></td>
-        <td>integer</td>
-        <td>
-          The replication factor of the topic.<br/>
-          <br/>
-            <i>Default</i>: 0<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          The name of the topic.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>true</td>
       </tr></tbody>
 </table>
 
@@ -1149,15 +625,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) Patcher specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>resource</b></td>
         <td>string</td>
         <td>
@@ -1175,6 +642,15 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
             <i>Default</i>: <br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -1230,15 +706,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) Patcher specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>resource</b></td>
         <td>string</td>
         <td>
@@ -1256,6 +723,15 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
             <i>Default</i>: <br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -1674,6 +1150,538 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
       </tr></tbody>
 </table>
 
+
+### benchmark.spec.infrastructure
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+(Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindex">afterActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          Infrastructure after actions are executed after the teardown of the infrastructure.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindex">beforeActions</a></b></td>
+        <td>[]object</td>
+        <td>
+          Infrastructure before actions are executed before the infrastructure is set up.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindex">resources</a></b></td>
+        <td>[]object</td>
+        <td>
+          <br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index]
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexexec">exec</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies command to be executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].exec
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
+
+
+
+Specifies command to be executed.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>command</b></td>
+        <td>[]string</td>
+        <td>
+          The command to be executed as string array.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timeoutSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Specifies the timeout (in seconds) for the specified command.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
+
+
+
+The selector specifies which resource should be selected for the execution of the command.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>container</b></td>
+        <td>string</td>
+        <td>
+          Specifies the container.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselectorpod">pod</a></b></td>
+        <td>object</td>
+        <td>
+          Specifies the pod.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindexselector)</sup></sup>
+
+
+
+Specifies the pod.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>matchLabels</b></td>
+        <td>map[string]string</td>
+        <td>
+          The matchLabels of the desired pod.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.resources[index]
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructure)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindexconfigmap">configMap</a></b></td>
+        <td>object</td>
+        <td>
+          The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureresourcesindexfilesystem">fileSystem</a></b></td>
+        <td>object</td>
+        <td>
+          The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.resources[index].configMap
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
+
+
+
+The configMap resourceSet loads the Kubernetes manifests from an Kubernetes configMap.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>files</b></td>
+        <td>[]string</td>
+        <td>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the configMap<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.resources[index].fileSystem
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureresourcesindex)</sup></sup>
+
+
+
+The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>files</b></td>
+        <td>[]string</td>
+        <td>
+          (Optional) Specifies which files from the configMap should be loaded. If this field is not set, all files are loaded.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>path</b></td>
+        <td>string</td>
+        <td>
+          The path to the folder which contains the Kubernetes manifests files.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.kafkaConfig
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+Contains the Kafka configuration.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>bootstrapServer</b></td>
+        <td>string</td>
+        <td>
+          The bootstrap servers connection string.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspeckafkaconfigtopicsindex">topics</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of topics to be created for each experiment. Alternative theodolite offers the possibility to remove certain topics after each experiment.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.kafkaConfig.topics[index]
+<sup><sup>[↩ Parent](#benchmarkspeckafkaconfig)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the topic.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>numPartitions</b></td>
+        <td>integer</td>
+        <td>
+          The number of partitions of the topic.<br/>
+          <br/>
+            <i>Default</i>: 0<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>removeOnly</b></td>
+        <td>boolean</td>
+        <td>
+          Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.<br/>
+          <br/>
+            <i>Default</i>: false<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>replicationFactor</b></td>
+        <td>integer</td>
+        <td>
+          The replication factor of the topic.<br/>
+          <br/>
+            <i>Default</i>: 0<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.status
+<sup><sup>[↩ Parent](#benchmark)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>resourceSetsState</b></td>
+        <td>string</td>
+        <td>
+          The status of a Benchmark indicates whether all resources are available to start the benchmark or not.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
 ## execution
 <sup><sup>[↩ Parent](#theodolitecomv1 )</sup></sup>
 
@@ -1711,69 +1719,17 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
       <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
       <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionstatus">status</a></b></td>
-        <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b><a href="#executionspec">spec</a></b></td>
         <td>object</td>
         <td>
           <br/>
         </td>
         <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### execution.status
-<sup><sup>[↩ Parent](#execution)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>completionTime</b></td>
-        <td>string</td>
-        <td>
-          Time when this execution was stopped<br/>
-          <br/>
-            <i>Format</i>: date-time<br/>
-        </td>
-        <td>false</td>
       </tr><tr>
-        <td><b>executionDuration</b></td>
-        <td>string</td>
-        <td>
-          Duration of the execution<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>executionState</b></td>
-        <td>string</td>
+        <td><b><a href="#executionstatus">status</a></b></td>
+        <td>object</td>
         <td>
           <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>startTime</b></td>
-        <td>string</td>
-        <td>
-          Time this execution started<br/>
-          <br/>
-            <i>Format</i>: date-time<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -1797,15 +1753,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>benchmark</b></td>
         <td>string</td>
         <td>
@@ -1847,6 +1794,15 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
           List of resource values for the specified resource type.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -1902,15 +1858,6 @@ Patcher used to patch a resource
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) Patcher specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>resource</b></td>
         <td>string</td>
         <td>
@@ -1928,6 +1875,15 @@ Patcher used to patch a resource
             <i>Default</i>: <br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -1949,13 +1905,6 @@ Defines the overall parameter for the execution.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>loadGenerationDelay</b></td>
-        <td>integer</td>
-        <td>
-          Seconds to wait between the start of the SUT and the load generator.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>duration</b></td>
         <td>integer</td>
         <td>
@@ -1983,6 +1932,13 @@ Defines the overall parameter for the execution.
           Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>loadGenerationDelay</b></td>
+        <td>integer</td>
+        <td>
+          Seconds to wait between the start of the SUT and the load generator.<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -2072,15 +2028,6 @@ Specifies the scaling resource that is benchmarked.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) SLO specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>offset</b></td>
         <td>integer</td>
         <td>
@@ -2101,5 +2048,66 @@ Specifies the scaling resource that is benchmarked.
           The type of the SLO. It must match 'lag trend'.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) SLO specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### execution.status
+<sup><sup>[↩ Parent](#execution)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>completionTime</b></td>
+        <td>string</td>
+        <td>
+          Time when this execution was stopped<br/>
+          <br/>
+            <i>Format</i>: date-time<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>executionDuration</b></td>
+        <td>string</td>
+        <td>
+          Duration of the execution<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>executionState</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>startTime</b></td>
+        <td>string</td>
+        <td>
+          Time this execution started<br/>
+          <br/>
+            <i>Format</i>: date-time<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
