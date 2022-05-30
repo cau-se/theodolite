@@ -146,6 +146,15 @@ Resource Types:
             <i>Default</i>: <br/>
         </td>
         <td>false</td>
+      </tr><tr>
+        <td><b>waitForResourcesEnabled</b></td>
+        <td>boolean</td>
+        <td>
+          If true, Theodolite waits to create the resource for the SUT until the infrastructure resources are ready, and analogously, Theodolite waits to create the load-gen resource until the resources of the SUT are ready.<br/>
+          <br/>
+            <i>Default</i>: false<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
