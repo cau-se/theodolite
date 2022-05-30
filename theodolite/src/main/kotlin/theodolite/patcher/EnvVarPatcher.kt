@@ -2,29 +2,30 @@ package theodolite.patcher
 
 import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.EnvVar
-import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.apps.Deployment
 
 /**
  * The EnvVarPatcher allows to modify the value of an environment variable
  *
- * @property k8sResource Kubernetes resource to be patched.
  * @property container Container to be patched.
  * @property variableName Name of the environment variable to be patched.
  */
 class EnvVarPatcher(
-    private val k8sResource: KubernetesResource,
     private val container: String,
     private val variableName: String
-) : AbstractPatcher(k8sResource) {
+) : AbstractPatcher() {
 
-    override fun <String> patch(value: String) {
-        if (k8sResource is Deployment) {
+
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
+        if (resource is Deployment) {
             this.setEnv(
-                k8sResource, this.container,
-                mapOf(this.variableName to value) as Map<kotlin.String, kotlin.String>
+                resource, this.container,
+                mapOf(this.variableName to value)
             )
+            return resource
         }
+        return resource
     }
 
     /**
