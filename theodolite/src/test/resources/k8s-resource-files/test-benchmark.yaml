@@ -3,6 +3,7 @@ kind: benchmark
 metadata:
   name: example-benchmark
 spec:
+  waitForResourcesEnabled: false
   sut:
     resources:
       - configMap:
