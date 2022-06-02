@@ -14,16 +14,18 @@ private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 class BenchmarkExecutorImpl(
-        benchmark: Benchmark,
-        results: Results,
-        executionDuration: Duration,
-        configurationOverrides: List<ConfigurationOverride?>,
-        slos: List<Slo>,
-        repetitions: Int,
-        executionId: Int,
-        loadGenerationDelay: Long,
-        afterTeardownDelay: Long,
-        executionName: String
+    benchmark: Benchmark,
+    results: Results,
+    executionDuration: Duration,
+    configurationOverrides: List<ConfigurationOverride?>,
+    slos: List<Slo>,
+    repetitions: Int,
+    executionId: Int,
+    loadGenerationDelay: Long,
+    afterTeardownDelay: Long,
+    executionName: String,
+    loadPatcherDefinitions: List<PatcherDefinition>,
+    resourcePatcherDefinitions: List<PatcherDefinition>
 ) : BenchmarkExecutor(
     benchmark,
     results,
@@ -34,24 +36,26 @@ class BenchmarkExecutorImpl(
     executionId,
     loadGenerationDelay,
     afterTeardownDelay,
-    executionName
+    executionName,
+    loadPatcherDefinitions,
+    resourcePatcherDefinitions
 ) {
     private val eventCreator = EventCreator()
     private val mode = Configuration.EXECUTION_MODE
 
-    override fun runExperiment(load: LoadDimension, res: Resource): Boolean {
+    override fun runExperiment(load: Int, resource: Int): Boolean {
         var result = false
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList()
 
         for (i in 1.rangeTo(repetitions)) {
             if (this.run.get()) {
                 logger.info { "Run repetition $i/$repetitions" }
-                executionIntervals.add(runSingleExperiment(load, res))
+                executionIntervals.add(runSingleExperiment(
+                        load, resource))
             } else {
                 break
             }
         }
-
         /**
          * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
          */
@@ -60,26 +64,26 @@ class BenchmarkExecutorImpl(
                 AnalysisExecutor(slo = it, executionId = executionId)
                     .analyze(
                         load = load,
-                        res = res,
-                        executionIntervals = executionIntervals
+                        resource = resource,
+                        executionIntervals = executionIntervals,
+                        metric = this.results.metric
                     )
             }
 
             result = (false !in experimentResults)
-            this.results.setResult(Pair(load, res), result)
-        }
-
-        if(!this.run.get()) {
+            this.results.setResult(Pair(load, resource), result)
+        } else {
             throw ExecutionFailedException("The execution was interrupted")
         }
-
         return result
     }
 
-    private fun runSingleExperiment(load: LoadDimension, res: Resource): Pair<Instant, Instant> {
+    private fun runSingleExperiment(load: Int, resource: Int): Pair<Instant, Instant> {
         val benchmarkDeployment = benchmark.buildDeployment(
             load,
-            res,
+            this.loadPatcherDefinitions,
+            resource,
+            this.resourcePatcherDefinitions,
             this.configurationOverrides,
             this.loadGenerationDelay,
             this.afterTeardownDelay
@@ -94,7 +98,7 @@ class BenchmarkExecutorImpl(
                     executionName = executionName,
                     type = "NORMAL",
                     reason = "Start experiment",
-                    message = "load: ${load.get()}, resources: ${res.get()}")
+                    message = "load: $load, resources: $resource")
             }
         } catch (e: Exception) {
             this.run.set(false)
@@ -104,7 +108,7 @@ class BenchmarkExecutorImpl(
                     executionName = executionName,
                     type = "WARNING",
                     reason = "Start experiment failed",
-                    message = "load: ${load.get()}, resources: ${res.get()}")
+                    message = "load: $load, resources: $resource")
             }
             throw ExecutionFailedException("Error during setup the experiment", e)
         }

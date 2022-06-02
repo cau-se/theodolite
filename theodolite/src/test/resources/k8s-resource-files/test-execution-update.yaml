@@ -5,7 +5,7 @@ metadata:
 spec:
   name: test
   benchmark: "uc1-kstreams-update"
-  load:
+  loads:
     loadType: "NumSensors"
     loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
   resources:
@@ -16,10 +16,12 @@ spec:
       properties:
         threshold: 2000
   execution:
-    strategy: "LinearSearch"
+    strategy:
+      name: "RestrictionSearch"
+      restrictions:
+        - "LowerBound"
+      searchStrategy: "LinearSearch"
     duration: 300 # in seconds
     repetitions: 1
     loadGenerationDelay: 30 # in seconds
-    restrictions:
-      - "LowerBound"
   configOverrides: []

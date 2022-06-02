@@ -1838,7 +1838,7 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecload">load</a></b></td>
+        <td><b><a href="#executionspecloads">loads</a></b></td>
         <td>object</td>
         <td>
           Specifies the load values that are benchmarked.<br/>
@@ -1979,21 +1979,14 @@ Defines the overall parameter for the execution.
         <td><b>repetitions</b></td>
         <td>integer</td>
         <td>
-          Numper of repititions for each experiments.<br/>
+          Number of repititions for each experiment.<br/>
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>restrictions</b></td>
-        <td>[]string</td>
+        <td><b><a href="#executionspecexecutionstrategy">strategy</a></b></td>
+        <td>object</td>
         <td>
-          List of restriction strategys used to delimit the search space.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>strategy</b></td>
-        <td>string</td>
-        <td>
-          Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'<br/>
+          Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2003,11 +1996,66 @@ Defines the overall parameter for the execution.
           Seconds to wait between the start of the SUT and the load generator.<br/>
         </td>
         <td>false</td>
+      </tr><tr>
+        <td><b>metric</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
 
-### execution.spec.load
+### execution.spec.execution.strategy
+<sup><sup>[↩ Parent](#executionspecexecution)</sup></sup>
+
+
+
+Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>guessStrategy</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>restrictions</b></td>
+        <td>[]string</td>
+        <td>
+          List of restriction strategies used to delimit the search space.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>searchStrategy</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### execution.spec.loads
 <sup><sup>[↩ Parent](#executionspec)</sup></sup>
 
 

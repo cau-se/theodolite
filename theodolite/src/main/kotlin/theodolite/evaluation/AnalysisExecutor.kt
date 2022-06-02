@@ -1,10 +1,9 @@
 package theodolite.evaluation
 
 import theodolite.benchmark.Slo
+import theodolite.strategies.Metric
 import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
 import java.text.Normalizer
 import java.time.Duration
 import java.time.Instant
@@ -29,17 +28,17 @@ class AnalysisExecutor(
      *  Analyses an experiment via prometheus data.
      *  First fetches data from prometheus, then documents them and afterwards evaluate it via a [slo].
      *  @param load of the experiment.
-     *  @param res of the experiment.
+     *  @param resource of the experiment.
      *  @param executionIntervals list of start and end points of experiments
      *  @return true if the experiment succeeded.
      */
-    fun analyze(load: LoadDimension, res: Resource, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
+    fun analyze(load: Int, resource: Int, executionIntervals: List<Pair<Instant, Instant>>, metric: Metric): Boolean {
         var repetitionCounter = 1
 
         try {
             val ioHandler = IOHandler()
             val resultsFolder = ioHandler.getResultFolderURL()
-            val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
+            val fileURL = "${resultsFolder}exp${executionId}_${load}_${resource}_${slo.sloType.toSlug()}"
 
             val prometheusData = executionIntervals
                 .map { interval ->
@@ -61,13 +60,15 @@ class AnalysisExecutor(
             val sloChecker = SloCheckerFactory().create(
                 sloType = slo.sloType,
                 properties = slo.properties,
-                load = load
+                load = load,
+                resource = resource,
+                metric = metric
             )
 
             return sloChecker.evaluate(prometheusData)
 
         } catch (e: Exception) {
-            throw EvaluationFailedException("Evaluation failed for resource '${res.get()}' and load '${load.get()}", e)
+            throw EvaluationFailedException("Evaluation failed for resource '$resource' and load '$load ", e)
         }
     }
 

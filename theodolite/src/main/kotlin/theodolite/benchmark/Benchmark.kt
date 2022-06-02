@@ -2,13 +2,12 @@ package theodolite.benchmark
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import theodolite.util.ConfigurationOverride
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
+import theodolite.util.PatcherDefinition
 
 /**
  * A Benchmark contains:
- * - The [Resource]s that can be scaled for the benchmark.
- * - The [LoadDimension]s that can be scaled the benchmark.
+ * - The Resource that can be scaled for the benchmark.
+ * - The Load that can be scaled the benchmark.
  * - additional [ConfigurationOverride]s.
  */
 @RegisterForReflection
@@ -22,10 +21,12 @@ interface Benchmark {
      * @return a BenchmarkDeployment.
      */
     fun buildDeployment(
-        load: LoadDimension,
-        res: Resource,
-        configurationOverrides: List<ConfigurationOverride?>,
-        loadGenerationDelay: Long,
-        afterTeardownDelay: Long
+            load: Int,
+            loadPatcherDefinitions: List<PatcherDefinition>,
+            resource: Int,
+            resourcePatcherDefinitions: List<PatcherDefinition>,
+            configurationOverrides: List<ConfigurationOverride?>,
+            loadGenerationDelay: Long,
+            afterTeardownDelay: Long
     ): BenchmarkDeployment
 }

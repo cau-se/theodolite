@@ -83,19 +83,22 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
 
     /**
      * Builds a deployment.
-     * First loads all required resources and then patches them to the concrete load and resources for the experiment.
-     * Afterwards patches additional configurations(cluster depending) into the resources.
-     * @param load concrete load that will be benchmarked in this experiment.
-     * @param res concrete resource that will be scaled for this experiment.
+     * First loads all required resources and then patches them to the concrete load and resources for the experiment for the demand metric
+     * or loads all loads and then patches them to the concrete load and resources for the experiment.
+     * Afterwards patches additional configurations(cluster depending) into the resources (or loads).
+     * @param load concrete load that will be benchmarked in this experiment (demand metric), or scaled (capacity metric).
+     * @param resource concrete resource that will be scaled for this experiment (demand metric), or benchmarked (capacity metric).
      * @param configurationOverrides
      * @return a [BenchmarkDeployment]
      */
     override fun buildDeployment(
-        load: LoadDimension,
-        res: Resource,
+        load: Int,
+        loadPatcherDefinitions: List<PatcherDefinition>,
+        resource: Int,
+        resourcePatcherDefinitions: List<PatcherDefinition>,
         configurationOverrides: List<ConfigurationOverride?>,
         loadGenerationDelay: Long,
-        afterTeardownDelay: Long,
+        afterTeardownDelay: Long
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
 
@@ -103,14 +106,14 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
         val appResources = loadResources(this.sut.resources).toResourceMap()
         val loadGenResources = loadResources(this.loadGenerator.resources).toResourceMap()
 
-        load.getType().forEach { patcherDefinition ->
+        // patch the load dimension the resources
+        loadPatcherDefinitions.forEach { patcherDefinition ->
             loadGenResources[patcherDefinition.resource] =
-                PatchHandler.patchResource(loadGenResources, patcherDefinition, load.get().toString())
+                PatchHandler.patchResource(loadGenResources, patcherDefinition, load.toString())
         }
-
-        res.getType().forEach { patcherDefinition ->
+        resourcePatcherDefinitions.forEach { patcherDefinition ->
             appResources[patcherDefinition.resource] =
-                PatchHandler.patchResource(appResources, patcherDefinition, res.get().toString())
+                PatchHandler.patchResource(appResources, patcherDefinition, resource.toString())
         }
 
         configurationOverrides.forEach { override ->

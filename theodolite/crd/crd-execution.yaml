@@ -20,7 +20,7 @@ spec:
         properties:
           spec:
             type: object
-            required: ["benchmark", "load", "resources", "execution", "configOverrides"]
+            required: ["benchmark", "loads", "resources", "execution", "configOverrides"]
             properties:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
@@ -29,7 +29,7 @@ spec:
               benchmark:
                 description: The name of the benchmark this execution is referring to.
                 type: string
-              load: # definition of the load dimension
+              loads: # definition of the load dimension
                 description: Specifies the load values that are benchmarked.
                 type: object
                 required: ["loadType", "loadValues"]
@@ -74,25 +74,35 @@ spec:
               execution: # def execution config
                 description: Defines the overall parameter for the execution.
                 type: object
-                required: ["strategy", "duration", "repetitions", "restrictions"]
+                required: ["strategy", "duration", "repetitions"]
                 properties:
-                  strategy:
-                    description: Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'
+                  metric:
                     type: string
+                  strategy:
+                    description: Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.
+                    type: object
+                    required: ["name"]
+                    properties:
+                      name:
+                        type: string
+                      restrictions:
+                        description: List of restriction strategies used to delimit the search space.
+                        type: array
+                        items:
+                          type: string
+                      guessStrategy:
+                        type: string
+                      searchStrategy:
+                        type: string
                   duration:
                     description: Defines the duration of each experiment in seconds.
                     type: integer
                   repetitions:
-                    description: Numper of repititions for each experiments.
+                    description: Number of repititions for each experiment.
                     type: integer
                   loadGenerationDelay:
                     description: Seconds to wait between the start of the SUT and the load generator.
                     type: integer
-                  restrictions:
-                    description: List of restriction strategys used to delimit the search space.
-                    type: array
-                    items:
-                      type: string
               configOverrides:
                 description:  List of patchers that are used to override existing configurations.
                 type: array
