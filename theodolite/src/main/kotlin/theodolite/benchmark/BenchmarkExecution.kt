@@ -14,7 +14,7 @@ import kotlin.properties.Delegates
  *  - The [benchmark] that should be executed.
  *  - The [loads]s that should be checked in the benchmark.
  *  - The [resources] that should be checked in the benchmark.
- *  - A list of [slos] that are used for the evaluation of the experiments.
+ *  - The [slos] further restrict the Benchmark SLOs for the evaluation of the experiments.
  *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
  *  for the execution of the benchmark.
  *  - [configOverrides] additional configurations.
@@ -30,7 +30,7 @@ class BenchmarkExecution : KubernetesResource {
     lateinit var benchmark: String
     lateinit var loads: LoadDefinition
     lateinit var resources: ResourceDefinition
-    lateinit var slos: List<Slo>
+    lateinit var slos: List<SloConfiguration>
     lateinit var execution: Execution
     lateinit var configOverrides: MutableList<ConfigurationOverride?>
 
@@ -65,21 +65,13 @@ class BenchmarkExecution : KubernetesResource {
     }
 
     /**
-     * Measurable metric.
-     * [sloType] determines the type of the metric.
-     * It is evaluated using the [theodolite.evaluation.ExternalSloChecker] by data measured by Prometheus.
-     * The evaluation checks if a [threshold] is reached or not.
-     * [offset] determines the shift in hours by which the start and end timestamps should be shifted.
-     * The [warmup] determines after which time the metric should be evaluated to avoid starting interferences.
-     * The [warmup] time unit depends on the Slo: for the lag trend it is in seconds.
+     * Further SLO configurations for the SLOs specified in the Benchmark.
      */
     @JsonDeserialize
     @RegisterForReflection
-    class Slo : KubernetesResource {
-        lateinit var sloType: String
-        lateinit var prometheusUrl: String
-        var offset by Delegates.notNull<Int>()
-        lateinit var properties: MutableMap<String, String>
+    class SloConfiguration : KubernetesResource {
+        lateinit var name: String
+        var properties: MutableMap<String, String>? = null
     }
 
     /**

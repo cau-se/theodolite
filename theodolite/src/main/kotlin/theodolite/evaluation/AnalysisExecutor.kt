@@ -1,6 +1,6 @@
 package theodolite.evaluation
 
-import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.Slo
 import theodolite.strategies.Metric
 import theodolite.util.EvaluationFailedException
 import theodolite.util.IOHandler
@@ -15,8 +15,8 @@ import java.util.regex.Pattern
  * @param slo Slo that is used for the analysis.
  */
 class AnalysisExecutor(
-    private val slo: BenchmarkExecution.Slo,
-    private val executionId: Int
+        private val slo: Slo,
+        private val executionId: Int
 ) {
 
     private val fetcher = MetricFetcher(

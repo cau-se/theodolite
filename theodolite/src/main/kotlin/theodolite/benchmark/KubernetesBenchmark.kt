@@ -42,6 +42,7 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     var waitForResourcesEnabled = false
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
+    lateinit var slos: MutableList<Slo>
     var kafkaConfig: KafkaConfig? = null
     lateinit var infrastructure: Resources
     lateinit var sut: Resources

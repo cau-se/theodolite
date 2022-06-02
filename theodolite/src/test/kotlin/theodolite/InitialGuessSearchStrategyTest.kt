@@ -3,11 +3,11 @@ package theodolite
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import theodolite.benchmark.BenchmarkExecution
 import theodolite.strategies.searchstrategy.InitialGuessSearchStrategy
 import theodolite.strategies.Metric
 import theodolite.util.Results
 import mu.KotlinLogging
+import theodolite.benchmark.Slo
 import theodolite.strategies.searchstrategy.PrevInstanceOptGuess
 
 private val logger = KotlinLogging.logger {}
@@ -31,7 +31,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val sloChecker = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
@@ -69,7 +69,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val sloChecker = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
@@ -107,7 +107,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results(Metric.from("demand"))
         val benchmark = TestBenchmark()
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker: BenchmarkExecution.Slo = BenchmarkExecution.Slo()
+        val sloChecker = Slo()
         val benchmarkExecutor = TestBenchmarkExecutorImpl(mockResults, benchmark, results, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)
 

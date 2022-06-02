@@ -16,12 +16,12 @@ private val logger = KotlinLogging.logger {}
 /**
  * The Theodolite executor runs all the experiments defined with the given execution and benchmark configuration.
  *
- * @property config Configuration of a execution
+ * @property benchmarkExecution Configuration of a execution
  * @property kubernetesBenchmark Configuration of a benchmark
  * @constructor Create empty Theodolite executor
  */
 class TheodoliteExecutor(
-    private val config: BenchmarkExecution,
+    private val benchmarkExecution: BenchmarkExecution,
     private val kubernetesBenchmark: KubernetesBenchmark
 ) {
     /**
@@ -38,67 +38,69 @@ class TheodoliteExecutor(
      * The [searchStrategy] is configured and able to find the minimum required resource for the given load.
      */
     private fun buildConfig(): Config {
-        val results = Results(Metric.from(config.execution.metric))
+        val results = Results(Metric.from(benchmarkExecution.execution.metric))
         val strategyFactory = StrategyFactory()
 
-        val executionDuration = Duration.ofSeconds(config.execution.duration)
+        val executionDuration = Duration.ofSeconds(benchmarkExecution.execution.duration)
 
         val resourcePatcherDefinition =
             PatcherDefinitionFactory().createPatcherDefinition(
-                config.resources.resourceType,
+                benchmarkExecution.resources.resourceType,
                 this.kubernetesBenchmark.resourceTypes
             )
 
         val loadDimensionPatcherDefinition =
             PatcherDefinitionFactory().createPatcherDefinition(
-                config.loads.loadType,
+                benchmarkExecution.loads.loadType,
                 this.kubernetesBenchmark.loadTypes
             )
+
+        val slos = SloFactory().createSlos(this.benchmarkExecution, this.kubernetesBenchmark)
 
         executor =
             BenchmarkExecutorImpl(
                 benchmark = kubernetesBenchmark,
                 results = results,
                 executionDuration = executionDuration,
-                configurationOverrides = config.configOverrides,
-                slos = config.slos,
-                repetitions = config.execution.repetitions,
-                executionId = config.executionId,
-                loadGenerationDelay = config.execution.loadGenerationDelay,
-                afterTeardownDelay = config.execution.afterTeardownDelay,
-                executionName = config.name,
+                configurationOverrides = benchmarkExecution.configOverrides,
+                slos = slos,
+                repetitions = benchmarkExecution.execution.repetitions,
+                executionId = benchmarkExecution.executionId,
+                loadGenerationDelay = benchmarkExecution.execution.loadGenerationDelay,
+                afterTeardownDelay = benchmarkExecution.execution.afterTeardownDelay,
+                executionName = benchmarkExecution.name,
                 loadPatcherDefinitions = loadDimensionPatcherDefinition,
                 resourcePatcherDefinitions = resourcePatcherDefinition
             )
 
-        if (config.loads.loadValues != config.loads.loadValues.sorted()) {
-            config.loads.loadValues = config.loads.loadValues.sorted()
+        if (benchmarkExecution.loads.loadValues != benchmarkExecution.loads.loadValues.sorted()) {
+            benchmarkExecution.loads.loadValues = benchmarkExecution.loads.loadValues.sorted()
             logger.info {
-                "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
-                        "New order is: ${config.loads.loadValues}"
+                "Load values are not sorted correctly. Theodolite sorts them in ascending order." +
+                        "New order is: ${benchmarkExecution.loads.loadValues}."
             }
         }
 
-        if (config.resources.resourceValues != config.resources.resourceValues.sorted()) {
-            config.resources.resourceValues = config.resources.resourceValues.sorted()
+        if (benchmarkExecution.resources.resourceValues != benchmarkExecution.resources.resourceValues.sorted()) {
+            benchmarkExecution.resources.resourceValues = benchmarkExecution.resources.resourceValues.sorted()
             logger.info {
-                "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
-                        "New order is: ${config.resources.resourceValues}"
+                "Load values are not sorted correctly. Theodolite sorts them in ascending order." +
+                        "New order is: ${benchmarkExecution.resources.resourceValues}."
             }
         }
 
         return Config(
-            loads = config.loads.loadValues,
+            loads = benchmarkExecution.loads.loadValues,
             loadPatcherDefinitions = loadDimensionPatcherDefinition,
-            resources = config.resources.resourceValues,
+            resources = benchmarkExecution.resources.resourceValues,
             resourcePatcherDefinitions = resourcePatcherDefinition,
-            searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results),
-            metric = Metric.from(config.execution.metric)
+            searchStrategy = strategyFactory.createSearchStrategy(executor, benchmarkExecution.execution.strategy, results),
+            metric = Metric.from(benchmarkExecution.execution.metric)
         )
     }
 
     fun getExecution(): BenchmarkExecution {
-        return this.config
+        return this.benchmarkExecution
     }
 
     /**
@@ -110,11 +112,11 @@ class TheodoliteExecutor(
 
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
-        this.config.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
-        ioHandler.writeToJSONFile(this.config, "${resultsFolder}exp${this.config.executionId}-execution-configuration")
+        this.benchmarkExecution.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
+        ioHandler.writeToJSONFile(this.benchmarkExecution, "${resultsFolder}exp${this.benchmarkExecution.executionId}-execution-configuration")
         ioHandler.writeToJSONFile(
             kubernetesBenchmark,
-            "${resultsFolder}exp${this.config.executionId}-benchmark-configuration"
+            "${resultsFolder}exp${this.benchmarkExecution.executionId}-benchmark-configuration"
         )
 
         val config = buildConfig()
@@ -126,19 +128,19 @@ class TheodoliteExecutor(
         } finally {
             ioHandler.writeToJSONFile(
                 config.searchStrategy.benchmarkExecutor.results,
-                "${resultsFolder}exp${this.config.executionId}-result"
+                "${resultsFolder}exp${this.benchmarkExecution.executionId}-result"
             )
             // Create expXYZ_demand.csv file or expXYZ_capacity.csv depending on metric
             when(config.metric) {
                 Metric.DEMAND ->
                     ioHandler.writeToCSVFile(
-                        "${resultsFolder}exp${this.config.executionId}_demand",
+                        "${resultsFolder}exp${this.benchmarkExecution.executionId}_demand",
                         calculateMetric(config.loads, config.searchStrategy.benchmarkExecutor.results),
                         listOf("load","resources")
                     )
                 Metric.CAPACITY ->
                     ioHandler.writeToCSVFile(
-                        "${resultsFolder}exp${this.config.executionId}_capacity",
+                        "${resultsFolder}exp${this.benchmarkExecution.executionId}_capacity",
                         calculateMetric(config.resources, config.searchStrategy.benchmarkExecutor.results),
                         listOf("resource", "loads")
                     )

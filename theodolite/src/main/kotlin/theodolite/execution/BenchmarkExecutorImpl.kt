@@ -3,7 +3,7 @@ package theodolite.execution
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.benchmark.Benchmark
-import theodolite.benchmark.BenchmarkExecution
+import theodolite.benchmark.Slo
 import theodolite.evaluation.AnalysisExecutor
 import theodolite.execution.operator.EventCreator
 import theodolite.util.*
@@ -18,7 +18,7 @@ class BenchmarkExecutorImpl(
     results: Results,
     executionDuration: Duration,
     configurationOverrides: List<ConfigurationOverride?>,
-    slos: List<BenchmarkExecution.Slo>,
+    slos: List<Slo>,
     repetitions: Int,
     executionId: Int,
     loadGenerationDelay: Long,
