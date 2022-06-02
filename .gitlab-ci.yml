@@ -131,7 +131,7 @@ lint-helm:
   script: helm lint helm/
   rules:
   - changes:
-    - helm/*
+    - helm/**/*
   - when: manual
     allow_failure: true
 
@@ -297,6 +297,34 @@ deploy-uc4-flink:
     JAVA_PROJECT_NAME: "uc4-flink"
     JAVA_PROJECT_DEPS: "flink-commons"
 
+deploy-uc1-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc1-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc2-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc2-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc3-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc3-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc4-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc4-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
 deploy-uc1-beam-flink:
   extends: .deploy-benchmarks
   variables:
@@ -449,6 +477,15 @@ smoketest-uc1-beam-samza:
     DOCKER_COMPOSE_DIR: "uc1-beam-samza"
     JAVA_PROJECT_DEPS: "uc1-beam-samza,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
 
+smoketest-uc1-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-hazelcastjet
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc1-hazelcastjet,hazelcastjet-commons,uc1-load-generator,load-generator-commons"
+
 smoketest-uc2-kstreams:
   extends: .smoketest-benchmarks
   needs:
@@ -485,6 +522,15 @@ smoketest-uc2-beam-samza:
     DOCKER_COMPOSE_DIR: "uc2-beam-samza"
     JAVA_PROJECT_DEPS: "uc2-beam-samza,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
 
+smoketest-uc2-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-hazelcastjet
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc2-hazelcastjet,hazelcastjet-commons,uc2-load-generator,load-generator-commons"
+
 smoketest-uc3-kstreams:
   extends: .smoketest-benchmarks
   needs:
@@ -511,6 +557,15 @@ smoketest-uc3-beam-samza:
   variables:
     DOCKER_COMPOSE_DIR: "uc3-beam-samza"
     JAVA_PROJECT_DEPS: "uc3-beam-samza,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-hazelcastjet
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc3-hazelcastjet,hazelcastjet-commons,uc3-load-generator,load-generator-commons"
 
 smoketest-uc4-kstreams:
   extends: .smoketest-benchmarks
@@ -548,6 +603,14 @@ smoketest-uc4-beam-samza:
     DOCKER_COMPOSE_DIR: "uc4-beam-samza"
     JAVA_PROJECT_DEPS: "uc4-beam-samza,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
 
+smoketest-uc4-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-hazelcastjet
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc4-hazelcastjet,hazelcastjet-commons,uc4-load-generator,load-generator-commons"
 
 # Theodolite Framework
 

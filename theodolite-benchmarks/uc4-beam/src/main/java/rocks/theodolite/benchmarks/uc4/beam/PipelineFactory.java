@@ -223,7 +223,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
   protected void registerCoders(final CoderRegistry registry) {
     registry.registerCoderForClass(
         ActivePowerRecord.class,
-        AvroCoder.of(ActivePowerRecord.class));
+        // AvroCoder.of(ActivePowerRecord.SCHEMA$));
+        AvroCoder.of(ActivePowerRecord.class, false));
     registry.registerCoderForClass(
         AggregatedActivePowerRecord.class,
         new AggregatedActivePowerRecordCoder());

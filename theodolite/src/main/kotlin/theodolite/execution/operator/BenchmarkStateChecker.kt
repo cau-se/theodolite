@@ -190,7 +190,7 @@ class BenchmarkStateChecker(
     }
 }
 
-private fun <K, V> MutableMap<K, V>.containsMatchLabels(matchLabels: MutableMap<V, V>): Boolean {
+private fun <K, V> Map<K, V>.containsMatchLabels(matchLabels: Map<V, V>): Boolean {
     for (kv in matchLabels) {
         if (kv.value != this[kv.key as K]) {
             return false

@@ -8,8 +8,10 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import theodolite.k8s.K8sManager
+import theodolite.patcher.PatchHandler
 import theodolite.patcher.PatcherFactory
 import theodolite.util.*
+import kotlin.properties.Delegates
 
 
 private val logger = KotlinLogging.logger {}
@@ -21,13 +23,13 @@ private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
  * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
  * Contains a of:
  * - [name] of the benchmark,
- * - [appResource] list of the resources that have to be deployed for the benchmark,
- * - [loadGenResource] resource that generates the load,
+ * - [infrastructure] resources that have to be deployed for the benchmark infrastructure
+ * - [sut] list of the resources that have to be deployed for the benchmark,
+ * - [loadGenerator] resource that generates the load,
  * - [resourceTypes] types of scaling resources,
  * - [loadTypes] types of loads that can be scaled for the benchmark,
  * - [kafkaConfig] for the [theodolite.k8s.TopicManager],
  * - [namespace] for the client,
- * - [path] under which the resource yamls can be found.
  *
  *  This class is used for the parsing(in the [theodolite.execution.TheodoliteStandalone]) and
  *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
@@ -37,6 +39,7 @@ private var DEFAULT_THEODOLITE_APP_RESOURCES = "./benchmark-resources"
 @RegisterForReflection
 class KubernetesBenchmark : KubernetesResource, Benchmark {
     lateinit var name: String
+    var waitForResourcesEnabled = false
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     var kafkaConfig: KafkaConfig? = null
@@ -64,14 +67,13 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
 
     override fun setupInfrastructure() {
         this.infrastructure.beforeActions.forEach { it.exec(client = client) }
-        val kubernetesManager = K8sManager(this.client)
-        loadResources(this.infrastructure.resources)
-            .map { it.second }
-            .forEach { kubernetesManager.deploy(it) }
+        RolloutManager(waitForResourcesEnabled, this.client)
+            .rollout(loadResources(this.infrastructure.resources).map { it.second })
     }
 
     override fun teardownInfrastructure() {
         val kubernetesManager = K8sManager(this.client)
+
         loadResources(this.infrastructure.resources)
             .map { it.second }
             .forEach { kubernetesManager.remove(it) }
@@ -89,33 +91,39 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
      * @return a [BenchmarkDeployment]
      */
     override fun buildDeployment(
-            load: Int,
-            loadPatcherDefinitions: List<PatcherDefinition>,
-            resource: Int,
-            resourcePatcherDefinitions: List<PatcherDefinition>,
-            configurationOverrides: List<ConfigurationOverride?>,
-            loadGenerationDelay: Long,
-            afterTeardownDelay: Long
+        load: Int,
+        loadPatcherDefinitions: List<PatcherDefinition>,
+        resource: Int,
+        resourcePatcherDefinitions: List<PatcherDefinition>,
+        configurationOverrides: List<ConfigurationOverride?>,
+        loadGenerationDelay: Long,
+        afterTeardownDelay: Long
     ): BenchmarkDeployment {
         logger.info { "Using $namespace as namespace." }
 
-        val appResources = loadResources(this.sut.resources)
-        val loadGenResources = loadResources(this.loadGenerator.resources)
 
-        val patcherFactory = PatcherFactory()
+        val appResources = loadResources(this.sut.resources).toResourceMap()
+        val loadGenResources = loadResources(this.loadGenerator.resources).toResourceMap()
 
         // patch the load dimension the resources
         loadPatcherDefinitions.forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, loadGenResources).patch(load.toString())
+            loadGenResources[patcherDefinition.resource] =
+                PatchHandler.patchResource(loadGenResources, patcherDefinition, load.toString())
         }
         resourcePatcherDefinitions.forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, appResources).patch(resource.toString())
+            appResources[patcherDefinition.resource] =
+                PatchHandler.patchResource(appResources, patcherDefinition, resource.toString())
         }
 
-        // Patch the given overrides
         configurationOverrides.forEach { override ->
             override?.let {
-                patcherFactory.createPatcher(it.patcher, appResources + loadGenResources).patch(override.value)
+                if (appResources.keys.contains(it.patcher.resource)) {
+                    appResources[it.patcher.resource] =
+                        PatchHandler.patchResource(appResources, override.patcher, override.value)
+                } else {
+                    loadGenResources[it.patcher.resource] =
+                        PatchHandler.patchResource(loadGenResources, override.patcher, override.value)
+                }
             }
         }
 
@@ -126,13 +134,15 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
             sutAfterActions = sut.afterActions,
             loadGenBeforeActions = loadGenerator.beforeActions,
             loadGenAfterActions = loadGenerator.afterActions,
-            appResources = appResources.map { it.second },
-            loadGenResources = loadGenResources.map { it.second },
+            appResources = appResources.toList().flatMap { it.second },
+            loadGenResources = loadGenResources.toList().flatMap { it.second },
             loadGenerationDelay = loadGenerationDelay,
             afterTeardownDelay = afterTeardownDelay,
             kafkaConfig = if (kafkaConfig != null) mapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
             topics = kafkaConfig?.topics ?: listOf(),
-            client = this.client
+            client = this.client,
+            rolloutMode = waitForResourcesEnabled
+
         )
     }
 
@@ -144,4 +154,12 @@ class KubernetesBenchmark : KubernetesResource, Benchmark {
     fun setClient(client: NamespacedKubernetesClient) {
         this.client = client
     }
+}
+
+private fun Collection<Pair<String, HasMetadata>>.toResourceMap(): MutableMap<String, List<HasMetadata>> {
+    return this.toMap()
+        .toMutableMap()
+        .map { Pair(it.key, listOf(it.value)) }
+        .toMap()
+        .toMutableMap()
 }

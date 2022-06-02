@@ -84,8 +84,9 @@ public class HttpRecordSender<T extends SpecificRecord> implements RecordSender<
     final String json = this.gson.toJson(message);
     final HttpRequest request = HttpRequest.newBuilder()
         .uri(this.uri)
-        .timeout(this.connectionTimeout)
         .POST(HttpRequest.BodyPublishers.ofString(json))
+        .header("Content-Type", "application/json")
+        .timeout(this.connectionTimeout)
         .build();
     final BodyHandler<Void> bodyHandler = BodyHandlers.discarding();
     // final BodyHandler<String> bodyHandler = BodyHandlers.ofString();
