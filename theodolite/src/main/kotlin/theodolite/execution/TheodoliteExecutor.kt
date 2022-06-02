@@ -4,8 +4,8 @@ import mu.KotlinLogging
 import theodolite.benchmark.BenchmarkExecution
 import theodolite.benchmark.KubernetesBenchmark
 import theodolite.patcher.PatcherDefinitionFactory
+import theodolite.strategies.Metric
 import theodolite.strategies.StrategyFactory
-import theodolite.strategies.searchstrategy.CompositeStrategy
 import theodolite.util.*
 import java.io.File
 import java.time.Duration
@@ -33,12 +33,12 @@ class TheodoliteExecutor(
     /**
      * Creates all required components to start Theodolite.
      *
-     * @return a [Config], that contains a list of [LoadDimension]s,
-     *          a list of [Resource]s , and the [CompositeStrategy].
-     * The [CompositeStrategy] is configured and able to find the minimum required resource for the given load.
+     * @return a [Config], that contains a list of LoadDimension s,
+     *          a list of Resource s , and the [restrictionSearch].
+     * The [searchStrategy] is configured and able to find the minimum required resource for the given load.
      */
     private fun buildConfig(): Config {
-        val results = Results()
+        val results = Results(Metric.from(config.execution.metric))
         val strategyFactory = StrategyFactory()
 
         val executionDuration = Duration.ofSeconds(config.execution.duration)
@@ -51,7 +51,7 @@ class TheodoliteExecutor(
 
         val loadDimensionPatcherDefinition =
             PatcherDefinitionFactory().createPatcherDefinition(
-                config.load.loadType,
+                config.loads.loadType,
                 this.kubernetesBenchmark.loadTypes
             )
 
@@ -66,14 +66,16 @@ class TheodoliteExecutor(
                 executionId = config.executionId,
                 loadGenerationDelay = config.execution.loadGenerationDelay,
                 afterTeardownDelay = config.execution.afterTeardownDelay,
-                executionName = config.name
+                executionName = config.name,
+                loadPatcherDefinitions = loadDimensionPatcherDefinition,
+                resourcePatcherDefinitions = resourcePatcherDefinition
             )
 
-        if (config.load.loadValues != config.load.loadValues.sorted()) {
-            config.load.loadValues = config.load.loadValues.sorted()
+        if (config.loads.loadValues != config.loads.loadValues.sorted()) {
+            config.loads.loadValues = config.loads.loadValues.sorted()
             logger.info {
                 "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
-                        "New order is: ${config.load.loadValues}"
+                        "New order is: ${config.loads.loadValues}"
             }
         }
 
@@ -86,21 +88,12 @@ class TheodoliteExecutor(
         }
 
         return Config(
-            loads = config.load.loadValues.map { load -> LoadDimension(load, loadDimensionPatcherDefinition) },
-            resources = config.resources.resourceValues.map { resource ->
-                Resource(
-                    resource,
-                    resourcePatcherDefinition
-                )
-            },
-            compositeStrategy = CompositeStrategy(
-                benchmarkExecutor = executor,
-                searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy),
-                restrictionStrategies = strategyFactory.createRestrictionStrategy(
-                    results,
-                    config.execution.restrictions
-                )
-            )
+            loads = config.loads.loadValues,
+            loadPatcherDefinitions = loadDimensionPatcherDefinition,
+            resources = config.resources.resourceValues,
+            resourcePatcherDefinitions = resourcePatcherDefinition,
+            searchStrategy = strategyFactory.createSearchStrategy(executor, config.execution.strategy, results),
+            metric = Metric.from(config.execution.metric)
         )
     }
 
@@ -125,24 +118,31 @@ class TheodoliteExecutor(
         )
 
         val config = buildConfig()
-        // execute benchmarks for each load
+
+        //execute benchmarks for each load for the demand metric, or for each resource amount for capacity metric
         try {
-            for (load in config.loads) {
-                if (executor.run.get()) {
-                    config.compositeStrategy.findSuitableResource(load, config.resources)
-                }
-            }
+            config.searchStrategy.applySearchStrategyByMetric(config.loads, config.resources, config.metric)
+
         } finally {
             ioHandler.writeToJSONFile(
-                config.compositeStrategy.benchmarkExecutor.results,
+                config.searchStrategy.benchmarkExecutor.results,
                 "${resultsFolder}exp${this.config.executionId}-result"
             )
-            // Create expXYZ_demand.csv file
-            ioHandler.writeToCSVFile(
-                "${resultsFolder}exp${this.config.executionId}_demand",
-                calculateDemandMetric(config.loads, config.compositeStrategy.benchmarkExecutor.results),
-                listOf("load","resources")
-            )
+            // Create expXYZ_demand.csv file or expXYZ_capacity.csv depending on metric
+            when(config.metric) {
+                Metric.DEMAND ->
+                    ioHandler.writeToCSVFile(
+                        "${resultsFolder}exp${this.config.executionId}_demand",
+                        calculateMetric(config.loads, config.searchStrategy.benchmarkExecutor.results),
+                        listOf("load","resources")
+                    )
+                Metric.CAPACITY ->
+                    ioHandler.writeToCSVFile(
+                        "${resultsFolder}exp${this.config.executionId}_capacity",
+                        calculateMetric(config.resources, config.searchStrategy.benchmarkExecutor.results),
+                        listOf("resource", "loads")
+                    )
+            }
         }
         kubernetesBenchmark.teardownInfrastructure()
     }
@@ -157,8 +157,8 @@ class TheodoliteExecutor(
         return executionID
     }
 
-    private fun calculateDemandMetric(loadDimensions: List<LoadDimension>, results: Results): List<List<String>> {
-        return loadDimensions.map { listOf(it.get().toString(), results.getMinRequiredInstances(it).get().toString()) }
+    private fun calculateMetric(xValues: List<Int>, results: Results): List<List<String>> {
+        return xValues.map { listOf(it.toString(), results.getOptYDimensionValue(it).toString()) }
     }
 
 }

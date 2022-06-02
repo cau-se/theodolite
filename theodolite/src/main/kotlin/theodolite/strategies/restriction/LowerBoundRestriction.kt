@@ -1,24 +1,24 @@
 package theodolite.strategies.restriction
 
-import theodolite.util.LoadDimension
-import theodolite.util.Resource
 import theodolite.util.Results
 
 /**
- * The [LowerBoundRestriction] sets the lower bound of the resources to be examined to the value
- * needed to successfully execute the next smaller load.
+ * The [LowerBoundRestriction] sets the lower bound of the resources to be examined in the experiment to the value
+ * needed to successfully execute the previous smaller load (demand metric), or sets the lower bound of the loads
+ * to be examined in the experiment to the largest value, which still successfully executed the previous smaller
+ * resource (capacity metric).
  *
  * @param results [Result] object used as a basis to restrict the resources.
  */
 class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
 
-    override fun apply(load: LoadDimension, resources: List<Resource>): List<Resource> {
-        val maxLoad: LoadDimension? = this.results.getMaxBenchmarkedLoad(load)
-        var lowerBound: Resource? = this.results.getMinRequiredInstances(maxLoad)
+    override fun apply(xValue: Int, yValues: List<Int>): List<Int> {
+        val maxXValue: Int? = this.results.getMaxBenchmarkedXDimensionValue(xValue)
+        var lowerBound: Int? = this.results.getOptYDimensionValue(maxXValue)
         if (lowerBound == null) {
-            lowerBound = resources[0]
+            lowerBound = yValues[0]
         }
-        return resources.filter { x -> x.get() >= lowerBound.get() }
+        return yValues.filter { x -> x >= lowerBound }
     }
 
 }

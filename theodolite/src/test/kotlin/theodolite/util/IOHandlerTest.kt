@@ -69,14 +69,14 @@ internal class IOHandlerTest {
     fun testWriteToJSONFile() {
         temporaryFolder.create()
         val folder = temporaryFolder.newFolder(FOLDER_URL)
-        val testContent = Resource(0, emptyList())
+        val testContentResource = 0
 
         IOHandler().writeToJSONFile(
             fileURL = "${folder.absolutePath}/test-file.json",
-            objectToSave = testContent
+            objectToSave = testContentResource
         )
 
-        val expected = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create().toJson(testContent)
+        val expected = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create().toJson(testContentResource)
 
         assertEquals(
             expected,
