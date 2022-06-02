@@ -1,12 +1,16 @@
 package theodolite.execution.operator
 
+import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
+import mu.KotlinLogging
 import theodolite.execution.Shutdown
 import theodolite.k8s.K8sContextFactory
 import theodolite.k8s.ResourceByLabelHandler
 import theodolite.model.crd.*
+
+private val logger = KotlinLogging.logger {}
 
 class ClusterSetup(
     private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
@@ -75,10 +79,15 @@ class ClusterSetup(
             labelName = "app.kubernetes.io/created-by",
             labelValue = "theodolite"
         )
-        resourceRemover.removeCR(
-            labelName = "app.kubernetes.io/created-by",
-            labelValue = "theodolite",
-            context = serviceMonitorContext
-        )
+        try {
+            resourceRemover.removeCR(
+                labelName = "app.kubernetes.io/created-by",
+                labelValue = "theodolite",
+                context = serviceMonitorContext
+            )
+        } catch (e: KubernetesClientException) {
+            logger.warn { "Service monitors could not be cleaned up. It may be that service monitors are not registered by the Kubernetes API."}
+            logger.debug { "Error is: ${e.message}" }
+        }
     }
 }

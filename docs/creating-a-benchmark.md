@@ -91,10 +91,37 @@ filesystem:
   - example-service.yaml
 ```
 
-<!-- ### Before and after actions -->
+### Actions
 
+Sometimes it is not sufficient to just define resources that are created and deleted when running a benchmark. Instead, it might be necessary to define certain actions that will be executed before running or after stopping the benchmark.
 
+Theodolite allows to execute commands on running pods. This is similar to `kubectl exec` or Kubernetes' [container lifecycle handlers](https://kubernetes.io/docs/tasks/configure-pod-container/attach-handler-lifecycle-event/). Theodolite actions can run before (`beforeActions`) or after `afterActions` all `sut`, `loadGenerator` or `infrastructure` resources are deployed.
+For example, the following actions will create a file in a pod with label `app: logger` before the SUT is started and delete if after the SUT is stopped:
 
+ ```yaml
+  sut:
+    resources: # ...
+    beforeActions:
+      - selector:
+          pod:
+            matchLabels:
+              app: logger
+        exec:
+          command: ["touch", "file-used-by-logger.txt"]
+          timeoutSeconds: 90
+    afterActions:
+      - selector:
+          pod:
+            matchLabels:
+              app: logger
+        exec:
+          command: [ "rm", "file-used-by-logger.txt" ]
+          timeoutSeconds: 90
+```
+
+Theodolite checks if all referenced pods are available for the specified actions. That means these pods must either be defined in `infrastructure` or already deployed in the cluster. If not all referenced pods are available, the benchmark will not be set as `Ready`. Consequently, an action cannot be executed on a pod that is defined as an SUT or load generator resource.
+
+*Note: Actions should be used sparingly. While it is possible to define entire benchmarks imperatively as actions, it is considered better practice to define as much as possible using declarative, native Kubernetes resource files.*
 
 <!--
 A Benchmark refers to other Kubernetes resources (e.g., Deployments, Services, ConfigMaps), which describe the system under test, the load generator and infrastructure components such as a middleware used in the benchmark. To manage those resources, Theodolite needs to have access to them. This is done by bundling resources in ConfigMaps.
@@ -116,7 +143,7 @@ If a benchmark is [executed by an Execution](running-benchmarks), these patchers
 ## Kafka Configuration
 
 Theodolite allows to automatically create and remove Kafka topics for each SLO experiment by setting a `kafkaConfig`.
-It `bootstrapServer` needs to point your Kafka cluster and `topics` configures the list of Kafka topics to be created/removed.
+`bootstrapServer` needs to point your Kafka cluster and `topics` configures the list of Kafka topics to be created/removed.
 For each topic, you configure its name, the number of partitions and the replication factor.
 
 With the `removeOnly: True` property, you can also instruct Theodolite to only remove topics and not create them.

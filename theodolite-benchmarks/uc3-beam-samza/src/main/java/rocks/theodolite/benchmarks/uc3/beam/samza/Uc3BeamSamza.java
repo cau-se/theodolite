@@ -21,7 +21,7 @@ public final class Uc3BeamSamza {
    * Start running this microservice.
    */
   public static void main(final String[] args) {
-    new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).run();
+    new BeamService(PipelineFactory.factory(), SamzaRunner.class, args).runStandalone();
   }
 
 }

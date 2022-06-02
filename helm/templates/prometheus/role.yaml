@@ -1,12 +1,11 @@
-{{- if .Values.prometheus.clusterRole.enabled -}}
+{{- if .Values.prometheus.role.enabled -}}
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
   name: {{ template "theodolite.fullname" . }}-prometheus
 rules:
 - apiGroups: [""]
   resources:
-  - nodes
   - services
   - endpoints
   - pods
@@ -15,6 +14,4 @@ rules:
   resources:
   - configmaps
   verbs: ["get"]
-- nonResourceURLs: ["/metrics"]
-  verbs: ["get"]
-{{- end }}
+{{- end}}

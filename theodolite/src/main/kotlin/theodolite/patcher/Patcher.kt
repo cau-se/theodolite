@@ -1,5 +1,6 @@
 package theodolite.patcher
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
@@ -13,8 +14,7 @@ interface Patcher {
      * The patch method modifies a value in the definition of a
      * Kubernetes resource.
      *
-     * @param T The type of value
      * @param value The value to be used.
      */
-    fun <T> patch(value: T)
+    fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata>
 }

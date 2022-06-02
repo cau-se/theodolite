@@ -38,7 +38,7 @@ class AnalysisExecutor(
 
         try {
             val ioHandler = IOHandler()
-            val resultsFolder: String = ioHandler.getResultFolderURL()
+            val resultsFolder = ioHandler.getResultFolderURL()
             val fileURL = "${resultsFolder}exp${executionId}_${load.get()}_${res.get()}_${slo.sloType.toSlug()}"
 
             val prometheusData = executionIntervals

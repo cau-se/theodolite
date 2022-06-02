@@ -20,11 +20,12 @@ class BenchmarkCRDummy(name: String) {
         kafkaConfig.bootstrapServer = ""
         kafkaConfig.topics = emptyList()
 
+
         benchmarkCR.spec = benchmark
         benchmarkCR.metadata.name = name
         benchmarkCR.kind = "Benchmark"
         benchmarkCR.apiVersion = "v1"
-
+        benchmark.waitForResourcesEnabled = false
 
         benchmark.infrastructure = Resources()
         benchmark.sut = Resources()
