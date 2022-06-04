@@ -2,6 +2,8 @@ package rocks.theodolite.kubernetes
 
 import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
@@ -72,14 +74,25 @@ class KubernetesBenchmarkDeployment(
      *  - Remove the [KubernetesResource]s.
      */
     override fun teardown() {
-        loadGenResources.forEach { kubernetesManager.remove(it) }
+        val podCleaner = ResourceByLabelHandler(client)
+        loadGenResources.forEach { kubernetesManager.remove(it, false) }
         loadGenAfterActions.forEach { it.exec(client = client) }
-        appResources.forEach { kubernetesManager.remove(it) }
+        appResources.forEach { kubernetesManager.remove(it,false) }
         sutAfterActions.forEach { it.exec(client = client) }
         if (this.topics.isNotEmpty()) {
             kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         }
-        ResourceByLabelHandler(client).removePods(
+
+        listOf(loadGenResources, appResources)
+            .forEach {
+                if (it is Deployment) {
+                    podCleaner.blockUntilPodsDeleted(it.spec.selector.matchLabels)
+                } else if (it is StatefulSet) {
+                    podCleaner.blockUntilPodsDeleted(it.spec.selector.matchLabels)
+                }
+            }
+
+        podCleaner.removePods(
             labelName = LAG_EXPORTER_POD_LABEL_NAME,
             labelValue = LAG_EXPORTER_POD_LABEL_VALUE
         )
