@@ -16,13 +16,15 @@ import com.hazelcast.jet.test.SerialTest;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.Uc4PipelineBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
@@ -39,7 +41,10 @@ import titan.ccp.model.sensorregistry.MutableSensorRegistry;
 @Category(SerialTest.class)
 public class Uc4PipelineTest extends JetTestSupport {
 
-  // TEst Machinery
+  private static final Logger LOGGER = LoggerFactory.getLogger(Uc4PipelineTest.class);
+
+
+  // Test Machinery
   JetInstance testInstance = null;
   Pipeline testPipeline = null;
   StreamStage<Entry<String, AggregatedActivePowerRecord>> uc4Topology = null;
@@ -116,10 +121,15 @@ public class Uc4PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    final Uc4PipelineBuilder pipelineBuilder = new Uc4PipelineBuilder();
     this.testPipeline = Pipeline.create();
-    this.uc4Topology = pipelineBuilder.extendUc4Topology(testPipeline,
-        testInputSource, testAggregationSource, testConfigSource, testWindowSize);
+
+    final Properties properties = new Properties();
+    final Uc4PipelineFactory factory = new Uc4PipelineFactory(
+        properties,properties,properties,properties,"","",
+    "","", testWindowSize);
+
+    this.uc4Topology = factory.extendUc4Topology(
+        testPipeline, testInputSource, testAggregationSource, testConfigSource);
 
     this.uc4Topology.writeTo(Sinks.logger());
   }
@@ -130,8 +140,6 @@ public class Uc4PipelineTest extends JetTestSupport {
   @Test
   public void testOutput() {
 
-//    System.out.println("DEBUG DEBUG DEBUG || ENTERED TEST 1");
-    
     // Assertion Configuration
     final int timeout = 20;
     final String testSensorName = "TEST-SENSOR";
@@ -154,11 +162,11 @@ public class Uc4PipelineTest extends JetTestSupport {
 
 
           if (collection != null) {
-            System.out.println("Collection size: " + collection.size());
+            LOGGER.info("Collection size: " + collection.size());
 
 
             for (final Entry<String, AggregatedActivePowerRecord> entry : collection) {
-              System.out.println("DEBUG || " + entry.toString());
+              LOGGER.info("Entry || " + entry.toString());
 
               final String key = entry.getKey();
               final AggregatedActivePowerRecord agg = entry.getValue();
@@ -185,13 +193,12 @@ public class Uc4PipelineTest extends JetTestSupport {
             allOkay = testLevel1contained && testLevel2contained && averageEqTest && avOk;
           }
 
-          System.out.println("testLevel1contained: " + testLevel1contained);
-          System.out.println("testLevel2contained: " + testLevel2contained);
-          System.out.println("averageEqTest: " + averageEqTest);
-          System.out.println("avOk: " + avOk);
+          LOGGER.info("Test item from Level1 contained: " + testLevel1contained);
+          LOGGER.info("Test item from Level2 contained: " + testLevel2contained);
+          LOGGER.info("Average watt value equals test watt value: " + averageEqTest);
+          LOGGER.info("Average calculation correct =: " + avOk);
 
           Assert.assertTrue("Assertion did not complete!", allOkay);
-          
         }));
 
     try{
@@ -202,6 +209,7 @@ public class Uc4PipelineTest extends JetTestSupport {
           .registerSerializer(ImmutableSensorRegistry.class,
               ImmutableSensorRegistryUc4Serializer.class);
       this.testInstance.newJob(this.testPipeline, jobConfig).join();
+      Assert.fail("Job should have completed with an AssertionCompletedException, but completed normally");
 
     } catch (final CompletionException e) {
       final String errorMsg = e.getCause().getMessage();
@@ -210,15 +218,14 @@ public class Uc4PipelineTest extends JetTestSupport {
               + e.getCause(),
           errorMsg.contains(AssertionCompletedException.class.getName()));
     } catch (Exception e){
-      System.out.println("ERRORORORO TEST BROKEN !!!!");
-      System.out.println(e);
+      LOGGER.error("Test is broken",e);
     }
   }
 
 
   @After
   public void after() {
-    System.out.println("Shutting down");
+    LOGGER.info("Shutting down the test instances");
     // Shuts down all running Jet Instances
     Jet.shutdownAll();
   }
