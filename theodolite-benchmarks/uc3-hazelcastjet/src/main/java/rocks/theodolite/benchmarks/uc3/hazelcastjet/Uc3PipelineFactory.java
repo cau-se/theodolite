@@ -23,8 +23,8 @@ import titan.ccp.model.records.ActivePowerRecord;
 
 public class Uc3PipelineFactory extends PipelineFactory {
 
-  private final int hoppingSizeInSeconds;
-  private final int windowSizeInSeconds;
+  private final int hoppingSizeInDays;
+  private final int windowSizeInDays;
 
   /**
    * Build a new Pipeline.
@@ -34,21 +34,21 @@ public class Uc3PipelineFactory extends PipelineFactory {
    *        attributes.
    * @param kafkaInputTopic The name of the input topic used for the pipeline.
    * @param kafkaOutputTopic The name of the output topic used for the pipeline.
-   * @param hoppingSizeInSeconds The hop length of the sliding window used in the aggregation of
+   * @param hoppingSizeInDays The hop length of the sliding window used in the aggregation of
    *        this pipeline.
-   * @param windowSizeInSeconds The window length of the sliding window used in the aggregation of
+   * @param windowSizeInDays The window length of the sliding window used in the aggregation of
    *        this pipeline.
    */
   public Uc3PipelineFactory(final Properties kafkaReadPropsForPipeline,
                             final String kafkaInputTopic,
                             final Properties kafkaWritePropsForPipeline,
                             final String kafkaOutputTopic,
-                            final int windowSizeInSeconds,
-                            final int hoppingSizeInSeconds) {
+                            final int windowSizeInDays,
+                            final int hoppingSizeInDays) {
     super(kafkaReadPropsForPipeline, kafkaInputTopic,
         kafkaWritePropsForPipeline,kafkaOutputTopic);
-    this.windowSizeInSeconds = windowSizeInSeconds;
-    this.hoppingSizeInSeconds = hoppingSizeInSeconds;
+    this.windowSizeInDays = windowSizeInDays;
+    this.hoppingSizeInDays = hoppingSizeInDays;
   }
 
 
@@ -116,8 +116,8 @@ public class Uc3PipelineFactory extends PipelineFactory {
         // group by new keys
         .groupingKey(Map.Entry::getKey)
         // Sliding/Hopping Window
-        .window(WindowDefinition.sliding(TimeUnit.DAYS.toMillis(windowSizeInSeconds),
-            TimeUnit.DAYS.toMillis(hoppingSizeInSeconds)))
+        .window(WindowDefinition.sliding(TimeUnit.DAYS.toMillis(windowSizeInDays),
+            TimeUnit.DAYS.toMillis(hoppingSizeInDays)))
         // get average value of group (sensoreId,hourOfDay)
         .aggregate(
             AggregateOperations.averagingDouble(record -> record.getValue().getValueInW()))

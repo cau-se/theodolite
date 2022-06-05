@@ -37,10 +37,10 @@ public class NewHistoryService extends HazelcastJetService {
     final String kafkaOutputTopic =
         config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
 
-    final int windowSizeInSecondsNumber = Integer.parseInt(
+    final int windowSizeInDaysNumber = Integer.parseInt(
         config.getProperty(ConfigurationKeys.AGGREGATION_DURATION_DAYS).toString());
 
-    final int hoppingSizeInSecondsNumber = Integer.parseInt(
+    final int hoppingSizeInDaysNumber = Integer.parseInt(
         config.getProperty(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS).toString());
 
     this.pipelineFactory = new Uc3PipelineFactory(
@@ -48,8 +48,8 @@ public class NewHistoryService extends HazelcastJetService {
         kafkaInputTopic,
         kafkaWriteProps,
         kafkaOutputTopic,
-        windowSizeInSecondsNumber,
-        hoppingSizeInSecondsNumber);
+        windowSizeInDaysNumber,
+        hoppingSizeInDaysNumber);
   }
 
   @Override
