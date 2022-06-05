@@ -5,6 +5,7 @@ import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.pipeline.Pipeline;
+import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
@@ -13,6 +14,7 @@ import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -61,11 +63,12 @@ public class Uc2PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    Uc2PipelineBuilder pipelineBuilder = new Uc2PipelineBuilder();
-    this.testPipeline = Pipeline.create();
-    this.uc2Topology =
-        pipelineBuilder.extendUc2Topology(this.testPipeline, testSource, testWindowInMs);
+    final Properties properties = new Properties();
+    final Uc2PipelineFactory factory = new Uc2PipelineFactory(
+        properties,"",properties,"", testWindowInMs);
 
+    this.uc2Topology = factory.extendUc2Topology(testSource);
+    this.testPipeline = factory.getPipe();
   }
 
   /**
