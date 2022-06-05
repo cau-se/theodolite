@@ -303,7 +303,7 @@ public class Uc3HazelcastJetFactory { // NOPMD
   public Uc3HazelcastJetFactory setWindowSizeInSecondsFromEnv(// NOPMD
       final String defaultWindowSizeInSeconds) {
     final String windowSizeInSeconds = Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.WINDOW_SIZE_IN_SECONDS),
+        System.getenv(ConfigurationKeys.AGGREGATION_DURATION_DAYS),
         defaultWindowSizeInSeconds);
     final int windowSizeInSecondsNumber = Integer.parseInt(windowSizeInSeconds);
     this.windowSizeInSeconds = windowSizeInSecondsNumber;
@@ -332,7 +332,7 @@ public class Uc3HazelcastJetFactory { // NOPMD
   public Uc3HazelcastJetFactory setHoppingSizeInSecondsFromEnv(// NOPMD
       final String defaultHoppingSizeInSeconds) {
     final String hoppingSizeInSeconds = Objects.requireNonNullElse(
-        System.getenv(ConfigurationKeys.HOPPING_SIZE_IN_SECONDS),
+        System.getenv(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS),
         defaultHoppingSizeInSeconds);
     final int hoppingSizeInSecondsNumber = Integer.parseInt(hoppingSizeInSeconds);
     this.hoppingSizeInSeconds = hoppingSizeInSecondsNumber;
