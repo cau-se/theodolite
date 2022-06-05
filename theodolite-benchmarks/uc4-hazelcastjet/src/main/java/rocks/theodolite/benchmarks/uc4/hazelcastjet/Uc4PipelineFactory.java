@@ -102,7 +102,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
 
     // Extend UC4 topology to pipeline
     final StreamStage<Map.Entry<String, AggregatedActivePowerRecord>> uc4Aggregation =
-        this.extendUc4Topology(pipe, inputSource, aggregationSource, configSource);
+        this.extendUc4Topology(inputSource, aggregationSource, configSource);
 
     // Add Sink2: Write back to kafka feedback/aggregation topic
     uc4Aggregation.writeTo(KafkaSinks.kafka(
@@ -140,7 +140,6 @@ public class Uc4PipelineFactory extends PipelineFactory {
    * (6) Aggregate data over the window
    * </p>
    *
-   * @param pipe The blank pipeline to extend the logic to.
    * @param inputSource A streaming source with {@code ActivePowerRecord} data.
    * @param aggregationSource A streaming source with aggregated data.
    * @param configurationSource A streaming source delivering a {@code SensorRegistry}.
@@ -150,8 +149,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
    */
   public StreamStage
       <Map.Entry<String, AggregatedActivePowerRecord>>
-      extendUc4Topology(final Pipeline pipe,
-                        final StreamSource<Map.Entry<String, ActivePowerRecord>> inputSource,
+      extendUc4Topology(final StreamSource<Map.Entry<String, ActivePowerRecord>> inputSource,
                         final StreamSource<Map.Entry<String, AggregatedActivePowerRecord>>
                             aggregationSource,
                         final StreamSource<Map.Entry<Event, String>> configurationSource) {

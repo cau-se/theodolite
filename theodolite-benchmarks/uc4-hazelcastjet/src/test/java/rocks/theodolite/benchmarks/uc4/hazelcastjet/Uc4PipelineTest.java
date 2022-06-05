@@ -121,17 +121,15 @@ public class Uc4PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    this.testPipeline = Pipeline.create();
-
     final Properties properties = new Properties();
     final Uc4PipelineFactory factory = new Uc4PipelineFactory(
         properties,properties,properties,properties,"","",
     "","", testWindowSize);
 
-    this.uc4Topology = factory.extendUc4Topology(
-        testPipeline, testInputSource, testAggregationSource, testConfigSource);
-
+    this.uc4Topology = factory.extendUc4Topology(testInputSource, testAggregationSource, testConfigSource);
     this.uc4Topology.writeTo(Sinks.logger());
+
+    this.testPipeline = factory.getPipe();
   }
 
   /**
@@ -217,7 +215,7 @@ public class Uc4PipelineTest extends JetTestSupport {
           "Job was expected to complete with AssertionCompletedException, but completed with: "
               + e.getCause(),
           errorMsg.contains(AssertionCompletedException.class.getName()));
-    } catch (Exception e){
+    } catch (final Exception e){
       LOGGER.error("Test is broken",e);
     }
   }

@@ -25,9 +25,11 @@ public abstract class PipelineFactory {
   protected String kafkaOutputTopic;
 
 
+
   public PipelineFactory() {
     this.pipe = Pipeline.create();
   }
+
 
   /**
    * Constructs a pipeline factory with read properties and input topic.
@@ -57,5 +59,10 @@ public abstract class PipelineFactory {
    * @return pipeline that holds the use case logic.
    */
   public abstract Pipeline buildPipeline();
+
+  public Pipeline getPipe() {
+    return this.pipe;
+  }
+
 
 }
