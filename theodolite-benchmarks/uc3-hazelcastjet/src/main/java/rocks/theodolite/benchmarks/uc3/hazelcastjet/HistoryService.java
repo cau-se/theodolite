@@ -22,8 +22,8 @@ public class HistoryService {
   private static final String KAFKA_OUTPUT_TOPIC_DEFAULT = "output";
   
   // UC3 specific (default)
-  private static final String WINDOW_SIZE_IN_SECONDS_DEFAULT = "2629800";
-  private static final String HOPSIZE_IN_SEC_DEFAULT = "86400";
+  private static final String WINDOW_SIZE_IN_SECONDS_DEFAULT = "30";
+  private static final String HOPSIZE_IN_SEC_DEFAULT = "1";
 
   // Job name (default)
   private static final String JOB_NAME = "uc3-hazelcastjet";

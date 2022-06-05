@@ -109,8 +109,8 @@ public class Uc3PipelineBuilder {
         // group by new keys
         .groupingKey(Entry::getKey)
         // Sliding/Hopping Window
-        .window(WindowDefinition.sliding(TimeUnit.SECONDS.toMillis(windowSizeInSeconds),
-            TimeUnit.SECONDS.toMillis(hoppingSizeInSeconds)))
+        .window(WindowDefinition.sliding(TimeUnit.DAYS.toMillis(windowSizeInSeconds),
+            TimeUnit.DAYS.toMillis(hoppingSizeInSeconds)))
         // get average value of group (sensoreId,hourOfDay)
         .aggregate(
             AggregateOperations.averagingDouble(record -> record.getValue().getValueInW()))
