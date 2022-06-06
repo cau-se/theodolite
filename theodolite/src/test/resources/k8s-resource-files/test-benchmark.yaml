@@ -3,6 +3,7 @@ kind: benchmark
 metadata:
   name: example-benchmark
 spec:
+  waitForResourcesEnabled: false
   sut:
     resources:
       - configMap:
@@ -33,6 +34,15 @@ spec:
           resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "15000"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        threshold: 3000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:

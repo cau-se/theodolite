@@ -1,6 +1,7 @@
 package theodolite.util
 
 import io.quarkus.runtime.annotations.RegisterForReflection
+import theodolite.strategies.Metric
 
 /**
  * Central class that saves the state of an execution of Theodolite. For an execution, it is used to save the result of
@@ -8,80 +9,111 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  * perform the [theodolite.strategies.restriction.RestrictionStrategy].
  */
 @RegisterForReflection
-class Results {
-    private val results: MutableMap<Pair<LoadDimension, Resource>, Boolean> = mutableMapOf()
+class Results (val metric: Metric) {
+    // (load, resource) -> Boolean map
+    private val results: MutableMap<Pair<Int, Int>, Boolean> = mutableMapOf()
+
+    // if metric is "demand"  : load     -> resource
+    // if metric is "capacity": resource -> load
+    private var optInstances: MutableMap<Int, Int> = mutableMapOf()
+
 
     /**
-     * Set the result for an experiment.
+     * Set the result for an experiment and update the [optInstances] list accordingly.
      *
-     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resource].
+     * @param experiment A pair that identifies the experiment by the Load and Resource.
      * @param successful the result of the experiment. Successful == true and Unsuccessful == false.
      */
-    fun setResult(experiment: Pair<LoadDimension, Resource>, successful: Boolean) {
+    fun setResult(experiment: Pair<Int, Int>, successful: Boolean) {
         this.results[experiment] = successful
+
+        when (metric) {
+            Metric.DEMAND ->
+                if (successful) {
+                    if (optInstances.containsKey(experiment.first)) {
+                        if (optInstances[experiment.first]!! > experiment.second) {
+                            optInstances[experiment.first] = experiment.second
+                        }
+                    } else {
+                        optInstances[experiment.first] = experiment.second
+                    }
+                } else if (!optInstances.containsKey(experiment.first)) {
+                    optInstances[experiment.first] = Int.MAX_VALUE
+                }
+            Metric.CAPACITY ->
+                if (successful) {
+                    if (optInstances.containsKey(experiment.second)) {
+                        if (optInstances[experiment.second]!! < experiment.first) {
+                            optInstances[experiment.second] = experiment.first
+                        }
+                    } else {
+                        optInstances[experiment.second] = experiment.first
+                    }
+                } else if (!optInstances.containsKey(experiment.second)) {
+                    optInstances[experiment.second] = Int.MIN_VALUE
+                }
+        }
     }
 
     /**
      * Get the result for an experiment.
      *
-     * @param experiment A pair that identifies the experiment by the [LoadDimension] and [Resource].
+     * @param experiment A pair that identifies the experiment by the Load and Resource.
      * @return true if the experiment was successful and false otherwise. If the result has not been reported so far,
      * null is returned.
      *
-     * @see Resource
      */
-    fun getResult(experiment: Pair<LoadDimension, Resource>): Boolean? {
+    fun getResult(experiment: Pair<Int, Int>): Boolean? {
         return this.results[experiment]
     }
 
     /**
-     * Get the smallest suitable number of instances for a specified [LoadDimension].
+     * Get the smallest suitable number of instances for a specified x-Value.
+     * The x-Value corresponds to the...
+     * - load, if the metric is "demand".
+     * - resource, if the metric is "capacity".
      *
-     * @param load the [LoadDimension]
+     * @param xValue the Value of the x-dimension of the current metric
      *
-     * @return the smallest suitable number of resources. If the experiment was not executed yet,
-     * a @see Resource with the constant Int.MAX_VALUE as value is returned.
-     * If no experiments have been marked as either successful or unsuccessful
-     * yet, a Resource with the constant value Int.MIN_VALUE is returned.
+     * @return the smallest suitable number of resources/loads (depending on metric).
+     * If there is no experiment that has been executed yet, there is no experiment
+     * for the given [xValue] or there is none marked successful yet, null is returned.
      */
-    fun getMinRequiredInstances(load: LoadDimension?): Resource {
-        if (this.results.isEmpty()) {
-            return Resource(Int.MIN_VALUE, emptyList())
-        }
-
-        var minRequiredInstances = Resource(Int.MAX_VALUE, emptyList())
-        for (experiment in results) {
-            // Get all successful experiments for requested load
-            if (experiment.key.first == load && experiment.value) {
-                if (experiment.key.second.get() < minRequiredInstances.get()) {
-                    // Found new smallest resources
-                    minRequiredInstances = experiment.key.second
-                }
+    fun getOptYDimensionValue(xValue: Int?): Int? {
+        if (xValue != null) {
+            val res = optInstances[xValue]
+            if (res != Int.MAX_VALUE && res != Int.MIN_VALUE) {
+                return res
             }
         }
-        return minRequiredInstances
+        return null
     }
 
     /**
-     * Get the largest [LoadDimension] that has been reported executed successfully (or unsuccessfully) so far, for a
-     * [LoadDimension] and is smaller than the given [LoadDimension].
+     * Get the largest x-Value that has been tested and reported so far (successful or unsuccessful),
+     * which is smaller than the specified x-Value.
      *
-     * @param load the [LoadDimension]
+     * The x-Value corresponds to the...
+     * - load, if the metric is "demand".
+     * - resource, if the metric is "capacity".
      *
-     * @return the largest [LoadDimension] or null, if there is none for this [LoadDimension]
+     * @param xValue the Value of the x-dimension of the current metric
+     *
+     * @return the largest tested x-Value or null, if there wasn't any tested which is smaller than the [xValue].
      */
-    fun getMaxBenchmarkedLoad(load: LoadDimension): LoadDimension? {
-        var maxBenchmarkedLoad: LoadDimension? = null
-        for (experiment in results) {
-            if (experiment.key.first.get() <= load.get()) {
-                if (maxBenchmarkedLoad == null) {
-                    maxBenchmarkedLoad = experiment.key.first
-                } else if (maxBenchmarkedLoad.get() < experiment.key.first.get()) {
-                    maxBenchmarkedLoad = experiment.key.first
+    fun getMaxBenchmarkedXDimensionValue(xValue: Int): Int? {
+        var maxBenchmarkedXValue: Int? = null
+        for (instance in optInstances) {
+            val instanceXValue= instance.key
+            if (instanceXValue <= xValue) {
+                if (maxBenchmarkedXValue == null) {
+                    maxBenchmarkedXValue = instanceXValue
+                } else if (maxBenchmarkedXValue < instanceXValue) {
+                    maxBenchmarkedXValue = instanceXValue
                 }
             }
         }
-        return maxBenchmarkedLoad
+        return maxBenchmarkedXValue
     }
 
     /**

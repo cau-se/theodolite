@@ -11,7 +11,7 @@ import theodolite.util.DeploymentFailedException
 
 @JsonDeserialize
 @RegisterForReflection
-class ResourceSets: KubernetesResource {
+class ResourceSets : KubernetesResource {
     @JsonProperty("configMap")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     var configMap: ConfigMapResourceSet? = null
@@ -21,13 +21,13 @@ class ResourceSets: KubernetesResource {
     var fileSystem: FileSystemResourceSet? = null
 
     fun loadResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
-        // TODO Find out whether field access (::configMap) is really what we want to do here (see #362)
-        return if (::configMap != null) {
-                configMap?.getResourceSet(client= client) !!
-            } else if (::fileSystem != null) {
-                fileSystem?.getResourceSet(client= client ) !!
-            } else {
-                throw DeploymentFailedException("Could not load resourceSet.")
-            }
+
+        return if (this.configMap != null) {
+            configMap?.getResourceSet(client = client)!!
+        } else if (this.fileSystem != null) {
+            fileSystem?.getResourceSet(client = client)!!
+        } else {
+            throw DeploymentFailedException("Could not load resourceSet.")
+        }
     }
 }
