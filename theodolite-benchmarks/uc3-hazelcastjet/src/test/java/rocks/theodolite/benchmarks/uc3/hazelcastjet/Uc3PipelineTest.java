@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionException;
@@ -24,7 +25,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import rocks.theodolite.benchmarks.uc3.hazelcastjet.Uc3PipelineBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKeySerializer;
 import titan.ccp.model.records.ActivePowerRecord;
@@ -34,6 +36,9 @@ import titan.ccp.model.records.ActivePowerRecord;
  */
 @Category(SerialTest.class)
 public class Uc3PipelineTest extends JetTestSupport {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Uc3PipelineTest.class);
+
 
   // Test Machinery
   private JetInstance testInstance = null;
@@ -49,13 +54,13 @@ public class Uc3PipelineTest extends JetTestSupport {
   public void buildUc3Pipeline() {
 
     // Setup Configuration
-    int testItemsPerSecond = 1;
-    String testSensorName = "TEST-SENSOR";
-    Double testValueInW = 10.0;
-    int testHopSizeInSec = 1;
-    int testWindowSizeInSec = 50;
+    final int testItemsPerSecond = 1;
+    final String testSensorName = "TEST-SENSOR";
+    final Double testValueInW = 10.0;
+    final int testHopSizeInSec = 1;
+    final int testWindowSizeInSec = 50;
     // Used to check hourOfDay
-    long mockTimestamp = 1632741651;
+    final long mockTimestamp = 1632741651;
 
 
     // Create mock jet instance with configuration
@@ -75,10 +80,13 @@ public class Uc3PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    Uc3PipelineBuilder pipelineBuilder = new Uc3PipelineBuilder();
-    this.testPipeline = Pipeline.create();
-    this.uc3Topology = pipelineBuilder.extendUc3Topology(testPipeline, testSource,
-        testHopSizeInSec, testWindowSizeInSec);
+    final Properties properties = new Properties();
+    final Uc3PipelineFactory factory = new Uc3PipelineFactory(
+        properties,"", properties,"", testWindowSizeInSec, testHopSizeInSec);
+
+    this.uc3Topology = factory.extendUc3Topology(testSource);
+
+    testPipeline = factory.getPipe();
   }
 
   /**
@@ -88,44 +96,43 @@ public class Uc3PipelineTest extends JetTestSupport {
   public void testOutput() {
 
     // Assertion Configuration
-    int timeout = 10;
-    String testSensorName = "TEST-SENSOR";
-    Double testValueInW = 10.0;
+    final int timeout = 10;
+    final String testSensorName = "TEST-SENSOR";
+    final Double testValueInW = 10.0;
     // Used to check hourOfDay
-    long mockTimestamp = 1632741651;
+    final long mockTimestamp = 1632741651;
 
     // Assertion
     this.uc3Topology.apply(Assertions.assertCollectedEventually(timeout,
         collection -> {
 
           // DEBUG
-          System.out.println("DEBUG: CHECK 1 || Entered Assertion of testOutput()");
+          LOGGER.info("CHECK 1 || Entered Assertion of testOutput()");
 
           // Check all collected Items
           boolean allOkay = true;
           if (collection != null) {
-            System.out.println("DEBUG: CHECK 2 || Collection Size: " + collection.size());
-            for (int i = 0; i < collection.size(); i++) {
+            LOGGER.info("CHECK 2 || Collection Size: " + collection.size());
+            for (final Entry<String, String> entry : collection) {
 
               // Build hour of day
               long timestamp = mockTimestamp;
-              int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
+              final int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
                   TimeZone.getDefault().toZoneId()).getHour();
 
               // Compare expected output with generated output
-              Entry<String, String> currentEntry = collection.get(i);
-              String expectedKey = testSensorName + ";" + expectedHour;
-              String expectedValue = testValueInW.toString();
+              final String expectedKey = testSensorName + ";" + expectedHour;
+              final String expectedValue = testValueInW.toString();
 
               // DEBUG
-              System.out.println(
-                  "DEBUG: CHECK 3 || Expected Output: '" + expectedKey + "=" + expectedValue
-                      + "' - Actual Output: '" + currentEntry.getKey() + "="
-                      + currentEntry.getValue().toString() + "'");
+              LOGGER.info(
+                  "CHECK 3 || Expected Output: '" + expectedKey + "=" + expectedValue
+                      + "' - Actual Output: '" + entry.getKey() + "="
+                      + entry.getValue() + "'");
 
-              if (!(currentEntry.getKey().equals(expectedKey)
-                  && currentEntry.getValue().toString().equals(expectedValue))) {
-                System.out.println("DEBUG: CHECK 5 || Failed assertion!");
+              if (!(entry.getKey().equals(expectedKey)
+                  && entry.getValue().equals(expectedValue))) {
+                LOGGER.info("CHECK 5 || Failed assertion!");
                 allOkay = false;
               }
             }
