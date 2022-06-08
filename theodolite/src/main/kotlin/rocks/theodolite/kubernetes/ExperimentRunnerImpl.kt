@@ -81,10 +81,12 @@ class ExperimentRunnerImpl(
             this.afterTeardownDelay,
             this.waitForResourcesEnabled
         )
-        val from = Instant.now()
+        val from: Instant
 
         try {
             benchmarkDeployment.setup()
+            from = Instant.now()
+
             this.waitAndLog()
             if (mode == ExecutionModes.OPERATOR.value) {
                 eventCreator.createEvent(
