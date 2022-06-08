@@ -8,6 +8,7 @@ import mu.KotlinLogging
 import org.apache.kafka.clients.admin.NewTopic
 import rocks.theodolite.kubernetes.kafka.TopicManager
 import rocks.theodolite.kubernetes.model.crd.KafkaConfig
+import theodolite.benchmark.RolloutManager
 import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
@@ -22,17 +23,18 @@ private val logger = KotlinLogging.logger {}
  */
 @RegisterForReflection
 class KubernetesBenchmarkDeployment(
-        private val sutBeforeActions: List<Action>,
-        private val sutAfterActions: List<Action>,
-        private val loadGenBeforeActions: List<Action>,
-        private val loadGenAfterActions: List<Action>,
-        val appResources: List<HasMetadata>,
-        val loadGenResources: List<HasMetadata>,
-        private val loadGenerationDelay: Long,
-        private val afterTeardownDelay: Long,
-        private val kafkaConfig: Map<String, Any>,
-        private val topics: List<KafkaConfig.TopicWrapper>,
-        private val client: NamespacedKubernetesClient
+    private val sutBeforeActions: List<Action>,
+    private val sutAfterActions: List<Action>,
+    private val loadGenBeforeActions: List<Action>,
+    private val loadGenAfterActions: List<Action>,
+    private val rolloutMode: Boolean,
+    val appResources: List<HasMetadata>,
+    val loadGenResources: List<HasMetadata>,
+    private val loadGenerationDelay: Long,
+    private val afterTeardownDelay: Long,
+    private val kafkaConfig: Map<String, Any>,
+    private val topics: List<KafkaConfig.TopicWrapper>,
+    private val client: NamespacedKubernetesClient
 ) : BenchmarkDeployment {
     private val kafkaController = TopicManager(this.kafkaConfig)
     private val kubernetesManager = K8sManager(client)
@@ -47,19 +49,20 @@ class KubernetesBenchmarkDeployment(
      *  - Deploy the needed resources.
      */
     override fun setup() {
+        val rolloutManager = RolloutManager(rolloutMode, client)
         if (this.topics.isNotEmpty()) {
             val kafkaTopics = this.topics
                 .filter { !it.removeOnly }
                 .map { NewTopic(it.name, it.numPartitions, it.replicationFactor) }
             kafkaController.createTopics(kafkaTopics)
         }
+
         sutBeforeActions.forEach { it.exec(client = client) }
-        appResources.forEach { kubernetesManager.deploy(it) }
+        rolloutManager.rollout(appResources)
         logger.info { "Wait ${this.loadGenerationDelay} seconds before starting the load generator." }
         Thread.sleep(Duration.ofSeconds(this.loadGenerationDelay).toMillis())
         loadGenBeforeActions.forEach { it.exec(client = client) }
-        loadGenResources.forEach { kubernetesManager.deploy(it) }
-
+        rolloutManager.rollout(loadGenResources)
     }
 
     /**

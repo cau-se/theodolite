@@ -1,13 +1,16 @@
 package rocks.theodolite.kubernetes.operator
 
+import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
+import mu.KotlinLogging
 import rocks.theodolite.kubernetes.K8sContextFactory
 import rocks.theodolite.kubernetes.ResourceByLabelHandler
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.Shutdown
 
+private val logger = KotlinLogging.logger {}
 
 class ClusterSetup(
         private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
@@ -62,24 +65,29 @@ class ClusterSetup(
         val resourceRemover = ResourceByLabelHandler(client = client)
         resourceRemover.removeServices(
             labelName = "app.kubernetes.io/created-by",
-            labelValue = "rocks/theodolitedolite"
+            labelValue = "theodolite"
         )
         resourceRemover.removeDeployments(
             labelName = "app.kubernetes.io/created-by",
-            labelValue = "rocks/theodolitedolite"
+            labelValue = "theodolite"
         )
         resourceRemover.removeStatefulSets(
             labelName = "app.kubernetes.io/created-by",
-            labelValue = "rocks/theodolitedolite"
+            labelValue = "theodolite"
         )
         resourceRemover.removeConfigMaps(
             labelName = "app.kubernetes.io/created-by",
-            labelValue = "rocks/theodolitedolite"
+            labelValue = "theodolite"
         )
-        resourceRemover.removeCR(
-            labelName = "app.kubernetes.io/created-by",
-            labelValue = "rocks/theodolitedolite",
-            context = serviceMonitorContext
-        )
+        try {
+            resourceRemover.removeCR(
+                labelName = "app.kubernetes.io/created-by",
+                labelValue = "theodolite",
+                context = serviceMonitorContext
+            )
+        } catch (e: KubernetesClientException) {
+            logger.warn { "Service monitors could not be cleaned up. It may be that service monitors are not registered by the Kubernetes API."}
+            logger.debug { "Error is: ${e.message}" }
+        }
     }
 }

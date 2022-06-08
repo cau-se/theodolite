@@ -16,20 +16,21 @@ private val logger = KotlinLogging.logger {}
 
 @RegisterForReflection
 class ExperimentRunnerImpl(
-        results: Results,
-        private val benchmarkDeploymentBuilder: BenchmarkDeploymentBuilder,
-        private val executionDuration: Duration,
-        private val configurationOverrides: List<ConfigurationOverride?>,
-        private val slos: List<Slo>,
-        private val repetitions: Int,
-        private val executionId: Int,
-        private val loadGenerationDelay: Long,
-        private val afterTeardownDelay: Long,
-        private val executionName: String,
-        private val loadPatcherDefinitions: List<PatcherDefinition>,
-        private val resourcePatcherDefinitions: List<PatcherDefinition>,
+    results: Results,
+    private val benchmarkDeploymentBuilder: BenchmarkDeploymentBuilder,
+    private val executionDuration: Duration,
+    private val configurationOverrides: List<ConfigurationOverride?>,
+    private val slos: List<Slo>,
+    private val repetitions: Int,
+    private val executionId: Int,
+    private val loadGenerationDelay: Long,
+    private val afterTeardownDelay: Long,
+    private val executionName: String,
+    private val loadPatcherDefinitions: List<PatcherDefinition>,
+    private val resourcePatcherDefinitions: List<PatcherDefinition>,
+    private val waitForResourcesEnabled: Boolean
 ) : ExperimentRunner(
-        results
+    results
 ) {
     private val eventCreator = EventCreator()
     private val mode = Configuration.EXECUTION_MODE
@@ -77,7 +78,8 @@ class ExperimentRunnerImpl(
             this.resourcePatcherDefinitions,
             this.configurationOverrides,
             this.loadGenerationDelay,
-            this.afterTeardownDelay
+            this.afterTeardownDelay,
+            this.waitForResourcesEnabled
         )
         val from = Instant.now()
 
@@ -128,7 +130,6 @@ class ExperimentRunnerImpl(
 
     /**
      * Wait while the benchmark is running and log the number of minutes executed every 1 minute.
-     *
      */
     fun waitAndLog() {
         logger.info { "Execution of a new experiment started." }

@@ -34,7 +34,8 @@ class Shutdown(private val benchmarkExecution: BenchmarkExecution,
                     resourcePatcherDefinitions = emptyList(),
                     configurationOverrides = benchmarkExecution.configOverrides,
                     loadGenerationDelay = 0L,
-                    afterTeardownDelay = 5L
+                    afterTeardownDelay = 5L,
+                    waitForResourcesEnabled = benchmark.waitForResourcesEnabled
                 )
             deployment.teardown()
             logger.info { "Finished teardown of all benchmark resources." }

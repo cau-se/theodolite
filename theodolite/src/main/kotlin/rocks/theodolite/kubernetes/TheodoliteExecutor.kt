@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger {}
  * The Theodolite executor runs all the experiments defined with the given execution and benchmark configuration.
  *
  * @property benchmarkExecution Configuration of a execution
- * @property kubernetesBenchmark Configuration of a benchmark
+ * @property benchmark Configuration of a benchmark
  * @constructor Create empty Theodolite executor
  */
 class TheodoliteExecutor(
@@ -77,7 +77,8 @@ class TheodoliteExecutor(
                 afterTeardownDelay = benchmarkExecution.execution.afterTeardownDelay,
                 executionName = benchmarkExecution.name,
                 loadPatcherDefinitions = loadDimensionPatcherDefinition,
-                resourcePatcherDefinitions = resourcePatcherDefinition
+                resourcePatcherDefinitions = resourcePatcherDefinition,
+                waitForResourcesEnabled = this.benchmark.waitForResourcesEnabled
             )
 
         if (benchmarkExecution.loads.loadValues != benchmarkExecution.loads.loadValues.sorted()) {
@@ -156,6 +157,10 @@ class TheodoliteExecutor(
         }
         ioHandler.writeStringToTextFile(fileURL, (executionID).toString())
         return executionID
+    }
+
+    private fun calculateMetric(xValues: List<Int>, results: Results): List<List<String>> {
+        return xValues.map { listOf(it.toString(), results.getOptYDimensionValue(it).toString()) }
     }
 
     fun getExecution(): BenchmarkExecution {

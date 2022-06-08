@@ -1,9 +1,6 @@
 package rocks.theodolite.kubernetes.patcher
 
-import io.fabric8.kubernetes.api.model.Container
-import io.fabric8.kubernetes.api.model.KubernetesResource
-import io.fabric8.kubernetes.api.model.Quantity
-import io.fabric8.kubernetes.api.model.ResourceRequirements
+import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 
@@ -15,30 +12,31 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
  * @param limitedResource The resource to be limited (e.g. **cpu or memory**)
  */
 class ResourceLimitPatcher(
-    private val k8sResource: KubernetesResource,
     private val container: String,
     private val limitedResource: String
-) : AbstractPatcher(k8sResource) {
+) : AbstractPatcher() {
 
-    override fun <String> patch(value: String) {
-        when (k8sResource) {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
+        when (resource) {
             is Deployment -> {
-                k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setLimits(it, value as kotlin.String)
+                resource.spec.template.spec.containers.filter { it.name == container }.forEach {
+                    setLimits(it, value)
                 }
             }
             is StatefulSet -> {
-                k8sResource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setLimits(it, value as kotlin.String)
+                resource.spec.template.spec.containers.filter { it.name == container }.forEach {
+                    setLimits(it, value)
                 }
             }
             else -> {
-                throw InvalidPatcherConfigurationException("ResourceLimitPatcher not applicable for $k8sResource")
+                throw InvalidPatcherConfigurationException("ResourceLimitPatcher is not applicable for $resource")
             }
         }
+        return resource
     }
 
-    private fun setLimits(container: Container, value: String) {
+
+        private fun setLimits(container: Container, value: String) {
         when {
             container.resources == null -> {
                 val resource = ResourceRequirements()

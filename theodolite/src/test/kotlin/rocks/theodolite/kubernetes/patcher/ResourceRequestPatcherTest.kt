@@ -24,8 +24,6 @@ class ResourceRequestPatcherTest {
     @KubernetesTestServer
     private lateinit var server: KubernetesServer
 
-    val patcherFactory = PatcherFactory()
-
     fun applyTest(fileName: String) {
         val cpuValue = "50m"
         val memValue = "3Gi"
@@ -47,14 +45,8 @@ class ResourceRequestPatcherTest {
             "container" to "application"
         )
 
-        patcherFactory.createPatcher(
-            patcherDefinition = defCPU,
-            k8sResources = listOf(Pair("/cpu-memory-deployment.yaml", k8sResource))
-        ).patch(value = cpuValue)
-        patcherFactory.createPatcher(
-            patcherDefinition = defMEM,
-            k8sResources = listOf(Pair("/cpu-memory-deployment.yaml", k8sResource))
-        ).patch(value = memValue)
+        PatchHandler.patchResource(mutableMapOf(Pair("/cpu-memory-deployment.yaml", listOf(k8sResource))), defCPU, cpuValue)
+        PatchHandler.patchResource(mutableMapOf(Pair("/cpu-memory-deployment.yaml", listOf(k8sResource))), defMEM, memValue)
 
         k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"]!! }
             .forEach {

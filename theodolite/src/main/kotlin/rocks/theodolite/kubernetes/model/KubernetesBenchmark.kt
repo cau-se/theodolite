@@ -29,6 +29,7 @@ import kotlin.properties.Delegates
 @RegisterForReflection
 class KubernetesBenchmark : KubernetesResource {
     lateinit var name: String
+    var waitForResourcesEnabled = false
     lateinit var resourceTypes: List<TypeName>
     lateinit var loadTypes: List<TypeName>
     lateinit var slos: MutableList<Slo>

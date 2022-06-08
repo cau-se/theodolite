@@ -1,49 +1,50 @@
 package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.ConfigMap
-import io.fabric8.kubernetes.api.model.KubernetesResource
+import io.fabric8.kubernetes.api.model.GenericKubernetesResource
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.Service
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
-import io.fabric8.kubernetes.client.CustomResource
 
-class LabelPatcher(private val k8sResource: KubernetesResource, val variableName: String) :
-    AbstractPatcher(k8sResource) {
+class LabelPatcher(
+    val variableName: String) :
+    AbstractPatcher() {
 
-    override fun <String> patch(labelValue: String) {
-        if (labelValue is kotlin.String) {
-            when (k8sResource) {
-                is Deployment -> {
-                    if (k8sResource.metadata.labels == null) {
-                        k8sResource.metadata.labels = mutableMapOf()
-                    }
-                    k8sResource.metadata.labels[this.variableName] = labelValue
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
+        when (resource) {
+            is Deployment -> {
+                if (resource.metadata.labels == null) {
+                    resource.metadata.labels = mutableMapOf()
                 }
-                is StatefulSet -> {
-                    if (k8sResource.metadata.labels == null) {
-                        k8sResource.metadata.labels = mutableMapOf()
-                    }
-                    k8sResource.metadata.labels[this.variableName] = labelValue
+                resource.metadata.labels[this.variableName] = value
+            }
+            is StatefulSet -> {
+                if (resource.metadata.labels == null) {
+                    resource.metadata.labels = mutableMapOf()
                 }
-                is Service -> {
-                    if (k8sResource.metadata.labels == null) {
-                        k8sResource.metadata.labels = mutableMapOf()
-                    }
-                    k8sResource.metadata.labels[this.variableName] = labelValue
+                resource.metadata.labels[this.variableName] = value
+            }
+            is Service -> {
+                if (resource.metadata.labels == null) {
+                    resource.metadata.labels = mutableMapOf()
                 }
-                is ConfigMap -> {
-                    if (k8sResource.metadata.labels == null) {
-                        k8sResource.metadata.labels = mutableMapOf()
-                    }
-                    k8sResource.metadata.labels[this.variableName] = labelValue
+                resource.metadata.labels[this.variableName] = value
+
+            }
+            is ConfigMap -> {
+                if (resource.metadata.labels == null) {
+                    resource.metadata.labels = mutableMapOf()
                 }
-                is CustomResource<*, *> -> {
-                    if (k8sResource.metadata.labels == null) {
-                        k8sResource.metadata.labels = mutableMapOf()
-                    }
-                    k8sResource.metadata.labels[this.variableName] = labelValue
+                resource.metadata.labels[this.variableName] = value
+            }
+            is GenericKubernetesResource -> {
+                if (resource.metadata.labels == null) {
+                    resource.metadata.labels = mutableMapOf()
                 }
+                resource.metadata.labels[this.variableName] = value
             }
         }
+        return resource
     }
 }

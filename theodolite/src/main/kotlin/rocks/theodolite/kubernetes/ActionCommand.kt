@@ -31,10 +31,10 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
      * @return the exit code of this executed command
      */
     fun exec(
-            matchLabels: MutableMap<String, String>,
-            command: Array<String>,
-            timeout: Long = Configuration.TIMEOUT_SECONDS,
-            container: String = ""
+        matchLabels: Map<String, String>,
+        command: Array<String>,
+        timeout: Long = Configuration.TIMEOUT_SECONDS,
+        container: String = ""
     ): Int {
         try {
             val execWatch: ExecWatch = if (container.isNotEmpty()) {
@@ -56,7 +56,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
 
             val latchTerminationStatus = execLatch.await(timeout, TimeUnit.SECONDS)
             if (!latchTerminationStatus) {
-                throw ActionCommandFailedException("Latch could not terminate within specified time")
+                throw ActionCommandFailedException("Timeout while running action command")
             }
             execWatch.close()
         } catch (e: Exception) {
@@ -110,7 +110,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
      * it can take a while until the status is ready and the pod can be selected.
      * @return the name of the pod or throws [ActionCommandFailedException]
      */
-    fun getPodName(matchLabels: MutableMap<String, String>, tries: Int): String {
+    fun getPodName(matchLabels: Map<String, String>, tries: Int): String {
         for (i in 1..tries) {
 
             try {
@@ -123,7 +123,7 @@ class ActionCommand(val client: NamespacedKubernetesClient) {
         throw ActionCommandFailedException("Couldn't find any pod that matches the specified labels.")
     }
 
-    private fun getPodName(matchLabels: MutableMap<String, String>): String {
+    private fun getPodName(matchLabels: Map<String, String>): String {
         return try {
             val podNames = this.client
                 .pods()

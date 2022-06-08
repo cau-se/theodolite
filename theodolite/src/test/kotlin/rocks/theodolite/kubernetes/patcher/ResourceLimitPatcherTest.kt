@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.patcher
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
@@ -22,8 +23,6 @@ import org.junit.jupiter.api.Test
 @WithKubernetesTestServer
 @Disabled
 class ResourceLimitPatcherTest {
-
-    val patcherFactory = PatcherFactory()
 
     @KubernetesTestServer
     private lateinit var server: KubernetesServer
@@ -49,15 +48,8 @@ class ResourceLimitPatcherTest {
             "container" to "uc-application"
         )
 
-        patcherFactory.createPatcher(
-            patcherDefinition = defCPU,
-            k8sResources = listOf(Pair("/cpu-memory-deployment.yaml", k8sResource))
-        ).patch(value = cpuValue)
-
-        patcherFactory.createPatcher(
-            patcherDefinition = defMEM,
-            k8sResources = listOf(Pair("/cpu-memory-deployment.yaml", k8sResource))
-        ).patch(value = memValue)
+        PatchHandler.patchResource(mutableMapOf(Pair("cpu-memory-deployment.yaml", listOf(k8sResource as HasMetadata))), defCPU, cpuValue)
+        PatchHandler.patchResource(mutableMapOf(Pair("cpu-memory-deployment.yaml", listOf(k8sResource as HasMetadata))), defMEM, memValue)
 
         k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"]!! }
             .forEach {

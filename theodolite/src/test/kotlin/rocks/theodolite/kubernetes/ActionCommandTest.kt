@@ -101,7 +101,7 @@ class ActionCommandTest {
         val action = Action()
         action.selector = ActionSelector()
         action.selector.pod = PodSelector()
-        action.selector.pod.matchLabels = mutableMapOf("app" to "pod")
+        action.selector.pod.matchLabels = mapOf("app" to "pod")
         action.exec = Command()
         action.exec.command = arrayOf("ls")
         action.exec.timeoutSeconds = 10L
@@ -117,7 +117,7 @@ class ActionCommandTest {
         val action = Action()
         action.selector = ActionSelector()
         action.selector.pod = PodSelector()
-        action.selector.pod.matchLabels = mutableMapOf("app" to "pod")
+        action.selector.pod.matchLabels = mapOf("app" to "pod")
         action.exec = Command()
         action.exec.command = arrayOf("error-command")
         action.exec.timeoutSeconds = 10L

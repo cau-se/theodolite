@@ -13,7 +13,8 @@ class TestBenchmarkDeploymentBuilder(): BenchmarkDeploymentBuilder {
             resourcePatcherDefinitions: List<PatcherDefinition>,
             configurationOverrides: List<ConfigurationOverride?>,
             loadGenerationDelay: Long,
-            afterTeardownDelay: Long
+            afterTeardownDelay: Long,
+            waitForResourcesEnabled: Boolean
     ): BenchmarkDeployment {
         return TestBenchmarkDeployment()
     }

@@ -1,9 +1,10 @@
 package rocks.theodolite.kubernetes
 
+import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
-import rocks.theodolite.kubernetes.patcher.PatcherFactory
+import rocks.theodolite.kubernetes.patcher.PatchHandler
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 
@@ -31,27 +32,34 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
             resourcePatcherDefinitions: List<PatcherDefinition>,
             configurationOverrides: List<ConfigurationOverride?>,
             loadGenerationDelay: Long,
-            afterTeardownDelay: Long
+            afterTeardownDelay: Long,
+            waitForResourcesEnabled: Boolean
     ): BenchmarkDeployment {
         logger.info { "Using ${this.client.namespace} as namespace." }
 
-        val appResources = loadKubernetesResources(kubernetesBenchmark.sut.resources, this.client)
-        val loadGenResources = loadKubernetesResources(kubernetesBenchmark.loadGenerator.resources, this.client)
-
-        val patcherFactory = PatcherFactory()
+        val appResources = loadKubernetesResources(kubernetesBenchmark.sut.resources, this.client).toResourceMap()
+        val loadGenResources = loadKubernetesResources(kubernetesBenchmark.loadGenerator.resources, this.client).toResourceMap()
 
         // patch the load dimension the resources
         loadPatcherDefinitions.forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, loadGenResources).patch(load.toString())
+            loadGenResources[patcherDefinition.resource] =
+                PatchHandler.patchResource(loadGenResources, patcherDefinition, load.toString())
         }
         resourcePatcherDefinitions.forEach { patcherDefinition ->
-            patcherFactory.createPatcher(patcherDefinition, appResources).patch(resource.toString())
+            appResources[patcherDefinition.resource] =
+                PatchHandler.patchResource(appResources, patcherDefinition, resource.toString())
         }
 
         // Patch the given overrides
         configurationOverrides.forEach { override ->
             override?.let {
-                patcherFactory.createPatcher(it.patcher, appResources + loadGenResources).patch(override.value)
+                if (appResources.keys.contains(it.patcher.resource)) {
+                    appResources[it.patcher.resource] =
+                        PatchHandler.patchResource(appResources, override.patcher, override.value)
+                } else {
+                    loadGenResources[it.patcher.resource] =
+                        PatchHandler.patchResource(loadGenResources, override.patcher, override.value)
+                }
             }
         }
 
@@ -62,14 +70,23 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
                 sutAfterActions = kubernetesBenchmark.sut.afterActions,
                 loadGenBeforeActions = kubernetesBenchmark.loadGenerator.beforeActions,
                 loadGenAfterActions = kubernetesBenchmark.loadGenerator.afterActions,
-                appResources = appResources.map { it.second },
-                loadGenResources = loadGenResources.map { it.second },
+                appResources = appResources.toList().flatMap { it.second },
+                loadGenResources = loadGenResources.toList().flatMap { it.second },
                 loadGenerationDelay = loadGenerationDelay,
                 afterTeardownDelay = afterTeardownDelay,
                 kafkaConfig = if (kafkaConfig != null) mapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
                 topics = kafkaConfig?.topics ?: listOf(),
-                client = this.client
+                client = this.client,
+                rolloutMode = waitForResourcesEnabled
         )
     }
 
+}
+
+private fun Collection<Pair<String, HasMetadata>>.toResourceMap(): MutableMap<String, List<HasMetadata>> {
+    return this.toMap()
+        .toMutableMap()
+        .map { Pair(it.key, listOf(it.value)) }
+        .toMap()
+        .toMutableMap()
 }

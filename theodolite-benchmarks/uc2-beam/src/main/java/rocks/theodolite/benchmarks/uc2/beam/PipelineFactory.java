@@ -70,8 +70,10 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   @Override
   protected void registerCoders(final CoderRegistry registry) {
-    registry.registerCoderForClass(ActivePowerRecord.class,
-        AvroCoder.of(ActivePowerRecord.SCHEMA$));
+    registry.registerCoderForClass(
+        ActivePowerRecord.class,
+        // AvroCoder.of(ActivePowerRecord.SCHEMA$));
+        AvroCoder.of(ActivePowerRecord.class, false));
     registry.registerCoderForClass(StatsAggregation.class,
         SerializableCoder.of(StatsAggregation.class));
     registry.registerCoderForClass(StatsAccumulator.class,

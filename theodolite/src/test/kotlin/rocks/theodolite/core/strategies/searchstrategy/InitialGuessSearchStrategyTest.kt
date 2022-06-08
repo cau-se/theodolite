@@ -32,7 +32,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results(Metric.from("demand"))
         val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker: Slo = Slo()
+        val sloChecker = Slo()
         val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
@@ -70,7 +70,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results(Metric.from("demand"))
         val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker: Slo = Slo()
+        val sloChecker = Slo()
         val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
@@ -108,7 +108,7 @@ class InitialGuessSearchStrategyTest {
         val results = Results(Metric.from("demand"))
         val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker: Slo = Slo()
+        val sloChecker = Slo()
         val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)
 

@@ -26,6 +26,10 @@ spec:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
                 type: string
                 default: ""
+              waitForResourcesEnabled:
+                description: If true, Theodolite waits to create the resource for the SUT until the infrastructure resources are ready, and analogously, Theodolite waits to create the load-gen resource until the resources of the SUT are ready.
+                type: boolean
+                default: false
               infrastructure:
                 description: (Optional) A list of file names that reference Kubernetes resources that are deployed on the cluster to create the required infrastructure.
                 type: object

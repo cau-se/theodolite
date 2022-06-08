@@ -17,7 +17,7 @@ fun loadKubernetesResources(resourceSet: List<ResourceSets>, client: NamespacedK
 
 @JsonDeserialize
 @RegisterForReflection
-class ResourceSets: KubernetesResource {
+class ResourceSets : KubernetesResource {
     @JsonProperty("configMap")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     var configMap: ConfigMapResourceSet? = null
@@ -28,11 +28,10 @@ class ResourceSets: KubernetesResource {
 
 
     fun loadResourceSet(client: NamespacedKubernetesClient): Collection<Pair<String, HasMetadata>> {
-        // TODO Find out whether field access (::configMap) is really what we want to do here (see #362)
-        return if (::configMap != null) {
-            configMap?.getResourceSet(client= client) !!
-        } else if (::fileSystem != null) {
-            fileSystem?.getResourceSet(client= client ) !!
+        return if (this.configMap != null) {
+            configMap?.getResourceSet(client = client)!!
+        } else if (this.fileSystem != null) {
+            fileSystem?.getResourceSet(client = client)!!
         } else {
             throw DeploymentFailedException("Could not load resourceSet.")
         }
