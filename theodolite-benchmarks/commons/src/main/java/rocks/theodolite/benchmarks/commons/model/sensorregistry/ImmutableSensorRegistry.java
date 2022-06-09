@@ -5,15 +5,13 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.AggregatedSensorSerializer;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.MachineSensorSerializer;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.SensorRegistryDeserializer;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.SensorRegistrySerializer;
-
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Implementation of a {@link SensorRegistry} that is immutable.

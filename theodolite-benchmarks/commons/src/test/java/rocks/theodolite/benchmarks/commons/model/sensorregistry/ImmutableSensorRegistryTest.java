@@ -4,10 +4,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
-
 public class ImmutableSensorRegistryTest {
 
   @Test

@@ -5,10 +5,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Optional;
 import org.junit.Test;
 
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
-
 public class MutableSensorRegistryTest {
 
   @Test

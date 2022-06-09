@@ -110,7 +110,7 @@ public class Uc2PipelineBuilder {
    * @return An AggregateOperation used by Hazelcast Jet in a streaming stage which aggregates
    *         ActivePowerRecord Objects into Stats Objects.
    */
-  public AggregateOperation1<Entry<String, ActivePowerRecord>, StatsAccumulator, Stats> uc2AggregateOperation() {
+  public AggregateOperation1<Entry<String, ActivePowerRecord>, StatsAccumulator, Stats> uc2AggregateOperation() { // NOCS
     // Aggregate Operation to Create a Stats Object from Entry<String,ActivePowerRecord> items using
     // the Statsaccumulator.
     return AggregateOperation

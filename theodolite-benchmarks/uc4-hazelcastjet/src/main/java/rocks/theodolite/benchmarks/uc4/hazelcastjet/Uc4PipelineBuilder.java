@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc4.hazelcastjet;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet; // NOPMD Excessive imports
 
 import com.hazelcast.function.BiFunctionEx;
 import com.hazelcast.jet.Traverser;
@@ -38,7 +38,6 @@ import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
  * Builder to build a HazelcastJet Pipeline for UC4 which can be used for stream processing using
  * Hazelcast Jet.
  */
-@SuppressWarnings("PMD.ExcessiveImports")
 public class Uc4PipelineBuilder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Uc4PipelineBuilder.class);
@@ -239,7 +238,7 @@ public class Uc4PipelineBuilder {
         dupliAsFlatmappedStage
             .window(WindowDefinition.tumbling(windowSize));
 
-    final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp =
+    final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
         AggregateOperation
             .withCreate(AggregatedActivePowerRecordAccumulator::new)
             .<Entry<SensorGroupKey, ActivePowerRecord>>andAccumulate((acc, rec) -> {

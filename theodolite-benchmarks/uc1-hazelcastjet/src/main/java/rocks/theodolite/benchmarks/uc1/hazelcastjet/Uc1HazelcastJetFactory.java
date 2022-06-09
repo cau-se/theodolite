@@ -134,8 +134,8 @@ public class Uc1HazelcastJetFactory {
    * @return The Uc1HazelcastJetBuilder factory with set kafkaPropertiesForPipeline.
    */
   public Uc1HazelcastJetFactory setPropertiesFromEnv(final String bootstrapServersDefault, // NOPMD
-                                                     final String schemaRegistryUrlDefault,
-                                                     final String jobName) {
+      final String schemaRegistryUrlDefault,
+      final String jobName) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
     final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
     final Properties kafkaProps =

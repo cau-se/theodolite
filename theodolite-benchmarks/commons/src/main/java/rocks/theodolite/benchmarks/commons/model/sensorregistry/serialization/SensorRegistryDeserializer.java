@@ -6,14 +6,12 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-
+import java.lang.reflect.Type;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
-
-import java.lang.reflect.Type;
 
 /**
  * {@link JsonDeserializer} for {@link AggregatedSensor}s.

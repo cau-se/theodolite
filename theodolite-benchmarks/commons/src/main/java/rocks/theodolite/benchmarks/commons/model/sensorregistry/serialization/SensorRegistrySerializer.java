@@ -3,10 +3,8 @@ package rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
-
 import java.lang.reflect.Type;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * {@link JsonSerializer} for {@link SensorRegistry}s.

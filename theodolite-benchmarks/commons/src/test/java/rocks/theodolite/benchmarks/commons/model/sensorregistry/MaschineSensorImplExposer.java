@@ -1,8 +1,5 @@
 package rocks.theodolite.benchmarks.commons.model.sensorregistry;
 
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensorImpl;
-
 /**
  * Helper class to allow tests in other packages access {@link MachineSensorImpl} class objects.
  */

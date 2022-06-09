@@ -192,9 +192,9 @@ public class Uc3HazelcastJetFactory { // NOPMD
    * @return The Uc3HazelcastJetBuilder factory with set kafkaReadPropertiesForPipeline.
    */
   public Uc3HazelcastJetFactory setReadPropertiesFromEnv(// NOPMD
-                                                         final String bootstrapServersDefault,
-                                                         final String schemaRegistryUrlDefault,
-                                                         final String jobName) {
+      final String bootstrapServersDefault,
+      final String schemaRegistryUrlDefault,
+      final String jobName) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
     final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
     final Properties kafkaReadProps =

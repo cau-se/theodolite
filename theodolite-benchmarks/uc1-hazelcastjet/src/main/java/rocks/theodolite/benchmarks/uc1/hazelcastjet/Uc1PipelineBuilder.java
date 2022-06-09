@@ -1,9 +1,9 @@
 package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
-import static com.hazelcast.jet.pipeline.SinkBuilder.sinkBuilder;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sink;
+import com.hazelcast.jet.pipeline.SinkBuilder;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import java.util.Map.Entry;
@@ -45,10 +45,10 @@ public class Uc1PipelineBuilder {
     // Do not refactor this to just use the call
     // (There is a problem with static calls in functions in hazelcastjet)
     final DatabaseWriter<String> writer = this.databaseAdapter.getDatabaseWriter();
-    final Sink<String> sink = sinkBuilder(
+    final Sink<String> sink = SinkBuilder.sinkBuilder(
         "Sink into database", x -> writer)
-            .<String>receiveFn(DatabaseWriter::write)
-            .build();
+        .<String>receiveFn(DatabaseWriter::write)
+        .build();
 
     uc1TopologyProduct.writeTo(sink);
 

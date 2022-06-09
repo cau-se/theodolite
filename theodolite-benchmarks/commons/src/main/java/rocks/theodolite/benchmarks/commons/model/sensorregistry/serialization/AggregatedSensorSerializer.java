@@ -4,10 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
-
 import java.lang.reflect.Type;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
 
 /**
  * {@link JsonSerializer} for {@link AggregatedSensor}s.

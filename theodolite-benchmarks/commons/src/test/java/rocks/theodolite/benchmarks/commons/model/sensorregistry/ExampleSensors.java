@@ -3,12 +3,6 @@ package rocks.theodolite.benchmarks.commons.model.sensorregistry;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
-
 public final class ExampleSensors {
 
   private static final SensorRegistry REGISTRY;

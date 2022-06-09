@@ -2,17 +2,15 @@ package rocks.theodolite.benchmarks.commons.model.sensorregistry;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.AggregatedSensorSerializer;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.MachineSensorSerializer;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.SensorRegistrySerializer;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.AggregatedSensorSerializer;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.MachineSensorSerializer;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.serialization.SensorRegistrySerializer;
 
 /**
  * A {@link SensorRegistry} to which sensors can be added.
