@@ -20,7 +20,7 @@ private val logger = KotlinLogging.logger {}
 const val DEPLOYED_FOR_EXECUTION_LABEL_NAME = "deployed-for-execution"
 const val DEPLOYED_FOR_BENCHMARK_LABEL_NAME = "deployed-for-benchmark"
 const val CREATED_BY_LABEL_NAME = "app.kubernetes.io/created-by"
-const val CREATED_BY_LABEL_VALUE = "rocks/theodolite"
+const val CREATED_BY_LABEL_VALUE = "theodolite"
 
 /**
  * The controller implementation for Theodolite.
