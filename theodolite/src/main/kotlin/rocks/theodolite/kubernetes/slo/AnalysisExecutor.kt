@@ -48,15 +48,9 @@ class AnalysisExecutor(
                     )
                 }
 
-            // set name if not defined in properties
-            var sloName = slo.properties["name"] ?: ""
-            if (sloName.length > 0){
-                sloName = "_" + sloName
-            }
-
-            prometheusData.forEachIndexed{ index, data ->
+            prometheusData.forEach{ data ->
                 ioHandler.writeToCSVFile(
-                    fileURL = "${fileURL}_${index}${sloName}_${repetitionCounter++}",
+                    fileURL = "${fileURL}_${slo.name}_${repetitionCounter++}",
                     data = data.getResultAsList(),
                     columns = listOf("labels", "timestamp", "value")
                 )
