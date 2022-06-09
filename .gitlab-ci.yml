@@ -48,7 +48,8 @@ default:
         export PUBLISHED_IMAGE_TAG=$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA
       fi
     - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
-    - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
+    - "BUILD_ARGS=$(printenv | sed -n 's/BUILD_ARG_/--build-arg=/p')"
+    - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D $BUILD_ARGS
     - echo "PUBLISHED_IMAGE_TAG=$PUBLISHED_IMAGE_TAG" >> $CI_PROJECT_DIR/build.env
   artifacts:
     reports:
@@ -897,8 +898,8 @@ deploy-buildimage-k3d-helm:
     - .kaniko-push
   needs: []
   variables:
-    DOCKER_VERSION: 20.10.12
-    KUBECTL: v1.21.3
+    BUILD_ARG_DOCKER_VERSION: 20.10.12
+    BUILD_ARG_KUBECTL: v1.21.3
     IMAGE_NAME: theodolite-build-k3d-helm
     IMAGE_TAG: $DOCKER_VERSION
   before_script:
