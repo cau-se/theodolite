@@ -115,6 +115,13 @@ Resource Types:
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b><a href="#benchmarkspecslosindex">slos</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of resource values for the specified resource type.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecsut">sut</a></b></td>
         <td>object</td>
         <td>
@@ -144,6 +151,15 @@ Resource Types:
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
           <br/>
             <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>waitForResourcesEnabled</b></td>
+        <td>boolean</td>
+        <td>
+          If true, Theodolite waits to create the resource for the SUT until the infrastructure resources are ready, and analogously, Theodolite waits to create the load-gen resource until the resources of the SUT are ready.<br/>
+          <br/>
+            <i>Default</i>: false<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -719,6 +735,63 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td>map[string]string</td>
         <td>
           (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.slos[index]
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the SLO.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>offset</b></td>
+        <td>integer</td>
+        <td>
+          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>prometheusUrl</b></td>
+        <td>string</td>
+        <td>
+          Connection string for Promehteus.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>sloType</b></td>
+        <td>string</td>
+        <td>
+          The type of the SLO. It must match 'lag trend'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) SLO specific additional arguments.<br/>
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
@@ -1765,7 +1838,7 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecload">load</a></b></td>
+        <td><b><a href="#executionspecloads">loads</a></b></td>
         <td>object</td>
         <td>
           Specifies the load values that are benchmarked.<br/>
@@ -1779,19 +1852,19 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecslosindex">slos</a></b></td>
-        <td>[]object</td>
-        <td>
-          List of resource values for the specified resource type.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
           <br/>
             <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#executionspecslosindex">slos</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of SLOs with their properties, which differ from the benchmark definition.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -1906,21 +1979,14 @@ Defines the overall parameter for the execution.
         <td><b>repetitions</b></td>
         <td>integer</td>
         <td>
-          Numper of repititions for each experiments.<br/>
+          Number of repititions for each experiment.<br/>
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>restrictions</b></td>
-        <td>[]string</td>
+        <td><b><a href="#executionspecexecutionstrategy">strategy</a></b></td>
+        <td>object</td>
         <td>
-          List of restriction strategys used to delimit the search space.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>strategy</b></td>
-        <td>string</td>
-        <td>
-          Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'<br/>
+          Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1930,11 +1996,66 @@ Defines the overall parameter for the execution.
           Seconds to wait between the start of the SUT and the load generator.<br/>
         </td>
         <td>false</td>
+      </tr><tr>
+        <td><b>metric</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
 
-### execution.spec.load
+### execution.spec.execution.strategy
+<sup><sup>[↩ Parent](#executionspecexecution)</sup></sup>
+
+
+
+Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>guessStrategy</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>restrictions</b></td>
+        <td>[]string</td>
+        <td>
+          List of restriction strategies used to delimit the search space.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>searchStrategy</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### execution.spec.loads
 <sup><sup>[↩ Parent](#executionspec)</sup></sup>
 
 
@@ -2019,24 +2140,10 @@ Specifies the scaling resource that is benchmarked.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>offset</b></td>
-        <td>integer</td>
-        <td>
-          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>prometheusUrl</b></td>
+        <td><b>name</b></td>
         <td>string</td>
         <td>
-          Connection string for Promehteus.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>sloType</b></td>
-        <td>string</td>
-        <td>
-          The type of the SLO. It must match 'lag trend'.<br/>
+          The name of the SLO. It must match a SLO specified in the Benchmark.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2047,7 +2154,7 @@ Specifies the scaling resource that is benchmarked.
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 

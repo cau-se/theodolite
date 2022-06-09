@@ -37,7 +37,7 @@ def aggr_query(values: dict, warmup: int, aggr_func):
     df = pd.DataFrame.from_dict(values)
     df.columns = ['timestamp', 'value']
     filtered = df[df['timestamp'] >= (df['timestamp'][0] + warmup)]
-    filtered['value'] = filtered['value'].astype(int)
+    filtered['value'] = filtered['value'].astype(float).astype(int)
     return filtered['value'].aggregate(aggr_func)
 
 def check_result(result, operator: str, threshold):
