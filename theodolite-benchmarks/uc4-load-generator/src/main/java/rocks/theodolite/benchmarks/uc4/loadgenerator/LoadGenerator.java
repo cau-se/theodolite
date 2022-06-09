@@ -3,9 +3,9 @@ package rocks.theodolite.benchmarks.uc4.loadgenerator;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 import rocks.theodolite.benchmarks.loadgenerator.KeySpace;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.sensorregistry.SensorRegistry;
 
 /**
  * Load generator for Theodolite use case UC4.

@@ -7,8 +7,8 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.configuration.events.EventSerde;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.configuration.events.EventSerde;
 
 /**
  * Class to publish a configuration to Kafka.

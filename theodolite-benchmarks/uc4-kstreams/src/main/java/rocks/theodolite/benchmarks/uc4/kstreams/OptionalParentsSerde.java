@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.kafka.common.serialization.Serde;
-import titan.ccp.common.kafka.simpleserdes.BufferSerde;
-import titan.ccp.common.kafka.simpleserdes.ReadBuffer;
-import titan.ccp.common.kafka.simpleserdes.SimpleSerdes;
-import titan.ccp.common.kafka.simpleserdes.WriteBuffer;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.BufferSerde;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.ReadBuffer;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.SimpleSerdes;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.WriteBuffer;
 
 /**
  * {@link Serde} factory for an optional {@link Set} of parent identifiers.
