@@ -37,7 +37,7 @@ dependencies {
 }
 
 group 'theodolite'
-version '0.7.0-SNAPSHOT'
+version '0.8.0-SNAPSHOT'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -57,6 +57,12 @@ compileKotlin {
 
 compileTestKotlin {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+}
+
+test {
+    // Required because of https://github.com/quarkusio/quarkus/issues/18973
+    minHeapSize = "256m"
+    maxHeapSize = "1024m"
 }
 
 detekt {

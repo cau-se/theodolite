@@ -1,0 +1,68 @@
+apiVersion: theodolite.com/v1
+kind: benchmark
+metadata:
+  name: uc4-beam-samza
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-beam-samza"
+          files:
+          - "uc4-beam-samza-deployment.yaml"
+          - "beam-samza-service.yaml"
+          - "service-monitor.yaml"
+    afterActions:
+      - selector: # delete zookeeper nodes to reset zookeeper
+          pod:
+            matchLabels:
+              app: "zookeeper-client"
+          container: "zookeeper-client"
+        exec:
+          command: ["bash", "-c", "bin/zkCli.sh -server $ZOOKEEPER_SERVER deleteall /app-theodolite-uc4-application-1"]
+          timeoutSeconds: 60
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-load-generator"
+          files:
+          - "uc4-load-generator-deployment.yaml"
+          - "uc4-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc4-beam-samza-deployment.yaml"
+  loadTypes:
+    - typeName: "NumNestedGroups"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_NESTED_GROUPS"
+        - type: NumNestedGroupsLoadGeneratorReplicaPatcher
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "150000"
+            numSensors: "4.0"
+  kafkaConfig:
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
+    topics:
+      - name: "input"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "output"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "configuration"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "aggregation-feedback"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "theodolite-.*"
+        removeOnly: True
+      - name: ".*samza.*"
+        removeOnly: true
+      - name: ".*uc4-application.*"
+        removeOnly: true

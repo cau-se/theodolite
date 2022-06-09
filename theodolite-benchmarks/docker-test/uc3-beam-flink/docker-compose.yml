@@ -20,18 +20,23 @@ services:
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_CREATE_TOPICS: "input:3:1,output:3:1"
+  kcat:
+    image: edenhill/kcat:1.7.1
+    entrypoint: "sh"
+    tty: true
   schema-registry:
-    image: confluentinc/cp-schema-registry:5.3.1
+    image: confluentinc/cp-schema-registry:7.0.1
     depends_on:
       - zookeeper
       - kafka
+    restart: "on-failure"
     expose:
       - "8081"
     #ports:
     #  - 8081:8081
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
   load-generator: 
     image: ghcr.io/cau-se/theodolite-uc3-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:
@@ -48,7 +53,7 @@ services:
       #ports:
       #  - "8080:8081"
       command: >
-        standalone-job --job-classname application.Uc3BeamFlink
+        standalone-job --job-classname rocks.theodolite.benchmarks.uc3.beam.flink.Uc3BeamFlink
         --disableMetrics=true 
         --fasterCopy 
       environment:

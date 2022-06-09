@@ -5,7 +5,7 @@
 kafkaClient:
   enabled: false
   nodeSelector: {}
-  
+
 
 ####
 ## configuration of sub charts
@@ -52,6 +52,9 @@ grafana:
   service:
     nodePort: 31199
     type: NodePort
+  rbac:
+    pspEnabled: false
+    namespaced: true
 
 
 ###
@@ -64,7 +67,7 @@ cp-helm-charts:
   ## Zookeeper
   ## ------------------------------------------------------
   cp-zookeeper:
-    enabled: true
+    enabled: false
     nodeSelector: {}
     servers: 3
     image: confluentinc/cp-zookeeper
@@ -81,7 +84,7 @@ cp-helm-charts:
   ## Kafka
   ## ------------------------------------------------------
   cp-kafka:
-    enabled: true
+    enabled: false
     nodeSelector: {}
     brokers: 3
     image: confluentinc/cp-enterprise-kafka
@@ -137,6 +140,9 @@ cp-helm-charts:
       nodePort: 30099
       annotations: {}
 
+    kafka:
+      bootstrapServers: theodolite-kafka-kafka-bootstrap:9092
+
   cp-kafka-rest:
     enabled: false
 
@@ -149,35 +155,54 @@ cp-helm-charts:
   cp-control-center:
     enabled: false
 
-
-###
-# Kafka Lag Exporter
-###
-kafka-lag-exporter:
-  enabled: true
-  image:
-    pullPolicy: IfNotPresent
-  nodeSelector: {}
-  
-  clusters:
-    - name: "theodolite-cp-kafka"
-      bootstrapBrokers: "theodolite-cp-kafka:9092"
-
   ## The interval between refreshing metrics
   pollIntervalSeconds: 15
 
-  prometheus:
-    serviceMonitor:
+strimzi-kafka-operator:
+  createGlobalResources: true
+
+strimzi:
+  enabled: true
+  kafka:
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    replicas: 3
+    config:
+      "message.max.bytes": "134217728" # 128 MB
+      "replica.fetch.max.bytes": "134217728" #128 MB
+      "auto.create.topics.enable": false
+      "log.retention.ms": "7200000" # 2h
+      "metrics.sample.window.ms": "5000" #5s
+    jvmOptions:
+      "-Xmx": "512M"
+      "-Xms": "512M"
+    nodeSelectorTerms: []
+    resources: {}
+    
+  zookeeper:
+    replicas: 3
+    zooEntrance:
       enabled: true
-      interval: "5s"
-      additionalLabels:
-        appScope: titan-ccp
+      zookeeperClient:
+        enabled: true
+        nodeSelector: {}
+    nodeSelectorTerms: []
+  
+  topicOperator:
+    enabled: true
 
 
 ###
 # Prometheus Monitoring Stack (Prometheus Operator)
 ###
 kube-prometheus-stack:
+  global:
+    rbac:
+      create: false
+
   commonLabels:
     appScope: titan-ccp
   
@@ -223,7 +248,14 @@ kube-prometheus-stack:
       releaseNamespace: true
       additional: []
     nodeSelector: {}
+    admissionWebhooks:
+      enabled: false
+    tls:
+      enabled: false
+    serviceAccount:
+      create: true
   
+  # We use our own Prometheus
   prometheus:
     enabled: false
 
@@ -235,12 +267,11 @@ prometheus:
   enabled: true
   nodeSelector: {}
   
-  # depends on your cluster security and permission settings, you may need to create the following resources
   serviceAccount:
     enabled: true
-  clusterRole:
+  role:
     enabled: true
-  clusterRoleBinding:
+  roleBinding:
     enabled: true
 
 ###
@@ -291,33 +322,50 @@ operator:
       uc1LoadGenerator: true
       uc1Kstreams: true
       uc1Flink: true
+      uc1BeamFlink: true
+      uc1BeamSamza: true
       uc2LoadGenerator: true
       uc2Kstreams: true
       uc2Flink: true
+      uc2BeamFlink: true
+      uc2BeamSamza: true
       uc3LoadGenerator: true
       uc3Kstreams: true
       uc3Flink: true
+      uc3BeamFlink: true
+      uc3BeamSamza: true
       uc4LoadGenerator: true
       uc4Kstreams: true
       uc4Flink: true
+      uc4BeamFlink: true
+      uc4BeamSamza: true
     benchmarks:
       uc1Kstreams: true
       uc1Flink: true
+      uc1BeamFlink: true
+      uc1BeamSamza: true
       uc2Kstreams: true
       uc2Flink: true
+      uc2BeamFlink: true
+      uc2BeamSamza: true
       uc3Kstreams: true
       uc3Flink: true
+      uc3BeamFlink: true
+      uc3BeamSamza: true
       uc4Kstreams: true
       uc4Flink: true
+      uc4BeamFlink: true
+      uc4BeamSamza: true
 
 serviceAccount:
   create: true
 
 rbac:
   create: true
+  additionalRules: []
 
 randomScheduler:
-  enabled: true
+  enabled: false
   image: ghcr.io/cau-se/theodolite-random-scheduler
   imageTag: latest
   imagePullPolicy: Always

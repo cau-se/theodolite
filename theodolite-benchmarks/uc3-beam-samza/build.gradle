@@ -2,9 +2,18 @@ plugins {
   id 'theodolite.beam.samza'
 }
 
-
 dependencies {
   implementation project(':uc3-beam')
 }
 
-mainClassName = "application.Uc3BeamSamza"
+sourceSets {
+  main {
+    resources {
+      srcDirs += [
+        project(':uc3-beam').sourceSets.main.resources
+      ]
+    }
+  }
+}
+
+mainClassName = "rocks.theodolite.benchmarks.uc3.beam.samza.Uc3BeamSamza"

@@ -17,7 +17,7 @@ For each benchmark, we provide a [load generator as OCI container image](https:/
 You can simply run a load generator container, for example, for benchmark UC1 with:
 
 ```sh
-docker run ghcr.io/cau-se/theodolite-uc1-workload-generator
+docker run -it ghcr.io/cau-se/theodolite-uc1-workload-generator
 ```
 
 ### Message format
@@ -47,7 +47,7 @@ The prebuilt container images can be configured with the following environment v
 | `PORT` | Port used for for coordination among load generator instances. | 5701 |
 | `PORT_AUTO_INCREMENT` | If set to true and the specified PORT is already used, use the next higher one. Useful if multiple instances should run on the same host, without configuring each instance individually. | true |
 | `CLUSTER_NAME_PREFIX` | Only required if unrelated load generators form a cluster. | theodolite-load-generation |
-| `TARGET` | The target system the load generator send messages to. Valid values are: `kafka`, `http`. | `kafka` |
+| `TARGET` | The target system the load generator send messages to. Valid values are: `kafka`, `http` and `pubsub`. | `kafka` |
 | `KAFKA_BOOTSTRAP_SERVERS` | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. See [Kafka producer config: `bootstrap.servers`](https://kafka.apache.org/documentation/#producerconfigs_bootstrap.servers) for more information. Only used if Kafka is set as `TARGET`. | `localhost:9092` |
 | `KAFKA_INPUT_TOPIC` | Name of the Kafka topic, which should receive the generated messages. Only used if Kafka is set as `TARGET`. | input |
 | `SCHEMA_REGISTRY_URL` | URL of the [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry). | `http://localhost:8081` |
@@ -55,19 +55,25 @@ The prebuilt container images can be configured with the following environment v
 | `KAFKA_LINGER_MS` | Value for the Kafka producer configuration: [`linger.ms`](https://kafka.apache.org/documentation/#producerconfigs_linger.ms). Only used if Kafka is set as `TARGET`. | see Kafka producer config: [`linger.ms`](https://kafka.apache.org/documentation/#producerconfigs_linger.ms) |
 | `KAFKA_BUFFER_MEMORY` | Value for the Kafka producer configuration: [`buffer.memory`](https://kafka.apache.org/documentation/#producerconfigs_buffer.memory) Only used if Kafka is set as `TARGET`. | see Kafka producer config: [`buffer.memory`](https://kafka.apache.org/documentation/#producerconfigs_buffer.memory) |
 | `HTTP_URL` | The URL the load generator should post messages to. Only used if HTTP is set as `TARGET`. | |
+| `HTTP_ASYNC` | Whether the load generator should send HTTP messages asynchronously. Only used if HTTP is set as `TARGET`. | `false` |
+| `HTTP_TIMEOUT_MS` | Timeout in milliseconds for sending HTTP messages. Only used if HTTP is set as `TARGET`. | 1000 |
+| `PUBSUB_INPUT_TOPIC` | The Google Cloud Pub/Sub topic to write messages to. Only used if Pub/Sub is set as `TARGET`. | input |
+| `PUBSUB_PROJECT` | The Google Cloud this Pub/Sub topic is associated with. Only used if Pub/Sub is set as `TARGET`. | |
+| `PUBSUB_EMULATOR_HOST` | A Pub/Sub emulator host. Only used if Pub/Sub is set as `TARGET`. | |
 | `NUM_SENSORS` | The amount of simulated sensors. | 10 |
 | `PERIOD_MS` | The time in milliseconds between generating two messages for the same sensor. With our Theodolite benchmarks, we apply an [open workload model](https://www.usenix.org/legacy/event/nsdi06/tech/full_papers/schroeder/schroeder.pdf) in which new messages are generated at a fixed rate, without considering the think time of the target server nor the time required for generating a message. | 1000 |
 | `VALUE` | The constant `valueInW` of an `ActivePowerRecord`. | 10 |
 | `THREADS` | Number of worker threads used to generate the load. | 4 |
+| `DISABLE_DNS_CACHING` | Set to `true` to disable DNS caching by the underlying JVM. You might want to do so when generating load via HTTP that should be sent to different target instances. | `false` |
 
-Please note that there are some additional configuration options for benchmark [UC4's load generator](https://github.com/cau-se/theodolite/blob/master/theodolite-benchmarks/uc4-load-generator/src/main/java/theodolite/uc4/workloadgenerator/LoadGenerator.java).
+Please note that there are some additional configuration options for benchmark [UC4's load generator](hhttps://github.com/cau-se/theodolite/blob/master/theodolite-benchmarks/uc4-load-generator/src/main/java/rocks/theodolite/benchmarks/uc4/loadgenerator/LoadGenerator.java).
 
 ## Creating a custom load generator
 
-To create a custom load generator, you need to import the [load-generator-commons](https://github.com/cau-se/theodolite/tree/master/theodolite-benchmarks/load-generator-commons) project. You can then create an instance of the `LoadGenerator` object and call its `run` method:
+To create a custom load generator, you need to import the [load-generator-commons](https://github.com/cau-se/theodolite/tree/master/theodolite-benchmarks/load-generator-commons) project. You can then create an instance of the `LoadGenerator` populated with a default configuration, adjust it as desired, and start it by calling its `run` method:
 
 ```java
-LoadGenerator loadGenerator = new LoadGenerator()
+LoadGenerator loadGenerator = new LoadGenerator.fromDefaults()
     .setClusterConfig(clusterConfig)
     .setLoadDefinition(new WorkloadDefinition(
         new KeySpace(key_prefix, numSensors),
@@ -79,9 +85,8 @@ LoadGenerator loadGenerator = new LoadGenerator()
 loadGenerator.run();
 ```
 
-Alternatively, you can also start with a load generator populated with a default configuration or created from environment variables and then adjust the `LoadGenerator` as desired:
+Alternatively, you can also start with a `LoadGenerator` created from environment variables and, optionally, adjust it as desired:
 
 ```java
-LoadGenerator loadGeneratorFromDefaults = LoadGenerator.fromDefaults()
-LoadGenerator loadGeneratorFromEnv = LoadGenerator.fromEnvironment();
+LoadGenerator loadGenerator = LoadGenerator.fromEnvironment();
 ```
