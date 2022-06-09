@@ -48,9 +48,9 @@ class AnalysisExecutor(
                     )
                 }
 
-            prometheusData.forEach { data ->
+            prometheusData.forEach{ data ->
                 ioHandler.writeToCSVFile(
-                    fileURL = "${fileURL}_${repetitionCounter++}",
+                    fileURL = "${fileURL}_${slo.name}_${repetitionCounter++}",
                     data = data.getResultAsList(),
                     columns = listOf("labels", "timestamp", "value")
                 )
