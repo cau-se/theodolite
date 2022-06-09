@@ -4,7 +4,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import java.io.IOException;
-import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
 
 /**
  * {@link StreamSerializer} for Hazelcast Jet to serialize and deserialize an

@@ -6,10 +6,10 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import java.io.Serializable;
 import org.apache.kafka.common.serialization.Serde;
-import rocks.theodolite.commons.kafka.simpleserdes.BufferSerde;
-import rocks.theodolite.commons.kafka.simpleserdes.ReadBuffer;
-import rocks.theodolite.commons.kafka.simpleserdes.SimpleSerdes;
-import rocks.theodolite.commons.kafka.simpleserdes.WriteBuffer;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.BufferSerde;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.ReadBuffer;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.SimpleSerdes;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.WriteBuffer;
 
 /**
  * {@link BufferSerde} for a {@link HourOfDayKey}. Use the {@link #create()} method to create a new

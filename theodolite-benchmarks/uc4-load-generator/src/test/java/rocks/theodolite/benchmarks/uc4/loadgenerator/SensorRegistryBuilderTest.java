@@ -5,10 +5,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
-import rocks.theodolite.commons.model.sensorregistry.AggregatedSensor;
-import rocks.theodolite.commons.model.sensorregistry.MachineSensor;
-import rocks.theodolite.commons.model.sensorregistry.Sensor;
-import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.Sensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 
 public class SensorRegistryBuilderTest {
 

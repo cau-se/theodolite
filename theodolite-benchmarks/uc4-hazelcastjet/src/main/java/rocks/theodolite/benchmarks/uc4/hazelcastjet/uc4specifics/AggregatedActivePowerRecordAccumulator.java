@@ -1,6 +1,6 @@
 package rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics;
 
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * Accumulator class for AggregatedActivePowerRecords.
@@ -25,10 +25,10 @@ public class AggregatedActivePowerRecordAccumulator {
    * Creates an AggregationObject.
    */
   public AggregatedActivePowerRecordAccumulator(final String id,
-                                                final long timestamp,
-                                                final long count,
-                                                final double sumInW,
-                                                final double averageInW) {
+      final long timestamp,
+      final long count,
+      final double sumInW,
+      final double averageInW) {
     this.id = id;
     this.timestamp = timestamp;
     this.count = count;
@@ -50,16 +50,16 @@ public class AggregatedActivePowerRecordAccumulator {
     this.count += 1;
     this.sumInW += record.getValueInW();
     this.timestamp = record.getTimestamp();
-    this.averageInW = sumInW / count;
+    this.averageInW = this.sumInW / this.count;
   }
 
   /**
    * Adds the records from another aggregator.
    */
   public void addInputs(final String id,
-                        final double sumInW,
-                        final long count,
-                        final long timestamp) {
+      final double sumInW,
+      final long count,
+      final long timestamp) {
     this.id = this.id == null ? id : this.id;
     this.sumInW += sumInW;
     this.count += count;
@@ -68,8 +68,8 @@ public class AggregatedActivePowerRecordAccumulator {
   }
 
   /**
-   * Removes the values of another aggreagator.
-   * Not a complete reset since the old timestamp is lost.
+   * Removes the values of another aggreagator. Not a complete reset since the old timestamp is
+   * lost.
    */
   public void removeInputs(final double sumInW, final long count) {
     this.sumInW -= sumInW;
@@ -79,22 +79,22 @@ public class AggregatedActivePowerRecordAccumulator {
   }
 
   public long getCount() {
-    return count;
+    return this.count;
   }
 
   public double getSumInW() {
-    return sumInW;
+    return this.sumInW;
   }
 
   public double getAverageInW() {
-    return averageInW;
+    return this.averageInW;
   }
 
   public String getId() {
-    return id;
+    return this.id;
   }
 
   public long getTimestamp() {
-    return timestamp;
+    return this.timestamp;
   }
 }

@@ -7,7 +7,7 @@ import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.configuration2.Configuration;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * A {@link PTransform} mapping {@link ActivePowerRecord}s to {@link Document}s, followed by storing

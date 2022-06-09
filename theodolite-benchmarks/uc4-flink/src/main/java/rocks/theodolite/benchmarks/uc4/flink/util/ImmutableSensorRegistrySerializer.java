@@ -5,7 +5,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import java.io.Serializable;
-import rocks.theodolite.commons.model.sensorregistry.ImmutableSensorRegistry;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
 
 /**
  * A {@link Serializer} for {@link ImmutableSensorRegistry}s.

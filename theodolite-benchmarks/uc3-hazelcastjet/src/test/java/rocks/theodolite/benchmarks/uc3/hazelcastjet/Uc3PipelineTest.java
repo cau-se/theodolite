@@ -14,20 +14,18 @@ import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.Map.Entry;
+import java.util.TimeZone;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import rocks.theodolite.benchmarks.uc3.hazelcastjet.Uc3PipelineBuilder;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKeySerializer;
-import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Test methods for the Hazelcast Jet Implementation of UC3.
@@ -49,13 +47,13 @@ public class Uc3PipelineTest extends JetTestSupport {
   public void buildUc3Pipeline() {
 
     // Setup Configuration
-    int testItemsPerSecond = 1;
-    String testSensorName = "TEST-SENSOR";
-    Double testValueInW = 10.0;
-    int testHopSizeInSec = 1;
-    int testWindowSizeInSec = 50;
+    final int testItemsPerSecond = 1;
+    final String testSensorName = "TEST-SENSOR";
+    final Double testValueInW = 10.0;
+    final int testHopSizeInSec = 1;
+    final int testWindowSizeInSec = 50;
     // Used to check hourOfDay
-    long mockTimestamp = 1632741651;
+    final long mockTimestamp = 1632741651;
 
 
     // Create mock jet instance with configuration
@@ -75,9 +73,9 @@ public class Uc3PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    Uc3PipelineBuilder pipelineBuilder = new Uc3PipelineBuilder();
+    final Uc3PipelineBuilder pipelineBuilder = new Uc3PipelineBuilder();
     this.testPipeline = Pipeline.create();
-    this.uc3Topology = pipelineBuilder.extendUc3Topology(testPipeline, testSource,
+    this.uc3Topology = pipelineBuilder.extendUc3Topology(this.testPipeline, testSource,
         testHopSizeInSec, testWindowSizeInSec);
   }
 
@@ -88,11 +86,11 @@ public class Uc3PipelineTest extends JetTestSupport {
   public void testOutput() {
 
     // Assertion Configuration
-    int timeout = 10;
-    String testSensorName = "TEST-SENSOR";
-    Double testValueInW = 10.0;
+    final int timeout = 10;
+    final String testSensorName = "TEST-SENSOR";
+    final Double testValueInW = 10.0;
     // Used to check hourOfDay
-    long mockTimestamp = 1632741651;
+    final long mockTimestamp = 1632741651;
 
     // Assertion
     this.uc3Topology.apply(Assertions.assertCollectedEventually(timeout,
@@ -105,17 +103,15 @@ public class Uc3PipelineTest extends JetTestSupport {
           boolean allOkay = true;
           if (collection != null) {
             System.out.println("DEBUG: CHECK 2 || Collection Size: " + collection.size());
-            for (int i = 0; i < collection.size(); i++) {
+            for (final Entry<String, String> currentEntry : collection) {
 
               // Build hour of day
-              long timestamp = mockTimestamp;
-              int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
+              final long timestamp = mockTimestamp;
+              final int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
                   TimeZone.getDefault().toZoneId()).getHour();
 
-              // Compare expected output with generated output
-              Entry<String, String> currentEntry = collection.get(i);
-              String expectedKey = testSensorName + ";" + expectedHour;
-              String expectedValue = testValueInW.toString();
+              final String expectedKey = testSensorName + ";" + expectedHour;
+              final String expectedValue = testValueInW.toString();
 
               // DEBUG
               System.out.println(

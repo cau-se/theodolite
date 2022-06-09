@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 class EnvVarLoadGeneratorFactory {
 

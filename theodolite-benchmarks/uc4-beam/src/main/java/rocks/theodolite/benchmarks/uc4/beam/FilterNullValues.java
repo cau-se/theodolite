@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.uc4.beam;
 
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.KV;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * Filters {@code null} Values.

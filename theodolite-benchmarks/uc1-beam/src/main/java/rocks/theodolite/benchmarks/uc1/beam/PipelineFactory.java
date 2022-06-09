@@ -9,8 +9,8 @@ import org.apache.beam.sdk.transforms.Values;
 import org.apache.commons.configuration2.Configuration;
 import rocks.theodolite.benchmarks.commons.beam.AbstractPipelineFactory;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.beam.firestore.FirestoreOptionsExpander;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * {@link AbstractPipelineFactory} for UC1.

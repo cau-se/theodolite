@@ -2,8 +2,8 @@ package rocks.theodolite.benchmarks.uc4.beam;
 
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
-import rocks.theodolite.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 
 /**
  * Converts AggregatedActivePowerRecord to ActivePowerRecord.

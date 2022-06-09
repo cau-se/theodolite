@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.uc3.flink.util;
 
 import com.google.common.math.Stats;
 import org.apache.kafka.streams.kstream.Windowed;
-import rocks.theodolite.commons.model.records.HourOfDayActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.HourOfDayActivePowerRecord;
 
 /**
  * {@link StatsRecordFactory} to create an {@link HourOfDayActivePowerRecord}.

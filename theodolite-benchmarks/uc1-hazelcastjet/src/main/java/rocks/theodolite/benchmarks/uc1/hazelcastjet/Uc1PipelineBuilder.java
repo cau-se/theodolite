@@ -1,7 +1,6 @@
 package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
 import static com.hazelcast.jet.pipeline.SinkBuilder.sinkBuilder;
-
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sink;
@@ -9,10 +8,11 @@ import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import java.util.Map.Entry;
 import java.util.Properties;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
-import titan.ccp.model.records.ActivePowerRecord;
+
 
 /**
  * Builder to build a HazelcastJet Pipeline for UC1 which can be used for stream processing using
@@ -47,8 +47,8 @@ public class Uc1PipelineBuilder {
     final DatabaseWriter<String> writer = this.databaseAdapter.getDatabaseWriter();
     final Sink<String> sink = sinkBuilder(
         "Sink into database", x -> writer)
-        .<String>receiveFn(DatabaseWriter::write)
-        .build();
+            .<String>receiveFn(DatabaseWriter::write)
+            .build();
 
     uc1TopologyProduct.writeTo(sink);
 

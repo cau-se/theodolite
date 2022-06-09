@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * Test methods for the Hazelcast Jet Implementation of UC2.
@@ -39,10 +39,10 @@ public class Uc2PipelineTest extends JetTestSupport {
   public void buildUc2Pipeline() {
 
     // Setup Configuration
-    int testItemsPerSecond = 1;
-    String testSensorName = "TEST-SENSOR";
-    Double testValueInW = 10.0;
-    int testWindowInMs = 5000;
+    final int testItemsPerSecond = 1;
+    final String testSensorName = "TEST-SENSOR";
+    final Double testValueInW = 10.0;
+    final int testWindowInMs = 5000;
 
     // Create mock jet instance with configuration
     final String testClusterName = randomName();
@@ -61,7 +61,7 @@ public class Uc2PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    Uc2PipelineBuilder pipelineBuilder = new Uc2PipelineBuilder();
+    final Uc2PipelineBuilder pipelineBuilder = new Uc2PipelineBuilder();
     this.testPipeline = Pipeline.create();
     this.uc2Topology =
         pipelineBuilder.extendUc2Topology(this.testPipeline, testSource, testWindowInMs);
@@ -75,14 +75,15 @@ public class Uc2PipelineTest extends JetTestSupport {
   public void testOutput() {
 
     // Assertion Configuration
-    int timeout = 14;
-    String expectedOutput = "Stats{count=5, mean=10.0, populationStandardDeviation=0.0, min=10.0, max=10.0}";
+    final int timeout = 14;
+    final String expectedOutput =
+        "Stats{count=5, mean=10.0, populationStandardDeviation=0.0, min=10.0, max=10.0}";
 
     // Assertion
     this.uc2Topology.apply(Assertions.assertCollectedEventually(timeout,
         collection -> Assert.assertTrue(
             "Not the right amount items in Stats Object!",
-            collection.get(collection.size()-1).getValue().equals(expectedOutput))));
+            collection.get(collection.size() - 1).getValue().equals(expectedOutput))));
 
     // Run the test!
     try {

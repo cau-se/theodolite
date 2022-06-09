@@ -1,8 +1,8 @@
 package rocks.theodolite.benchmarks.uc4.loadgenerator;
 
-import rocks.theodolite.commons.model.sensorregistry.MutableAggregatedSensor;
-import rocks.theodolite.commons.model.sensorregistry.MutableSensorRegistry;
-import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * Builder for creating a nested {@link SensorRegistry} with {@code numNestedGroups} levels and

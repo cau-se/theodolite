@@ -1,7 +1,7 @@
 package rocks.theodolite.benchmarks.uc1.commons;
 
 import java.util.Objects;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * A database adapter consisting of a {@link RecordConverter} and a {@link DatabaseWriter}.

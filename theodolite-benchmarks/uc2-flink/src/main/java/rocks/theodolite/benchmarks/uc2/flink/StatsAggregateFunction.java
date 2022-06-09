@@ -3,8 +3,8 @@ package rocks.theodolite.benchmarks.uc2.flink;
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
 import org.apache.flink.api.common.functions.AggregateFunction;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc2.flink.util.StatsFactory;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * Statistical aggregation of {@link ActivePowerRecord}s using {@link Stats}.

@@ -1,8 +1,8 @@
 package rocks.theodolite.benchmarks.uc1.flink;
 
 import org.apache.flink.api.common.functions.MapFunction;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.commons.RecordConverter;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * {@link MapFunction} which wraps a {@link RecordConverter} to be used with Flink.

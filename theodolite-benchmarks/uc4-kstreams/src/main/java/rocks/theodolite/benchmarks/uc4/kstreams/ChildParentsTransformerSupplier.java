@@ -10,8 +10,8 @@ import org.apache.kafka.streams.kstream.TransformerSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
-import rocks.theodolite.commons.configuration.events.Event;
-import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * Supplier class for a {@link ChildParentsTransformer}.

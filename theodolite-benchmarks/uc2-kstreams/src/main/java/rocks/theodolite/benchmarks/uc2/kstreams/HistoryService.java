@@ -5,8 +5,8 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
+import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
 import rocks.theodolite.benchmarks.commons.kstreams.ConfigurationKeys;
-import rocks.theodolite.commons.commons.configuration.ServiceConfigurations;
 
 /**
  * A microservice that manages the history and, therefore, stores and aggregates incoming

@@ -15,15 +15,15 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Suppressed;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.configuration.events.EventSerde;
+import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.WindowedSerdes;
-import rocks.theodolite.commons.configuration.events.Event;
-import rocks.theodolite.commons.configuration.events.EventSerde;
-import rocks.theodolite.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
-import rocks.theodolite.commons.model.records.AggregatedActivePowerRecord;
-import rocks.theodolite.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * Builds Kafka Stream Topology for the History microservice.

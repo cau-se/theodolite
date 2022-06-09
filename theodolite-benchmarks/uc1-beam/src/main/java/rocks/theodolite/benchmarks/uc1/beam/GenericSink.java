@@ -4,8 +4,8 @@ import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
 
 /**
  * A {@link PTransform} for a generic {@link DatabaseAdapter}.

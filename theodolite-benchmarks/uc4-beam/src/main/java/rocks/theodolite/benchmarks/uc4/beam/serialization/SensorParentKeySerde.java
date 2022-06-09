@@ -1,11 +1,11 @@
 package rocks.theodolite.benchmarks.uc4.beam.serialization;
 
 import org.apache.kafka.common.serialization.Serde;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.BufferSerde;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.ReadBuffer;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.SimpleSerdes;
+import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.WriteBuffer;
 import rocks.theodolite.benchmarks.uc4.beam.SensorParentKey;
-import rocks.theodolite.commons.kafka.simpleserdes.BufferSerde;
-import rocks.theodolite.commons.kafka.simpleserdes.ReadBuffer;
-import rocks.theodolite.commons.kafka.simpleserdes.SimpleSerdes;
-import rocks.theodolite.commons.kafka.simpleserdes.WriteBuffer;
 
 /**
  * {@link Serde} factory for {@link SensorParentKey}.

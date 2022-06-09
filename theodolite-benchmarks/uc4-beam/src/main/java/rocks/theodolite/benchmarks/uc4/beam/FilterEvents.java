@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.uc4.beam;
 
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.KV;
-import rocks.theodolite.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
 
 /**
  * Filters for {@code Event.SENSOR_REGISTRY_CHANGED} and {@code Event.SENSOR_REGISTRY_STATUS}

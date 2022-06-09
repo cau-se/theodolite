@@ -1,4 +1,4 @@
-@namespace("rocks.theodolite.commons.model.records")
+@namespace("rocks.theodolite.benchmarks.commons.model.records")
 protocol StatsActivePower {
 
   record HourOfDayActivePowerRecord {

@@ -10,7 +10,7 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rocks.theodolite.commons.commons.configuration.ServiceConfigurations;
+import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
 
 /**
  * A general Apache Beam-based microservice. It is configured by Beam pipeline, a Beam runner and

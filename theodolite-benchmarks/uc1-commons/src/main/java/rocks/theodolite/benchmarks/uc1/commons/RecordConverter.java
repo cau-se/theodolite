@@ -1,6 +1,6 @@
 package rocks.theodolite.benchmarks.uc1.commons;
 
-import rocks.theodolite.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * Converts an {@link ActivePowerRecord} to the type required by a database.

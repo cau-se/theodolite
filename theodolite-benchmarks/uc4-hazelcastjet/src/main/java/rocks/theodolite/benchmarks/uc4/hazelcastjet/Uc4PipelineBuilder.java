@@ -25,14 +25,14 @@ import java.util.Properties;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.AggregatedActivePowerRecordAccumulator;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ChildParentsTransformer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
-import titan.ccp.model.sensorregistry.SensorRegistry;
 
 /**
  * Builder to build a HazelcastJet Pipeline for UC4 which can be used for stream processing using
@@ -117,9 +117,9 @@ public class Uc4PipelineBuilder {
    *
    * <p>
    * UC4 takes {@code ActivePowerRecord} events from sensors and a {@code SensorRegistry} with maps
-   * from keys to groups to map values to their according groups. A feedback stream allows for
-   * group keys to be mapped to values and eventually to be mapped to other top level groups defines
-   * by the {@code SensorRegistry}.
+   * from keys to groups to map values to their according groups. A feedback stream allows for group
+   * keys to be mapped to values and eventually to be mapped to other top level groups defines by
+   * the {@code SensorRegistry}.
    * </p>
    *
    * <p>
@@ -180,10 +180,10 @@ public class Uc4PipelineBuilder {
 
     //////////////////////////////////
     // (2) UC4 Merge Input with aggregation stream
-    final StreamStageWithKey<Entry<String, ActivePowerRecord>, String>
-        mergedInputAndAggregations = inputStream
-        .merge(aggregations)
-        .groupingKey(Entry::getKey);
+    final StreamStageWithKey<Entry<String, ActivePowerRecord>, String> mergedInputAndAggregations =
+        inputStream
+            .merge(aggregations)
+            .groupingKey(Entry::getKey);
 
     //////////////////////////////////
     // (3) UC4 Join Configuration and Merges Input/Aggregation Stream
@@ -235,28 +235,25 @@ public class Uc4PipelineBuilder {
     //////////////////////////////////
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
-    final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>>
-        windowedLastValues = dupliAsFlatmappedStage
-        .window(WindowDefinition.tumbling(windowSize));
+    final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
+        dupliAsFlatmappedStage
+            .window(WindowDefinition.tumbling(windowSize));
 
-    final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>,
-        AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp =
+    final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp =
         AggregateOperation
-        .withCreate(AggregatedActivePowerRecordAccumulator::new)
-        .<Entry<SensorGroupKey, ActivePowerRecord>>andAccumulate((acc, rec) -> {
-          acc.setId(rec.getKey().getGroup());
-          acc.addInputs(rec.getValue());
-        })
-        .andCombine((acc, acc2) ->
-            acc.addInputs(acc2.getId(), acc2.getSumInW(), acc2.getCount(), acc.getTimestamp()))
-        .andDeduct((acc, acc2) -> acc.removeInputs(acc2.getSumInW(), acc2.getCount()))
-        .andExportFinish(acc ->
-            new AggregatedActivePowerRecord(acc.getId(),
+            .withCreate(AggregatedActivePowerRecordAccumulator::new)
+            .<Entry<SensorGroupKey, ActivePowerRecord>>andAccumulate((acc, rec) -> {
+              acc.setId(rec.getKey().getGroup());
+              acc.addInputs(rec.getValue());
+            })
+            .andCombine((acc, acc2) -> acc.addInputs(acc2.getId(), acc2.getSumInW(),
+                acc2.getCount(), acc.getTimestamp()))
+            .andDeduct((acc, acc2) -> acc.removeInputs(acc2.getSumInW(), acc2.getCount()))
+            .andExportFinish(acc -> new AggregatedActivePowerRecord(acc.getId(),
                 acc.getTimestamp(),
                 acc.getCount(),
                 acc.getSumInW(),
-                acc.getAverageInW())
-        );
+                acc.getAverageInW()));
 
     // write aggregation back to kafka
 
