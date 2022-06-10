@@ -39,7 +39,6 @@ import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSeria
 @Category(SerialTest.class)
 public class Uc4PipelineTest extends JetTestSupport {
 
-  // TEst Machinery
   JetInstance testInstance = null;
   Pipeline testPipeline = null;
   StreamStage<Entry<String, AggregatedActivePowerRecord>> uc4Topology = null;
@@ -55,7 +54,7 @@ public class Uc4PipelineTest extends JetTestSupport {
     final Double testValueInW = 10.0;
     final int testWindowSize = 5000; // As window size is bugged, not necessary.
 
-    // Create mock jet instance with configuration
+    // Create mocked Hazelcast Jet instance with configuration
     final String testClusterName = randomName();
     final JetConfig testJetConfig = new JetConfig();
     testJetConfig.getHazelcastConfig().setClusterName(testClusterName);
@@ -218,7 +217,6 @@ public class Uc4PipelineTest extends JetTestSupport {
 
   @After
   public void after() {
-    System.out.println("Shutting down");
     // Shuts down all running Jet Instances
     Jet.shutdownAll();
   }

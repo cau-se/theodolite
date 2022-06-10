@@ -17,7 +17,6 @@ import com.hazelcast.jet.pipeline.StreamStageWithKey;
 import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -191,20 +190,10 @@ public class Uc4PipelineBuilder {
         .<Set<String>, Entry<String, ValueGroup>>mapUsingIMap(
             SENSOR_PARENT_MAP_NAME,
             (sensorEvent, sensorParentsSet) -> {
-              // Check whether a groupset exists for a key or not
-              if (sensorParentsSet == null) {
-                // No group set exists for this key: return valuegroup with default null group set.
-                final Set<String> nullSet = new HashSet<>();
-                nullSet.add("NULL-GROUPSET");
-                return Util.entry(sensorEvent.getKey(),
-                    new ValueGroup(sensorEvent.getValue(), nullSet));
-              } else {
-                // Group set exists for this key: return valuegroup with the groupset.
-                final ValueGroup valueParentsPair =
-                    new ValueGroup(sensorEvent.getValue(), sensorParentsSet);
-                // Return solution
-                return Util.entry(sensorEvent.getKey(), valueParentsPair);
-              }
+              final ValueGroup valueParentsPair = new ValueGroup(
+                  sensorEvent.getValue(),
+                  sensorParentsSet == null ? Set.of() : sensorParentsSet);
+              return Util.entry(sensorEvent.getKey(), valueParentsPair);
             });
 
     //////////////////////////////////

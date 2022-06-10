@@ -57,18 +57,8 @@ public class Uc4HazelcastJetFactory {
    * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
   public void runUc4Job(final String jobName) throws IllegalStateException { // NOPMD
-
-    // Check if a Jet Instance for UC4 is set.
-    if (this.uc4JetInstance == null) {
-      throw new IllegalStateException("Jet Instance is not set! "
-          + "Cannot start a hazelcast jet job for UC4.");
-    }
-
-    // Check if a Pipeline for UC3 is set.
-    if (this.uc4JetPipeline == null) {
-      throw new IllegalStateException(
-          "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC4.");
-    }
+    Objects.requireNonNull(this.uc4JetInstance, "Jet instance is not set.");
+    Objects.requireNonNull(this.uc4JetPipeline, "Jet pipeline is not set.");
 
     // Adds the job name and joins a job to the JetInstance defined in this factory
     final JobConfig jobConfig = new JobConfig()
