@@ -27,22 +27,24 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
      * Removes different k8s resources using the client.
      * @throws IllegalArgumentException if KubernetesResource not supported.
      */
-    fun remove(resource: HasMetadata) {
+    fun remove(resource: HasMetadata,  blockUntilDeleted: Boolean = true) {
         client.resource(resource).delete()
-        when (resource) {
-            is Deployment -> {
-                ResourceByLabelHandler(client = client)
-                    .blockUntilPodsDeleted(
-                        matchLabels = resource.spec.selector.matchLabels
-                    )
-                logger.info { "Deployment '${resource.metadata.name}' deleted." }
-            }
-            is StatefulSet -> {
-                ResourceByLabelHandler(client = client)
-                    .blockUntilPodsDeleted(
-                        matchLabels = resource.spec.selector.matchLabels
-                    )
-                logger.info { "StatefulSet '$resource.metadata.name' deleted." }
+        if(blockUntilDeleted) {
+            when (resource) {
+                is Deployment -> {
+                    ResourceByLabelHandler(client = client)
+                        .blockUntilPodsDeleted(
+                            matchLabels = resource.spec.selector.matchLabels
+                        )
+                    logger.info { "Deployment '${resource.metadata.name}' deleted." }
+                }
+                is StatefulSet -> {
+                    ResourceByLabelHandler(client = client)
+                        .blockUntilPodsDeleted(
+                            matchLabels = resource.spec.selector.matchLabels
+                        )
+                    logger.info { "StatefulSet '$resource.metadata.name' deleted." }
+                }
             }
         }
     }
