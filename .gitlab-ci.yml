@@ -898,7 +898,8 @@ deploy-buildimage-k3d-helm:
     - .kaniko-push
   needs: []
   variables:
-    BUILD_ARG_DOCKER_VERSION: 20.10.12
+    DOCKER_VERSION: 20.10.12
+    BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
     BUILD_ARG_KUBECTL: v1.21.3
     IMAGE_NAME: theodolite-build-k3d-helm
     IMAGE_TAG: $DOCKER_VERSION
