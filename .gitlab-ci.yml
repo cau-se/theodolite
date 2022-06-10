@@ -142,20 +142,13 @@ test-helm:
   needs:
     - lint-helm
     # - deploy-theodolite
+  image: ghcr.io/cau-se/theodolite-build-k3d-helm:20.10.12
   variables:
-    KUBECTL: v1.21.3
     CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
   cache:
     paths:
       - helm/charts
   before_script:
-    - apk add -U wget bash openssl
-    # install kubectl
-    - wget -q -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl
-    - chmod +x /usr/local/bin/kubectl
-    # install k3d
-    - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-    - wget -q -O - https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - k3d help
     - k3d version
     #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
