@@ -48,7 +48,8 @@ default:
         export PUBLISHED_IMAGE_TAG=$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA
       fi
     - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
-    - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D
+    - "BUILD_ARGS=$(printenv | sed -n 's/BUILD_ARG_/--build-arg=/p')"
+    - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D $BUILD_ARGS
     - echo "PUBLISHED_IMAGE_TAG=$PUBLISHED_IMAGE_TAG" >> $CI_PROJECT_DIR/build.env
   artifacts:
     reports:
@@ -134,6 +135,45 @@ lint-helm:
     - helm/**/*
   - when: manual
     allow_failure: true
+
+test-helm:
+  stage: smoketest
+  extends: .dind
+  needs:
+    - lint-helm
+    # - deploy-theodolite
+  variables:
+    KUBECTL: v1.21.3
+    CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
+  cache:
+    paths:
+      - helm/charts
+  before_script:
+    - apk add -U wget bash openssl
+    # install kubectl
+    - wget -q -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl
+    - chmod +x /usr/local/bin/kubectl
+    # install k3d
+    - wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+    - wget -q -O - https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - k3d help
+    - k3d version
+    #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
+    - k3d cluster create $CLUSTERNAME --agents 1 --wait -p "30000:30000@agent:0" # k3d 5.0
+    # show cluster info
+    - kubectl cluster-info
+    - helm version
+  script:
+    # Display initial pods, etc.
+    - cd helm
+    - helm dependencies update .
+    - helm install theodolite . -f preconfigs/minimal.yaml --wait
+    - helm test theodolite
+    - kubectl get nodes -o wide
+    - kubectl get pods --all-namespaces -o wide
+    - kubectl get services --all-namespaces -o wide
+  after_script:
+    - k3d cluster delete $CLUSTERNAME
 
 
 # Theodolite Benchmarks
@@ -847,6 +887,26 @@ deploy-buildimage-docker-compose-jq:
   rules:
     - changes:
       - buildimages/docker-compose-jq/Dockerfile
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      when: manual
+      allow_failure: true
+
+deploy-buildimage-k3d-helm:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    BUILD_ARG_DOCKER_VERSION: 20.10.12
+    BUILD_ARG_KUBECTL: v1.21.3
+    IMAGE_NAME: theodolite-build-k3d-helm
+    IMAGE_TAG: $DOCKER_VERSION
+  before_script:
+    - cd buildimages/k3d-helm
+  rules:
+    - changes:
+      - buildimages/k3d-helm/Dockerfile
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
