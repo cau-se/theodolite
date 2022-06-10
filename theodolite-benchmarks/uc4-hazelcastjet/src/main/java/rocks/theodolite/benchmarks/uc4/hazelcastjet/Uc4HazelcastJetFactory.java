@@ -13,13 +13,13 @@ import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.KafkaPropertiesBuilder;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.EventDeserializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
-import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC4
@@ -197,9 +197,9 @@ public class Uc4HazelcastJetFactory {
    * @return The Uc4HazelcastJetBuilder factory with set kafkaReadPropertiesForPipeline.
    */
   public Uc4HazelcastJetFactory setReadPropertiesFromEnv(// NOPMD
-                                                         final String bootstrapServersDefault,
-                                                         final String schemaRegistryUrlDefault,
-                                                         final String jobName) {
+      final String bootstrapServersDefault,
+      final String schemaRegistryUrlDefault,
+      final String jobName) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
     final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
 

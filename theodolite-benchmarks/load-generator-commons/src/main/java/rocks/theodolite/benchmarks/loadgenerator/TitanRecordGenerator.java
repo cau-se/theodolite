@@ -1,7 +1,7 @@
 package rocks.theodolite.benchmarks.loadgenerator;
 
 import java.time.Clock;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * A factory for creating {@link RecordGenerator}s that creates Titan {@link ActivePowerRecord}s.

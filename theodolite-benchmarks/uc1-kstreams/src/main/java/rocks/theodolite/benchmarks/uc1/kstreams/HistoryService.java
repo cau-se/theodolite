@@ -3,7 +3,7 @@ package rocks.theodolite.benchmarks.uc1.kstreams;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
-import titan.ccp.common.configuration.ServiceConfigurations;
+import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
 
 /**
  * A microservice that manages the history and, therefore, stores and aggregates incoming

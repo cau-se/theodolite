@@ -2,7 +2,7 @@ package rocks.theodolite.benchmarks.loadgenerator;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * A factory for creating {@link PubSubRecordSender}s that sends Titan {@link ActivePowerRecord}s.

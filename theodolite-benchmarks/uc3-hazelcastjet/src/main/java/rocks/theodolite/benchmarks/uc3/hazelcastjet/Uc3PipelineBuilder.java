@@ -15,10 +15,10 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HoursOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory;
-import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Builder to build a HazelcastJet Pipeline for UC3 which can be used for stream processing using

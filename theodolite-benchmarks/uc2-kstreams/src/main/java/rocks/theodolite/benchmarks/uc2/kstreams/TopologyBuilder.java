@@ -13,10 +13,10 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import rocks.theodolite.benchmarks.commons.kstreams.GenericSerde;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc2.kstreams.util.StatsFactory;
-import titan.ccp.common.kafka.GenericSerde;
-import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
-import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * Builds Kafka Stream Topology for the History microservice.

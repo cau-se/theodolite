@@ -10,10 +10,10 @@ import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.sensorregistry.AggregatedSensor;
-import titan.ccp.model.sensorregistry.Sensor;
-import titan.ccp.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.Sensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * Transforms a {@link SensorRegistry} into key value pairs of Sensor identifiers and their parents'

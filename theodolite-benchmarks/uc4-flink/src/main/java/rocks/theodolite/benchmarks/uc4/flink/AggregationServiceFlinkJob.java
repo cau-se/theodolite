@@ -19,21 +19,21 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.configuration.events.EventSerde;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.commons.flink.StateBackends;
 import rocks.theodolite.benchmarks.commons.flink.TupleType;
+import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 import rocks.theodolite.benchmarks.uc4.flink.util.ImmutableSensorRegistrySerializer;
 import rocks.theodolite.benchmarks.uc4.flink.util.ImmutableSetSerializer;
 import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKey;
 import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKeySerializer;
-import titan.ccp.common.configuration.ServiceConfigurations;
-import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.configuration.events.EventSerde;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
-import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
-import titan.ccp.model.sensorregistry.SensorRegistry;
 
 /**
  * The Aggregation microservice implemented as a Flink job.

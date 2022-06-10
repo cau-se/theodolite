@@ -1,5 +1,7 @@
 package rocks.theodolite.benchmarks.uc1.hazelcast;
 
+import static com.hazelcast.jet.pipeline.SinkBuilder.sinkBuilder;
+import static com.hazelcast.logging.Logger.getLogger;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
@@ -12,24 +14,21 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
+import com.hazelcast.logging.ILogger;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionException;
-import com.hazelcast.logging.ILogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import rocks.theodolite.benchmarks.uc1.hazelcastjet.Uc1PipelineBuilder;
-import titan.ccp.model.records.ActivePowerRecord;
-
-import static com.hazelcast.jet.pipeline.SinkBuilder.sinkBuilder;
-import static com.hazelcast.logging.Logger.getLogger;
 
 /**
  * Test methods for the Hazelcast Jet Implementation of UC1.
@@ -44,7 +43,7 @@ public class Uc1PipelineTest extends JetTestSupport {
   // Standart Logger
   private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Uc1PipelineTest.class);
   // HazelcastJet Logger
-  private static final ILogger logger =  getLogger(Uc1PipelineTest.class);
+  private static final ILogger logger = getLogger(Uc1PipelineTest.class);
 
   private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
 
@@ -55,7 +54,7 @@ public class Uc1PipelineTest extends JetTestSupport {
   @Before
   public void buildUc1Pipeline() {
 
-    this.logger.info("Hazelcast Logger");
+    Uc1PipelineTest.logger.info("Hazelcast Logger");
     LOGGER.info("Standard Logger");
 
 
@@ -67,9 +66,9 @@ public class Uc1PipelineTest extends JetTestSupport {
     // Create mock jet instance with configuration
     final String testClusterName = randomName();
     final JetConfig testJetConfig = new JetConfig();
-//    testJetConfig.setProperty( "hazelcast.logging.type", "slf4j" );
+    // testJetConfig.setProperty( "hazelcast.logging.type", "slf4j" );
     testJetConfig.getHazelcastConfig().setClusterName(testClusterName);
-    this.testInstance = createJetMember(testJetConfig);
+    this.testInstance = this.createJetMember(testJetConfig);
 
 
     // Create a test source
@@ -92,17 +91,17 @@ public class Uc1PipelineTest extends JetTestSupport {
     final DatabaseWriter<String> adapter = this.databaseAdapter.getDatabaseWriter();
     final Sink<String> sink = sinkBuilder(
         "database-sink", x -> adapter)
-        .<String>receiveFn(DatabaseWriter::write)
-        .build();
+            .<String>receiveFn(DatabaseWriter::write)
+            .build();
 
-//    Map Stage, can be used instead of sink
-//    StreamStage<String> log = uc1Topology.map(s -> {
-//        LOGGER.info(s);
-//        return s;
-//    });
-//    log.writeTo(sink);
+    // Map Stage, can be used instead of sink
+    // StreamStage<String> log = uc1Topology.map(s -> {
+    // LOGGER.info(s);
+    // return s;
+    // });
+    // log.writeTo(sink);
 
-    //apply sink
+    // apply sink
     this.uc1Topology.writeTo(sink);
   }
 
@@ -121,8 +120,8 @@ public class Uc1PipelineTest extends JetTestSupport {
     // Assertion
     this.uc1Topology.apply(Assertions.assertCollectedEventually(assertTimeoutSeconds,
         collection -> {
-      //print the newest Record
-//      LOGGER.info(collection.get(collection.size()-1));
+          // print the newest Record
+          // LOGGER.info(collection.get(collection.size()-1));
 
           // Run pipeline until 5th item
           Assert.assertTrue("Not enough data arrived in the end",

@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CoderException;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 
 /**
  * {@link Coder} for an {@link AggregatedActivePowerRecord}.

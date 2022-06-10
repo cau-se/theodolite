@@ -275,7 +275,7 @@ spotbugs-benchmarks:
     - changes:
       - theodolite-benchmarks/*
       - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
-      - theodolite-benchmarks/{$JAVA_PROJECT_DEPS}/**/*
+      - theodolite-benchmarks/{commons,$JAVA_PROJECT_DEPS}/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $JAVA_PROJECT_DEPS"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual

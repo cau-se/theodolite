@@ -9,7 +9,7 @@ import org.apache.kafka.streams.kstream.TransformerSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * Supplier class for {@link JointFlatTransformerSupplier}.
