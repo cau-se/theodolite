@@ -4,7 +4,7 @@ FROM docker:${DOCKER_VERSION}
 
 ARG KUBECTL_VERSION=v1.21.3
 
-RUN apk add -U wget curl bash openssl
+RUN apk add -U wget bash openssl
 # install kubectl
 RUN wget -q -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
     chmod +x /usr/local/bin/kubectl
