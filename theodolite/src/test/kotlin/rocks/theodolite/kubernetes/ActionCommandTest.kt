@@ -99,12 +99,12 @@ class ActionCommandTest {
     @Test
     fun testActionSuccess() {
         val action = Action()
-        action.selector = ActionSelector()
-        action.selector.pod = PodSelector()
-        action.selector.pod.matchLabels = mapOf("app" to "pod")
-        action.exec = Command()
-        action.exec.command = arrayOf("ls")
-        action.exec.timeoutSeconds = 10L
+        action.execCommand = ExecCommand()
+        action.execCommand!!.selector = ExecActionSelector()
+        action.execCommand!!.selector.pod = PodSelector()
+        action.execCommand!!.selector.pod.matchLabels = mutableMapOf("app" to "pod")
+        action.execCommand!!.command = arrayOf("ls")
+        action.execCommand!!.timeoutSeconds = 10L
 
         action.exec(server.client)
         assertEquals(
@@ -115,12 +115,12 @@ class ActionCommandTest {
     @Test
     fun testActionFailed() {
         val action = Action()
-        action.selector = ActionSelector()
-        action.selector.pod = PodSelector()
-        action.selector.pod.matchLabels = mapOf("app" to "pod")
-        action.exec = Command()
-        action.exec.command = arrayOf("error-command")
-        action.exec.timeoutSeconds = 10L
+        action.execCommand = ExecCommand()
+        action.execCommand!!.selector = ExecActionSelector()
+        action.execCommand!!.selector.pod = PodSelector()
+        action.execCommand!!.selector.pod.matchLabels = mapOf("app" to "pod")
+        action.execCommand!!.command = arrayOf("error-command")
+        action.execCommand!!.timeoutSeconds = 10L
 
         assertThrows<ActionCommandFailedException> { run { action.exec(server.client) } }
     }

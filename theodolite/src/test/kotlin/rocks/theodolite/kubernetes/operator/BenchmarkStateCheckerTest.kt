@@ -13,11 +13,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
-import rocks.theodolite.kubernetes.ActionSelector
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
 import rocks.theodolite.kubernetes.ConfigMapResourceSet
+import rocks.theodolite.kubernetes.ExecActionSelector
 import rocks.theodolite.kubernetes.PodSelector
 import rocks.theodolite.kubernetes.ResourceSets
 
@@ -110,9 +110,9 @@ internal class BenchmarkStateCheckerTest {
             .build()
     }
 
-    private fun getActionSelector(label: Pair<String, String>): ActionSelector {
+    private fun getActionSelector(label: Pair<String, String>): ExecActionSelector {
         val podSelector = PodSelector()
-        val actionSelector = ActionSelector()
+        val actionSelector = ExecActionSelector()
         actionSelector.pod = podSelector
 
         // pod with matching labels are deployed
