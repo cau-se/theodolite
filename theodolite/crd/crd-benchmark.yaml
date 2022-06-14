@@ -74,29 +74,33 @@ spec:
                     description: Infrastructure before actions are executed before the infrastructure is set up.
                     items:
                       type: object
+                      anyOf:
+                        - required: [ exec ]
+                        - required: [ delete ]
                       properties:
-                        selector:
-                          type: object
-                          description: The selector specifies which resource should be selected for the execution of the command.
-                          properties:
-                            pod:
-                              type: object
-                              description: Specifies the pod.
-                              properties:
-                                matchLabels:
-                                  type: object
-                                  description: The matchLabels of the desired pod.
-                                  additionalProperties: true
-                                  x-kubernetes-map-type: "granular"
-                                  default: { }
-                            container:
-                              description: Specifies the container.
-                              default: ""
-                              type: string
                         exec:
                           type: object
-                          description: Specifies command to be executed.
+                          description: Specifies a command that gets executed within a Container of a Pod
+                          required: [ selector, command, timeoutSeconds ]
                           properties:
+                            selector:
+                              type: object
+                              description: The selector specifies which resource should be selected for the execution of the command.
+                              properties:
+                                pod:
+                                  type: object
+                                  description: Specifies the pod.
+                                  properties:
+                                    matchLabels:
+                                      type: object
+                                      description: The matchLabels of the desired pod.
+                                      additionalProperties: true
+                                      x-kubernetes-map-type: "granular"
+                                      default: { }
+                                container:
+                                  description: Specifies the container.
+                                  default: ""
+                                  type: string
                             command:
                               type: array
                               description: The command to be executed as string array.
@@ -105,35 +109,59 @@ spec:
                             timeoutSeconds:
                               description: Specifies the timeout (in seconds) for the specified command.
                               type: integer
+                        delete:
+                          type: object
+                          description: Specifies deletion of a resource.
+                          required: [ selector ]
+                          properties:
+                            selector:
+                              type: object
+                              description: Defines how to select the resource to delete.
+                              required: [ apiVersion, kind ]
+                              properties:
+                                apiVersion:
+                                  type: string
+                                  description: Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.
+                                kind:
+                                  type: string
+                                  description: Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.
+                                nameRegex:
+                                  type: string
+                                  description: Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.
+                                  default: "*"
                   afterActions:
                     type: array
-                    default: []
+                    default: [ ]
                     description: Infrastructure after actions are executed after the teardown of the infrastructure.
                     items:
                       type: object
+                      anyOf:
+                        - required: [ exec ]
+                        - required: [ delete ]
                       properties:
-                        selector:
-                          type: object
-                          description: The selector specifies which resource should be selected for the execution of the command.
-                          properties:
-                            pod:
-                              type: object
-                              description: Specifies the pod.
-                              properties:
-                                matchLabels:
-                                  type: object
-                                  description: The matchLabels of the desired pod.
-                                  additionalProperties: true
-                                  x-kubernetes-map-type: "granular"
-                                  default: { }
-                            container:
-                              description: Specifies the container.
-                              default: ""
-                              type: string
                         exec:
                           type: object
-                          description: Specifies command to be executed.
+                          description: Specifies a command that gets executed within a Container of a Pod
+                          required: [ selector, command, timeoutSeconds ]
                           properties:
+                            selector:
+                              type: object
+                              description: The selector specifies which resource should be selected for the execution of the command.
+                              properties:
+                                pod:
+                                  type: object
+                                  description: Specifies the pod.
+                                  properties:
+                                    matchLabels:
+                                      type: object
+                                      description: The matchLabels of the desired pod.
+                                      additionalProperties: true
+                                      x-kubernetes-map-type: "granular"
+                                      default: { }
+                                container:
+                                  description: Specifies the container.
+                                  default: ""
+                                  type: string
                             command:
                               type: array
                               description: The command to be executed as string array.
@@ -142,6 +170,26 @@ spec:
                             timeoutSeconds:
                               description: Specifies the timeout (in seconds) for the specified command.
                               type: integer
+                        delete:
+                          type: object
+                          description: Specifies deletion of a resource.
+                          required: [ selector ]
+                          properties:
+                            selector:
+                              type: object
+                              description: Defines how to select the resource to delete.
+                              required: [ apiVersion, kind ]
+                              properties:
+                                apiVersion:
+                                  type: string
+                                  description: Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.
+                                kind:
+                                  type: string
+                                  description: Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.
+                                nameRegex:
+                                  type: string
+                                  description: Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.
+                                  default: "*"
               sut:
                 description: The appResourceSets specifies all Kubernetes resources required to start the sut. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: object
@@ -181,33 +229,37 @@ spec:
                                 type: string
                   beforeActions:
                     type: array
-                    default: []
+                    default: [ ]
                     description: SUT before actions are executed before the SUT is started.
                     items:
                       type: object
+                      anyOf:
+                        - required: [ exec ]
+                        - required: [ delete ]
                       properties:
-                        selector:
-                          type: object
-                          description: The selector specifies which resource should be selected for the execution of the command.
-                          properties:
-                            pod:
-                              type: object
-                              description: Specifies the pod.
-                              properties:
-                                matchLabels:
-                                  type: object
-                                  description: The matchLabels of the desired pod.
-                                  additionalProperties: true
-                                  x-kubernetes-map-type: "granular"
-                                  default: { }
-                            container:
-                              description: Specifies the container.
-                              default: ""
-                              type: string
                         exec:
                           type: object
-                          description: Specifies command to be executed.
+                          description: Specifies a command that gets executed within a Container of a Pod
+                          required: [ selector, command, timeoutSeconds ]
                           properties:
+                            selector:
+                              type: object
+                              description: The selector specifies which resource should be selected for the execution of the command.
+                              properties:
+                                pod:
+                                  type: object
+                                  description: Specifies the pod.
+                                  properties:
+                                    matchLabels:
+                                      type: object
+                                      description: The matchLabels of the desired pod.
+                                      additionalProperties: true
+                                      x-kubernetes-map-type: "granular"
+                                      default: { }
+                                container:
+                                  description: Specifies the container.
+                                  default: ""
+                                  type: string
                             command:
                               type: array
                               description: The command to be executed as string array.
@@ -216,34 +268,59 @@ spec:
                             timeoutSeconds:
                               description: Specifies the timeout (in seconds) for the specified command.
                               type: integer
+                        delete:
+                          type: object
+                          description: Specifies deletion of a resource.
+                          required: [ selector ]
+                          properties:
+                            selector:
+                              type: object
+                              description: Defines how to select the resource to delete.
+                              required: [ apiVersion, kind ]
+                              properties:
+                                apiVersion:
+                                  type: string
+                                  description: Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.
+                                kind:
+                                  type: string
+                                  description: Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.
+                                nameRegex:
+                                  type: string
+                                  description: Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.
+                                  default: "*"
                   afterActions:
                     type: array
-                    default: []
+                    default: [ ]
+                    description: SUT after actions are executed after the teardown of the SUT.
                     items:
                       type: object
+                      anyOf:
+                        - required: [ exec ]
+                        - required: [ delete ]
                       properties:
-                        selector:
-                          type: object
-                          description: The selector specifies which resource should be selected for the execution of the command.
-                          properties:
-                            pod:
-                              type: object
-                              description: Specifies the pod.
-                              properties:
-                                matchLabels:
-                                  type: object
-                                  description: The matchLabels of the desired pod.
-                                  additionalProperties: true
-                                  x-kubernetes-map-type: "granular"
-                                  default: { }
-                            container:
-                              description: Specifies the container.
-                              default: ""
-                              type: string
                         exec:
                           type: object
-                          description: Specifies command to be executed.
+                          description: Specifies a command that gets executed within a Container of a Pod
+                          required: [ selector, command, timeoutSeconds ]
                           properties:
+                            selector:
+                              type: object
+                              description: The selector specifies which resource should be selected for the execution of the command.
+                              properties:
+                                pod:
+                                  type: object
+                                  description: Specifies the pod.
+                                  properties:
+                                    matchLabels:
+                                      type: object
+                                      description: The matchLabels of the desired pod.
+                                      additionalProperties: true
+                                      x-kubernetes-map-type: "granular"
+                                      default: { }
+                                container:
+                                  description: Specifies the container.
+                                  default: ""
+                                  type: string
                             command:
                               type: array
                               description: The command to be executed as string array.
@@ -252,6 +329,26 @@ spec:
                             timeoutSeconds:
                               description: Specifies the timeout (in seconds) for the specified command.
                               type: integer
+                        delete:
+                          type: object
+                          description: Specifies deletion of a resource.
+                          required: [ selector ]
+                          properties:
+                            selector:
+                              type: object
+                              description: Defines how to select the resource to delete.
+                              required: [ apiVersion, kind ]
+                              properties:
+                                apiVersion:
+                                  type: string
+                                  description: Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.
+                                kind:
+                                  type: string
+                                  description: Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.
+                                nameRegex:
+                                  type: string
+                                  description: Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.
+                                  default: "*"
               loadGenerator:
                 description: The loadGenResourceSets specifies all Kubernetes resources required to start the load generator. A resourceSet can be either a configMap resourceSet or a fileSystem resourceSet.
                 type: object
@@ -295,29 +392,33 @@ spec:
                     description: Load generator before actions are executed before the load generator is started.
                     items:
                       type: object
+                      anyOf:
+                        - required: [ exec ]
+                        - required: [ delete ]
                       properties:
-                        selector:
-                          type: object
-                          description: The selector specifies which resource should be selected for the execution of the command.
-                          properties:
-                            pod:
-                              type: object
-                              description: Specifies the pod.
-                              properties:
-                                matchLabels:
-                                  type: object
-                                  description: The matchLabels of the desired pod.
-                                  additionalProperties: true
-                                  x-kubernetes-map-type: "granular"
-                                  default: { }
-                            container:
-                              description: Specifies the container.
-                              default: ""
-                              type: string
                         exec:
                           type: object
-                          description: Specifies command to be executed.
+                          description: Specifies a command that gets executed within a Container of a Pod
+                          required: [ selector, command, timeoutSeconds ]
                           properties:
+                            selector:
+                              type: object
+                              description: The selector specifies which resource should be selected for the execution of the command.
+                              properties:
+                                pod:
+                                  type: object
+                                  description: Specifies the pod.
+                                  properties:
+                                    matchLabels:
+                                      type: object
+                                      description: The matchLabels of the desired pod.
+                                      additionalProperties: true
+                                      x-kubernetes-map-type: "granular"
+                                      default: { }
+                                container:
+                                  description: Specifies the container.
+                                  default: ""
+                                  type: string
                             command:
                               type: array
                               description: The command to be executed as string array.
@@ -326,35 +427,59 @@ spec:
                             timeoutSeconds:
                               description: Specifies the timeout (in seconds) for the specified command.
                               type: integer
+                        delete:
+                          type: object
+                          description: Specifies deletion of a resource.
+                          required: [ selector ]
+                          properties:
+                            selector:
+                              type: object
+                              description: Defines how to select the resource to delete.
+                              required: [ apiVersion, kind ]
+                              properties:
+                                apiVersion:
+                                  type: string
+                                  description: Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.
+                                kind:
+                                  type: string
+                                  description: Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.
+                                nameRegex:
+                                  type: string
+                                  description: Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.
+                                  default: "*"
                   afterActions:
                     type: array
-                    default: []
+                    default: [ ]
                     description: Load generator after actions are executed after the teardown of the load generator.
                     items:
                       type: object
+                      anyOf:
+                        - required: [ exec ]
+                        - required: [ delete ]
                       properties:
-                        selector:
-                          type: object
-                          description: The selector specifies which resource should be selected for the execution of the command.
-                          properties:
-                            pod:
-                              type: object
-                              description: Specifies the pod.
-                              properties:
-                                matchLabels:
-                                  type: object
-                                  description: The matchLabels of the desired pod.
-                                  additionalProperties: true
-                                  x-kubernetes-map-type: "granular"
-                                  default: { }
-                            container:
-                              description: Specifies the container.
-                              default: ""
-                              type: string
                         exec:
                           type: object
-                          description: Specifies command to be executed.
+                          description: Specifies a command that gets executed within a Container of a Pod
+                          required: [ selector, command, timeoutSeconds ]
                           properties:
+                            selector:
+                              type: object
+                              description: The selector specifies which resource should be selected for the execution of the command.
+                              properties:
+                                pod:
+                                  type: object
+                                  description: Specifies the pod.
+                                  properties:
+                                    matchLabels:
+                                      type: object
+                                      description: The matchLabels of the desired pod.
+                                      additionalProperties: true
+                                      x-kubernetes-map-type: "granular"
+                                      default: { }
+                                container:
+                                  description: Specifies the container.
+                                  default: ""
+                                  type: string
                             command:
                               type: array
                               description: The command to be executed as string array.
@@ -363,6 +488,26 @@ spec:
                             timeoutSeconds:
                               description: Specifies the timeout (in seconds) for the specified command.
                               type: integer
+                        delete:
+                          type: object
+                          description: Specifies deletion of a resource.
+                          required: [ selector ]
+                          properties:
+                            selector:
+                              type: object
+                              description: Defines how to select the resource to delete.
+                              required: [ apiVersion, kind ]
+                              properties:
+                                apiVersion:
+                                  type: string
+                                  description: Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.
+                                kind:
+                                    type: string
+                                    description: Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.
+                                nameRegex:
+                                  type: string
+                                  description: Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.
+                                  default: "*"
               resourceTypes:
                 description: A list of resource types that can be scaled for this `benchmark` resource. For each resource type the concrete values are defined in the `execution` object.
                 type: array

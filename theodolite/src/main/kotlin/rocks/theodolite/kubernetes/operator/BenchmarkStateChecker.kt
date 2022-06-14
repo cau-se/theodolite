@@ -5,14 +5,15 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
+import rocks.theodolite.kubernetes.ExecActionSelector
 import rocks.theodolite.kubernetes.Action
-import rocks.theodolite.kubernetes.ActionSelector
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.ResourceSets
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 import rocks.theodolite.kubernetes.loadKubernetesResources
+
 
 class BenchmarkStateChecker(
         private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
@@ -92,7 +93,7 @@ class BenchmarkStateChecker(
      */
     private fun checkIfActionPossible(resourcesSets: List<ResourceSets>, actions: List<Action>): Boolean {
         return !actions.map {
-            checkIfResourceIsDeployed(it.selector) || checkIfResourceIsInfrastructure(resourcesSets, it.selector)
+            it.deleteCommand != null || checkIfResourceIsDeployed(it.execCommand!!.selector) || checkIfResourceIsInfrastructure(resourcesSets, it.execCommand!!.selector)
         }.contains(false)
     }
 
@@ -102,7 +103,7 @@ class BenchmarkStateChecker(
      * @param selector the actionSelector to check
      * @return true if the required resources are found, else false
      */
-    fun checkIfResourceIsDeployed(selector: ActionSelector): Boolean {
+    fun checkIfResourceIsDeployed(selector: ExecActionSelector): Boolean {
         val pods = this.client
             .pods()
             .withLabels(selector.pod.matchLabels)
@@ -129,8 +130,9 @@ class BenchmarkStateChecker(
      * @param selector the actionSelector to check
      * @return true if the required resources are found, else false
      */
-    fun checkIfResourceIsInfrastructure(resourcesSets: List<ResourceSets>, selector: ActionSelector): Boolean {
+    fun checkIfResourceIsInfrastructure(resourcesSets: List<ResourceSets>, selector: ExecActionSelector): Boolean {
         val resources = loadKubernetesResources(resourcesSets, this.client)
+
         if (resources.isEmpty()) {
             return false
         }

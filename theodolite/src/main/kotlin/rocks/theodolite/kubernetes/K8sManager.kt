@@ -25,7 +25,7 @@ class K8sManager(private val client: NamespacedKubernetesClient) {
 
     /**
      * Removes different k8s resources using the client.
-     * @throws IllegalArgumentException if KubernetesResource not supported.
+     * @throws KubernetesClientException if an error occurs in the underlying NamespacedKubernetesClient when deleting the resource.
      */
     fun remove(resource: HasMetadata,  blockUntilDeleted: Boolean = true) {
         client.resource(resource).delete()
