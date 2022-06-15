@@ -10,8 +10,8 @@ import java.util.List;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CoderException;
 import org.apache.kafka.common.serialization.Serde;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.configuration.events.EventSerde;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.configuration.events.EventSerde;
 
 /**
  * Wrapper Class that encapsulates a Event Serde in a org.apache.beam.sdk.coders.Coder.

@@ -159,7 +159,7 @@ cp-helm-charts:
   pollIntervalSeconds: 15
 
 strimzi-kafka-operator:
-  createGlobalResources: true
+  createGlobalResources: false # Might disable some of Strimzi's features
 
 strimzi:
   enabled: true

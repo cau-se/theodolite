@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.commons.flink.serialization.StatsSerializer;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeySerde;
 import rocks.theodolite.benchmarks.uc3.flink.util.StatsKeyFactory;
-import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * The History microservice implemented as a Flink job.

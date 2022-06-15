@@ -3,9 +3,9 @@ package rocks.theodolite.benchmarks.httpbridge;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.loadgenerator.ConfigurationKeys;
 import rocks.theodolite.benchmarks.loadgenerator.TitanKafkaSenderFactory;
-import titan.ccp.model.records.ActivePowerRecord;
 
 class EnvVarHttpBridgeFactory {
 

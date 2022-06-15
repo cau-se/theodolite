@@ -115,6 +115,13 @@ Resource Types:
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b><a href="#benchmarkspecslosindex">slos</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of resource values for the specified resource type.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecsut">sut</a></b></td>
         <td>object</td>
         <td>
@@ -144,6 +151,15 @@ Resource Types:
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
           <br/>
             <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>waitForResourcesEnabled</b></td>
+        <td>boolean</td>
+        <td>
+          If true, Theodolite waits to create the resource for the SUT until the infrastructure resources are ready, and analogously, Theodolite waits to create the load-gen resource until the resources of the SUT are ready.<br/>
+          <br/>
+            <i>Default</i>: false<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -214,17 +230,87 @@ The loadGenResourceSets specifies all Kubernetes resources required to start the
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexexec">exec</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexdelete">delete</a></b></td>
         <td>object</td>
         <td>
-          Specifies command to be executed.<br/>
+          Specifies deletion of a resource.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexselector">selector</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexexec">exec</a></b></td>
         <td>object</td>
         <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
+          Specifies a command that gets executed within a Container of a Pod<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.afterActions[index].delete
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindex)</sup></sup>
+
+
+
+Specifies deletion of a resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexdeleteselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          Defines how to select the resource to delete.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.afterActions[index].delete.selector
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindexdelete)</sup></sup>
+
+
+
+Defines how to select the resource to delete.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>apiVersion</b></td>
+        <td>string</td>
+        <td>
+          Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>nameRegex</b></td>
+        <td>string</td>
+        <td>
+          Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.<br/>
+          <br/>
+            <i>Default</i>: *<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -236,7 +322,7 @@ The loadGenResourceSets specifies all Kubernetes resources required to start the
 
 
 
-Specifies command to be executed.
+Specifies a command that gets executed within a Container of a Pod
 
 <table>
     <thead>
@@ -253,20 +339,27 @@ Specifies command to be executed.
         <td>
           The command to be executed as string array.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexexecselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>true</td>
       </tr><tr>
         <td><b>timeoutSeconds</b></td>
         <td>integer</td>
         <td>
           Specifies the timeout (in seconds) for the specified command.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
 
-### benchmark.spec.loadGenerator.afterActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindex)</sup></sup>
+### benchmark.spec.loadGenerator.afterActions[index].exec.selector
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindexexec)</sup></sup>
 
 
 
@@ -291,7 +384,7 @@ The selector specifies which resource should be selected for the execution of th
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexselectorpod">pod</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorafteractionsindexexecselectorpod">pod</a></b></td>
         <td>object</td>
         <td>
           Specifies the pod.<br/>
@@ -301,8 +394,8 @@ The selector specifies which resource should be selected for the execution of th
 </table>
 
 
-### benchmark.spec.loadGenerator.afterActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindexselector)</sup></sup>
+### benchmark.spec.loadGenerator.afterActions[index].exec.selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorafteractionsindexexecselector)</sup></sup>
 
 
 
@@ -347,17 +440,87 @@ Specifies the pod.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexexec">exec</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexdelete">delete</a></b></td>
         <td>object</td>
         <td>
-          Specifies command to be executed.<br/>
+          Specifies deletion of a resource.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexselector">selector</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexexec">exec</a></b></td>
         <td>object</td>
         <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
+          Specifies a command that gets executed within a Container of a Pod<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.beforeActions[index].delete
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindex)</sup></sup>
+
+
+
+Specifies deletion of a resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexdeleteselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          Defines how to select the resource to delete.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.loadGenerator.beforeActions[index].delete.selector
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindexdelete)</sup></sup>
+
+
+
+Defines how to select the resource to delete.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>apiVersion</b></td>
+        <td>string</td>
+        <td>
+          Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>nameRegex</b></td>
+        <td>string</td>
+        <td>
+          Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.<br/>
+          <br/>
+            <i>Default</i>: *<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -369,7 +532,7 @@ Specifies the pod.
 
 
 
-Specifies command to be executed.
+Specifies a command that gets executed within a Container of a Pod
 
 <table>
     <thead>
@@ -386,20 +549,27 @@ Specifies command to be executed.
         <td>
           The command to be executed as string array.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexexecselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>true</td>
       </tr><tr>
         <td><b>timeoutSeconds</b></td>
         <td>integer</td>
         <td>
           Specifies the timeout (in seconds) for the specified command.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
 
-### benchmark.spec.loadGenerator.beforeActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindex)</sup></sup>
+### benchmark.spec.loadGenerator.beforeActions[index].exec.selector
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindexexec)</sup></sup>
 
 
 
@@ -424,7 +594,7 @@ The selector specifies which resource should be selected for the execution of th
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexselectorpod">pod</a></b></td>
+        <td><b><a href="#benchmarkspecloadgeneratorbeforeactionsindexexecselectorpod">pod</a></b></td>
         <td>object</td>
         <td>
           Specifies the pod.<br/>
@@ -434,8 +604,8 @@ The selector specifies which resource should be selected for the execution of th
 </table>
 
 
-### benchmark.spec.loadGenerator.beforeActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindexselector)</sup></sup>
+### benchmark.spec.loadGenerator.beforeActions[index].exec.selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecloadgeneratorbeforeactionsindexexecselector)</sup></sup>
 
 
 
@@ -727,6 +897,63 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
 </table>
 
 
+### benchmark.spec.slos[index]
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          The name of the SLO.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>offset</b></td>
+        <td>integer</td>
+        <td>
+          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>prometheusUrl</b></td>
+        <td>string</td>
+        <td>
+          Connection string for Promehteus.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>sloType</b></td>
+        <td>string</td>
+        <td>
+          The type of the SLO. It must match 'lag trend'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) SLO specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
 ### benchmark.spec.sut
 <sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
 
@@ -747,7 +974,7 @@ The appResourceSets specifies all Kubernetes resources required to start the sut
         <td><b><a href="#benchmarkspecsutafteractionsindex">afterActions</a></b></td>
         <td>[]object</td>
         <td>
-          <br/>
+          SUT after actions are executed after the teardown of the SUT.<br/>
           <br/>
             <i>Default</i>: []<br/>
         </td>
@@ -791,17 +1018,87 @@ The appResourceSets specifies all Kubernetes resources required to start the sut
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecsutafteractionsindexexec">exec</a></b></td>
+        <td><b><a href="#benchmarkspecsutafteractionsindexdelete">delete</a></b></td>
         <td>object</td>
         <td>
-          Specifies command to be executed.<br/>
+          Specifies deletion of a resource.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecsutafteractionsindexselector">selector</a></b></td>
+        <td><b><a href="#benchmarkspecsutafteractionsindexexec">exec</a></b></td>
         <td>object</td>
         <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
+          Specifies a command that gets executed within a Container of a Pod<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.afterActions[index].delete
+<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindex)</sup></sup>
+
+
+
+Specifies deletion of a resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecsutafteractionsindexdeleteselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          Defines how to select the resource to delete.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.afterActions[index].delete.selector
+<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindexdelete)</sup></sup>
+
+
+
+Defines how to select the resource to delete.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>apiVersion</b></td>
+        <td>string</td>
+        <td>
+          Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>nameRegex</b></td>
+        <td>string</td>
+        <td>
+          Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.<br/>
+          <br/>
+            <i>Default</i>: *<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -813,7 +1110,7 @@ The appResourceSets specifies all Kubernetes resources required to start the sut
 
 
 
-Specifies command to be executed.
+Specifies a command that gets executed within a Container of a Pod
 
 <table>
     <thead>
@@ -830,20 +1127,27 @@ Specifies command to be executed.
         <td>
           The command to be executed as string array.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsutafteractionsindexexecselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>true</td>
       </tr><tr>
         <td><b>timeoutSeconds</b></td>
         <td>integer</td>
         <td>
           Specifies the timeout (in seconds) for the specified command.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
 
-### benchmark.spec.sut.afterActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindex)</sup></sup>
+### benchmark.spec.sut.afterActions[index].exec.selector
+<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindexexec)</sup></sup>
 
 
 
@@ -868,7 +1172,7 @@ The selector specifies which resource should be selected for the execution of th
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecsutafteractionsindexselectorpod">pod</a></b></td>
+        <td><b><a href="#benchmarkspecsutafteractionsindexexecselectorpod">pod</a></b></td>
         <td>object</td>
         <td>
           Specifies the pod.<br/>
@@ -878,8 +1182,8 @@ The selector specifies which resource should be selected for the execution of th
 </table>
 
 
-### benchmark.spec.sut.afterActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindexselector)</sup></sup>
+### benchmark.spec.sut.afterActions[index].exec.selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecsutafteractionsindexexecselector)</sup></sup>
 
 
 
@@ -924,17 +1228,87 @@ Specifies the pod.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecsutbeforeactionsindexexec">exec</a></b></td>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexdelete">delete</a></b></td>
         <td>object</td>
         <td>
-          Specifies command to be executed.<br/>
+          Specifies deletion of a resource.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecsutbeforeactionsindexselector">selector</a></b></td>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexexec">exec</a></b></td>
         <td>object</td>
         <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
+          Specifies a command that gets executed within a Container of a Pod<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.beforeActions[index].delete
+<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindex)</sup></sup>
+
+
+
+Specifies deletion of a resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexdeleteselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          Defines how to select the resource to delete.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.sut.beforeActions[index].delete.selector
+<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindexdelete)</sup></sup>
+
+
+
+Defines how to select the resource to delete.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>apiVersion</b></td>
+        <td>string</td>
+        <td>
+          Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>nameRegex</b></td>
+        <td>string</td>
+        <td>
+          Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.<br/>
+          <br/>
+            <i>Default</i>: *<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -946,7 +1320,7 @@ Specifies the pod.
 
 
 
-Specifies command to be executed.
+Specifies a command that gets executed within a Container of a Pod
 
 <table>
     <thead>
@@ -963,20 +1337,27 @@ Specifies command to be executed.
         <td>
           The command to be executed as string array.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexexecselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>true</td>
       </tr><tr>
         <td><b>timeoutSeconds</b></td>
         <td>integer</td>
         <td>
           Specifies the timeout (in seconds) for the specified command.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
 
-### benchmark.spec.sut.beforeActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindex)</sup></sup>
+### benchmark.spec.sut.beforeActions[index].exec.selector
+<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindexexec)</sup></sup>
 
 
 
@@ -1001,7 +1382,7 @@ The selector specifies which resource should be selected for the execution of th
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecsutbeforeactionsindexselectorpod">pod</a></b></td>
+        <td><b><a href="#benchmarkspecsutbeforeactionsindexexecselectorpod">pod</a></b></td>
         <td>object</td>
         <td>
           Specifies the pod.<br/>
@@ -1011,8 +1392,8 @@ The selector specifies which resource should be selected for the execution of th
 </table>
 
 
-### benchmark.spec.sut.beforeActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindexselector)</sup></sup>
+### benchmark.spec.sut.beforeActions[index].exec.selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecsutbeforeactionsindexexecselector)</sup></sup>
 
 
 
@@ -1206,17 +1587,87 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexexec">exec</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexdelete">delete</a></b></td>
         <td>object</td>
         <td>
-          Specifies command to be executed.<br/>
+          Specifies deletion of a resource.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselector">selector</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexexec">exec</a></b></td>
         <td>object</td>
         <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
+          Specifies a command that gets executed within a Container of a Pod<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].delete
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
+
+
+
+Specifies deletion of a resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexdeleteselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          Defines how to select the resource to delete.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.afterActions[index].delete.selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindexdelete)</sup></sup>
+
+
+
+Defines how to select the resource to delete.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>apiVersion</b></td>
+        <td>string</td>
+        <td>
+          Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>nameRegex</b></td>
+        <td>string</td>
+        <td>
+          Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.<br/>
+          <br/>
+            <i>Default</i>: *<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -1228,7 +1679,7 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
 
 
 
-Specifies command to be executed.
+Specifies a command that gets executed within a Container of a Pod
 
 <table>
     <thead>
@@ -1245,20 +1696,27 @@ Specifies command to be executed.
         <td>
           The command to be executed as string array.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexexecselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>true</td>
       </tr><tr>
         <td><b>timeoutSeconds</b></td>
         <td>integer</td>
         <td>
           Specifies the timeout (in seconds) for the specified command.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
 
-### benchmark.spec.infrastructure.afterActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindex)</sup></sup>
+### benchmark.spec.infrastructure.afterActions[index].exec.selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindexexec)</sup></sup>
 
 
 
@@ -1283,7 +1741,7 @@ The selector specifies which resource should be selected for the execution of th
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexselectorpod">pod</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructureafteractionsindexexecselectorpod">pod</a></b></td>
         <td>object</td>
         <td>
           Specifies the pod.<br/>
@@ -1293,8 +1751,8 @@ The selector specifies which resource should be selected for the execution of th
 </table>
 
 
-### benchmark.spec.infrastructure.afterActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindexselector)</sup></sup>
+### benchmark.spec.infrastructure.afterActions[index].exec.selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructureafteractionsindexexecselector)</sup></sup>
 
 
 
@@ -1339,17 +1797,87 @@ Specifies the pod.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexexec">exec</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexdelete">delete</a></b></td>
         <td>object</td>
         <td>
-          Specifies command to be executed.<br/>
+          Specifies deletion of a resource.<br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselector">selector</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexexec">exec</a></b></td>
         <td>object</td>
         <td>
-          The selector specifies which resource should be selected for the execution of the command.<br/>
+          Specifies a command that gets executed within a Container of a Pod<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].delete
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
+
+
+
+Specifies deletion of a resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexdeleteselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          Defines how to select the resource to delete.<br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.infrastructure.beforeActions[index].delete.selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindexdelete)</sup></sup>
+
+
+
+Defines how to select the resource to delete.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>apiVersion</b></td>
+        <td>string</td>
+        <td>
+          Specifies the api/version of the resource that should be deleted, e.g. 'kafka.strimzi.io/v1beta2'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Specifies the Kind of the resource that should be deleted, e.g. 'KafkaTopic'.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>nameRegex</b></td>
+        <td>string</td>
+        <td>
+          Specifies a regular expression that is matched with the metadata.name property of all resources with given api/version and Kind that should be deleted.<br/>
+          <br/>
+            <i>Default</i>: *<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -1361,7 +1889,7 @@ Specifies the pod.
 
 
 
-Specifies command to be executed.
+Specifies a command that gets executed within a Container of a Pod
 
 <table>
     <thead>
@@ -1378,20 +1906,27 @@ Specifies command to be executed.
         <td>
           The command to be executed as string array.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexexecselector">selector</a></b></td>
+        <td>object</td>
+        <td>
+          The selector specifies which resource should be selected for the execution of the command.<br/>
+        </td>
+        <td>true</td>
       </tr><tr>
         <td><b>timeoutSeconds</b></td>
         <td>integer</td>
         <td>
           Specifies the timeout (in seconds) for the specified command.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
 
-### benchmark.spec.infrastructure.beforeActions[index].selector
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindex)</sup></sup>
+### benchmark.spec.infrastructure.beforeActions[index].exec.selector
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindexexec)</sup></sup>
 
 
 
@@ -1416,7 +1951,7 @@ The selector specifies which resource should be selected for the execution of th
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexselectorpod">pod</a></b></td>
+        <td><b><a href="#benchmarkspecinfrastructurebeforeactionsindexexecselectorpod">pod</a></b></td>
         <td>object</td>
         <td>
           Specifies the pod.<br/>
@@ -1426,8 +1961,8 @@ The selector specifies which resource should be selected for the execution of th
 </table>
 
 
-### benchmark.spec.infrastructure.beforeActions[index].selector.pod
-<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindexselector)</sup></sup>
+### benchmark.spec.infrastructure.beforeActions[index].exec.selector.pod
+<sup><sup>[↩ Parent](#benchmarkspecinfrastructurebeforeactionsindexexecselector)</sup></sup>
 
 
 
@@ -1765,7 +2300,7 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecload">load</a></b></td>
+        <td><b><a href="#executionspecloads">loads</a></b></td>
         <td>object</td>
         <td>
           Specifies the load values that are benchmarked.<br/>
@@ -1779,19 +2314,19 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecslosindex">slos</a></b></td>
-        <td>[]object</td>
-        <td>
-          List of resource values for the specified resource type.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
           This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
           <br/>
             <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#executionspecslosindex">slos</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of SLOs with their properties, which differ from the benchmark definition.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -1906,21 +2441,14 @@ Defines the overall parameter for the execution.
         <td><b>repetitions</b></td>
         <td>integer</td>
         <td>
-          Numper of repititions for each experiments.<br/>
+          Number of repititions for each experiment.<br/>
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>restrictions</b></td>
-        <td>[]string</td>
+        <td><b><a href="#executionspecexecutionstrategy">strategy</a></b></td>
+        <td>object</td>
         <td>
-          List of restriction strategys used to delimit the search space.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>strategy</b></td>
-        <td>string</td>
-        <td>
-          Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'<br/>
+          Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1930,11 +2458,66 @@ Defines the overall parameter for the execution.
           Seconds to wait between the start of the SUT and the load generator.<br/>
         </td>
         <td>false</td>
+      </tr><tr>
+        <td><b>metric</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
 
-### execution.spec.load
+### execution.spec.execution.strategy
+<sup><sup>[↩ Parent](#executionspecexecution)</sup></sup>
+
+
+
+Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>guessStrategy</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>restrictions</b></td>
+        <td>[]string</td>
+        <td>
+          List of restriction strategies used to delimit the search space.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>searchStrategy</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### execution.spec.loads
 <sup><sup>[↩ Parent](#executionspec)</sup></sup>
 
 
@@ -2019,24 +2602,10 @@ Specifies the scaling resource that is benchmarked.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>offset</b></td>
-        <td>integer</td>
-        <td>
-          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>prometheusUrl</b></td>
+        <td><b>name</b></td>
         <td>string</td>
         <td>
-          Connection string for Promehteus.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>sloType</b></td>
-        <td>string</td>
-        <td>
-          The type of the SLO. It must match 'lag trend'.<br/>
+          The name of the SLO. It must match a SLO specified in the Benchmark.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2047,7 +2616,7 @@ Specifies the scaling resource that is benchmarked.
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 

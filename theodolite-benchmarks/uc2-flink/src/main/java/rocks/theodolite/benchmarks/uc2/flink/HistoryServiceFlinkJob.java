@@ -1,10 +1,13 @@
 package rocks.theodolite.benchmarks.uc2.flink;
 
 import com.google.common.math.Stats;
+import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
@@ -61,7 +64,9 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
         // .rebalance()
         .keyBy(ActivePowerRecord::getIdentifier)
         .window(TumblingEventTimeWindows.of(windowDuration))
-        .aggregate(new StatsAggregateFunction(), new StatsProcessWindowFunction())
+        .aggregate(
+            (AggregateFunction<ActivePowerRecord, Stats, Stats>) new StatsAggregateFunction(),
+            (ProcessWindowFunction<Stats, Tuple2<String, Stats>, String, TimeWindow>) new StatsProcessWindowFunction())
         .map(t -> {
           final String key = t.f0;
           final String value = t.f1.toString();

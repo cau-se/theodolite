@@ -2,7 +2,8 @@ package rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics;
 
 import java.util.Objects;
 import java.util.Set;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+
 
 /**
  * Structure: (valueInW, Set(Groups)).

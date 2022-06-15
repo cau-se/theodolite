@@ -18,12 +18,12 @@ import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.WindowedSerdes;
-import titan.ccp.common.kafka.avro.SchemaRegistryAvroSerdeFactory;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.configuration.events.EventSerde;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
-import titan.ccp.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.configuration.events.EventSerde;
+import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 
 /**
  * Builds Kafka Stream Topology for the History microservice.

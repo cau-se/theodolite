@@ -6,7 +6,7 @@ import java.io.Serializable;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.DefaultCoder;
 import org.apache.beam.sdk.transforms.Combine.CombineFn;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 
 /**

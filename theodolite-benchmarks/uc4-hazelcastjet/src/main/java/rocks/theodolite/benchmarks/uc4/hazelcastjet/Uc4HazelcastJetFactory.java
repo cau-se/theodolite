@@ -13,13 +13,13 @@ import org.slf4j.Logger;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.JetInstanceBuilder;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.KafkaPropertiesBuilder;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.EventDeserializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
-import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
 /**
  * A Hazelcast Jet factory which can build a Hazelcast Jet Instance and Pipeline for the UC4
@@ -57,18 +57,8 @@ public class Uc4HazelcastJetFactory {
    * @throws Exception If either no JetInstance or Pipeline is set, a job cannot be startet.
    */
   public void runUc4Job(final String jobName) throws IllegalStateException { // NOPMD
-
-    // Check if a Jet Instance for UC4 is set.
-    if (this.uc4JetInstance == null) {
-      throw new IllegalStateException("Jet Instance is not set! "
-          + "Cannot start a hazelcast jet job for UC4.");
-    }
-
-    // Check if a Pipeline for UC3 is set.
-    if (this.uc4JetPipeline == null) {
-      throw new IllegalStateException(
-          "Hazelcast Pipeline is not set! Cannot start a hazelcast jet job for UC4.");
-    }
+    Objects.requireNonNull(this.uc4JetInstance, "Jet instance is not set.");
+    Objects.requireNonNull(this.uc4JetPipeline, "Jet pipeline is not set.");
 
     // Adds the job name and joins a job to the JetInstance defined in this factory
     final JobConfig jobConfig = new JobConfig()
@@ -197,9 +187,9 @@ public class Uc4HazelcastJetFactory {
    * @return The Uc4HazelcastJetBuilder factory with set kafkaReadPropertiesForPipeline.
    */
   public Uc4HazelcastJetFactory setReadPropertiesFromEnv(// NOPMD
-                                                         final String bootstrapServersDefault,
-                                                         final String schemaRegistryUrlDefault,
-                                                         final String jobName) {
+      final String bootstrapServersDefault,
+      final String schemaRegistryUrlDefault,
+      final String jobName) {
     // Use KafkaPropertiesBuilder to build a properties object used for kafka
     final KafkaPropertiesBuilder propsBuilder = new KafkaPropertiesBuilder();
 

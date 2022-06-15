@@ -5,9 +5,9 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
-import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * The History microservice implemented as a Flink job.
@@ -24,7 +24,7 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
   @Override
   protected void configureSerializers() {
-  // No serializers needed here
+    // No serializers needed here
   }
 
 
