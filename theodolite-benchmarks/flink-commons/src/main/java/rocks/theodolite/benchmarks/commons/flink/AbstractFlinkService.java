@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
- * A general Apache Flink-based microservice. It is configured by {@link #configureEnv()},
- * and extended by implementing business logic in {@link #buildPipeline()}.
- * The configuration of the serializer needs to be implemented in {@link #configureSerializers()}.
+ * A general Apache Flink-based microservice. It is configured by {@link #configureEnv()}, and
+ * extended by implementing business logic in {@link #buildPipeline()}. The configuration of the
+ * serializer needs to be implemented in {@link #configureSerializers()}.
  */
 public abstract class AbstractFlinkService {
 
@@ -34,7 +34,8 @@ public abstract class AbstractFlinkService {
   }
 
   /**
-   *  Abstract Service constructing the name and {@link StreamExecutionEnvironment}.
+   * Abstract Service constructing the name and {@link StreamExecutionEnvironment}.
+   *
    * @param config the configuration for the service.
    */
   public AbstractFlinkService(final Configuration config) {
@@ -95,7 +96,7 @@ public abstract class AbstractFlinkService {
   protected abstract void buildPipeline();
 
   /**
-   *  Starts the service.
+   * Starts the service.
    */
   public void run() {
     this.configureEnv();
@@ -104,7 +105,7 @@ public abstract class AbstractFlinkService {
 
     try {
       this.env.execute(this.applicationId);
-    } catch (final Exception e) { // NOPMD Execution thrown by Flink
+    } catch (final Exception e) { // NOPMD Exception thrown by Flink
       LOGGER.error("An error occured while running this job.", e);
     }
   }
