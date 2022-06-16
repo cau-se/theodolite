@@ -10,7 +10,7 @@ nav_order: 1
 
 Packages:
 
-- [theodolite.rocks/v1beta1](#theodolitecomv1)
+- [theodolite.rocks/v1beta1](#theodoliterocksv1beta1)
 
 # theodolite.rocks/v1beta1
 
@@ -24,7 +24,7 @@ Resource Types:
 
 
 ## benchmark
-<sup><sup>[↩ Parent](#theodolitecomv1 )</sup></sup>
+<sup><sup>[↩ Parent](#theodoliterocksv1beta1 )</sup></sup>
 
 
 
@@ -2209,7 +2209,7 @@ Contains the Kafka configuration.
 </table>
 
 ## execution
-<sup><sup>[↩ Parent](#theodolitecomv1 )</sup></sup>
+<sup><sup>[↩ Parent](#theodoliterocksv1beta1 )</sup></sup>
 
 
 
