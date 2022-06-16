@@ -41,7 +41,7 @@ class SloCheckerFactory {
      */
     fun create(
         sloType: String,
-        properties: MutableMap<String, String>,
+        properties: Map<String, String>,
         load: Int,
         resource: Int,
         metric: Metric
@@ -58,7 +58,7 @@ class SloCheckerFactory {
                     "repetitionAggregation" to (properties["repetitionAggregation"]
                         ?: throw IllegalArgumentException("repetitionAggregation expected")),
                     "operator" to (properties["operator"] ?: throw IllegalArgumentException("operator expected")),
-                    "threshold" to (properties["threshold"]?.toInt()
+                    "threshold" to (properties["threshold"]?.toDouble()
                         ?: throw IllegalArgumentException("threshold expected"))
                 )
             )
@@ -67,7 +67,7 @@ class SloCheckerFactory {
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
                 metadata = mapOf(
                     "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
-                    "threshold" to (properties["threshold"]?.toInt()
+                    "threshold" to (properties["threshold"]?.toDouble()
                         ?: throw IllegalArgumentException("threshold expected"))
                 )
             )
@@ -78,8 +78,8 @@ class SloCheckerFactory {
                 if (thresholdRatio < 0.0) {
                     throw IllegalArgumentException("Threshold ratio needs to be an Double greater or equal 0.0")
                 }
-                // cast to int, as rounding is not really necessary
-                val threshold = (load * thresholdRatio).toInt()
+
+                val threshold = (load * thresholdRatio)
 
                 ExternalSloChecker(
                     externalSlopeURL = properties["externalSloUrl"]
