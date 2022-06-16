@@ -1,7 +1,7 @@
 {{- range $benchmark, $enabled := .Values.operator.theodoliteBenchmarks.benchmarks }}
 {{- if $enabled -}}
 {{- $name := kebabcase $benchmark }}
-{{ $.Files.Get (printf "benchmark-definitions/%s/%s-benchmark-operator.yaml" $name $name) }}
+{{ $.Files.Get (printf "benchmark-definitions/theodolite-benchmarks/%s/%s-benchmark-operator.yaml" $name $name) }}
 ---
 {{- end }}
 {{- end }}

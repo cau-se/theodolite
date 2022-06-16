@@ -6,7 +6,7 @@ kind: ConfigMap
 metadata:
   name: benchmark-resources-{{ $name }}
 data:
-{{ ($.Files.Glob (printf "benchmark-definitions/%s/resources/*" $name)).AsConfig | indent 2 }}
+{{ ($.Files.Glob (printf "benchmark-definitions/theodolite-benchmarks/%s/resources/*" $name)).AsConfig | indent 2 }}
 ---
 {{- end }}
 {{- end }}
