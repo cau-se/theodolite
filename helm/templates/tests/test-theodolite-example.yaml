@@ -34,7 +34,7 @@ spec:
           kubectl apply -f example-configmap.yaml
           kubectl apply -f example-benchmark.yaml
           kubectl apply -f test-example-execution.yaml
-          timeout 120s bash -c "until kubectl get exec theodolite-test-execution -o json | jq -r .status.executionState | grep -i '^Finished$'; do kubectl get exec theodolite-test-execution -o json | jq -r .status.executionState; sleep 5s; done"
+          timeout 180s bash -c "until kubectl get exec theodolite-test-execution -o json | jq -r .status.executionState | grep -i '^Finished$'; do kubectl get exec theodolite-test-execution -o json | jq -r .status.executionState; sleep 5s; done"
           RETURN=$?
           echo "RETURN: $RETURN"
           kubectl delete -f example-configmap.yaml
