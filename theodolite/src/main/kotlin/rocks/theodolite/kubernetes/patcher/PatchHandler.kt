@@ -3,13 +3,13 @@ package rocks.theodolite.kubernetes.patcher
 import io.fabric8.kubernetes.api.model.HasMetadata
 class PatchHandler {
     companion object {
-        private fun getResourcesToPatch(resources: MutableMap<String, List<HasMetadata>>, patcherDefinition: PatcherDefinition): List<HasMetadata> {
+        private fun getResourcesToPatch(resources: Map<String, List<HasMetadata>>, patcherDefinition: PatcherDefinition): List<HasMetadata> {
             return resources[patcherDefinition.resource]
                 ?: throw InvalidPatcherConfigurationException("Could not find resource ${patcherDefinition.resource}")
 
         }
         fun patchResource(
-            resources: MutableMap<String, List<HasMetadata>>,
+            resources: Map<String, List<HasMetadata>>,
             patcherDefinition: PatcherDefinition,
             value: String,
         ): List<HasMetadata> {

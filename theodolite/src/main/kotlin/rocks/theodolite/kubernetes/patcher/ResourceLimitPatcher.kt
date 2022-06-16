@@ -29,7 +29,7 @@ class ResourceLimitPatcher(
                 }
             }
             else -> {
-                throw InvalidPatcherConfigurationException("ResourceLimitPatcher is not applicable for $resource")
+                throw InvalidPatcherConfigurationException("ResourceLimitPatcher is not applicable for $resource.")
             }
         }
         return resource
@@ -37,21 +37,21 @@ class ResourceLimitPatcher(
 
 
         private fun setLimits(container: Container, value: String) {
-        when {
-            container.resources == null -> {
-                val resource = ResourceRequirements()
-                resource.limits = mapOf(limitedResource to Quantity(value))
-                container.resources = resource
-            }
-            container.resources.limits.isEmpty() -> {
-                container.resources.limits = mapOf(limitedResource to Quantity(value))
-            }
-            else -> {
-                val values = mutableMapOf<String, Quantity>()
-                container.resources.limits.forEach { entry -> values[entry.key] = entry.value }
-                values[limitedResource] = Quantity(value)
-                container.resources.limits = values
-            }
+            when {
+                container.resources == null -> {
+                    val resource = ResourceRequirements()
+                    resource.limits = mapOf(limitedResource to Quantity(value))
+                    container.resources = resource
+                }
+                container.resources.limits.isEmpty() -> {
+                    container.resources.limits = mapOf(limitedResource to Quantity(value))
+                }
+                else -> {
+                    val values = mutableMapOf<String, Quantity>()
+                    container.resources.limits.forEach { entry -> values[entry.key] = entry.value }
+                    values[limitedResource] = Quantity(value)
+                    container.resources.limits = values
+                }
         }
     }
 }

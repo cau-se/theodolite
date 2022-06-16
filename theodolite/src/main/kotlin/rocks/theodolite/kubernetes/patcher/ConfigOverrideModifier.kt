@@ -21,16 +21,13 @@ class ConfigOverrideModifier(val execution: BenchmarkExecution, val resources: L
         labelValue: String,
         labelName: String
     ) {
-        val additionalConfigOverrides = mutableListOf<ConfigurationOverride>()
-        resources.forEach {
-            run {
-                val configurationOverride = ConfigurationOverride()
-                configurationOverride.patcher = PatcherDefinition()
-                configurationOverride.patcher.type = "LabelPatcher"
-                configurationOverride.patcher.properties = mutableMapOf("variableName" to labelName)
-                configurationOverride.patcher.resource = it
-                configurationOverride.value = labelValue
-                additionalConfigOverrides.add(configurationOverride)
+        val additionalConfigOverrides = resources.map {
+            ConfigurationOverride().apply {
+                this.patcher = PatcherDefinition()
+                this.patcher.type = "LabelPatcher"
+                this.patcher.properties = mapOf("variableName" to labelName)
+                this.patcher.resource = it
+                this.value = labelValue
             }
         }
         execution.configOverrides.addAll(additionalConfigOverrides)

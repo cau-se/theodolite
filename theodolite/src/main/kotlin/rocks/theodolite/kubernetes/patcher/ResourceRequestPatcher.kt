@@ -29,7 +29,7 @@ class ResourceRequestPatcher(
                 }
             }
             else -> {
-                throw InvalidPatcherConfigurationException("ResourceRequestPatcher is not applicable for $resource")
+                throw InvalidPatcherConfigurationException("ResourceRequestPatcher is not applicable for $resource.")
             }
         }
         return resource

@@ -24,15 +24,14 @@ class DataVolumeLoadGeneratorReplicaPatcher(
         return resources.flatMap { patchSingeResource(it, value)}
     }
 
-    fun patchSingeResource(k8sResource: HasMetadata, value: String): List<HasMetadata> {
-        var resource = k8sResource
+    private fun patchSingeResource(k8sResource: HasMetadata, value: String): List<HasMetadata> {
         // calculate number of load generator instances and load per instance
         val load = Integer.parseInt(value)
         val loadGenInstances = (load + maxVolume - 1) / maxVolume
         val loadPerInstance = load / loadGenInstances
 
         // Patch instance values and load value of generators
-        val resourceList = ReplicaPatcher().patch(listOf(resource), loadGenInstances.toString())
+        val resourceList = ReplicaPatcher().patch(listOf(k8sResource), loadGenInstances.toString())
         return EnvVarPatcher(this.container, this.variableName).patch(resourceList, loadPerInstance.toString())
     }
 }

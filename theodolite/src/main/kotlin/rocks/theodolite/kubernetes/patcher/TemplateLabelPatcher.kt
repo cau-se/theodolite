@@ -13,7 +13,6 @@ class TemplateLabelPatcher(
     val variableName: String) :
     AbstractPatcher() {
 
-
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
             is Deployment -> {
