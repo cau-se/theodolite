@@ -12,10 +12,12 @@ import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSupplier;
-import titan.ccp.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+
 
 public class Uc2PipelineFactory extends PipelineFactory {
 
@@ -110,15 +112,15 @@ public class Uc2PipelineFactory extends PipelineFactory {
    * @return An AggregateOperation used by Hazelcast Jet in a streaming stage which aggregates
    *         ActivePowerRecord Objects into Stats Objects.
    */
-  public AggregateOperation1<Map.Entry<String, ActivePowerRecord>,
-      StatsAccumulator, Stats> uc2AggregateOperation() {
+  public AggregateOperation1<Entry<String, ActivePowerRecord>,
+      StatsAccumulator, Stats> uc2AggregateOperation() { // NOCS
     // Aggregate Operation to Create a Stats Object from Entry<String,ActivePowerRecord> items using
     // the Statsaccumulator.
     return AggregateOperation
         // Creates the accumulator
         .withCreate(new StatsAccumulatorSupplier())
         // Defines the accumulation
-        .<Map.Entry<String, ActivePowerRecord>>andAccumulate((accumulator, item) -> {
+        .<Entry<String, ActivePowerRecord>>andAccumulate((accumulator, item) -> {
           accumulator.add(item.getValue().getValueInW());
         })
         // Defines the combination of spread out instances

@@ -40,15 +40,15 @@ import rocks.theodolite.benchmarks.commons.beam.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaGenericReader;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaWriterTransformation;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerRecordCoder;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerRecordDeserializer;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerRecordSerializer;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventCoder;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventDeserializer;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.SensorParentKeyCoder;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
 
 /**
  * {@link AbstractPipelineFactory} for UC4.

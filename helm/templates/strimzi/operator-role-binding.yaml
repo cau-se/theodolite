@@ -1,0 +1,18 @@
+{{- if not (index .Values "strimzi-kafka-operator" "createGlobalResources") -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: strimzi
+  name: strimzi-cluster-operator-namespaced
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: strimzi-cluster-operator-namespaced
+subjects:
+- kind: ServiceAccount
+  name: strimzi-cluster-operator
+  namespace: {{ .Release.Namespace }}
+{{- end }}
+

@@ -37,7 +37,7 @@ def aggr_query(values: dict, warmup: int, aggr_func):
     df = pd.DataFrame.from_dict(values)
     df.columns = ['timestamp', 'value']
     filtered = df[df['timestamp'] >= (df['timestamp'][0] + warmup)]
-    filtered['value'] = filtered['value'].astype(int)
+    filtered['value'] = filtered['value'].astype(float)
     return filtered['value'].aggregate(aggr_func)
 
 def check_result(result, operator: str, threshold):
@@ -63,7 +63,7 @@ async def check_slo(request: Request):
     query_aggregation = get_aggr_func(data['metadata']['queryAggregation'])
     rep_aggregation = get_aggr_func(data['metadata']['repetitionAggregation'])
     operator = data['metadata']['operator']
-    threshold = int(data['metadata']['threshold'])
+    threshold = float(data['metadata']['threshold'])
 
     query_results = [aggr_query(r[0]["values"], warmup, query_aggregation) for r in data["results"]]
     result = pd.DataFrame(query_results).aggregate(rep_aggregation).at[0]

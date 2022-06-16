@@ -11,14 +11,15 @@ import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HoursOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory;
-import titan.ccp.model.records.ActivePowerRecord;
 
 
 public class Uc3PipelineFactory extends PipelineFactory {
@@ -114,7 +115,7 @@ public class Uc3PipelineFactory extends PipelineFactory {
           return Map.entry(newKey, record.getValue());
         })
         // group by new keys
-        .groupingKey(Map.Entry::getKey)
+        .groupingKey(Entry::getKey)
         // Sliding/Hopping Window
         .window(WindowDefinition.sliding(TimeUnit.DAYS.toMillis(windowSizeInDays),
             TimeUnit.DAYS.toMillis(hoppingSizeInDays)))

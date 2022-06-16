@@ -2,8 +2,8 @@ package rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics;
 
 import java.util.Map;
 import org.apache.kafka.common.serialization.Deserializer;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.configuration.events.EventSerde;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.configuration.events.EventSerde;
 
 /**
  * Deserializer for Event Objects.

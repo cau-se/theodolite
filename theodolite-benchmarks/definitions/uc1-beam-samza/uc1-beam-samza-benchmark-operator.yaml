@@ -12,12 +12,12 @@ spec:
           - "beam-samza-service.yaml"
           - "service-monitor.yaml"
     afterActions:
-      - selector: # delete zookeeper nodes to reset zookeeper
-          pod:
-            matchLabels:
-              app: "zookeeper-client"
-          container: "zookeeper-client"
-        exec:
+      - exec:
+          selector: # delete zookeeper nodes to reset zookeeper
+            pod:
+              matchLabels:
+                app: "zookeeper-client"
+            container: "zookeeper-client"
           command: ["bash", "-c", "bin/zkCli.sh -server $ZOOKEEPER_SERVER deleteall /app-theodolite-uc1-application-1"]
           timeoutSeconds: 60
   loadGenerator:
@@ -44,6 +44,15 @@ spec:
           resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:

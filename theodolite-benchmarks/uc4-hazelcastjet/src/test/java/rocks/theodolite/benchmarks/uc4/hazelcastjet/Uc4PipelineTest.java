@@ -25,26 +25,25 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
-import titan.ccp.configuration.events.Event;
-import titan.ccp.model.records.ActivePowerRecord;
-import titan.ccp.model.records.AggregatedActivePowerRecord;
-import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
-import titan.ccp.model.sensorregistry.MachineSensor;
-import titan.ccp.model.sensorregistry.MutableAggregatedSensor;
-import titan.ccp.model.sensorregistry.MutableSensorRegistry;
+
 
 @Category(SerialTest.class)
 public class Uc4PipelineTest extends JetTestSupport {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Uc4PipelineTest.class);
 
-
-  // Test Machinery
   JetInstance testInstance = null;
   Pipeline testPipeline = null;
   StreamStage<Entry<String, AggregatedActivePowerRecord>> uc4Topology = null;
@@ -60,7 +59,7 @@ public class Uc4PipelineTest extends JetTestSupport {
     final Double testValueInW = 10.0;
     final int testWindowSize = 5000; // As window size is bugged, not necessary.
 
-    // Create mock jet instance with configuration
+    // Create mocked Hazelcast Jet instance with configuration
     final String testClusterName = randomName();
     final JetConfig testJetConfig = new JetConfig();
     testJetConfig.getHazelcastConfig().setClusterName(testClusterName);
@@ -80,7 +79,7 @@ public class Uc4PipelineTest extends JetTestSupport {
     final StreamSource<Entry<String, AggregatedActivePowerRecord>> testAggregationSource =
         TestSources.itemStream(testItemsPerSecond, (timestamp, item) -> {
 
-          AggregatedActivePowerRecord test =
+          final AggregatedActivePowerRecord test =
               new AggregatedActivePowerRecord(testSensorName,
                   System.currentTimeMillis(),
                   1L,
@@ -105,7 +104,7 @@ public class Uc4PipelineTest extends JetTestSupport {
 
           // Topology:
           // level2Group -> level1Group -> testSensor
-          
+
           // Create Registry
           final MutableSensorRegistry testRegistry = new MutableSensorRegistry(testLevel2GroupName);
           // Add Sensors
@@ -147,7 +146,7 @@ public class Uc4PipelineTest extends JetTestSupport {
 
 
     // Assertion
-    this.uc4Topology.apply(Assertions.assertCollectedEventually(timeout, 
+    this.uc4Topology.apply(Assertions.assertCollectedEventually(timeout,
         collection -> {
           System.out.println("DEBUG || ENTERED ASSERTION COLLECTED EVENTUALLY");
 
@@ -174,11 +173,11 @@ public class Uc4PipelineTest extends JetTestSupport {
                 testLevel1contained = true;
               }
 
-              if(Objects.equals(key, testLevel2GroupName)){
+              if (Objects.equals(key, testLevel2GroupName)) {
                 testLevel2contained = true;
               }
 
-              if (testValueInW != agg.getAverageInW()){
+              if (testValueInW != agg.getAverageInW()) {
                 averageEqTest = false;
               }
 
@@ -197,9 +196,10 @@ public class Uc4PipelineTest extends JetTestSupport {
           LOGGER.info("Average calculation correct =: " + avOk);
 
           Assert.assertTrue("Assertion did not complete!", allOkay);
+
         }));
 
-    try{
+    try {
 
       final JobConfig jobConfig = new JobConfig()
           .registerSerializer(ValueGroup.class, ValueGroupSerializer.class)

@@ -4,12 +4,9 @@ import com.google.common.math.Stats;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import org.apache.commons.configuration2.Configuration;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.runtime.state.StateBackend;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -17,64 +14,24 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
-import rocks.theodolite.benchmarks.commons.flink.StateBackends;
 import rocks.theodolite.benchmarks.commons.flink.serialization.StatsSerializer;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeySerde;
 import rocks.theodolite.benchmarks.uc3.flink.util.StatsKeyFactory;
-import titan.ccp.common.configuration.ServiceConfigurations;
-import titan.ccp.model.records.ActivePowerRecord;
 
 /**
  * The History microservice implemented as a Flink job.
  */
-public final class HistoryServiceFlinkJob {
+public final class HistoryServiceFlinkJob extends AbstractFlinkService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryServiceFlinkJob.class);
 
-  private final Configuration config = ServiceConfigurations.createWithDefaults();
-  private final StreamExecutionEnvironment env;
-  private final String applicationId;
-
-  /**
-   * Create a new instance of the {@link HistoryServiceFlinkJob}.
-   */
-  public HistoryServiceFlinkJob() {
-    final String applicationName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
-    final String applicationVersion = this.config.getString(ConfigurationKeys.APPLICATION_VERSION);
-    this.applicationId = applicationName + "-" + applicationVersion;
-
-    this.env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-    this.configureEnv();
-
-    this.buildPipeline();
-  }
-
-  private void configureEnv() {
-    final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
-    final int commitIntervalMs = this.config.getInt(ConfigurationKeys.COMMIT_INTERVAL_MS);
-    if (checkpointing) {
-      this.env.enableCheckpointing(commitIntervalMs);
-    }
-
-    // Parallelism
-    final Integer parallelism = this.config.getInteger(ConfigurationKeys.PARALLELISM, null);
-    if (parallelism != null) {
-      LOGGER.error("Set parallelism: {}.", parallelism);
-      this.env.setParallelism(parallelism);
-    }
-
-    // State Backend
-    final StateBackend stateBackend = StateBackends.fromConfiguration(this.config);
-    this.env.setStateBackend(stateBackend);
-
-    this.configureSerializers();
-  }
-
-  private void configureSerializers() {
+  @Override
+  protected void configureSerializers() {
     this.env.getConfig().registerTypeWithKryoSerializer(HourOfDayKey.class,
         new HourOfDayKeySerde());
     this.env.getConfig().registerTypeWithKryoSerializer(Stats.class, new StatsSerializer());
@@ -86,7 +43,8 @@ public final class HistoryServiceFlinkJob {
     }
   }
 
-  private void buildPipeline() {
+  @Override
+  protected void buildPipeline() {
     // Configurations
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
@@ -133,21 +91,6 @@ public final class HistoryServiceFlinkJob {
         .name("map")
         .returns(Types.TUPLE(Types.STRING, Types.STRING))
         .addSink(kafkaSink).name("[Kafka Producer] Topic: " + outputTopic);
-  }
-
-  /**
-   * Start running this microservice.
-   */
-  public void run() {
-    // Execution plan
-    LOGGER.info("Execution Plan: {}", this.env.getExecutionPlan());
-
-    // Execute Job
-    try {
-      this.env.execute(this.applicationId);
-    } catch (final Exception e) { // NOPMD Execution thrown by Flink
-      LOGGER.error("An error occured while running this job.", e);
-    }
   }
 
   public static void main(final String[] args) {

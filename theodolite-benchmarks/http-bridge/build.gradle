@@ -17,8 +17,7 @@ repositories {
 }
 
 dependencies {
-  implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
-  implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+  implementation project(':commons')
   implementation project(':load-generator-commons')
   
   implementation 'io.javalin:javalin:4.3.0'

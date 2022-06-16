@@ -1,19 +1,18 @@
 package rocks.theodolite.benchmarks.uc1.hazelcastjet;
 
-import static com.hazelcast.jet.pipeline.SinkBuilder.sinkBuilder;
-
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sink;
+import com.hazelcast.jet.pipeline.SinkBuilder;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import java.util.Map;
 import java.util.Properties;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
-import titan.ccp.model.records.ActivePowerRecord;
 
 public class Uc1PipelineFactory extends PipelineFactory {
 
@@ -47,7 +46,7 @@ public class Uc1PipelineFactory extends PipelineFactory {
     // Do not refactor this to just use the call
     // (There is a problem with static calls in functions in hazelcastjet)
     final DatabaseWriter<String> writer = this.databaseAdapter.getDatabaseWriter();
-    final Sink<String> sink = sinkBuilder(
+    final Sink<String> sink = SinkBuilder.sinkBuilder(
         "Sink into database", x -> writer)
         .<String>receiveFn(DatabaseWriter::write)
         .build();
@@ -56,7 +55,6 @@ public class Uc1PipelineFactory extends PipelineFactory {
 
     return pipe;
   }
-
 
   /**
    * Extends to a blank Hazelcast Jet Pipeline the UC1 topology defines by Theodolite.
