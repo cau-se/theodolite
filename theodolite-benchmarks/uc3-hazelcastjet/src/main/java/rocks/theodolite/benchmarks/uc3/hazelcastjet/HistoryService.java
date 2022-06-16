@@ -1,6 +1,8 @@
 package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+
+import java.time.Duration;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -37,19 +39,19 @@ public class HistoryService extends HazelcastJetService {
     final String kafkaOutputTopic =
         config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
 
-    final int windowSizeInDaysNumber = Integer.parseInt(
-        config.getProperty(ConfigurationKeys.AGGREGATION_DURATION_DAYS).toString());
+    final Duration windowSize = Duration.ofDays(Integer.parseInt(
+        config.getProperty(ConfigurationKeys.AGGREGATION_DURATION_DAYS).toString()));
 
-    final int hoppingSizeInDaysNumber = Integer.parseInt(
-        config.getProperty(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS).toString());
+    final Duration hoppingSize = Duration.ofDays(Integer.parseInt(
+        config.getProperty(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS).toString()));
 
     this.pipelineFactory = new Uc3PipelineFactory(
         kafkaProps,
         kafkaInputTopic,
         kafkaWriteProps,
         kafkaOutputTopic,
-        windowSizeInDaysNumber,
-        hoppingSizeInDaysNumber);
+        windowSize,
+        hoppingSize);
   }
 
   @Override

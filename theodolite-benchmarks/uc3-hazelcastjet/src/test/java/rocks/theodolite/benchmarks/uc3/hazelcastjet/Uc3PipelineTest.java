@@ -12,13 +12,14 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -57,8 +58,8 @@ public class Uc3PipelineTest extends JetTestSupport {
     final int testItemsPerSecond = 1;
     final String testSensorName = "TEST-SENSOR";
     final Double testValueInW = 10.0;
-    final int testHopSizeInSec = 1;
-    final int testWindowSizeInSec = 50;
+    final Duration testHopSize = Duration.ofSeconds(1);
+    final Duration testWindowSize = Duration.ofSeconds(50);
     // Used to check hourOfDay
     final long mockTimestamp = 1632741651;
 
@@ -82,7 +83,7 @@ public class Uc3PipelineTest extends JetTestSupport {
     // Create pipeline to test
     final Properties properties = new Properties();
     final Uc3PipelineFactory factory = new Uc3PipelineFactory(
-        properties,"", properties,"", testWindowSizeInSec, testHopSizeInSec);
+        properties,"", properties,"", testWindowSize, testHopSize);
 
     this.uc3Topology = factory.extendUc3Topology(testSource);
 
@@ -98,7 +99,7 @@ public class Uc3PipelineTest extends JetTestSupport {
     // Assertion Configuration
     final int timeout = 10;
     final String testSensorName = "TEST-SENSOR";
-    final Double testValueInW = 10.0;
+    final double testValueInW = 10.0;
     // Used to check hourOfDay
     final long mockTimestamp = 1632741651;
 
@@ -116,13 +117,12 @@ public class Uc3PipelineTest extends JetTestSupport {
             for (final Entry<String, String> entry : collection) {
 
               // Build hour of day
-              long timestamp = mockTimestamp;
-              final int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
+              final int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(mockTimestamp),
                   TimeZone.getDefault().toZoneId()).getHour();
 
               // Compare expected output with generated output
               final String expectedKey = testSensorName + ";" + expectedHour;
-              final String expectedValue = testValueInW.toString();
+              final String expectedValue = Double.toString(testValueInW);
 
               // DEBUG
               LOGGER.info(

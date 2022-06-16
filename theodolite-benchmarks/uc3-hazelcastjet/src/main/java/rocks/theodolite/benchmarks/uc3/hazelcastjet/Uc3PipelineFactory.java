@@ -8,15 +8,16 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
-import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HoursOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory;
@@ -24,8 +25,8 @@ import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory
 
 public class Uc3PipelineFactory extends PipelineFactory {
 
-  private final int hoppingSizeInDays;
-  private final int windowSizeInDays;
+  private final Duration hoppingSize;
+  private final Duration windowSize;
 
   /**
    * Build a new Pipeline.
@@ -35,21 +36,21 @@ public class Uc3PipelineFactory extends PipelineFactory {
    *        attributes.
    * @param kafkaInputTopic The name of the input topic used for the pipeline.
    * @param kafkaOutputTopic The name of the output topic used for the pipeline.
-   * @param hoppingSizeInDays The hop length of the sliding window used in the aggregation of
+   * @param hoppingSize The hop length of the sliding window used in the aggregation of
    *        this pipeline.
-   * @param windowSizeInDays The window length of the sliding window used in the aggregation of
+   * @param windowSize The window length of the sliding window used in the aggregation of
    *        this pipeline.
    */
   public Uc3PipelineFactory(final Properties kafkaReadPropsForPipeline,
                             final String kafkaInputTopic,
                             final Properties kafkaWritePropsForPipeline,
                             final String kafkaOutputTopic,
-                            final int windowSizeInDays,
-                            final int hoppingSizeInDays) {
+                            final Duration windowSize,
+                            final Duration hoppingSize) {
     super(kafkaReadPropsForPipeline, kafkaInputTopic,
         kafkaWritePropsForPipeline,kafkaOutputTopic);
-    this.windowSizeInDays = windowSizeInDays;
-    this.hoppingSizeInDays = hoppingSizeInDays;
+    this.windowSize = windowSize;
+    this.hoppingSize = hoppingSize;
   }
 
 
@@ -117,8 +118,7 @@ public class Uc3PipelineFactory extends PipelineFactory {
         // group by new keys
         .groupingKey(Entry::getKey)
         // Sliding/Hopping Window
-        .window(WindowDefinition.sliding(TimeUnit.DAYS.toMillis(windowSizeInDays),
-            TimeUnit.DAYS.toMillis(hoppingSizeInDays)))
+        .window(WindowDefinition.sliding(windowSize.toMillis(), hoppingSize.toMillis()))
         // get average value of group (sensoreId,hourOfDay)
         .aggregate(
             AggregateOperations.averagingDouble(record -> record.getValue().getValueInW()))
