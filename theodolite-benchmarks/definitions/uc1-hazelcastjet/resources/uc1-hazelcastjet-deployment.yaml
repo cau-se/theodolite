@@ -21,7 +21,7 @@ spec:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
-              value: "http://theodolite-cp-schema-registry:8081"
+              value: "http://theodolite-kafka-schema-registry:8081"
             - name: COMMIT_INTERVAL_MS # Set as default for the applications
               value: "100"
             - name: KUBERNETES_NAMESPACE
