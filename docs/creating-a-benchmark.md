@@ -11,7 +11,7 @@ Please note that to simply run a benchmark, it is not required to define one. Th
 A typical benchmark looks like this:
 
 ```yaml
-apiVersion: theodolite.com/v1
+apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: example-benchmark

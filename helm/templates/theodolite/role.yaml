@@ -60,7 +60,7 @@ rules:
   {{- end }}
   {{- if .Values.operator.enabled }}
   - apiGroups:
-    - theodolite.com
+    - theodolite.rocks
     resources:
     - benchmarks
     - benchmarks/status

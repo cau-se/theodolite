@@ -40,7 +40,7 @@ rules:
     - create
     - get
   - apiGroups:
-    - theodolite.com
+    - theodolite.rocks
     resources: 
     - executions
     - benchmarks

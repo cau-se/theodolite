@@ -48,8 +48,8 @@ Helm does not remove any CRDs created by this chart. You can remove them manuall
 
 ```sh
 # CRDs from Theodolite
-kubectl delete crd executions.theodolite.com
-kubectl delete crd benchmarks.theodolite.com
+kubectl delete crd executions.theodolite.rocks
+kubectl delete crd benchmarks.theodolite.rocks
 # CRDs from Prometheus operator (see https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#uninstall-chart)
 kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
 kubectl delete crd alertmanagers.monitoring.coreos.com

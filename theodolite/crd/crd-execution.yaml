@@ -1,16 +1,16 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: executions.theodolite.com
+  name: executions.theodolite.rocks
 spec:
-  group: theodolite.com
+  group: theodolite.rocks
   names:
     kind: execution
     plural: executions
     shortNames:
       - exec
   versions:
-  - name: v1
+  - name: v1beta1
     served: true
     storage: true
     schema:
