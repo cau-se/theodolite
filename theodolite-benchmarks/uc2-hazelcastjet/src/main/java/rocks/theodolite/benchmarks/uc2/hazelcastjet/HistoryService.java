@@ -2,6 +2,8 @@ package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
 import com.google.common.math.StatsAccumulator;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+
+import java.time.Duration;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -39,17 +41,16 @@ public class HistoryService extends HazelcastJetService {
     final String kafkaOutputTopic =
         config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
 
-    // Transform minutes to milliseconds
-    final int downsampleInterval = Integer.parseInt(
-        config.getProperty(ConfigurationKeys.DOWNSAMPLE_INTERVAL).toString());
-    final int downsampleIntervalMs = downsampleInterval * 60_000;
+    final Duration downsampleInterval = Duration.ofMinutes(
+        Integer.parseInt(config.getProperty(
+            ConfigurationKeys.DOWNSAMPLE_INTERVAL).toString()));
 
     this.pipelineFactory = new Uc2PipelineFactory(
         kafkaProps,
         this.kafkaInputTopic,
         kafkaWriteProps,
         kafkaOutputTopic,
-        downsampleIntervalMs);
+        downsampleInterval);
   }
 
   @Override

@@ -12,6 +12,8 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
+
+import java.time.Duration;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -44,7 +46,7 @@ public class Uc2PipelineTest extends JetTestSupport {
     final int testItemsPerSecond = 1;
     final String testSensorName = "TEST-SENSOR";
     final Double testValueInW = 10.0;
-    final int testWindowInMs = 5000;
+    final Duration testWindow = Duration.ofSeconds(5);
 
     // Create mock jet instance with configuration
     final String testClusterName = randomName();
@@ -65,7 +67,7 @@ public class Uc2PipelineTest extends JetTestSupport {
     // Create pipeline to test
     final Properties properties = new Properties();
     final Uc2PipelineFactory factory = new Uc2PipelineFactory(
-        properties,"",properties,"", testWindowInMs);
+        properties,"",properties,"", testWindow);
 
     this.uc2Topology = factory.extendUc2Topology(testSource);
     this.testPipeline = factory.getPipe();
@@ -84,9 +86,8 @@ public class Uc2PipelineTest extends JetTestSupport {
 
     // Assertion
     this.uc2Topology.apply(Assertions.assertCollectedEventually(timeout,
-        collection -> Assert.assertTrue(
-            "Not the right amount items in Stats Object!",
-            collection.get(collection.size() - 1).getValue().equals(expectedOutput))));
+        collection -> Assert.assertEquals("Not the right amount items in Stats Object!",
+            expectedOutput, collection.get(collection.size() - 1).getValue())));
 
     // Run the test!
     try {

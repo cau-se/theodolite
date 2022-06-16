@@ -11,17 +11,19 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
-import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSupplier;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSupplier;
+
 
 
 public class Uc2PipelineFactory extends PipelineFactory {
 
-  private final int downsampleIntervalInMs;
+  private final Duration downsampleInterval;
 
   /**
    * Factory for uc2 pipelines.
@@ -38,10 +40,10 @@ public class Uc2PipelineFactory extends PipelineFactory {
                                final String kafkaInputTopic,
                                final Properties kafkaWritePropsForPipeline,
                                final String kafkaOutputTopic,
-                               final int downsampleIntervalInMs) {
+                               final Duration downsampleIntervalInMs) {
     super(kafkaReadPropsForPipeline, kafkaInputTopic,
         kafkaWritePropsForPipeline,kafkaOutputTopic);
-    this.downsampleIntervalInMs = downsampleIntervalInMs;
+    this.downsampleInterval = downsampleIntervalInMs;
   }
 
   /**
@@ -91,7 +93,7 @@ public class Uc2PipelineFactory extends PipelineFactory {
         .withNativeTimestamps(0)
         .setLocalParallelism(1)
         .groupingKey(record -> record.getValue().getIdentifier())
-        .window(WindowDefinition.tumbling(downsampleIntervalInMs))
+        .window(WindowDefinition.tumbling(downsampleInterval.toMillis()))
         .aggregate(this.uc2AggregateOperation())
         .map(agg -> {
           final String theKey = agg.key();
