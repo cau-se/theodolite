@@ -23,18 +23,15 @@ internal class ExternalSloCheckerTest {
 
     @AfterEach
     fun stop() {
-        wireMockServer?.let {
-            it.stop()
-        }
+        wireMockServer?.stop()
     }
 
     @Test
     fun testExternalTrueResult() {
-        stubFor(
+        this.wireMockServer!!.stubFor(
             post(urlEqualTo("/"))
                 .willReturn(
-                    aResponse()
-                        .withJsonBody(BooleanNode.getTrue())
+                    aResponse().withJsonBody(BooleanNode.getTrue())
                 )
         )
 
@@ -48,11 +45,10 @@ internal class ExternalSloCheckerTest {
 
     @Test
     fun testExternalFalseResult() {
-        stubFor(
+        this.wireMockServer!!.stubFor(
             post(urlEqualTo("/"))
                 .willReturn(
-                    aResponse()
-                        .withJsonBody(BooleanNode.getFalse())
+                    aResponse().withJsonBody(BooleanNode.getFalse())
                 )
         )
 

@@ -11,8 +11,8 @@ import java.net.ConnectException
  * @param metadata metadata passed to the external SLO checker.
  */
 class ExternalSloChecker(
-    private val externalSlopeURL: String,
-    private val metadata: Map<String, Any>
+    val externalSlopeURL: String,
+    val metadata: Map<String, Any>
 ) : SloChecker {
 
     private val RETRIES = 2
