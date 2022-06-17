@@ -22,17 +22,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import rocks.theodolite.benchmarks.commons.configuration.events.Event;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.AggregatedActivePowerRecordAccumulator;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ChildParentsTransformer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
-import rocks.theodolite.benchmarks.commons.configuration.events.Event;
-import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
-import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
 
 
+/**
+ * PipelineFactory for use case 4.
+ * Allows to build and extend pipelines.
+ */
 public class Uc4PipelineFactory extends PipelineFactory {
 
   private static final String SENSOR_PARENT_MAP_NAME = "SensorParentMap";
@@ -87,6 +91,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
    * @return a pipeline used which can be used in a Hazelcast Jet Instance to process data
    *         for UC4.
    */
+  @Override
   public Pipeline buildPipeline() {
 
     // Sources for this use case
@@ -146,7 +151,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
    *         according aggregated values. The data can be further modified or directly be linked to
    *         a Hazelcast Jet sink.
    */
-  public StreamStage
+  public StreamStage // NOPMD
       <Map.Entry<String, AggregatedActivePowerRecord>>
       extendUc4Topology(final StreamSource<Map.Entry<String, ActivePowerRecord>> inputSource,
                         final StreamSource<Map.Entry<String, AggregatedActivePowerRecord>>
