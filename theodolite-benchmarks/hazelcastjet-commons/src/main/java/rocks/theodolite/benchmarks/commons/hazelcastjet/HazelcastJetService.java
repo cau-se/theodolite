@@ -8,6 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
+/**
+ * Abstract HazelcastJetService.
+ * Holds common fields and logic shared for all hazelcast jet services.
+ * Set common settings and initiates a hazelcast jet instance.
+ */
 public abstract class HazelcastJetService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastJetService.class);

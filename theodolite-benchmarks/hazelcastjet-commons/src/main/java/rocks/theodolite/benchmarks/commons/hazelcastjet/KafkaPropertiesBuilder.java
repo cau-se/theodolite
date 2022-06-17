@@ -17,14 +17,11 @@ public class KafkaPropertiesBuilder {
   private static final String TRUE = "true";
   private static final String AUTO_OFFSET_RESET_CONFIG = "earliest";
 
-  private final String specificAvroWriter = "specific.avro.writer";
+  private static final String SPECIFIC_AVRO_WRITER = "specific.avro.writer";
 
-  private Properties readProperties;
+  private final Properties readProperties;
 
-  private Properties writeProperties;
-
-  public KafkaPropertiesBuilder() {
-  }
+  private final Properties writeProperties;
 
   /**
    * Constructs a new PropertiesBuilder with defined default read and write properties.
@@ -49,7 +46,7 @@ public class KafkaPropertiesBuilder {
     readProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
     readProperties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, TRUE);
 
-    writeProperties.setProperty(specificAvroWriter, TRUE);
+    writeProperties.setProperty(SPECIFIC_AVRO_WRITER, TRUE);
   }
 
   /**
@@ -155,7 +152,7 @@ public class KafkaPropertiesBuilder {
     props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         valueSerializer);
     props.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-    props.setProperty(specificAvroWriter, TRUE);
+    props.setProperty(SPECIFIC_AVRO_WRITER, TRUE);
 
     return props;
   }
