@@ -9,13 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.EventDeserializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
-import titan.ccp.model.sensorregistry.ImmutableSensorRegistry;
 
 
 /**
