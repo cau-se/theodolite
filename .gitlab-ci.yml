@@ -161,10 +161,10 @@ test-helm:
     - cd helm
     - helm dependencies update .
     - helm install theodolite . -f preconfigs/minimal.yaml --wait
-    - helm test theodolite
     - kubectl get nodes -o wide
     - kubectl get pods --all-namespaces -o wide
     - kubectl get services --all-namespaces -o wide
+    - helm test theodolite
   after_script:
     - k3d cluster delete $CLUSTERNAME
 
