@@ -20,7 +20,10 @@ import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSupplier;
 
 
-
+/**
+ * PipelineFactory for use case 2.
+ * Allows to build and extend a pipeline.
+ */
 public class Uc2PipelineFactory extends PipelineFactory {
 
   private final Duration downsampleInterval;
@@ -52,6 +55,7 @@ public class Uc2PipelineFactory extends PipelineFactory {
    * @return returns a Pipeline used which can be used in a Hazelcast Jet Instance to process data
    *         for UC2.
    */
+  @Override
   public Pipeline buildPipeline() {
 
     // Define the Kafka Source
