@@ -8,12 +8,15 @@ import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import java.util.Map;
 import java.util.Properties;
-import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
+import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 
+/**
+ * PipelineFactory for use case 1.
+ */
 public class Uc1PipelineFactory extends PipelineFactory {
 
   private final DatabaseAdapter<String> databaseAdapter = LogWriterFactory.forJson();
@@ -33,6 +36,7 @@ public class Uc1PipelineFactory extends PipelineFactory {
    *
    * @return A Hazelcast Jet pipeline which processes data for Uc1.
    */
+  @Override
   public Pipeline buildPipeline() {
 
     // Define the Kafka Source
