@@ -1,4 +1,4 @@
-apiVersion: theodolite.com/v1
+apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc4-beam-flink

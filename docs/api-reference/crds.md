@@ -10,9 +10,9 @@ nav_order: 1
 
 Packages:
 
-- [theodolite.com/v1](#theodolitecomv1)
+- [theodolite.rocks/v1beta1](#theodoliterocksv1beta1)
 
-# theodolite.com/v1
+# theodolite.rocks/v1beta1
 
 Resource Types:
 
@@ -24,7 +24,7 @@ Resource Types:
 
 
 ## benchmark
-<sup><sup>[↩ Parent](#theodolitecomv1 )</sup></sup>
+<sup><sup>[↩ Parent](#theodoliterocksv1beta1 )</sup></sup>
 
 
 
@@ -45,7 +45,7 @@ Resource Types:
     <tbody><tr>
       <td><b>apiVersion</b></td>
       <td>string</td>
-      <td>theodolite.com/v1</td>
+      <td>theodolite.rocks/v1beta1</td>
       <td>true</td>
       </tr>
       <tr>
@@ -2209,7 +2209,7 @@ Contains the Kafka configuration.
 </table>
 
 ## execution
-<sup><sup>[↩ Parent](#theodolitecomv1 )</sup></sup>
+<sup><sup>[↩ Parent](#theodoliterocksv1beta1 )</sup></sup>
 
 
 
@@ -2230,7 +2230,7 @@ Contains the Kafka configuration.
     <tbody><tr>
       <td><b>apiVersion</b></td>
       <td>string</td>
-      <td>theodolite.com/v1</td>
+      <td>theodolite.rocks/v1beta1</td>
       <td>true</td>
       </tr>
       <tr>

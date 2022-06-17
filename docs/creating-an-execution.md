@@ -11,7 +11,7 @@ Theodolite Executions look similar to the following example.
 
 <!-- TODO align with upstream -->
 ```yaml
-apiVersion: theodolite.com/v1
+apiVersion: theodolite.rocks/v1beta1
 kind: execution
 metadata:
   name: theodolite-example-execution
