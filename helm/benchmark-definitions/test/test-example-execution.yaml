@@ -20,7 +20,7 @@ spec:
       restrictions:
         - "LowerBound"
       searchStrategy: "LinearSearch"
-    duration: 30 # in seconds
+    duration: 60 # in seconds
     repetitions: 1
     loadGenerationDelay: 0 # in seconds
   configOverrides: []
