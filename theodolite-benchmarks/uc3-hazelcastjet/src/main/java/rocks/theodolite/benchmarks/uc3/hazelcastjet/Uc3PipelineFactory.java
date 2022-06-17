@@ -23,6 +23,10 @@ import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HoursOfDayKeyFa
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory;
 
 
+/**
+ * PipelineFactory for use case 3.
+ * Allows to build and extend pipelines.
+ */
 public class Uc3PipelineFactory extends PipelineFactory {
 
   private final Duration hoppingSize;
@@ -60,6 +64,7 @@ public class Uc3PipelineFactory extends PipelineFactory {
    * @return a pipeline used which can be used in a Hazelcast Jet Instance to process data
    *         for UC3.
    */
+  @Override
   public Pipeline buildPipeline() {
 
     // Define the source
