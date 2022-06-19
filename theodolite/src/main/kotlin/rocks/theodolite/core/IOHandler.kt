@@ -64,15 +64,23 @@ class IOHandler {
      * Write to CSV file
      *
      * @param fileURL the URL of the file
-     * @param data  the data to write in the file, as list of list, each subList corresponds to a row in the CSV file
-     * @param columns columns of the CSV file
+     * @param data the data to write in the csv, as list of list,
+     *             each sublist corresponds to a row in the CSV file
+     * @param columns name of the columns
      */
     fun writeToCSVFile(fileURL: String, data: List<List<String>>, columns: List<String>) {
         val outputFile = File("$fileURL.csv")
         PrintWriter(outputFile).use { pw ->
             pw.println(columns.joinToString(separator = ","))
-            data.forEach {
-                pw.println(it.joinToString(separator = ","))
+            data.forEach{ row ->
+                val writeRow = row.toMutableList()
+                // change entry if it contains a comma
+                writeRow.forEachIndexed { index, entry ->
+                    if (entry.contains(",")){
+                        writeRow[index] = "\"" + entry + "\""
+                    }
+                }
+                pw.println(writeRow.joinToString(separator = ","))
             }
         }
         logger.info { "Wrote CSV file: $fileURL to ${outputFile.absolutePath}." }
