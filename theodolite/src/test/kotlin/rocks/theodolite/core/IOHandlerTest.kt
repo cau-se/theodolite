@@ -68,7 +68,7 @@ internal class IOHandlerTest {
     }
 
     /**
-     * Tests if values with commas are surrounded with quotation marks.
+     * Tests if values with commas and quotation marks are surrounded with additional quotation marks.
      */
     @Test
     fun testWriteToCSVFileWithComma() {
@@ -79,13 +79,13 @@ internal class IOHandlerTest {
         val expectedColumns = listOf("\"Fruit, Fruit2\"", "Color")
 
         val testContent = listOf(
-            listOf("apples, paprika", "red"),
+            listOf("apples, "+ '"' + "paprika" + '"', "red"),
             listOf("bananas, pineapple", "yellow"),
             listOf("avocado, coconut", "brown")
         )
 
         val expectedContent = listOf(
-            listOf("\"apples, paprika\"", "red"),
+            listOf("\"apples, " + '"' + '"' + "paprika" + '"' + '"' + '"', "red"),
             listOf("\"bananas, pineapple\"", "yellow"),
             listOf("\"avocado, coconut\"", "brown")
         )

@@ -85,13 +85,20 @@ class IOHandler {
 
     /**
      * For a list of Strings:
-     * Adds quotation marks around strings that contain a comma
+     *  - adds additional quotation mark to existing one
+     *  - adds quotation marks around entries that contain a comma
      */
     private fun addQuotationMarks(stringList: List<String> ): List<String> {
         val stringMutableList = stringList.toMutableList()
         stringMutableList.forEachIndexed { index, entry ->
+            // add additional quotation marks to escape them in csv
+            if (entry.contains("\"")){
+                stringMutableList[index] = stringMutableList[index].replace('"'+"", "\"" + '"')
+            }
+
+            // add quotation marks around entries that contain a comma
             if (entry.contains(",")){
-                stringMutableList[index] = "\"" + entry + "\""
+                stringMutableList[index] = '"' + stringMutableList[index] + '"'
             }
         }
         return stringMutableList
