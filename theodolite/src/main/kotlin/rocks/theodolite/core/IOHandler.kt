@@ -71,19 +71,30 @@ class IOHandler {
     fun writeToCSVFile(fileURL: String, data: List<List<String>>, columns: List<String>) {
         val outputFile = File("$fileURL.csv")
         PrintWriter(outputFile).use { pw ->
-            pw.println(columns.joinToString(separator = ","))
+
+            val writeColumns = addQuotationMarks(columns)
+            pw.println(writeColumns.joinToString(separator = ","))
+
             data.forEach{ row ->
-                val writeRow = row.toMutableList()
-                // change entry if it contains a comma
-                writeRow.forEachIndexed { index, entry ->
-                    if (entry.contains(",")){
-                        writeRow[index] = "\"" + entry + "\""
-                    }
-                }
+                val writeRow = addQuotationMarks(row)
                 pw.println(writeRow.joinToString(separator = ","))
             }
         }
         logger.info { "Wrote CSV file: $fileURL to ${outputFile.absolutePath}." }
+    }
+
+    /**
+     * For a list of Strings:
+     * Adds quotation marks around strings that contain a comma
+     */
+    private fun addQuotationMarks(stringList: List<String> ): List<String> {
+        val stringMutableList = stringList.toMutableList()
+        stringMutableList.forEachIndexed { index, entry ->
+            if (entry.contains(",")){
+                stringMutableList[index] = "\"" + entry + "\""
+            }
+        }
+        return stringMutableList
     }
 
     /**

@@ -43,12 +43,13 @@ internal class IOHandlerTest {
         temporaryFolder.create()
         val folder = temporaryFolder.newFolder(FOLDER_URL)
 
+        val columns = listOf("Fruit", "Color")
+
         val testContent = listOf(
             listOf("apples", "red"),
             listOf("bananas", "yellow"),
             listOf("avocado", "brown")
         )
-        val columns = listOf("Fruit", "Color")
 
         IOHandler().writeToCSVFile(
             fileURL = "${folder.absolutePath}/test-file",
@@ -74,7 +75,8 @@ internal class IOHandlerTest {
         temporaryFolder.create()
         val folder = temporaryFolder.newFolder(FOLDER_URL)
 
-        val columns = listOf("Fruit", "Color")
+        val columns = listOf("Fruit, Fruit2", "Color")
+        val expectedColumns = listOf("\"Fruit, Fruit2\"", "Color")
 
         val testContent = listOf(
             listOf("apples, paprika", "red"),
@@ -95,7 +97,7 @@ internal class IOHandlerTest {
         )
 
         // construct string from the columns
-        var expected = columns.stream().collect(Collectors.joining(","))
+        var expected = expectedColumns.stream().collect(Collectors.joining(","))
 
         // add values from the expectedContent to expected string
         expectedContent.forEach{
