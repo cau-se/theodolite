@@ -9,8 +9,9 @@ stages:
   - build
   - test
   - check
-  - deploy
+  - package
   - smoketest
+  - publish
 
 default:
   tags:
@@ -141,7 +142,7 @@ test-helm:
   extends: .dind
   needs:
     - lint-helm
-    # - deploy-theodolite
+    # - package-theodolite
   image: ghcr.io/cau-se/theodolite-build-k3d-helm:20.10.12
   variables:
     CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
@@ -250,8 +251,8 @@ spotbugs-benchmarks:
     when: on_failure
     expire_in: 1 day
 
-.deploy-benchmarks:
-  stage: deploy
+.package-benchmarks:
+  stage: package
   extends:
     - .benchmarks
     - .kaniko-push
@@ -274,176 +275,176 @@ spotbugs-benchmarks:
       when: manual
       allow_failure: true
 
-deploy-uc1-kstreams:
-  extends: .deploy-benchmarks
+package-uc1-kstreams:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-kstreams-app"
     JAVA_PROJECT_NAME: "uc1-kstreams"
     JAVA_PROJECT_DEPS: "kstreams-commons"
 
-deploy-uc2-kstreams:
-  extends: .deploy-benchmarks
+package-uc2-kstreams:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-kstreams-app"
     JAVA_PROJECT_NAME: "uc2-kstreams"
     JAVA_PROJECT_DEPS: "kstreams-commons"
 
-deploy-uc3-kstreams:
-  extends: .deploy-benchmarks
+package-uc3-kstreams:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-kstreams-app"
     JAVA_PROJECT_NAME: "uc3-kstreams"
     JAVA_PROJECT_DEPS: "kstreams-commons"
 
-deploy-uc4-kstreams:
-  extends: .deploy-benchmarks
+package-uc4-kstreams:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
     JAVA_PROJECT_NAME: "uc4-kstreams"
     JAVA_PROJECT_DEPS: "kstreams-commons"
 
-deploy-uc1-flink:
-  extends: .deploy-benchmarks
+package-uc1-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-flink"
     JAVA_PROJECT_NAME: "uc1-flink"
     JAVA_PROJECT_DEPS: "flink-commons"
 
-deploy-uc2-flink:
-  extends: .deploy-benchmarks
+package-uc2-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-flink"
     JAVA_PROJECT_NAME: "uc2-flink"
     JAVA_PROJECT_DEPS: "flink-commons"
 
-deploy-uc3-flink:
-  extends: .deploy-benchmarks
+package-uc3-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-flink"
     JAVA_PROJECT_NAME: "uc3-flink"
     JAVA_PROJECT_DEPS: "flink-commons"
 
-deploy-uc4-flink:
-  extends: .deploy-benchmarks
+package-uc4-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-flink"
     JAVA_PROJECT_NAME: "uc4-flink"
     JAVA_PROJECT_DEPS: "flink-commons"
 
-deploy-uc1-hazelcastjet:
-  extends: .deploy-benchmarks
+package-uc1-hazelcastjet:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-hazelcastjet"
     JAVA_PROJECT_NAME: "uc1-hazelcastjet"
     JAVA_PROJECT_DEPS: "hazelcastjet-commons"
 
-deploy-uc2-hazelcastjet:
-  extends: .deploy-benchmarks
+package-uc2-hazelcastjet:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-hazelcastjet"
     JAVA_PROJECT_NAME: "uc2-hazelcastjet"
     JAVA_PROJECT_DEPS: "hazelcastjet-commons"
 
-deploy-uc3-hazelcastjet:
-  extends: .deploy-benchmarks
+package-uc3-hazelcastjet:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-hazelcastjet"
     JAVA_PROJECT_NAME: "uc3-hazelcastjet"
     JAVA_PROJECT_DEPS: "hazelcastjet-commons"
 
-deploy-uc4-hazelcastjet:
-  extends: .deploy-benchmarks
+package-uc4-hazelcastjet:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-hazelcastjet"
     JAVA_PROJECT_NAME: "uc4-hazelcastjet"
     JAVA_PROJECT_DEPS: "hazelcastjet-commons"
 
-deploy-uc1-beam-flink:
-  extends: .deploy-benchmarks
+package-uc1-beam-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-beam-flink"
     JAVA_PROJECT_NAME: "uc1-beam-flink"
     JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
 
-deploy-uc2-beam-flink:
-  extends: .deploy-benchmarks
+package-uc2-beam-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-beam-flink"
     JAVA_PROJECT_NAME: "uc2-beam-flink"
     JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
 
-deploy-uc3-beam-flink:
-  extends: .deploy-benchmarks
+package-uc3-beam-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-beam-flink"
     JAVA_PROJECT_NAME: "uc3-beam-flink"
     JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
 
-deploy-uc4-beam-flink:
-  extends: .deploy-benchmarks
+package-uc4-beam-flink:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-beam-flink"
     JAVA_PROJECT_NAME: "uc4-beam-flink"
     JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
 
-deploy-uc1-beam-samza:
-  extends: .deploy-benchmarks
+package-uc1-beam-samza:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-beam-samza"
     JAVA_PROJECT_NAME: "uc1-beam-samza"
     JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
 
-deploy-uc2-beam-samza:
-  extends: .deploy-benchmarks
+package-uc2-beam-samza:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-beam-samza"
     JAVA_PROJECT_NAME: "uc2-beam-samza"
     JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
 
-deploy-uc3-beam-samza:
-  extends: .deploy-benchmarks
+package-uc3-beam-samza:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-beam-samza"
     JAVA_PROJECT_NAME: "uc3-beam-samza"
     JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
 
-deploy-uc4-beam-samza:
-  extends: .deploy-benchmarks
+package-uc4-beam-samza:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-beam-samza"
     JAVA_PROJECT_NAME: "uc4-beam-samza"
     JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
 
-deploy-uc1-load-generator:
-  extends: .deploy-benchmarks
+package-uc1-load-generator:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc1-workload-generator"
     JAVA_PROJECT_NAME: "uc1-load-generator"
     JAVA_PROJECT_DEPS: "load-generator-commons"
 
-deploy-uc2-load-generator:
-  extends: .deploy-benchmarks
+package-uc2-load-generator:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc2-workload-generator"
     JAVA_PROJECT_NAME: "uc2-load-generator"
     JAVA_PROJECT_DEPS: "load-generator-commons"
 
-deploy-uc3-load-generator:
-  extends: .deploy-benchmarks
+package-uc3-load-generator:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc3-workload-generator"
     JAVA_PROJECT_NAME: "uc3-load-generator"
     JAVA_PROJECT_DEPS: "load-generator-commons"
 
-deploy-uc4-load-generator:
-  extends: .deploy-benchmarks
+package-uc4-load-generator:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-uc4-workload-generator"
     JAVA_PROJECT_NAME: "uc4-load-generator"
     JAVA_PROJECT_DEPS: "load-generator-commons"
 
-deploy-http-bridge:
-  extends: .deploy-benchmarks
+package-http-bridge:
+  extends: .package-benchmarks
   variables:
     IMAGE_NAME: "theodolite-http-bridge"
     JAVA_PROJECT_NAME: "http-bridge"
@@ -477,8 +478,8 @@ deploy-http-bridge:
 smoketest-uc1-kstreams:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc1-kstreams
-    - deploy-uc1-load-generator
+    - package-uc1-kstreams
+    - package-uc1-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc1-kstreams"
     JAVA_PROJECT_DEPS: "uc1-kstreams,kstreams-commons,uc1-load-generator,load-generator-commons"
@@ -486,8 +487,8 @@ smoketest-uc1-kstreams:
 smoketest-uc1-flink:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc1-flink
-    - deploy-uc1-load-generator
+    - package-uc1-flink
+    - package-uc1-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc1-flink"
     JAVA_PROJECT_DEPS: "uc1-flink,flink-commons,uc1-load-generator,load-generator-commons"
@@ -495,8 +496,8 @@ smoketest-uc1-flink:
 smoketest-uc1-beam-flink:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc1-beam-flink
-    - deploy-uc1-load-generator
+    - package-uc1-beam-flink
+    - package-uc1-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc1-beam-flink"
     JAVA_PROJECT_DEPS: "uc1-beam-flink,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
@@ -504,8 +505,8 @@ smoketest-uc1-beam-flink:
 smoketest-uc1-beam-samza:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc1-beam-samza
-    - deploy-uc1-load-generator
+    - package-uc1-beam-samza
+    - package-uc1-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc1-beam-samza"
     JAVA_PROJECT_DEPS: "uc1-beam-samza,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
@@ -513,8 +514,8 @@ smoketest-uc1-beam-samza:
 smoketest-uc1-hazelcastjet:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc1-hazelcastjet
-    - deploy-uc1-load-generator
+    - package-uc1-hazelcastjet
+    - package-uc1-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc1-hazelcastjet"
     JAVA_PROJECT_DEPS: "uc1-hazelcastjet,hazelcastjet-commons,uc1-load-generator,load-generator-commons"
@@ -522,8 +523,8 @@ smoketest-uc1-hazelcastjet:
 smoketest-uc2-kstreams:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc2-kstreams
-    - deploy-uc2-load-generator
+    - package-uc2-kstreams
+    - package-uc2-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc2-kstreams"
     JAVA_PROJECT_DEPS: "uc2-kstreams,kstreams-commons,uc2-load-generator,load-generator-commons"
@@ -531,8 +532,8 @@ smoketest-uc2-kstreams:
 smoketest-uc2-flink:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc2-flink
-    - deploy-uc2-load-generator
+    - package-uc2-flink
+    - package-uc2-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc2-flink"
     JAVA_PROJECT_DEPS: "uc2-flink,flink-commons,uc2-load-generator,load-generator-commons"
@@ -540,8 +541,8 @@ smoketest-uc2-flink:
 smoketest-uc2-beam-flink:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc2-beam-flink
-    - deploy-uc2-load-generator
+    - package-uc2-beam-flink
+    - package-uc2-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc2-beam-flink"
     JAVA_PROJECT_DEPS: "uc2-beam-flink,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
@@ -549,8 +550,8 @@ smoketest-uc2-beam-flink:
 smoketest-uc2-beam-samza:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc2-beam-samza
-    - deploy-uc2-load-generator
+    - package-uc2-beam-samza
+    - package-uc2-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc2-beam-samza"
     JAVA_PROJECT_DEPS: "uc2-beam-samza,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
@@ -558,8 +559,8 @@ smoketest-uc2-beam-samza:
 smoketest-uc2-hazelcastjet:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc2-hazelcastjet
-    - deploy-uc2-load-generator
+    - package-uc2-hazelcastjet
+    - package-uc2-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc2-hazelcastjet"
     JAVA_PROJECT_DEPS: "uc2-hazelcastjet,hazelcastjet-commons,uc2-load-generator,load-generator-commons"
@@ -567,8 +568,8 @@ smoketest-uc2-hazelcastjet:
 smoketest-uc3-kstreams:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc3-kstreams
-    - deploy-uc3-load-generator
+    - package-uc3-kstreams
+    - package-uc3-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc3-kstreams"
     JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
@@ -576,8 +577,8 @@ smoketest-uc3-kstreams:
 smoketest-uc3-beam-flink:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc3-beam-flink
-    - deploy-uc3-load-generator
+    - package-uc3-beam-flink
+    - package-uc3-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc3-beam-flink"
     JAVA_PROJECT_DEPS: "uc3-beam-flink,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
@@ -585,8 +586,8 @@ smoketest-uc3-beam-flink:
 smoketest-uc3-beam-samza:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc3-beam-samza
-    - deploy-uc3-load-generator
+    - package-uc3-beam-samza
+    - package-uc3-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc3-beam-samza"
     JAVA_PROJECT_DEPS: "uc3-beam-samza,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
@@ -594,8 +595,8 @@ smoketest-uc3-beam-samza:
 smoketest-uc3-hazelcastjet:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc3-hazelcastjet
-    - deploy-uc3-load-generator
+    - package-uc3-hazelcastjet
+    - package-uc3-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc3-hazelcastjet"
     JAVA_PROJECT_DEPS: "uc3-hazelcastjet,hazelcastjet-commons,uc3-load-generator,load-generator-commons"
@@ -603,8 +604,8 @@ smoketest-uc3-hazelcastjet:
 smoketest-uc4-kstreams:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc4-kstreams
-    - deploy-uc4-load-generator
+    - package-uc4-kstreams
+    - package-uc4-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc4-kstreams"
     JAVA_PROJECT_DEPS: "uc4-kstreams,kstreams-commons,uc4-load-generator,load-generator-commons"
@@ -612,8 +613,8 @@ smoketest-uc4-kstreams:
 smoketest-uc4-flink:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc4-flink
-    - deploy-uc4-load-generator
+    - package-uc4-flink
+    - package-uc4-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc4-flink"
     JAVA_PROJECT_DEPS: "uc4-flink,flink-commons,uc4-load-generator,load-generator-commons"
@@ -621,8 +622,8 @@ smoketest-uc4-flink:
 smoketest-uc4-beam-flink:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc4-beam-flink
-    - deploy-uc4-load-generator
+    - package-uc4-beam-flink
+    - package-uc4-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc4-beam-flink"
     JAVA_PROJECT_DEPS: "uc4-beam-flink,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
@@ -630,8 +631,8 @@ smoketest-uc4-beam-flink:
 smoketest-uc4-beam-samza:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc4-beam-samza
-    - deploy-uc4-load-generator
+    - package-uc4-beam-samza
+    - package-uc4-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc4-beam-samza"
     JAVA_PROJECT_DEPS: "uc4-beam-samza,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
@@ -639,8 +640,8 @@ smoketest-uc4-beam-samza:
 smoketest-uc4-hazelcastjet:
   extends: .smoketest-benchmarks
   needs:
-    - deploy-uc4-hazelcastjet
-    - deploy-uc4-load-generator
+    - package-uc4-hazelcastjet
+    - package-uc4-load-generator
   variables:
     DOCKER_COMPOSE_DIR: "uc4-hazelcastjet"
     JAVA_PROJECT_DEPS: "uc4-hazelcastjet,hazelcastjet-commons,uc4-load-generator,load-generator-commons"
@@ -720,8 +721,8 @@ test-theodolite:
     - test-theodolite
   script: ./gradlew detekt --continue
 
-deploy-theodolite:
-  stage: deploy
+package-theodolite:
+  stage: package
   extends:
     - .theodolite
     - .kaniko-push
@@ -792,8 +793,8 @@ test-slo-checker-generic:
     - when: manual
       allow_failure: true
 
-deploy-slo-checker-lag-trend:
-  stage: deploy
+package-slo-checker-lag-trend:
+  stage: package
   extends:
     - .kaniko-push
   needs:
@@ -810,8 +811,8 @@ deploy-slo-checker-lag-trend:
       when: manual
       allow_failure: true
 
-deploy-slo-checker-dropped-records-kstreams:
-  stage: deploy
+package-slo-checker-dropped-records-kstreams:
+  stage: package
   extends:
     - .kaniko-push
   needs:
@@ -828,8 +829,8 @@ deploy-slo-checker-dropped-records-kstreams:
       when: manual
       allow_failure: true
 
-deploy-slo-checker-generic:
-  stage: deploy
+package-slo-checker-generic:
+  stage: package
   extends:
     - .kaniko-push
   needs:
@@ -849,8 +850,8 @@ deploy-slo-checker-generic:
 
 # Theodolite Random Scheduler
 
-deploy-random-scheduler:
-  stage: deploy
+package-random-scheduler:
+  stage: package
   extends:
     - .kaniko-push
   needs: []
@@ -866,8 +867,8 @@ deploy-random-scheduler:
       when: manual
       allow_failure: true
 
-deploy-buildimage-docker-compose-jq:
-  stage: deploy
+package-buildimage-docker-compose-jq:
+  stage: package
   extends:
     - .kaniko-push
   needs: []
@@ -885,8 +886,8 @@ deploy-buildimage-docker-compose-jq:
       when: manual
       allow_failure: true
 
-deploy-buildimage-k3d-helm:
-  stage: deploy
+package-buildimage-k3d-helm:
+  stage: package
   extends:
     - .kaniko-push
   needs: []
