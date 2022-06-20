@@ -793,8 +793,8 @@ test-slo-checker-generic:
     - when: manual
       allow_failure: true
 
-package-slo-checker-lag-trend:
-  stage: package
+publish-slo-checker-lag-trend:
+  stage: publish
   extends:
     - .kaniko-push
   needs:
@@ -811,8 +811,8 @@ package-slo-checker-lag-trend:
       when: manual
       allow_failure: true
 
-package-slo-checker-dropped-records-kstreams:
-  stage: package
+publish-slo-checker-dropped-records-kstreams:
+  stage: publish
   extends:
     - .kaniko-push
   needs:
@@ -829,8 +829,8 @@ package-slo-checker-dropped-records-kstreams:
       when: manual
       allow_failure: true
 
-package-slo-checker-generic:
-  stage: package
+publish-slo-checker-generic:
+  stage: publish
   extends:
     - .kaniko-push
   needs:
@@ -850,8 +850,8 @@ package-slo-checker-generic:
 
 # Theodolite Random Scheduler
 
-package-random-scheduler:
-  stage: package
+publish-random-scheduler:
+  stage: publish
   extends:
     - .kaniko-push
   needs: []
@@ -867,8 +867,8 @@ package-random-scheduler:
       when: manual
       allow_failure: true
 
-package-buildimage-docker-compose-jq:
-  stage: package
+publish-buildimage-docker-compose-jq:
+  stage: publish
   extends:
     - .kaniko-push
   needs: []
@@ -886,8 +886,8 @@ package-buildimage-docker-compose-jq:
       when: manual
       allow_failure: true
 
-package-buildimage-k3d-helm:
-  stage: package
+publish-buildimage-k3d-helm:
+  stage: publish
   extends:
     - .kaniko-push
   needs: []
