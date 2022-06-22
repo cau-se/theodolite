@@ -35,6 +35,7 @@ default:
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CR_STAGE_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_STAGE_USER}" "${CR_STAGE_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - cp /etc/gitlab-runner/certs/ca.crt" /kaniko/ssl/certs/additional-ca-cert-bundle.crt
     # - >
     #   if [ $IMAGE_TAG ]; then
     #     KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$IMAGE_TAG"
