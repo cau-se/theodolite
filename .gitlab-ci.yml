@@ -35,7 +35,6 @@ default:
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CR_STAGE_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_STAGE_USER}" "${CR_STAGE_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
-    - mkdir -p /kaniko/ssl/certs/
     - cp /etc/gitlab-runner/certs/ca.crt /kaniko/ssl/certs/additional-ca-cert-bundle.crt
     # - >
     #   if [ $IMAGE_TAG ]; then
@@ -50,7 +49,7 @@ default:
     #     KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
     #     export PUBLISHED_IMAGE_TAG=$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA
     #   fi
-    - KANIKO_D="$KANIKO_D -d $CR_STAGE_HOST/$CR_STAGE_ORG/$IMAGE_NAME:$CI_PIPELINE_ID"
+    - KANIKO_D="$KANIKO_D -d $CR_STAGE_HOST/$CR_STAGE_PROJECT/$IMAGE_NAME:$CI_PIPELINE_ID"
     - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
     - "BUILD_ARGS=$(printenv | sed -n 's/BUILD_ARG_/--build-arg=/p')"
     - /kaniko/executor --context `pwd`/$CONTEXT $KANIKO_DOCKERFILE $KANIKO_D $BUILD_ARGS
@@ -66,7 +65,7 @@ default:
   script:
     - crane auth login -u "${CR_STAGE_USER}" -p "${CR_STAGE_PW}" ${CR_STAGE_HOST} 
     - crane auth login -u "${CR_USER}" -p "${CR_PW}" ${CR_HOST}
-    - crane copy $CR_STAGE_HOST/$CR_STAGE_ORG/$IMAGE_NAME:$CI_PIPELINE_ID $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG
+    - crane copy $CR_STAGE_HOST/$CR_STAGE_PROJECT/$IMAGE_NAME:$CI_PIPELINE_ID $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG
 
 
 # Theodolite Docs
