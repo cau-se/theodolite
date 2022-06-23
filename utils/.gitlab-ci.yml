@@ -63,7 +63,8 @@ publish-buildimage-docker-compose-jq:
   needs:
     - package-buildimage-docker-compose-jq
   rules:
-    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $CI_PIPELINE_SOURCE == 'web'"
+
 
 .buildimage-k3d-helm:
   variables:
@@ -97,4 +98,4 @@ publish-buildimage-k3d-helm:
   needs:
     - package-buildimage-k3d-helm
   rules:
-    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $CI_PIPELINE_SOURCE == 'web'"
