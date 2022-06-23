@@ -18,8 +18,8 @@ test-helm:
   extends: .dind
   needs:
     - lint-helm
-    # - job: package-theodolite
-    #   optional: true
+    - job: package-theodolite
+      optional: true
   image: ghcr.io/cau-se/theodolite-build-k3d-helm:20.10.12
   variables:
     CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
