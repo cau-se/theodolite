@@ -93,3 +93,15 @@ package-theodolite:
     - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
       when: manual
       allow_failure: true
+
+publish-theodolite:
+  stage: publish
+  extends:
+    - .crane-copy
+  needs:
+    - package-theodolite
+    - test-helm
+  variables:
+    IMAGE_NAME: theodolite
+  rules:
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT && $CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
