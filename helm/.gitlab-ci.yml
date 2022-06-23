@@ -18,7 +18,8 @@ test-helm:
   extends: .dind
   needs:
     - lint-helm
-    # - package-theodolite
+    # - job: package-theodolite
+    #   optional: true
   image: ghcr.io/cau-se/theodolite-build-k3d-helm:20.10.12
   variables:
     CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
@@ -28,16 +29,14 @@ test-helm:
   before_script:
     - k3d help
     - k3d version
-    #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
     - k3d cluster create $CLUSTERNAME --agents 1 --wait -p "30000:30000@agent:0" # k3d 5.0
     # show cluster info
     - kubectl cluster-info
     - helm version
   script:
-    # Display initial pods, etc.
     - cd helm
     - helm dependencies update .
-    - helm install theodolite . -f preconfigs/minimal.yaml --wait
+    - helm install theodolite . -f preconfigs/minimal.yaml --wait # ${PACKAGE_THEODOLITE:+-f operator.image=$STAGE_IMAGE -f operator.imageTag=ci-"$CI_PIPELINE_ID"}
     - kubectl get nodes -o wide
     - kubectl get pods --all-namespaces -o wide
     - kubectl get services --all-namespaces -o wide
