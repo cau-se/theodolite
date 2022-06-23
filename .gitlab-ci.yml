@@ -862,12 +862,12 @@ package-random-scheduler:
     - .kaniko-push
   needs: []
   before_script:
-    - cd execution/infrastructure/random-scheduler
+    - cd utils/random-scheduler
   variables:
     IMAGE_NAME: theodolite-random-scheduler
   rules:
     - changes:
-      - execution/infrastructure/random-scheduler/**/*
+      - utils/random-scheduler/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
@@ -880,12 +880,12 @@ publish-random-scheduler:
   needs:
     - package-random-scheduler
   before_script:
-    - cd execution/infrastructure/random-scheduler
+    - cd utils/random-scheduler
   variables:
     IMAGE_NAME: theodolite-random-scheduler
   rules:
     - changes:
-      - execution/infrastructure/random-scheduler/**/*
+      - utils/random-scheduler/**/*
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
       when: manual
@@ -903,10 +903,10 @@ package-buildimage-docker-compose-jq:
     IMAGE_NAME: theodolite-build-docker-compose-jq
     IMAGE_TAG: $DOCKER_VERSION
   before_script:
-    - cd buildimages/docker-compose-jq
+    - cd utils/buildimages/docker-compose-jq
   rules:
     - changes:
-      - buildimages/docker-compose-jq/Dockerfile
+      - utils/buildimages/docker-compose-jq/Dockerfile
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
@@ -924,10 +924,10 @@ package-buildimage-k3d-helm:
     IMAGE_NAME: theodolite-build-k3d-helm
     IMAGE_TAG: $DOCKER_VERSION
   before_script:
-    - cd buildimages/k3d-helm
+    - cd utils/buildimages/k3d-helm
   rules:
     - changes:
-      - buildimages/k3d-helm/Dockerfile
+      - utils/buildimages/k3d-helm/Dockerfile
       if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
     - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
