@@ -89,7 +89,7 @@ package-theodolite:
   rules:
     - changes:
       - theodolite/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
       when: manual
       allow_failure: true
