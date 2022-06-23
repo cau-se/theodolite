@@ -1,0 +1,78 @@
+# Theodolite Random Scheduler
+
+package-random-scheduler:
+  stage: package
+  extends:
+    - .kaniko-push
+  needs: []
+  before_script:
+    - cd utils/random-scheduler
+  variables:
+    IMAGE_NAME: theodolite-random-scheduler
+  rules:
+    - changes:
+      - utils/random-scheduler/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+publish-random-scheduler:
+  stage: publish
+  extends:
+    - .crane-copy
+  needs:
+    - package-random-scheduler
+  before_script:
+    - cd utils/random-scheduler
+  variables:
+    IMAGE_NAME: theodolite-random-scheduler
+  rules:
+    - changes:
+      - utils/random-scheduler/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+# Theodolite Build Images
+
+package-buildimage-docker-compose-jq:
+  stage: package
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    DOCKER_VERSION: 20.10.12
+    IMAGE_NAME: theodolite-build-docker-compose-jq
+    IMAGE_TAG: $DOCKER_VERSION
+  before_script:
+    - cd utils/buildimages/docker-compose-jq
+  rules:
+    - changes:
+      - utils/buildimages/docker-compose-jq/Dockerfile
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      when: manual
+      allow_failure: true
+
+package-buildimage-k3d-helm:
+  stage: package
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    DOCKER_VERSION: 20.10.12
+    BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
+    BUILD_ARG_KUBECTL: v1.21.3
+    IMAGE_NAME: theodolite-build-k3d-helm
+    IMAGE_TAG: $DOCKER_VERSION
+  before_script:
+    - cd utils/buildimages/k3d-helm
+  rules:
+    - changes:
+      - utils/buildimages/k3d-helm/Dockerfile
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      when: manual
+      allow_failure: true

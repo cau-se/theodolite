@@ -1,0 +1,475 @@
+# Theodolite Benchmarks
+
+.benchmarks:
+  image: openjdk:11-jdk
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/**/*
+    - when: manual
+      allow_failure: true
+
+build-benchmarks:
+  stage: build
+  extends: .benchmarks
+  script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/distributions/*.tar"
+    expire_in: 6 hours
+
+test-benchmarks:
+  stage: test
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+  script: ./gradlew test --continue
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "theodolite-benchmarks/**/build/test-results/test/TEST-*.xml"
+
+checkstyle-benchmarks:
+  stage: check
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew checkstyle --continue
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/*/build/reports/checkstyle/main.html"
+    when: on_failure
+    expire_in: 1 day
+
+pmd-benchmarks:
+  stage: check
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew pmd --continue
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/*/build/reports/pmd/*.html"
+    when: on_failure
+    expire_in: 1 day
+
+spotbugs-benchmarks:
+  stage: check
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew spotbugs --continue
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/*/build/reports/spotbugs/*.html"
+    when: on_failure
+    expire_in: 1 day
+
+.package-benchmarks:
+  stage: package
+  extends:
+    - .benchmarks
+    - .kaniko-push
+  needs:
+    - build-benchmarks
+    - checkstyle-benchmarks
+    - pmd-benchmarks
+    - spotbugs-benchmarks
+  variables:
+    CONTEXT: "/$JAVA_PROJECT_NAME"
+  #before_script:
+  #  - cd theodolite-benchmarks/$JAVA_PROJECT_NAME
+  rules:
+    - changes:
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
+      - theodolite-benchmarks/{commons,$JAVA_PROJECT_DEPS}/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $JAVA_PROJECT_DEPS"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+package-uc1-kstreams:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-kstreams-app"
+    JAVA_PROJECT_NAME: "uc1-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+package-uc2-kstreams:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-kstreams-app"
+    JAVA_PROJECT_NAME: "uc2-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+package-uc3-kstreams:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-kstreams-app"
+    JAVA_PROJECT_NAME: "uc3-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+package-uc4-kstreams:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-kstreams-app"
+    JAVA_PROJECT_NAME: "uc4-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+package-uc1-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-flink"
+    JAVA_PROJECT_NAME: "uc1-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+package-uc2-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-flink"
+    JAVA_PROJECT_NAME: "uc2-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+package-uc3-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-flink"
+    JAVA_PROJECT_NAME: "uc3-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+package-uc4-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-flink"
+    JAVA_PROJECT_NAME: "uc4-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+package-uc1-hazelcastjet:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc1-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+package-uc2-hazelcastjet:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc2-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+package-uc3-hazelcastjet:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc3-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+package-uc4-hazelcastjet:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc4-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+package-uc1-beam-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-flink"
+    JAVA_PROJECT_NAME: "uc1-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
+
+package-uc2-beam-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-flink"
+    JAVA_PROJECT_NAME: "uc2-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
+
+package-uc3-beam-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-flink"
+    JAVA_PROJECT_NAME: "uc3-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
+
+package-uc4-beam-flink:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-flink"
+    JAVA_PROJECT_NAME: "uc4-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
+
+package-uc1-beam-samza:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-samza"
+    JAVA_PROJECT_NAME: "uc1-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
+
+package-uc2-beam-samza:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-samza"
+    JAVA_PROJECT_NAME: "uc2-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
+
+package-uc3-beam-samza:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-samza"
+    JAVA_PROJECT_NAME: "uc3-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
+
+package-uc4-beam-samza:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-samza"
+    JAVA_PROJECT_NAME: "uc4-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
+
+package-uc1-load-generator:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-workload-generator"
+    JAVA_PROJECT_NAME: "uc1-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+package-uc2-load-generator:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-workload-generator"
+    JAVA_PROJECT_NAME: "uc2-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+package-uc3-load-generator:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-workload-generator"
+    JAVA_PROJECT_NAME: "uc3-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+package-uc4-load-generator:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-workload-generator"
+    JAVA_PROJECT_NAME: "uc4-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+package-http-bridge:
+  extends: .package-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-http-bridge"
+    JAVA_PROJECT_NAME: "http-bridge"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+.smoketest-benchmarks:
+  stage: smoketest
+  extends:
+    - .dind
+  image: ghcr.io/cau-se/theodolite-build-docker-compose-jq:20.10.12
+  before_script:
+    - cd theodolite-benchmarks/docker-test
+  # variables:
+  #   TEST_LOG_FILE: "test.log"
+  script:
+    - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
+    - ./smoketest-runner.sh ./$DOCKER_COMPOSE_DIR
+    # - cat test.log
+  after_script:
+    - cd ./$DOCKER_COMPOSE_DIR
+    - docker-compose down
+  rules:
+    - changes:
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/{$JAVA_PROJECT_DEPS}/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+      when: manual
+      allow_failure: true
+
+smoketest-uc1-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc1-kstreams
+    - package-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-kstreams"
+    JAVA_PROJECT_DEPS: "uc1-kstreams,kstreams-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc1-flink
+    - package-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-flink"
+    JAVA_PROJECT_DEPS: "uc1-flink,flink-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc1-beam-flink
+    - package-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-beam-flink"
+    JAVA_PROJECT_DEPS: "uc1-beam-flink,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc1-beam-samza
+    - package-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-beam-samza"
+    JAVA_PROJECT_DEPS: "uc1-beam-samza,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc1-hazelcastjet
+    - package-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc1-hazelcastjet,hazelcastjet-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc2-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc2-kstreams
+    - package-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-kstreams"
+    JAVA_PROJECT_DEPS: "uc2-kstreams,kstreams-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc2-flink
+    - package-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-flink"
+    JAVA_PROJECT_DEPS: "uc2-flink,flink-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc2-beam-flink
+    - package-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-flink"
+    JAVA_PROJECT_DEPS: "uc2-beam-flink,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc2-beam-samza
+    - package-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-samza"
+    JAVA_PROJECT_DEPS: "uc2-beam-samza,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc2-hazelcastjet
+    - package-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc2-hazelcastjet,hazelcastjet-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc3-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc3-kstreams
+    - package-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-kstreams"
+    JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc3-beam-flink
+    - package-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-beam-flink"
+    JAVA_PROJECT_DEPS: "uc3-beam-flink,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc3-beam-samza
+    - package-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-beam-samza"
+    JAVA_PROJECT_DEPS: "uc3-beam-samza,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc3-hazelcastjet
+    - package-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc3-hazelcastjet,hazelcastjet-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc4-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc4-kstreams
+    - package-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-kstreams"
+    JAVA_PROJECT_DEPS: "uc4-kstreams,kstreams-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc4-flink
+    - package-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-flink"
+    JAVA_PROJECT_DEPS: "uc4-flink,flink-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc4-beam-flink
+    - package-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-beam-flink"
+    JAVA_PROJECT_DEPS: "uc4-beam-flink,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc4-beam-samza
+    - package-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-beam-samza"
+    JAVA_PROJECT_DEPS: "uc4-beam-samza,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc4-hazelcastjet
+    - package-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc4-hazelcastjet,hazelcastjet-commons,uc4-load-generator,load-generator-commons"

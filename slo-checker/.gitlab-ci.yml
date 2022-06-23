@@ -1,0 +1,103 @@
+# Theodolite SLO Checker
+
+test-slo-checker-lag-trend:
+  stage: test
+  needs: []
+  image: python:3.7-slim
+  before_script:
+    - cd slo-checker/record-lag
+  script:
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/record-lag/**/*
+    - when: manual
+      allow_failure: true
+
+test-slo-checker-dropped-records-kstreams:
+  stage: test
+  needs: []
+  image: python:3.7-slim
+  before_script:
+    - cd slo-checker/dropped-records
+  script:
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/dropped-records/**/*
+    - when: manual
+      allow_failure: true
+
+test-slo-checker-generic:
+  stage: test
+  needs: []
+  image: python:3.7-slim
+  before_script:
+    - cd slo-checker/generic
+  script:
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
+    - when: manual
+      allow_failure: true
+
+package-slo-checker-lag-trend:
+  stage: package
+  extends:
+    - .kaniko-push
+  needs:
+    - test-slo-checker-lag-trend
+  before_script:
+    - cd slo-checker/record-lag
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-lag-trend
+  rules:
+    - changes:
+      - slo-checker/record-lag/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+package-slo-checker-dropped-records-kstreams:
+  stage: package
+  extends:
+    - .kaniko-push
+  needs:
+    - test-slo-checker-dropped-records-kstreams
+  before_script:
+    - cd slo-checker/dropped-records
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-dropped-records-kstreams
+  rules:
+    - changes:
+      - slo-checker/dropped-records/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+package-slo-checker-generic:
+  stage: package
+  extends:
+    - .kaniko-push
+  needs:
+    - test-slo-checker-generic
+  before_script:
+    - cd slo-checker/generic
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-generic
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true

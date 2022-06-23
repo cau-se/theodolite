@@ -1,0 +1,95 @@
+# Theodolite Framework
+
+.theodolite:
+  image:
+    name: ghcr.io/graalvm/native-image:java11-21.3.0
+    entrypoint: [""]
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite
+  rules:
+    - changes:
+      - theodolite/**/*
+    - when: manual
+      allow_failure: true
+
+build-theodolite-jvm:
+  stage: build
+  extends: .theodolite
+  script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "theodolite/build/quarkus-app/lib/"
+      - "theodolite/build/quarkus-app/*.jar"
+      - "theodolite/build/quarkus-app/app/"
+      - "theodolite/build/quarkus-app/quarkus/"
+    expire_in: 6 hours
+
+build-theodolite-native:
+  stage: build
+  extends: .theodolite
+  script:
+    - ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  when: manual
+  artifacts:
+    paths:
+      - "theodolite/build/*-runner"
+    expire_in: 6 hours
+
+test-theodolite:
+  stage: test
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    #- build-theodolite-native
+  script: ./gradlew test --stacktrace
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "theodolite/**/build/test-results/test/TEST-*.xml"
+
+# Disabled for now
+.ktlint-theodolite:
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    - test-theodolite
+  script: ./gradlew ktlintCheck --continue
+
+# Disabled for now
+.detekt-theodolite: 
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    - test-theodolite
+  script: ./gradlew detekt --continue
+
+package-theodolite:
+  stage: package
+  extends:
+    - .theodolite
+    - .kaniko-push
+  needs:
+    #- build-theodolite-native
+    - build-theodolite-jvm
+    - test-theodolite
+  variables:
+    IMAGE_NAME: theodolite
+    DOCKERFILE: src/main/docker/Dockerfile.jvm
+    #DOCKERFILE: src/main/docker/Dockerfile.native
+  rules:
+    - changes:
+      - theodolite/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
