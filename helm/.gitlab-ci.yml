@@ -17,7 +17,8 @@ test-helm:
   stage: smoketest
   extends: .dind
   needs:
-    - lint-helm
+    - job: lint-helm
+      optional: true
     - job: package-theodolite
       optional: true
   image: ghcr.io/cau-se/theodolite-build-k3d-helm:20.10.12
