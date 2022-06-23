@@ -799,8 +799,8 @@ test-slo-checker-generic:
     - when: manual
       allow_failure: true
 
-publish-slo-checker-lag-trend:
-  stage: publish
+package-slo-checker-lag-trend:
+  stage: package
   extends:
     - .kaniko-push
   needs:
@@ -817,8 +817,8 @@ publish-slo-checker-lag-trend:
       when: manual
       allow_failure: true
 
-publish-slo-checker-dropped-records-kstreams:
-  stage: publish
+package-slo-checker-dropped-records-kstreams:
+  stage: package
   extends:
     - .kaniko-push
   needs:
@@ -835,8 +835,8 @@ publish-slo-checker-dropped-records-kstreams:
       when: manual
       allow_failure: true
 
-publish-slo-checker-generic:
-  stage: publish
+package-slo-checker-generic:
+  stage: package
   extends:
     - .kaniko-push
   needs:
@@ -856,11 +856,27 @@ publish-slo-checker-generic:
 
 # Theodolite Random Scheduler
 
-publish-random-scheduler:
-  stage: publish
+package-random-scheduler:
+  stage: package
   extends:
     - .kaniko-push
   needs: []
+  before_script:
+    - cd execution/infrastructure/random-scheduler
+  rules:
+    - changes:
+      - execution/infrastructure/random-scheduler/**/*
+      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      when: manual
+      allow_failure: true
+
+publish-random-scheduler:
+  stage: publish
+  extends:
+    - .crane-copy
+  needs:
+    - package-random-scheduler
   before_script:
     - cd execution/infrastructure/random-scheduler
   variables:
@@ -873,8 +889,10 @@ publish-random-scheduler:
       when: manual
       allow_failure: true
 
-publish-buildimage-docker-compose-jq:
-  stage: publish
+# Theodolite Build Images
+
+package-buildimage-docker-compose-jq:
+  stage: package
   extends:
     - .kaniko-push
   needs: []
@@ -892,8 +910,8 @@ publish-buildimage-docker-compose-jq:
       when: manual
       allow_failure: true
 
-publish-buildimage-k3d-helm:
-  stage: publish
+package-buildimage-k3d-helm:
+  stage: package
   extends:
     - .kaniko-push
   needs: []
