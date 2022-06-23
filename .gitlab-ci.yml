@@ -863,6 +863,8 @@ package-random-scheduler:
   needs: []
   before_script:
     - cd execution/infrastructure/random-scheduler
+  variables:
+    IMAGE_NAME: theodolite-random-scheduler
   rules:
     - changes:
       - execution/infrastructure/random-scheduler/**/*
