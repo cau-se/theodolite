@@ -1,66 +1,71 @@
 # Theodolite Random Scheduler
 
-package-random-scheduler:
-  stage: package
-  extends:
-    - .kaniko-push
-  needs: []
+.random-scheduler:
   before_script:
     - cd utils/random-scheduler
   variables:
     IMAGE_NAME: theodolite-random-scheduler
+
+package-random-scheduler:
+  stage: package
+  extends:
+    - .random-scheduler
+    - .kaniko-push
+  needs: []
   rules:
     - changes:
       - utils/random-scheduler/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
       when: manual
       allow_failure: true
 
 publish-random-scheduler:
   stage: publish
   extends:
+    - .random-scheduler
     - .crane-copy
   needs:
     - package-random-scheduler
-  before_script:
-    - cd utils/random-scheduler
-  variables:
-    IMAGE_NAME: theodolite-random-scheduler
   rules:
-    - changes:
-      - utils/random-scheduler/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-      when: manual
-      allow_failure: true
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+
 
 # Theodolite Build Images
 
-package-buildimage-docker-compose-jq:
-  stage: package
-  extends:
-    - .kaniko-push
-  needs: []
+.buildimage-docker-compose-jq:
   variables:
     DOCKER_VERSION: 20.10.12
     IMAGE_NAME: theodolite-build-docker-compose-jq
     IMAGE_TAG: $DOCKER_VERSION
   before_script:
     - cd utils/buildimages/docker-compose-jq
+
+package-buildimage-docker-compose-jq:
+  stage: package
+  extends:
+    - .buildimage-docker-compose-jq
+    - .kaniko-push
+  needs: []
   rules:
     - changes:
       - utils/buildimages/docker-compose-jq/Dockerfile
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
       allow_failure: true
 
-package-buildimage-k3d-helm:
-  stage: package
+publish-buildimage-docker-compose-jq:
+  stage: publish
   extends:
-    - .kaniko-push
-  needs: []
+    - .buildimage-docker-compose-jq
+    - .crane-copy
+  needs:
+    - package-buildimage-docker-compose-jq
+  rules:
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+
+.buildimage-k3d-helm:
   variables:
     DOCKER_VERSION: 20.10.12
     BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
@@ -69,10 +74,27 @@ package-buildimage-k3d-helm:
     IMAGE_TAG: $DOCKER_VERSION
   before_script:
     - cd utils/buildimages/k3d-helm
+
+package-buildimage-k3d-helm:
+  stage: package
+  extends:
+    - .buildimage-k3d-helm
+    - .kaniko-push
+  needs: []
   rules:
     - changes:
       - utils/buildimages/k3d-helm/Dockerfile
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
       allow_failure: true
+
+publish-buildimage-k3d-helm:
+  stage: publish
+  extends:
+    - .buildimage-k3d-helm
+    - .crane-copy
+  needs:
+    - package-buildimage-k3d-helm
+  rules:
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
