@@ -48,9 +48,9 @@ default:
   script:
     - export SSL_CERT_FILE=$CR_STAGE_CERT
     - crane auth login -u "${CR_STAGE_USER}" -p "${CR_STAGE_PW}" ${CR_STAGE_HOST} 
-    - crane auth login -u "${CR_USER}" -p "${CR_PW}" ${CR_HOST}
+    - crane auth login -u "${CR_PUBLIC_USER}" -p "${CR_PUBLIC_PW}" ${CR_PUBLIC_HOST}
     - SRC_IMAGE_TAG="$CR_STAGE_HOST/$CR_STAGE_PROJECT/$IMAGE_NAME:ci-$CI_PIPELINE_ID"
-    - DEST_IMAGE="$CR_HOST/$CR_ORG/$IMAGE_NAME"
+    - DEST_IMAGE="$CR_PUBLIC_HOST/$CR_PUBLIC_ORG/$IMAGE_NAME"
     - >
       if [ $IMAGE_TAG ]; then
         crane copy $SRC_IMAGE_TAG $DEST_IMAGE:$IMAGE_TAG
