@@ -23,13 +23,15 @@ again be merged into master.
         1. the default `helm/values.yaml` file,
         2. the example `execution/theodolite.yaml` job,
         3. the Kubernetes benchmark resources in `theodolite-benchmarks/definitions/**/resources` and
-        2. the Docker Compose files in `theodolite-benchmarks/docker-test`.
+        4. the Docker Compose files in `theodolite-benchmarks/docker-test`.
 
     2. Update both, the `version` and the `appVersion` fields, in the Helm `Charts.yaml` file to `0.3.1`.
 
-    3. Update `codemeta.json` to match the new version. In particular, make sure that `version` points to the version you are releasing and `dateModified` points to the date you are relasing this version. [CodeMeta generator](https://codemeta.github.io/codemeta-generator/) may help you in updating the file.
+    3. Update the `version` field of the `theodolite/build.gradle` file to `0.3.1`. Make sure to also adjust all references to the build artifact in the `theodolite/README.md`.
 
-    4. Update `CITATION.cff` to match the new version. At least update the `version` field.
+    4. Update `codemeta.json` to match the new version. In particular, make sure that `version` points to the version you are releasing and `dateModified` points to the date you are relasing this version. [CodeMeta generator](https://codemeta.github.io/codemeta-generator/) may help you in updating the file.
+
+    5. Update `CITATION.cff` to match the new version. At least update the `version` field.
 
 4. Create a Helm package by running `./build-package.sh` from the chart directory.
 
@@ -49,8 +51,10 @@ again be merged into master.
 
     1. Update the Helm `Charts.yaml` file to `0.4.0-SNAPSHOT` (see Step 3).
 
-    2. Update the `codemeta.json` file according to Step 3.
+    2. Update the Theodolite `build.gradle` and `README.md` files `0.4.0-SNAPSHOT` (see Step 3).
 
-    3. Update the `CITATION.cff` file according to Step 3.
+    3. Update the `codemeta.json` file according to Step 3.
+
+    4. Update the `CITATION.cff` file according to Step 3.
 
 12. Commit these changes to the `master` branch.

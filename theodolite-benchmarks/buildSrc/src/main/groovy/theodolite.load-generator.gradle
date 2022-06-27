@@ -9,7 +9,7 @@ plugins {
 tasks.distZip.enabled = false
 
 repositories {
-  jcenter()
+  mavenCentral()
   maven {
     url "https://oss.sonatype.org/content/repositories/snapshots/"
   }
@@ -20,8 +20,7 @@ repositories {
 
 dependencies {
   // These dependencies are used internally, and not exposed to consumers on their own compile classpath.
-  implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
-  implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+  implementation project(':commons')
   implementation 'org.slf4j:slf4j-simple:1.7.25'
 
   // These dependencies are used for the workload-generator-commmon

@@ -1,21 +1,51 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
 rootProject.name = 'theodolite-benchmarks'
 
+
+
+include 'commons'
 include 'load-generator-commons'
 include 'kstreams-commons'
 include 'flink-commons'
+include 'hazelcastjet-commons'
+include 'beam-commons'
 
 include 'uc1-load-generator'
+include 'uc1-commons'
 include 'uc1-kstreams'
 include 'uc1-flink'
+include 'uc1-hazelcastjet'
+include 'uc1-beam'
+include 'uc1-beam-flink'
+include 'uc1-beam-samza'
 
 include 'uc2-load-generator'
 include 'uc2-kstreams'
 include 'uc2-flink'
+include 'uc2-hazelcastjet'
+include 'uc2-beam'
+include 'uc2-beam-flink'
+include 'uc2-beam-samza'
 
 include 'uc3-load-generator'
 include 'uc3-kstreams'
 include 'uc3-flink'
+include 'uc3-hazelcastjet'
+include 'uc3-beam'
+include 'uc3-beam-flink'
+include 'uc3-beam-samza'
 
 include 'uc4-load-generator'
 include 'uc4-kstreams'
 include 'uc4-flink'
+include 'uc4-hazelcastjet'
+include 'uc4-beam'
+include 'uc4-beam-flink'
+include 'uc4-beam-samza'
+
+include 'http-bridge'

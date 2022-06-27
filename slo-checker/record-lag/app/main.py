@@ -24,10 +24,10 @@ elif os.getenv('LOG_LEVEL') == 'DEBUG':
 def calculate_slope_trend(results, warmup):
     d = []
     for result in results:
-        group = result['metric']['group']
+        group = result['metric'].get('consumergroup', "default")
         for value in result['values']:
             d.append({'group': group, 'timestamp': int(
-                value[0]), 'value': int(value[1]) if value[1] != 'NaN' else 0})
+                value[0]), 'value': float(value[1]) if value[1] != 'NaN' else 0})
 
     df = pd.DataFrame(d)
 

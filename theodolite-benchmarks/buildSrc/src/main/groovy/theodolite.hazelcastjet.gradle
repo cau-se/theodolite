@@ -1,0 +1,44 @@
+plugins {
+  // common java conventions
+  id 'theodolite.java-conventions'
+
+  // make executable
+  id 'application'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+    url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  implementation project(':commons')
+
+  implementation 'com.google.guava:guava:24.1-jre'
+  implementation 'org.slf4j:slf4j-api:1.7.30'
+  implementation 'org.slf4j:slf4j-simple:1.7.30'
+
+  implementation 'io.confluent:kafka-avro-serializer:5.3.0'
+
+  implementation 'com.hazelcast.jet:hazelcast-jet:4.5'
+  implementation 'com.hazelcast.jet:hazelcast-jet-kafka:4.5'
+  implementation 'com.hazelcast:hazelcast-kubernetes:2.2.2'
+ 	
+  implementation project(':hazelcastjet-commons')
+
+  testImplementation("junit:junit:4.13.2")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
+
+  testImplementation 'com.hazelcast:hazelcast:4.2:tests'
+  testImplementation 'com.hazelcast.jet:hazelcast-jet-core:4.5:tests'
+
+}
+
+test {
+  useJUnitPlatform()
+}

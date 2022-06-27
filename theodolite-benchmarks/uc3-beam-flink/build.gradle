@@ -1,0 +1,19 @@
+plugins {
+  id 'theodolite.beam.flink'
+}
+
+dependencies {
+  implementation project(':uc3-beam')
+}
+
+sourceSets {
+  main {
+    resources {
+      srcDirs += [
+        project(':uc3-beam').sourceSets.main.resources
+      ]
+    }
+  }
+}
+
+mainClassName = 'rocks.theodolite.benchmarks.uc3.beam.flink.Uc3BeamFlink'
