@@ -8,4 +8,12 @@ nav_order: 2
 
 > A theodolite is a precision optical instrument for measuring angles between designated visible points in the horizontal and vertical planes.  -- <cite>[Wikipedia](https://en.wikipedia.org/wiki/Theodolite)</cite>
 
-Theodolite is a framework for benchmarking the horizontal and vertical scalability of stream processing engines.
+Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications.
+
+Theodolite adopts established definitions of scalability in cloud computing for its benchmarking method. It quantifies
+scalability by running isolated experiments for different load intensities and provisioned resource amounts, which assess whether specified SLOs are fulfilled. Two metrics are available: The demand metric describes how the amount of minimal required resources evolve with increasing load intensities, while the capacity metric describes how the maximal processable load evolves with increasing resources. Hence, both metrics are functions. <!--Example?-->
+
+Load, resources and SLOs are deliberately kept abstract in Theodolite as Theodolite supports different types of these. For example, horizontal scalability can be benchmarked by varying the amount of Kubernetes Pods, while vertical scalability can be benchmarked by varying CPU and memory constraints of Pods.
+
+To balance statistical grounding and time-efficient benchmark execution, Theodolite comes with different heuristic for
+evaluating the search space of load and resource combinations. Other configuration options include the number of repetitions, the experiment and warm-up duration, as well as the amount of different load and resource values to be evaluated.
