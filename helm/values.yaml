@@ -122,7 +122,7 @@ cp-helm-charts:
   ## Schema Registry
   ## ------------------------------------------------------
   cp-schema-registry:
-    enabled: true
+    enabled: false
     nodeSelector: {}
     image: confluentinc/cp-schema-registry
     imageTag: 5.4.0
@@ -193,6 +193,26 @@ strimzi:
   
   topicOperator:
     enabled: true
+
+  schemaRegistry:
+    enabled: true
+    replicaCount: 1
+    ## ref: https://hub.docker.com/r/confluentinc/cp-schema-registry/
+    image: confluentinc/cp-schema-registry
+    #imageTag: 6.1.0
+    imageTag: 5.4.0
+    imagePullPolicy: IfNotPresent
+    servicePort: 8081
+    heapOptions: "-Xms512M -Xmx512M"
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    securityContext:
+      runAsUser: 10001
+      runAsGroup: 10001
+      fsGroup: 10001
+      runAsNonRoot: true
 
 
 ###

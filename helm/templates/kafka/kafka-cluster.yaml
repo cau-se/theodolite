@@ -30,14 +30,9 @@ spec:
         configMapKeyRef:
           name: {{ template "theodolite.fullname" . }}-kafka-metrics
           key: kafka-metrics-config.yml
-    {{- with .Values.strimzi.kafka.nodeSelectorTerms}}
+    {{- with .Values.strimzi.kafka.template}}
     template:
-      pod:
-        affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                {{- toYaml . | nindent 16 }}
+      {{- toYaml . | nindent 6 }}
     {{- end}}
     {{- with .Values.strimzi.kafka.resources}}
     resources:
@@ -52,14 +47,9 @@ spec:
     {{- end }}
     storage:
       type: ephemeral
-    {{- with .Values.strimzi.zookeeper.nodeSelectorTerms}}
+    {{- with .Values.strimzi.kafka.template}}
     template:
-      pod:
-        affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                {{- toYaml . | nindent 16 }}
+      {{- toYaml . | nindent 6 }}
     {{- end}}
 
   kafkaExporter: {}

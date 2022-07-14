@@ -64,18 +64,44 @@ class IOHandler {
      * Write to CSV file
      *
      * @param fileURL the URL of the file
-     * @param data  the data to write in the file, as list of list, each subList corresponds to a row in the CSV file
-     * @param columns columns of the CSV file
+     * @param data the data to write in the csv, as list of list,
+     *             each sublist corresponds to a row in the CSV file
+     * @param columns name of the columns
      */
     fun writeToCSVFile(fileURL: String, data: List<List<String>>, columns: List<String>) {
         val outputFile = File("$fileURL.csv")
         PrintWriter(outputFile).use { pw ->
-            pw.println(columns.joinToString(separator = ","))
-            data.forEach {
-                pw.println(it.joinToString(separator = ","))
+
+            val writeColumns = addQuotationMarks(columns)
+            pw.println(writeColumns.joinToString(separator = ","))
+
+            data.forEach{ row ->
+                val writeRow = addQuotationMarks(row)
+                pw.println(writeRow.joinToString(separator = ","))
             }
         }
         logger.info { "Wrote CSV file: $fileURL to ${outputFile.absolutePath}." }
+    }
+
+    /**
+     * For a list of Strings:
+     *  - adds additional quotation mark to existing one
+     *  - adds quotation marks around entries that contain a comma
+     */
+    private fun addQuotationMarks(stringList: List<String> ): List<String> {
+        val stringMutableList = stringList.toMutableList()
+        stringMutableList.forEachIndexed { index, entry ->
+            // add additional quotation marks to escape them in csv
+            if (entry.contains("\"")){
+                stringMutableList[index] = stringMutableList[index].replace('"'+"", "\"" + '"')
+            }
+
+            // add quotation marks around entries that contain a comma
+            if (entry.contains(",")){
+                stringMutableList[index] = '"' + stringMutableList[index] + '"'
+            }
+        }
+        return stringMutableList
     }
 
     /**
