@@ -86,7 +86,7 @@ test-docs-links:
   extends: .docs
   needs:
     - build-docs
-  script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
+  script: bundle exec htmlproofer --assume-extension --allow_hash_href --http-status-ignore 999 ./_site
 
 build-docs-crds:
   stage: build
