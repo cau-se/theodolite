@@ -13,7 +13,7 @@ We assume that we are creating the release `v0.3.1`. Please make sure to adjust
 the following steps according to the release, you are actually performing.
 
 1. Create a new branch `v0.3` if it does not already exist. This branch will never
-again be merged into master.
+again be merged into main.
 
 2. Checkout the `v0.3` branch.
 
@@ -43,7 +43,7 @@ again be merged into master.
 
 8. Create *releases* on GitLab and GitHub. Upload the generated Helm package to these releases via the UIs of GitLab and GitHub.
 
-9. Switch to the `master` branch.
+9. Switch to the `main` branch.
 
 10. Re-run `./update-index.sh v0.3.1` to include the latest release in the *upstream* Helm repository. You can now delete the packaged Helm chart.
 
@@ -57,4 +57,4 @@ again be merged into master.
 
     4. Update the `CITATION.cff` file according to Step 3.
 
-12. Commit these changes to the `master` branch.
+12. Commit these changes to the `main` branch.

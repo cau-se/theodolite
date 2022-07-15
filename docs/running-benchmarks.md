@@ -134,7 +134,7 @@ The easiest way to use them is at MyBinder:
 [Launch Notebooks](https://mybinder.org/v2/gh/cau-se/theodolite/HEAD?labpath=analysis){: .btn .btn-primary }
 {: .text-center }
 
-Alternatively, you can also [run these notebook locally](https://github.com/cau-se/theodolite/tree/master/analysis), for example, with Docker or Visual Studio Code.
+Alternatively, you can also [run these notebook locally](https://github.com/cau-se/theodolite/tree/main/analysis), for example, with Docker or Visual Studio Code.
 
 The notebooks allow to compute a scalability function using Theodolite's *demand* metric and to visualize multiple such functions in plots:
 

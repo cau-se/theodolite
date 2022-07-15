@@ -26,11 +26,11 @@ As usual, the installation via Helm can be configured by passing a values YAML f
 helm install theodolite theodolite/theodolite --values <your-config.yaml>
 ```
 
-For this purpose the [default values file](https://github.com/cau-se/theodolite/blob/master/helm/values.yaml) can serve as a template for your custom configuration.
+For this purpose the [default values file](https://github.com/cau-se/theodolite/blob/main/helm/values.yaml) can serve as a template for your custom configuration.
 
 ### Minimal setup
 
-For Kubernetes clusters with limited resources such as on local developer installations, we provide a [minimal values file](https://github.com/cau-se/theodolite/blob/master/helm/preconfigs/minimal.yaml).
+For Kubernetes clusters with limited resources such as on local developer installations, we provide a [minimal values file](https://github.com/cau-se/theodolite/blob/main/helm/preconfigs/minimal.yaml).
 
 ### Persisting results
 
