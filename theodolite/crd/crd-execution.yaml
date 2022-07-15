@@ -20,7 +20,7 @@ spec:
         properties:
           spec:
             type: object
-            required: ["benchmark", "loads", "resources", "execution", "configOverrides"]
+            required: ["benchmark", "load", "resources", "execution"]
             properties:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
@@ -29,7 +29,7 @@ spec:
               benchmark:
                 description: The name of the benchmark this execution is referring to.
                 type: string
-              loads: # definition of the load dimension
+              load: # definition of the load dimension
                 description: Specifies the load values that are benchmarked.
                 type: object
                 required: ["loadType", "loadValues"]
@@ -130,6 +130,7 @@ spec:
                           default: {}
                     value:
                       type: string
+                default: []
           status:
             type: object
             properties:

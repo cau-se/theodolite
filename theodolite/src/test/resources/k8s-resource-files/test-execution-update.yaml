@@ -5,7 +5,7 @@ metadata:
 spec:
   name: test
   benchmark: "uc1-kstreams-update"
-  loads:
+  load:
     loadType: "NumSensors"
     loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
   resources:
