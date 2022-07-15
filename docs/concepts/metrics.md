@@ -26,7 +26,7 @@ Theodolite uses these attributes to define two scalability metrics:
 | Resource Demand Metric | Load Capacity Metric |
 |:----|:----|
 | The resource demand metric quantifies scalability by describing how the amount of minimal required resources (i.e., all SLOs are fulfilled) evolves with increasing load intensities. | The load capacity metric quantifies scalability by describing how the maximal processable load (i.e., all SLOs are fulfilled) evolves with increasing resources. |
-| ![](../../assets/images/demand.svg){: .d-block .mx-auto } *Example: Scalability of two stream processing engines measured with the demand metric.*{: .d-block .text-center } | ![](../../assets/images/capacity.svg){: .d-block .mx-auto }  *Example: Scalability of two stream processing engines measured with the capacity metric.*{: .d-block .text-center } |
+| ![Example for resource demand metric](../../assets/images/demand.svg){: .d-block .mx-auto } *Example: Scalability of two stream processing engines measured with the demand metric.*{: .d-block .text-center } | ![Example for load capacity metric](../../assets/images/capacity.svg){: .d-block .mx-auto }  *Example: Scalability of two stream processing engines measured with the capacity metric.*{: .d-block .text-center } |
 {: .fixed-colums }
 
 <!--
