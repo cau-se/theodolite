@@ -142,7 +142,7 @@ The notebooks allow to compute a scalability function using Theodolite's *demand
 
 After finishing a benchmark execution, Theodolite creates a `exp<id>_demand.csv` file. It maps the tested load intensities to the minimal required resources for that load. If the monitoring data collected during benchmark execution should be analyzed in more detail, the `demand-metric.ipynb` notebook can be used. 
 
-Theodolite stores monitoring data for each conducted SLO experiment in `exp<id>_<load>_<resources>_<slo-slug>_<rep>.csv` files, where `<id>` is the ID of an execution, `<load>` the corresponding load intensity value, `<resources>` the resources value, `<slo-slug>` the [name of the SLO](creating-an-execution.html#definition-of-slos) and `<rep>` the repetition counter.
+Theodolite stores monitoring data for each conducted SLO experiment in `exp<id>_<load>_<resources>_<slo-slug>_<rep>.csv` files, where `<id>` is the ID of an execution, `<load>` the corresponding load intensity value, `<resources>` the resources value, `<slo-slug>` the [name of the SLO](creating-a-benchmark#service-level-objectives-slos) and `<rep>` the repetition counter.
 The `demand-metric.ipynb` notebook reads these files and generates a new CSV file mapping load intensities to the minimal required resources. The format of this file corresponds to the original `exp<id>_demand.csv` file created when running the benchmark, but allows, for example, to evaluate different warm-up periods.
 
 Currently, the `demand-metric.ipynb` notebook only supports benchmarks with the *lag trend SLO* out-of-the-box, but can easily be adjusted to perform any other type of analysis.
