@@ -59,7 +59,7 @@ To run a benchmark, an Execution YAML file needs to be created such as the follo
 apiVersion: theodolite.rocks/v1beta1
 kind: execution
 metadata:
-  name: theodolite-example-execution # (1) give your execution a name
+  name: theodolite-example-execution # (1) give a name to your execution
 spec:
   benchmark: "uc1-kstreams" # (2) refer to the benchmark to be run
   load:
@@ -68,21 +68,14 @@ spec:
   resources:
     resourceType: "Instances" # (5) chose one of the benchmark's resource types
     resourceValues: [1, 2] # (6) select a set of resource amounts
-  slos: # (7) set your SLOs
-    - sloType: "lag trend"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        threshold: 2000
-        externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
   execution:
-    strategy: "LinearSearch" # (8) chose a search strategy
-    restrictions: ["LowerBound"] # (9) add restrictions for the strategy
-    duration: 300 # (10) set the experiment duration in seconds
-    repetitions: 1 # (11) set the number of repetitions
-    loadGenerationDelay: 30 # (12) configure a delay before load generation
-  configOverrides: []
+    strategy:
+      name: "RestrictionSearch" # (8) chose a search strategy
+      restrictions: ["LowerBound"] # (9) configure the search strategy
+      searchStrategy: "LinearSearch" # (10) configure the search strategy (cont.)
+    duration: 300 # (11) set the experiment duration in seconds
+    repetitions: # (12) set the number of repetitions
+    loadGenerationDelay: 30 # (13) configure a delay before load generation
 ```
 
 See [Creating an Execution](creating-an-execution) for a more detailed explanation on how to create Executions.

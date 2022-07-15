@@ -38,11 +38,6 @@ To store the results of benchmark executions in a [PersistentVolume](https://kub
 You can also use an existing PersistentVolumeClaim by setting `operator.resultsVolume.persistent.existingClaim`.
 If persistence is not enabled, all results will be gone upon pod termination.
 
-
-### Standalone mode
-
-Per default, Theodolite is installed in operator mode, which allows to run and manage benchmarks through the Kubernetes API. For running Theodolite in standalone mode, it is sufficient to disable the operator by setting `operator.enabled` to `false`. Additionally, you might want to add the command line argument `--skip-crds`. With these settings, only Theodolite's dependencies as well as resources to get the necessary permissions are installed.
-
 ### Random scheduler
 
 Installation of the random scheduler can be enabled via `randomScheduler.enabled`. Please note that the random scheduler is neither required in operator mode nor in standalone mode. However, it has to be installed if benchmark executions should use random scheduling.
@@ -55,19 +50,6 @@ Multiple Theodolite installations in the same namespace are currently not fully 
 In cases, where you need to install multiple Theodolite instances, it's best to use dedicated namespaces **and** different release names.
 
 *Note that for meaningful results, usually only one benchmark should be executed at a time.*
-
-### Installation with a release name other than `theodolite`
-
-When using another release name than `theodolite`, make sure to adjust the Confluent Schema Registry configuration of you `values.yaml` accordingly:
-
-```yaml
-cp-helm-charts:
-  cp-schema-registry:
-    kafka:
-      bootstrapServers: <your-release-name>-kafka-kafka-bootstrap:9092
-```
-
-This seems unfortunately to be necessary as Helm does not let us inject values into dependency charts.
 
 
 ## Test the Installation
