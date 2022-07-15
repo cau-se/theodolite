@@ -2286,13 +2286,6 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecconfigoverridesindex">configOverrides</a></b></td>
-        <td>[]object</td>
-        <td>
-          List of patchers that are used to override existing configurations.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b><a href="#executionspecexecution">execution</a></b></td>
         <td>object</td>
         <td>
@@ -2300,7 +2293,7 @@ Contains the Kafka configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#executionspecloads">loads</a></b></td>
+        <td><b><a href="#executionspecload">load</a></b></td>
         <td>object</td>
         <td>
           Specifies the load values that are benchmarked.<br/>
@@ -2313,6 +2306,15 @@ Contains the Kafka configuration.
           Specifies the scaling resource that is benchmarked.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b><a href="#executionspecconfigoverridesindex">configOverrides</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of patchers that are used to override existing configurations.<br/>
+          <br/>
+            <i>Default</i>: []<br/>
+        </td>
+        <td>false</td>
       </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
@@ -2327,87 +2329,6 @@ Contains the Kafka configuration.
         <td>[]object</td>
         <td>
           List of SLOs with their properties, which differ from the benchmark definition.<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### execution.spec.configOverrides[index]
-<sup><sup>[↩ Parent](#executionspec)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b><a href="#executionspecconfigoverridesindexpatcher">patcher</a></b></td>
-        <td>object</td>
-        <td>
-          Patcher used to patch a resource<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>value</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### execution.spec.configOverrides[index].patcher
-<sup><sup>[↩ Parent](#executionspecconfigoverridesindex)</sup></sup>
-
-
-
-Patcher used to patch a resource
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>resource</b></td>
-        <td>string</td>
-        <td>
-          Specifies the Kubernetes resource to be patched.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>type</b></td>
-        <td>string</td>
-        <td>
-          Type of the Patcher.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
-        <td>
-          (Optional) Patcher specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -2517,7 +2438,7 @@ Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearc
 </table>
 
 
-### execution.spec.loads
+### execution.spec.load
 <sup><sup>[↩ Parent](#executionspec)</sup></sup>
 
 
@@ -2581,6 +2502,87 @@ Specifies the scaling resource that is benchmarked.
           List of resource values for the specified resource type.<br/>
         </td>
         <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### execution.spec.configOverrides[index]
+<sup><sup>[↩ Parent](#executionspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#executionspecconfigoverridesindexpatcher">patcher</a></b></td>
+        <td>object</td>
+        <td>
+          Patcher used to patch a resource<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>value</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### execution.spec.configOverrides[index].patcher
+<sup><sup>[↩ Parent](#executionspecconfigoverridesindex)</sup></sup>
+
+
+
+Patcher used to patch a resource
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>resource</b></td>
+        <td>string</td>
+        <td>
+          Specifies the Kubernetes resource to be patched.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>type</b></td>
+        <td>string</td>
+        <td>
+          Type of the Patcher.<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>properties</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Patcher specific additional arguments.<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
