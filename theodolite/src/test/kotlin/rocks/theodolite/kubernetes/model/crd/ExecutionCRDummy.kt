@@ -33,12 +33,12 @@ class ExecutionCRDummy(name: String, benchmark: String) {
         resourceDef.resourceType = ""
         resourceDef.resourceValues = emptyList()
 
-        val strat = BenchmarkExecution.Strategy()
-        strat.name = ""
-        strat.restrictions = emptyList()
-        strat.guessStrategy = ""
-        strat.searchStrategy = ""
-
+        val strategy = BenchmarkExecution.Strategy().apply {
+            this.name = ""
+            this.restrictions = emptyList()
+            this.guessStrategy = ""
+            this.searchStrategy = ""
+        }
 
         val exec = BenchmarkExecution.Execution()
         exec.afterTeardownDelay = 0
@@ -46,11 +46,11 @@ class ExecutionCRDummy(name: String, benchmark: String) {
         exec.loadGenerationDelay = 0
         exec.repetitions = 1
         exec.metric = ""
-        exec.strategy = strat
+        exec.strategy = strategy
 
 
         execution.benchmark = benchmark
-        execution.loads = loadType
+        execution.load = loadType
         execution.resources = resourceDef
         execution.slos = emptyList()
         execution.execution = exec

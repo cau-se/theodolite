@@ -69,8 +69,8 @@ internal class CRDExecutionTest {
           assertEquals("uc1-kstreams", execution.benchmark)
           assertEquals(mutableListOf<ConfigurationOverride?>(), execution.configOverrides)
 
-          assertEquals("NumSensors", execution.loads.loadType)
-          assertEquals(listOf(25000, 50000, 75000, 100000, 125000, 150000),execution.loads.loadValues)
+          assertEquals("NumSensors", execution.load.loadType)
+          assertEquals(listOf(25000, 50000, 75000, 100000, 125000, 150000), execution.load.loadValues)
 
           assertEquals("Instances", execution.resources.resourceType)
           assertEquals(listOf(1, 2, 3, 4, 5), execution.resources.resourceValues)
