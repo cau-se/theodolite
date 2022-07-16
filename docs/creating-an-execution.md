@@ -56,7 +56,7 @@ An Execution always refers to a Benchmark. For the Execution to run, the Benchma
 
 As a Benchmark may define multiple supported load and resource types, an Execution has to pick exactly one of each by its name. Additionally, it defines the set of load values and resource values the benchmark should be executed with.
 Both these values are represented as integers, which are interpreted in a [Benchmark-specific way](creating-a-benchmark#load-and-resource-types) to configure the SUT and load generator.
-Similarly, an Execution can select a subset of the [SLOs defined in the Benchmark](creating-a-benchmark#service-level-objectives-slos). Additionally, these SLOs can be configured by their `properties`.
+Similarly, an Execution must select a subset of the [SLOs defined in the Benchmark](creating-a-benchmark#service-level-objectives-slos). Additionally, these SLOs can be configured by their `properties`.
 <!-- TODO: What happpens if slos are not set? -->
 
 ## Experimental Setup

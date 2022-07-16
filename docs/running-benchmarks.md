@@ -68,13 +68,17 @@ spec:
   resources:
     resourceType: "Instances" # (5) chose one of the benchmark's resource types
     resourceValues: [1, 2] # (6) select a set of resource amounts
+  slos:
+    - name: "lag trend"
+      properties:
+        threshold: 2000
   execution:
     strategy:
       name: "RestrictionSearch" # (8) chose a search strategy
       restrictions: ["LowerBound"] # (9) configure the search strategy
       searchStrategy: "LinearSearch" # (10) configure the search strategy (cont.)
     duration: 300 # (11) set the experiment duration in seconds
-    repetitions: # (12) set the number of repetitions
+    repetitions: 1 # (12) set the number of repetitions
     loadGenerationDelay: 30 # (13) configure a delay before load generation
 ```
 
