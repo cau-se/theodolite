@@ -4,7 +4,7 @@ metadata:
   name: theodolite-test-execution
 spec:
   benchmark: "example-benchmark"
-  loads:
+  load:
     loadType: "NumSensors"
     loadValues: [100]
   resources:
