@@ -6,7 +6,7 @@ nav_order: 5
 
 # Creating a Benchmark
 
-Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a [set of benchmarks](theodolite-benchmarks), which are ready to be executed. See the [fundamental concepts](benchmarks-and-executions) page to learn more about our distinction between benchmarks and executions.
+Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a [set of benchmarks](theodolite-benchmarks), which are ready to be executed. See the [fundamental concepts](concepts) page to learn more about our distinction between benchmarks and executions.
 
 A typical benchmark looks like this:
 
