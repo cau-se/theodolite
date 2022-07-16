@@ -47,7 +47,7 @@ class ExecutionStatus(
 
         private fun JavaDuration.toK8sString(): String {
             return when {
-                this <= JavaDuration.ofSeconds(2)  -> "${this.toSeconds()}s"
+                this <= JavaDuration.ofMinutes(2)  -> "${this.toSeconds()}s"
                 this < JavaDuration.ofMinutes(99) -> "${this.toMinutes()}m"
                 this < JavaDuration.ofHours(99) -> "${this.toHours()}h"
                 else -> "${this.toDays()}d + ${this.minusDays(this.toDays()).toHours()}h"

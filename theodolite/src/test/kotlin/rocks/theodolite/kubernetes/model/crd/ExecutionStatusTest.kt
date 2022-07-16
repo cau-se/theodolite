@@ -101,7 +101,7 @@ internal class ExecutionStatusTest {
     }
 
     @Test
-    fun testDurationSerialization() {
+    fun testMinutesDurationSerialization() {
         val objectMapper = ObjectMapper()
         val executionStatus = ExecutionStatus()
         val startInstant = Instant.parse("2022-01-02T18:59:20.492103Z")
@@ -112,6 +112,20 @@ internal class ExecutionStatusTest {
         val jsonField = json.get("executionDuration")
         assertTrue(jsonField.isTextual)
         assertEquals("15m", jsonField.asText())
+    }
+
+    @Test
+    fun testSecondsDurationSerialization() {
+        val objectMapper = ObjectMapper()
+        val executionStatus = ExecutionStatus()
+        val startInstant = Instant.parse("2022-01-02T18:59:20.492103Z")
+        executionStatus.startTime = MicroTime(startInstant.toString())
+        executionStatus.completionTime = MicroTime(startInstant.plus(Duration.ofSeconds(45)).toString())
+        val jsonString = objectMapper.writeValueAsString(executionStatus)
+        val json = objectMapper.readTree(jsonString)
+        val jsonField = json.get("executionDuration")
+        assertTrue(jsonField.isTextual)
+        assertEquals("45s", jsonField.asText())
     }
 
     @Test
