@@ -20,11 +20,13 @@ Theodolite's internal development including issue boards, merge requests and ext
 ## Contributors
 
 * [Sören Henning](https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc) (Maintainer)
+* [Nico Biernat](https://github.com/NicoBiernat)
 * [Jan Bensien](https://oceanrep.geomar.de/id/eprint/52342/)
 * [Lorenz Boguhn](https://github.com/lorenzboguhn)
 * [Simon Ehrenstein](https://github.com/sehrenstein)
 * [Willi Hasselbring](https://www.se.informatik.uni-kiel.de/en/team/prof.-dr.-wilhelm-willi-hasselbring)
 * [Tobias Pfandzelter](https://pfandzelter.com/)
+* [Julia Rossow](https://www.linkedin.com/in/julia-rossow/)
 * [Björn Vonheiden](https://github.com/bvonheid)
 * [Benedikt Wetzel](https://github.com/benediktwetzel)
 * [Max Wiedenhöft](https://www.linkedin.com/in/maxwiedenhoeft/)
