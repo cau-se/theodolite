@@ -318,7 +318,7 @@ operator:
       imageTag: latest
       imagePullPolicy: Always
     droppedRecordsKStreams:
-      enabled: true
+      enabled: false
       image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
       imageTag: latest
       imagePullPolicy: Always
