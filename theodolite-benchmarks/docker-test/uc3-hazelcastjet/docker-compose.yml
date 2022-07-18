@@ -38,7 +38,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
   benchmark:
-    image: ghcr.io/cau-se/theodolite-uc3-hazelcastjet:${THEODOLITE_TAG:-latest}
+    image: ghcr.io/cau-se/theodolite-uc3-hazelcastjet:${THEODOLITE_TAG:-v0.8.0}
     depends_on:
       - schema-registry
       - kafka
@@ -53,7 +53,7 @@ services:
       WINDOW_SIZE_IN_SECONDS: 50
       HOPPING_SIZE_IN_SECONDS: 5
   load-generator:
-    image: ghcr.io/cau-se/theodolite-uc3-workload-generator:${THEODOLITE_TAG:-latest}
+    image: ghcr.io/cau-se/theodolite-uc3-workload-generator:${THEODOLITE_TAG:-v0.8.0}
     depends_on:
       - schema-registry
       - kafka
