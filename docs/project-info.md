@@ -20,6 +20,7 @@ Theodolite's internal development including issue boards, merge requests and ext
 ## Contributors
 
 * [Sören Henning](https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc) (Maintainer)
+* [Marcel Becker](https://www.linkedin.com/in/marcel-becker-11b39b246)
 * [Jan Bensien](https://oceanrep.geomar.de/id/eprint/52342/)
 * [Nico Biernat](https://github.com/NicoBiernat)
 * [Lorenz Boguhn](https://github.com/lorenzboguhn)
