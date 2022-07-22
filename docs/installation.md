@@ -95,5 +95,4 @@ kubectl delete crd kafkas.kafka.strimzi.io
 kubectl delete crd kafkatopics.kafka.strimzi.io
 kubectl delete crd kafkausers.kafka.strimzi.io
 kubectl delete crd strimzipodsets.core.strimzi.io
-
 ```
