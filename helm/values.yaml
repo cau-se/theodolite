@@ -285,6 +285,7 @@ kube-prometheus-stack:
 ###
 prometheus: 
   enabled: true
+  podMetadata: {}
   nodeSelector: {}
   
   serviceAccount:
@@ -305,6 +306,8 @@ operator:
   imagePullPolicy: Always
 
   nodeSelector: {}
+
+  podAnnotations: {}
 
   sloChecker:
     generic:

@@ -12,6 +12,10 @@ spec:
     metadata:
       labels:
         app: {{ include "theodolite.fullname" . }}
+      {{- with .Values.operator.podAnnotations }}
+      annotations:
+      {{ toYaml . | indent 2 }}
+      {{- end }}
     spec:
       terminationGracePeriodSeconds: 0
       serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}

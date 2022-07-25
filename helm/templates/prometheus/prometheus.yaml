@@ -5,6 +5,10 @@ metadata:
   name: {{ template "theodolite.fullname" . }}-prometheus
 spec:
   serviceAccountName: {{ template "theodolite.fullname" . }}-prometheus
+  {{- with .Values.prometheus.podMetadata }}
+  podMetadata:
+    {{- toYaml . | nindent 8 }}
+  {{- end}}
   podMonitorSelector: {}
   serviceMonitorSelector: {}
   resources:
