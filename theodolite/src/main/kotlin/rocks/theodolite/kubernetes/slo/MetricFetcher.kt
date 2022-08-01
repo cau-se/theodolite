@@ -1,6 +1,6 @@
 package rocks.theodolite.kubernetes.slo
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import khttp.get
 import khttp.responses.Response
 import mu.KotlinLogging
@@ -68,7 +68,7 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
      * @return a [PrometheusResponse]
      */
     private fun parseValues(values: Response): PrometheusResponse {
-        return Gson().fromJson<PrometheusResponse>(
+        return ObjectMapper().readValue<PrometheusResponse>(
             values.jsonObject.toString(),
             PrometheusResponse::class.java
         )
