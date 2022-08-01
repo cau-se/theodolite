@@ -1,6 +1,6 @@
 package rocks.theodolite.core
 
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.quarkus.test.junit.QuarkusTest
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.MatcherAssert.assertThat
@@ -121,7 +121,7 @@ internal class IOHandlerTest {
             objectToSave = testContentResource
         )
 
-        val expected = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create().toJson(testContentResource)
+        val expected = ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(testContentResource)
 
         assertEquals(
             expected,
