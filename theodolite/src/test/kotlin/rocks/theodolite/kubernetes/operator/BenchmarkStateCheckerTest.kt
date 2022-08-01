@@ -1,6 +1,6 @@
 package rocks.theodolite.kubernetes.operator
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder
 import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodBuilder
@@ -10,16 +10,16 @@ import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.fabric8.kubernetes.client.server.mock.OutputStreamMessage
 import io.fabric8.kubernetes.client.utils.Utils
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
-import rocks.theodolite.kubernetes.model.crd.BenchmarkState
-import rocks.theodolite.kubernetes.model.KubernetesBenchmark
-import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
 import rocks.theodolite.kubernetes.ConfigMapResourceSet
 import rocks.theodolite.kubernetes.ExecActionSelector
 import rocks.theodolite.kubernetes.PodSelector
 import rocks.theodolite.kubernetes.ResourceSets
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark
+import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
+import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 
 internal class BenchmarkStateCheckerTest {
     private val server = KubernetesServer(false, false)
@@ -128,7 +128,7 @@ internal class BenchmarkStateCheckerTest {
         val resource = resourceBuilder.build()
         resource.metadata.name = "test-deployment"
         resource.metadata.labels = mutableMapOf("app" to "pod1")
-        val resourceString = Gson().toJson(resource)
+        val resourceString = ObjectMapper().writeValueAsString(resource)
 
         // create and deploy configmap
         val configMap1 = ConfigMapBuilder()
