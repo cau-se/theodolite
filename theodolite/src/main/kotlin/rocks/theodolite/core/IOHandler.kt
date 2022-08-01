@@ -1,6 +1,6 @@
 package rocks.theodolite.core
 
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import java.io.File
 import java.io.PrintWriter
@@ -56,8 +56,9 @@ class IOHandler {
      * @param fileURL the URL of the file
      */
     fun <T> writeToJSONFile(objectToSave: T, fileURL: String) {
-        val gson = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create()
-        writeStringToTextFile(fileURL, gson.toJson(objectToSave))
+        val outputFile = File(fileURL)
+        ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(outputFile, objectToSave)
+        logger.info { "Wrote txt file: $fileURL to ${outputFile.absolutePath}." }
     }
 
     /**
