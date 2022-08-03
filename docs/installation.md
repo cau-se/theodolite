@@ -10,7 +10,7 @@ The easiest option to install Theodolite is using [Helm](https://helm.sh).
 To install Theodolite with all its dependencies run:
 
 ```sh
-helm repo add theodolite https://cau-se.github.io/theodolite
+helm repo add theodolite https://www.theodolite.rocks
 helm repo update
 helm install theodolite theodolite/theodolite
 ```
