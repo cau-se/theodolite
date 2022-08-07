@@ -34,13 +34,16 @@ class ExecutionEventHandler(
     override fun onAdd(execution: ExecutionCRD) {
         logger.info { "Add execution ${execution.metadata.name}." }
         execution.spec.name = execution.metadata.name
-        when (this.stateHandler.getExecutionState(execution.metadata.name)) {
+        when (val currentState = this.stateHandler.getExecutionState(execution.metadata.name)) {
             ExecutionState.NO_STATE -> this.stateHandler.setExecutionState(execution.spec.name, ExecutionState.PENDING)
             ExecutionState.RUNNING -> {
                 this.stateHandler.setExecutionState(execution.spec.name, ExecutionState.RESTART)
                 if (this.controller.isExecutionRunning(execution.spec.name)) {
                     this.controller.stop(restart = true)
                 }
+            }
+            else -> {
+                logger.info { "ExecutionState '$currentState' is not handled." }
             }
         }
     }

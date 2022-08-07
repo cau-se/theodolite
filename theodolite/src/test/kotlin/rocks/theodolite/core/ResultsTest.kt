@@ -62,7 +62,6 @@ internal class ResultsTest {
         assertEquals(20000, maxRequiredInstances)
     }
 
-
     @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulCapacity() {
         val results = Results(Metric.from("capacity"))

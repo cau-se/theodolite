@@ -31,8 +31,8 @@ data class PrometheusResponse(
             for (value in values) {
                 val valueList = value as List<*>
                 val timestamp = (valueList[0] as Double).toLong().toString()
-                val value = valueList[1].toString()
-                result.add(listOf(group, timestamp, value))
+                val resultValue = valueList[1].toString()
+                result.add(listOf(group, timestamp, resultValue))
             }
         }
         return Collections.unmodifiableList(result)
