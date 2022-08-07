@@ -35,4 +35,6 @@ The lower bound restriction is a search strategy that uses the results of alread
 For the resource demand, it starts searching (with another strategy) beginning from the minimal required resources of all lower load intensities.
 The lower bound restriction is based on the assumption that with increasing load intensity, the resource demand never decreases.
 
-<!-- further reading in EMSE paper -->
+## Further Reading
+
+S. Henning and W. Hasselbring. “[A Configurable Method for Benchmarking Scalability of Cloud-Native Applications](https://doi.org/10.1007/s10664-022-10162-1)”. In: *Empirical Software Engineering* 27. 2022. DOI: [10.1007/s10664-022-10162-1](https://doi.org/10.1007/s10664-022-10162-1).

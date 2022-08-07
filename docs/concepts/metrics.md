@@ -64,5 +64,4 @@ $$
 
 ## Further Reading
 
-S. Henning and W. Hasselbring. “[How to Measure Scalability of Distributed Stream Processing Engines?](https://research.spec.org/icpe_proceedings/2021/companion/p85.pdf)” In: International Conference on Performance Engineering. 2021. DOI: [10.1145/3447545.3451190](https://doi.org/10.1145/3447545.3451190).
-<!-- TODO replace with EMSE paper one day-->
+S. Henning and W. Hasselbring. “[A Configurable Method for Benchmarking Scalability of Cloud-Native Applications](https://doi.org/10.1007/s10664-022-10162-1)”. In: *Empirical Software Engineering* 27. 2022. DOI: [10.1007/s10664-022-10162-1](https://doi.org/10.1007/s10664-022-10162-1).

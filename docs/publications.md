@@ -8,8 +8,7 @@ nav_order: 9
 
 Below you can find a list of publications that are directly related to Theodolite:
 
-* S. Henning and W. Hasselbring. “A Configurable Method for Benchmarking Scalability of Cloud-Native Applications”. In: *Empirical Software Engineering*. 2022. In press. DOI: 10.
-1007/s10664-022-10162-1.
+* S. Henning and W. Hasselbring. “[A Configurable Method for Benchmarking Scalability of Cloud-Native Applications](https://doi.org/10.1007/s10664-022-10162-1)”. In: *Empirical Software Engineering* 27. 2022. DOI: [10.1007/s10664-022-10162-1](https://doi.org/10.1007/s10664-022-10162-1).
 * T. Pfandzelter, S. Henning, T. Schirmer, W. Hasselbring, and D. Bermbach. “[Streaming vs. Functions: A Cost Perspective on Cloud Event Processing](https://arxiv.org/pdf/2204.11509.pdf)”. In: *IEEE International Conference on Cloud Engineering*. 2022. In press.
 * S. Henning and W. Hasselbring. “Demo Paper: Benchmarking Scalability of Cloud-Native Applications with Theodolite”. In: *IEEE International Conference on Cloud Engineering*. 2022. In press.
 * S. Henning, B. Wetzel, and W. Hasselbring. “[Reproducible Benchmarking of Cloud-Native Applications With the Kubernetes Operator Pattern](http://ceur-ws.org/Vol-3043/short5.pdf)”. In: *Symposium on Software Performance*. 2021.
