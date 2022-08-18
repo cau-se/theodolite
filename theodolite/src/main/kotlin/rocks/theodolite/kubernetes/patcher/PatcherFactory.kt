@@ -50,11 +50,15 @@ class PatcherFactory {
                     )
                     "ResourceLimitPatcher" -> ResourceLimitPatcher(
                         container = patcherDefinition.properties["container"]!!,
-                        limitedResource = patcherDefinition.properties["limitedResource"]!!
+                        limitedResource = patcherDefinition.properties["limitedResource"]!!,
+                        format = patcherDefinition.properties["format"],
+                        factor = patcherDefinition.properties["factor"]?.toInt()
                     )
                     "ResourceRequestPatcher" -> ResourceRequestPatcher(
                         container = patcherDefinition.properties["container"]!!,
-                        requestedResource = patcherDefinition.properties["requestedResource"]!!
+                        requestedResource = patcherDefinition.properties["requestedResource"]!!,
+                        format = patcherDefinition.properties["format"],
+                        factor = patcherDefinition.properties["factor"]?.toInt()
                     )
                     "SchedulerNamePatcher" -> SchedulerNamePatcher()
                     "LabelPatcher" -> LabelPatcher(
