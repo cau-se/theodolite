@@ -77,7 +77,7 @@ class PatcherFactory {
                     "ServiceSelectorPatcher" -> ServiceSelectorPatcher(
                         variableName = patcherDefinition.properties["label"]!!
                     )
-                    "rocks.theodolite.kubernetes.patcher.VolumesConfigMapPatcher" -> VolumesConfigMapPatcher(
+                    "VolumesConfigMapPatcher" -> VolumesConfigMapPatcher(
                         volumeName = patcherDefinition.properties["volumeName"]!!
                     )
                     else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
