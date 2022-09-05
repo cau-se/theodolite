@@ -1,0 +1,59 @@
+{{- if .Values.strimzi.schemaRegistry.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "theodolite.fullname" . }}-kafka-schema-registry
+  labels:
+    app: schema-registry
+spec:
+  replicas: {{ .Values.strimzi.schemaRegistry.replicaCount }}
+  selector:
+    matchLabels:
+      app: schema-registry
+  template:
+    metadata:
+      labels:
+        app: schema-registry
+    spec:
+      securityContext:
+      {{- if .Values.strimzi.schemaRegistry.securityContext }}
+{{ toYaml .Values.strimzi.schemaRegistry.securityContext | indent 8 }}
+      {{- end}}
+      containers:
+        - name: {{ template "theodolite.fullname" . }}-kafka-schema-registry-server
+          image: "{{ .Values.strimzi.schemaRegistry.image }}:{{ .Values.strimzi.schemaRegistry.imageTag }}"
+          imagePullPolicy: "{{ .Values.strimzi.schemaRegistry.imagePullPolicy }}"
+          ports:
+            - name: schema-registry
+              containerPort: {{ .Values.strimzi.schemaRegistry.servicePort }}
+              protocol: TCP
+          resources:
+{{ toYaml .Values.strimzi.schemaRegistry.resources | indent 12 }}
+          env:
+          - name: SCHEMA_REGISTRY_HOST_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: SCHEMA_REGISTRY_LISTENERS
+            value: http://0.0.0.0:{{ .Values.strimzi.schemaRegistry.servicePort }}
+          - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+            value: {{ template "theodolite.fullname" . }}-kafka-kafka-bootstrap:9092
+          - name: SCHEMA_REGISTRY_KAFKASTORE_GROUP_ID
+            value: {{ template "theodolite.fullname" . }}
+          - name: SCHEMA_REGISTRY_MASTER_ELIGIBILITY
+            value: "true"
+          - name: SCHEMA_REGISTRY_HEAP_OPTS
+            value: "{{ .Values.strimzi.schemaRegistry.heapOptions }}"
+      {{- if .Values.strimzi.schemaRegistry.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.strimzi.schemaRegistry.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.strimzi.schemaRegistry.tolerations }}
+      tolerations:
+{{ toYaml .Values.strimzi.schemaRegistry.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.strimzi.schemaRegistry.affinity }}
+      affinity:
+{{ toYaml .Values.strimzi.schemaRegistry.affinity | indent 8 }}
+      {{- end }}
+{{- end }}

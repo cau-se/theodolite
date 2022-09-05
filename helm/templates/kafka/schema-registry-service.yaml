@@ -1,0 +1,14 @@
+{{- if .Values.strimzi.schemaRegistry.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "theodolite.fullname" . }}-kafka-schema-registry
+  labels:
+    app: schema-registry
+spec:
+  ports:
+    - name: schema-registry
+      port: {{ .Values.strimzi.schemaRegistry.servicePort }}
+  selector:
+    app: schema-registry
+{{- end }}

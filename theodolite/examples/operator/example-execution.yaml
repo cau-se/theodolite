@@ -1,10 +1,10 @@
-apiVersion: theodolite.com/v1
+apiVersion: theodolite.rocks/v1beta1
 kind: execution
 metadata:
   name: theodolite-example-execution
 spec:
   benchmark: "example-benchmark"
-  loads:
+  load:
     loadType: "NumSensors"
     loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
   resources:

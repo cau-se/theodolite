@@ -1,3 +1,17 @@
+.main-content a {
+    white-space: normal;
+}
+
 .theodolite-logo {
     height: 18em;
+}
+
+.MJXc-display {
+    overflow-x: auto;
+}
+
+table.fixed-colums {
+    th, td {
+       width: 1%;
+    }
 }

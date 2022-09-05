@@ -33,18 +33,18 @@ default:
     entrypoint: [""]
   script:
     - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"${CR_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_USER}" "${CR_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - echo "{\"auths\":{\"${CR_PUBLIC_HOST}\":{\"auth\":\"$(printf "%s:%s" "${CR_PUBLIC_USER}" "${CR_PUBLIC_PW}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
     - >
       if [ $IMAGE_TAG ]; then
-        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$IMAGE_TAG"
+        KANIKO_D="$KANIKO_D -d $CR_PUBLIC_HOST/$CR_PUBLIC_ORG/$IMAGE_NAME:$IMAGE_TAG"
         export PUBLISHED_IMAGE_TAG=$IMAGE_TAG
       elif [ $CI_COMMIT_TAG ]; then
-        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
+        KANIKO_D="$KANIKO_D -d $CR_PUBLIC_HOST/$CR_PUBLIC_ORG/$IMAGE_NAME:$CI_COMMIT_TAG"
         export PUBLISHED_IMAGE_TAG=$CI_COMMIT_TAG
       else
-        DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^master-$//')
-        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
-        KANIKO_D="$KANIKO_D -d $CR_HOST/$CR_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
+        DOCKER_TAG_NAME=$(echo $CI_COMMIT_REF_SLUG- | sed 's/^main-$//')
+        KANIKO_D="$KANIKO_D -d $CR_PUBLIC_HOST/$CR_PUBLIC_ORG/$IMAGE_NAME:${DOCKER_TAG_NAME}latest"
+        KANIKO_D="$KANIKO_D -d $CR_PUBLIC_HOST/$CR_PUBLIC_ORG/$IMAGE_NAME:$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA"
         export PUBLISHED_IMAGE_TAG=$DOCKER_TAG_NAME$CI_COMMIT_SHORT_SHA
       fi
     - "[ $DOCKERFILE ] && KANIKO_DOCKERFILE=\"--dockerfile $DOCKERFILE\""
@@ -86,7 +86,7 @@ test-docs-links:
   extends: .docs
   needs:
     - build-docs
-  script: bundle exec htmlproofer --assume-extension --allow_hash_href ./_site
+  script: bundle exec htmlproofer --assume-extension --allow_hash_href --http-status-ignore 999 ./_site
 
 build-docs-crds:
   stage: build
@@ -161,10 +161,10 @@ test-helm:
     - cd helm
     - helm dependencies update .
     - helm install theodolite . -f preconfigs/minimal.yaml --wait
-    - helm test theodolite
     - kubectl get nodes -o wide
     - kubectl get pods --all-namespaces -o wide
     - kubectl get services --all-namespaces -o wide
+    - helm test theodolite
   after_script:
     - k3d cluster delete $CLUSTERNAME
 
@@ -269,8 +269,8 @@ spotbugs-benchmarks:
       - theodolite-benchmarks/*
       - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
       - theodolite-benchmarks/{commons,$JAVA_PROJECT_DEPS}/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $JAVA_PROJECT_DEPS"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $JAVA_PROJECT_DEPS"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
       when: manual
       allow_failure: true
 
@@ -469,8 +469,8 @@ deploy-http-bridge:
     - changes:
       - theodolite-benchmarks/*
       - theodolite-benchmarks/{$JAVA_PROJECT_DEPS}/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
       when: manual
       allow_failure: true
 
@@ -736,8 +736,8 @@ deploy-theodolite:
   rules:
     - changes:
       - theodolite/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
       allow_failure: true
 
@@ -805,8 +805,8 @@ deploy-slo-checker-lag-trend:
   rules:
     - changes:
       - slo-checker/record-lag/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
       allow_failure: true
 
@@ -823,8 +823,8 @@ deploy-slo-checker-dropped-records-kstreams:
   rules:
     - changes:
       - slo-checker/dropped-records/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
       allow_failure: true
 
@@ -841,8 +841,8 @@ deploy-slo-checker-generic:
   rules:
     - changes:
       - slo-checker/generic/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
       allow_failure: true
 
@@ -861,8 +861,8 @@ deploy-random-scheduler:
   rules:
     - changes:
       - execution/infrastructure/random-scheduler/**/*
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
       allow_failure: true
 
@@ -880,8 +880,8 @@ deploy-buildimage-docker-compose-jq:
   rules:
     - changes:
       - buildimages/docker-compose-jq/Dockerfile
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
       allow_failure: true
 
@@ -901,7 +901,7 @@ deploy-buildimage-k3d-helm:
   rules:
     - changes:
       - buildimages/k3d-helm/Dockerfile
-      if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW"
-    - if: "$CR_HOST && $CR_ORG && $CR_USER && $CR_PW && $CI_PIPELINE_SOURCE == 'web'"
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $CI_PIPELINE_SOURCE == 'web'"
       when: manual
       allow_failure: true

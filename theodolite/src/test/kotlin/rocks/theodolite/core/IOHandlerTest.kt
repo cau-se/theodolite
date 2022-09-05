@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.rules.TemporaryFolder
 import org.junitpioneer.jupiter.ClearEnvironmentVariable
 import org.junitpioneer.jupiter.SetEnvironmentVariable
+import java.util.stream.Collectors
 
 const val FOLDER_URL = "Test-Folder"
 
@@ -42,12 +43,13 @@ internal class IOHandlerTest {
         temporaryFolder.create()
         val folder = temporaryFolder.newFolder(FOLDER_URL)
 
+        val columns = listOf("Fruit", "Color")
+
         val testContent = listOf(
             listOf("apples", "red"),
             listOf("bananas", "yellow"),
             listOf("avocado", "brown")
         )
-        val columns = listOf("Fruit", "Color")
 
         IOHandler().writeToCSVFile(
             fileURL = "${folder.absolutePath}/test-file",
@@ -58,6 +60,49 @@ internal class IOHandlerTest {
         val expected = (listOf(listOf("Fruit", "Color")) + testContent)
             .map { "${it[0]},${it[1]}" }
             .reduce { left, right -> left + System.lineSeparator() + right }
+
+        assertEquals(
+            expected,
+            IOHandler().readFileAsString("${folder.absolutePath}/test-file.csv")
+        )
+    }
+
+    /**
+     * Tests if values with commas and quotation marks are surrounded with additional quotation marks.
+     */
+    @Test
+    fun testWriteToCSVFileWithComma() {
+        temporaryFolder.create()
+        val folder = temporaryFolder.newFolder(FOLDER_URL)
+
+        val columns = listOf("Fruit, Fruit2", "Color")
+        val expectedColumns = listOf("\"Fruit, Fruit2\"", "Color")
+
+        val testContent = listOf(
+            listOf("apples, "+ '"' + "paprika" + '"', "red"),
+            listOf("bananas, pineapple", "yellow"),
+            listOf("avocado, coconut", "brown")
+        )
+
+        val expectedContent = listOf(
+            listOf("\"apples, " + '"' + '"' + "paprika" + '"' + '"' + '"', "red"),
+            listOf("\"bananas, pineapple\"", "yellow"),
+            listOf("\"avocado, coconut\"", "brown")
+        )
+
+        IOHandler().writeToCSVFile(
+            fileURL = "${folder.absolutePath}/test-file",
+            data = testContent,
+            columns = columns
+        )
+
+        // construct string from the columns
+        var expected = expectedColumns.stream().collect(Collectors.joining(","))
+
+        // add values from the expectedContent to expected string
+        expectedContent.forEach{
+            expected += "\n" + it.joinToString(separator = ",")
+        }
 
         assertEquals(
             expected,

@@ -1,0 +1,26 @@
+apiVersion: theodolite.rocks/v1beta1
+kind: execution
+metadata:
+  name: theodolite-test-execution
+spec:
+  benchmark: "example-benchmark"
+  load:
+    loadType: "NumSensors"
+    loadValues: [100]
+  resources:
+    resourceType: "Instances"
+    resourceValues: [1]
+  slos:
+    - name: "lag trend"
+      properties:
+        warmup: 0 # in seconds
+  execution:
+    strategy:
+      name: "RestrictionSearch"
+      restrictions:
+        - "LowerBound"
+      searchStrategy: "LinearSearch"
+    duration: 120 # in seconds
+    repetitions: 1
+    loadGenerationDelay: 0 # in seconds
+  configOverrides: []

@@ -1,7 +1,8 @@
 ---
-title: Fundamental Concepts
+title: Data and Role Model
 has_children: false
-nav_order: 2
+parent: Fundamental Concepts
+nav_order: 3
 ---
 
 # Benchmarks and Executions
@@ -41,3 +42,7 @@ In contrast to benchmarks, execution have a life-cycle. They can be planned,
 executed, or aborted. Each execution of a benchmark is represented by an
 individual entity. This supports repeatability as executions can be archived
 and shared.
+
+## Further Reading
+
+S. Henning and W. Hasselbring. “[A Configurable Method for Benchmarking Scalability of Cloud-Native Applications](https://doi.org/10.1007/s10664-022-10162-1)”. In: *Empirical Software Engineering* 27. 2022. DOI: [10.1007/s10664-022-10162-1](https://doi.org/10.1007/s10664-022-10162-1).

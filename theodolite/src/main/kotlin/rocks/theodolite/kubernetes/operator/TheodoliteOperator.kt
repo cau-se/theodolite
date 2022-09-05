@@ -15,9 +15,9 @@ import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 
 private const val EXECUTION_SINGULAR = "execution"
 private const val BENCHMARK_SINGULAR = "benchmark"
-private const val API_VERSION = "v1"
+private const val API_VERSION = "v1beta1"
 private const val RESYNC_PERIOD = 10 * 60 * 1000.toLong()
-private const val GROUP = "theodolite.com"
+private const val GROUP = "theodolite.rocks"
 private val logger = KotlinLogging.logger {}
 
 /**
@@ -136,7 +136,7 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
             ExecutionCRD,
             BenchmarkExecutionList,
             Resource<ExecutionCRD>> {
-        return this.client.customResources(
+        return client.resources(
             ExecutionCRD::class.java,
             BenchmarkExecutionList::class.java
         )
@@ -146,7 +146,7 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
             BenchmarkCRD,
             KubernetesBenchmarkList,
             Resource<BenchmarkCRD>> {
-        return this.client.customResources(
+        return client.resources(
             BenchmarkCRD::class.java,
             KubernetesBenchmarkList::class.java
         )

@@ -1,11 +1,11 @@
-apiVersion: theodolite.com/v1
+apiVersion: theodolite.rocks/v1beta1
 kind: Execution
 metadata:
   name: example-execution
 spec:
   name: test
   benchmark: "uc1-kstreams"
-  loads:
+  load:
     loadType: "NumSensors"
     loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
   resources:
@@ -13,11 +13,8 @@ spec:
     resourceValues: [1, 2, 3, 4, 5]
   slos:
     - name: "lag trend"
-      threshold: 2000
-      prometheusUrl: "http://prometheus-operated:9090"
-      externalSloUrl: "http://localhost:80/evaluate-slope"
-      offset: 0
-      warmup: 60 # in seconds
+      properties:
+        threshold: 2000
   execution:
     strategy:
       name: "RestrictionSearch"

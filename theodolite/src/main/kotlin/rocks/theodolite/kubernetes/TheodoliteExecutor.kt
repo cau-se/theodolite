@@ -58,7 +58,7 @@ class TheodoliteExecutor(
 
         val loadDimensionPatcherDefinition =
             PatcherDefinitionFactory().createPatcherDefinition(
-                benchmarkExecution.loads.loadType,
+                benchmarkExecution.load.loadType,
                 this.benchmark.loadTypes
             )
 
@@ -81,11 +81,11 @@ class TheodoliteExecutor(
                 waitForResourcesEnabled = this.benchmark.waitForResourcesEnabled
             )
 
-        if (benchmarkExecution.loads.loadValues != benchmarkExecution.loads.loadValues.sorted()) {
-            benchmarkExecution.loads.loadValues = benchmarkExecution.loads.loadValues.sorted()
+        if (benchmarkExecution.load.loadValues != benchmarkExecution.load.loadValues.sorted()) {
+            benchmarkExecution.load.loadValues = benchmarkExecution.load.loadValues.sorted()
             logger.info {
                 "Load values are not sorted correctly, Theodolite sorts them in ascending order." +
-                        "New order is: ${benchmarkExecution.loads.loadValues}"
+                        "New order is: ${benchmarkExecution.load.loadValues}"
             }
         }
 
@@ -98,7 +98,7 @@ class TheodoliteExecutor(
         }
 
         return Config(
-            loads = benchmarkExecution.loads.loadValues,
+            loads = benchmarkExecution.load.loadValues,
             resources = benchmarkExecution.resources.resourceValues,
             searchStrategy = strategyFactory.createSearchStrategy(experimentRunner, benchmarkExecution.execution.strategy.name,
                     benchmarkExecution.execution.strategy.searchStrategy, benchmarkExecution.execution.strategy.restrictions,

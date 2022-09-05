@@ -6,12 +6,12 @@ nav_order: 5
 
 # Creating a Benchmark
 
-Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a [set of benchmarks](theodolite-benchmarks), which are ready to be executed. See the [fundamental concepts](benchmarks-and-executions) page to learn more about our distinction between benchmarks and executions.
+Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a [set of benchmarks](theodolite-benchmarks), which are ready to be executed. See the [fundamental concepts](concepts) page to learn more about our distinction between benchmarks and executions.
 
 A typical benchmark looks like this:
 
 ```yaml
-apiVersion: theodolite.com/v1
+apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: example-benchmark
@@ -29,6 +29,11 @@ spec:
          files:
             - uc1-load-generator-service.yaml
             - uc1-load-generator-deployment.yaml
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc1-kstreams-deployment.yaml"
   loadTypes:
     - typeName: "NumSensors"
       patchers:
@@ -41,6 +46,15 @@ spec:
           resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        threshold: 3000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
@@ -60,8 +74,6 @@ Infrastructure resources live over the entire duration of a benchmark run. They 
 
 ### Resources
 
-#### ConfigMap
-
 The recommended way to link Kubernetes resources files from a Benchmark is by bundling them in one or multiple ConfigMaps and refer to that ConfigMap from `sut.resources`, `loadGenerator.resources` or `infrastructure.resources`.
 To create a ConfigMap from all the Kubernetes resources in a directory run:
 
@@ -79,21 +91,13 @@ configMap:
   - example-service.yaml
 ```
 
-#### Filesystem
-
-Alternatively, resources can also be read from the filesystem, Theodolite has access to. This usually requires that the Benchmark resources are available in a volume, which is mounted into the Theodolite container.
-
-```yaml
-filesystem:
-  path: example/path/to/files
-  files:
-  - example-deployment.yaml
-  - example-service.yaml
-```
-
 ### Actions
 
 Sometimes it is not sufficient to just define resources that are created and deleted when running a benchmark. Instead, it might be necessary to define certain actions that will be executed before running or after stopping the benchmark.
+Theodolite supports *actions*, which can run before (`beforeActions`) or after `afterActions` all `sut`, `loadGenerator` or `infrastructure` resources are deployed.
+Theodolite provides two types of actions:
+
+#### Exec Actions
 
 Theodolite allows to execute commands on running pods. This is similar to `kubectl exec` or Kubernetes' [container lifecycle handlers](https://kubernetes.io/docs/tasks/configure-pod-container/attach-handler-lifecycle-event/). Theodolite actions can run before (`beforeActions`) or after `afterActions` all `sut`, `loadGenerator` or `infrastructure` resources are deployed.
 For example, the following actions will create a file in a pod with label `app: logger` before the SUT is started and delete if after the SUT is stopped:
@@ -102,26 +106,48 @@ For example, the following actions will create a file in a pod with label `app: 
   sut:
     resources: # ...
     beforeActions:
-      - selector:
-          pod:
-            matchLabels:
-              app: logger
-        exec:
+      - exec:
+          selector:
+            pod:
+              matchLabels:
+                app: logger
+            container: logger # optional
           command: ["touch", "file-used-by-logger.txt"]
           timeoutSeconds: 90
     afterActions:
-      - selector:
-          pod:
-            matchLabels:
-              app: logger
-        exec:
+      - exec:
+          selector:
+            pod:
+              matchLabels:
+                app: logger
+            container: logger # optional
           command: [ "rm", "file-used-by-logger.txt" ]
           timeoutSeconds: 90
 ```
 
 Theodolite checks if all referenced pods are available for the specified actions. That means these pods must either be defined in `infrastructure` or already deployed in the cluster. If not all referenced pods are available, the benchmark will not be set as `Ready`. Consequently, an action cannot be executed on a pod that is defined as an SUT or load generator resource.
 
-*Note: Actions should be used sparingly. While it is possible to define entire benchmarks imperatively as actions, it is considered better practice to define as much as possible using declarative, native Kubernetes resource files.*
+*Note: Exec actions should be used sparingly. While it is possible to define entire benchmarks imperatively as actions, it is considered better practice to define as much as possible using declarative, native Kubernetes resource files.*
+
+#### Delete Actions
+
+Sometimes it is required to delete Kubernetes resources before or after running a benchmark.
+This is typically the case for resources that are automatically created while running a benchmark.
+For example, Kafka Streams creates internal Kafka topics. When using the [Strimzi](https://strimzi.io/) Kafka operator, we can delete these topics by deleting the corresponding Kafka topic resource.
+
+As shown in the following example, delete actions select the resources to be deleted by specifying their *apiVersion*, *kind* and a [regular expression](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) for their name.
+
+```yaml
+  sut:
+    resources: # ...
+    beforeActions:
+      - delete:
+          selector:
+            apiVersion: kafka.strimzi.io/v1beta2
+            kind: KafkaTopic
+            nameRegex: ^some-internal-topic-.*
+```
+
 
 <!--
 A Benchmark refers to other Kubernetes resources (e.g., Deployments, Services, ConfigMaps), which describe the system under test, the load generator and infrastructure components such as a middleware used in the benchmark. To manage those resources, Theodolite needs to have access to them. This is done by bundling resources in ConfigMaps.
@@ -139,6 +165,33 @@ Patchers can be seen as functions, which take a value as input and modify a Kube
 See the [patcher API reference](api-reference/patchers) for an overview of available patchers.
 
 If a benchmark is [executed by an Execution](running-benchmarks), these patchers are used to configure SUT and load generator according to the [load and resource values](creating-an-execution) set in the Execution.
+
+## Service Level Objectives SLOs
+
+SLOs provide a way to quantify whether a certain load intensity can be handled by a certain amount of provisioned resources.
+In Theodolite, SLOs are evaluated by requesting monitoring data from Prometheus and analyzing it in a benchmark-specific way.
+An Execution must at least define one SLO to be checked.
+
+A good choice to get started is defining an SLO of type `generic`:
+
+```yaml
+- sloType: "generic"
+  prometheusUrl: "http://prometheus-operated:9090"
+  offset: 0
+  properties:
+    externalSloUrl: "http://localhost:8082"
+    promQLQuery: "sum by(job) (kafka_streams_stream_task_metrics_dropped_records_total>=0)"
+    warmup: 60 # in seconds
+    queryAggregation: max
+    repetitionAggregation: median
+    operator: lte
+    threshold: 1000
+```
+
+All you have to do is to define a [PromQL query](https://prometheus.io/docs/prometheus/latest/querying/basics/) describing which metrics should be requested (`promQLQuery`) and how the resulting time series should be evaluated. With `queryAggregation` you specify how the resulting time series is aggregated to a single value and `repetitionAggregation` describes how the results of multiple repetitions are aggregated. Possible values are
+`mean`, `median`, `mode`, `sum`, `count`, `max`, `min`, `std`, `var`, `skew`, `kurt` as well as percentiles such as `p99` or `p99.9`. The result of aggregation all repetitions is checked against `threshold`. This check is performed using an `operator`, which describes that the result must be "less than" (`lt`), "less than equal" (`lte`), "greater than" (`gt`) or "greater than equal" (`gte`) to the threshold.
+
+In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloUrl` to your custom SLO checker. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
 
 ## Kafka Configuration
 

@@ -1,22 +1,12 @@
 package rocks.theodolite.kubernetes.patcher
 
+import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
-import io.smallrye.common.constraint.Assert.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-
-/**
- * Resource patcher test
- *
- * This class tested 4 scenarios for the ResourceLimitPatcher and the ResourceRequestPatcher.
- * The different test cases specifies four possible situations:
- * Case 1:  In the given YAML declaration memory and cpu are defined
- * Case 2:  In the given YAML declaration only cpu is defined
- * Case 3:  In the given YAML declaration only memory is defined
- * Case 4:  In the given YAML declaration neither `Resource Request` nor `Request Limit` is defined
- */
 @QuarkusTest
 @WithKubernetesTestServer
 class ResourceRequestPatcherTest {
@@ -27,14 +17,14 @@ class ResourceRequestPatcherTest {
     fun applyTest(fileName: String) {
         val cpuValue = "50m"
         val memValue = "3Gi"
-        val k8sResource = server.client.apps().deployments().load(javaClass.getResourceAsStream(fileName)).get()
+        val k8sResource = getDeployment(fileName)
 
         val defCPU = PatcherDefinition()
         defCPU.resource = "/cpu-memory-deployment.yaml"
         defCPU.type = "ResourceRequestPatcher"
         defCPU.properties = mapOf(
             "requestedResource" to "cpu",
-            "container" to "application"
+            "container" to "uc-application"
         )
 
         val defMEM = PatcherDefinition()
@@ -42,16 +32,16 @@ class ResourceRequestPatcherTest {
         defMEM.type = "ResourceRequestPatcher"
         defMEM.properties = mapOf(
             "requestedResource" to "memory",
-            "container" to "application"
+            "container" to "uc-application"
         )
 
-        PatchHandler.patchResource(mutableMapOf(Pair("/cpu-memory-deployment.yaml", listOf(k8sResource))), defCPU, cpuValue)
-        PatchHandler.patchResource(mutableMapOf(Pair("/cpu-memory-deployment.yaml", listOf(k8sResource))), defMEM, memValue)
-
-        k8sResource.spec.template.spec.containers.filter { it.name == defCPU.properties["container"]!! }
+        val firstPatched = PatchHandler.patchResource(mutableMapOf(Pair("/cpu-memory-deployment.yaml", listOf(k8sResource))), defCPU, cpuValue)
+        val finalPatched = PatchHandler.patchResource(mutableMapOf(Pair("/cpu-memory-deployment.yaml",  firstPatched)), defMEM, memValue)
+        assertEquals(1, finalPatched.size)
+        (finalPatched[0] as Deployment).spec.template.spec.containers.filter { it.name == defCPU.properties["container"]!! }
             .forEach {
-                assertTrue(it.resources.requests["cpu"].toString() == cpuValue)
-                assertTrue(it.resources.requests["memory"].toString() == memValue)
+                assertEquals(cpuValue, it.resources.requests["cpu"].toString())
+                assertEquals(memValue, it.resources.requests["memory"].toString())
             }
     }
 
@@ -78,4 +68,81 @@ class ResourceRequestPatcherTest {
         // Case 4: In the given YAML declaration neither `Resource Request` nor `Request Limit` is defined
         applyTest("/no-resources-deployment.yaml")
     }
+
+    @Test
+    fun testWithNoFactorSet() {
+        val initialDeployment = getDeployment("/cpu-memory-deployment.yaml")
+        val patchedDeployments = ResourceRequestPatcher(
+            "uc-application",
+            "memory"
+        ).patch(listOf(initialDeployment), "1Gi")
+        assertEquals(1, patchedDeployments.size)
+        val patchedDeployment = patchedDeployments[0] as Deployment
+
+        val containers = patchedDeployment.spec.template.spec.containers.filter { it.name == "uc-application" }
+        assertEquals(1, containers.size)
+        containers.forEach {
+            assertEquals("1Gi", it.resources.requests["memory"].toString())
+        }
+    }
+
+    @Test
+    fun testWithFormatSet() {
+        val initialDeployment = getDeployment("/cpu-memory-deployment.yaml")
+        val patchedDeployments = ResourceRequestPatcher(
+            "uc-application",
+            "memory",
+            format = "GBi"
+        ).patch(listOf(initialDeployment), "2")
+        assertEquals(1, patchedDeployments.size)
+        val patchedDeployment = patchedDeployments[0] as Deployment
+
+        val containers = patchedDeployment.spec.template.spec.containers.filter { it.name == "uc-application" }
+        assertEquals(1, containers.size)
+        containers.forEach {
+            assertEquals("2GBi", it.resources.requests["memory"].toString())
+        }
+    }
+
+    @Test
+    fun testWithFactorSet() {
+        val initialDeployment = getDeployment("/cpu-memory-deployment.yaml")
+        val patchedDeployments = ResourceRequestPatcher(
+            "uc-application",
+            "memory",
+            factor = 4000
+        ).patch(listOf(initialDeployment), "2")
+        assertEquals(1, patchedDeployments.size)
+        val patchedDeployment = patchedDeployments[0] as Deployment
+
+        val containers = patchedDeployment.spec.template.spec.containers.filter { it.name == "uc-application" }
+        assertEquals(1, containers.size)
+        containers.forEach {
+            assertEquals("8000", it.resources.requests["memory"].toString())
+        }
+    }
+
+    @Test
+    fun testWithFactorAndFormatSet() {
+        val initialDeployment = getDeployment("/cpu-memory-deployment.yaml")
+        val patchedDeployments = ResourceRequestPatcher(
+            "uc-application",
+            "memory",
+            format = "GBi",
+            factor = 4,
+        ).patch(listOf(initialDeployment), "2")
+        assertEquals(1, patchedDeployments.size)
+        val patchedDeployment = patchedDeployments[0] as Deployment
+
+        val containers = patchedDeployment.spec.template.spec.containers.filter { it.name == "uc-application" }
+        assertEquals(1, containers.size)
+        containers.forEach {
+            assertEquals("8GBi", it.resources.requests["memory"].toString())
+        }
+    }
+
+    private fun getDeployment(fileName: String): Deployment {
+        return server.client.apps().deployments().load(javaClass.getResourceAsStream(fileName)).get()
+    }
+
 }

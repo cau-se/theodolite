@@ -1,0 +1,52 @@
+{{- if .Values.operator.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ include "theodolite.fullname" . }}-test-example-files"
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+data:
+{{ ($.Files.Glob "benchmark-definitions/examples/*").AsConfig | indent 2 }}
+{{ ($.Files.Glob "benchmark-definitions/test/*").AsConfig | indent 2 }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "theodolite.fullname" . }}-test-example"
+  labels:
+    {{- include "theodolite.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+    - name: kubectl
+      image: bitnami/kubectl
+      command:
+        - bash
+        - -c
+        - |
+          cd /example-resources/
+          kubectl apply -f example-configmap.yaml
+          kubectl apply -f example-benchmark.yaml
+          kubectl apply -f test-example-execution.yaml
+          timeout 180s bash -c "until kubectl get exec theodolite-test-execution -o json | jq -r .status.executionState | grep -i '^Finished$'; do kubectl get exec theodolite-test-execution -o json | jq -r .status.executionState; sleep 5s; done"
+          RETURN=$?
+          echo "RETURN: $RETURN"
+          kubectl delete -f example-configmap.yaml
+          kubectl delete -f example-benchmark.yaml
+          kubectl delete -f test-example-execution.yaml
+          exit $RETURN
+      volumeMounts:
+        - name: example-resources
+          mountPath: /example-resources
+  volumes:
+    - name: example-resources
+      configMap:
+        name: "{{ include "theodolite.fullname" . }}-test-example-files"
+  serviceAccountName:  {{ include "theodolite.serviceAccountName" . }}
+{{- end }}

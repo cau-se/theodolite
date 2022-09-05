@@ -12,7 +12,7 @@ import kotlin.properties.Delegates
  * A BenchmarkExecution consists of:
  *  - A [name].
  *  - The [benchmark] that should be executed.
- *  - The [loads]s that should be checked in the benchmark.
+ *  - The [load]s that should be checked in the benchmark.
  *  - The [resources] that should be checked in the benchmark.
  *  - The [slos] further restrict the Benchmark SLOs for the evaluation of the experiments.
  *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
@@ -28,7 +28,7 @@ class BenchmarkExecution : KubernetesResource {
     var executionId: Int = 0
     lateinit var name: String
     lateinit var benchmark: String
-    lateinit var loads: LoadDefinition
+    lateinit var load: LoadDefinition
     lateinit var resources: ResourceDefinition
     lateinit var slos: List<SloConfiguration>
     lateinit var execution: Execution

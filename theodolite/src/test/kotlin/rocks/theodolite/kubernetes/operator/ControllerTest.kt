@@ -55,14 +55,14 @@ class ControllerTest {
         server
             .expect()
             .get()
-            .withPath("/apis/theodolite.com/v1/namespaces/test/benchmarks")
+            .withPath("/apis/theodolite.rocks/v1beta1/namespaces/test/benchmarks")
             .andReturn(200, benchmarkResourceList)
             .always()
 
         server
             .expect()
             .get()
-            .withPath("/apis/theodolite.com/v1/namespaces/test/executions")
+            .withPath("/apis/theodolite.rocks/v1beta1/namespaces/test/executions")
             .andReturn(200, executionResourceList)
             .always()
     }
@@ -113,6 +113,7 @@ class ControllerTest {
             .getDeclaredMethod("getBenchmarks")
         method.isAccessible = true
 
+        @Suppress("UNCHECKED_CAST")
         val result = method.invoke(controller) as List<BenchmarkCRD>
 
         assertEquals(2, result.size)
