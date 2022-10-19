@@ -20,7 +20,7 @@ Documentation on Theodolite itself as well as regarding its benchmarking method 
 * Theodolite's Helm chart and templates are maintained in [`helm`](helm).
 * We provide Juptyer notebooks for analyzing and visualizing the results of benchmark executions in [`analysis`](analysis).
 * Theodolite comes with 4 application benchmarks, which are based on typical use cases for stream processing within microservices. Implementations of these benchmarks with several state-of-the art stream processing frameworks as well as corresponding load generators can be found in [`theodolite-benchmarks`](theodolite-benchmarks). This includes both the source code of the implementations as well as benchmark definitions for Theodolite in [`theodolite-benchmarks/definitions`](theodolite-benchmarks/definitions).
-* The source code of Theodolite's SLO checkers are located in [`slo-checker`](theodolite-slo-checker).
+* The source code of Theodolite's SLO checkers are located in [`slo-checker`](slo-checker).
 * The documentation, which is hosted on [theodolite.rocks](https://www.theodolite.rocks), is located in [`docs`](docs).
 
 ## How to Cite
