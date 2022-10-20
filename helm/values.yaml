@@ -285,14 +285,17 @@ kube-prometheus-stack:
 ###
 prometheus: 
   enabled: true
+  podMetadata: {}
   nodeSelector: {}
   
   serviceAccount:
     enabled: true
   role:
     enabled: true
+    clusterRole: false
   roleBinding:
     enabled: true
+    clusterRoleBinding: false
 
 ###
 # Theodolite Operator
@@ -306,6 +309,8 @@ operator:
 
   nodeSelector: {}
 
+  podAnnotations: {}
+
   sloChecker:
     generic:
       enabled: true
@@ -318,7 +323,7 @@ operator:
       imageTag: latest
       imagePullPolicy: Always
     droppedRecordsKStreams:
-      enabled: true
+      enabled: false
       image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
       imageTag: latest
       imagePullPolicy: Always

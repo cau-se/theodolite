@@ -136,7 +136,7 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
             ExecutionCRD,
             BenchmarkExecutionList,
             Resource<ExecutionCRD>> {
-        return this.client.customResources(
+        return client.resources(
             ExecutionCRD::class.java,
             BenchmarkExecutionList::class.java
         )
@@ -146,7 +146,7 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
             BenchmarkCRD,
             KubernetesBenchmarkList,
             Resource<BenchmarkCRD>> {
-        return this.client.customResources(
+        return client.resources(
             BenchmarkCRD::class.java,
             KubernetesBenchmarkList::class.java
         )

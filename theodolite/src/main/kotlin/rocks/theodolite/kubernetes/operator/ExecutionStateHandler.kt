@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.MicroTime
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
-import java.lang.Thread.sleep
+import java.util.concurrent.TimeUnit.SECONDS
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -41,7 +41,7 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
         Thread {
             while (this.runExecutionDurationTimer.get()) {
                 updateDurationState(resourceName)
-                sleep(100 * 1)
+                SECONDS.sleep(1)
             }
         }.start()
     }
@@ -50,6 +50,6 @@ class ExecutionStateHandler(val client: NamespacedKubernetesClient) :
     fun stopDurationStateTimer(resourceName: String) {
         super.setState(resourceName) { cr -> cr.status.completionTime = MicroTime(Instant.now().toString()); cr }
         this.runExecutionDurationTimer.set(false)
-        sleep(100 * 2)
+        SECONDS.sleep(2)
     }
 }

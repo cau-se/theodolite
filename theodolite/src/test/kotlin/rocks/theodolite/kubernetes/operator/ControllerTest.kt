@@ -113,6 +113,7 @@ class ControllerTest {
             .getDeclaredMethod("getBenchmarks")
         method.isAccessible = true
 
+        @Suppress("UNCHECKED_CAST")
         val result = method.invoke(controller) as List<BenchmarkCRD>
 
         assertEquals(2, result.size)

@@ -43,7 +43,7 @@ The prebuilt container images can be configured with the following environment v
 | Environment Variable | Description | Default |
 |:----|:----|:----|
 | `BOOTSTRAP_SERVER` | Address (`hostname:port`) of another load generator instance to form a cluster with. Can also be this instance. | `localhost:5701` |
-| `KUBERNETES_DNS_NAME` | Kubernetes service name to discover other load generators to form a cluster with. Must be a fully qualified domain name (FQDN), e.g., something like `<service>.<namespace>.svc.cluster.local`. * Requires `BOOTSTRAP_SERVER` not to be set. | |
+| `KUBERNETES_DNS_NAME` | Kubernetes service name to discover other load generators to form a cluster with. Must be a fully qualified domain name (FQDN), e.g., something like `<service>.<namespace>.svc.cluster.local`. Requires `BOOTSTRAP_SERVER` not to be set. | |
 | `PORT` | Port used for for coordination among load generator instances. | 5701 |
 | `PORT_AUTO_INCREMENT` | If set to true and the specified PORT is already used, use the next higher one. Useful if multiple instances should run on the same host, without configuring each instance individually. | true |
 | `CLUSTER_NAME_PREFIX` | Only required if unrelated load generators form a cluster. | theodolite-load-generation |

@@ -10,7 +10,7 @@ The easiest option to install Theodolite is using [Helm](https://helm.sh).
 To install Theodolite with all its dependencies run:
 
 ```sh
-helm repo add theodolite https://cau-se.github.io/theodolite
+helm repo add theodolite https://www.theodolite.rocks
 helm repo update
 helm install theodolite theodolite/theodolite
 ```
@@ -37,6 +37,31 @@ For Kubernetes clusters with limited resources such as on local developer instal
 To store the results of benchmark executions in a [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes), `operator.resultsVolume.persistent.enabled` has to be set to `true`. This requires that either a statically provisioned PersistentVolume is available or a dynamic provisioner exists (which is the case for many Kubernetes installations). If required, you can select a storage class with `operator.resultsVolume.persistent.storageClassName`.
 You can also use an existing PersistentVolumeClaim by setting `operator.resultsVolume.persistent.existingClaim`.
 If persistence is not enabled, all results will be gone upon pod termination.
+
+### Exposing Grafana
+
+Per default, Theodolite exposes a Grafana instance as NodePort at port `31199`. This can configured by setting `grafana.service.nodePort`.
+
+### Additional Kubernetes cluster metrics
+
+As long as you have sufficient permissions on your cluster, you can integrate additional Kubernetes metrics into Prometheus by enabling the following exporters:
+
+```yaml
+kube-prometheus-stack:
+  kubelet:
+    enabled: true
+  kubeStateMetrics:
+    enabled: true
+  nodeExporter:
+    enabled: true
+prometheus: 
+  role:
+    clusterRole: true
+  roleBinding:
+    clusterRoleBinding: true
+```
+
+The ClusterRole and ClusterRoleBindings are required for collecting metrics from the kubelets. See the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) for more details on configuring the individual exporters.
 
 ### Random scheduler
 
@@ -95,5 +120,4 @@ kubectl delete crd kafkas.kafka.strimzi.io
 kubectl delete crd kafkatopics.kafka.strimzi.io
 kubectl delete crd kafkausers.kafka.strimzi.io
 kubectl delete crd strimzipodsets.core.strimzi.io
-
 ```

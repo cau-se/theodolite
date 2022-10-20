@@ -15,8 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: uc-application
-          image: uc2-hazelcastjet
-          imagePullPolicy: "Never"
+          image: ghcr.io/cau-se/theodolite-uc2-hazelcastjet:latest
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "theodolite-kafka-kafka-bootstrap:9092"
