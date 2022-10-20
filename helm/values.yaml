@@ -292,8 +292,10 @@ prometheus:
     enabled: true
   role:
     enabled: true
+    clusterRole: false
   roleBinding:
     enabled: true
+    clusterRoleBinding: false
 
 ###
 # Theodolite Operator

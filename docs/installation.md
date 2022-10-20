@@ -38,6 +38,31 @@ To store the results of benchmark executions in a [PersistentVolume](https://kub
 You can also use an existing PersistentVolumeClaim by setting `operator.resultsVolume.persistent.existingClaim`.
 If persistence is not enabled, all results will be gone upon pod termination.
 
+### Exposing Grafana
+
+Per default, Theodolite exposes a Grafana instance as NodePort at port `31199`. This can configured by setting `grafana.service.nodePort`.
+
+## Additional Kubernetes cluster metrics
+
+As long as you have sufficient permissions on your cluster, you can integrate additional Kubernetes metrics into Prometheus by enabling the following exporters:
+
+```yaml
+kube-prometheus-stack:
+  kubelet:
+    enabled: true
+  kubeStateMetrics:
+    enabled: true
+  nodeExporter:
+    enabled: true
+prometheus: 
+  role:
+    clusterRole: true
+  roleBinding:
+    clusterRoleBinding: true
+```
+
+The ClusterRole and ClusterRoleBindings are required for collecting metrics from the kubelets. See the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) for more details on configuring the individual exporters.
+
 ### Random scheduler
 
 Installation of the random scheduler can be enabled via `randomScheduler.enabled`. Please note that the random scheduler is neither required in operator mode nor in standalone mode. However, it has to be installed if benchmark executions should use random scheduling.
