@@ -42,7 +42,7 @@ If persistence is not enabled, all results will be gone upon pod termination.
 
 Per default, Theodolite exposes a Grafana instance as NodePort at port `31199`. This can configured by setting `grafana.service.nodePort`.
 
-## Additional Kubernetes cluster metrics
+### Additional Kubernetes cluster metrics
 
 As long as you have sufficient permissions on your cluster, you can integrate additional Kubernetes metrics into Prometheus by enabling the following exporters:
 
