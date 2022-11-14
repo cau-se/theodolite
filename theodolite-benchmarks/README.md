@@ -1,7 +1,8 @@
 # Theodolite Benchmarks
 
-Theodolite comes with a set of 4 benchmarks for event-driven microservices, which are implemented with Kafka Streams
-and Apache Flink. The benchmarks are based on typical use cases for stream processing and named: UC1, UC2, UC3 and UC4.
+Theodolite comes with a set of 4 benchmarks for event-driven microservices, which are implemented with Kafka Streams, Apache Flink, Hazelcast Jet, and Apache Beam. For the Beam implementations, we support runners for Apache Samza and Apache Flink.
+The benchmarks are based on typical use cases for stream processing and named: UC1, UC2, UC3 and UC4.
+Additionally, we include a load generator for each benchmark.
 
 ## Building and packaging the benchmarks
 
