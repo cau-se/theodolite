@@ -26,7 +26,7 @@ dependencies:
     repository: https://soerenhenning.github.io/cp-helm-charts
     condition: cp-helm-charts.enabled
   - name: strimzi-kafka-operator
-    version: 0.28.0
+    version: 0.29.0
     repository: https://strimzi.io/charts/
     condition: strimzi.enabled
 

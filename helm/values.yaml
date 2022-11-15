@@ -170,6 +170,7 @@ strimzi:
         type: internal
         tls: false
     replicas: 3
+    version: 3.1.0 
     config:
       "message.max.bytes": "134217728" # 128 MB
       "replica.fetch.max.bytes": "134217728" #128 MB
