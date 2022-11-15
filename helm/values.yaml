@@ -287,6 +287,9 @@ prometheus:
   enabled: true
   podMetadata: {}
   nodeSelector: {}
+  nodePort:
+    enabled: false
+    nodePort: 30900
   
   serviceAccount:
     enabled: true
