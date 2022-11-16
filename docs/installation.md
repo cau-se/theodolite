@@ -6,8 +6,6 @@ nav_order: 3
 
 # Installing Theodolite
 
-***We are currently in the progress of updating all our dependencies to support Kubernetes >= 1.25. Until then, please use Kubernetes <=1.24.***
-
 The easiest option to install Theodolite is using [Helm](https://helm.sh).
 To install Theodolite with all its dependencies run:
 

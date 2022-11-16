@@ -8,8 +8,6 @@ nav_order: 1
 
 All you need to get started is access to a Kubernetes cluster plus kubectl and Helm installed on your machine.
 
-***We are currently in the progress of updating all our dependencies to support Kubernetes >= 1.25. Until then, please use Kubernetes <=1.24.***
-
 <!--### Installation-->
 
 1. To install Theodolite with all its dependencies run:
