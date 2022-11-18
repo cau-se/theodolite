@@ -1,4 +1,4 @@
-{{- if .Values.grafana.enabled -}}
+{{- if (index .Values "kube-prometheus-stack" "grafana" "enabled") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
