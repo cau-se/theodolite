@@ -15,46 +15,8 @@ kafkaClient:
 # Grafana
 ###
 grafana:
-  enabled: true
-  nodeSelector: {}
-  image:
-    repository: grafana/grafana
-    tag: 6.7.3
-    pullPolicy: IfNotPresent
-  # Administrator credentials when not using an existing secret (see below)
-  adminUser: admin
-  adminPassword: admin
-  grafana.ini:
-    #org_name: Theodolite
-    auth.anonymous:
-      # enable anonymous access
-      enabled: true
-      org_role: Admin # Role for unauthenticated users, other valid values are `Viewer`, `Editor` and `Admin`
-    users:
-      default_theme: light
-    #dashboards: # the following doesn't work but is planed
-      # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
-      #default_home_dashboard_path: "/tmp/dashboards/k8s-dashboard.json"
-  ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
-  ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
-  sidecar:
-    image:
-      repository: "kiwigrid/k8s-sidecar"
-      tag: "0.1.99"
-    imagePullPolicy: IfNotPresent
-    dashboards:
-      enabled: true
-      provider:
-        # allow updating provisioned dashboards from the UI
-        allowUiUpdates: true
-    datasources:
-      enabled: true
-  service:
-    nodePort: 31199
-    type: NodePort
-  rbac:
-    pspEnabled: false
-    namespaced: true
+  enabled: false
+ 
 
 
 ###
@@ -123,16 +85,45 @@ strimzi:
 kube-prometheus-stack:
   global:
     rbac:
-      create: false
-
-  commonLabels:
-    appScope: titan-ccp
+      create: false # enable for full-stack monitoring
   
   alertmanager:
     enabled: false
   
   grafana:
-    enabled: false
+    enabled: true
+    nodeSelector: {}
+    defaultDashboardsEnabled: false
+    # Administrator credentials when not using an existing secret (see below)
+    adminUser: admin
+    adminPassword: admin
+    grafana.ini:
+      #org_name: Theodolite
+      auth.anonymous:
+        # enable anonymous access
+        enabled: true
+        org_role: Admin # Role for unauthenticated users, other valid values are `Viewer`, `Editor` and `Admin`
+      users:
+        default_theme: light
+      #dashboards: # the following doesn't work but is planed
+        # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
+        #default_home_dashboard_path: "/tmp/dashboards/k8s-dashboard.json"
+    ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
+    ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
+    sidecar:
+      dashboards:
+        enabled: true
+        provider:
+          # allow updating provisioned dashboards from the UI
+          allowUiUpdates: true
+      datasources:
+        enabled: true
+        url: http://prometheus-operated:9090/
+    service:
+      nodePort: 31199
+      type: NodePort
+    rbac:
+      namespaced: true
   
   kubeApiServer:
     enabled: false
@@ -177,13 +168,22 @@ kube-prometheus-stack:
     serviceAccount:
       create: true
   
-  # We use our own Prometheus
   prometheus:
-    enabled: false
+    enabled: false # Default is using our own Prometheus
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false # Select all service monitors
+      podMonitorSelectorNilUsesHelmValues: false # Select all pod monitors
+      probeSelectorNilUsesHelmValues: false # Select all pod monitors
+      ruleSelectorNilUsesHelmValues: false # Select all pod monitors
+      resources:
+        requests:
+          memory: 400Mi
+      scrapeInterval: 15s
+      enableAdminAPI: true
 
 
 ###
-# Prometheus
+# Theodolite's custom Prometheus
 ###
 prometheus: 
   enabled: true
