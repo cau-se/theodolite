@@ -4,6 +4,7 @@ kubectl create configmap benchmark-resources-uc2-flink --from-file uc2-flink/res
 kubectl create configmap benchmark-resources-uc3-flink --from-file uc3-flink/resources
 kubectl create configmap benchmark-resources-uc4-flink --from-file uc4-flink/resources
 
+# Hazelcast Jet
 kubectl create configmap benchmark-resources-uc1-hazelcastjet --from-file uc1-hazelcastjet/resources
 kubectl create configmap benchmark-resources-uc2-hazelcastjet --from-file uc2-hazelcastjet/resources
 kubectl create configmap benchmark-resources-uc3-hazelcastjet --from-file uc3-hazelcastjet/resources
