@@ -44,24 +44,9 @@ Per default, Theodolite exposes a Grafana instance as NodePort at port `31199`. 
 
 ### Additional Kubernetes cluster metrics
 
-As long as you have sufficient permissions on your cluster, you can integrate additional Kubernetes metrics into Prometheus by enabling the following exporters:
+As long as you have sufficient permissions on your cluster, you can integrate additional Kubernetes metrics into Prometheus. This involes enabling some exporters, additional Grafana dashboards and additional permissions. We provide a [values file for enabling extended metrics](https://github.com/cau-se/theodolite/blob/main/helm/preconfigs/extended-metrics.yaml).
 
-```yaml
-kube-prometheus-stack:
-  kubelet:
-    enabled: true
-  kubeStateMetrics:
-    enabled: true
-  nodeExporter:
-    enabled: true
-prometheus: 
-  role:
-    clusterRole: true
-  roleBinding:
-    clusterRoleBinding: true
-```
-
-The ClusterRole and ClusterRoleBindings are required for collecting metrics from the kubelets. See the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) for more details on configuring the individual exporters.
+See the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) for more details on configuring the individual exporters.
 
 ### Random scheduler
 
