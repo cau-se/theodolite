@@ -55,6 +55,7 @@ spec:
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
       properties:
+        consumerGroup: theodolite-uc2-application
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
