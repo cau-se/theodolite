@@ -11,7 +11,7 @@ internal class ResultsTest {
 
     @Test
     fun testMinRequiredInstancesWhenSuccessfulDemand() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(Pair(10000, 1), true)
         results.setResult(Pair(10000, 2), true)
         results.setResult(Pair(20000, 1), false)
@@ -25,7 +25,7 @@ internal class ResultsTest {
 
     @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulDemand() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(Pair(10000, 1), true)
         results.setResult(Pair(10000, 2), true)
 
@@ -37,7 +37,7 @@ internal class ResultsTest {
 
     @Test
     fun testGetMaxBenchmarkedLoadWhenLargestNotSuccessfulDemand() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(Pair(10000, 1), true)
         results.setResult(Pair(10000, 2), true)
         results.setResult(Pair(20000, 1), false)
@@ -50,7 +50,7 @@ internal class ResultsTest {
 
     @Test
     fun testMaxRequiredInstancesWhenSuccessfulCapacity() {
-        val results = Results(Metric.from("capacity"))
+        val results = Results(Metric.CAPACITY)
         results.setResult(Pair(10000, 1), true)
         results.setResult(Pair(20000, 1), false)
         results.setResult(Pair(10000, 2), true)
@@ -64,7 +64,7 @@ internal class ResultsTest {
 
     @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulCapacity() {
-        val results = Results(Metric.from("capacity"))
+        val results = Results(Metric.CAPACITY)
         results.setResult(Pair(10000, 1), true)
         results.setResult(Pair(10000, 2), true)
 
@@ -76,7 +76,7 @@ internal class ResultsTest {
 
     @Test
     fun testGetMaxBenchmarkedLoadWhenLargestNotSuccessfulCapacity() {
-        val results = Results(Metric.from("capacity"))
+        val results = Results(Metric.CAPACITY)
         results.setResult(Pair(10000, 1), true)
         results.setResult(Pair(20000, 1), true)
         results.setResult(Pair(10000, 2), false)
