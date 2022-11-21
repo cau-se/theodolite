@@ -14,7 +14,6 @@ import rocks.theodolite.core.createResultsFromArray
 class RestrictionSearchTest {
 
     @Test
-    @Disabled("Currently failing, has to be fixed")
     fun restrictionSearchNoMatch() {
         val mockResults = createResultsFromArray(arrayOf(
             arrayOf(true, true),

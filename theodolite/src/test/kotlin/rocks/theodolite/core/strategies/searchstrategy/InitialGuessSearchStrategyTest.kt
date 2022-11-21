@@ -9,11 +9,36 @@ import rocks.theodolite.kubernetes.TestExperimentRunner
 import rocks.theodolite.core.strategies.guessstrategy.PrevInstanceOptGuess
 import rocks.theodolite.core.Results
 import rocks.theodolite.core.createResultsFromArray
+import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
 
 private val logger = KotlinLogging.logger {}
 
 @QuarkusTest
 class InitialGuessSearchStrategyTest {
+
+    @Test
+    fun initialGuessSearchNoMatch() {
+        val mockResults = createResultsFromArray(arrayOf(
+            arrayOf(true, true),
+            arrayOf(false, false),
+            arrayOf(true, true),
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..3).toList()
+        val mockResources: List<Int> = (1..2).toList()
+        val results = Results(Metric.DEMAND)
+        val guessStrategy = PrevInstanceOptGuess()
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
+
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, null, 1)
+
+        for (load in mockLoads) {
+            actual.add(strategy.findSuitableResource(load, mockResources))
+        }
+
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun testInitialGuessSearch() {

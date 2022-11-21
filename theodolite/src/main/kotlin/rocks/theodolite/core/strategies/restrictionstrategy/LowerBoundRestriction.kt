@@ -13,11 +13,9 @@ import rocks.theodolite.core.Results
 class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
 
     override fun apply(xValue: Int, yValues: List<Int>): List<Int> {
-        val maxXValue: Int? = this.results.getMaxBenchmarkedXDimensionValue(xValue)
-        var lowerBound: Int? = this.results.getOptYDimensionValue(maxXValue)
-        if (lowerBound == null) {
-            lowerBound = yValues[0]
-        }
+        val maxXValue = this.results.getMaxBenchmarkedXDimensionValue(xValue)
+        // Get previous largest y value or restrict to empty list
+        val lowerBound: Int = this.results.getOptYDimensionValue(maxXValue) ?: return listOf()
         return yValues.filter { x -> x >= lowerBound }
     }
 
