@@ -1,36 +1,92 @@
 ---
-title: Available Benchmarks
+title: Streaming Benchmarks
 has_children: true
 nav_order: 7
 ---
 
-# Theodolite Benchmarks
+# Theodolite's Stream Processing Benchmarks
 
-Theodolite comes with 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding [load generator](load-generator) is provided. Currently, Theodolite provides benchmark implementations for Apache Kafka Streams and Apache Flink.
+Theodolite comes with 4 application benchmarks, which are based on typical use cases for stream processing within microservices. For each benchmark, a corresponding [load generator](load-generator) is provided. Currently, Theodolite provides benchmark implementations for Apache Kafka Streams, Apache Flink, Hazelcast Jet and Apache Beam (with Samza and Flink).
 
+Theodolite's benchmarks (labeled UC1--UC4) represent some sort of event-driven microservice performing Industrial Internet of Things data analytics. Specifically, they are derived from a microservice-based research software for analyzing industrial power consumption data streams (the [Titan Control Center](https://github.com/cau-se/titan-ccp)).
 
-Theodolite's benchmarks are based on typical use cases for stream processing within microservices. Specifically, all benchmarks represent some sort of microservice doing Industrial Internet of Things data analytics. 
+| Stream processing engine  | [UC1](benchmark-uc1) | [UC2](benchmark-uc2) | [UC3](benchmark-uc3) | [UC4](benchmark-uc4) |
+|:--------------------------|:---:|:---:|:---:|:---:|
+| Apache Kafka Streams      | ✓   | ✓   | ✓   | ✓   |
+| Apache Flink              | ✓   | ✓   | ✓   | ✓   |
+| Hazelcast Jet             | ✓   | ✓   | ✓   | ✓   |
+| Apache Beam (Samza/Flink) | ✓   | ✓   | ✓   | ✓   |
 
-## UC1: Database Storage
+## Installation
 
-A simple, but common use case in event-driven architectures is that events or messages should be stored permanently, for example, in a NoSQL database.
+When [installing Theodolite](../installation) with Helm and the default configuration, also our stream processing benchmarks are automatically installed.
+This can be verified by running `kubectl get benchmarks`, which should yield something like:
 
+```
+NAME                AGE     STATUS
+uc1-beam-flink      2d20h   Ready
+uc1-beam-samza      2d20h   Ready
+uc1-flink           2d20h   Ready
+uc1-hazelcastjet    2d16h   Ready
+uc1-kstreams        2d20h   Ready
+uc2-beam-flink      2d20h   Ready
+uc2-beam-samza      2d20h   Ready
+uc2-flink           2d20h   Ready
+uc2-hazelcastjet    2d16h   Ready
+uc2-kstreams        2d20h   Ready
+uc3-beam-flink      2d20h   Ready
+uc3-beam-samza      2d20h   Ready
+uc3-flink           2d20h   Ready
+uc3-hazelcastjet    2d16h   Ready
+uc3-kstreams        2d20h   Ready
+uc4-beam-flink      2d20h   Ready
+uc4-beam-samza      2d20h   Ready
+uc4-flink           2d20h   Ready
+uc4-hazelcastjet    2d16h   Ready
+uc4-kstreams        2d20h   Ready
+```
 
-## UC2: Downsampling
+Alternatively, all benchmarks can also be found at [GitHub](https://github.com/cau-se/theodolite/tree/main/theodolite-benchmarks/definitions) and installed manually with `kubectl apply -f <benchmark-yaml-file>`. Additionally, you would need to package the benchmarks' Kubernetes resources into a ConfigMap by running:
 
-Another common use case for stream processing architectures is reducing the amount of events, messages, or measurements by aggregating multiple records within consecutive, non-overlapping time windows. Typical aggregations compute the average, minimum, or maximum of measurements within a time window or
-count the occurrence of same events. Such reduced amounts of data are required, for example, to save computing resources or to provide a better user experience (e.g., for data visualizations).
-When using aggregation windows of ﬁxed size that succeed each other without gaps (called [tumbling windows](https://kafka.apache.org/30/documentation/streams/developer-guide/dsl-api.html#tumbling-time-windows) in many stream processing engines), the (potentially varying) message frequency is reduced to a constant value.
-This is also referred to as downsampling. Downsampling allows for applying many machine learning methods that require data of a ﬁxed frequency.
+```sh
+kubectl create configmap <configmap-name-required-by-benchmark> --from-file <directory-with-benchmark-resources>
+```
 
+See the [install-configmaps.sh](https://github.com/cau-se/theodolite/blob/main/theodolite-benchmarks/definitions/install-configmaps.sh) script for examples.
 
-## UC3: Time Attribute-Based Aggregation
+## Running Benchmarks
 
-A second type of temporal aggregation is aggregating messages that have the same time attribute. Such a time attribute is, for example, the hour of day, day of week, or day in the year. This type of aggregation can be used to compute, for example, an average course over the day, the week, or the year. It allows to demonstrate or discover seasonal patterns in the data.
+To run a benchmark, you need to create and apply an `Execution` YAML file as described in the [running benchmarks documentation](../running-benchmarks).
 
-## UC4: Hierarchical Aggregation
+## Control the Number of Load Generator Instances
 
-For analyzing sensor data, often not only the individual measurements of sensors are of interest, but also aggregated data for
-groups of sensors. When monitoring energy consumption in industrial facilities, for example, comparing the total consumption
-of machine types often provides better insights than comparing the consumption of all individual machines. Additionally, it may
-be necessary to combine groups further into larger groups and adjust these group hierarchies at runtime.
+Depending on the load to be generated, the Theodolite benchmarks create multiple load generator instances.
+Per default, a single instance will generate up to 150&thinsp;000 messages per second.
+If higher loads are to be generated, accordingly more instances are deployed.
+However, the actual load that can be generated by a single load generator instance depends on the cluster configuration and might be lower.
+To change the maximum number of messages per instance, run the following commands.
+Set the `MAX_RECORDS_PER_INSTANCE` variable to the number of messages a single instance can generate in your cluster (use our Grafana dashboard to figure out that value).
+
+```sh
+export MAX_RECORDS_PER_INSTANCE=150000 # Change to your desired value
+kubectl patch benchmarks uc1-beam-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc1-beam-samza --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc1-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc1-hazelcastjet --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc1-kstreams --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc2-beam-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc2-beam-samza --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc2-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc2-hazelcastjet --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc2-kstreams --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc3-beam-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc3-beam-samza --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc3-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc3-hazelcastjet --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc3-kstreams --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc4-beam-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc4-beam-samza --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc4-flink --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc4-hazelcastjet --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+kubectl patch benchmarks uc4-kstreams --type json --patch "[{op: replace, path: /spec/loadTypes/0/patchers/1/properties/loadGenMaxRecords, value: $MAX_RECORDS_PER_INSTANCE}]"
+```
