@@ -2,6 +2,10 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc2-beam-flink
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc2
+    sut: beam-flink
 spec:
   sut:
     resources:
