@@ -34,7 +34,7 @@ public class TopologyBuilder {
   private final String inputTopic;
   private final String outputTopic;
   private final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory;
-  private final Duration aggregtionDuration;
+  private final Duration aggregationDuration;
   private final Duration aggregationAdvance;
 
   private final StreamsBuilder builder = new StreamsBuilder();
@@ -44,11 +44,11 @@ public class TopologyBuilder {
    */
   public TopologyBuilder(final String inputTopic, final String outputTopic,
       final SchemaRegistryAvroSerdeFactory srAvroSerdeFactory,
-      final Duration aggregtionDuration, final Duration aggregationAdvance) {
+      final Duration aggregationDuration, final Duration aggregationAdvance) {
     this.inputTopic = inputTopic;
     this.outputTopic = outputTopic;
     this.srAvroSerdeFactory = srAvroSerdeFactory;
-    this.aggregtionDuration = aggregtionDuration;
+    this.aggregationDuration = aggregationDuration;
     this.aggregationAdvance = aggregationAdvance;
   }
 
@@ -70,7 +70,7 @@ public class TopologyBuilder {
         })
         .groupByKey(Grouped.with(keySerde, this.srAvroSerdeFactory.forValues()))
         .windowedBy(TimeWindows
-            .ofSizeWithNoGrace(this.aggregtionDuration)
+            .ofSizeWithNoGrace(this.aggregationDuration)
             .advanceBy(this.aggregationAdvance))
         .aggregate(
             () -> Stats.of(),
