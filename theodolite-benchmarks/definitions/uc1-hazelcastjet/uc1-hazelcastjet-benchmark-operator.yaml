@@ -1,46 +1,50 @@
 apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
-  name: uc4-hazelcastjet
+  name: uc1-hazelcastjet
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc1
+    sut: hazelcastjet
 spec:
   sut:
     resources:
       - configMap:
-          name: "benchmark-resources-uc4-hazelcastjet"
+          name: "benchmark-resources-uc1-hazelcastjet"
           files:
-            - "uc4-hazelcastjet-deployment.yaml"
-            - "uc4-hazelcastjet-service.yaml"
+          - "uc1-hazelcastjet-deployment.yaml"
+          - "uc1-hazelcastjet-service.yaml"
   loadGenerator:
     resources:
       - configMap:
-          name: "benchmark-resources-uc4-load-generator"
+          name: "benchmark-resources-uc1-load-generator"
           files:
-            - "uc4-load-generator-deployment.yaml"
-            - "uc4-load-generator-service.yaml"
+          - "uc1-load-generator-deployment.yaml"
+          - "uc1-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc4-hazelcastjet-deployment.yaml"
+          resource: "uc1-hazelcastjet-deployment.yaml"
   loadTypes:
-    - typeName: "NumNestedGroups"
+    - typeName: "NumSensors"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc4-load-generator-deployment.yaml"
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_SENSORS"
-        - type: NumNestedGroupsLoadGeneratorReplicaPatcher
-          resource: "uc4-load-generator-deployment.yaml"
+        - type: NumSensorsLoadGeneratorReplicaPatcher
+          resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
-            numSensors: "4.0"
   slos:
     - name: "lag trend"
       sloType: "lag trend"
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
       properties:
+        consumerGroup: uc1-hazelcastjet
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
@@ -50,14 +54,3 @@ spec:
       - name: "input"
         numPartitions: 40
         replicationFactor: 1
-      - name: "output"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "configuration"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "aggregation-feedback"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "theodolite-.*"
-        removeOnly: True

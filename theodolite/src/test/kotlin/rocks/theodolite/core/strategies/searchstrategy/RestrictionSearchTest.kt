@@ -2,21 +2,45 @@ package rocks.theodolite.core.strategies.searchstrategy
 
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import rocks.theodolite.kubernetes.TestBenchmarkDeploymentBuilder
-import rocks.theodolite.kubernetes.TestExperimentRunnerImpl
+import rocks.theodolite.kubernetes.TestExperimentRunner
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
 import rocks.theodolite.core.Results
-import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
+import rocks.theodolite.core.createResultsFromArray
 
 @QuarkusTest
 class RestrictionSearchTest {
 
+    @Test
+    fun restrictionSearchNoMatch() {
+        val mockResults = createResultsFromArray(arrayOf(
+            arrayOf(true, true),
+            arrayOf(false, false),
+            arrayOf(true, true),
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..3).toList()
+        val mockResources: List<Int> = (1..2).toList()
+        val results = Results(Metric.DEMAND)
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
+        val linearSearch = LinearSearch(benchmarkExecutor)
+        val lowerBoundRestriction = LowerBoundRestriction(results)
+        val strategy = RestrictionSearch(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
+
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, null, null)
+
+        for (load in mockLoads) {
+            actual.add(strategy.findSuitableResource(load, mockResources))
+        }
+
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun restrictionSearchTestLinearSearch() {
-        val mockResults = arrayOf(
+        val mockResults = createResultsFromArray(arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -24,32 +48,28 @@ class RestrictionSearchTest {
             arrayOf(false, false, false, false, true, true, true),
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
-        )
-        val mockLoads: List<Int> = (0..6).toList()
-        val mockResources: List<Int> = (0..6).toList()
-        val results = Results(Metric.from("demand"))
-        val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
-        val sloChecker = Slo()
-        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..7).toList()
+        val mockResources: List<Int> = (1..7).toList()
+        val results = Results(Metric.DEMAND)
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
         val linearSearch = LinearSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
-        val strategy =
-            RestrictionSearch(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
+        val strategy = RestrictionSearch(benchmarkExecutor, linearSearch, setOf(lowerBoundRestriction))
 
-        val actual: ArrayList<Int?> = ArrayList()
-        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 3, 4, 6))
-        expected.add(null)
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, 3, 3, 4, 5, 7, null)
 
         for (load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))
         }
 
-        assertEquals(actual, expected)
+        assertEquals(expected, actual)
     }
 
     @Test
     fun restrictionSearchTestFullSearch() {
-        val mockResults = arrayOf(
+        val mockResults = createResultsFromArray(arrayOf(
                 arrayOf(true, true, true, true, true, true, true),
                 arrayOf(false, false, true, true, true, true, true),
                 arrayOf(false, false, true, true, true, true, true),
@@ -57,32 +77,28 @@ class RestrictionSearchTest {
                 arrayOf(false, false, false, false, true, true, true),
                 arrayOf(false, false, false, false, false, false, true),
                 arrayOf(false, false, false, false, false, false, false)
-        )
-        val mockLoads: List<Int> = (0..6).toList()
-        val mockResources: List<Int> = (0..6).toList()
-        val results = Results(Metric.from("demand"))
-        val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
-        val sloChecker = Slo()
-        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..7).toList()
+        val mockResources: List<Int> = (1..7).toList()
+        val results = Results(Metric.DEMAND)
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
         val fullSearch = FullSearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
-        val strategy =
-                RestrictionSearch(benchmarkExecutor, fullSearch, setOf(lowerBoundRestriction))
+        val strategy = RestrictionSearch(benchmarkExecutor, fullSearch, setOf(lowerBoundRestriction))
 
-        val actual: ArrayList<Int?> = ArrayList()
-        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 3, 4, 6))
-        expected.add(null)
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, 3, 3, 4, 5, 7, null)
 
         for (load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))
         }
 
-        assertEquals(actual, expected)
+        assertEquals(expected, actual)
     }
 
     @Test
     fun restrictionSearchTestBinarySearch() {
-        val mockResults = arrayOf(
+        val mockResults = createResultsFromArray(arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -90,32 +106,28 @@ class RestrictionSearchTest {
             arrayOf(false, false, false, false, true, true, true),
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
-        )
-        val mockLoads: List<Int> = (0..6).toList()
-        val mockResources: List<Int> = (0..6).toList()
-        val results = Results(Metric.from("demand"))
-        val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
-        val sloChecker = Slo()
-        val benchmarkExecutorImpl =
-            TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 0)
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..7).toList()
+        val mockResources: List<Int> = (1..7).toList()
+        val results = Results(Metric.DEMAND)
+        val benchmarkExecutorImpl = TestExperimentRunner(results, mockResults)
         val binarySearch = BinarySearch(benchmarkExecutorImpl)
         val lowerBoundRestriction = LowerBoundRestriction(results)
         val strategy = RestrictionSearch(benchmarkExecutorImpl, binarySearch, setOf(lowerBoundRestriction))
 
-        val actual: ArrayList<Int?> = ArrayList()
-        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 3, 4, 6))
-        expected.add(null)
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, 3, 3, 4, 5, 7, null)
 
         for (load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))
         }
 
-        assertEquals(actual, expected)
+        assertEquals(expected, actual)
     }
 
     @Test
     fun restrictionSearchTestBinarySearch2() {
-        val mockResults = arrayOf(
+        val mockResults = createResultsFromArray(arrayOf(
             arrayOf(true, true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true, true),
@@ -123,26 +135,22 @@ class RestrictionSearchTest {
             arrayOf(false, false, false, false, true, true, true, true),
             arrayOf(false, false, false, false, false, false, true, true),
             arrayOf(false, false, false, false, false, false, false, true)
-        )
-        val mockLoads: List<Int> = (0..6).toList()
-        val mockResources: List<Int> = (0..7).toList()
-        val results = Results(Metric.from("demand"))
-        val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
-        val sloChecker = Slo()
-        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 0)
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..7).toList()
+        val mockResources: List<Int> = (1..8).toList()
+        val results = Results(Metric.DEMAND)
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
         val binarySearch = BinarySearch(benchmarkExecutor)
         val lowerBoundRestriction = LowerBoundRestriction(results)
-        val strategy =
-            RestrictionSearch(benchmarkExecutor, binarySearch, setOf(lowerBoundRestriction))
+        val strategy = RestrictionSearch(benchmarkExecutor, binarySearch, setOf(lowerBoundRestriction))
 
-        val actual: ArrayList<Int?> = ArrayList()
-        val expected: ArrayList<Int?> =
-            ArrayList(listOf(0, 2, 2, 3, 4, 6, 7))
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int> = listOf(1, 3, 3, 4, 5, 7, 8)
 
         for (load in mockLoads) {
             actual.add(strategy.findSuitableResource(load, mockResources))
         }
 
-        assertEquals(actual, expected)
+        assertEquals(expected, actual)
     }
 }

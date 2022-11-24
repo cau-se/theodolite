@@ -2,6 +2,10 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc1-kstreams
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc1
+    sut: kstreams
 spec:
   sut:
     resources:
@@ -42,6 +46,7 @@ spec:
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
       properties:
+        consumerGroup: theodolite-uc1-application-0.0.1
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds

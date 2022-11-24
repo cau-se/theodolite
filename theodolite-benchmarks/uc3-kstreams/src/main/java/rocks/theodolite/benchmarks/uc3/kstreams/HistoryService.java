@@ -34,7 +34,7 @@ public class HistoryService {
     final Uc3KafkaStreamsBuilder uc3KafkaStreamsBuilder = new Uc3KafkaStreamsBuilder(this.config);
     uc3KafkaStreamsBuilder
         .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
-        .aggregtionDuration(
+        .aggregationDuration(
             Duration.ofDays(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS)))
         .aggregationAdvance(
             Duration.ofDays(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS)));

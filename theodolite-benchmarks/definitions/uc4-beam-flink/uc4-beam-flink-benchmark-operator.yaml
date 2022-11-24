@@ -2,6 +2,10 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc4-beam-flink
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc4
+    sut: beam-flink
 spec:
   sut:
     resources:
@@ -56,6 +60,7 @@ spec:
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
       properties:
+        consumerGroup: theodolite-uc4-application
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds

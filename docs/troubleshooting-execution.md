@@ -31,7 +31,7 @@ Theodolite produces Kubernetes events, which you can view by running:
 kubectl describe execution <your-execution-name>
 ```
 
-## Looking the Operator Logs
+## Looking at the Operator Logs
 
 If you cannot figure out why your benchmark execution fails, you might want to have look at the operator logs:
 
