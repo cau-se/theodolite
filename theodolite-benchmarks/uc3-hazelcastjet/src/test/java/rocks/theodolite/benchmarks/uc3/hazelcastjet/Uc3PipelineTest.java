@@ -120,7 +120,7 @@ public class Uc3PipelineTest extends JetTestSupport {
                   .getHour();
 
               // Compare expected output with generated output
-              final String expectedKey = testSensorName + ";" + expectedHour;
+              final String expectedKey = testSensorName;
               final String expectedValue = Double.toString(testValueInW);
 
               // DEBUG
