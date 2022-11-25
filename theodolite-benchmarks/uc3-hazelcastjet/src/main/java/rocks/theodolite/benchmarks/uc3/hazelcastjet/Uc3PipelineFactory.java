@@ -4,6 +4,8 @@ import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
+import com.hazelcast.jet.pipeline.ServiceFactories;
+import com.hazelcast.jet.pipeline.ServiceFactory;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
@@ -11,10 +13,10 @@ import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.TimeZone;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
@@ -101,25 +103,26 @@ public class Uc3PipelineFactory extends PipelineFactory {
   public StreamStage<Map.Entry<String, String>> extendUc3Topology(
       final StreamSource<Map.Entry<String, ActivePowerRecord>> source) {
 
+    final ServiceFactory<?, MapTimeKeyConfiguration> timeKeyConfigService =
+        ServiceFactories.nonSharedService(
+            pctx -> new MapTimeKeyConfiguration(
+                new HourOfDayKeyFactory(),
+                ZoneId.of("Europe/Paris") // TODO Make configurable
+            ));
+
     // Build the pipeline topology.
     return this.pipe
         .readFrom(source)
         // use Timestamps
         .withNativeTimestamps(0)
         // .setLocalParallelism(1)
-        // Map timestamp to hour of day and create new key using sensorID and
-        // datetime mapped to HourOfDay
-        .map(record -> {
+        // Map key to HourOfDayKey
+        .mapUsingService(timeKeyConfigService, (config, record) -> {
           final String sensorId = record.getValue().getIdentifier();
-          final long timestamp = record.getValue().getTimestamp();
-          final LocalDateTime dateTime = LocalDateTime.ofInstant(
-              Instant.ofEpochMilli(timestamp),
-              TimeZone.getDefault().toZoneId());
-
-          final StatsKeyFactory<HourOfDayKey> keyFactory = new HoursOfDayKeyFactory();
-          final HourOfDayKey newKey = keyFactory.createKey(sensorId, dateTime);
-
-          return Map.entry(newKey, record.getValue());
+          final Instant instant = Instant.ofEpochMilli(record.getValue().getTimestamp());
+          final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, config.getZone());
+          final HourOfDayKey key = config.getKeyFactory().createKey(sensorId, dateTime);
+          return Map.entry(key, record.getValue());
         })
         // group by new keys
         .groupingKey(Entry::getKey)
