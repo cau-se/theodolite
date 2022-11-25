@@ -12,17 +12,22 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKeySerializer;
@@ -32,6 +37,9 @@ import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKeySer
  */
 @Category(SerialTest.class)
 public class Uc3PipelineTest extends JetTestSupport {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Uc3PipelineTest.class);
+
 
   // Test Machinery
   private JetInstance testInstance = null;
@@ -50,8 +58,8 @@ public class Uc3PipelineTest extends JetTestSupport {
     final int testItemsPerSecond = 1;
     final String testSensorName = "TEST-SENSOR";
     final Double testValueInW = 10.0;
-    final int testHopSizeInSec = 1;
-    final int testWindowSizeInSec = 50;
+    final Duration testHopSize = Duration.ofSeconds(1);
+    final Duration testWindowSize = Duration.ofSeconds(50);
     // Used to check hourOfDay
     final long mockTimestamp = 1632741651;
 
@@ -73,10 +81,13 @@ public class Uc3PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    final Uc3PipelineBuilder pipelineBuilder = new Uc3PipelineBuilder();
-    this.testPipeline = Pipeline.create();
-    this.uc3Topology = pipelineBuilder.extendUc3Topology(this.testPipeline, testSource,
-        testHopSizeInSec, testWindowSizeInSec);
+    final Properties properties = new Properties();
+    final Uc3PipelineFactory factory = new Uc3PipelineFactory(
+        properties,"", properties,"", testWindowSize, testHopSize);
+
+    this.uc3Topology = factory.extendUc3Topology(testSource);
+
+    testPipeline = factory.getPipe();
   }
 
   /**
@@ -88,7 +99,7 @@ public class Uc3PipelineTest extends JetTestSupport {
     // Assertion Configuration
     final int timeout = 10;
     final String testSensorName = "TEST-SENSOR";
-    final Double testValueInW = 10.0;
+    final double testValueInW = 10.0;
     // Used to check hourOfDay
     final long mockTimestamp = 1632741651;
 
@@ -97,31 +108,31 @@ public class Uc3PipelineTest extends JetTestSupport {
         collection -> {
 
           // DEBUG
-          System.out.println("DEBUG: CHECK 1 || Entered Assertion of testOutput()");
+          LOGGER.info("CHECK 1 || Entered Assertion of testOutput()");
 
           // Check all collected Items
           boolean allOkay = true;
           if (collection != null) {
-            System.out.println("DEBUG: CHECK 2 || Collection Size: " + collection.size());
-            for (final Entry<String, String> currentEntry : collection) {
+            LOGGER.info("CHECK 2 || Collection Size: " + collection.size());
+            for (final Entry<String, String> entry : collection) {
 
               // Build hour of day
-              final long timestamp = mockTimestamp;
-              final int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
+              final int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(mockTimestamp),
                   TimeZone.getDefault().toZoneId()).getHour();
 
+              // Compare expected output with generated output
               final String expectedKey = testSensorName + ";" + expectedHour;
-              final String expectedValue = testValueInW.toString();
+              final String expectedValue = Double.toString(testValueInW);
 
               // DEBUG
-              System.out.println(
-                  "DEBUG: CHECK 3 || Expected Output: '" + expectedKey + "=" + expectedValue
-                      + "' - Actual Output: '" + currentEntry.getKey() + "="
-                      + currentEntry.getValue().toString() + "'");
+              LOGGER.info(
+                  "CHECK 3 || Expected Output: '" + expectedKey + "=" + expectedValue
+                      + "' - Actual Output: '" + entry.getKey() + "="
+                      + entry.getValue() + "'");
 
-              if (!(currentEntry.getKey().equals(expectedKey)
-                  && currentEntry.getValue().toString().equals(expectedValue))) {
-                System.out.println("DEBUG: CHECK 5 || Failed assertion!");
+              if (!(entry.getKey().equals(expectedKey)
+                  && entry.getValue().equals(expectedValue))) {
+                LOGGER.info("CHECK 5 || Failed assertion!");
                 allOkay = false;
               }
             }

@@ -22,9 +22,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.configuration.events.Event;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
@@ -33,14 +32,23 @@ import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ChildParentsTra
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
 import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
 
-/**
- * Builder to build a HazelcastJet Pipeline for UC4 which can be used for stream processing using
- * Hazelcast Jet.
- */
-public class Uc4PipelineBuilder {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Uc4PipelineBuilder.class);
+/**
+ * PipelineFactory for use case 4.
+ * Allows to build and extend pipelines.
+ */
+public class Uc4PipelineFactory extends PipelineFactory {
+
   private static final String SENSOR_PARENT_MAP_NAME = "SensorParentMap";
+
+  private final Properties kafkaConfigPropsForPipeline;
+  private final Properties kafkaFeedbackPropsForPipeline;
+
+  private final String kafkaConfigurationTopic;
+  private final String kafkaFeedbackTopic;
+
+  private final int windowSize;
+
 
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
@@ -58,42 +66,47 @@ public class Uc4PipelineBuilder {
    * @param kafkaConfigurationTopic The name of the configuration topic used for the pipeline.
    * @param kafkaFeedbackTopic The name of the feedback topic used for the pipeline.
    * @param windowSize The window size of the tumbling window used in this pipeline.
-   * @return returns a Pipeline used which can be used in a Hazelcast Jet Instance to process data
-   *         for UC3.
    */
-  public Pipeline build(final Properties kafkaInputReadPropsForPipeline, // NOPMD
-      final Properties kafkaConfigPropsForPipeline,
-      final Properties kafkaFeedbackPropsForPipeline,
-      final Properties kafkaWritePropsForPipeline,
-      final String kafkaInputTopic,
-      final String kafkaOutputTopic,
-      final String kafkaConfigurationTopic,
-      final String kafkaFeedbackTopic,
-      final int windowSize) {
+  public Uc4PipelineFactory(final Properties kafkaInputReadPropsForPipeline, // NOPMD
+                            final Properties kafkaConfigPropsForPipeline,
+                            final Properties kafkaFeedbackPropsForPipeline,
+                            final Properties kafkaWritePropsForPipeline,
+                            final String kafkaInputTopic,
+                            final String kafkaOutputTopic,
+                            final String kafkaConfigurationTopic,
+                            final String kafkaFeedbackTopic,
+                            final int windowSize) {
 
-    if (LOGGER.isInfoEnabled()) {
-      LOGGER.info("kafkaConfigProps: " + kafkaConfigPropsForPipeline);
-      LOGGER.info("kafkaFeedbackProps: " + kafkaFeedbackPropsForPipeline);
-      LOGGER.info("kafkaWriteProps: " + kafkaWritePropsForPipeline);
-    }
+    super(kafkaInputReadPropsForPipeline, kafkaInputTopic,
+        kafkaWritePropsForPipeline,kafkaOutputTopic);
+    this.kafkaConfigPropsForPipeline = kafkaConfigPropsForPipeline;
+    this.kafkaFeedbackPropsForPipeline = kafkaFeedbackPropsForPipeline;
+    this.kafkaConfigurationTopic = kafkaConfigurationTopic;
+    this.kafkaFeedbackTopic = kafkaFeedbackTopic;
+    this.windowSize = windowSize;
+  }
 
-    // The pipeline for this Use Case
-    final Pipeline uc4Pipeline = Pipeline.create();
+  /**
+   * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
+   * @return a pipeline used which can be used in a Hazelcast Jet Instance to process data
+   *         for UC4.
+   */
+  @Override
+  public Pipeline buildPipeline() {
 
     // Sources for this use case
     final StreamSource<Entry<Event, String>> configSource =
         KafkaSources.kafka(kafkaConfigPropsForPipeline, kafkaConfigurationTopic);
 
     final StreamSource<Entry<String, ActivePowerRecord>> inputSource =
-        KafkaSources.kafka(kafkaInputReadPropsForPipeline, kafkaInputTopic);
+        KafkaSources.kafka(kafkaReadPropsForPipeline, kafkaInputTopic);
 
     final StreamSource<Entry<String, AggregatedActivePowerRecord>> aggregationSource =
         KafkaSources.kafka(kafkaFeedbackPropsForPipeline, kafkaFeedbackTopic);
 
     // Extend UC4 topology to pipeline
     final StreamStage<Entry<String, AggregatedActivePowerRecord>> uc4Aggregation =
-        this.extendUc4Topology(uc4Pipeline, inputSource, aggregationSource, configSource,
-            windowSize);
+        this.extendUc4Topology(inputSource, aggregationSource, configSource);
 
     // Add Sink2: Write back to kafka feedback/aggregation topic
     uc4Aggregation.writeTo(KafkaSinks.kafka(
@@ -107,8 +120,9 @@ public class Uc4PipelineBuilder {
         kafkaWritePropsForPipeline, kafkaOutputTopic));
 
     // Return the pipeline
-    return uc4Pipeline;
+    return pipe;
   }
+
 
   /**
    * Extends to a blank Hazelcast Jet Pipeline the UC4 topology defines by theodolite.
@@ -130,20 +144,19 @@ public class Uc4PipelineBuilder {
    * (6) Aggregate data over the window
    * </p>
    *
-   * @param pipe The blank pipeline to extend the logic to.
    * @param inputSource A streaming source with {@code ActivePowerRecord} data.
    * @param aggregationSource A streaming source with aggregated data.
    * @param configurationSource A streaming source delivering a {@code SensorRegistry}.
-   * @param windowSize The window size used to aggregate over.
    * @return A {@code StreamSource<String,Double>} with sensorKeys or groupKeys mapped to their
    *         according aggregated values. The data can be further modified or directly be linked to
    *         a Hazelcast Jet sink.
    */
-  public StreamStage<Entry<String, AggregatedActivePowerRecord>> extendUc4Topology(// NOPMD
-      final Pipeline pipe,
-      final StreamSource<Entry<String, ActivePowerRecord>> inputSource,
-      final StreamSource<Entry<String, AggregatedActivePowerRecord>> aggregationSource,
-      final StreamSource<Entry<Event, String>> configurationSource, final int windowSize) {
+  public StreamStage // NOPMD
+      <Map.Entry<String, AggregatedActivePowerRecord>>
+      extendUc4Topology(final StreamSource<Map.Entry<String, ActivePowerRecord>> inputSource,
+                        final StreamSource<Map.Entry<String, AggregatedActivePowerRecord>>
+                            aggregationSource,
+                        final StreamSource<Map.Entry<Event, String>> configurationSource) {
 
     //////////////////////////////////
     // (1) Configuration Stream
@@ -178,10 +191,10 @@ public class Uc4PipelineBuilder {
 
     //////////////////////////////////
     // (2) UC4 Merge Input with aggregation stream
-    final StreamStageWithKey<Entry<String, ActivePowerRecord>, String> mergedInputAndAggregations =
-        inputStream
-            .merge(aggregations)
-            .groupingKey(Entry::getKey);
+    final StreamStageWithKey<Entry<String, ActivePowerRecord>, String>
+        mergedInputAndAggregations = inputStream
+        .merge(aggregations)
+        .groupingKey(Entry::getKey);
 
     //////////////////////////////////
     // (3) UC4 Join Configuration and Merges Input/Aggregation Stream
@@ -223,25 +236,28 @@ public class Uc4PipelineBuilder {
     //////////////////////////////////
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
-    final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
-        dupliAsFlatmappedStage
-            .window(WindowDefinition.tumbling(windowSize));
+    final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>>
+        windowedLastValues = dupliAsFlatmappedStage
+        .window(WindowDefinition.tumbling(windowSize));
 
-    final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
+    final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>,
+        AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp =
         AggregateOperation
             .withCreate(AggregatedActivePowerRecordAccumulator::new)
             .<Entry<SensorGroupKey, ActivePowerRecord>>andAccumulate((acc, rec) -> {
               acc.setId(rec.getKey().getGroup());
               acc.addInputs(rec.getValue());
             })
-            .andCombine((acc, acc2) -> acc.addInputs(acc2.getId(), acc2.getSumInW(),
-                acc2.getCount(), acc.getTimestamp()))
+            .andCombine((acc, acc2) ->
+                acc.addInputs(acc2.getId(), acc2.getSumInW(), acc2.getCount(), acc.getTimestamp()))
             .andDeduct((acc, acc2) -> acc.removeInputs(acc2.getSumInW(), acc2.getCount()))
-            .andExportFinish(acc -> new AggregatedActivePowerRecord(acc.getId(),
-                acc.getTimestamp(),
-                acc.getCount(),
-                acc.getSumInW(),
-                acc.getAverageInW()));
+            .andExportFinish(acc ->
+                new AggregatedActivePowerRecord(acc.getId(),
+                    acc.getTimestamp(),
+                    acc.getCount(),
+                    acc.getSumInW(),
+                    acc.getAverageInW())
+            );
 
     // write aggregation back to kafka
 
@@ -249,7 +265,6 @@ public class Uc4PipelineBuilder {
         .groupingKey(entry -> entry.getKey().getGroup())
         .aggregate(aggrOp).map(agg -> Util.entry(agg.getKey(), agg.getValue()));
   }
-
 
 
   /**

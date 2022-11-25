@@ -5,14 +5,18 @@ import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.pipeline.Pipeline;
+import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
+
+import java.time.Duration;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -42,7 +46,7 @@ public class Uc2PipelineTest extends JetTestSupport {
     final int testItemsPerSecond = 1;
     final String testSensorName = "TEST-SENSOR";
     final Double testValueInW = 10.0;
-    final int testWindowInMs = 5000;
+    final Duration testWindow = Duration.ofSeconds(5);
 
     // Create mock jet instance with configuration
     final String testClusterName = randomName();
@@ -61,11 +65,12 @@ public class Uc2PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    final Uc2PipelineBuilder pipelineBuilder = new Uc2PipelineBuilder();
-    this.testPipeline = Pipeline.create();
-    this.uc2Topology =
-        pipelineBuilder.extendUc2Topology(this.testPipeline, testSource, testWindowInMs);
+    final Properties properties = new Properties();
+    final Uc2PipelineFactory factory = new Uc2PipelineFactory(
+        properties,"",properties,"", testWindow);
 
+    this.uc2Topology = factory.extendUc2Topology(testSource);
+    this.testPipeline = factory.getPipe();
   }
 
   /**
@@ -81,9 +86,8 @@ public class Uc2PipelineTest extends JetTestSupport {
 
     // Assertion
     this.uc2Topology.apply(Assertions.assertCollectedEventually(timeout,
-        collection -> Assert.assertTrue(
-            "Not the right amount items in Stats Object!",
-            collection.get(collection.size() - 1).getValue().equals(expectedOutput))));
+        collection -> Assert.assertEquals("Not the right amount items in Stats Object!",
+            expectedOutput, collection.get(collection.size() - 1).getValue())));
 
     // Run the test!
     try {

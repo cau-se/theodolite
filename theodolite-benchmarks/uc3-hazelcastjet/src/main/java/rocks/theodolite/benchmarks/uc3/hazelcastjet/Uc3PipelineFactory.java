@@ -8,56 +8,73 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HoursOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory;
 
+
 /**
- * Builder to build a HazelcastJet Pipeline for UC3 which can be used for stream processing using
- * Hazelcast Jet.
+ * PipelineFactory for use case 3.
+ * Allows to build and extend pipelines.
  */
-public class Uc3PipelineBuilder {
+public class Uc3PipelineFactory extends PipelineFactory {
+
+  private final Duration hoppingSize;
+  private final Duration windowSize;
 
   /**
-   * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
-   *
+   * Build a new Pipeline.
    * @param kafkaReadPropsForPipeline Properties Object containing the necessary kafka reads
    *        attributes.
    * @param kafkaWritePropsForPipeline Properties Object containing the necessary kafka write
    *        attributes.
    * @param kafkaInputTopic The name of the input topic used for the pipeline.
    * @param kafkaOutputTopic The name of the output topic used for the pipeline.
-   * @param hoppingSizeInSeconds The hop length of the sliding window used in the aggregation of
+   * @param hoppingSize The hop length of the sliding window used in the aggregation of
    *        this pipeline.
-   * @param windowSizeInSeconds The window length of the sliding window used in the aggregation of
+   * @param windowSize The window length of the sliding window used in the aggregation of
    *        this pipeline.
-   * @return returns a Pipeline used which can be used in a Hazelcast Jet Instance to process data
+   */
+  public Uc3PipelineFactory(final Properties kafkaReadPropsForPipeline,
+                            final String kafkaInputTopic,
+                            final Properties kafkaWritePropsForPipeline,
+                            final String kafkaOutputTopic,
+                            final Duration windowSize,
+                            final Duration hoppingSize) {
+    super(kafkaReadPropsForPipeline, kafkaInputTopic,
+        kafkaWritePropsForPipeline,kafkaOutputTopic);
+    this.windowSize = windowSize;
+    this.hoppingSize = hoppingSize;
+  }
+
+
+
+  /**
+   * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
+   * @return a pipeline used which can be used in a Hazelcast Jet Instance to process data
    *         for UC3.
    */
-  public Pipeline build(final Properties kafkaReadPropsForPipeline,
-      final Properties kafkaWritePropsForPipeline, final String kafkaInputTopic,
-      final String kafkaOutputTopic,
-      final int hoppingSizeInSeconds, final int windowSizeInSeconds) {
-
-    // Define a new Pipeline
-    final Pipeline pipe = Pipeline.create();
+  @Override
+  public Pipeline buildPipeline() {
 
     // Define the source
-    final StreamSource<Entry<String, ActivePowerRecord>> kafkaSource = KafkaSources
+    final StreamSource<Map.Entry<String, ActivePowerRecord>> kafkaSource = KafkaSources
         .<String, ActivePowerRecord>kafka(
             kafkaReadPropsForPipeline, kafkaInputTopic);
 
     // Extend topology for UC3
     final StreamStage<Map.Entry<String, String>> uc3Product =
-        this.extendUc3Topology(pipe, kafkaSource, hoppingSizeInSeconds, windowSizeInSeconds);
+        this.extendUc3Topology(kafkaSource);
 
     // Add Sink1: Logger
     uc3Product.writeTo(Sinks.logger());
@@ -76,17 +93,14 @@ public class Uc3PipelineBuilder {
    * values for a sliding window and sorts them into the hour of the day.
    * </p>
    *
-   * @param pipe The blank hazelcast jet pipeline to extend the logic to.
    * @param source A streaming source to fetch data from.
-   * @param hoppingSizeInSeconds The jump distance of the "sliding" window.
-   * @param windowSizeInSeconds The size of the "sliding" window.
    * @return A {@code StreamStage<Map.Entry<String,String>>} with the above definition of the key
    *         and value of the Entry object. It can be used to be further modified or directly be
    *         written into a sink.
    */
-  public StreamStage<Map.Entry<String, String>> extendUc3Topology(final Pipeline pipe,
-      final StreamSource<Entry<String, ActivePowerRecord>> source, final int hoppingSizeInSeconds,
-      final int windowSizeInSeconds) {
+  public StreamStage<Map.Entry<String, String>>
+      extendUc3Topology(final StreamSource<Map.Entry<String, ActivePowerRecord>> source) {
+
     // Build the pipeline topology.
     return pipe
         .readFrom(source)
@@ -109,8 +123,7 @@ public class Uc3PipelineBuilder {
         // group by new keys
         .groupingKey(Entry::getKey)
         // Sliding/Hopping Window
-        .window(WindowDefinition.sliding(TimeUnit.SECONDS.toMillis(windowSizeInSeconds),
-            TimeUnit.SECONDS.toMillis(hoppingSizeInSeconds)))
+        .window(WindowDefinition.sliding(windowSize.toMillis(), hoppingSize.toMillis()))
         // get average value of group (sensoreId,hourOfDay)
         .aggregate(
             AggregateOperations.averagingDouble(record -> record.getValue().getValueInW()))
@@ -121,5 +134,4 @@ public class Uc3PipelineBuilder {
           return Map.entry(theKey, theValue);
         });
   }
-
 }

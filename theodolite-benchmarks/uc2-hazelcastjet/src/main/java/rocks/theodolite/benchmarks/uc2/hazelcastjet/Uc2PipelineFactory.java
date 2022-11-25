@@ -11,49 +11,60 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics.StatsAccumulatorSupplier;
 
 
-
 /**
- * Builder to build a HazelcastJet Pipeline for UC2 which can be used for stream processing using
- * Hazelcast Jet.
+ * PipelineFactory for use case 2.
+ * Allows to build and extend a pipeline.
  */
-public class Uc2PipelineBuilder {
+public class Uc2PipelineFactory extends PipelineFactory {
+
+  private final Duration downsampleInterval;
+
+  /**
+   * Factory for uc2 pipelines.
+   * @param kafkaReadPropsForPipeline Properties Object containing the necessary kafka reads
+   *        attributes.
+   * @param kafkaInputTopic The name of the input topic used for the pipeline.
+   * @param kafkaWritePropsForPipeline Properties Object containing the necessary kafka write
+   *        attributes.
+   * @param kafkaOutputTopic The name of the output topic used for the pipeline.
+   * @param downsampleIntervalInMs The window length of the tumbling window used in the aggregation
+   *        of this pipeline.
+   */
+  protected Uc2PipelineFactory(final Properties kafkaReadPropsForPipeline,
+                               final String kafkaInputTopic,
+                               final Properties kafkaWritePropsForPipeline,
+                               final String kafkaOutputTopic,
+                               final Duration downsampleIntervalInMs) {
+    super(kafkaReadPropsForPipeline, kafkaInputTopic,
+        kafkaWritePropsForPipeline,kafkaOutputTopic);
+    this.downsampleInterval = downsampleIntervalInMs;
+  }
 
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
    *
-   * @param kafkaReadPropsForPipeline Properties Object containing the necessary kafka reads
-   *        attributes.
-   * @param kafkaWritePropsForPipeline Properties Object containing the necessary kafka write
-   *        attributes.
-   * @param kafkaInputTopic The name of the input topic used for the pipeline.
-   * @param kafkaOutputTopic The name of the output topic used for the pipeline.
-   * @param downsampleIntervalInMs The window length of the tumbling window used in the aggregation
-   *        of this pipeline.
    * @return returns a Pipeline used which can be used in a Hazelcast Jet Instance to process data
    *         for UC2.
    */
-  public Pipeline build(final Properties kafkaReadPropsForPipeline,
-      final Properties kafkaWritePropsForPipeline, final String kafkaInputTopic,
-      final String kafkaOutputTopic,
-      final int downsampleIntervalInMs) {
-
-    // Define a new pipeline
-    final Pipeline pipe = Pipeline.create();
+  @Override
+  public Pipeline buildPipeline() {
 
     // Define the Kafka Source
-    final StreamSource<Entry<String, ActivePowerRecord>> kafkaSource =
+    final StreamSource<Map.Entry<String, ActivePowerRecord>> kafkaSource =
         KafkaSources.<String, ActivePowerRecord>kafka(kafkaReadPropsForPipeline, kafkaInputTopic);
 
     // Extend UC2 topology to the pipeline
     final StreamStage<Map.Entry<String, String>> uc2TopologyProduct =
-        this.extendUc2Topology(pipe, kafkaSource, downsampleIntervalInMs);
+        this.extendUc2Topology(kafkaSource);
 
     // Add Sink1: Logger
     uc2TopologyProduct.writeTo(Sinks.logger());
@@ -61,7 +72,7 @@ public class Uc2PipelineBuilder {
     uc2TopologyProduct.writeTo(KafkaSinks.<String, String>kafka(
         kafkaWritePropsForPipeline, kafkaOutputTopic));
 
-    return pipe;
+    return this.pipe;
   }
 
   /**
@@ -74,22 +85,19 @@ public class Uc2PipelineBuilder {
    * {@code .toString()} representation of the {@code Stats} object.
    * </p>
    *
-   * @param pipe The blank hazelcast jet pipeline to extend the logic to.
    * @param source A streaming source to fetch data from.
-   * @param downsampleIntervalInMs The size of the tumbling window.
    * @return A {@code StreamStage<Map.Entry<String,String>>} with the above definition of the key
    *         and value of the Entry object. It can be used to be further modified or directly be
    *         written into a sink.
    */
-  public StreamStage<Map.Entry<String, String>> extendUc2Topology(final Pipeline pipe,
-      final StreamSource<Entry<String, ActivePowerRecord>> source,
-      final int downsampleIntervalInMs) {
+  public StreamStage<Map.Entry<String, String>>
+        extendUc2Topology(final StreamSource<Map.Entry<String, ActivePowerRecord>> source) {
     // Build the pipeline topology.
     return pipe.readFrom(source)
         .withNativeTimestamps(0)
         .setLocalParallelism(1)
         .groupingKey(record -> record.getValue().getIdentifier())
-        .window(WindowDefinition.tumbling(downsampleIntervalInMs))
+        .window(WindowDefinition.tumbling(downsampleInterval.toMillis()))
         .aggregate(this.uc2AggregateOperation())
         .map(agg -> {
           final String theKey = agg.key();
@@ -104,13 +112,14 @@ public class Uc2PipelineBuilder {
    *
    * <p>
    * Takes a windowed and keyed {@code Entry<String,ActivePowerRecord>} elements and returns a
-   * {@Stats} object.
+   * {@link Stats} object.
    * </p>
    *
    * @return An AggregateOperation used by Hazelcast Jet in a streaming stage which aggregates
    *         ActivePowerRecord Objects into Stats Objects.
    */
-  public AggregateOperation1<Entry<String, ActivePowerRecord>, StatsAccumulator, Stats> uc2AggregateOperation() { // NOCS
+  public AggregateOperation1<Entry<String, ActivePowerRecord>,
+      StatsAccumulator, Stats> uc2AggregateOperation() { // NOCS
     // Aggregate Operation to Create a Stats Object from Entry<String,ActivePowerRecord> items using
     // the Statsaccumulator.
     return AggregateOperation
@@ -128,9 +137,6 @@ public class Uc2PipelineBuilder {
         })
         // Finishes the aggregation
         .andExportFinish(
-            (accumulator) -> {
-              return accumulator.snapshot();
-            });
+            StatsAccumulator::snapshot);
   }
-
 }
