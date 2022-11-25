@@ -573,6 +573,16 @@ smoketest-uc3-kstreams:
     DOCKER_COMPOSE_DIR: "uc3-kstreams"
     JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
 
+smoketest-uc3-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-flink
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-flink"
+    JAVA_PROJECT_DEPS: "uc3-flink,flink-commons,uc3-load-generator,load-generator-commons"
+
+
 smoketest-uc3-beam-flink:
   extends: .smoketest-benchmarks
   needs:
