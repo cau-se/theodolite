@@ -15,10 +15,10 @@ import com.hazelcast.jet.test.SerialTest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -57,7 +57,7 @@ public class Uc3PipelineTest extends JetTestSupport {
     final Double testValueInW = 10.0;
     final Duration testHopSize = Duration.ofSeconds(1);
     final Duration testWindowSize = Duration.ofSeconds(50);
-    final Duration testEmitPeriod = Duration.ofSeconds(0); // Do not emir early results
+    final Duration testEmitPeriod = Duration.ofSeconds(0); // Do not emit early results
     // Used to check hourOfDay
     final long mockTimestamp = 1632741651;
 
@@ -115,11 +115,12 @@ public class Uc3PipelineTest extends JetTestSupport {
             for (final Entry<String, String> entry : collection) {
 
               // Build hour of day
-              final int expectedHour = LocalDateTime.ofInstant(Instant.ofEpochMilli(mockTimestamp),
-                  TimeZone.getDefault().toZoneId()).getHour();
+              final int expectedHour = LocalDateTime
+                  .ofInstant(Instant.ofEpochMilli(mockTimestamp), ZoneId.of("Europe/Paris"))
+                  .getHour();
 
               // Compare expected output with generated output
-              final String expectedKey = testSensorName + ";" + expectedHour;
+              final String expectedKey = testSensorName;
               final String expectedValue = Double.toString(testValueInW);
 
               // DEBUG
@@ -137,8 +138,7 @@ public class Uc3PipelineTest extends JetTestSupport {
           }
 
           // Assertion
-          Assert.assertTrue(
-              "Items do not match expected structure!", allOkay);
+          Assert.assertTrue("Items do not match expected structure!", allOkay);
         }));
 
     // Run the test!
