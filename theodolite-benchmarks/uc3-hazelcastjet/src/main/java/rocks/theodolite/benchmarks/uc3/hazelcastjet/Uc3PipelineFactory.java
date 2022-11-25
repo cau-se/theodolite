@@ -106,7 +106,7 @@ public class Uc3PipelineFactory extends PipelineFactory {
         .readFrom(source)
         // use Timestamps
         .withNativeTimestamps(0)
-        .setLocalParallelism(1)
+        // .setLocalParallelism(1)
         // Map timestamp to hour of day and create new key using sensorID and
         // datetime mapped to HourOfDay
         .map(record -> {

@@ -90,7 +90,7 @@ public class Uc2PipelineFactory extends PipelineFactory {
     // Build the pipeline topology.
     return this.pipe.readFrom(source)
         .withNativeTimestamps(0)
-        .setLocalParallelism(1)
+        // .setLocalParallelism(1)
         .groupingKey(record -> record.getValue().getIdentifier())
         .window(WindowDefinition.tumbling(this.downsampleInterval.toMillis()))
         .aggregate(StatsAggregatorFactory.create())
