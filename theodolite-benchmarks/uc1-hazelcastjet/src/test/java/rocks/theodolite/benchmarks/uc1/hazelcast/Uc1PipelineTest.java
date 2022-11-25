@@ -32,9 +32,6 @@ import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
 import rocks.theodolite.benchmarks.uc1.hazelcastjet.Uc1PipelineFactory;
 
-import static com.hazelcast.jet.pipeline.SinkBuilder.sinkBuilder;
-import static com.hazelcast.logging.Logger.getLogger;
-
 /**
  * Test methods for the Hazelcast Jet Implementation of UC1.
  */
@@ -88,16 +85,16 @@ public class Uc1PipelineTest extends JetTestSupport {
 
     // Create pipeline to test
     final Properties properties = new Properties();
-    final Uc1PipelineFactory factory = new Uc1PipelineFactory(properties,"");
-    uc1Topology = factory.extendUc1Topology(testSource);
+    final Uc1PipelineFactory factory = new Uc1PipelineFactory(properties, "");
+    this.uc1Topology = factory.extendUc1Topology(testSource);
     this.testPipeline = factory.getPipe();
 
     // Create DatabaseWriter sink
     final DatabaseWriter<String> adapter = this.databaseAdapter.getDatabaseWriter();
     final Sink<String> sink = sinkBuilder(
         "database-sink", x -> adapter)
-        .<String>receiveFn(DatabaseWriter::write)
-        .build();
+            .<String>receiveFn(DatabaseWriter::write)
+            .build();
 
     // Map Stage, can be used instead of sink
     // StreamStage<String> log = uc1Topology.map(s -> {
