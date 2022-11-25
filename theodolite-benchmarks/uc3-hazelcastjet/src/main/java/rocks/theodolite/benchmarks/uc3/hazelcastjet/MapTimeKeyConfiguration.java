@@ -10,6 +10,10 @@ public class MapTimeKeyConfiguration {
   private final StatsKeyFactory<HourOfDayKey> keyFactory;
   private final ZoneId zone;
 
+  /**
+   * Create a {@link MapTimeKeyConfiguration} for the supplied {@link StatsKeyFactory} and
+   * {@link ZoneId}.
+   */
   public MapTimeKeyConfiguration(
       final StatsKeyFactory<HourOfDayKey> keyFactory,
       final ZoneId zone) {

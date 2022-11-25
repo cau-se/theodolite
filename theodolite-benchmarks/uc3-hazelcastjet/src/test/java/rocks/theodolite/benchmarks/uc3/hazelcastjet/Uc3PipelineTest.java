@@ -13,9 +13,6 @@ import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -37,6 +34,16 @@ public class Uc3PipelineTest extends JetTestSupport {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Uc3PipelineTest.class);
 
+  // Setup Configuration
+  private static final int TEST_ITEMS_PER_SECOND = 1;
+  private static final String TEST_SENSOR_NAME = "TEST-SENSOR";
+  private static final Double TEST_VALUE_IN_W = 10.0;
+  private static final Duration TEST_WINDOW_SLIDE = Duration.ofSeconds(1);
+  private static final Duration TEST_WINDOW_SIZE = Duration.ofSeconds(50);
+  private static final Duration TEST_EMIT_PERIOD = Duration.ofSeconds(0); // Do not emit early results
+  // Used to check hourOfDay
+  private static final long MOCK_TIMESTAMP = 1632741651;
+
 
   // Test Machinery
   private JetInstance testInstance = null;
@@ -51,17 +58,6 @@ public class Uc3PipelineTest extends JetTestSupport {
   @Before
   public void buildUc3Pipeline() {
 
-    // Setup Configuration
-    final int testItemsPerSecond = 1;
-    final String testSensorName = "TEST-SENSOR";
-    final Double testValueInW = 10.0;
-    final Duration testHopSize = Duration.ofSeconds(1);
-    final Duration testWindowSize = Duration.ofSeconds(50);
-    final Duration testEmitPeriod = Duration.ofSeconds(0); // Do not emit early results
-    // Used to check hourOfDay
-    final long mockTimestamp = 1632741651;
-
-
     // Create mock jet instance with configuration
     final String testClusterName = randomName();
     final JetConfig testJetConfig = new JetConfig();
@@ -70,18 +66,20 @@ public class Uc3PipelineTest extends JetTestSupport {
 
     // Create a test source
     final StreamSource<Entry<String, ActivePowerRecord>> testSource =
-        TestSources.itemStream(testItemsPerSecond, (timestamp, item) -> {
+        TestSources.itemStream(TEST_ITEMS_PER_SECOND, (timestamp, item) -> {
           final ActivePowerRecord testRecord =
-              new ActivePowerRecord(testSensorName, mockTimestamp, testValueInW);
+              new ActivePowerRecord(TEST_SENSOR_NAME, MOCK_TIMESTAMP, TEST_VALUE_IN_W);
           final Entry<String, ActivePowerRecord> testEntry =
-              Map.entry(testSensorName, testRecord);
+              Map.entry(TEST_SENSOR_NAME, testRecord);
           return testEntry;
         });
 
     // Create pipeline to test
     final Properties properties = new Properties();
     final Uc3PipelineFactory factory = new Uc3PipelineFactory(
-        properties, "", properties, "", testWindowSize, testHopSize, testEmitPeriod);
+        properties, "", properties, "", TEST_WINDOW_SIZE,
+        TEST_WINDOW_SLIDE,
+        TEST_EMIT_PERIOD);
 
     this.uc3Topology = factory.extendUc3Topology(testSource);
 
@@ -96,10 +94,8 @@ public class Uc3PipelineTest extends JetTestSupport {
 
     // Assertion Configuration
     final int timeout = 10;
-    final String testSensorName = "TEST-SENSOR";
-    final double testValueInW = 10.0;
-    // Used to check hourOfDay
-    final long mockTimestamp = 1632741651;
+    // final String testSensorName = "TEST-SENSOR";
+    // final double testValueInW = 10.0;
 
     // Assertion
     this.uc3Topology.apply(Assertions.assertCollectedEventually(timeout,
@@ -113,15 +109,9 @@ public class Uc3PipelineTest extends JetTestSupport {
           if (collection != null) {
             LOGGER.info("CHECK 2 || Collection Size: " + collection.size());
             for (final Entry<String, String> entry : collection) {
-
-              // Build hour of day
-              final int expectedHour = LocalDateTime
-                  .ofInstant(Instant.ofEpochMilli(mockTimestamp), ZoneId.of("Europe/Paris"))
-                  .getHour();
-
               // Compare expected output with generated output
-              final String expectedKey = testSensorName;
-              final String expectedValue = Double.toString(testValueInW);
+              final String expectedKey = TEST_SENSOR_NAME;
+              final String expectedValue = Double.toString(TEST_VALUE_IN_W);
 
               // DEBUG
               LOGGER.info(
