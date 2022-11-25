@@ -21,6 +21,9 @@ public final class ConfigurationKeys {
 
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
 
+  public static final String AGGREGATION_TRIGGER_INTERVAL_SECONDS =
+      "aggregation.trigger.interval.seconds";
+
   public static final String COMMIT_INTERVAL_MS = "commit.interval.ms";
 
   public static final String TIME_ZONE = "time.zone";
