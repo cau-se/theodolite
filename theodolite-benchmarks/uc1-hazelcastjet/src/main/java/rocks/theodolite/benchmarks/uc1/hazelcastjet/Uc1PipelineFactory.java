@@ -49,8 +49,6 @@ public class Uc1PipelineFactory extends PipelineFactory {
     final StreamStage<String> uc1TopologyProduct = this.extendUc1Topology(kafkaSource);
 
     // Add Sink: Logger
-    // Do not refactor this to just use the call
-    // (There is a problem with static calls in functions in hazelcastjet)
     final DatabaseWriter<String> writer = this.databaseAdapter.getDatabaseWriter();
     final Sink<String> sink = SinkBuilder.sinkBuilder(
         "Sink into database", x -> writer)
