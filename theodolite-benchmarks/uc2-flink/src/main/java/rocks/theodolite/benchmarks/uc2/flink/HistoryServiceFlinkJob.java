@@ -65,7 +65,7 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
         .map(t -> {
           final String key = t.f0;
           final String value = t.f1.toString();
-          LOGGER.info("{}: {}", key, value);
+          LOGGER.info("{}: {}", key, value); // TODO align implementations
           return new Tuple2<>(key, value);
         }).name("map").returns(Types.TUPLE(Types.STRING, Types.STRING))
         .addSink(kafkaSink).name("[Kafka Producer] Topic: " + outputTopic);
