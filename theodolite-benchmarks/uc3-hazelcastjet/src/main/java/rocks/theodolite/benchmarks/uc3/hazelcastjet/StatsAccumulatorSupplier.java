@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc2.hazelcastjet;
+package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
 import com.google.common.math.StatsAccumulator;
 import com.hazelcast.function.SupplierEx;

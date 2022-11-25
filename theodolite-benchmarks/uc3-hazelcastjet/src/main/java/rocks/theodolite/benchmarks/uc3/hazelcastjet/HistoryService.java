@@ -1,5 +1,6 @@
 package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
+import com.google.common.math.StatsAccumulator;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.time.Duration;
 import java.util.Properties;
@@ -58,8 +59,8 @@ public class HistoryService extends HazelcastJetService {
   @Override
   protected void registerSerializer() {
     this.jobConfig.registerSerializer(HourOfDayKey.class, HourOfDayKeySerializer.class);
+    this.jobConfig.registerSerializer(StatsAccumulator.class, StatsAccumulatorSerializer.class);
   }
-
 
   public static void main(final String[] args) {
     new HistoryService().run();

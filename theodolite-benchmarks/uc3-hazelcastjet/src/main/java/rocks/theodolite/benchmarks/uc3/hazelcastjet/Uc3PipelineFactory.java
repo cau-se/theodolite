@@ -1,6 +1,5 @@
 package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
-import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
@@ -130,13 +129,12 @@ public class Uc3PipelineFactory extends PipelineFactory {
         .window(WindowDefinition
             .sliding(this.windowSize.toMillis(), this.hoppingSize.toMillis())
             .setEarlyResultsPeriod(this.emitPeriod.toMillis()))
-        // get average value of group (sensoreId,hourOfDay)
-        .aggregate(
-            AggregateOperations.averagingDouble(record -> record.getValue().getValueInW()))
+        // get aggregated values for (sensoreId, hourOfDay)
+        .aggregate(StatsAggregatorFactory.create())
         // map to return pair sensorID -> stats
         .map(agg -> {
           final String sensorId = agg.getKey().getSensorId();
-          final String stats = agg.getValue().toString(); // TODO just double, not stats
+          final String stats = agg.getValue().toString();
           return Map.entry(sensorId, stats);
         });
   }

@@ -1,5 +1,6 @@
 package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
+import com.google.common.math.Stats;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
@@ -40,7 +41,8 @@ public class Uc3PipelineTest extends JetTestSupport {
   private static final Double TEST_VALUE_IN_W = 10.0;
   private static final Duration TEST_WINDOW_SLIDE = Duration.ofSeconds(1);
   private static final Duration TEST_WINDOW_SIZE = Duration.ofSeconds(50);
-  private static final Duration TEST_EMIT_PERIOD = Duration.ofSeconds(0); // Do not emit early results
+  private static final Duration TEST_EMIT_PERIOD = Duration.ofSeconds(0); // Do not emit early
+                                                                          // results
   // Used to check hourOfDay
   private static final long MOCK_TIMESTAMP = 1632741651;
 
@@ -111,7 +113,7 @@ public class Uc3PipelineTest extends JetTestSupport {
             for (final Entry<String, String> entry : collection) {
               // Compare expected output with generated output
               final String expectedKey = TEST_SENSOR_NAME;
-              final String expectedValue = Double.toString(TEST_VALUE_IN_W);
+              final String expectedValue = Stats.of(TEST_VALUE_IN_W).toString();
 
               // DEBUG
               LOGGER.info(
@@ -119,8 +121,7 @@ public class Uc3PipelineTest extends JetTestSupport {
                       + "' - Actual Output: '" + entry.getKey() + "="
                       + entry.getValue() + "'");
 
-              if (!(entry.getKey().equals(expectedKey)
-                  && entry.getValue().equals(expectedValue))) {
+              if (!(entry.getKey().equals(expectedKey) && entry.getValue().equals(expectedValue))) {
                 LOGGER.info("CHECK 5 || Failed assertion!");
                 allOkay = false;
               }
