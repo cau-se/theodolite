@@ -26,10 +26,11 @@ public class ConfigurationKeys {
   // UC3
   public static final String AGGREGATION_DURATION_DAYS = "aggregation.duration.days";
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
+  public static final String AGGREGATION_EMIT_PERIOD_SECONDS = "aggregation.emit.period.seconds";
 
   // UC4
   public static final String KAFKA_CONFIGURATION_TOPIC = "kafka.configuration.topic";
   public static final String KAFKA_FEEDBACK_TOPIC = "kafka.feedback.topic";
   public static final String WINDOW_SIZE_UC4 = "window.size";
-  
+
 }

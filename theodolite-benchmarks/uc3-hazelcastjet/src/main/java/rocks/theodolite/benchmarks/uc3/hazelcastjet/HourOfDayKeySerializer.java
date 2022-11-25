@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics;
+package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;

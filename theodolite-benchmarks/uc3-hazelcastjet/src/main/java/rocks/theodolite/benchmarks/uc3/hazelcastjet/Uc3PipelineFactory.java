@@ -8,7 +8,6 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,51 +17,52 @@ import java.util.Properties;
 import java.util.TimeZone;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
-import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
-import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HoursOfDayKeyFactory;
-import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.StatsKeyFactory;
 
 
 /**
- * PipelineFactory for use case 3.
- * Allows to build and extend pipelines.
+ * PipelineFactory for use case 3. Allows to build and extend pipelines.
  */
 public class Uc3PipelineFactory extends PipelineFactory {
 
   private final Duration hoppingSize;
   private final Duration windowSize;
+  private final Duration emitPeriod;
 
   /**
    * Build a new Pipeline.
+   *
    * @param kafkaReadPropsForPipeline Properties Object containing the necessary kafka reads
    *        attributes.
    * @param kafkaWritePropsForPipeline Properties Object containing the necessary kafka write
    *        attributes.
    * @param kafkaInputTopic The name of the input topic used for the pipeline.
    * @param kafkaOutputTopic The name of the output topic used for the pipeline.
-   * @param hoppingSize The hop length of the sliding window used in the aggregation of
-   *        this pipeline.
-   * @param windowSize The window length of the sliding window used in the aggregation of
-   *        this pipeline.
+   * @param hoppingSize The hop length of the sliding window used in the aggregation of this
+   *        pipeline.
+   * @param windowSize The window length of the sliding window used in the aggregation of this
+   *        pipeline.
    */
   public Uc3PipelineFactory(final Properties kafkaReadPropsForPipeline,
-                            final String kafkaInputTopic,
-                            final Properties kafkaWritePropsForPipeline,
-                            final String kafkaOutputTopic,
-                            final Duration windowSize,
-                            final Duration hoppingSize) {
-    super(kafkaReadPropsForPipeline, kafkaInputTopic,
-        kafkaWritePropsForPipeline,kafkaOutputTopic);
+      final String kafkaInputTopic,
+      final Properties kafkaWritePropsForPipeline,
+      final String kafkaOutputTopic,
+      final Duration windowSize,
+      final Duration hoppingSize,
+      final Duration emitPeriod) {
+    super(
+        kafkaReadPropsForPipeline,
+        kafkaInputTopic,
+        kafkaWritePropsForPipeline,
+        kafkaOutputTopic);
     this.windowSize = windowSize;
     this.hoppingSize = hoppingSize;
+    this.emitPeriod = emitPeriod;
   }
-
-
 
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
-   * @return a pipeline used which can be used in a Hazelcast Jet Instance to process data
-   *         for UC3.
+   *
+   * @return a pipeline used which can be used in a Hazelcast Jet Instance to process data for UC3.
    */
   @Override
   public Pipeline buildPipeline() {
@@ -70,7 +70,7 @@ public class Uc3PipelineFactory extends PipelineFactory {
     // Define the source
     final StreamSource<Map.Entry<String, ActivePowerRecord>> kafkaSource = KafkaSources
         .<String, ActivePowerRecord>kafka(
-            kafkaReadPropsForPipeline, kafkaInputTopic);
+            this.kafkaReadPropsForPipeline, this.kafkaInputTopic);
 
     // Extend topology for UC3
     final StreamStage<Map.Entry<String, String>> uc3Product =
@@ -80,9 +80,9 @@ public class Uc3PipelineFactory extends PipelineFactory {
     uc3Product.writeTo(Sinks.logger());
     // Add Sink2: Write back to kafka for the final benchmark
     uc3Product.writeTo(KafkaSinks.<String, String>kafka(
-        kafkaWritePropsForPipeline, kafkaOutputTopic));
+        this.kafkaWritePropsForPipeline, this.kafkaOutputTopic));
 
-    return pipe;
+    return this.pipe;
   }
 
   /**
@@ -98,11 +98,11 @@ public class Uc3PipelineFactory extends PipelineFactory {
    *         and value of the Entry object. It can be used to be further modified or directly be
    *         written into a sink.
    */
-  public StreamStage<Map.Entry<String, String>>
-      extendUc3Topology(final StreamSource<Map.Entry<String, ActivePowerRecord>> source) {
+  public StreamStage<Map.Entry<String, String>> extendUc3Topology(
+      final StreamSource<Map.Entry<String, ActivePowerRecord>> source) {
 
     // Build the pipeline topology.
-    return pipe
+    return this.pipe
         .readFrom(source)
         // use Timestamps
         .withNativeTimestamps(0)
@@ -112,7 +112,8 @@ public class Uc3PipelineFactory extends PipelineFactory {
         .map(record -> {
           final String sensorId = record.getValue().getIdentifier();
           final long timestamp = record.getValue().getTimestamp();
-          final LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
+          final LocalDateTime dateTime = LocalDateTime.ofInstant(
+              Instant.ofEpochMilli(timestamp),
               TimeZone.getDefault().toZoneId());
 
           final StatsKeyFactory<HourOfDayKey> keyFactory = new HoursOfDayKeyFactory();
@@ -123,15 +124,17 @@ public class Uc3PipelineFactory extends PipelineFactory {
         // group by new keys
         .groupingKey(Entry::getKey)
         // Sliding/Hopping Window
-        .window(WindowDefinition.sliding(windowSize.toMillis(), hoppingSize.toMillis()))
+        .window(WindowDefinition
+            .sliding(this.windowSize.toMillis(), this.hoppingSize.toMillis())
+            .setEarlyResultsPeriod(this.emitPeriod.toMillis()))
         // get average value of group (sensoreId,hourOfDay)
         .aggregate(
             AggregateOperations.averagingDouble(record -> record.getValue().getValueInW()))
-        // map to return pair (sensorID,hourOfDay) -> (averaged what value)
+        // map to return pair sensorID -> stats
         .map(agg -> {
-          final String theValue = agg.getValue().toString();
-          final String theKey = agg.getKey().toString();
-          return Map.entry(theKey, theValue);
+          final String sensorId = agg.getKey().getSensorId();
+          final String stats = agg.getValue().toString(); // TODO just double, not stats
+          return Map.entry(sensorId, stats);
         });
   }
 }
