@@ -12,14 +12,13 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -29,8 +28,6 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
-import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKey;
-import rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics.HourOfDayKeySerializer;
 
 /**
  * Test methods for the Hazelcast Jet Implementation of UC3.
@@ -60,6 +57,7 @@ public class Uc3PipelineTest extends JetTestSupport {
     final Double testValueInW = 10.0;
     final Duration testHopSize = Duration.ofSeconds(1);
     final Duration testWindowSize = Duration.ofSeconds(50);
+    final Duration testEmitPeriod = Duration.ofSeconds(0); // Do not emir early results
     // Used to check hourOfDay
     final long mockTimestamp = 1632741651;
 
@@ -83,11 +81,11 @@ public class Uc3PipelineTest extends JetTestSupport {
     // Create pipeline to test
     final Properties properties = new Properties();
     final Uc3PipelineFactory factory = new Uc3PipelineFactory(
-        properties,"", properties,"", testWindowSize, testHopSize);
+        properties, "", properties, "", testWindowSize, testHopSize, testEmitPeriod);
 
     this.uc3Topology = factory.extendUc3Topology(testSource);
 
-    testPipeline = factory.getPipe();
+    this.testPipeline = factory.getPipe();
   }
 
   /**
