@@ -13,6 +13,8 @@ import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
  */
 public final class StatsAggregatorFactory {
 
+  private StatsAggregatorFactory() {}
+
   /**
    * Defines an AggregateOperation1 for Hazelcast Jet which is used in the Pipeline of the Hazelcast
    * Jet implementation of UC2.
