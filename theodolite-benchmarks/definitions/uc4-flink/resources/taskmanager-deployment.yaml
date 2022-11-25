@@ -17,8 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: taskmanager
-          image: ghcr.io/cau-se/theodolite-uc4-flink:latest
-          env:
+          image: ghcr.io/cau-se/theodolite-uc3-flink:latest
           resources:
             limits:
               memory: 4Gi

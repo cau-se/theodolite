@@ -38,17 +38,32 @@ rules:
     - monitoring.coreos.com
     resources:
     - servicemonitors
+    - podmonitors
     verbs:
     - update
     - delete
     - list
     - create
     - get
+  - apiGroups:
+    - kafka.strimzi.io
+    resources:
+    - kafkatopics
+    verbs:
+    - delete
+    - list
+    - get
+    - create
+    - update
+  {{- with .Values.rbac.additionalRules }}
+{{ toYaml . | indent 2 }}
+  {{- end }}
   {{- if .Values.operator.enabled }}
   - apiGroups:
-    - theodolite.com
+    - theodolite.rocks
     resources:
     - benchmarks
+    - benchmarks/status
     - executions
     - executions/status
     verbs:
@@ -68,5 +83,11 @@ rules:
     - get
     - create
     - update
+  - apiGroups:
+    - ""
+    resources:
+    - events
+    verbs:
+    - create
   {{- end }}
 {{- end }}

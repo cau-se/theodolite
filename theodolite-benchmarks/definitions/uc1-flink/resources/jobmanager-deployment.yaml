@@ -20,9 +20,9 @@ spec:
           image: ghcr.io/cau-se/theodolite-uc1-flink:latest
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "theodolite-cp-kafka:9092"
+              value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
-              value: "http://theodolite-cp-schema-registry:8081"
+              value: "http://theodolite-kafka-schema-registry:8081"
             - name: COMMIT_INTERVAL_MS
               value: "100"
             - name: CHECKPOINTING
@@ -35,7 +35,7 @@ spec:
             limits:
               memory: 4Gi
               cpu: 1000m
-          args: ["standalone-job", "--job-classname", "theodolite.uc1.application.HistoryServiceFlinkJob"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
+          args: ["standalone-job", "--job-classname", "rocks.theodolite.benchmarks.uc1.flink.HistoryServiceFlinkJob"] # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
           #command: ['sleep', '60m']
           ports:
             - containerPort: 6123

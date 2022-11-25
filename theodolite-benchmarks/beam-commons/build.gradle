@@ -1,0 +1,30 @@
+plugins {
+    id 'theodolite.java-commons'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+    url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  implementation project(':commons')
+
+  implementation group: 'org.apache.beam', name: 'beam-sdks-java-core', version: '2.35.0'
+  implementation('org.apache.beam:beam-sdks-java-io-kafka:2.35.0'){
+    exclude group: 'org.apache.kafka', module: 'kafka-clients'
+  }
+  implementation ('io.confluent:kafka-streams-avro-serde:5.3.2') 
+  
+  implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
+
+  runtimeOnly 'org.slf4j:slf4j-api:1.7.32'
+  runtimeOnly 'org.slf4j:slf4j-jdk14:1.7.32'
+
+  testImplementation 'junit:junit:4.12'
+}

@@ -1,0 +1,14 @@
+{{- if .Values.prometheus.roleBinding.enabled -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: {{ if .Values.prometheus.roleBinding.clusterRoleBinding }}ClusterRoleBinding{{ else }}RoleBinding{{ end }}
+metadata:
+  name: {{ template "theodolite.fullname" . }}-prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: {{ if .Values.prometheus.role.clusterRole }}ClusterRole{{ else }}Role{{ end }}
+  name: {{ template "theodolite.fullname" . }}-prometheus
+subjects:
+- kind: ServiceAccount
+  name: {{ template "theodolite.fullname" . }}-prometheus
+  namespace: {{ .Release.Namespace }}
+{{- end}}

@@ -1,34 +1,32 @@
 apiVersion: v2
 name: theodolite
-description: Theodolite is a framework for benchmarking the scalability stream processing engines.
-home: https://cau-se.github.io/theodolite
+description: Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications.
+home: https://www.theodolite.rocks
 sources:
   - https://github.com/cau-se/theodolite
 maintainers:
 - name: Sören Henning
   email: soeren.henning@email.uni-kiel.de
   url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
 
 type: application
 
 dependencies:
   - name: grafana
-    version: 6.17.5
+    version: 6.17.*
     repository: https://grafana.github.io/helm-charts
     condition: grafana.enabled
   - name: kube-prometheus-stack
-    version:  20.0.1
+    version: 41.7.*
     repository: https://prometheus-community.github.io/helm-charts
     condition: kube-prometheus-stack.enabled
-  - name: cp-helm-charts
-    version: 0.6.0
-    repository: https://soerenhenning.github.io/cp-helm-charts
-    condition: cp-helm-charts.enabled
-  - name: kafka-lag-exporter
-    version: 0.6.7
-    repository: https://lightbend.github.io/kafka-lag-exporter/repo/
-    condition: kafka-lag-exporter.enabled
+  - name: strimzi-kafka-operator
+    version: 0.29.*
+    repository: https://strimzi.io/charts/
+    condition: strimzi.enabled
 
-version: 0.6.0-SNAPSHOT
 
-appVersion: 0.6.0-SNAPSHOT
+version: 0.9.0-SNAPSHOT
+
+appVersion: 0.9.0-SNAPSHOT

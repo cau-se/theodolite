@@ -1,16 +1,16 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: executions.theodolite.com
+  name: executions.theodolite.rocks
 spec:
-  group: theodolite.com
+  group: theodolite.rocks
   names:
     kind: execution
     plural: executions
     shortNames:
       - exec
   versions:
-  - name: v1
+  - name: v1beta1
     served: true
     storage: true
     schema:
@@ -20,7 +20,7 @@ spec:
         properties:
           spec:
             type: object
-            required: ["benchmark", "load", "resources", "slos", "execution", "configOverrides"]
+            required: ["benchmark", "load", "resources", "execution"]
             properties:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
@@ -56,21 +56,15 @@ spec:
                     items:
                       type: integer
               slos: # def of service level objectives
-                description:  List of resource values for the specified resource type.
+                description:  List of SLOs with their properties, which differ from the benchmark definition.
                 type: array
                 items:
                   type: object
-                  required: ["sloType", "prometheusUrl", "offset"]
+                  required: ["name", "properties"]
                   properties:
-                    sloType:
-                      description: The type of the SLO. It must match 'lag trend'.
+                    name:
+                      description: The name of the SLO. It must match a SLO specified in the Benchmark.
                       type: string
-                    prometheusUrl:
-                      description: Connection string for Promehteus.
-                      type: string
-                    offset:
-                      description: Hours by which the start and end timestamp will be shifted (for different timezones).
-                      type: integer
                     properties:
                         description: (Optional) SLO specific additional arguments.
                         type: object
@@ -80,25 +74,35 @@ spec:
               execution: # def execution config
                 description: Defines the overall parameter for the execution.
                 type: object
-                required: ["strategy", "duration", "repetitions", "restrictions"]
+                required: ["strategy", "duration", "repetitions"]
                 properties:
-                  strategy:
-                    description: Defines the used strategy for the execution, either 'LinearSearch' or 'BinarySearch'
+                  metric:
                     type: string
+                  strategy:
+                    description: Defines the used strategy for the execution, either 'LinearSearch', 'BinarySearch' or 'InitialGuessSearch'.
+                    type: object
+                    required: ["name"]
+                    properties:
+                      name:
+                        type: string
+                      restrictions:
+                        description: List of restriction strategies used to delimit the search space.
+                        type: array
+                        items:
+                          type: string
+                      guessStrategy:
+                        type: string
+                      searchStrategy:
+                        type: string
                   duration:
                     description: Defines the duration of each experiment in seconds.
                     type: integer
                   repetitions:
-                    description: Numper of repititions for each experiments.
+                    description: Number of repititions for each experiment.
                     type: integer
                   loadGenerationDelay:
                     description: Seconds to wait between the start of the SUT and the load generator.
                     type: integer
-                  restrictions:
-                    description: List of restriction strategys used to delimit the search space.
-                    type: array
-                    items:
-                      type: string
               configOverrides:
                 description:  List of patchers that are used to override existing configurations.
                 type: array
@@ -126,6 +130,7 @@ spec:
                           default: {}
                     value:
                       type: string
+                default: []
           status:
             type: object
             properties:
@@ -133,10 +138,18 @@ spec:
                 description: ""
                 type: string
               executionDuration:
-                description: "Duration of the execution in seconds"
+                description: "Duration of the execution"
                 type: string
+              startTime:
+                description: "Time this execution started"
+                type: string
+                format: date-time
+              completionTime:
+                description: "Time when this execution was stopped"
+                type: string
+                format: date-time
     additionalPrinterColumns:
-    - name: STATUS
+    - name: Status
       type: string
       description: State of the execution
       jsonPath: .status.executionState

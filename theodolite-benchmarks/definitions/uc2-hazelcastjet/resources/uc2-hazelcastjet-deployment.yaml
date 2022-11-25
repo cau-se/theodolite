@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: titan-ccp-aggregation
+spec:
+  selector:
+    matchLabels:
+      app: titan-ccp-aggregation
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: titan-ccp-aggregation
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: uc-application
+          image: ghcr.io/cau-se/theodolite-uc2-hazelcastjet:latest
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "theodolite-kafka-kafka-bootstrap:9092"
+            - name: SCHEMA_REGISTRY_URL
+              value: "http://theodolite-kafka-schema-registry:8081"
+            - name: COMMIT_INTERVAL_MS # Set as default for the applications
+              value: "100"
+            - name: DOWNSAMPLE_INTERVAL
+              value: "5000"
+            #- name: KUBERNETES_DNS_NAME
+            #  value: "titan-ccp-aggregation"
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: KUBERNETES_DNS_NAME
+              value: "titan-ccp-aggregation.$(KUBERNETES_NAMESPACE).svc.cluster.local"
+          resources:
+            limits:
+              memory: 4Gi
+              cpu: 1000m

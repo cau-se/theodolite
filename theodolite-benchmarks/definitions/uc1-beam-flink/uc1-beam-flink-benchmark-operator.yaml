@@ -1,0 +1,71 @@
+apiVersion: theodolite.rocks/v1beta1
+kind: benchmark
+metadata:
+  name: uc1-beam-flink
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc1
+    sut: beam-flink
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc1-beam-flink"
+          files:
+          - "flink-configuration-configmap.yaml"
+          - "taskmanager-deployment.yaml"
+          - "taskmanager-service.yaml"
+          - "service-monitor.yaml"
+          - "jobmanager-service.yaml"
+          - "jobmanager-deployment.yaml"
+          #- "jobmanager-rest-service.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc1-load-generator"
+          files:
+          - "uc1-load-generator-deployment.yaml"
+          - "uc1-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "taskmanager-deployment.yaml"
+        - type: "EnvVarPatcher"
+          resource: "jobmanager-deployment.yaml"
+          properties:
+            container: "jobmanager"
+            variableName: "PARALLELISM"
+        - type: "EnvVarPatcher" # required?
+          resource: "taskmanager-deployment.yaml"
+          properties:
+            container: "taskmanager"
+            variableName: "PARALLELISM"
+  loadTypes:
+    - typeName: "NumSensors"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc1-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_SENSORS"
+        - type: NumSensorsLoadGeneratorReplicaPatcher
+          resource: "uc1-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "150000"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        consumerGroup: theodolite-uc1-application
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
+  kafkaConfig:
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
+    topics:
+      - name: "input"
+        numPartitions: 40
+        replicationFactor: 1

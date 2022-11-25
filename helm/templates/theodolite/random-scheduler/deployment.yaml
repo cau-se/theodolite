@@ -27,4 +27,8 @@ spec:
           env:
             - name: TARGET_NAMESPACE
               value: {{ .Release.Namespace }}
+      {{- with .Values.randomScheduler.nodeSelector }}
+      nodeSelector:
+      {{ toYaml . | indent 2 }}
+      {{- end }}
 {{- end }}

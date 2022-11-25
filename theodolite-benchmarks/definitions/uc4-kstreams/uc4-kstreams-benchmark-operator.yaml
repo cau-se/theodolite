@@ -1,0 +1,70 @@
+apiVersion: theodolite.rocks/v1beta1
+kind: benchmark
+metadata:
+  name: uc4-kstreams
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc4
+    sut: kstreams
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-kstreams"
+          files:
+            - "uc4-kstreams-deployment.yaml"
+            - "uc4-kstreams-service.yaml"
+            - "uc4-jmx-configmap.yaml"
+            - "uc4-service-monitor.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-load-generator"
+          files:
+            - "uc4-load-generator-deployment.yaml"
+            - "uc4-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc4-kstreams-deployment.yaml"
+  loadTypes:
+    - typeName: "NumNestedGroups"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_SENSORS"
+        - type: NumNestedGroupsLoadGeneratorReplicaPatcher
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "150000"
+            numSensors: "4.0"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        consumerGroup: theodolite-uc4-application-0.0.1
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
+  kafkaConfig:
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
+    topics:
+      - name: "input"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "output"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "configuration"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "aggregation-feedback"
+        numPartitions: 40
+        replicationFactor: 1
+      - name: "theodolite-.*"
+        removeOnly: True

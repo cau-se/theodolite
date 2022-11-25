@@ -1,26 +1,38 @@
-apiVersion: theodolite.com/v1
+apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc4-flink
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc4
+    sut: flink
 spec:
-  appResource:
-    - "uc4-flink/flink-configuration-configmap.yaml"
-    - "uc4-flink/taskmanager-deployment.yaml"
-    - "uc4-flink/taskmanager-service.yaml"
-    - "uc4-flink/service-monitor.yaml"
-    - "uc4-flink/jobmanager-service.yaml"
-    - "uc4-flink/jobmanager-deployment.yaml"
-    #- "uc4-flink/jobmanager-rest-service.yaml"
-  loadGenResource:
-    - "uc4-kstreams/uc4-load-generator-deployment.yaml"
-    - "uc4-kstreams/uc4-load-generator-service.yaml"
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-flink"
+          files:
+            - "flink-configuration-configmap.yaml"
+            - "taskmanager-deployment.yaml"
+            - "taskmanager-service.yaml"
+            - "service-monitor.yaml"
+            - "jobmanager-service.yaml"
+            - "jobmanager-deployment.yaml"
+            #- "jobmanager-rest-service.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-load-generator"
+          files:
+            - "uc4-load-generator-deployment.yaml"
+            - "uc4-load-generator-service.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc4-flink/taskmanager-deployment.yaml"
+          resource: "taskmanager-deployment.yaml"
         - type: "EnvVarPatcher"
-          resource: "uc4-flink/jobmanager-deployment.yaml"
+          resource: "jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
             variableName: "PARALLELISM"
@@ -28,17 +40,27 @@ spec:
     - typeName: "NumNestedGroups"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
             variableName: "NUM_NESTED_GROUPS"
         - type: NumNestedGroupsLoadGeneratorReplicaPatcher
-          resource: "uc4-kstreams/uc4-load-generator-deployment.yaml"
+          resource: "uc4-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
             numSensors: "4.0"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        consumerGroup: theodolite-uc4-application-0.0.1
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
   kafkaConfig:
-    bootstrapServer: "theodolite-cp-kafka:9092"
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
       - name: "input"
         numPartitions: 40

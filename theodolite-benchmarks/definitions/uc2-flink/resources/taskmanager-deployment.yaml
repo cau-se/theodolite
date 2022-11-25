@@ -18,7 +18,6 @@ spec:
       containers:
         - name: taskmanager
           image: ghcr.io/cau-se/theodolite-uc2-flink:latest
-          env:
           resources:
             limits:
               memory: 4Gi

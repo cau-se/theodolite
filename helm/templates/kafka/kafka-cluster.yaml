@@ -1,0 +1,63 @@
+{{- if .Values.strimzi.enabled -}}
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: {{ template "theodolite.fullname" . }}-kafka
+spec:
+  kafka:
+    jmxOptions: {}
+    {{- with .Values.strimzi.kafka.listeners }}
+    listeners:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.strimzi.kafka.replicas }}
+    replicas:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.strimzi.kafka.config }}
+    config:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.strimzi.kafka.jvmOptions }}
+    jvmOptions:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    storage:
+      type: ephemeral
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: {{ template "theodolite.fullname" . }}-kafka-metrics
+          key: kafka-metrics-config.yml
+    {{- with .Values.strimzi.kafka.template}}
+    template:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
+    {{- with .Values.strimzi.kafka.resources}}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
+
+
+  zookeeper:
+    {{- with .Values.strimzi.zookeeper.replicas }}
+    replicas:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    storage:
+      type: ephemeral
+    {{- with .Values.strimzi.kafka.template}}
+    template:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
+
+  kafkaExporter: {}
+
+  {{- if .Values.strimzi.topicOperator.enabled }}
+  entityOperator:
+    topicOperator: {}
+  {{- end }}
+
+
+{{- end }}

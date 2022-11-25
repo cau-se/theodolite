@@ -5,14 +5,16 @@ metadata:
   name: {{ template "theodolite.fullname" . }}-prometheus
 spec:
   serviceAccountName: {{ template "theodolite.fullname" . }}-prometheus
-  serviceMonitorSelector:
-    matchLabels:
-      #app: cp-kafka
-      appScope: titan-ccp
+  {{- with .Values.prometheus.podMetadata }}
+  podMetadata:
+    {{- toYaml . | nindent 8 }}
+  {{- end}}
+  podMonitorSelector: {}
+  serviceMonitorSelector: {}
   resources:
     requests:
       memory: 400Mi
-  #scrapeInterval: 1s
+  scrapeInterval: 15s
   enableAdminAPI: true
   {{- with .Values.prometheus.nodeSelector }}
   nodeSelector:
