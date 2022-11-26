@@ -18,7 +18,6 @@ public class HistoryService extends HazelcastJetService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
-
   /**
    * Constructs the use case logic for UC2. Retrieves the needed values and instantiates a pipeline
    * factory.

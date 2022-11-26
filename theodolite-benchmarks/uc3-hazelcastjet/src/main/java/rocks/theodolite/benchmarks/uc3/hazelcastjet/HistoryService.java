@@ -34,16 +34,16 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName());
 
     final String kafkaOutputTopic =
-        this.config.getProperty(Uc3ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+        this.config.getString(Uc3ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
-    final Duration windowSize = Duration.ofDays(Integer.parseInt(
-        this.config.getProperty(Uc3ConfigurationKeys.AGGREGATION_DURATION_DAYS).toString()));
+    final Duration windowSize = Duration.ofDays(
+        this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_DURATION_DAYS));
 
-    final Duration hoppingSize = Duration.ofDays(Integer.parseInt(
-        this.config.getProperty(Uc3ConfigurationKeys.AGGREGATION_ADVANCE_DAYS).toString()));
+    final Duration hoppingSize = Duration.ofDays(
+        this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
 
-    final Duration emitPeriod = Duration.ofSeconds(Integer.parseInt(
-        this.config.getProperty(Uc3ConfigurationKeys.AGGREGATION_EMIT_PERIOD_SECONDS).toString()));
+    final Duration emitPeriod = Duration.ofSeconds(
+        this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_EMIT_PERIOD_SECONDS));
 
     this.pipelineFactory = new Uc3PipelineFactory(
         kafkaProps,

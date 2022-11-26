@@ -36,16 +36,14 @@ public abstract class HazelcastJetService {
    * build a new jet instance.
    */
   public HazelcastJetService(final Logger logger) {
-    this.jobName = this.config.getProperty(ConfigurationKeys.APPLICATION_NAME).toString();
+    this.jobName = this.config.getString(ConfigurationKeys.APPLICATION_NAME);
 
-    this.kafkaBootstrapServer = this.config.getProperty(
-        ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS).toString();
-    this.schemaRegistryUrl =
-        this.config.getProperty(ConfigurationKeys.SCHEMA_REGISTRY_URL).toString();
+    this.kafkaBootstrapServer = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
+    this.schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     this.propsBuilder =
         new KafkaPropertiesBuilder(this.kafkaBootstrapServer, this.schemaRegistryUrl, this.jobName);
 
-    this.kafkaInputTopic = this.config.getProperty(ConfigurationKeys.KAFKA_INPUT_TOPIC).toString();
+    this.kafkaInputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
 
     final JetInstanceBuilder jetInstance = new JetInstanceBuilder()
         .setConfigFromEnv(logger, this.kafkaBootstrapServer, HZ_KUBERNETES_SERVICE_DNS_KEY);
