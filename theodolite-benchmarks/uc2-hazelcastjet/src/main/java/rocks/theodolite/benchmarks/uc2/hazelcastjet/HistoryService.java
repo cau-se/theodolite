@@ -19,7 +19,6 @@ public class HistoryService extends HazelcastJetService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
-
   /**
    * Constructs the use case logic for UC2. Retrieves the needed values and instantiates a pipeline
    * factory.
@@ -36,8 +35,7 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName(),
             StringSerializer.class.getCanonicalName());
 
-    final String kafkaOutputTopic =
-        this.config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+    final String kafkaOutputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final Duration downsampleInterval = Duration.ofMinutes(
         this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
