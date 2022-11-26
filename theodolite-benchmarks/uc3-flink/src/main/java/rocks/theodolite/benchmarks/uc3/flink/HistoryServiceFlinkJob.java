@@ -16,6 +16,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
+import rocks.theodolite.benchmarks.commons.flink.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.commons.flink.serialization.StatsSerializer;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
@@ -50,14 +51,14 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
-    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
-    final ZoneId timeZone = ZoneId.of(this.config.getString(ConfigurationKeys.TIME_ZONE));
+    final String outputTopic = this.config.getString(Uc3ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final ZoneId timeZone = ZoneId.of(this.config.getString(Uc3ConfigurationKeys.TIME_ZONE));
     final Time aggregationDuration =
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+        Time.days(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_DURATION_DAYS));
     final Time aggregationAdvance =
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+        Time.days(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
     final Time triggerDuration =
-        Time.seconds(this.config.getInt(ConfigurationKeys.AGGREGATION_TRIGGER_INTERVAL_SECONDS));
+        Time.seconds(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_TRIGGER_INTERVAL_SECONDS));
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(

@@ -40,10 +40,10 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   @Override
   protected void constructPipeline(final Pipeline pipeline) {
-    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String outputTopic = this.config.getString(Uc2ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final Duration downsampleInterval = Duration.standardMinutes(
-        this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
+        this.config.getInt(Uc2ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
 
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
 

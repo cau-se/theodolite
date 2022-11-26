@@ -8,7 +8,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
 
 
@@ -37,10 +36,10 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName());
 
     final String kafkaOutputTopic =
-        this.config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+        this.config.getProperty(Uc2ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
 
     final Duration downsampleInterval = Duration.ofMinutes(
-        this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
+        this.config.getInt(Uc2ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
 
     this.pipelineFactory = new Uc2PipelineFactory(
         kafkaProps,
