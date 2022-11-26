@@ -36,11 +36,6 @@ spec:
           properties:
             container: "jobmanager"
             variableName: "PARALLELISM"
-        - type: "EnvVarPatcher" # required?
-          resource: "taskmanager-deployment.yaml"
-          properties:
-            container: "taskmanager"
-            variableName: "PARALLELISM"
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
