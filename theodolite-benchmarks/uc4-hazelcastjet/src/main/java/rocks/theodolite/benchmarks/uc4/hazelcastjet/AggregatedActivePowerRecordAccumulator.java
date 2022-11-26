@@ -20,7 +20,6 @@ public class AggregatedActivePowerRecordAccumulator {
     // This constructor is intentionally empty. Nothing special is needed here.
   }
 
-
   /**
    * Creates an AggregationObject.
    */

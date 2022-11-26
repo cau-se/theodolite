@@ -21,8 +21,8 @@ public class HistoryService extends HazelcastJetService {
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
   /**
-   * Constructs the use case logic for UC4.
-   * Retrieves the needed values and instantiates a pipeline factory.
+   * Constructs the use case logic for UC4. Retrieves the needed values and instantiates a pipeline
+   * factory.
    */
   public HistoryService() {
     super(LOGGER);
@@ -32,12 +32,12 @@ public class HistoryService extends HazelcastJetService {
             KafkaAvroDeserializer.class.getCanonicalName());
 
     final Properties kafkaConfigReadProps =
-        propsBuilder.buildReadProperties(
+        this.propsBuilder.buildReadProperties(
             EventDeserializer.class.getCanonicalName(),
             StringDeserializer.class.getCanonicalName());
 
     final Properties kafkaAggregationReadProps =
-        propsBuilder.buildReadProperties(
+        this.propsBuilder.buildReadProperties(
             StringDeserializer.class.getCanonicalName(),
             KafkaAvroDeserializer.class.getCanonicalName());
 
@@ -47,26 +47,25 @@ public class HistoryService extends HazelcastJetService {
             KafkaAvroSerializer.class.getCanonicalName());
 
     final String kafkaOutputTopic =
-        config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+        this.config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
 
     final String kafkaConfigurationTopic =
-        config.getProperty(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC).toString();
+        this.config.getProperty(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC).toString();
 
     final String kafkaFeedbackTopic =
-        config.getProperty(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC).toString();
+        this.config.getProperty(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC).toString();
 
     final int windowSize = Integer.parseInt(
-        config.getProperty(ConfigurationKeys.WINDOW_SIZE_UC4).toString());
+        this.config.getProperty(ConfigurationKeys.WINDOW_SIZE_UC4).toString());
 
     this.pipelineFactory = new Uc4PipelineFactory(
         kafkaProps,
         kafkaConfigReadProps,
         kafkaAggregationReadProps,
         kafkaWriteProps,
-        kafkaInputTopic, kafkaOutputTopic, kafkaConfigurationTopic, kafkaFeedbackTopic,
+        this.kafkaInputTopic, kafkaOutputTopic, kafkaConfigurationTopic, kafkaFeedbackTopic,
         windowSize);
   }
-
 
   @Override
   protected void registerSerializer() {
