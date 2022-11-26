@@ -28,7 +28,7 @@ public final class ConfigurationKeys {
   public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
   // UC3
-  public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+  public static final String DOWNSAMPLE_INTERVAL_MINUTES = "downsample.interval.minutes";
 
   // UC4
   public static final String AGGREGATION_DURATION_DAYS = "aggregation.duration.days";

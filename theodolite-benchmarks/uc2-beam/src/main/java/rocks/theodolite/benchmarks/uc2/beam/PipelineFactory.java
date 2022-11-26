@@ -42,8 +42,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
   protected void constructPipeline(final Pipeline pipeline) {
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
-    final Duration duration = Duration.standardMinutes(
-        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+    final Duration downsampleInterval = Duration.standardMinutes(
+        this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
 
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();
 
@@ -58,7 +58,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
     // Apply pipeline transformations
     pipeline.apply(kafkaReader)
         // Apply a fixed window
-        .apply(Window.<KV<String, ActivePowerRecord>>into(FixedWindows.of(duration)))
+        .apply(Window.<KV<String, ActivePowerRecord>>into(FixedWindows.of(downsampleInterval)))
         // Aggregate per window for every key
         .apply(Combine.<String, ActivePowerRecord, Stats>perKey(new StatsAggregation()))
         .setCoder(KvCoder.of(StringUtf8Coder.of(), SerializableCoder.of(Stats.class)))

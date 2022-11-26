@@ -2,7 +2,6 @@ package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 
 import com.google.common.math.StatsAccumulator;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
-
 import java.time.Duration;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -22,8 +21,8 @@ public class HistoryService extends HazelcastJetService {
 
 
   /**
-   * Constructs the use case logic for UC2.
-   * Retrieves the needed values and instantiates a pipeline factory.
+   * Constructs the use case logic for UC2. Retrieves the needed values and instantiates a pipeline
+   * factory.
    */
   public HistoryService() {
     super(LOGGER);
@@ -38,11 +37,10 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName());
 
     final String kafkaOutputTopic =
-        config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+        this.config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
 
     final Duration downsampleInterval = Duration.ofMinutes(
-        Integer.parseInt(config.getProperty(
-            ConfigurationKeys.DOWNSAMPLE_INTERVAL).toString()));
+        this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
 
     this.pipelineFactory = new Uc2PipelineFactory(
         kafkaProps,
