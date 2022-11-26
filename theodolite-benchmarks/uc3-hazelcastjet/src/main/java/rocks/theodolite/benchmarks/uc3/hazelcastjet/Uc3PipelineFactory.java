@@ -3,8 +3,6 @@ package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
-import com.hazelcast.jet.pipeline.ServiceFactories;
-import com.hazelcast.jet.pipeline.ServiceFactory;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
@@ -14,7 +12,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
@@ -24,6 +21,8 @@ import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
  * PipelineFactory for use case 3. Allows to build and extend pipelines.
  */
 public class Uc3PipelineFactory extends PipelineFactory {
+
+  private final ZoneId zone = ZoneId.of("Europe/Paris"); // TODO as parameter
 
   private final Duration hoppingSize;
   private final Duration windowSize;
@@ -102,12 +101,8 @@ public class Uc3PipelineFactory extends PipelineFactory {
   public StreamStage<Map.Entry<String, String>> extendUc3Topology(
       final StreamSource<Map.Entry<String, ActivePowerRecord>> source) {
 
-    final ServiceFactory<?, MapTimeKeyConfiguration> timeKeyConfigService =
-        ServiceFactories.nonSharedService(
-            pctx -> new MapTimeKeyConfiguration(
-                new HourOfDayKeyFactory(),
-                ZoneId.of("Europe/Paris") // TODO Make configurable
-            ));
+    final StatsKeyFactory<HourOfDayKey> keyFactory = new HourOfDayKeyFactory();
+    final ZoneId localZone = this.zone; // Make serializable in lambdas
 
     // Build the pipeline topology.
     return this.pipe
@@ -115,16 +110,13 @@ public class Uc3PipelineFactory extends PipelineFactory {
         // use Timestamps
         .withNativeTimestamps(0)
         // .setLocalParallelism(1)
-        // Map key to HourOfDayKey
-        .mapUsingService(timeKeyConfigService, (config, record) -> {
+        // Group by HourOfDayKey
+        .groupingKey(record -> {
           final String sensorId = record.getValue().getIdentifier();
           final Instant instant = Instant.ofEpochMilli(record.getValue().getTimestamp());
-          final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, config.getZone());
-          final HourOfDayKey key = config.getKeyFactory().createKey(sensorId, dateTime);
-          return Map.entry(key, record.getValue());
+          final LocalDateTime dateTime = LocalDateTime.ofInstant(instant, localZone);
+          return keyFactory.createKey(sensorId, dateTime);
         })
-        // group by new keys
-        .groupingKey(Entry::getKey)
         // Sliding/Hopping Window
         .window(WindowDefinition
             .sliding(this.windowSize.toMillis(), this.hoppingSize.toMillis())
