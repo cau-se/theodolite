@@ -32,11 +32,6 @@ import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorR
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
 
 
 @Category(SerialTest.class)
