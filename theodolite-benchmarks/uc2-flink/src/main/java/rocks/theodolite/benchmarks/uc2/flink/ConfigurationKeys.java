@@ -17,8 +17,6 @@ public final class ConfigurationKeys {
 
   public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
 
-  public static final String COMMIT_INTERVAL_MS = "commit.interval.ms";
-
   public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
 
   public static final String FLINK_STATE_BACKEND = "flink.state.backend";

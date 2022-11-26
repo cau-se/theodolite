@@ -24,8 +24,6 @@ public final class ConfigurationKeys {
   public static final String AGGREGATION_TRIGGER_INTERVAL_SECONDS = // NOPMD
       "aggregation.trigger.interval.seconds";
 
-  public static final String COMMIT_INTERVAL_MS = "commit.interval.ms";
-
   public static final String TIME_ZONE = "time.zone";
 
   public static final String FLINK_STATE_BACKEND = "flink.state.backend";

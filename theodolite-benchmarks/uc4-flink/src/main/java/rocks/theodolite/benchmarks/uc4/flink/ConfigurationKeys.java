@@ -4,6 +4,7 @@ package rocks.theodolite.benchmarks.uc4.flink;
  * Keys to access configuration parameters.
  */
 public final class ConfigurationKeys {
+
   public static final String APPLICATION_NAME = "application.name";
 
   public static final String APPLICATION_VERSION = "application.version";
@@ -21,8 +22,6 @@ public final class ConfigurationKeys {
   public static final String WINDOW_SIZE_MS = "window.size.ms";
 
   public static final String WINDOW_GRACE_MS = "window.grace.ms";
-
-  public static final String COMMIT_INTERVAL_MS = "commit.interval.ms";
 
   public static final String FLINK_STATE_BACKEND = "flink.state.backend";
 
