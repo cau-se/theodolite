@@ -115,9 +115,11 @@ public class PipelineFactory extends AbstractPipelineFactory {
         .apply("Read Windows", Window.into(FixedWindows.of(duration)))
         .apply("Set trigger for input", Window
             .<KV<String, ActivePowerRecord>>configure()
-            .triggering(Repeatedly.forever(
-                AfterProcessingTime.pastFirstElementInPane()
-                    .plusDelayOf(triggerDelay)))
+            .triggering(Repeatedly
+                .forever(
+                    AfterProcessingTime
+                        .pastFirstElementInPane()
+                        .plusDelayOf(triggerDelay)))
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes());
 
@@ -204,7 +206,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
         .apply("Reset trigger for aggregations", Window
             .<KV<String, ActivePowerRecord>>configure()
             .triggering(Repeatedly.forever(
-                AfterProcessingTime.pastFirstElementInPane()
+                AfterProcessingTime
+                    .pastFirstElementInPane()
                     .plusDelayOf(triggerDelay)))
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes())
