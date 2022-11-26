@@ -43,7 +43,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
   private final String kafkaConfigurationTopic;
   private final String kafkaFeedbackTopic;
 
-  private final Duration windowSize;
+  private final Duration emitPeriod;
 
 
   /**
@@ -79,7 +79,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
     this.kafkaFeedbackPropsForPipeline = kafkaFeedbackPropsForPipeline;
     this.kafkaConfigurationTopic = kafkaConfigurationTopic;
     this.kafkaFeedbackTopic = kafkaFeedbackTopic;
-    this.windowSize = windowSize;
+    this.emitPeriod = windowSize;
   }
 
   /**
@@ -231,7 +231,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
     final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
-        dupliAsFlatmappedStage.window(WindowDefinition.tumbling(this.windowSize.toMillis()));
+        dupliAsFlatmappedStage.window(WindowDefinition.tumbling(this.emitPeriod.toMillis()));
 
     final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
         AggregateOperation

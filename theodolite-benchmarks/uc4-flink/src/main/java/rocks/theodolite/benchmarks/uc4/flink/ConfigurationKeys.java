@@ -19,9 +19,9 @@ public final class ConfigurationKeys {
 
   public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
 
-  public static final String WINDOW_SIZE_MS = "window.size.ms";
+  public static final String EMIT_PERIOD_MS = "emit.period.ms";
 
-  public static final String WINDOW_GRACE_MS = "window.grace.ms";
+  public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
   public static final String FLINK_STATE_BACKEND = "flink.state.backend";
 
