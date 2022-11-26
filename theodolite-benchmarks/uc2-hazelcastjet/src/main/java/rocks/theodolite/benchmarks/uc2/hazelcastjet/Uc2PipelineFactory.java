@@ -3,7 +3,6 @@ package rocks.theodolite.benchmarks.uc2.hazelcastjet;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
-import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.WindowDefinition;
@@ -62,7 +61,7 @@ public class Uc2PipelineFactory extends PipelineFactory {
         this.extendUc2Topology(kafkaSource);
 
     // Add Sink1: Logger
-    uc2TopologyProduct.writeTo(Sinks.logger()); // TODO align implementations
+    // uc2TopologyProduct.writeTo(Sinks.logger());
     // Add Sink2: Write back to kafka for the final benchmark
     uc2TopologyProduct.writeTo(KafkaSinks.<String, String>kafka(
         this.kafkaWritePropsForPipeline, this.kafkaOutputTopic));
