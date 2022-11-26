@@ -2,6 +2,7 @@ package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import java.time.Duration;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -10,12 +11,6 @@ import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.EventDeserializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
 
 
 /**
@@ -27,8 +22,8 @@ public class HistoryService extends HazelcastJetService {
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
   /**
-   * Constructs the use case logic for UC4.
-   * Retrieves the needed values and instantiates a pipeline factory.
+   * Constructs the use case logic for UC4. Retrieves the needed values and instantiates a pipeline
+   * factory.
    */
   public HistoryService() {
     super(LOGGER);
@@ -38,12 +33,12 @@ public class HistoryService extends HazelcastJetService {
             KafkaAvroDeserializer.class.getCanonicalName());
 
     final Properties kafkaConfigReadProps =
-        propsBuilder.buildReadProperties(
+        this.propsBuilder.buildReadProperties(
             EventDeserializer.class.getCanonicalName(),
             StringDeserializer.class.getCanonicalName());
 
     final Properties kafkaAggregationReadProps =
-        propsBuilder.buildReadProperties(
+        this.propsBuilder.buildReadProperties(
             StringDeserializer.class.getCanonicalName(),
             KafkaAvroDeserializer.class.getCanonicalName());
 
@@ -52,27 +47,24 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName(),
             KafkaAvroSerializer.class.getCanonicalName());
 
-    final String kafkaOutputTopic =
-        config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
-    final String kafkaConfigurationTopic =
-        config.getProperty(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC).toString();
+    final String configurationTopic =
+        this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
-    final String kafkaFeedbackTopic =
-        config.getProperty(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC).toString();
+    final String feedbackTopic = this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
 
-    final int windowSize = Integer.parseInt(
-        config.getProperty(ConfigurationKeys.WINDOW_SIZE_UC4).toString());
+    final Duration windowSize = Duration.ofMillis(
+        this.config.getInt(ConfigurationKeys.EMIT_PERIOD_MS));
 
     this.pipelineFactory = new Uc4PipelineFactory(
         kafkaProps,
         kafkaConfigReadProps,
         kafkaAggregationReadProps,
         kafkaWriteProps,
-        kafkaInputTopic, kafkaOutputTopic, kafkaConfigurationTopic, kafkaFeedbackTopic,
+        this.kafkaInputTopic, outputTopic, configurationTopic, feedbackTopic,
         windowSize);
   }
-
 
   @Override
   protected void registerSerializer() {

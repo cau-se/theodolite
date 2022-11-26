@@ -32,6 +32,7 @@ public class ConfigurationKeys {
   // UC4
   public static final String KAFKA_CONFIGURATION_TOPIC = "kafka.configuration.topic";
   public static final String KAFKA_FEEDBACK_TOPIC = "kafka.feedback.topic";
-  public static final String WINDOW_SIZE_UC4 = "window.size";
+  public static final String EMIT_PERIOD_MS = "emit.period.ms";
+  // public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
 }

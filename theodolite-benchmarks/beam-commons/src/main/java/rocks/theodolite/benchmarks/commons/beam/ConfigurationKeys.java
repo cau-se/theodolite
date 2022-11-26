@@ -29,8 +29,7 @@ public final class ConfigurationKeys {
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
 
   // UC4
-  public static final String EMIT_PERIOD_SECONDS = "kafka.window.duration.minutes";
-  // public static final String EMIT_PERIOD_MS = "emit.period.ms";
+  public static final String EMIT_PERIOD_MS = "emit.period.ms";
 
   public static final String GRACE_PERIOD_MS = "grace.period.ms";
 

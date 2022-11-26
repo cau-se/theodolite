@@ -19,10 +19,6 @@ public final class ConfigurationKeys {
 
   public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
 
-  public static final String WINDOW_SIZE_MS = "window.size.ms";
-
-  public static final String WINDOW_GRACE_MS = "window.grace.ms";
-
   public static final String CHECKPOINTING = "checkpointing";
 
   public static final String CHECKPOINTING_INTERVAL_MS = "checkpointing.interval.ms";

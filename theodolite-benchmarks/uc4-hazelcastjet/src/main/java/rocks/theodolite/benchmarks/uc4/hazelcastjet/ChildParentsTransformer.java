@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import java.util.Map;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import com.hazelcast.function.SupplierEx;
 import java.util.HashMap;
@@ -20,7 +20,5 @@ public class HashMapSupplier implements SupplierEx<HashMap<String, Set<String>>>
   public HashMap<String, Set<String>> getEx() throws Exception {
     return this.get();
   }
-
-
 
 }

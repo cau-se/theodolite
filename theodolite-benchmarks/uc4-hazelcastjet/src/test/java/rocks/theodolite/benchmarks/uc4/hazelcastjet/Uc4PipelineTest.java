@@ -13,6 +13,7 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -32,11 +33,6 @@ import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorR
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
 
 
 @Category(SerialTest.class)
@@ -57,7 +53,8 @@ public class Uc4PipelineTest extends JetTestSupport {
     final String testLevel1GroupName = "TEST-LEVEL1-GROUP";
     final String testLevel2GroupName = "TEST-LEVEL2-GROUP";
     final Double testValueInW = 10.0;
-    final int testWindowSize = 5000; // As window size is bugged, not necessary.
+    // As window size is bugged, not necessary.
+    final Duration testWindowSize = Duration.ofMillis(5000);
 
     // Create mocked Hazelcast Jet instance with configuration
     final String testClusterName = randomName();
@@ -122,10 +119,11 @@ public class Uc4PipelineTest extends JetTestSupport {
     // Create pipeline to test
     final Properties properties = new Properties();
     final Uc4PipelineFactory factory = new Uc4PipelineFactory(
-        properties,properties,properties,properties,"","",
-    "","", testWindowSize);
+        properties, properties, properties, properties, "", "",
+        "", "", testWindowSize);
 
-    this.uc4Topology = factory.extendUc4Topology(testInputSource, testAggregationSource, testConfigSource);
+    this.uc4Topology =
+        factory.extendUc4Topology(testInputSource, testAggregationSource, testConfigSource);
     this.uc4Topology.writeTo(Sinks.logger());
 
     this.testPipeline = factory.getPipe();
@@ -207,7 +205,8 @@ public class Uc4PipelineTest extends JetTestSupport {
           .registerSerializer(ImmutableSensorRegistry.class,
               ImmutableSensorRegistryUc4Serializer.class);
       this.testInstance.newJob(this.testPipeline, jobConfig).join();
-      Assert.fail("Job should have completed with an AssertionCompletedException, but completed normally");
+      Assert.fail(
+          "Job should have completed with an AssertionCompletedException, but completed normally");
 
     } catch (final CompletionException e) {
       final String errorMsg = e.getCause().getMessage();
@@ -215,8 +214,8 @@ public class Uc4PipelineTest extends JetTestSupport {
           "Job was expected to complete with AssertionCompletedException, but completed with: "
               + e.getCause(),
           errorMsg.contains(AssertionCompletedException.class.getName()));
-    } catch (final Exception e){
-      LOGGER.error("Test is broken",e);
+    } catch (final Exception e) {
+      LOGGER.error("Test is broken", e);
     }
   }
 
