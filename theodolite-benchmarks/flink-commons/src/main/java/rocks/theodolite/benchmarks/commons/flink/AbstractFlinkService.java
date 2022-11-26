@@ -61,7 +61,7 @@ public abstract class AbstractFlinkService {
   protected void configureCheckpointing() {
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
     final int commitIntervalMs = this.config.getInt(ConfigurationKeys.CHECKPOINTING_INTERVAL_MS);
-    LOGGER.info("Set parallelism to: {}.", checkpointing);
+    LOGGER.info("Set checkpointing to: {}.", checkpointing);
     if (checkpointing) {
       this.env.enableCheckpointing(commitIntervalMs);
     }
