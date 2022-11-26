@@ -15,6 +15,7 @@ import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.StreamStageWithKey;
 import com.hazelcast.jet.pipeline.WindowDefinition;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
   private final String kafkaConfigurationTopic;
   private final String kafkaFeedbackTopic;
 
-  private final int windowSize;
+  private final Duration windowSize;
 
 
   /**
@@ -70,7 +71,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
       final String kafkaOutputTopic,
       final String kafkaConfigurationTopic,
       final String kafkaFeedbackTopic,
-      final int windowSize) {
+      final Duration windowSize) {
 
     super(kafkaInputReadPropsForPipeline, kafkaInputTopic,
         kafkaWritePropsForPipeline, kafkaOutputTopic);
@@ -230,8 +231,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
     final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
-        dupliAsFlatmappedStage
-            .window(WindowDefinition.tumbling(this.windowSize));
+        dupliAsFlatmappedStage.window(WindowDefinition.tumbling(this.windowSize.toMillis()));
 
     final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
         AggregateOperation

@@ -2,6 +2,7 @@ package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import java.time.Duration;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -46,24 +47,22 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName(),
             KafkaAvroSerializer.class.getCanonicalName());
 
-    final String kafkaOutputTopic =
-        this.config.getProperty(ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
-    final String kafkaConfigurationTopic =
-        this.config.getProperty(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC).toString();
+    final String configurationTopic =
+        this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
-    final String kafkaFeedbackTopic =
-        this.config.getProperty(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC).toString();
+    final String feedbackTopic = this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
 
-    final int windowSize = Integer.parseInt(
-        this.config.getProperty(ConfigurationKeys.WINDOW_SIZE_UC4).toString());
+    final Duration windowSize = Duration.ofMillis(
+        this.config.getInt(ConfigurationKeys.EMIT_PERIOD_MS));
 
     this.pipelineFactory = new Uc4PipelineFactory(
         kafkaProps,
         kafkaConfigReadProps,
         kafkaAggregationReadProps,
         kafkaWriteProps,
-        this.kafkaInputTopic, kafkaOutputTopic, kafkaConfigurationTopic, kafkaFeedbackTopic,
+        this.kafkaInputTopic, outputTopic, configurationTopic, feedbackTopic,
         windowSize);
   }
 
