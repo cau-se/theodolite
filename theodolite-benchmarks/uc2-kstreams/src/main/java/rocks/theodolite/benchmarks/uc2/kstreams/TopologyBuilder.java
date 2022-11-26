@@ -11,8 +11,6 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
 import rocks.theodolite.benchmarks.commons.kstreams.GenericSerde;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
@@ -22,8 +20,6 @@ import rocks.theodolite.benchmarks.uc2.kstreams.util.StatsFactory;
  * Builds Kafka Stream Topology for the History microservice.
  */
 public class TopologyBuilder {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyBuilder.class);
 
   private final String inputTopic;
   private final String outputTopic;
