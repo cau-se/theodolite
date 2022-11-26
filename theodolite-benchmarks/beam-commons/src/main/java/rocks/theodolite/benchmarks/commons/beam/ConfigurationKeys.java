@@ -21,7 +21,7 @@ public final class ConfigurationKeys {
   public static final String KAFKA_CONFIGURATION_TOPIC = "kafka.configuration.topic";
 
   // UC2
-  public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+  public static final String DOWNSAMPLE_INTERVAL_MINUTES = "downsample.interval.minutes";
 
   // UC3
   public static final String AGGREGATION_DURATION_DAYS = "aggregation.duration.days";

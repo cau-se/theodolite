@@ -73,7 +73,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
         this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
     final Duration duration = Duration.standardSeconds(
-        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+        this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
     final Duration triggerDelay = Duration.standardSeconds(
         this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
     final Duration gracePeriod = Duration.standardSeconds(

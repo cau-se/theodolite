@@ -17,7 +17,7 @@ public final class ConfigurationKeys {
 
   public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
 
-  public static final String KAFKA_WINDOW_DURATION_MINUTES = "kafka.window.duration.minutes";
+  public static final String DOWNSAMPLE_INTERVAL_MINUTES = "downsample.interval.minutes";
 
   public static final String FLINK_STATE_BACKEND = "flink.state.backend";
 

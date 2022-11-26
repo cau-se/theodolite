@@ -1,7 +1,6 @@
 package rocks.theodolite.benchmarks.uc2.kstreams;
 
 import java.time.Duration;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
@@ -18,8 +17,6 @@ public class HistoryService {
   private final Configuration config = ServiceConfigurations.createWithDefaults();
 
   private final CompletableFuture<Void> stopEvent = new CompletableFuture<>();
-  private final int windowDurationMinutes = Integer
-      .parseInt(Objects.requireNonNullElse(System.getenv("KAFKA_WINDOW_DURATION_MINUTES"), "60"));
 
   /**
    * Start the service.
@@ -36,7 +33,8 @@ public class HistoryService {
     final Uc2KafkaStreamsBuilder uc2KafkaStreamsBuilder = new Uc2KafkaStreamsBuilder(this.config);
     uc2KafkaStreamsBuilder
         .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
-        .windowDuration(Duration.ofMinutes(this.windowDurationMinutes));
+        .windowDuration(Duration.ofMinutes(
+            this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES)));
 
     final KafkaStreams kafkaStreams = uc2KafkaStreamsBuilder.build();
 
