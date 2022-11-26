@@ -48,7 +48,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
     final Duration aggregationAdvanceDuration =
         Duration.standardDays(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
     final Duration triggerDelay =
-        Duration.standardSeconds(this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
+        Duration.standardSeconds(this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
 
     // Read from Kafka
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();

@@ -29,8 +29,10 @@ public final class ConfigurationKeys {
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
 
   // UC4
-  public static final String GRACE_PERIOD_MS = "grace.period.ms";
+  public static final String EMIT_PERIOD_SECONDS = "kafka.window.duration.minutes";
+  // public static final String EMIT_PERIOD_MS = "emit.period.ms";
 
+  public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
   // BEAM
   public static final String ENABLE_AUTO_COMMIT = "enable.auto.commit";
@@ -41,7 +43,9 @@ public final class ConfigurationKeys {
 
   public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";
 
-  public static final String TRIGGER_INTERVAL = "trigger.interval";
+  // Used for UC3 + UC4:
+  public static final String TRIGGER_INTERVAL_SECONDS = "trigger.interval";
+  // public static final String TRIGGER_INTERVAL_SECONDS = "trigger.interval.seconds";
 
 
   private ConfigurationKeys() {}
