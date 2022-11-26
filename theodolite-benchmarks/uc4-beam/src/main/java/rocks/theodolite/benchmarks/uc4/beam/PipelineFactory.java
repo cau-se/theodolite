@@ -76,7 +76,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
         this.config.getInt(ConfigurationKeys.EMIT_PERIOD_MS));
     final Duration triggerDelay = Duration.standardSeconds(
         this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
-    final Duration gracePeriod = Duration.standardSeconds( // TODO this is wrong
+    final Duration gracePeriod = Duration.standardSeconds(// TODO this is wrong
         this.config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
 
     // Read from Kafka
