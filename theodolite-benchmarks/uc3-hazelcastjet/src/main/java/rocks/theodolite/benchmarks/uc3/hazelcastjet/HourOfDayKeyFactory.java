@@ -1,12 +1,14 @@
-package rocks.theodolite.benchmarks.uc3.hazelcastjet.uc3specifics;
+package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * A factory class to build an {@link HourOfDayKey}.
- *
+ * {@link StatsKeyFactory} for {@link HourOfDayKey}.
  */
-public class HoursOfDayKeyFactory implements StatsKeyFactory<HourOfDayKey> {
+public class HourOfDayKeyFactory implements StatsKeyFactory<HourOfDayKey>, Serializable {
+
+  private static final long serialVersionUID = 9047643205410220184L;
 
   @Override
   public HourOfDayKey createKey(final String sensorId, final LocalDateTime dateTime) {

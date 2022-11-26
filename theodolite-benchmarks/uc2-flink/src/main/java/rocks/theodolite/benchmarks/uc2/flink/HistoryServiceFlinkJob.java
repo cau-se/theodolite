@@ -39,9 +39,8 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
-    final int windowDurationMinutes =
-        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES);
-    final Time windowDuration = Time.minutes(windowDurationMinutes);
+    final Time windowDuration = Time.minutes(
+        this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(

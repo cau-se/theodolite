@@ -72,11 +72,11 @@ public class PipelineFactory extends AbstractPipelineFactory {
     final String configurationTopic =
         this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
-    final Duration duration = Duration.standardSeconds(
-        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+    final Duration duration = Duration.millis(
+        this.config.getInt(ConfigurationKeys.EMIT_PERIOD_MS));
     final Duration triggerDelay = Duration.standardSeconds(
-        this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
-    final Duration gracePeriod = Duration.standardSeconds(
+        this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
+    final Duration gracePeriod = Duration.standardSeconds(// TODO this is wrong
         this.config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
 
     // Read from Kafka
@@ -115,9 +115,11 @@ public class PipelineFactory extends AbstractPipelineFactory {
         .apply("Read Windows", Window.into(FixedWindows.of(duration)))
         .apply("Set trigger for input", Window
             .<KV<String, ActivePowerRecord>>configure()
-            .triggering(Repeatedly.forever(
-                AfterProcessingTime.pastFirstElementInPane()
-                    .plusDelayOf(triggerDelay)))
+            .triggering(Repeatedly
+                .forever(
+                    AfterProcessingTime
+                        .pastFirstElementInPane()
+                        .plusDelayOf(triggerDelay)))
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes());
 
@@ -204,7 +206,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
         .apply("Reset trigger for aggregations", Window
             .<KV<String, ActivePowerRecord>>configure()
             .triggering(Repeatedly.forever(
-                AfterProcessingTime.pastFirstElementInPane()
+                AfterProcessingTime
+                    .pastFirstElementInPane()
                     .plusDelayOf(triggerDelay)))
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes())

@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics;
+package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
@@ -19,7 +19,6 @@ public class AggregatedActivePowerRecordAccumulator {
   public AggregatedActivePowerRecordAccumulator() {
     // This constructor is intentionally empty. Nothing special is needed here.
   }
-
 
   /**
    * Creates an AggregationObject.

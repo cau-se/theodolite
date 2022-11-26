@@ -8,7 +8,7 @@ import org.apache.beam.sdk.values.KV;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
- * Changes the time format to us Europe/Paris time.
+ * Maps the key of incoming records from pure sensor ID strings to {@link HourOfDayKey}s.
  */
 public class MapTimeFormat
     extends SimpleFunction<KV<String, ActivePowerRecord>, KV<HourOfDayKey, ActivePowerRecord>> {

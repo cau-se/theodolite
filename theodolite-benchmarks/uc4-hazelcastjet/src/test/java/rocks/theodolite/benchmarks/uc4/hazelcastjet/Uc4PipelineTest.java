@@ -13,15 +13,19 @@ import com.hazelcast.jet.pipeline.test.AssertionCompletedException;
 import com.hazelcast.jet.pipeline.test.Assertions;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.jet.test.SerialTest;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.configuration.events.Event;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
@@ -29,15 +33,12 @@ import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorR
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ImmutableSensorRegistryUc4Serializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKey;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.SensorGroupKeySerializer;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroup;
-import rocks.theodolite.benchmarks.uc4.hazelcastjet.uc4specifics.ValueGroupSerializer;
 
 
 @Category(SerialTest.class)
 public class Uc4PipelineTest extends JetTestSupport {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Uc4PipelineTest.class);
 
   JetInstance testInstance = null;
   Pipeline testPipeline = null;
@@ -52,7 +53,8 @@ public class Uc4PipelineTest extends JetTestSupport {
     final String testLevel1GroupName = "TEST-LEVEL1-GROUP";
     final String testLevel2GroupName = "TEST-LEVEL2-GROUP";
     final Double testValueInW = 10.0;
-    final int testWindowSize = 5000; // As window size is bugged, not necessary.
+    // As window size is bugged, not necessary.
+    final Duration testWindowSize = Duration.ofMillis(5000);
 
     // Create mocked Hazelcast Jet instance with configuration
     final String testClusterName = randomName();
@@ -115,12 +117,16 @@ public class Uc4PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    final Uc4PipelineBuilder pipelineBuilder = new Uc4PipelineBuilder();
-    this.testPipeline = Pipeline.create();
-    this.uc4Topology = pipelineBuilder.extendUc4Topology(this.testPipeline,
-        testInputSource, testAggregationSource, testConfigSource, testWindowSize);
+    final Properties properties = new Properties();
+    final Uc4PipelineFactory factory = new Uc4PipelineFactory(
+        properties, properties, properties, properties, "", "",
+        "", "", testWindowSize);
 
+    this.uc4Topology =
+        factory.extendUc4Topology(testInputSource, testAggregationSource, testConfigSource);
     this.uc4Topology.writeTo(Sinks.logger());
+
+    this.testPipeline = factory.getPipe();
   }
 
   /**
@@ -128,8 +134,6 @@ public class Uc4PipelineTest extends JetTestSupport {
    */
   @Test
   public void testOutput() {
-
-    // System.out.println("DEBUG DEBUG DEBUG || ENTERED TEST 1");
 
     // Assertion Configuration
     final int timeout = 20;
@@ -153,11 +157,11 @@ public class Uc4PipelineTest extends JetTestSupport {
 
 
           if (collection != null) {
-            System.out.println("Collection size: " + collection.size());
+            LOGGER.info("Collection size: " + collection.size());
 
 
             for (final Entry<String, AggregatedActivePowerRecord> entry : collection) {
-              System.out.println("DEBUG || " + entry.toString());
+              LOGGER.info("Entry || " + entry.toString());
 
               final String key = entry.getKey();
               final AggregatedActivePowerRecord agg = entry.getValue();
@@ -184,10 +188,10 @@ public class Uc4PipelineTest extends JetTestSupport {
             allOkay = testLevel1contained && testLevel2contained && averageEqTest && avOk;
           }
 
-          System.out.println("testLevel1contained: " + testLevel1contained);
-          System.out.println("testLevel2contained: " + testLevel2contained);
-          System.out.println("averageEqTest: " + averageEqTest);
-          System.out.println("avOk: " + avOk);
+          LOGGER.info("Test item from Level1 contained: " + testLevel1contained);
+          LOGGER.info("Test item from Level2 contained: " + testLevel2contained);
+          LOGGER.info("Average watt value equals test watt value: " + averageEqTest);
+          LOGGER.info("Average calculation correct =: " + avOk);
 
           Assert.assertTrue("Assertion did not complete!", allOkay);
 
@@ -201,6 +205,8 @@ public class Uc4PipelineTest extends JetTestSupport {
           .registerSerializer(ImmutableSensorRegistry.class,
               ImmutableSensorRegistryUc4Serializer.class);
       this.testInstance.newJob(this.testPipeline, jobConfig).join();
+      Assert.fail(
+          "Job should have completed with an AssertionCompletedException, but completed normally");
 
     } catch (final CompletionException e) {
       final String errorMsg = e.getCause().getMessage();
@@ -209,14 +215,14 @@ public class Uc4PipelineTest extends JetTestSupport {
               + e.getCause(),
           errorMsg.contains(AssertionCompletedException.class.getName()));
     } catch (final Exception e) {
-      System.out.println("ERRORORORO TEST BROKEN !!!!");
-      System.out.println(e);
+      LOGGER.error("Test is broken", e);
     }
   }
 
 
   @After
   public void after() {
+    LOGGER.info("Shutting down the test instances");
     // Shuts down all running Jet Instances
     Jet.shutdownAll();
   }

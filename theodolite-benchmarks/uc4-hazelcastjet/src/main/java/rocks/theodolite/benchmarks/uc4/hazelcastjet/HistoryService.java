@@ -1,74 +1,81 @@
 package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import java.time.Duration;
+import java.util.Properties;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
+import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
+import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
+
 
 /**
  * A microservice that manages the history and, therefore, stores and aggregates incoming
  * measurements.
  */
-public class HistoryService {
+public class HistoryService extends HazelcastJetService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
-  // Hazelcast settings (default)
-  private static final String HZ_KUBERNETES_SERVICE_DNS_KEY = "service-dns";
-  private static final String BOOTSTRAP_SERVER_DEFAULT = "localhost:5701";
-
-  // Kafka settings (default)
-  private static final String KAFKA_BOOTSTRAP_DEFAULT = "localhost:9092";
-  private static final String SCHEMA_REGISTRY_URL_DEFAULT = "http://localhost:8081";
-  private static final String KAFKA_INPUT_TOPIC_DEFAULT = "input";
-  private static final String KAFKA_CONFIG_TOPIC_DEFAULT = "configuration";
-  private static final String KAFKA_FEEDBACK_TOPIC_DEFAULT = "aggregation-feedback";
-  private static final String KAFKA_OUTPUT_TOPIC_DEFAULT = "output";
-
-  // UC4 specific (default)
-  private static final String WINDOW_SIZE_DEFAULT_MS = "5000";
-
-  // Job name (default)
-  private static final String JOB_NAME = "uc4-hazelcastjet";
-
   /**
-   * Entrypoint for UC4 using Gradle Run.
+   * Constructs the use case logic for UC4. Retrieves the needed values and instantiates a pipeline
+   * factory.
    */
+  public HistoryService() {
+    super(LOGGER);
+    final Properties kafkaProps =
+        this.propsBuilder.buildReadProperties(
+            StringDeserializer.class.getCanonicalName(),
+            KafkaAvroDeserializer.class.getCanonicalName());
+
+    final Properties kafkaConfigReadProps =
+        this.propsBuilder.buildReadProperties(
+            EventDeserializer.class.getCanonicalName(),
+            StringDeserializer.class.getCanonicalName());
+
+    final Properties kafkaAggregationReadProps =
+        this.propsBuilder.buildReadProperties(
+            StringDeserializer.class.getCanonicalName(),
+            KafkaAvroDeserializer.class.getCanonicalName());
+
+    final Properties kafkaWriteProps =
+        this.propsBuilder.buildWriteProperties(
+            StringSerializer.class.getCanonicalName(),
+            KafkaAvroSerializer.class.getCanonicalName());
+
+    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+
+    final String configurationTopic =
+        this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
+
+    final String feedbackTopic = this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
+
+    final Duration windowSize = Duration.ofMillis(
+        this.config.getInt(ConfigurationKeys.EMIT_PERIOD_MS));
+
+    this.pipelineFactory = new Uc4PipelineFactory(
+        kafkaProps,
+        kafkaConfigReadProps,
+        kafkaAggregationReadProps,
+        kafkaWriteProps,
+        this.kafkaInputTopic, outputTopic, configurationTopic, feedbackTopic,
+        windowSize);
+  }
+
+  @Override
+  protected void registerSerializer() {
+    this.jobConfig.registerSerializer(ValueGroup.class, ValueGroupSerializer.class)
+        .registerSerializer(SensorGroupKey.class, SensorGroupKeySerializer.class)
+        .registerSerializer(ImmutableSensorRegistry.class,
+            ImmutableSensorRegistryUc4Serializer.class);
+  }
+
+
   public static void main(final String[] args) {
-    final HistoryService uc4HistoryService = new HistoryService();
-    try {
-      uc4HistoryService.run();
-    } catch (final Exception e) { // NOPMD
-      LOGGER.error("ABORT MISSION!: {}", e);
-    }
+    new HistoryService().run();
   }
-
-  /**
-   * Start a UC4 service.
-   *
-   * @throws Exception This Exception occurs if the Uc4HazelcastJetFactory is used in the wrong way.
-   *         Detailed data is provided once an Exception occurs.
-   */
-  public void run() throws Exception { // NOPMD
-    this.createHazelcastJetApplication();
-  }
-
-  /**
-   * Creates a Hazelcast Jet Application for UC4 using the Uc1HazelcastJetFactory.
-   *
-   * @throws Exception This Exception occurs if the Uc4HazelcastJetFactory is used in the wrong way.
-   *         Detailed data is provided once an Exception occurs.
-   */
-  private void createHazelcastJetApplication() throws Exception { // NOPMD
-    new Uc4HazelcastJetFactory()
-        .setReadPropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT,JOB_NAME)
-        .setWritePropertiesFromEnv(KAFKA_BOOTSTRAP_DEFAULT, SCHEMA_REGISTRY_URL_DEFAULT)
-        .setKafkaInputTopicFromEnv(KAFKA_INPUT_TOPIC_DEFAULT)
-        .setKafkaOutputTopicFromEnv(KAFKA_OUTPUT_TOPIC_DEFAULT)
-        .setKafkaConfigurationTopicFromEnv(KAFKA_CONFIG_TOPIC_DEFAULT)
-        .setKafkaFeedbackTopicFromEnv(KAFKA_FEEDBACK_TOPIC_DEFAULT)
-        .setWindowSizeFromEnv(WINDOW_SIZE_DEFAULT_MS)
-        .buildUc4JetInstanceFromEnv(LOGGER, BOOTSTRAP_SERVER_DEFAULT, HZ_KUBERNETES_SERVICE_DNS_KEY)
-        .buildUc4Pipeline()
-        .runUc4Job(JOB_NAME);
-  }
-
 }

@@ -1,4 +1,4 @@
-package rocks.theodolite.benchmarks.uc2.hazelcastjet.uc2specifics;
+package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
 import com.google.common.math.Stats;
 import com.google.common.math.StatsAccumulator;
@@ -8,8 +8,7 @@ import com.hazelcast.nio.serialization.StreamSerializer;
 import java.io.IOException;
 
 /**
- * A serializer and deserializer for the StatsAccumulator which is used in the UC2 implementation
- * using Hazelcast Jet.
+ * A serializer and deserializer for the {@link StatsAccumulator}.
  */
 public class StatsAccumulatorSerializer implements StreamSerializer<StatsAccumulator> {
 

@@ -17,6 +17,7 @@ import com.hazelcast.jet.test.SerialTest;
 import com.hazelcast.logging.ILogger;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -24,11 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseAdapter;
 import rocks.theodolite.benchmarks.uc1.commons.DatabaseWriter;
 import rocks.theodolite.benchmarks.uc1.commons.logger.LogWriterFactory;
-import rocks.theodolite.benchmarks.uc1.hazelcastjet.Uc1PipelineBuilder;
+import rocks.theodolite.benchmarks.uc1.hazelcastjet.Uc1PipelineFactory;
 
 /**
  * Test methods for the Hazelcast Jet Implementation of UC1.
@@ -40,8 +42,8 @@ public class Uc1PipelineTest extends JetTestSupport {
   private Pipeline testPipeline = null;
   private StreamStage<String> uc1Topology = null;
 
-  // Standart Logger
-  private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Uc1PipelineTest.class);
+  // Standard Logger
+  private static final Logger LOGGER = LoggerFactory.getLogger(Uc1PipelineTest.class);
   // HazelcastJet Logger
   private static final ILogger logger = getLogger(Uc1PipelineTest.class);
 
@@ -82,10 +84,10 @@ public class Uc1PipelineTest extends JetTestSupport {
         });
 
     // Create pipeline to test
-    final Uc1PipelineBuilder pipelineBuilder = new Uc1PipelineBuilder();
-    this.testPipeline = Pipeline.create();
-    this.uc1Topology =
-        pipelineBuilder.extendUc1Topology(this.testPipeline, testSource);
+    final Properties properties = new Properties();
+    final Uc1PipelineFactory factory = new Uc1PipelineFactory(properties, "");
+    this.uc1Topology = factory.extendUc1Topology(testSource);
+    this.testPipeline = factory.getPipe();
 
     // Create DatabaseWriter sink
     final DatabaseWriter<String> adapter = this.databaseAdapter.getDatabaseWriter();
