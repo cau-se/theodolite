@@ -9,9 +9,8 @@ import org.slf4j.LoggerFactory;
 import titan.ccp.common.configuration.ServiceConfigurations;
 
 /**
- * Abstract HazelcastJetService.
- * Holds common fields and logic shared for all hazelcast jet services.
- * Set common settings and initiates a hazelcast jet instance.
+ * Abstract HazelcastJetService. Holds common fields and logic shared for all hazelcast jet
+ * services. Set common settings and initiates a hazelcast jet instance.
  */
 public abstract class HazelcastJetService {
 
@@ -33,39 +32,38 @@ public abstract class HazelcastJetService {
 
 
   /**
-   * Instantiate a new abstract service.
-   * Retrieves needed fields using ServiceConfiguration and build a new jet instance.
+   * Instantiate a new abstract service. Retrieves needed fields using ServiceConfiguration and
+   * build a new jet instance.
    */
   public HazelcastJetService(final Logger logger) {
-    this.jobName = config.getProperty(ConfigurationKeys.APPLICATION_NAME).toString();
+    this.jobName = this.config.getProperty(ConfigurationKeys.APPLICATION_NAME).toString();
 
-    this.kafkaBootstrapServer = config.getProperty(
+    this.kafkaBootstrapServer = this.config.getProperty(
         ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS).toString();
-    this.schemaRegistryUrl = config.getProperty(ConfigurationKeys.SCHEMA_REGISTRY_URL).toString();
+    this.schemaRegistryUrl =
+        this.config.getProperty(ConfigurationKeys.SCHEMA_REGISTRY_URL).toString();
     this.propsBuilder =
-        new KafkaPropertiesBuilder(kafkaBootstrapServer, schemaRegistryUrl, jobName);
+        new KafkaPropertiesBuilder(this.kafkaBootstrapServer, this.schemaRegistryUrl, this.jobName);
 
-    this.kafkaInputTopic = config.getProperty(ConfigurationKeys.KAFKA_INPUT_TOPIC).toString();
+    this.kafkaInputTopic = this.config.getProperty(ConfigurationKeys.KAFKA_INPUT_TOPIC).toString();
 
     final JetInstanceBuilder jetInstance = new JetInstanceBuilder()
-        .setConfigFromEnv(logger, kafkaBootstrapServer, HZ_KUBERNETES_SERVICE_DNS_KEY);
+        .setConfigFromEnv(logger, this.kafkaBootstrapServer, HZ_KUBERNETES_SERVICE_DNS_KEY);
     this.jetInstance = jetInstance.build();
   }
 
 
   /**
-   * Constructs and starts the pipeline.
-   * First initiates a pipeline,
-   * Second register the corresponding serializers,
-   * Third set the job name,
-   * Lastly, add the job to the hazelcast instance.
+   * Constructs and starts the pipeline. First, initiates a pipeline. Second, register the
+   * corresponding serializers. Third, set the job name. Lastly, add the job to the Hazelcast
+   * instance.
    */
   public void run() {
     try {
-      final Pipeline pipeline  = pipelineFactory.buildPipeline();
-      registerSerializer();
-      jobConfig.setName(config.getString("name"));
-      this.jetInstance.newJobIfAbsent(pipeline, jobConfig).join();
+      final Pipeline pipeline = this.pipelineFactory.buildPipeline();
+      this.registerSerializer();
+      this.jobConfig.setName(this.config.getString("name"));
+      this.jetInstance.newJobIfAbsent(pipeline, this.jobConfig).join();
     } catch (final Exception e) { // NOPMD
       LOGGER.error("ABORT MISSION!:", e);
     }
