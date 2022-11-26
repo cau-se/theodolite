@@ -9,7 +9,7 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.triggers.ContinuousEventTimeTrigger;
+import org.apache.flink.streaming.api.windowing.triggers.ContinuousProcessingTimeTrigger;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
@@ -83,7 +83,7 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
           return keyFactory.createKey(record.getIdentifier(), dateTime);
         })
         .window(SlidingEventTimeWindows.of(aggregationDuration, aggregationAdvance))
-        .trigger(ContinuousEventTimeTrigger.of(triggerDuration))
+        .trigger(ContinuousProcessingTimeTrigger.of(triggerDuration))
         .aggregate(new StatsAggregateFunction(), new HourOfDayProcessWindowFunction())
         .map(tuple -> {
           final String sensorId = keyFactory.getSensorId(tuple.f0);

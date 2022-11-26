@@ -109,7 +109,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
         this.kafkaWritePropsForPipeline, this.kafkaFeedbackTopic));
 
     // Log aggregation product
-    uc4Aggregation.writeTo(Sinks.logger());
+    // uc4Aggregation.writeTo(Sinks.logger());
 
     // Add Sink2: Write back to kafka output topic
     uc4Aggregation.writeTo(KafkaSinks.kafka(
