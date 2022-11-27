@@ -18,7 +18,7 @@ spec:
             - "service-monitor.yaml"
             - "jobmanager-service.yaml"
             - "jobmanager-deployment.yaml"
-            #- "jobmanager-rest-service.yaml"
+            # - "jobmanager-rest-service.yaml"
   loadGenerator:
     resources:
       - configMap:
@@ -35,11 +35,6 @@ spec:
           resource: "jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
-            variableName: "PARALLELISM"
-        - type: "EnvVarPatcher" # required?
-          resource: "taskmanager-deployment.yaml"
-          properties:
-            container: "taskmanager"
             variableName: "PARALLELISM"
   loadTypes:
     - typeName: "NumSensors"
