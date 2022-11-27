@@ -51,6 +51,7 @@ services:
       SAMZA_SYSTEMS_KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      ENABLE_METRICS: "false"
   load-generator: 
     image: ghcr.io/cau-se/theodolite-uc4-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:
