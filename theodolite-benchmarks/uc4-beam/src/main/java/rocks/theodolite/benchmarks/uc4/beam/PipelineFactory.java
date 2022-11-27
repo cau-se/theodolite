@@ -74,9 +74,10 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
     final Duration duration = Duration.millis(
         this.config.getInt(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
+    // final boolean enableTrigger = this.config.getBoolean(Uc4ConfigurationKeys.TRIGGER_ENABLE);
     final Duration triggerDelay = Duration.standardSeconds(
         this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
-    final Duration gracePeriod = Duration.standardSeconds(// TODO this is wrong
+    final Duration gracePeriod = Duration.millis(
         this.config.getInt(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
 
     // Read from Kafka

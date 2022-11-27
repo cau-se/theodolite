@@ -11,8 +11,7 @@ public final class Uc3ConfigurationKeys {
 
   public static final String AGGREGATION_ADVANCE_DAYS = "aggregation.advance.days";
 
-  public static final String TRIGGER_INTERVAL_SECONDS = "trigger.interval";
-  // public static final String TRIGGER_INTERVAL_SECONDS = "trigger.interval.seconds";
+  public static final String TRIGGER_INTERVAL_SECONDS = "aggregation.trigger.interval.seconds";
 
   private Uc3ConfigurationKeys() {}
 
