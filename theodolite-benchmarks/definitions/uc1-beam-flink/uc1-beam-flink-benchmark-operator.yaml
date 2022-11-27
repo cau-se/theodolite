@@ -12,13 +12,12 @@ spec:
       - configMap:
           name: "benchmark-resources-uc1-beam-flink"
           files:
-          - "flink-configuration-configmap.yaml"
           - "taskmanager-deployment.yaml"
           - "taskmanager-service.yaml"
           - "service-monitor.yaml"
           - "jobmanager-service.yaml"
           - "jobmanager-deployment.yaml"
-          #- "jobmanager-rest-service.yaml"
+          # - "jobmanager-rest-service.yaml"
   loadGenerator:
     resources:
       - configMap:
