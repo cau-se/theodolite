@@ -5,11 +5,10 @@ package rocks.theodolite.benchmarks.uc2.beam;
  */
 public final class Uc2ConfigurationKeys {
 
-	public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
+  public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
 
-	public static final String DOWNSAMPLE_INTERVAL_MINUTES = "downsample.interval.minutes";
+  public static final String DOWNSAMPLE_INTERVAL_MINUTES = "downsample.interval.minutes";
 
-	private Uc2ConfigurationKeys() {
-	}
+  private Uc2ConfigurationKeys() {}
 
 }
