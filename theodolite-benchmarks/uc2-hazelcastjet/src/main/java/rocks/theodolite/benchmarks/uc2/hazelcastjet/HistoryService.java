@@ -34,8 +34,7 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName(),
             StringSerializer.class.getCanonicalName());
 
-    final String kafkaOutputTopic =
-        this.config.getProperty(Uc2ConfigurationKeys.KAFKA_OUTPUT_TOPIC).toString();
+    final String kafkaOutputTopic = this.config.getString(Uc2ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final Duration downsampleInterval = Duration.ofMinutes(
         this.config.getInt(Uc2ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES));
