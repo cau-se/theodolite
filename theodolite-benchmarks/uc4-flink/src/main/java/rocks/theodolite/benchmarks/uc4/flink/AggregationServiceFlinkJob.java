@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.configuration.events.Event;
 import rocks.theodolite.benchmarks.commons.configuration.events.EventSerde;
 import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
+import rocks.theodolite.benchmarks.commons.flink.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.commons.flink.TupleType;
 import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFactory;
@@ -62,16 +63,17 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
   @Override
   protected void buildPipeline() {
     // Get configurations
-    final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
-    final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
+    final String kafkaBroker = this.config.getString(Uc4ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
+    final String schemaRegistryUrl =
+        this.config.getString(Uc4ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
-    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String outputTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final Time windowSize =
-        Time.milliseconds(this.config.getLong(ConfigurationKeys.EMIT_PERIOD_MS));
+        Time.milliseconds(this.config.getLong(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
     final Duration windowGrace =
-        Duration.ofMillis(this.config.getLong(ConfigurationKeys.GRACE_PERIOD_MS));
+        Duration.ofMillis(this.config.getLong(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
     final String configurationTopic =
-        this.config.getString(ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
+        this.config.getString(Uc4ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(

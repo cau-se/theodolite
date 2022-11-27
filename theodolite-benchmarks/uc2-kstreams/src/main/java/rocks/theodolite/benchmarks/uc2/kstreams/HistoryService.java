@@ -5,7 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
 import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
-import rocks.theodolite.benchmarks.commons.kstreams.ConfigurationKeys;
 
 /**
  * A microservice that manages the history and, therefore, stores and aggregates incoming
@@ -32,9 +31,9 @@ public class HistoryService {
   private void createKafkaStreamsApplication() {
     final Uc2KafkaStreamsBuilder uc2KafkaStreamsBuilder = new Uc2KafkaStreamsBuilder(this.config);
     uc2KafkaStreamsBuilder
-        .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
+        .outputTopic(this.config.getString(Uc2ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
         .windowDuration(Duration.ofMinutes(
-            this.config.getInt(ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES)));
+            this.config.getInt(Uc2ConfigurationKeys.DOWNSAMPLE_INTERVAL_MINUTES)));
 
     final KafkaStreams kafkaStreams = uc2KafkaStreamsBuilder.build();
 

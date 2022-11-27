@@ -67,17 +67,17 @@ public class PipelineFactory extends AbstractPipelineFactory {
   @Override
   protected void constructPipeline(final Pipeline pipeline) { // NOPMD
     // Additional needed variables
-    final String feedbackTopic = this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
-    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String feedbackTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
+    final String outputTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final String configurationTopic =
-        this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
+        this.config.getString(Uc4ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
     final Duration duration = Duration.millis(
-        this.config.getInt(ConfigurationKeys.EMIT_PERIOD_MS));
+        this.config.getInt(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
     final Duration triggerDelay = Duration.standardSeconds(
-        this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
+        this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
     final Duration gracePeriod = Duration.standardSeconds(// TODO this is wrong
-        this.config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
+        this.config.getInt(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
 
     // Read from Kafka
     final String bootstrapServer = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);

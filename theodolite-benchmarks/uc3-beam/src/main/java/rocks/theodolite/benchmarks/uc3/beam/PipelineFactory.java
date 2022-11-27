@@ -41,14 +41,14 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
   @Override
   protected void constructPipeline(final Pipeline pipeline) {
-    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String outputTopic = this.config.getString(Uc3ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final Duration duration =
-        Duration.standardDays(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+        Duration.standardDays(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_DURATION_DAYS));
     final Duration aggregationAdvanceDuration =
-        Duration.standardDays(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+        Duration.standardDays(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
     final Duration triggerDelay =
-        Duration.standardSeconds(this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
+        Duration.standardSeconds(this.config.getInt(Uc3ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
 
     // Read from Kafka
     final KafkaActivePowerTimestampReader kafkaReader = super.buildKafkaReader();

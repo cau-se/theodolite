@@ -8,7 +8,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rocks.theodolite.benchmarks.commons.hazelcastjet.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
 
 /**
@@ -35,16 +34,16 @@ public class HistoryService extends HazelcastJetService {
             StringSerializer.class.getCanonicalName());
 
     final String kafkaOutputTopic =
-        this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+        this.config.getString(Uc3ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
 
     final Duration windowSize = Duration.ofDays(
-        this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+        this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_DURATION_DAYS));
 
     final Duration hoppingSize = Duration.ofDays(
-        this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+        this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
 
     final Duration emitPeriod = Duration.ofSeconds(
-        this.config.getInt(ConfigurationKeys.AGGREGATION_EMIT_PERIOD_SECONDS));
+        this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_EMIT_PERIOD_SECONDS));
 
     this.pipelineFactory = new Uc3PipelineFactory(
         kafkaProps,
