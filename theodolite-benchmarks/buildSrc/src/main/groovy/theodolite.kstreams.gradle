@@ -14,7 +14,7 @@ repositories {
     url "https://oss.sonatype.org/content/repositories/snapshots/"
   }
   maven {
-      url 'https://packages.confluent.io/maven/'
+    url 'https://packages.confluent.io/maven/'
   }
 }
 
@@ -28,4 +28,10 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+    //testImplementation 'com.github.stefanbirkner:system-rules:1.17.0'
+    testImplementation 'org.apache.kafka:kafka-streams-test-utils:3.1.0'
+    testImplementation('io.confluent:kafka-streams-avro-serde:5.5.12')  {
+      // exclude, because introduces older version with higher number 5.5.1-ccs
+      exclude group: 'org.apache.kafka', module: 'kafka-clients'
+    }
 }
