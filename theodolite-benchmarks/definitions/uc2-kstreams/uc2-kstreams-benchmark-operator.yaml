@@ -2,6 +2,10 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc2-kstreams
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc2
+    sut: kstreams
 spec:
   sut:
     resources:

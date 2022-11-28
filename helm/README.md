@@ -67,10 +67,11 @@ kubectl delete crd thanosrulers.monitoring.coreos.com
 
 The following 3rd party charts are used by Theodolite:
 
-- Kube Prometheus Stack (to install the Prometheus Operator, which is used to create a Prometheus instances)
-- Grafana (including a dashboard and a data source configuration)
-- Confluent Platform (for Kafka and Zookeeper)
-- Kafka Lag Exporter (used to collect monitoring data of the Kafka lag)
+- Kube Prometheus Stack
+  - to install the Prometheus Operator, which is used to create a Prometheus instances
+  - to deploy Grafana (including a dashboard and a data source configuration)
+- Grafana (deprecated as replaced by Kube Prometheus Stack)
+- Strimzi (for managing Kafka and Zookeeper)
 
 ### Hints
 

@@ -20,20 +20,22 @@ spec:
           image: ghcr.io/cau-se/theodolite-uc3-beam-flink:latest
           args: ["standalone-job", "--job-classname", "rocks.theodolite.benchmarks.uc3.beam.flink.Uc3BeamFlink",
                   "--parallelism=$(PARALLELISM)",
-                  "--disableMetrics=true",
-                  "--fasterCopy"]
+                  "--disableMetrics=$(DISABLE_METRICS)",
+                  "--fasterCopy=$(FASTER_COPY)"]
           # optional arguments: ["--job-id", "<job id>", "--fromSavepoint", "/path/to/savepoint", "--allowNonRestoredState"]
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-kafka-schema-registry:8081"
-            - name: COMMIT_INTERVAL_MS
-              value: "100"
             - name: CHECKPOINTING
               value: "false"
             - name: PARALLELISM
               value: "1"
+            - name: DISABLE_METRICS
+              value: "true"
+            - name: FASTER_COPY
+              value: "true"
             - name: "FLINK_STATE_BACKEND"
               value: "rocksdb"
             - name: JOB_MANAGER_RPC_ADDRESS

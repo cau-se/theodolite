@@ -10,8 +10,8 @@ services:
     image: wurstmeister/kafka
     expose:
       - "9092"
-    #ports:
-    #  - 19092:19092
+    # ports:
+    #   - 19092:19092
     environment:
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONNECTIONS_FROM_HOST://:19092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,CONNECTIONS_FROM_HOST://localhost:19092
@@ -32,7 +32,7 @@ services:
     restart: "on-failure"
     expose:
       - "8081"
-    #ports:
+    # ports:
     #  - 8081:8081
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
@@ -44,14 +44,12 @@ services:
       - kafka
     expose:
       - 5701
-    #ports:
-    #  - 5701:5701
+    # ports:
+    #   - 5701:5701
     environment:
       BOOTSTRAP_SERVER: benchmark:5701
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      WINDOW_SIZE_IN_SECONDS: 50
-      HOPPING_SIZE_IN_SECONDS: 5
   load-generator:
     image: ghcr.io/cau-se/theodolite-uc3-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:

@@ -2,6 +2,10 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc1-hazelcastjet
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc1
+    sut: hazelcastjet
 spec:
   sut:
     resources:

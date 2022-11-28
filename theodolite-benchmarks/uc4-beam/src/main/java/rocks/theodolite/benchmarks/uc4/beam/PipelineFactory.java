@@ -67,17 +67,18 @@ public class PipelineFactory extends AbstractPipelineFactory {
   @Override
   protected void constructPipeline(final Pipeline pipeline) { // NOPMD
     // Additional needed variables
-    final String feedbackTopic = this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
-    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String feedbackTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
+    final String outputTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final String configurationTopic =
-        this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
+        this.config.getString(Uc4ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
-    final Duration duration = Duration.standardSeconds(
-        this.config.getInt(ConfigurationKeys.KAFKA_WINDOW_DURATION_MINUTES));
+    final Duration duration = Duration.millis(
+        this.config.getInt(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
+    // final boolean enableTrigger = this.config.getBoolean(Uc4ConfigurationKeys.TRIGGER_ENABLE);
     final Duration triggerDelay = Duration.standardSeconds(
-        this.config.getInt(ConfigurationKeys.TRIGGER_INTERVAL));
-    final Duration gracePeriod = Duration.standardSeconds(
-        this.config.getInt(ConfigurationKeys.GRACE_PERIOD_MS));
+        this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
+    final Duration gracePeriod = Duration.millis(
+        this.config.getInt(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
 
     // Read from Kafka
     final String bootstrapServer = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
@@ -115,9 +116,11 @@ public class PipelineFactory extends AbstractPipelineFactory {
         .apply("Read Windows", Window.into(FixedWindows.of(duration)))
         .apply("Set trigger for input", Window
             .<KV<String, ActivePowerRecord>>configure()
-            .triggering(Repeatedly.forever(
-                AfterProcessingTime.pastFirstElementInPane()
-                    .plusDelayOf(triggerDelay)))
+            .triggering(Repeatedly
+                .forever(
+                    AfterProcessingTime
+                        .pastFirstElementInPane()
+                        .plusDelayOf(triggerDelay)))
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes());
 
@@ -204,7 +207,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
         .apply("Reset trigger for aggregations", Window
             .<KV<String, ActivePowerRecord>>configure()
             .triggering(Repeatedly.forever(
-                AfterProcessingTime.pastFirstElementInPane()
+                AfterProcessingTime
+                    .pastFirstElementInPane()
                     .plusDelayOf(triggerDelay)))
             .withAllowedLateness(gracePeriod)
             .discardingFiredPanes())

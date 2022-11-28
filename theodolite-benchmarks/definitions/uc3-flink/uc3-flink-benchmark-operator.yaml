@@ -2,6 +2,10 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc3-flink
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc3
+    sut: flink
 spec:
   sut:
     resources:
@@ -14,7 +18,7 @@ spec:
             - "service-monitor.yaml"
             - "jobmanager-service.yaml"
             - "jobmanager-deployment.yaml"
-            #- "jobmanager-rest-service.yaml"
+            # - "jobmanager-rest-service.yaml"
   loadGenerator:
     resources:
       - configMap:
@@ -31,11 +35,6 @@ spec:
           resource: "jobmanager-deployment.yaml"
           properties:
             container: "jobmanager"
-            variableName: "PARALLELISM"
-        - type: "EnvVarPatcher" # required?
-          resource: "taskmanager-deployment.yaml"
-          properties:
-            container: "taskmanager"
             variableName: "PARALLELISM"
   loadTypes:
     - typeName: "NumSensors"

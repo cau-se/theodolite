@@ -21,12 +21,6 @@ spec:
               value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
               value: "http://theodolite-kafka-schema-registry:8081"
-            - name: COMMIT_INTERVAL_MS # Set as default for the applications
-              value: "100"
-            - name: WINDOW_SIZE_IN_SECONDS
-              value: "50"
-            - name: HOPPING_SIZE_IN_SECONDS
-              value: "1"
             #- name: KUBERNETES_DNS_NAME
             #  value: "titan-ccp-aggregation"
             - name: KUBERNETES_NAMESPACE

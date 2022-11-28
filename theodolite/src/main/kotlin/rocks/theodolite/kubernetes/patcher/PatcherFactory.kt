@@ -73,6 +73,10 @@ class PatcherFactory {
                     "ImagePatcher" -> ImagePatcher(
                         container = patcherDefinition.properties["container"]!!
                     )
+                    "ConfigMapYamlPatcher" -> ConfigMapYamlPatcher(
+                        fileName = patcherDefinition.properties["fileName"]!!,
+                        variableName = patcherDefinition.properties["variableName"]!!
+                    )
                     "NamePatcher" -> NamePatcher()
                     "ServiceSelectorPatcher" -> ServiceSelectorPatcher(
                         variableName = patcherDefinition.properties["label"]!!

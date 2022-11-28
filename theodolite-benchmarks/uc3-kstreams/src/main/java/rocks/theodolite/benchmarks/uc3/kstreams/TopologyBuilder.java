@@ -81,9 +81,7 @@ public class TopologyBuilder {
         .map((key, stats) -> KeyValue.pair(
             keyFactory.getSensorId(key.key()),
             stats.toString()))
-        // TODO
-        // statsRecordFactory.create(key, value)))
-        // .peek((k, v) -> LOGGER.info("{}: {}", k, v)) // TODO Temp logging
+        // .peek((k, v) -> LOGGER.info("{}: {}", k, v))
         .to(
             this.outputTopic,
             Produced.with(

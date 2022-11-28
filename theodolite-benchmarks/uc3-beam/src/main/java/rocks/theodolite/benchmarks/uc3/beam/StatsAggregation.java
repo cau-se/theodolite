@@ -8,7 +8,6 @@ import org.apache.beam.sdk.coders.DefaultCoder;
 import org.apache.beam.sdk.transforms.Combine.CombineFn;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
-
 /**
  * Aggregation Class for ActivePowerRecords. Creates a StatsAccumulator based on the ValueInW.
  */
@@ -16,6 +15,7 @@ import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 @DefaultCoder(AvroCoder.class)
 public class StatsAggregation extends CombineFn<ActivePowerRecord, StatsAccumulator, Stats>
     implements Serializable {
+
   private static final long serialVersionUID = 1L;
 
   @Override

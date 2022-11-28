@@ -42,17 +42,18 @@ public class JetInstanceBuilder {
   }
 
   /**
-   * Builds and returns a JetInstance. If a config is set, the JetInstance will contain the set
-   * config.
+   * Builds and returns a {@link JetInstance}. If a config is set, the {@link JetInstance} will
+   * contain the set config.
    *
    * @return JetInstance
    */
   public JetInstance build() {
     final JetInstance jet = Jet.newJetInstance();
-    if (this.config == null) {
+    final Config localConfig = this.config;
+    if (localConfig == null) {
       return jet;
     } else {
-      jet.getConfig().setHazelcastConfig(this.config);
+      jet.getConfig().setHazelcastConfig(localConfig);
       return jet;
     }
 

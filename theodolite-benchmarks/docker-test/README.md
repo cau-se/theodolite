@@ -1,8 +1,8 @@
 # Docker Compose Files for Testing
 
 This directory contains Docker Compose files, which help testing Benchmark implementations.
-For each stream processing engine (Kafka Streams and Flink) and Benchmark (UC1-4), a Docker Compose file is provided
-in the corresponding subdirectory.
+For each stream processing engine (Kafka Streams, Flink, Hazelcast Jet, Beam/Flink and Beam/Samza) and Benchmark
+(UC1-4), a Docker Compose file is provided in the corresponding subdirectory.
 
 ## Full Dockerized Testing
 
