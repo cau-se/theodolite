@@ -21,7 +21,7 @@ import rocks.theodolite.benchmarks.commons.flink.util.SerializableSupplier;
 /**
  * A class for creating {@link FlinkKafkaConsumer} and {@link FlinkKafkaProducer}.
  */
-public class KafkaConnectorFactory {
+public class KafkaConnectorFactory { // NOPMD
 
   private static final String AUTO_OFFSET_RESET_EARLIEST = "earliest";
 
