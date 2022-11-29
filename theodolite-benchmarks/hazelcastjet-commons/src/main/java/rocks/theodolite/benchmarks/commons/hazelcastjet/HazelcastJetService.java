@@ -3,6 +3,7 @@ package rocks.theodolite.benchmarks.commons.hazelcastjet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.pipeline.Pipeline;
+import java.util.Objects;
 import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +58,11 @@ public abstract class HazelcastJetService {
    * instance.
    */
   public void run() {
+    Objects.requireNonNull(this.jobName, "'jobName' must be set.");
     try {
       final Pipeline pipeline = this.pipelineFactory.buildPipeline();
       this.registerSerializer();
-      this.jobConfig.setName(this.config.getString("name"));
+      this.jobConfig.setName(this.jobName);
       this.jetInstance.newJobIfAbsent(pipeline, this.jobConfig).join();
     } catch (final Exception e) { // NOPMD
       LOGGER.error("ABORT MISSION!:", e);
