@@ -26,6 +26,7 @@ Theodolite's internal development including issue boards, merge requests and ext
 * [Lorenz Boguhn](https://github.com/lorenzboguhn)
 * [Simon Ehrenstein](https://github.com/sehrenstein)
 * [Willi Hasselbring](https://www.se.informatik.uni-kiel.de/en/team/prof.-dr.-wilhelm-willi-hasselbring)
+* [Christopher Konkel](https://github.com/JustAnotherChristoph)
 * [Luca Mertens](https://www.linkedin.com/in/luca-mertens-35a932201)
 * [Tobias Pfandzelter](https://pfandzelter.com/)
 * [Julia Rossow](https://www.linkedin.com/in/julia-rossow/)
