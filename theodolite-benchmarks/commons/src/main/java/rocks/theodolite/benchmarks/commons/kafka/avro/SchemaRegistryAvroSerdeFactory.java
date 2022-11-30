@@ -10,7 +10,7 @@ import org.apache.kafka.common.serialization.Serde;
 /**
  * Factory methods to create {@link Serde}s for Avro records using the Confluent Schema Registry.
  */
-public final class SchemaRegistryAvroSerdeFactory {
+public class SchemaRegistryAvroSerdeFactory {
 
   private static final String SCHEMA_REGISTRY_URL_KEY =
       AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG;
