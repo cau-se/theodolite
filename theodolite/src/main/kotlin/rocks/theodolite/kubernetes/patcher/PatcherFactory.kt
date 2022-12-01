@@ -12,86 +12,76 @@ class PatcherFactory {
          * Create patcher based on the given [PatcherDefinition] and
          * the list of KubernetesResources.
          *
-         * @param patcherDefinition The [PatcherDefinition] for which are
-         *     [Patcher] should be created.
-         * @param k8sResources List of all available Kubernetes resources.
-         *     This is a list of pairs<String, KubernetesResource>:
-         *     The frist corresponds to the filename where the resource is defined.
-         *     The second corresponds to the concrete [KubernetesResource] that should be patched.
+         * @param patcher The [PatcherDefinition] for which are [Patcher] should be created.
          * @return The created [Patcher].
          * @throws IllegalArgumentException if no patcher can be created.
          */
-        fun createPatcher(
-            patcherDefinition: PatcherDefinition,
-        ): Patcher {
-
-            return try {
-                when (patcherDefinition.type) {
+        fun createPatcher(patcher: PatcherDefinition): Patcher {
+            return when (patcher.type) {
                     "ReplicaPatcher" -> ReplicaPatcher(
                     )
                     "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
-                        loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"]!!,
-                        numSensors = patcherDefinition.properties["numSensors"]!!
+                        loadGenMaxRecords = patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher),
+                        numSensors = patcher.properties["numSensors"] ?: throwInvalid(patcher)
                     )
                     "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
-                        loadGenMaxRecords = patcherDefinition.properties["loadGenMaxRecords"]!!
+                        loadGenMaxRecords = patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)
                     )
                     "DataVolumeLoadGeneratorReplicaPatcher" -> DataVolumeLoadGeneratorReplicaPatcher(
-                        maxVolume = patcherDefinition.properties["maxVolume"]!!.toInt(),
-                        container = patcherDefinition.properties["container"]!!,
-                        variableName = patcherDefinition.properties["variableName"]!!
+                        maxVolume = (patcher.properties["maxVolume"] ?: throwInvalid(patcher)).toInt(),
+                        container = patcher.properties["container"] ?: throwInvalid(patcher),
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
                     "EnvVarPatcher" -> EnvVarPatcher(
-                        container = patcherDefinition.properties["container"]!!,
-                        variableName = patcherDefinition.properties["variableName"]!!
+                        container = patcher.properties["container"] ?: throwInvalid(patcher),
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
                     "NodeSelectorPatcher" -> NodeSelectorPatcher(
-                        variableName = patcherDefinition.properties["variableName"]!!
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
                     "ResourceLimitPatcher" -> ResourceLimitPatcher(
-                        container = patcherDefinition.properties["container"]!!,
-                        limitedResource = patcherDefinition.properties["limitedResource"]!!,
-                        format = patcherDefinition.properties["format"],
-                        factor = patcherDefinition.properties["factor"]?.toInt()
+                        container = patcher.properties["container"] ?: throwInvalid(patcher),
+                        limitedResource = patcher.properties["limitedResource"] ?: throwInvalid(patcher),
+                        format = patcher.properties["format"],
+                        factor = patcher.properties["factor"]?.toInt()
                     )
                     "ResourceRequestPatcher" -> ResourceRequestPatcher(
-                        container = patcherDefinition.properties["container"]!!,
-                        requestedResource = patcherDefinition.properties["requestedResource"]!!,
-                        format = patcherDefinition.properties["format"],
-                        factor = patcherDefinition.properties["factor"]?.toInt()
+                        container = patcher.properties["container"] ?: throwInvalid(patcher),
+                        requestedResource = patcher.properties["requestedResource"] ?: throwInvalid(patcher),
+                        format = patcher.properties["format"],
+                        factor = patcher.properties["factor"]?.toInt()
                     )
                     "SchedulerNamePatcher" -> SchedulerNamePatcher()
                     "LabelPatcher" -> LabelPatcher(
-                        variableName = patcherDefinition.properties["variableName"]!!
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
                     "MatchLabelPatcher" -> MatchLabelPatcher(
-                        variableName = patcherDefinition.properties["variableName"]!!
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
                     "TemplateLabelPatcher" -> TemplateLabelPatcher(
-                        variableName = patcherDefinition.properties["variableName"]!!
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
                     "ImagePatcher" -> ImagePatcher(
-                        container = patcherDefinition.properties["container"]!!
+                        container = patcher.properties["container"] ?: throwInvalid(patcher)
                     )
                     "ConfigMapYamlPatcher" -> ConfigMapYamlPatcher(
-                        fileName = patcherDefinition.properties["fileName"]!!,
-                        variableName = patcherDefinition.properties["variableName"]!!
+                        fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
                     "NamePatcher" -> NamePatcher()
                     "ServiceSelectorPatcher" -> ServiceSelectorPatcher(
-                        variableName = patcherDefinition.properties["label"]!!
+                        variableName = patcher.properties["label"] ?: throwInvalid(patcher)
                     )
                     "VolumesConfigMapPatcher" -> VolumesConfigMapPatcher(
-                        volumeName = patcherDefinition.properties["volumeName"]!!
+                        volumeName = patcher.properties["volumeName"] ?: throwInvalid(patcher)
                     )
-                    else -> throw InvalidPatcherConfigurationException("Patcher type ${patcherDefinition.type} not found.")
+                    else -> throw InvalidPatcherConfigurationException("Patcher type ${patcher.type} not found.")
                 }
-            } catch (e: NullPointerException) {
-                throw InvalidPatcherConfigurationException(
-                    "Could not create patcher with type ${patcherDefinition.type}" +
-                            " Probably a required patcher argument was not specified.", e
-                )
-            }
+        }
+
+        private fun throwInvalid(patcher: PatcherDefinition): String {
+            throw InvalidPatcherConfigurationException("Could not create patcher with type ${patcher.type}. Probably a required patcher argument was not specified.")
         }
     }
+
 }

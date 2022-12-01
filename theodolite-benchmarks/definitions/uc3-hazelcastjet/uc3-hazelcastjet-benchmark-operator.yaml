@@ -14,6 +14,8 @@ spec:
           files:
             - "uc3-hazelcastjet-deployment.yaml"
             - "uc3-hazelcastjet-service.yaml"
+            - "uc3-jmx-configmap.yaml"
+            - "uc3-service-monitor.yaml"
   loadGenerator:
     resources:
       - configMap:
