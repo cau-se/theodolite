@@ -28,12 +28,12 @@ abstract class AbstractResourcePatcher(
         when (resource) {
             is Deployment -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setLimits(it, value)
+                    setValues(it, value)
                 }
             }
             is StatefulSet -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setLimits(it, value)
+                    setValues(it, value)
                 }
             }
             else -> {
@@ -43,7 +43,7 @@ abstract class AbstractResourcePatcher(
         return resource
     }
 
-    private fun setLimits(container: Container, value: String) {
+    private fun setValues(container: Container, value: String) {
         val quantity = if (this.format != null || this.factor != null) {
             val amountAsInt = value.toIntOrNull()?.times(this.factor ?: 1)
             if (amountAsInt == null) {
@@ -56,8 +56,8 @@ abstract class AbstractResourcePatcher(
             Quantity(value)
         }
 
-        setLimits(container, quantity)
+        setValues(container, quantity)
     }
 
-    abstract fun setLimits(container: Container, quantity: Quantity)
+    abstract fun setValues(container: Container, quantity: Quantity)
 }
