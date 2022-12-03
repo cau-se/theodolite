@@ -8,7 +8,7 @@ import io.fabric8.kubernetes.client.utils.Serialization
  */
 abstract class AbstractStringPatcher : Patcher {
 
-    override fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata> {
+    final override fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata> {
         return resources
             .map { Serialization.clone(it)}
             .map { patchSingleResource(it, value) }

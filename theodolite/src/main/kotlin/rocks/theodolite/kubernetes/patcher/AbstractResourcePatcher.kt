@@ -24,7 +24,7 @@ abstract class AbstractResourcePatcher(
     private val factor: Int? = null
 ) : AbstractStringPatcher() {
 
-    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
+    final override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
             is Deployment -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
