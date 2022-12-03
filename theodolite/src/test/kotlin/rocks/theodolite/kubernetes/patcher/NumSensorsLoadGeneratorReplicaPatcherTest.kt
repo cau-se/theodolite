@@ -14,7 +14,7 @@ internal class NumSensorsLoadGeneratorReplicaPatcherTest: AbstractPatcherTest() 
     @BeforeEach
     fun setUp() {
         resource = listOf(createDeployment())
-        patcher = NumSensorsLoadGeneratorReplicaPatcher("10")
+        patcher = NumSensorsLoadGeneratorReplicaPatcher(10)
         value = "2"
     }
 
