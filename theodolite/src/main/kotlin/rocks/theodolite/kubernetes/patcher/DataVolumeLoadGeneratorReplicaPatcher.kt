@@ -31,7 +31,7 @@ class DataVolumeLoadGeneratorReplicaPatcher(
 
         // Patch instance values and load value of generators
         return this.envVarPatcher.patchSingleResource(
-            replicaPatcher.patchSingleResource(resource, loadGenInstances.toString()),
+            replicaPatcher.patchSingleResource(resource, loadGenInstances),
             loadPerInstance.toString())
     }
 }
