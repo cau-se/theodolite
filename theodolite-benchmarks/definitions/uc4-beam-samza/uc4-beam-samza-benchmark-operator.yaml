@@ -36,6 +36,27 @@ spec:
       patchers:
         - type: "ReplicaPatcher"
           resource: "uc4-beam-samza-deployment.yaml"
+    - typeName: ThreadsAndPodResources
+      patchers:
+        - type: EnvVarPatcher
+          resource: uc4-beam-samza-deployment.yaml
+          properties:
+            container: uc4-beam-samza
+            variableName: SAMZA_JOB_CONTAINER_THREADS_POOL_SIZE
+        - type: ResourceLimitPatcher
+          resource: uc4-beam-samza-deployment.yaml
+          properties:
+            container: uc4-beam-samza
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: uc4-beam-samza-deployment.yaml
+          properties:
+            container: uc4-beam-samza
+            limitedResource: memory
+            factor: 4
+            format: Gi
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
