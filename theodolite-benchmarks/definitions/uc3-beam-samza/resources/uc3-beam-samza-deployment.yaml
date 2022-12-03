@@ -26,7 +26,7 @@ spec:
             - name: MAX_SOURCE_PARALLELISM
               value: "1024"
             - name: ENABLE_METRICS
-              value: "false"
+              value: "true"
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "theodolite-kafka-kafka-bootstrap:9092"
             - name: SCHEMA_REGISTRY_URL
