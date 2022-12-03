@@ -9,9 +9,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
  *
  * @property variableName The matchLabel which should be set
  */
-class MatchLabelPatcher(
-    val variableName: String) :
-    AbstractPatcher() {
+class MatchLabelPatcher(val variableName: String) : AbstractPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {

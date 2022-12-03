@@ -12,39 +12,10 @@ class LabelPatcher(
     AbstractPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
-        when (resource) {
-            is Deployment -> {
-                if (resource.metadata.labels == null) {
-                    resource.metadata.labels = mutableMapOf()
-                }
-                resource.metadata.labels[this.variableName] = value
-            }
-            is StatefulSet -> {
-                if (resource.metadata.labels == null) {
-                    resource.metadata.labels = mutableMapOf()
-                }
-                resource.metadata.labels[this.variableName] = value
-            }
-            is Service -> {
-                if (resource.metadata.labels == null) {
-                    resource.metadata.labels = mutableMapOf()
-                }
-                resource.metadata.labels[this.variableName] = value
-
-            }
-            is ConfigMap -> {
-                if (resource.metadata.labels == null) {
-                    resource.metadata.labels = mutableMapOf()
-                }
-                resource.metadata.labels[this.variableName] = value
-            }
-            is GenericKubernetesResource -> {
-                if (resource.metadata.labels == null) {
-                    resource.metadata.labels = mutableMapOf()
-                }
-                resource.metadata.labels[this.variableName] = value
-            }
+        if (resource.metadata.labels == null) {
+            resource.metadata.labels = mutableMapOf()
         }
+        resource.metadata.labels[this.variableName] = value
         return resource
     }
 }
