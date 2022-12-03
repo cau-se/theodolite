@@ -10,15 +10,7 @@ import io.fabric8.kubernetes.client.utils.Serialization
  *
  * @param container Container to be patched.
  */
-class ImagePatcher(
-    private val container: String) :
-    AbstractPatcher() {
-
-    override fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata> {
-        return resources
-            .map { Serialization.clone(it) }
-            .map { patchSingleResource(it, value as kotlin.String) }
-    }
+class ImagePatcher(private val container: String) : AbstractPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {
