@@ -9,7 +9,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
  *
  * @property variableName The label which should be set
  */
-class TemplateLabelPatcher(val variableName: String) : AbstractPatcher() {
+class TemplateLabelPatcher(val variableName: String) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {

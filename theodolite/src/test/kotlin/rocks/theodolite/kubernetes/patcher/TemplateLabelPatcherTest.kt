@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
-internal class TemplateLabelPatcherTest: AbstractPatcherTest() {
+internal class TemplateLabelPatcherTest: AbstractStringPatcherTest() {
 
     @BeforeEach
     fun setUp() {

@@ -7,7 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
  * The Scheduler name [Patcher] make it possible to set the scheduler which should
  * be used to deploy the given deployment.
  */
-class SchedulerNamePatcher : AbstractPatcher() {
+class SchedulerNamePatcher : AbstractStringPatcher() {
 
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {

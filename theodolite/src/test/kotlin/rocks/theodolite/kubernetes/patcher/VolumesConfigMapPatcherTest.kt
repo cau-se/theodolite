@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
-internal class VolumesConfigMapPatcherTest: AbstractPatcherTest() {
+internal class VolumesConfigMapPatcherTest: AbstractStringPatcherTest() {
 
     @BeforeEach
     fun setUp() {

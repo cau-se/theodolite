@@ -18,7 +18,7 @@ class DataVolumeLoadGeneratorReplicaPatcher(
     private val maxVolume: Int,
     val container: String,
     val variableName: String
-) : AbstractPatcher() {
+) : AbstractStringPatcher() {
 
     private val envVarPatcher = EnvVarPatcher(container, variableName)
     private val replicaPatcher = ReplicaPatcher()

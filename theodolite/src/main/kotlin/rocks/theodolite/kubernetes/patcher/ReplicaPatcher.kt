@@ -7,11 +7,11 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
  * The Replica [Patcher] modifies the number of replicas for the given Kubernetes deployment.
  *
  */
-class ReplicaPatcher : AbstractPatcher() {
+class ReplicaPatcher : AbstractIntPatcher() {
 
-    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
+    override fun patchSingleResource(resource: HasMetadata, value: Int): HasMetadata {
         if (resource is Deployment) {
-            resource.spec.replicas = Integer.parseInt(value)
+            resource.spec.replicas = value
         }
         return resource
     }

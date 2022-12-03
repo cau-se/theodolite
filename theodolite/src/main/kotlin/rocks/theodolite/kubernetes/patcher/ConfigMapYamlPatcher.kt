@@ -14,7 +14,7 @@ import org.yaml.snakeyaml.Yaml
 class ConfigMapYamlPatcher(
     private val fileName: String,
     private val variableName: String
-) : AbstractPatcher() {
+) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is ConfigMap) {

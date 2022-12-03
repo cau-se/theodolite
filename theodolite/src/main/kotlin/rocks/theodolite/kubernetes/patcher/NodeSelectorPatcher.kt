@@ -8,7 +8,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
  *
  * @param variableName The `label-key` of the node for which the `label-value` is to be patched.
  */
-class NodeSelectorPatcher(private val variableName: String) : AbstractPatcher() {
+class NodeSelectorPatcher(private val variableName: String) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Deployment) {

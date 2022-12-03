@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
-internal class LabelPatcherTest: AbstractPatcherTest() {
+internal class LabelPatcherTest: AbstractStringPatcherTest() {
 
     @BeforeEach
     fun setUp() {

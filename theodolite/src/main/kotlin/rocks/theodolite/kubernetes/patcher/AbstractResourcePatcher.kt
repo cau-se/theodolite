@@ -22,7 +22,7 @@ abstract class AbstractResourcePatcher(
     protected val requiredResource: String,
     private val format: String? = null,
     private val factor: Int? = null
-) : AbstractPatcher() {
+) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {

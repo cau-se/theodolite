@@ -4,12 +4,12 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import rocks.theodolite.kubernetes.patcher.AbstractPatcherTest
+import rocks.theodolite.kubernetes.patcher.AbstractStringPatcherTest
 
 import rocks.theodolite.kubernetes.patcher.VolumesConfigMapPatcher
 
 @QuarkusTest
-internal class DataVolumeLoadGeneratorReplicaPatcherTest: AbstractPatcherTest() {
+internal class DataVolumeLoadGeneratorReplicaPatcherTest: AbstractStringPatcherTest() {
 
     @BeforeEach
     fun setUp() {

@@ -21,11 +21,11 @@ class PatcherFactory {
                     "ReplicaPatcher" -> ReplicaPatcher(
                     )
                     "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
-                        loadGenMaxRecords = patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher),
-                        numSensors = patcher.properties["numSensors"] ?: throwInvalid(patcher)
+                        loadGenMaxRecords = (patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)).toInt(),
+                        numSensors = (patcher.properties["numSensors"] ?: throwInvalid(patcher)).toInt()
                     )
                     "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
-                        loadGenMaxRecords = patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)
+                        loadGenMaxRecords = (patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)).toInt()
                     )
                     "DataVolumeLoadGeneratorReplicaPatcher" -> DataVolumeLoadGeneratorReplicaPatcher(
                         maxVolume = (patcher.properties["maxVolume"] ?: throwInvalid(patcher)).toInt(),
