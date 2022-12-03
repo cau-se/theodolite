@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
-internal class NumNestedGroupsLoadGeneratorReplicaPatcherTest : AbstractStringPatcherTest(){
+internal class NumNestedGroupsLoadGeneratorReplicaPatcherTest : AbstractPatcherTest(){
 
     @BeforeEach
     fun setUp() {

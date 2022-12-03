@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
-internal class NodeSelectorPatcherTest: AbstractStringPatcherTest() {
+internal class NodeSelectorPatcherTest: AbstractPatcherTest() {
 
     @BeforeEach
     fun setUp() {

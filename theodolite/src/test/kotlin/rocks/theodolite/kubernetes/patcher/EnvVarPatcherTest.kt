@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 
 @QuarkusTest
-internal class EnvVarPatcherTest : AbstractStringPatcherTest() {
+internal class EnvVarPatcherTest : AbstractPatcherTest() {
 
     @BeforeEach
     fun setUp() {

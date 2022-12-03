@@ -7,7 +7,7 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
-abstract class AbstractStringPatcherTest {
+abstract class AbstractPatcherTest {
 
     lateinit var resource: List<HasMetadata>
     lateinit var patcher: Patcher

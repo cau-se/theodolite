@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
-internal class NumSensorsLoadGeneratorReplicaPatcherTest: AbstractStringPatcherTest() {
+internal class NumSensorsLoadGeneratorReplicaPatcherTest: AbstractPatcherTest() {
 
     @BeforeEach
     fun setUp() {
