@@ -13,7 +13,7 @@ import org.yaml.snakeyaml.Yaml
  */
 class ConfigMapYamlPatcher(
     private val fileName: String,
-    private val variableName: String
+    private val variableName: String,
 ) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {

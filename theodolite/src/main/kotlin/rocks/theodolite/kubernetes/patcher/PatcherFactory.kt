@@ -32,9 +32,14 @@ class PatcherFactory {
                         container = patcher.properties["container"] ?: throwInvalid(patcher),
                         variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
                     )
-                    "EnvVarPatcher" -> EnvVarPatcher(
-                        container = patcher.properties["container"] ?: throwInvalid(patcher),
-                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                    "EnvVarPatcher" -> DecoratingPatcher(
+                        EnvVarPatcher(
+                            container = patcher.properties["container"] ?: throwInvalid(patcher),
+                            variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                        ),
+                        prefix = patcher.properties["prefix"],
+                        suffix = patcher.properties["suffix"],
+                        factor = patcher.properties["factor"]?.toInt(),
                     )
                     "NodeSelectorPatcher" -> NodeSelectorPatcher(
                         variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
@@ -64,9 +69,14 @@ class PatcherFactory {
                     "ImagePatcher" -> ImagePatcher(
                         container = patcher.properties["container"] ?: throwInvalid(patcher)
                     )
-                    "ConfigMapYamlPatcher" -> ConfigMapYamlPatcher(
-                        fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
-                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                    "ConfigMapYamlPatcher" -> DecoratingPatcher(
+                            ConfigMapYamlPatcher(
+                            fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
+                            variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                        ),
+                        prefix = patcher.properties["prefix"],
+                        suffix = patcher.properties["suffix"],
+                        factor = patcher.properties["factor"]?.toInt(),
                     )
                     "NamePatcher" -> NamePatcher()
                     "ServiceSelectorPatcher" -> ServiceSelectorPatcher(
