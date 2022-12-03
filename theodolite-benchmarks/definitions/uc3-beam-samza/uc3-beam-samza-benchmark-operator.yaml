@@ -15,6 +15,7 @@ spec:
           - "uc3-beam-samza-deployment.yaml"
           - "beam-samza-service.yaml"
           - "service-monitor.yaml"
+          - "uc3-jmx-configmap.yaml"
     afterActions:
       - exec:
           selector: # delete zookeeper nodes to reset zookeeper
