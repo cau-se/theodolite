@@ -62,5 +62,5 @@ spec:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
       - name: "input"
-        numPartitions: 40
+        numPartitions: 100
         replicationFactor: 1
