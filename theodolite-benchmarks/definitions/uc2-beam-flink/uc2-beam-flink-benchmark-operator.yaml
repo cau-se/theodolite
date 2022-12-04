@@ -12,6 +12,7 @@ spec:
       - configMap:
           name: "benchmark-resources-uc2-beam-flink"
           files:
+          - "flink-configuration-configmap.yaml"
           - "taskmanager-deployment.yaml"
           - "taskmanager-service.yaml"
           - "service-monitor.yaml"
@@ -30,6 +31,39 @@ spec:
       patchers:
         - type: "ReplicaPatcher"
           resource: "taskmanager-deployment.yaml"
+        - type: "EnvVarPatcher"
+          resource: "jobmanager-deployment.yaml"
+          properties:
+            container: "jobmanager"
+            variableName: "PARALLELISM"
+    - typeName: TaskSlotsAndPodResources
+      patchers:
+        - type: ConfigMapYamlPatcher
+          resource: flink-configuration-configmap.yaml
+          properties:
+            fileName: flink-conf.yaml
+            variableName: taskmanager.numberOfTaskSlots
+        - type: ResourceLimitPatcher
+          resource: taskmanager-deployment.yaml
+          properties:
+            container: taskmanager
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: taskmanager-deployment.yaml
+          properties:
+            container: taskmanager
+            limitedResource: memory
+            factor: 4
+            format: Gi
+        - type: ConfigMapYamlPatcher
+          resource: flink-configuration-configmap.yaml
+          properties:
+            fileName: flink-conf.yaml
+            variableName: taskmanager.memory.process.size
+            factor: 4
+            suffix: Gb
         - type: "EnvVarPatcher"
           resource: "jobmanager-deployment.yaml"
           properties:

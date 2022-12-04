@@ -28,6 +28,22 @@ spec:
       patchers:
         - type: "ReplicaPatcher"
           resource: "uc2-hazelcastjet-deployment.yaml"
+    - typeName: PodResources
+      patchers:
+        - type: ResourceLimitPatcher
+          resource: uc2-hazelcastjet-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: uc2-hazelcastjet-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: memory
+            factor: 4
+            format: Gi
   loadTypes:
     - typeName: "NumSensors"
       patchers:
