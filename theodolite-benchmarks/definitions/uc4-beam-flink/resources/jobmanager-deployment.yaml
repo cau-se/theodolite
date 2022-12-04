@@ -33,22 +33,11 @@ spec:
             - name: PARALLELISM
               value: "1"
             - name: DISABLE_METRICS
-              value: "true"
+              value: "false"
             - name: FASTER_COPY
               value: "true"
             - name: "FLINK_STATE_BACKEND"
               value: "rocksdb"
-            - name: JOB_MANAGER_RPC_ADDRESS
-              value: "flink-jobmanager"
-            - name: FLINK_PROPERTIES
-              value: |+
-                blob.server.port: 6124
-                jobmanager.rpc.port: 6123
-                taskmanager.rpc.port: 6122
-                queryable-state.proxy.ports: 6125
-                jobmanager.memory.process.size: 4Gb
-                taskmanager.memory.process.size: 4Gb
-                parallelism.default: 1 #TODO
           resources:
             limits:
               memory: 4Gi
@@ -67,5 +56,17 @@ spec:
               port: 6123
             initialDelaySeconds: 30
             periodSeconds: 60
+          volumeMounts:
+            - name: flink-config-volume
+              mountPath: /opt/flink/conf
           securityContext:
-            runAsUser: 9999
+            runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
+      volumes:
+        - name: flink-config-volume
+          configMap:
+            name: flink-config
+            items:
+              - key: flink-conf.yaml
+                path: flink-conf.yaml
+              - key: log4j-console.properties
+                path: log4j-console.properties
