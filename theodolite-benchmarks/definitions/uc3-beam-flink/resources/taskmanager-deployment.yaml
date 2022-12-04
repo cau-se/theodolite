@@ -19,9 +19,6 @@ spec:
         - name: taskmanager
           image: ghcr.io/cau-se/theodolite-uc3-beam-flink:latest
           args: ["taskmanager"]
-          env:
-            - name: JOB_MANAGER_RPC_ADDRESS
-              value: "flink-jobmanager"
           resources:
             limits:
               memory: 4Gi
@@ -33,5 +30,22 @@ spec:
               name: query-state
             - containerPort: 9249
               name: metrics
+          livenessProbe:
+            tcpSocket:
+              port: 6122
+            initialDelaySeconds: 30
+            periodSeconds: 60
+          volumeMounts:
+            - name: flink-config-volume
+              mountPath: /opt/flink/conf/
           securityContext:
             runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
+      volumes:
+        - name: flink-config-volume
+          configMap:
+            name: flink-config
+            items:
+              - key: flink-conf.yaml
+                path: flink-conf.yaml
+              - key: log4j-console.properties
+                path: log4j-console.properties
