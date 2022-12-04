@@ -118,7 +118,6 @@ internal class ResourceSetsTest {
 
         val fileSystem = resourcesSet.loadResourceSet(server.client)
         assertEquals(fileSystem.size, 1)
-        assertTrue(fileSystem.elementAt(0).second is HasMetadata)
     }
 
     @Test

@@ -3,9 +3,7 @@ package rocks.theodolite.kubernetes.patcher
 import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.Service
 
-class ServiceSelectorPatcher(
-    private var variableName: String
-    ) : AbstractPatcher() {
+class ServiceSelectorPatcher(private var variableName: String) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         if (resource is Service) {

@@ -14,7 +14,7 @@ internal class NumNestedGroupsLoadGeneratorReplicaPatcherTest : AbstractPatcherT
     @BeforeEach
     fun setUp() {
         resource = listOf(createDeployment())
-        patcher = NumNestedGroupsLoadGeneratorReplicaPatcher("10", "500")
+        patcher = NumNestedGroupsLoadGeneratorReplicaPatcher(10, 500)
         value = "2"
     }
 

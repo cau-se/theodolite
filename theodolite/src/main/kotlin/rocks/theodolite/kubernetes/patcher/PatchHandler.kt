@@ -5,7 +5,7 @@ class PatchHandler {
     companion object {
         private fun getResourcesToPatch(resources: Map<String, List<HasMetadata>>, patcherDefinition: PatcherDefinition): List<HasMetadata> {
             return resources[patcherDefinition.resource]
-                ?: throw InvalidPatcherConfigurationException("Could not find resource ${patcherDefinition.resource}")
+                ?: throw InvalidPatcherConfigurationException("Could not find resource ${patcherDefinition.resource}.")
 
         }
         fun patchResource(

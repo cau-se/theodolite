@@ -14,7 +14,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 class EnvVarPatcher(
     private val container: String,
     private val variableName: String
-) : AbstractPatcher() {
+) : AbstractStringPatcher() {
 
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {

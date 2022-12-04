@@ -26,8 +26,9 @@ internal class VolumesConfigMapPatcherTest: AbstractPatcherTest() {
     override fun validate() {
         patch()
         resource.forEach {
-            println((it as Deployment).spec.template.spec.volumes[0].configMap.name)
-            assertTrue((it as Deployment).spec.template.spec.volumes[0].configMap.name == value)
+            it as Deployment
+            println(it.spec.template.spec.volumes[0].configMap.name)
+            assertTrue(it.spec.template.spec.volumes[0].configMap.name == value)
         }
     }
 }
