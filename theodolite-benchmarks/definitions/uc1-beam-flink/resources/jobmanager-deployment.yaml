@@ -33,7 +33,7 @@ spec:
             - name: PARALLELISM
               value: "1"
             - name: DISABLE_METRICS
-              value: "true"
+              value: "false"
             - name: FASTER_COPY
               value: "true"
             - name: "FLINK_STATE_BACKEND"
