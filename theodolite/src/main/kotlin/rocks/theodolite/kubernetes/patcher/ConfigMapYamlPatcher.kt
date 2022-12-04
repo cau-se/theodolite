@@ -27,8 +27,8 @@ class ConfigMapYamlPatcher(
             val parser = Yaml(dumperOptions)
 
             // Change value
-            val yaml = parser.loadAs(yamlFile, LinkedHashMap<String, String>()::class.java)
-            yaml[variableName] = value
+            val yaml = parser.loadAs(yamlFile, LinkedHashMap<String, Any>()::class.java)
+            yaml[variableName] = value.toLongOrNull() ?: value.toDoubleOrNull() ?: value.toBooleanStrictOrNull() ?: value
 
             // Convert back to String and set in Kubernetes resource
             resource.data[fileName] = parser.dump(yaml)
