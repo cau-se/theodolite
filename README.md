@@ -4,7 +4,7 @@
 
 > A theodolite is a precision optical instrument for measuring angles between designated visible points in the horizontal and vertical planes.  -- <cite>[Wikipedia](https://en.wikipedia.org/wiki/Theodolite)</cite>
 
-Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications.
+Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications in Kubernetes.
 
 ## Quickstart
 
@@ -27,4 +27,10 @@ Documentation on Theodolite itself as well as regarding its benchmarking method 
 
 If you use Theodolite, please cite
 
-> Sören Henning and Wilhelm Hasselbring. (2021). Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures. Big Data Research, Volume 25. DOI: [10.1016/j.bdr.2021.100209](https://doi.org/10.1016/j.bdr.2021.100209). arXiv:[2009.00304](https://arxiv.org/abs/2009.00304).
+> Sören Henning and Wilhelm Hasselbring. “A Configurable Method for Benchmarking Scalability of Cloud-Native Applications”. In: *Empirical Software Engineering* 27. 2022. DOI: [10.1007/s10664-022-10162-1](https://doi.org/10.1007/s10664-022-10162-1).
+
+When referring to our stream processing benchmarks, please cite
+
+> Sören Henning and Wilhelm Hasselbring. “Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures”. In: *Big Data Research* 25. 2021. DOI: [10.1016/j.bdr.2021.100209](https://doi.org/10.1016/j.bdr.2021.100209). arXiv:[2009.00304](https://arxiv.org/abs/2009.00304).
+
+See our website for a [list of publications](https://www.theodolite.rocks/publications.html) directly related to Theodolite.
