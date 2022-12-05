@@ -9,16 +9,16 @@ metadata:
 spec:
   sut:
     resources:
-        - configMap:
-            name: "benchmark-resources-uc2-flink"
-            files:
-            - "flink-configuration-configmap.yaml"
-            - "taskmanager-deployment.yaml"
-            - "taskmanager-service.yaml"
-            - "service-monitor.yaml"
-            - "jobmanager-service.yaml"
-            - "jobmanager-deployment.yaml"
-            # - "jobmanager-rest-service.yaml"
+      - configMap:
+          name: "benchmark-resources-uc2-flink"
+          files:
+          - "flink-configuration-configmap.yaml"
+          - "taskmanager-deployment.yaml"
+          - "taskmanager-service.yaml"
+          - "service-monitor.yaml"
+          - "jobmanager-service.yaml"
+          - "jobmanager-deployment.yaml"
+          # - "jobmanager-rest-service.yaml"
   loadGenerator:
     resources:
       - configMap:
@@ -91,6 +91,18 @@ spec:
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
+    - name: droppedRecords
+      sloType: generic
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        externalSloUrl: "http://localhost:8082"
+        promQLQuery: "sum(rate(flink_taskmanager_job_task_operator_numLateRecordsDropped[30s])) by(job) OR vector(0)"
+        warmup: 60 # in seconds
+        queryAggregation: max
+        repetitionAggregation: median
+        operator: lte
+        threshold: 100
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
