@@ -175,7 +175,8 @@ An Execution must at least define one SLO to be checked.
 A good choice to get started is defining an SLO of type `generic`:
 
 ```yaml
-- sloType: "generic"
+- name: droppedRecords
+  sloType: generic
   prometheusUrl: "http://prometheus-operated:9090"
   offset: 0
   properties:
