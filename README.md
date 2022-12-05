@@ -23,6 +23,13 @@ Documentation on Theodolite itself as well as regarding its benchmarking method 
 * The source code of Theodolite's SLO checkers are located in [`slo-checker`](slo-checker).
 * The documentation, which is hosted on [theodolite.rocks](https://www.theodolite.rocks), is located in [`docs`](docs).
 
+## Contributing
+
+We are happy to accept any kind of contributions to Theodolite.
+This includes reporting any issues you find using Theodolite, bug fixes and improvements as well as integrating your research within the project.
+
+See our website to [start contributing](https://www.theodolite.rocks/development/).
+
 ## How to Cite
 
 If you use Theodolite, please cite
