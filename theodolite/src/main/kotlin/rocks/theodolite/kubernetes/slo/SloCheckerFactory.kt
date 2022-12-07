@@ -34,7 +34,9 @@ class SloCheckerFactory {
      *
      * @param sloType Type of the [SloChecker].
      * @param properties map of properties to use for the SLO checker creation.
-     * @param load that is executed in the experiment.
+     * @param load Load that is generated in the experiment.
+     * @param resources Resources that are used in the experiment.
+     * @param metric Metric used in the benchmark execution.
      *
      * @return A [SloChecker]
      * @throws IllegalArgumentException If [sloType] not supported.
@@ -43,7 +45,7 @@ class SloCheckerFactory {
         sloType: String,
         properties: Map<String, String>,
         load: Int,
-        resource: Int,
+        resources: Int,
         metric: Metric
     ): SloChecker {
         return when (SloTypes.from(sloType)) {
@@ -59,7 +61,9 @@ class SloCheckerFactory {
                         ?: throw IllegalArgumentException("repetitionAggregation expected")),
                     "operator" to (properties["operator"] ?: throw IllegalArgumentException("operator expected")),
                     "threshold" to (properties["threshold"]?.toDouble()
-                        ?: throw IllegalArgumentException("threshold expected"))
+                        ?: properties["thresholdRelToLoad"]?.toDouble()?.times(load)
+                        ?: properties["thresholdRelToResources"]?.toDouble()?.times(resources)
+                        ?: throw IllegalArgumentException("'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' expected"))
                 )
             )
             SloTypes.LAG_TREND, SloTypes.DROPPED_RECORDS -> ExternalSloChecker(
@@ -68,7 +72,9 @@ class SloCheckerFactory {
                 metadata = mapOf(
                     "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
                     "threshold" to (properties["threshold"]?.toDouble()
-                        ?: throw IllegalArgumentException("threshold expected"))
+                        ?: properties["thresholdRelToLoad"]?.toDouble()?.times(load)
+                        ?: properties["thresholdRelToResources"]?.toDouble()?.times(resources)
+                        ?: throw IllegalArgumentException("'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' expected"))
                 )
             )
             SloTypes.LAG_TREND_RATIO, SloTypes.DROPPED_RECORDS_RATIO -> {

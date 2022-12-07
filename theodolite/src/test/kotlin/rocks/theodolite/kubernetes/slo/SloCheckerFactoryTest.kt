@@ -130,6 +130,52 @@ internal class SloCheckerFactoryTest {
     }
 
     @Test
+    fun testCreateGenericSloWithThresholdRelToLoad() {
+        val factory = SloCheckerFactory()
+        val sloChecker = factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "thresholdRelToLoad" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(10.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateGenericSloWithThresholdRelToResources() {
+        val factory = SloCheckerFactory()
+        val sloChecker = factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "thresholdRelToResources" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(0.5, computedThreshold as Double, 0.001)
+    }
+
+    @Test
     fun testCreateGenericSloFloatThreshold() {
         val factory = SloCheckerFactory()
         val sloChecker = factory.create(
@@ -222,6 +268,46 @@ internal class SloCheckerFactoryTest {
         val threshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
         assertTrue(threshold is Double, "Expected threshold to be Double.")
         assertEquals(12.34, threshold as Double, 0.01)
+    }
+
+    @Test
+    fun testCreateLagTrendSloWithThresholdRelToLoad() {
+        val factory = SloCheckerFactory()
+        val sloChecker = factory.create(
+            SloTypes.LAG_TREND.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "thresholdRelToLoad" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(10.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateLagTrendSloWithThresholdRelToResources() {
+        val factory = SloCheckerFactory()
+        val sloChecker = factory.create(
+            SloTypes.LAG_TREND.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "thresholdRelToResources" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(0.5, computedThreshold as Double, 0.001)
     }
 
     @Test
