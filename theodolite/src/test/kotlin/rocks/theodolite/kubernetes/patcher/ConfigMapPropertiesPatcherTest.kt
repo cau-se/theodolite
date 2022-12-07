@@ -2,27 +2,24 @@ package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-internal class ConfigMapYamlPatcherTest {
+internal class ConfigMapPropertiesPatcherTest {
 
     private lateinit var configMap: ConfigMap
 
-    private val patcher = ConfigMapYamlPatcher("some-file.yaml", "second")
+    private val patcher = ConfigMapPropertiesPatcher("some-file.properties", "second.prop.value")
 
     @BeforeEach
     fun setUp() {
         val data = mapOf(
-            "some-file.yaml" to """
-                first: some-test
-                # some comment: with colon
-                second: 1
-                third: 1234
+            "some-file.properties" to """
+                first.properties.value = some-test
+                second.prop.value = 1
+                third = 1234
             """.trimIndent()
         )
 
@@ -41,11 +38,11 @@ internal class ConfigMapYamlPatcherTest {
         assertTrue(patched is ConfigMap)
         //patched.let { it as ConfigMap }.data
         patched as ConfigMap
-        val yaml = patched.data["some-file.yaml"]
-        assertTrue(yaml != null)
-        val line = yaml!!.lines().getOrNull(1)
-        assertTrue(line != null)
-        val value = line!!.split(": ").getOrNull(1)
+        val properties = patched.data["some-file.properties"]
+        assertTrue(properties != null)
+        val matchLines = properties!!.lines().filter { it.startsWith("second.prop.value") }
+        assertEquals(1, matchLines.size)
+        val value = matchLines[0].split("=").getOrNull(1)
         assertEquals(inputValue, value)
     }
 

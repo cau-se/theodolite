@@ -78,6 +78,15 @@ class PatcherFactory {
                         suffix = patcher.properties["suffix"],
                         factor = patcher.properties["factor"]?.toInt(),
                     )
+                    "ConfigMapPropertiesPatcher" -> DecoratingPatcher(
+                        ConfigMapPropertiesPatcher(
+                            fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
+                            variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                        ),
+                        prefix = patcher.properties["prefix"],
+                        suffix = patcher.properties["suffix"],
+                        factor = patcher.properties["factor"]?.toInt(),
+                    )
                     "NamePatcher" -> NamePatcher()
                     "ServiceSelectorPatcher" -> ServiceSelectorPatcher(
                         variableName = patcher.properties["label"] ?: throwInvalid(patcher)
