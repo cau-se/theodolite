@@ -18,8 +18,6 @@ import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
  */
 public class ChildParentsTransformer {
 
-  public ChildParentsTransformer() {}
-
   /**
    * Constructs a map of keys to their set of parents out of a SensorRegistry.
    *
