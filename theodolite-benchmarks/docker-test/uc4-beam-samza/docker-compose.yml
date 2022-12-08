@@ -52,6 +52,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       ENABLE_METRICS: "false"
+      GRACE_PERIOD_MS: 5000
+      TRIGGER_INTERVAL_SECONDS: 1
   load-generator: 
     image: ghcr.io/cau-se/theodolite-uc4-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:
