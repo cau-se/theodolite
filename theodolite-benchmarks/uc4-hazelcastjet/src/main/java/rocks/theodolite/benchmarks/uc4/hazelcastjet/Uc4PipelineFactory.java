@@ -16,9 +16,7 @@ import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.StreamStageWithKey;
 import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -47,6 +45,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
 
   private final Duration gracePeriod;
 
+  private final Duration triggerPeriod;
+
 
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
@@ -74,7 +74,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
       final String kafkaConfigurationTopic,
       final String kafkaFeedbackTopic,
       final Duration emitPeriod,
-      final Duration gracePeriod) {
+      final Duration gracePeriod,
+      final Duration triggerPeriod) {
 
     super(kafkaInputReadPropsForPipeline, kafkaInputTopic,
         kafkaWritePropsForPipeline, kafkaOutputTopic);
@@ -84,6 +85,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
     this.kafkaFeedbackTopic = kafkaFeedbackTopic;
     this.emitPeriod = emitPeriod;
     this.gracePeriod = gracePeriod;
+    this.triggerPeriod = triggerPeriod;
   }
 
   /**
@@ -229,7 +231,9 @@ public class Uc4PipelineFactory extends PipelineFactory {
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
     final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
-        dupliAsFlatmappedStage.window(WindowDefinition.tumbling(this.emitPeriod.toMillis()));
+        dupliAsFlatmappedStage.window(WindowDefinition
+            .tumbling(this.emitPeriod.toMillis())
+            .setEarlyResultsPeriod(this.triggerPeriod.toMillis()));
 
     final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
         AggregateOperation
@@ -285,11 +289,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
         }
       }
 
-      // Create a updates list to pass onto the next pipeline stage-
-      final List<Entry<String, Set<String>>> updatesList = new ArrayList<>(updates.entrySet());
-
       // Return traverser with updates list.
-      return Traversers.traverseIterable(updatesList)
+      return Traversers.traverseIterable(updates.entrySet())
           .map(e -> Util.entry(e.getKey(), e.getValue()));
     }
 

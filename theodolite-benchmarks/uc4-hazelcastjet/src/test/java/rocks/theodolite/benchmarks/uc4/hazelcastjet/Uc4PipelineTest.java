@@ -120,7 +120,7 @@ public class Uc4PipelineTest extends JetTestSupport {
     final Properties properties = new Properties();
     final Uc4PipelineFactory factory = new Uc4PipelineFactory(
         properties, properties, properties, properties, "", "",
-        "", "", testWindowSize, Duration.ofMillis(0));
+        "", "", testWindowSize, Duration.ofSeconds(1), Duration.ofMillis(0));
 
     this.uc4Topology =
         factory.extendUc4Topology(testInputSource, testAggregationSource, testConfigSource);
