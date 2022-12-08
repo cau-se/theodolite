@@ -131,7 +131,7 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
                 || tuple.f0 == Event.SENSOR_REGISTRY_STATUS)
             .name("[Filter] SensorRegistry changed")
             .map(tuple -> SensorRegistry.fromJson(tuple.f1)).name("[Map] JSON -> SensorRegistry")
-            .keyBy(sr -> 1)
+            // .keyBy(sr -> 1)
             .flatMap(new ChildParentsFlatMapFunction())
             .name("[FlatMap] SensorRegistry -> (ChildSensor, ParentSensor[])");
 

@@ -1,16 +1,9 @@
 package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Transformer;
-import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.KeyValueStore;
-import rocks.theodolite.benchmarks.commons.configuration.events.Event;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.Sensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
@@ -23,46 +16,9 @@ import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
  * does not longer exists in the sensor registry.
  *
  */
-public class ChildParentsTransformer implements
-    Transformer<Event, SensorRegistry, Iterable<KeyValue<String, Optional<Set<String>>>>> {
+public class ChildParentsTransformer {
 
-  private final String stateStoreName;
-  // private ProcessorContext context;
-  private KeyValueStore<String, Set<String>> state;
-
-  public ChildParentsTransformer(final String stateStoreName) {
-    this.stateStoreName = stateStoreName;
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public void init(final ProcessorContext context) {
-    // this.context = context;
-    this.state = (KeyValueStore<String, Set<String>>) context.getStateStore(this.stateStoreName);
-  }
-
-  @Override
-  public Iterable<KeyValue<String, Optional<Set<String>>>> transform(final Event event,
-      final SensorRegistry registry) {
-
-    // Values may later be null for deleting a sensor
-    final Map<String, Set<String>> childParentsPairs = this.constructChildParentsPairs(registry);
-
-    this.updateChildParentsPairs(childParentsPairs);
-
-    this.updateState(childParentsPairs);
-
-    return childParentsPairs
-        .entrySet()
-        .stream()
-        .map(e -> KeyValue.pair(e.getKey(), Optional.ofNullable(e.getValue())))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public void close() {
-    // Do nothing
-  }
+  public ChildParentsTransformer() {}
 
   /**
    * Constructs a map of keys to their set of parents out of a SensorRegistry.
@@ -85,35 +41,6 @@ public class ChildParentsTransformer implements
             Stream.of(s),
             s instanceof AggregatedSensor ? this.streamAllChildren((AggregatedSensor) s)
                 : Stream.empty()));
-  }
-
-  private void updateChildParentsPairs(final Map<String, Set<String>> childParentsPairs) {
-    final KeyValueIterator<String, Set<String>> oldChildParentsPairs = this.state.all();
-    while (oldChildParentsPairs.hasNext()) {
-      final KeyValue<String, Set<String>> oldChildParentPair = oldChildParentsPairs.next();
-      final String identifier = oldChildParentPair.key;
-      final Set<String> oldParents = oldChildParentPair.value;
-      final Set<String> newParents = childParentsPairs.get(identifier); // null if not exists
-      if (newParents == null) {
-        // Sensor was deleted
-        childParentsPairs.put(identifier, null);
-      } else if (newParents.equals(oldParents)) {
-        // No changes
-        childParentsPairs.remove(identifier);
-      }
-      // Else: Later Perhaps: Mark changed parents
-    }
-    oldChildParentsPairs.close();
-  }
-
-  private void updateState(final Map<String, Set<String>> childParentsPairs) {
-    for (final Map.Entry<String, Set<String>> childParentPair : childParentsPairs.entrySet()) {
-      if (childParentPair.getValue() == null) {
-        this.state.delete(childParentPair.getKey());
-      } else {
-        this.state.put(childParentPair.getKey(), childParentPair.getValue());
-      }
-    }
   }
 
 }
