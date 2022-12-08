@@ -62,13 +62,14 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
   }
 
   @Override
-  protected void buildPipeline() {
+  protected void buildPipeline() { // NOPMD
     // Get configurations
     final String kafkaBroker = this.config.getString(Uc4ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String schemaRegistryUrl =
         this.config.getString(Uc4ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final String feedbackTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
     final Time windowSize =
         Time.milliseconds(this.config.getLong(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
     final Duration windowGrace =
@@ -87,9 +88,9 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
         kafkaConnector.createConsumer(inputTopic, ActivePowerRecord.class);
     // TODO Watermarks?
 
-    // Source from output topic with AggregatedPowerRecords
+    // Source from feedback topic with AggregatedPowerRecords
     final FlinkKafkaConsumer<AggregatedActivePowerRecord> kafkaOutputSource =
-        kafkaConnector.createConsumer(outputTopic, AggregatedActivePowerRecord.class);
+        kafkaConnector.createConsumer(feedbackTopic, AggregatedActivePowerRecord.class);
 
     final FlinkKafkaConsumerBase<Tuple2<Event, String>> kafkaConfigSource =
         kafkaConnector.createConsumer(
@@ -103,6 +104,14 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
     final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaAggregationSink =
         kafkaConnector.createProducer(
             outputTopic,
+            Serdes::String,
+            () -> new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl).forValues(),
+            Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
+
+    // Sink to feedback topic with SensorId, AggregatedActivePowerRecord
+    final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaFeedbackSink =
+        kafkaConnector.createProducer(
+            feedbackTopic,
             Serdes::String,
             () -> new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl).forValues(),
             Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
@@ -155,11 +164,13 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
         .name("[Aggregate] ((Sensor, Group), ActivePowerRecord) -> AggregatedActivePowerRecord");
 
     // add Kafka Sink
-    aggregationStream
+    final DataStream<Tuple2<String, AggregatedActivePowerRecord>> results = aggregationStream
         .map(value -> new Tuple2<>(value.getIdentifier(), value))
         .name("[Map] AggregatedActivePowerRecord -> (Sensor, AggregatedActivePowerRecord)")
-        .returns(Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)))
-        .addSink(kafkaAggregationSink).name("[Kafka Producer] Topic: " + outputTopic);
+        .returns(Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
+
+    results.addSink(kafkaAggregationSink).name("[Kafka Producer] Topic: " + outputTopic); // NOCS
+    results.addSink(kafkaFeedbackSink).name("[Kafka Producer] Topic: " + feedbackTopic); // NOCS
   }
 
   public static void main(final String[] args) {

@@ -11,6 +11,8 @@ public final class Uc4ConfigurationKeys {
 
   public static final String KAFKA_OUTPUT_TOPIC = "kafka.output.topic";
 
+  public static final String KAFKA_FEEDBACK_TOPIC = "kafka.feedback.topic";
+
   public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
 
   public static final String EMIT_PERIOD_MS = "emit.period.ms";
