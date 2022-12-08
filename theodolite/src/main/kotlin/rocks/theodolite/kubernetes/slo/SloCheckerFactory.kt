@@ -60,9 +60,9 @@ class SloCheckerFactory {
                     "repetitionAggregation" to (properties["repetitionAggregation"]
                         ?: throw IllegalArgumentException("repetitionAggregation expected")),
                     "operator" to (properties["operator"] ?: throw IllegalArgumentException("operator expected")),
-                    "threshold" to (properties["threshold"]?.toDouble()
-                        ?: properties["thresholdRelToLoad"]?.toDouble()?.times(load)
-                        ?: properties["thresholdRelToResources"]?.toDouble()?.times(resources)
+                    "threshold" to (properties["threshold"]?.toDoubleOrNull()
+                        ?: properties["thresholdRelToLoad"]?.toDoubleOrNull()?.times(load)
+                        ?: properties["thresholdRelToResources"]?.toDoubleOrNull()?.times(resources)
                         ?: throw IllegalArgumentException("'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' expected"))
                 )
             )
@@ -71,10 +71,10 @@ class SloCheckerFactory {
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
                 metadata = mapOf(
                     "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
-                    "threshold" to (properties["threshold"]?.toDouble()
-                        ?: properties["thresholdRelToLoad"]?.toDouble()?.times(load)
-                        ?: properties["thresholdRelToResources"]?.toDouble()?.times(resources)
-                        ?: throw IllegalArgumentException("'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' expected"))
+                    "threshold" to (properties["threshold"]?.toDoubleOrNull()
+                        ?: properties["thresholdRelToLoad"]?.toDoubleOrNull()?.times(load)
+                        ?: properties["thresholdRelToResources"]?.toDoubleOrNull()?.times(resources)
+                        ?: throw IllegalArgumentException("Valid 'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' expected"))
                 )
             )
             SloTypes.LAG_TREND_RATIO, SloTypes.DROPPED_RECORDS_RATIO -> {
