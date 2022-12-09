@@ -81,7 +81,7 @@ spec:
           resource: "uc4-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
-            numSensors: "4.0"
+            numSensors: "4"
   slos:
     - name: "lag trend"
       sloType: "lag trend"
