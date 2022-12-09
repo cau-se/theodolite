@@ -28,6 +28,7 @@ dependencies {
     implementation 'io.github.microutils:kotlin-logging:2.1.16'
     implementation 'org.apache.kafka:kafka-clients:2.8.0'
     implementation 'khttp:khttp:1.0.0'
+    implementation 'net.objecthunter:exp4j:0.4.8'
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-test-kubernetes-client'
