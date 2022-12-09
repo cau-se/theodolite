@@ -16,9 +16,7 @@ import com.hazelcast.jet.pipeline.StreamStage;
 import com.hazelcast.jet.pipeline.StreamStageWithKey;
 import com.hazelcast.jet.pipeline.WindowDefinition;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -45,6 +43,10 @@ public class Uc4PipelineFactory extends PipelineFactory {
 
   private final Duration emitPeriod;
 
+  private final Duration gracePeriod;
+
+  private final Duration triggerPeriod;
+
 
   /**
    * Builds a pipeline which can be used for stream processing using Hazelcast Jet.
@@ -61,7 +63,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
    * @param kafkaOutputTopic The name of the output topic used for the pipeline.
    * @param kafkaConfigurationTopic The name of the configuration topic used for the pipeline.
    * @param kafkaFeedbackTopic The name of the feedback topic used for the pipeline.
-   * @param windowSize The window size of the tumbling window used in this pipeline.
+   * @param emitPeriod The window size of the tumbling window used in this pipeline.
    */
   public Uc4PipelineFactory(final Properties kafkaInputReadPropsForPipeline, // NOPMD
       final Properties kafkaConfigPropsForPipeline,
@@ -71,7 +73,9 @@ public class Uc4PipelineFactory extends PipelineFactory {
       final String kafkaOutputTopic,
       final String kafkaConfigurationTopic,
       final String kafkaFeedbackTopic,
-      final Duration windowSize) {
+      final Duration emitPeriod,
+      final Duration gracePeriod,
+      final Duration triggerPeriod) {
 
     super(kafkaInputReadPropsForPipeline, kafkaInputTopic,
         kafkaWritePropsForPipeline, kafkaOutputTopic);
@@ -79,7 +83,9 @@ public class Uc4PipelineFactory extends PipelineFactory {
     this.kafkaFeedbackPropsForPipeline = kafkaFeedbackPropsForPipeline;
     this.kafkaConfigurationTopic = kafkaConfigurationTopic;
     this.kafkaFeedbackTopic = kafkaFeedbackTopic;
-    this.emitPeriod = windowSize;
+    this.emitPeriod = emitPeriod;
+    this.gracePeriod = gracePeriod;
+    this.triggerPeriod = triggerPeriod;
   }
 
   /**
@@ -155,13 +161,13 @@ public class Uc4PipelineFactory extends PipelineFactory {
     //////////////////////////////////
     // (1) Configuration Stream
     this.pipe.readFrom(configurationSource)
-        .withNativeTimestamps(0)
+        .withNativeTimestamps(this.gracePeriod.toMillis())
         .filter(entry -> entry.getKey() == Event.SENSOR_REGISTRY_CHANGED
             || entry.getKey() == Event.SENSOR_REGISTRY_STATUS)
         .map(data -> Util.entry(data.getKey(), SensorRegistry.fromJson(data.getValue())))
         .flatMapStateful(HashMap::new, new ConfigFlatMap())
         .writeTo(Sinks.mapWithUpdating(
-            SENSOR_PARENT_MAP_NAME, // The addressed IMAP
+            SENSOR_PARENT_MAP_NAME, // The addressed IMap
             Entry::getKey, // The key to look for
             (oldValue, newEntry) -> newEntry.getValue()));
 
@@ -169,13 +175,13 @@ public class Uc4PipelineFactory extends PipelineFactory {
     // (1) Sensor Input Stream
     final StreamStage<Entry<String, ActivePowerRecord>> inputStream = this.pipe
         .readFrom(inputSource)
-        .withNativeTimestamps(0);
+        .withNativeTimestamps(this.gracePeriod.toMillis());
 
     //////////////////////////////////
     // (1) Aggregation Stream
     final StreamStage<Entry<String, ActivePowerRecord>> aggregations = this.pipe
         .readFrom(aggregationSource)
-        .withNativeTimestamps(0)
+        .withNativeTimestamps(this.gracePeriod.toMillis())
         .map(entry -> { // Map Aggregated to ActivePowerRecord
           final AggregatedActivePowerRecord agg = entry.getValue();
           final ActivePowerRecord record = new ActivePowerRecord(
@@ -214,24 +220,20 @@ public class Uc4PipelineFactory extends PipelineFactory {
           final ActivePowerRecord record = entry.getValue().getRecord();
           final Set<String> groups = entry.getValue().getGroups();
 
-          // Transformed Data
-          final String[] groupList = groups.toArray(String[]::new);
-          final SensorGroupKey[] newKeyList = new SensorGroupKey[groupList.length];
-          final List<Entry<SensorGroupKey, ActivePowerRecord>> newEntryList = new ArrayList<>();
-          for (int i = 0; i < groupList.length; i++) {
-            newKeyList[i] = new SensorGroupKey(keyGroupId, groupList[i]);
-            newEntryList.add(Util.entry(newKeyList[i], record));
-          }
-
           // Return traversable list of new entry elements
-          return Traversers.traverseIterable(newEntryList);
+          return Traversers.traverseStream(
+              groups
+                  .stream()
+                  .map(group -> Util.entry(new SensorGroupKey(keyGroupId, group), record)));
         });
 
     //////////////////////////////////
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
     final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
-        dupliAsFlatmappedStage.window(WindowDefinition.tumbling(this.emitPeriod.toMillis()));
+        dupliAsFlatmappedStage.window(WindowDefinition
+            .tumbling(this.emitPeriod.toMillis())
+            .setEarlyResultsPeriod(this.triggerPeriod.toMillis()));
 
     final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
         AggregateOperation
@@ -253,7 +255,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
 
     return windowedLastValues
         .groupingKey(entry -> entry.getKey().getGroup())
-        .aggregate(aggrOp).map(agg -> Util.entry(agg.getKey(), agg.getValue()));
+        .aggregate(aggrOp)
+        .map(agg -> Util.entry(agg.getKey(), agg.getValue()));
   }
 
 
@@ -270,7 +273,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
         final Map<String, Set<String>> flatMapStage,
         final Entry<Event, SensorRegistry> eventItem) {
       // Transform new Input
-      final ChildParentsTransformer transformer = new ChildParentsTransformer("default-name");
+      final ChildParentsTransformer transformer = new ChildParentsTransformer();
       final Map<String, Set<String>> mapFromRegistry =
           transformer.constructChildParentsPairs(eventItem.getValue());
 
@@ -286,11 +289,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
         }
       }
 
-      // Create a updates list to pass onto the next pipeline stage-
-      final List<Entry<String, Set<String>>> updatesList = new ArrayList<>(updates.entrySet());
-
       // Return traverser with updates list.
-      return Traversers.traverseIterable(updatesList)
+      return Traversers.traverseIterable(updates.entrySet())
           .map(e -> Util.entry(e.getKey(), e.getValue()));
     }
 

@@ -81,6 +81,13 @@ spec:
           resource: "uc3-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
+    - typeName: "AggregationDurationDays"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "jobmanager-deployment.yaml"
+          properties:
+            container: "jobmanager"
+            variableName: "AGGREGATION_DURATION_DAYS"
   slos:
     - name: "lag trend"
       sloType: "lag trend"

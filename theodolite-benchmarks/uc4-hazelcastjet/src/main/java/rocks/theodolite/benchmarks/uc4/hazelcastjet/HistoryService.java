@@ -53,8 +53,14 @@ public class HistoryService extends HazelcastJetService {
 
     final String feedbackTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
 
-    final Duration windowSize = Duration.ofMillis(
+    final Duration emirPeriod = Duration.ofMillis(
         this.config.getInt(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
+
+    final Duration gracePeriod = Duration.ofMillis(
+        this.config.getInt(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
+
+    final Duration triggerPeriod = Duration.ofSeconds(
+        this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
 
     this.pipelineFactory = new Uc4PipelineFactory(
         kafkaProps,
@@ -62,7 +68,9 @@ public class HistoryService extends HazelcastJetService {
         kafkaAggregationReadProps,
         kafkaWriteProps,
         this.kafkaInputTopic, outputTopic, configurationTopic, feedbackTopic,
-        windowSize);
+        emirPeriod,
+        gracePeriod,
+        triggerPeriod);
   }
 
   @Override

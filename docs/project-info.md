@@ -15,7 +15,20 @@ You might also want to raise an issue on [GitHub](http://github.com/cau-se/theod
 
 ## Project Management
 
-Theodolite's internal development including issue boards, merge requests and extensive CI pipelines is tracked in our [internal GitLab](https://git.se.informatik.uni-kiel.de/she/theodolite). We provide a public mirror on GitHub, [cau-se/theodolite](http://github.com/cau-se/theodolite), where we are also happy to welcome issues and pull requests.
+Theodolite's internal development including issue boards, merge requests and extensive CI pipelines is tracked in our [internal GitLab](https://git.se.informatik.uni-kiel.de/she/theodolite).
+While all internal development is publicly accessible, contributing requires an account to be set up.
+To ease contribution, we provide a public mirror on GitHub, [cau-se/theodolite](http://github.com/cau-se/theodolite), where we are also happy to welcome issues and pull requests.
+Also releases are published via GitHub. See the following table for an overview:
+
+| Project management | Public GitHub | Internal GitLab |
+|:---|:---|:---|
+| Source code | [GitHub](https://github.com/cau-se/theodolite) | [GitLab](https://git.se.informatik.uni-kiel.de/she/theodolite) |
+| Issue Tracking | [GitHub Issues](https://github.com/cau-se/theodolite/issues) | [GitLab Issues](https://git.se.informatik.uni-kiel.de/she/theodolite/-/issues) |
+| Pull/Merge requests | [GitHub Pull requests](https://github.com/cau-se/theodolite/pulls) | [GitLab Merge requests](https://git.se.informatik.uni-kiel.de/she/theodolite/-/merge_requests) | 
+| Roadmap | | [GitLab Milestones](https://git.se.informatik.uni-kiel.de/she/theodolite/-/milestones) | 
+| CI/CD pipelines | | [GitLab CI/CD](https://git.se.informatik.uni-kiel.de/she/theodolite/-/pipelines) | 
+| Releases   | [GitHub Releases](https://github.com/cau-se/theodolite/releases) | [GitLab Releases](https://git.se.informatik.uni-kiel.de/she/theodolite/-/releases) | 
+| Container images | [GitHub Packages](https://github.com/orgs/cau-se/packages?repo_name=theodolite) | |
 
 ## Contributors
 
