@@ -98,7 +98,7 @@ spec:
       offset: 0
       properties:
         externalSloUrl: "http://localhost:8082"
-        promQLQuery: "sum(rate(flink_taskmanager_job_task_operator_org_apache_beam_runners_core_LateDataDroppingDoFnRunner_droppedDueToLateness[30s])) by (job) OR vector(0)"
+        promQLQuery: "sum(rate(flink_taskmanager_job_task_operator_org_apache_beam_runners_core_LateDataDroppingDoFnRunner_droppedDueToLateness[30s])) by (job) OR clamp_max(absent(notExists{job='absent'}),0)"
         warmup: 60 # in seconds
         queryAggregation: max
         repetitionAggregation: median

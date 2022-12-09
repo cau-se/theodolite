@@ -97,7 +97,7 @@ spec:
       offset: 0
       properties:
         externalSloUrl: "http://localhost:8082"
-        promQLQuery: "sum(rate(flink_taskmanager_job_task_operator_numLateRecordsDropped[30s])) by(job) OR vector(0)"
+        promQLQuery: "sum(rate(flink_taskmanager_job_task_operator_numLateRecordsDropped[30s])) by(job)"
         warmup: 60 # in seconds
         queryAggregation: max
         repetitionAggregation: median
