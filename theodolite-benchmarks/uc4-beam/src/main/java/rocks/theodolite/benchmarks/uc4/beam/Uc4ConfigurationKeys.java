@@ -15,7 +15,7 @@ public final class Uc4ConfigurationKeys {
 
   public static final String GRACE_PERIOD_MS = "grace.period.ms";
 
-  public static final String TRIGGER_INTERVAL_SECONDS = "trigger.interval.seconds";
+  public static final String TRIGGER_INTERVAL_MS = "trigger.interval.ms";
 
   private Uc4ConfigurationKeys() {}
 

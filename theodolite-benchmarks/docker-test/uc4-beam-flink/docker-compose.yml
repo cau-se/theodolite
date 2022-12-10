@@ -67,8 +67,6 @@ services:
           parallelism.default: 1
           state.backend: rocksdb
           state.checkpoints.dir: file:///data/flink/checkpoints
-        - GRACE_PERIOD_MS=5000
-        - TRIGGER_INTERVAL_SECONDS=1
       depends_on:
         - schema-registry
         - kafka

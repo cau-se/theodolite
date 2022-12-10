@@ -59,8 +59,8 @@ public class HistoryService extends HazelcastJetService {
     final Duration gracePeriod = Duration.ofMillis(
         this.config.getInt(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
 
-    final Duration triggerPeriod = Duration.ofSeconds(
-        this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
+    final Duration triggerPeriod = Duration.ofMillis(
+        this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
 
     this.pipelineFactory = new Uc4PipelineFactory(
         kafkaProps,

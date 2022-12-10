@@ -75,7 +75,7 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
     final Duration windowGrace =
         Duration.ofMillis(this.config.getLong(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
     final Time triggerDuration =
-        Time.seconds(this.config.getLong(Uc4ConfigurationKeys.TRIGGER_INTERVAL_SECONDS));
+        Time.milliseconds(this.config.getLong(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
     final String configurationTopic =
         this.config.getString(Uc4ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
