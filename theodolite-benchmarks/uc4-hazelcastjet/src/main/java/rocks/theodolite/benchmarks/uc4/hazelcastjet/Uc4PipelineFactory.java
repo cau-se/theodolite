@@ -36,16 +36,16 @@ public class Uc4PipelineFactory extends PipelineFactory {
   private static final String SENSOR_PARENT_MAP_NAME = "SensorParentMap";
 
   private final Properties kafkaConfigPropsForPipeline;
-  private final Properties kafkaFeedbackPropsForPipeline;
+  // private final Properties kafkaFeedbackPropsForPipeline;
 
   private final String kafkaConfigurationTopic;
-  private final String kafkaFeedbackTopic;
+  // private final String kafkaFeedbackTopic;
 
   private final Duration emitPeriod;
 
   private final Duration gracePeriod;
 
-  private final Duration triggerPeriod;
+  // private final Duration triggerPeriod;
 
 
   /**
@@ -55,37 +55,35 @@ public class Uc4PipelineFactory extends PipelineFactory {
    *        read attributes.
    * @param kafkaConfigPropsForPipeline Properties Object containing the necessary kafka config read
    *        attributes.
-   * @param kafkaFeedbackPropsForPipeline Properties Object containing the necessary kafka
-   *        aggregation read attributes.
    * @param kafkaWritePropsForPipeline Properties Object containing the necessary kafka write
    *        attributes.
    * @param kafkaInputTopic The name of the input topic used for the pipeline.
    * @param kafkaOutputTopic The name of the output topic used for the pipeline.
    * @param kafkaConfigurationTopic The name of the configuration topic used for the pipeline.
-   * @param kafkaFeedbackTopic The name of the feedback topic used for the pipeline.
    * @param emitPeriod The window size of the tumbling window used in this pipeline.
    */
   public Uc4PipelineFactory(final Properties kafkaInputReadPropsForPipeline, // NOPMD
       final Properties kafkaConfigPropsForPipeline,
-      final Properties kafkaFeedbackPropsForPipeline,
+      // final Properties kafkaFeedbackPropsForPipeline,
       final Properties kafkaWritePropsForPipeline,
       final String kafkaInputTopic,
       final String kafkaOutputTopic,
       final String kafkaConfigurationTopic,
-      final String kafkaFeedbackTopic,
+      // final String kafkaFeedbackTopic,
       final Duration emitPeriod,
-      final Duration gracePeriod,
-      final Duration triggerPeriod) {
+      final Duration gracePeriod
+  // final Duration triggerPeriod
+  ) {
 
     super(kafkaInputReadPropsForPipeline, kafkaInputTopic,
         kafkaWritePropsForPipeline, kafkaOutputTopic);
     this.kafkaConfigPropsForPipeline = kafkaConfigPropsForPipeline;
-    this.kafkaFeedbackPropsForPipeline = kafkaFeedbackPropsForPipeline;
+    // this.kafkaFeedbackPropsForPipeline = kafkaFeedbackPropsForPipeline;
     this.kafkaConfigurationTopic = kafkaConfigurationTopic;
-    this.kafkaFeedbackTopic = kafkaFeedbackTopic;
+    // this.kafkaFeedbackTopic = this.kafkaFeedbackTopic;
     this.emitPeriod = emitPeriod;
     this.gracePeriod = gracePeriod;
-    this.triggerPeriod = triggerPeriod;
+    // this.triggerPeriod = triggerPeriod;
   }
 
   /**
@@ -103,16 +101,19 @@ public class Uc4PipelineFactory extends PipelineFactory {
     final StreamSource<Entry<String, ActivePowerRecord>> inputSource =
         KafkaSources.kafka(this.kafkaReadPropsForPipeline, this.kafkaInputTopic);
 
-    final StreamSource<Entry<String, AggregatedActivePowerRecord>> aggregationSource =
-        KafkaSources.kafka(this.kafkaFeedbackPropsForPipeline, this.kafkaFeedbackTopic);
+    // final StreamSource<Entry<String, AggregatedActivePowerRecord>> aggregationSource =
+    // KafkaSources.kafka(this.kafkaFeedbackPropsForPipeline, this.kafkaFeedbackTopic);
 
     // Extend UC4 topology to pipeline
     final StreamStage<Entry<String, AggregatedActivePowerRecord>> uc4Aggregation =
-        this.extendUc4Topology(inputSource, aggregationSource, configSource);
+        this.extendUc4Topology(
+            inputSource,
+            // aggregationSource,
+            configSource);
 
     // Add Sink2: Write back to kafka feedback/aggregation topic
-    uc4Aggregation.writeTo(KafkaSinks.kafka(
-        this.kafkaWritePropsForPipeline, this.kafkaFeedbackTopic));
+    // uc4Aggregation.writeTo(KafkaSinks.kafka(
+    // this.kafkaWritePropsForPipeline, this.kafkaFeedbackTopic));
 
     // Log aggregation product
     // uc4Aggregation.writeTo(Sinks.logger());
@@ -147,7 +148,6 @@ public class Uc4PipelineFactory extends PipelineFactory {
    * </p>
    *
    * @param inputSource A streaming source with {@code ActivePowerRecord} data.
-   * @param aggregationSource A streaming source with aggregated data.
    * @param configurationSource A streaming source delivering a {@code SensorRegistry}.
    * @return A {@code StreamSource<String,Double>} with sensorKeys or groupKeys mapped to their
    *         according aggregated values. The data can be further modified or directly be linked to
@@ -155,7 +155,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
    */
   public StreamStage<Map.Entry<String, AggregatedActivePowerRecord>> extendUc4Topology(// NOPMD
       final StreamSource<Map.Entry<String, ActivePowerRecord>> inputSource,
-      final StreamSource<Map.Entry<String, AggregatedActivePowerRecord>> aggregationSource,
+      // final StreamSource<Map.Entry<String, AggregatedActivePowerRecord>> aggregationSource,
       final StreamSource<Map.Entry<Event, String>> configurationSource) {
 
     //////////////////////////////////
@@ -179,21 +179,21 @@ public class Uc4PipelineFactory extends PipelineFactory {
 
     //////////////////////////////////
     // (1) Aggregation Stream
-    final StreamStage<Entry<String, ActivePowerRecord>> aggregations = this.pipe
-        .readFrom(aggregationSource)
-        .withNativeTimestamps(this.gracePeriod.toMillis())
-        .map(entry -> { // Map Aggregated to ActivePowerRecord
-          final AggregatedActivePowerRecord agg = entry.getValue();
-          final ActivePowerRecord record = new ActivePowerRecord(
-              agg.getIdentifier(), agg.getTimestamp(), agg.getSumInW());
-          return Util.entry(entry.getKey(), record);
-        });
+    // final StreamStage<Entry<String, ActivePowerRecord>> aggregations = this.pipe
+    // .readFrom(aggregationSource)
+    // .withNativeTimestamps(this.gracePeriod.toMillis())
+    // .map(entry -> { // Map Aggregated to ActivePowerRecord
+    // final AggregatedActivePowerRecord agg = entry.getValue();
+    // final ActivePowerRecord record = new ActivePowerRecord(
+    // agg.getIdentifier(), agg.getTimestamp(), agg.getSumInW());
+    // return Util.entry(entry.getKey(), record);
+    // });
 
     //////////////////////////////////
     // (2) UC4 Merge Input with aggregation stream
     final StreamStageWithKey<Entry<String, ActivePowerRecord>, String> mergedInputAndAggregations =
         inputStream
-            .merge(aggregations)
+            // .merge(aggregations)
             .groupingKey(Entry::getKey);
 
     //////////////////////////////////
@@ -233,7 +233,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
     final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
         dupliAsFlatmappedStage.window(WindowDefinition
             .tumbling(this.emitPeriod.toMillis())
-            .setEarlyResultsPeriod(this.triggerPeriod.toMillis()));
+        // .setEarlyResultsPeriod(this.triggerPeriod.toMillis())
+        );
 
     final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
         AggregateOperation
@@ -251,7 +252,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
                 acc.getSumInW(),
                 acc.getAverageInW()));
 
-    // write aggregation back to kafka
+    // write aggregation back to Kafka
 
     return windowedLastValues
         .groupingKey(entry -> entry.getKey().getGroup())

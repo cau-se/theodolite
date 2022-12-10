@@ -12,7 +12,6 @@ import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.SetCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
-import org.apache.beam.sdk.io.kafka.KafkaIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.Filter;
@@ -21,11 +20,7 @@ import org.apache.beam.sdk.transforms.Latest;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.View;
-import org.apache.beam.sdk.transforms.windowing.AfterPane;
-import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
-import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
-import org.apache.beam.sdk.transforms.windowing.Repeatedly;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
@@ -44,7 +39,6 @@ import rocks.theodolite.benchmarks.commons.configuration.events.Event;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerRecordCoder;
-import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerRecordDeserializer;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerRecordSerializer;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventCoder;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventDeserializer;
@@ -67,7 +61,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
   @Override
   protected void constructPipeline(final Pipeline pipeline) { // NOPMD
     // Additional needed variables
-    final String feedbackTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
+    // final String feedbackTopic =
+    // this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
     final String outputTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
     final String configurationTopic =
         this.config.getString(Uc4ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
@@ -75,8 +70,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
     final Duration duration = Duration.millis(
         this.config.getInt(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
     // final boolean enableTrigger = this.config.getBoolean(Uc4ConfigurationKeys.TRIGGER_ENABLE);
-    final Duration triggerDelay = Duration.millis(
-        this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
+    // final Duration triggerDelay = Duration.millis(
+    // this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
     final Duration gracePeriod = Duration.millis(
         this.config.getInt(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
 
@@ -103,12 +98,12 @@ public class PipelineFactory extends AbstractPipelineFactory {
             AggregatedActivePowerRecordSerializer.class,
             this.buildProducerConfig());
 
-    final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaFeedback =
-        new KafkaWriterTransformation<>(
-            bootstrapServer,
-            feedbackTopic,
-            AggregatedActivePowerRecordSerializer.class,
-            this.buildProducerConfig());
+    // final KafkaWriterTransformation<AggregatedActivePowerRecord> kafkaFeedback =
+    // new KafkaWriterTransformation<>(
+    // bootstrapServer,
+    // feedbackTopic,
+    // AggregatedActivePowerRecordSerializer.class,
+    // this.buildProducerConfig());
 
     // Apply pipeline transformations
     final PCollection<KV<String, ActivePowerRecord>> values = pipeline
@@ -116,44 +111,44 @@ public class PipelineFactory extends AbstractPipelineFactory {
         .apply("Read Windows", Window.into(FixedWindows.of(duration)))
         .apply("Set trigger for input", Window
             .<KV<String, ActivePowerRecord>>configure()
-            .triggering(Repeatedly
-                .forever(
-                    AfterProcessingTime
-                        .pastFirstElementInPane()
-                        .plusDelayOf(triggerDelay)))
-            .withAllowedLateness(gracePeriod)
-            .discardingFiredPanes());
+            // .triggering(Repeatedly
+            // .forever(
+            // AfterProcessingTime
+            // .pastFirstElementInPane()
+            // .plusDelayOf(triggerDelay)))
+            .withAllowedLateness(gracePeriod));
+    // .discardingFiredPanes());
 
     // Read the results of earlier aggregations.
-    final PCollection<KV<String, ActivePowerRecord>> aggregationsInput = pipeline
-        .apply("Read aggregation results", KafkaIO.<String, AggregatedActivePowerRecord>read()
-            .withBootstrapServers(bootstrapServer)
-            .withTopic(feedbackTopic)
-            .withKeyDeserializer(StringDeserializer.class)
-            .withValueDeserializerAndCoder(
-                AggregatedActivePowerRecordDeserializer.class,
-                AvroCoder.of(AggregatedActivePowerRecord.class))
-            .withConsumerConfigUpdates(this.buildConsumerConfig())
-            .withTimestampPolicyFactory(
-                (tp, previousWaterMark) -> new AggregatedActivePowerRecordEventTimePolicy(
-                    previousWaterMark))
-            .withoutMetadata())
-        .apply("Apply Windows", Window.into(FixedWindows.of(duration)))
-        // Convert into the correct data format
-        .apply("Convert AggregatedActivePowerRecord to ActivePowerRecord",
-            MapElements.via(new AggregatedToActive()))
-        .apply("Set trigger for feedback", Window
-            .<KV<String, ActivePowerRecord>>configure()
-            .triggering(Repeatedly.forever(
-                AfterProcessingTime
-                    .pastFirstElementInPane()
-                    .plusDelayOf(triggerDelay)))
-            .withAllowedLateness(gracePeriod)
-            .discardingFiredPanes());
+    // final PCollection<KV<String, ActivePowerRecord>> aggregationsInput = pipeline
+    // .apply("Read aggregation results", KafkaIO.<String, AggregatedActivePowerRecord>read()
+    // .withBootstrapServers(bootstrapServer)
+    // .withTopic(feedbackTopic)
+    // .withKeyDeserializer(StringDeserializer.class)
+    // .withValueDeserializerAndCoder(
+    // AggregatedActivePowerRecordDeserializer.class,
+    // AvroCoder.of(AggregatedActivePowerRecord.class))
+    // .withConsumerConfigUpdates(this.buildConsumerConfig())
+    // .withTimestampPolicyFactory(
+    // (tp, previousWaterMark) -> new AggregatedActivePowerRecordEventTimePolicy(
+    // previousWaterMark))
+    // .withoutMetadata())
+    // .apply("Apply Windows", Window.into(FixedWindows.of(duration)))
+    // // Convert into the correct data format
+    // .apply("Convert AggregatedActivePowerRecord to ActivePowerRecord",
+    // MapElements.via(new AggregatedToActive()))
+    // .apply("Set trigger for feedback", Window
+    // .<KV<String, ActivePowerRecord>>configure()
+    // .triggering(Repeatedly.forever(
+    // AfterProcessingTime
+    // .pastFirstElementInPane()
+    // .plusDelayOf(triggerDelay)))
+    // .withAllowedLateness(gracePeriod)
+    // .discardingFiredPanes());
 
     // Prepare flatten
     final PCollectionList<KV<String, ActivePowerRecord>> collections =
-        PCollectionList.of(values).and(aggregationsInput);
+        PCollectionList.of(values); // .and(aggregationsInput);
 
     // Create a single PCollection out of the input and already computed results
     final PCollection<KV<String, ActivePowerRecord>> inputCollection =
@@ -168,25 +163,25 @@ public class PipelineFactory extends AbstractPipelineFactory {
             Filter.by(new FilterEvents()))
         // Build the changelog
         .apply("Generate Parents for every Sensor", ParDo.of(new GenerateParentsFn()))
-        .apply("Update child and parent pairs", ParDo.of(new UpdateChildParentPairs()))
-        .apply("Set trigger for configuration", Window
-            .<KV<String, Set<String>>>configure()
-            .triggering(AfterWatermark.pastEndOfWindow()
-                .withEarlyFirings(
-                    AfterPane.elementCountAtLeast(1)))
-            .withAllowedLateness(Duration.ZERO)
-            .accumulatingFiredPanes());
+        .apply("Update child and parent pairs", ParDo.of(new UpdateChildParentPairs()));
+    // .apply("Set trigger for configuration", Window
+    // .<KV<String, Set<String>>>configure()
+    // .triggering(AfterWatermark.pastEndOfWindow()
+    // .withEarlyFirings(
+    // AfterPane.elementCountAtLeast(1)))
+    // .withAllowedLateness(Duration.ZERO)
+    // .accumulatingFiredPanes());
 
     final PCollectionView<Map<String, Set<String>>> childParentPairMap =
         configurationStream.apply(Latest.perKey())
             // Reset trigger to avoid synchronized processing time
-            .apply("Reset trigger for configurations", Window
-                .<KV<String, Set<String>>>configure()
-                .triggering(AfterWatermark.pastEndOfWindow()
-                    .withEarlyFirings(
-                        AfterPane.elementCountAtLeast(1)))
-                .withAllowedLateness(Duration.ZERO)
-                .accumulatingFiredPanes())
+            // .apply("Reset trigger for configurations", Window
+            // .<KV<String, Set<String>>>configure()
+            // .triggering(AfterWatermark.pastEndOfWindow()
+            // .withEarlyFirings(
+            // AfterPane.elementCountAtLeast(1)))
+            // .withAllowedLateness(Duration.ZERO)
+            // .accumulatingFiredPanes())
             .apply(View.asMap());
 
     // Build pairs of every sensor reading and parent
@@ -204,14 +199,14 @@ public class PipelineFactory extends AbstractPipelineFactory {
     final PCollection<KV<String, AggregatedActivePowerRecord>> aggregations = flatMappedValues
         .apply("Set key to group", MapElements.via(setKeyToGroup))
         // Reset trigger to avoid synchronized processing time
-        .apply("Reset trigger for aggregations", Window
-            .<KV<String, ActivePowerRecord>>configure()
-            .triggering(Repeatedly.forever(
-                AfterProcessingTime
-                    .pastFirstElementInPane()
-                    .plusDelayOf(triggerDelay)))
-            .withAllowedLateness(gracePeriod)
-            .discardingFiredPanes())
+        // .apply("Reset trigger for aggregations", Window
+        // .<KV<String, ActivePowerRecord>>configure()
+        // .triggering(Repeatedly.forever(
+        // AfterProcessingTime
+        // .pastFirstElementInPane()
+        // .plusDelayOf(triggerDelay)))
+        // .withAllowedLateness(gracePeriod)
+        // .discardingFiredPanes())
         .apply(
             "Aggregate per group",
             Combine.perKey(new RecordAggregation()))
@@ -220,7 +215,7 @@ public class PipelineFactory extends AbstractPipelineFactory {
 
     aggregations.apply("Write to aggregation results", kafkaOutput);
 
-    aggregations.apply("Write to feedback topic", kafkaFeedback);
+    // aggregations.apply("Write to feedback topic", kafkaFeedback);
   }
 
   @Override
@@ -266,25 +261,25 @@ public class PipelineFactory extends AbstractPipelineFactory {
     return consumerConfig;
   }
 
-  private Map<String, Object> buildConsumerConfig() {
-    final Map<String, Object> consumerConfig = new HashMap<>();
-    consumerConfig.put(
-        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-        this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT));
-    consumerConfig.put(
-        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-        this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET));
-    consumerConfig.put(
-        AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
-        this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL));
-    consumerConfig.put(
-        KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG,
-        this.config.getString(ConfigurationKeys.SPECIFIC_AVRO_READER));
-    consumerConfig.put(
-        ConsumerConfig.GROUP_ID_CONFIG,
-        this.config.getString(ConfigurationKeys.APPLICATION_NAME));
-    return consumerConfig;
-  }
+  // private Map<String, Object> buildConsumerConfig() {
+  // final Map<String, Object> consumerConfig = new HashMap<>();
+  // consumerConfig.put(
+  // ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
+  // this.config.getString(ConfigurationKeys.ENABLE_AUTO_COMMIT));
+  // consumerConfig.put(
+  // ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+  // this.config.getString(ConfigurationKeys.AUTO_OFFSET_RESET));
+  // consumerConfig.put(
+  // AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
+  // this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL));
+  // consumerConfig.put(
+  // KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG,
+  // this.config.getString(ConfigurationKeys.SPECIFIC_AVRO_READER));
+  // consumerConfig.put(
+  // ConsumerConfig.GROUP_ID_CONFIG,
+  // this.config.getString(ConfigurationKeys.APPLICATION_NAME));
+  // return consumerConfig;
+  // }
 
   /**
    * Builds a simple configuration for a Kafka producer transformation.

@@ -36,10 +36,10 @@ public class HistoryService extends HazelcastJetService {
             EventDeserializer.class.getCanonicalName(),
             StringDeserializer.class.getCanonicalName());
 
-    final Properties kafkaAggregationReadProps =
-        this.propsBuilder.buildReadProperties(
-            StringDeserializer.class.getCanonicalName(),
-            KafkaAvroDeserializer.class.getCanonicalName());
+    // final Properties kafkaAggregationReadProps =
+    // this.propsBuilder.buildReadProperties(
+    // StringDeserializer.class.getCanonicalName(),
+    // KafkaAvroDeserializer.class.getCanonicalName());
 
     final Properties kafkaWriteProps =
         this.propsBuilder.buildWriteProperties(
@@ -51,7 +51,8 @@ public class HistoryService extends HazelcastJetService {
     final String configurationTopic =
         this.config.getString(Uc4ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC);
 
-    final String feedbackTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
+    // final String feedbackTopic =
+    // this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
 
     final Duration emirPeriod = Duration.ofMillis(
         this.config.getInt(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
@@ -59,18 +60,19 @@ public class HistoryService extends HazelcastJetService {
     final Duration gracePeriod = Duration.ofMillis(
         this.config.getInt(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
 
-    final Duration triggerPeriod = Duration.ofMillis(
-        this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
+    // final Duration triggerPeriod = Duration.ofMillis(
+    // this.config.getInt(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
 
     this.pipelineFactory = new Uc4PipelineFactory(
         kafkaProps,
         kafkaConfigReadProps,
-        kafkaAggregationReadProps,
+        // kafkaAggregationReadProps,
         kafkaWriteProps,
-        this.kafkaInputTopic, outputTopic, configurationTopic, feedbackTopic,
+        this.kafkaInputTopic, outputTopic, configurationTopic, // feedbackTopic,
         emirPeriod,
-        gracePeriod,
-        triggerPeriod);
+        gracePeriod
+    // triggerPeriod
+    );
   }
 
   @Override

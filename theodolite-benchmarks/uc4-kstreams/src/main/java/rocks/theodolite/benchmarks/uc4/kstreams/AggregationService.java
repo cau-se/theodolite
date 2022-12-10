@@ -36,7 +36,7 @@ public class AggregationService {
   private void createKafkaStreamsApplication() {
     final Uc4KafkaStreamsBuilder uc4KafkaStreamsBuilder = new Uc4KafkaStreamsBuilder(this.config);
     uc4KafkaStreamsBuilder
-        .feedbackTopic(this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC))
+        // .feedbackTopic(this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC))
         .outputTopic(this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
         .configurationTopic(this.config.getString(Uc4ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC))
         .emitPeriod(Duration.ofMillis(this.config.getLong(Uc4ConfigurationKeys.EMIT_PERIOD_MS)))

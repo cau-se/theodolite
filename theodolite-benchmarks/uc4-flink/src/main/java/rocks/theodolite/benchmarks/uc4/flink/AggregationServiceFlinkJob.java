@@ -10,7 +10,6 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.triggers.ContinuousProcessingTimeTrigger;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
@@ -69,13 +68,14 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
         this.config.getString(Uc4ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
     final String outputTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
-    final String feedbackTopic = this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
+    // final String feedbackTopic =
+    // this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC);
     final Time windowSize =
         Time.milliseconds(this.config.getLong(Uc4ConfigurationKeys.EMIT_PERIOD_MS));
     final Duration windowGrace =
         Duration.ofMillis(this.config.getLong(Uc4ConfigurationKeys.GRACE_PERIOD_MS));
-    final Time triggerDuration =
-        Time.milliseconds(this.config.getLong(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
+    // final Time triggerDuration =
+    // Time.milliseconds(this.config.getLong(Uc4ConfigurationKeys.TRIGGER_INTERVAL_MS));
     final String configurationTopic =
         this.config.getString(Uc4ConfigurationKeys.CONFIGURATION_KAFKA_TOPIC);
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
@@ -89,8 +89,8 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
     // TODO Watermarks?
 
     // Source from feedback topic with AggregatedPowerRecords
-    final FlinkKafkaConsumer<AggregatedActivePowerRecord> kafkaOutputSource =
-        kafkaConnector.createConsumer(feedbackTopic, AggregatedActivePowerRecord.class);
+    // final FlinkKafkaConsumer<AggregatedActivePowerRecord> kafkaOutputSource =
+    // kafkaConnector.createConsumer(feedbackTopic, AggregatedActivePowerRecord.class);
 
     final FlinkKafkaConsumerBase<Tuple2<Event, String>> kafkaConfigSource =
         kafkaConnector.createConsumer(
@@ -109,12 +109,12 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
             Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
 
     // Sink to feedback topic with SensorId, AggregatedActivePowerRecord
-    final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaFeedbackSink =
-        kafkaConnector.createProducer(
-            feedbackTopic,
-            Serdes::String,
-            () -> new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl).forValues(),
-            Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
+    // final FlinkKafkaProducer<Tuple2<String, AggregatedActivePowerRecord>> kafkaFeedbackSink =
+    // kafkaConnector.createProducer(
+    // feedbackTopic,
+    // Serdes::String,
+    // () -> new SchemaRegistryAvroSerdeFactory(schemaRegistryUrl).forValues(),
+    // Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
 
     // Build input stream
     final DataStream<ActivePowerRecord> inputStream = this.env.addSource(kafkaInputSource)
@@ -124,16 +124,16 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
         .name("[Map] Rebalance Forward");
 
     // Build aggregation stream
-    final DataStream<ActivePowerRecord> aggregationsInputStream =
-        this.env.addSource(kafkaOutputSource)
-            .name("[Kafka Consumer] Topic: " + outputTopic) // NOCS
-            // .rebalance()
-            .map(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()))
-            .name("[Map] AggregatedActivePowerRecord -> ActivePowerRecord");
+    // final DataStream<ActivePowerRecord> aggregationsInputStream =
+    // this.env.addSource(kafkaOutputSource)
+    // .name("[Kafka Consumer] Topic: " + outputTopic) // NOCS
+    // // .rebalance()
+    // .map(r -> new ActivePowerRecord(r.getIdentifier(), r.getTimestamp(), r.getSumInW()))
+    // .name("[Map] AggregatedActivePowerRecord -> ActivePowerRecord");
 
     // Merge input and aggregation streams
-    final DataStream<ActivePowerRecord> mergedInputStream = inputStream
-        .union(aggregationsInputStream);
+    final DataStream<ActivePowerRecord> mergedInputStream = inputStream;
+    // .union(aggregationsInputStream);
 
     // Build parent sensor stream from configuration stream
     final DataStream<Tuple2<String, Set<String>>> configurationsStream =
@@ -159,7 +159,7 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
         .assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(windowGrace))
         .keyBy(t -> t.f0.getParent())
         .window(TumblingEventTimeWindows.of(windowSize))
-        .trigger(ContinuousProcessingTimeTrigger.of(triggerDuration))
+        // .trigger(ContinuousProcessingTimeTrigger.of(triggerDuration))
         .process(new RecordAggregationProcessWindowFunction())
         .name("[Aggregate] ((Sensor, Group), ActivePowerRecord) -> AggregatedActivePowerRecord");
 
@@ -170,7 +170,7 @@ public final class AggregationServiceFlinkJob extends AbstractFlinkService {
         .returns(Types.TUPLE(Types.STRING, TypeInformation.of(AggregatedActivePowerRecord.class)));
 
     results.addSink(kafkaAggregationSink).name("[Kafka Producer] Topic: " + outputTopic); // NOCS
-    results.addSink(kafkaFeedbackSink).name("[Kafka Producer] Topic: " + feedbackTopic); // NOCS
+    // results.addSink(kafkaFeedbackSink).name("[Kafka Producer] Topic: " + feedbackTopic); // NOCS
   }
 
   public static void main(final String[] args) {

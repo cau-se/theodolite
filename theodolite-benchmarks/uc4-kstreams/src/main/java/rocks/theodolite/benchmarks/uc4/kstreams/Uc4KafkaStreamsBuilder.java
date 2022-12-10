@@ -16,7 +16,7 @@ public class Uc4KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
   private static final Duration EMIT_PERIOD_DEFAULT = Duration.ofSeconds(1);
   private static final Duration GRACE_PERIOD_DEFAULT = Duration.ZERO;
 
-  private String feedbackTopic; // NOPMD
+  // private String feedbackTopic; // NOPMD
   private String outputTopic; // NOPMD
   private String configurationTopic; // NOPMD
   private Duration emitPeriod; // NOPMD
@@ -26,10 +26,10 @@ public class Uc4KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
     super(config);
   }
 
-  public Uc4KafkaStreamsBuilder feedbackTopic(final String feedbackTopic) {
-    this.feedbackTopic = feedbackTopic;
-    return this;
-  }
+  // public Uc4KafkaStreamsBuilder feedbackTopic(final String feedbackTopic) {
+  // this.feedbackTopic = feedbackTopic;
+  // return this;
+  // }
 
   public Uc4KafkaStreamsBuilder outputTopic(final String outputTopic) {
     this.outputTopic = outputTopic;
@@ -54,14 +54,14 @@ public class Uc4KafkaStreamsBuilder extends KafkaStreamsBuilder { // NOPMD build
   @Override
   protected Topology buildTopology(final Properties properties) {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
-    Objects.requireNonNull(this.feedbackTopic, "Feedback topic has not been set.");
+    // Objects.requireNonNull(this.feedbackTopic, "Feedback topic has not been set.");
     Objects.requireNonNull(this.outputTopic, "Output topic has not been set.");
     Objects.requireNonNull(this.configurationTopic, "Configuration topic has not been set.");
 
     final TopologyBuilder topologyBuilder = new TopologyBuilder(
         this.inputTopic,
         this.outputTopic,
-        this.feedbackTopic,
+        // this.feedbackTopic,
         this.configurationTopic,
         this.emitPeriod == null ? EMIT_PERIOD_DEFAULT : this.emitPeriod,
         this.gracePeriod == null ? GRACE_PERIOD_DEFAULT : this.gracePeriod,
