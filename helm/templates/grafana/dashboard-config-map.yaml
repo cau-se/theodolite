@@ -12,28 +12,46 @@ data:
       "list": [
         {
           "builtIn": 1,
-          "datasource": "-- Grafana --",
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
           "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
           "type": "dashboard"
         }
       ]
     },
     "editable": true,
-    "gnetId": null,
-    "graphTooltip": 0,
-    "id": 1,
-    "iteration": 1589140028684,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": 19,
     "links": [],
+    "liveNow": false,
     "panels": [
       {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -59,9 +77,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -71,6 +90,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
             "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='input'}[30s]))",
             "format": "time_series",
             "intervalFactor": 1,
@@ -79,9 +102,7 @@ data:
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
         "title": "Messages In Per Second",
         "tooltip": {
           "shared": true,
@@ -90,33 +111,25 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       },
       {
@@ -124,7 +137,16 @@ data:
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -150,9 +172,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -162,6 +185,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
             "expr": "sum by (topic) (rate(kafka_server_brokertopicmetrics_messagesin_total{topic='output'}[30s]))",
             "format": "time_series",
             "intervalFactor": 1,
@@ -170,9 +197,7 @@ data:
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
         "title": "Messages Out Per Second",
         "tooltip": {
           "shared": true,
@@ -181,33 +206,25 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       },
       {
@@ -215,7 +232,16 @@ data:
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -241,9 +267,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -253,6 +280,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
             "expr": "sum by(consumergroup, topic) (kafka_consumergroup_lag >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
@@ -261,9 +292,7 @@ data:
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
         "title": "Record Lag",
         "tooltip": {
           "shared": true,
@@ -272,33 +301,25 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       },
       {
@@ -306,7 +327,16 @@ data:
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -316,7 +346,7 @@ data:
           "y": 7
         },
         "hiddenSeries": false,
-        "id": 5,
+        "id": 8,
         "legend": {
           "alignAsTable": false,
           "avg": false,
@@ -332,9 +362,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -344,18 +375,71 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum by(consumergroup) (kafka_consumergroup_members >= 0)",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "count by(job, topic) (kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
             "format": "time_series",
+            "hide": true,
             "intervalFactor": 1,
-            "legendFormat": "{{consumergroup}}",
+            "legendFormat": "{{topic}}",
+            "range": true,
+            "refId": "Legacy"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "sum(rate(com_hazelcast_jet_metrics_lateeventsdropped[30s])) by(job)",
+            "hide": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "sum(rate(kafka_streams_stream_task_metrics_dropped_records_total[30s])) by (job)",
+            "hide": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "sum(rate(flink_taskmanager_job_task_operator_numLateRecordsDropped[30s])) by(job)",
+            "hide": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "C"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "sum(rate(flink_taskmanager_job_task_operator_org_apache_beam_runners_core_LateDataDroppingDoFnRunner_droppedDueToLateness[30s])) by (job) ",
+            "hide": false,
+            "legendFormat": "__auto",
+            "range": true,
             "refId": "D"
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
-        "title": "Number of Instances",
+        "title": "Dropped Records",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -363,34 +447,26 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
-            "decimals": 0,
             "format": "short",
             "label": "",
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       },
       {
@@ -398,7 +474,16 @@ data:
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -424,9 +509,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -436,6 +522,10 @@ data:
         "steppedLine": false,
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
             "expr": "sum by(consumergroup,topic) (kafka_consumergroup_current_offset{topic='input'} >= 0)",
             "format": "time_series",
             "intervalFactor": 1,
@@ -444,9 +534,7 @@ data:
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
         "title": "Records Consumed",
         "tooltip": {
           "shared": true,
@@ -455,33 +543,25 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       },
       {
@@ -489,7 +569,16 @@ data:
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -499,7 +588,7 @@ data:
           "y": 15
         },
         "hiddenSeries": false,
-        "id": 12,
+        "id": 5,
         "legend": {
           "alignAsTable": false,
           "avg": false,
@@ -515,9 +604,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -527,18 +617,59 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "kafka_topic_partitions",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "sum by(consumergroup) (kafka_consumergroup_members >= 0)",
             "format": "time_series",
+            "hide": true,
             "intervalFactor": 1,
-            "legendFormat": "{{topic}}",
+            "legendFormat": "{{consumergroup}} (Kafka Consumer)",
+            "range": true,
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "sum(flink_jobmanager_numRegisteredTaskManagers) by (job)",
+            "hide": false,
+            "legendFormat": "{{job}} (Flink)",
+            "range": true,
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "count(com_hazelcast_metrics_activemembers) by(job)",
+            "hide": false,
+            "legendFormat": "{{job}} (Hazelcast Jet)",
+            "range": true,
+            "refId": "C"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "count(kafka_streams_stream_thread_metrics_process_records_avg) by (job)",
+            "hide": false,
+            "legendFormat": "{{job}} (Kafka Streams)",
+            "range": true,
             "refId": "D"
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
-        "title": "Number of Partitions",
+        "title": "Number of Instances",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -546,33 +677,27 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
+            "decimals": 0,
             "format": "short",
-            "label": null,
+            "label": "",
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       },
       {
@@ -580,7 +705,16 @@ data:
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -606,9 +740,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -618,18 +753,20 @@ data:
         "steppedLine": false,
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
             "expr": "sum by(topic) (kafka_topic_partition_current_offset)",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",
-            "refId": "D"
+            "refId": "A"
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
-        "title": "Records Produced (Kafka Lag Exporter)",
+        "title": "Records Produced",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -637,33 +774,25 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       },
       {
@@ -671,7 +800,16 @@ data:
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
@@ -681,7 +819,7 @@ data:
           "y": 23
         },
         "hiddenSeries": false,
-        "id": 8,
+        "id": 12,
         "legend": {
           "alignAsTable": false,
           "avg": false,
@@ -697,9 +835,10 @@ data:
         "links": [],
         "nullPointMode": "null",
         "options": {
-          "dataLinks": []
+          "alertThreshold": true
         },
         "percentage": false,
+        "pluginVersion": "9.2.4",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -709,7 +848,11 @@ data:
         "steppedLine": false,
         "targets": [
           {
-            "expr": "count by(job, topic) (kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "expr": "kafka_topic_partitions",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{topic}}",
@@ -717,10 +860,8 @@ data:
           }
         ],
         "thresholds": [],
-        "timeFrom": null,
         "timeRegions": [],
-        "timeShift": null,
-        "title": "Number of Partitions (Kafka Streams Export)",
+        "title": "Number of Partitions",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -728,261 +869,37 @@ data:
         },
         "type": "graph",
         "xaxis": {
-          "buckets": null,
           "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "decimals": null,
-            "format": "short",
-            "label": "",
-            "logBase": 1,
-            "max": null,
-            "min": "0",
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": null,
-        "fill": 1,
-        "fillGradient": 0,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 31
-        },
-        "hiddenSeries": false,
-        "id": 4,
-        "legend": {
-          "alignAsTable": false,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {
-          "dataLinks": []
-        },
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "expr": "sum by(job, topic) (kafka_consumer_consumer_fetch_manager_metrics_records_lag)",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "{{topic}}",
-            "refId": "D"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Record Lag (Kafka Streams Export)",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
           "show": true,
           "values": []
         },
         "yaxes": [
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
             "min": "0",
             "show": true
           },
           {
             "format": "short",
-            "label": null,
             "logBase": 1,
-            "max": null,
-            "min": null,
             "show": true
           }
         ],
         "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": null,
-        "fill": 1,
-        "fillGradient": 0,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 31
-        },
-        "hiddenSeries": false,
-        "id": 13,
-        "legend": {
-          "alignAsTable": false,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {
-          "dataLinks": []
-        },
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": true,
-        "steppedLine": false,
-        "targets": [
-          {
-            "expr": "sum by(group) (kafka_consumergroup_group_lag >= 0)",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "total lag",
-            "refId": "D"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Total Record Lag (Kafka Lag Exporter)",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": "0",
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
+          "align": false
         }
       }
     ],
     "refresh": "10s",
-    "schemaVersion": 21,
+    "schemaVersion": 37,
     "style": "dark",
     "tags": [],
     "templating": {
-      "list": [
-        {
-          "allValue": null,
-          "current": {
-            "tags": [],
-            "text": "titan-ccp-aggregation",
-            "value": "titan-ccp-aggregation"
-          },
-          "datasource": "Prometheus",
-          "definition": "label_values(kafka_consumer_consumer_fetch_manager_metrics_records_lag, job)",
-          "hide": 0,
-          "includeAll": false,
-          "label": "Job",
-          "multi": false,
-          "name": "Job",
-          "options": [
-            {
-              "selected": true,
-              "text": "titan-ccp-aggregation",
-              "value": "titan-ccp-aggregation"
-            }
-          ],
-          "query": "label_values(kafka_consumer_consumer_fetch_manager_metrics_records_lag, job)",
-          "refresh": 0,
-          "regex": "",
-          "skipUrlSync": false,
-          "sort": 0,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        }
-      ]
+      "list": []
     },
     "time": {
-      "from": "now-1h",
+      "from": "now-30m",
       "to": "now"
     },
     "timepicker": {
@@ -1000,8 +917,9 @@ data:
       ]
     },
     "timezone": "",
-    "title": "Scalability Benchmarking",
+    "title": "Theodolite - Stream Processing",
     "uid": "dad0CNlZz",
-    "version": 25
+    "version": 6,
+    "weekStart": ""
     }`}}
 {{- end }}
