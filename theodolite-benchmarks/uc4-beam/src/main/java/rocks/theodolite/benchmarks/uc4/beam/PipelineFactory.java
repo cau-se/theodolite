@@ -20,6 +20,8 @@ import org.apache.beam.sdk.transforms.Latest;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.View;
+import org.apache.beam.sdk.transforms.windowing.AfterPane;
+import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
@@ -164,14 +166,14 @@ public class PipelineFactory extends AbstractPipelineFactory {
             Filter.by(new FilterEvents()))
         // Build the changelog
         .apply("Generate Parents for every Sensor", ParDo.of(new GenerateParentsFn()))
-        .apply("Update child and parent pairs", ParDo.of(new UpdateChildParentPairs()));
-    // .apply("Set trigger for configuration", Window
-    // .<KV<String, Set<String>>>configure()
-    // .triggering(AfterWatermark.pastEndOfWindow()
-    // .withEarlyFirings(
-    // AfterPane.elementCountAtLeast(1)))
-    // .withAllowedLateness(Duration.ZERO)
-    // .accumulatingFiredPanes());
+        .apply("Update child and parent pairs", ParDo.of(new UpdateChildParentPairs()))
+        .apply("Set trigger for configuration", Window
+            .<KV<String, Set<String>>>configure()
+            .triggering(AfterWatermark.pastEndOfWindow()
+                .withEarlyFirings(
+                    AfterPane.elementCountAtLeast(1)))
+            .withAllowedLateness(Duration.ZERO)
+            .accumulatingFiredPanes());
 
     final PCollectionView<Map<String, Set<String>>> childParentPairMap =
         configurationStream.apply(Latest.perKey())
