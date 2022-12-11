@@ -1,11 +1,14 @@
 package rocks.theodolite.benchmarks.uc4.hazelcastjet;
 
+import java.io.Serializable;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 /**
  * Accumulator class for AggregatedActivePowerRecords.
  */
-public class AggregatedActivePowerRecordAccumulator {
+public class AggregatedActivePowerRecordAccumulator implements Serializable {
+
+  private static final long serialVersionUID = 2758923241623882739L;
 
   private String id;
   private long timestamp;
