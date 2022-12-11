@@ -116,7 +116,8 @@ public class PipelineFactory extends AbstractPipelineFactory {
             // AfterProcessingTime
             // .pastFirstElementInPane()
             // .plusDelayOf(triggerDelay)))
-            .withAllowedLateness(gracePeriod));
+            .withAllowedLateness(gracePeriod)
+            .accumulatingFiredPanes());
     // .discardingFiredPanes());
 
     // Read the results of earlier aggregations.
