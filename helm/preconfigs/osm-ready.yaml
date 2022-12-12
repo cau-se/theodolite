@@ -1,0 +1,25 @@
+grafana:
+  podAnnotations:
+    openservicemesh.io/sidecar-injection: "disabled"
+
+kube-prometheus-stack:
+  grafana:
+    podAnnotations:
+      openservicemesh.io/sidecar-injection: "disabled"
+  prometheusOperator:
+    podAnnotations:
+      openservicemesh.io/sidecar-injection: "disabled"
+  prometheus:
+    prometheusSpec:
+      podMetadata:
+        annotations:
+          openservicemesh.io/sidecar-injection: "disabled"
+
+prometheus: 
+  podMetadata:
+    annotations:
+      openservicemesh.io/sidecar-injection: "disabled"
+
+operator:
+  podAnnotations:
+    openservicemesh.io/sidecar-injection: "disabled"
