@@ -57,6 +57,9 @@ See the [install-configmaps.sh](https://github.com/cau-se/theodolite/blob/main/t
 ## Running Benchmarks
 
 To run a benchmark, you need to create and apply an `Execution` YAML file as described in the [running benchmarks documentation](../running-benchmarks).
+Some preliminary results of our benchmarks can be found in our publication:
+
+* S. Henning and W. Hasselbring. “[Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures](https://arxiv.org/abs/2009.00304)”. In: *Big Data Research* 25. 2021. DOI: [10.1016/j.bdr.2021.100209](https://doi.org/10.1016/j.bdr.2021.100209).
 
 ## Control the Number of Load Generator Instances
 
