@@ -665,6 +665,18 @@ data:
             "legendFormat": "{{job}} (Kafka Streams)",
             "range": true,
             "refId": "D"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "expr": "count({__name__=~\"org_apache_samza_container_samzacontainermetrics_samza_container_.*_count\", name=\"process-envelopes\"}) by (job)",
+            "hide": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "E"
           }
         ],
         "thresholds": [],
@@ -919,7 +931,7 @@ data:
     "timezone": "",
     "title": "Theodolite - Stream Processing",
     "uid": "dad0CNlZz",
-    "version": 6,
+    "version": 7,
     "weekStart": ""
-    }`}}
+  }`}}
 {{- end }}
