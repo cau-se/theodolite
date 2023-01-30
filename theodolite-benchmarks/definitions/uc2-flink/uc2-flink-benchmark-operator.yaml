@@ -12,6 +12,8 @@ spec:
       - configMap:
           name: "benchmark-resources-uc2-flink"
           files:
+          - "input-topic.yaml"
+          - "output-topic.yaml"
           - "flink-configuration-configmap.yaml"
           - "taskmanager-deployment.yaml"
           - "taskmanager-service.yaml"
@@ -106,11 +108,5 @@ spec:
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
-      - name: "input"
-        numPartitions: 100
-        replicationFactor: 1
-      - name: "output"
-        numPartitions: 100
-        replicationFactor: 1
       - name: "theodolite-.*"
         removeOnly: True

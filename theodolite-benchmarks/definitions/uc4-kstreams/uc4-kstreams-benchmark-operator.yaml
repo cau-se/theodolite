@@ -12,6 +12,10 @@ spec:
       - configMap:
           name: "benchmark-resources-uc4-kstreams"
           files:
+            - "input-topic.yaml"
+            - "output-topic.yaml"
+            - "aggregation-feedback-topic.yaml"
+            - "configuration-topic.yaml"
             - "uc4-kstreams-deployment.yaml"
             - "uc4-kstreams-service.yaml"
             - "uc4-jmx-configmap.yaml"
@@ -87,17 +91,5 @@ spec:
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
-      - name: "input"
-        numPartitions: 100
-        replicationFactor: 1
-      - name: "output"
-        numPartitions: 100
-        replicationFactor: 1
-      - name: "configuration"
-        numPartitions: 100
-        replicationFactor: 1
-      - name: "aggregation-feedback"
-        numPartitions: 100
-        replicationFactor: 1
       - name: "theodolite-.*"
         removeOnly: True

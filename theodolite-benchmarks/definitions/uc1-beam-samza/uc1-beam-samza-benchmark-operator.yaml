@@ -12,6 +12,7 @@ spec:
       - configMap:
           name: "benchmark-resources-uc1-beam-samza"
           files:
+          - "input-topic.yaml"
           - "uc1-beam-samza-deployment.yaml"
           - "beam-samza-service.yaml"
           - "service-monitor.yaml"
@@ -83,9 +84,6 @@ spec:
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
-      - name: "input"
-        numPartitions: 100
-        replicationFactor: 1
       - name: ".*samza.*"
         removeOnly: true
       - name: ".*uc1-application.*"

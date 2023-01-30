@@ -12,6 +12,8 @@ spec:
       - configMap:
           name: "benchmark-resources-uc2-hazelcastjet"
           files:
+            - "input-topic.yaml"
+            - "output-topic.yaml"
             - "uc2-hazelcastjet-deployment.yaml"
             - "uc2-hazelcastjet-service.yaml"
             - "uc2-jmx-configmap.yaml"
@@ -81,11 +83,5 @@ spec:
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
-      - name: "input"
-        numPartitions: 100
-        replicationFactor: 1
-      - name: "output"
-        numPartitions: 100
-        replicationFactor: 1
       - name: "theodolite-.*"
         removeOnly: True
