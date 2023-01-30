@@ -75,7 +75,7 @@ internal class GenericResourcePatcherTest {
                 11.2,
                 ((it as GenericKubernetesResource)
                     .additionalProperties["spec"] as Map<String, Any>)
-                        ["labelLimit"])
+                        ["myMadeUpProp"])
         }
     }
 
@@ -89,7 +89,7 @@ internal class GenericResourcePatcherTest {
                 11.0,
                 ((it as GenericKubernetesResource)
                     .additionalProperties["spec"] as Map<String, Any>)
-                        ["labelLimit"])
+                        ["myMadeUpProp"])
         }
     }
 
