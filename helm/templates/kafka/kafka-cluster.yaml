@@ -47,7 +47,7 @@ spec:
     {{- end }}
     storage:
       type: ephemeral
-    {{- with .Values.strimzi.kafka.template}}
+    {{- with .Values.strimzi.zookeeper.template}}
     template:
       {{- toYaml . | nindent 6 }}
     {{- end}}
