@@ -5,10 +5,10 @@
     "codeRepository": "https://github.com/cau-se/theodolite",
     "dateCreated": "2020-03-13",
     "datePublished": "2020-07-27",
-    "dateModified": "2022-11-19",
+    "dateModified": "2023-01-31",
     "downloadUrl": "https://github.com/cau-se/theodolite/releases",
     "name": "Theodolite",
-    "version": "0.8.2",
+    "version": "0.8.3",
     "description": "Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications.",
     "developmentStatus": "active",
     "relatedLink": [
