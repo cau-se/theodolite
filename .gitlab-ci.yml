@@ -747,7 +747,7 @@ deploy-theodolite:
 test-slo-checker-lag-trend:
   stage: test
   needs: []
-  image: python:3.7-slim
+  image: python:3.8-slim
   before_script:
     - cd slo-checker/record-lag
   script:
@@ -763,7 +763,7 @@ test-slo-checker-lag-trend:
 test-slo-checker-dropped-records-kstreams:
   stage: test
   needs: []
-  image: python:3.7-slim
+  image: python:3.8-slim
   before_script:
     - cd slo-checker/dropped-records
   script:
@@ -779,7 +779,7 @@ test-slo-checker-dropped-records-kstreams:
 test-slo-checker-generic:
   stage: test
   needs: []
-  image: python:3.7-slim
+  image: python:3.8-slim
   before_script:
     - cd slo-checker/generic
   script:
