@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: taskmanager
-          image: ghcr.io/cau-se/theodolite-uc3-beam-flink:v0.8.3
+          image: ghcr.io/cau-se/theodolite-uc3-beam-flink:v0.8.4
           args: ["taskmanager"]
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS

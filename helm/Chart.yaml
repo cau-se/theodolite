@@ -31,6 +31,6 @@ dependencies:
     condition: strimzi.enabled
 
 
-version: 0.8.3
+version: 0.8.4
 
-appVersion: 0.8.3
+appVersion: 0.8.4
