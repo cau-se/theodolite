@@ -55,9 +55,9 @@ spec:
   {{- if .Values.strimzi.kafkaExporter.enabled }}
   kafkaExporter:
     {{- with .Values.strimzi.kafkaExporter.template}}
-      template:
-        {{- toYaml . | nindent 6 }}
-      {{- end}}
+    template:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
     {{- with .Values.strimzi.kafkaExporter.resources}}
     resources:
       {{- toYaml . | nindent 6 }}
