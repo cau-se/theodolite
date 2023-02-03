@@ -50,6 +50,7 @@ strimzi:
     replicas: 3
     zooEntrance:
       enabled: true
+      nodeSelector: {}
       zookeeperClient:
         enabled: true
         nodeSelector: {}
