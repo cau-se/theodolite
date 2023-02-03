@@ -52,7 +52,15 @@ spec:
       {{- toYaml . | nindent 6 }}
     {{- end}}
 
-  kafkaExporter: {}
+  kafkaExporter:
+    {{- with .Values.strimzi.kafkaExporter.template}}
+      template:
+        {{- toYaml . | nindent 6 }}
+      {{- end}}
+    {{- with .Values.strimzi.kafkaExporter.resources}}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
 
   {{- if .Values.strimzi.topicOperator.enabled }}
   entityOperator:
