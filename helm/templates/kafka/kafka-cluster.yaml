@@ -52,6 +52,7 @@ spec:
       {{- toYaml . | nindent 6 }}
     {{- end}}
 
+  {{- if .Values.strimzi.kafkaExporter.enabled }}
   kafkaExporter:
     {{- with .Values.strimzi.kafkaExporter.template}}
       template:
@@ -61,6 +62,7 @@ spec:
     resources:
       {{- toYaml . | nindent 6 }}
     {{- end}}
+  {{- end }}
 
   {{- if .Values.strimzi.topicOperator.enabled }}
   entityOperator:
