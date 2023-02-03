@@ -157,6 +157,11 @@ strimzi:
   
   topicOperator:
     enabled: true
+  
+  kafkaExporter:
+    enabled: true
+    template: {}
+    resources: {}
 
   schemaRegistry:
     enabled: true
