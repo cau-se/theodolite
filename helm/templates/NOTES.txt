@@ -1,5 +1,5 @@
 Welcome to Theodolite, a framework for benchmarking the scalability of cloud-native applications!
 
-Test...
+Test....
 
 Visit https://www.theodolite.rocks for getting started and more information.
