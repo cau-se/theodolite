@@ -61,8 +61,6 @@ strimzi:
   
   kafkaExporter:
     enabled: true
-    template: {}
-    resources: {}
 
   schemaRegistry:
     enabled: true
