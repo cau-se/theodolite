@@ -160,7 +160,10 @@ test-helm:
     # Display initial pods, etc.
     - cd helm
     - helm dependencies update .
-    - helm install theodolite . -f preconfigs/minimal.yaml --wait
+    - kubectl get nodes -o wide
+    - kubectl get pods --all-namespaces -o wide
+    - kubectl get services --all-namespaces -o wide
+    - helm install theodolite . -f preconfigs/minimal.yaml
     - kubectl get nodes -o wide
     - kubectl get pods --all-namespaces -o wide
     - kubectl get services --all-namespaces -o wide
