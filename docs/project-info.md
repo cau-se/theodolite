@@ -6,11 +6,11 @@ nav_order: 8
 
 # Project Info
 
-Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de).
+Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de) and Johannes Kepler University Linz' [LIT | CPS Lab](https://www.jku.at/en/lit-cyber-physical-systems-lab/).
 
 ## Getting Help
 
-To get support with using Theodolite, feel free to directly contact [Sören Henning](https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc).
+To get support with using Theodolite, feel free to directly contact [Sören Henning](https://www.jku.at/en/lit-cyber-physical-systems-lab/about-us/our-team/dr-ing-soeren-henning/).
 You might also want to raise an issue on [GitHub](http://github.com/cau-se/theodolite).
 
 ## Project Management
@@ -32,7 +32,7 @@ Also releases are published via GitHub. See the following table for an overview:
 
 ## Contributors
 
-* [Sören Henning](https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc) (Maintainer)
+* [Sören Henning](https://www.jku.at/en/lit-cyber-physical-systems-lab/about-us/our-team/dr-ing-soeren-henning/) (Maintainer)
 * [Marcel Becker](https://www.linkedin.com/in/marcel-becker-11b39b246)
 * [Jan Bensien](https://oceanrep.geomar.de/id/eprint/52342/)
 * [Nico Biernat](https://github.com/NicoBiernat)
