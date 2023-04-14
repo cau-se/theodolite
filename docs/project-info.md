@@ -6,7 +6,7 @@ nav_order: 8
 
 # Project Info
 
-Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de) and Johannes Kepler University Linz' [LIT | CPS Lab](https://www.jku.at/en/lit-cyber-physical-systems-lab/).
+Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de) and Johannes Kepler University Linz' [LIT CPS Lab](https://www.jku.at/en/lit-cyber-physical-systems-lab/).
 
 ## Getting Help
 
