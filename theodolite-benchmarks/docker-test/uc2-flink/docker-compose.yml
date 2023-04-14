@@ -38,7 +38,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:${THEODOLITE_TAG:-v0.8.5}
+    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:${THEODOLITE_TAG:-v0.8.6}
     depends_on:
       - schema-registry
       - kafka
@@ -49,7 +49,7 @@ services:
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       NUM_SENSORS: 10  
   benchmark-jobmanager:
-    image: ghcr.io/cau-se/theodolite-uc2-flink:${THEODOLITE_TAG:-v0.8.5}
+    image: ghcr.io/cau-se/theodolite-uc2-flink:${THEODOLITE_TAG:-v0.8.6}
     #ports:
     #  - "8080:8081"
     command: standalone-job --job-classname rocks.theodolite.benchmarks.uc2.flink.HistoryServiceFlinkJob
@@ -64,7 +64,7 @@ services:
       - schema-registry
       - kafka
   benchmark-taskmanager:
-    image: ghcr.io/cau-se/theodolite-uc2-flink:${THEODOLITE_TAG:-v0.8.5}
+    image: ghcr.io/cau-se/theodolite-uc2-flink:${THEODOLITE_TAG:-v0.8.6}
     command: taskmanager
     environment:
       - |

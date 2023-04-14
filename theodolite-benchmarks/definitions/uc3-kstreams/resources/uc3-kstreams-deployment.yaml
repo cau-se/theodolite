@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: uc-application
-          image: ghcr.io/cau-se/theodolite-uc3-kstreams-app:v0.8.5
+          image: ghcr.io/cau-se/theodolite-uc3-kstreams-app:v0.8.6
           ports:
             - containerPort: 5555
               name: jmx
