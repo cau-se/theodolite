@@ -31,13 +31,10 @@ spec:
           volumeMounts:
             - name: theodolite-results-volume
               mountPath: "/deployments/results"
+          {{- with .Values.operator.resources}}
           resources:
-            requests:
-              memory: "512Mi"
-              cpu: "250m"
-            limits:
-              memory: "1024Mi"
-              cpu: "500m"
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- if .Values.operator.sloChecker.generic.enabled }}
         - name: slo-checker-generic
           image: "{{ .Values.operator.sloChecker.generic.image }}:{{ .Values.operator.sloChecker.generic.imageTag }}"
@@ -50,13 +47,10 @@ spec:
             value: "8082"
           - name: LOG_LEVEL
             value: INFO
+          {{- with .Values.operator.sloChecker.generic.resources}}
           resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- end }}
         {{- if .Values.operator.sloChecker.lagTrend.enabled }}
         - name: lag-trend-slo-checker
@@ -68,13 +62,10 @@ spec:
           env:
           - name: LOG_LEVEL
             value: INFO
+          {{- with .Values.operator.sloChecker.lagTrend.resources}}
           resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- end }}
         {{- if .Values.operator.sloChecker.droppedRecordsKStreams.enabled }}
         - name: slo-checker-dropped-records-kstreams
@@ -88,13 +79,10 @@ spec:
             value: "8081"
           - name: LOG_LEVEL
             value: INFO
+          {{- with .Values.operator.sloChecker.droppedRecordsKStreams.resources}}
           resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- end }}
         {{- if .Values.operator.resultsVolume.accessSidecar.enabled }}
         - name: results-access
@@ -108,6 +96,10 @@ spec:
           volumeMounts:
           - mountPath: /results
             name: theodolite-results-volume
+          {{- with .Values.operator.resultsVolume.accessSidecar.resources}}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- end }}
       volumes:
       - name: theodolite-results-volume

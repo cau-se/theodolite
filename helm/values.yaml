@@ -311,22 +311,51 @@ operator:
 
   nodeSelector: {}
 
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1024Mi"
+      cpu: "500m"
+
   sloChecker:
     generic:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-generic
       imageTag: v0.8.5
       imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "50m"
+        limits:
+          memory: "128Mi"
+          cpu: "100m"
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
       imageTag: v0.8.5
       imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "50m"
+        limits:
+          memory: "128Mi"
+          cpu: "100m"
     droppedRecordsKStreams:
       enabled: false
       image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
       imageTag: v0.8.5
       imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "50m"
+        limits:
+          memory: "128Mi"
+          cpu: "100m"
 
   resultsVolume:
     persistent:
@@ -341,6 +370,7 @@ operator:
       image: busybox
       imageTag: stable
       imagePullPolicy: IfNotPresent
+      #resources: {}
 
   theodoliteBenchmarks:
     resourceConfigMaps:
