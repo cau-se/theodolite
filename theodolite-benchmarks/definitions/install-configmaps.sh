@@ -9,7 +9,6 @@ kubectl create configmap benchmark-resources-uc2-hazelcastjet --from-file uc2-ha
 kubectl create configmap benchmark-resources-uc3-hazelcastjet --from-file uc3-hazelcastjet/resources
 kubectl create configmap benchmark-resources-uc4-hazelcastjet --from-file uc4-hazelcastjet/resources
 
-
 # Kafka Streams
 kubectl create configmap benchmark-resources-uc1-kstreams --from-file uc1-kstreams/resources
 kubectl create configmap benchmark-resources-uc2-kstreams --from-file uc2-kstreams/resources
