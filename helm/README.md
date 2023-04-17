@@ -47,10 +47,10 @@ helm uninstall theodolite
 Helm does not remove any CRDs created by this chart. You can remove them manually with:
 
 ```sh
-# CRDs from Theodolite
+# CRDs for Theodolite
 kubectl delete crd executions.theodolite.rocks
 kubectl delete crd benchmarks.theodolite.rocks
-# CRDs from Prometheus operator (see https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#uninstall-chart)
+# CRDs for Prometheus operator (see https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#uninstall-chart)
 kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
 kubectl delete crd alertmanagers.monitoring.coreos.com
 kubectl delete crd podmonitors.monitoring.coreos.com
@@ -59,6 +59,17 @@ kubectl delete crd prometheuses.monitoring.coreos.com
 kubectl delete crd prometheusrules.monitoring.coreos.com
 kubectl delete crd servicemonitors.monitoring.coreos.com
 kubectl delete crd thanosrulers.monitoring.coreos.com
+# CRDs for Strimzi
+kubectl delete crd kafkabridges.kafka.strimzi.io
+kubectl delete crd kafkaconnectors.kafka.strimzi.io
+kubectl delete crd kafkaconnects.kafka.strimzi.io
+kubectl delete crd kafkamirrormaker2s.kafka.strimzi.io
+kubectl delete crd kafkamirrormakers.kafka.strimzi.io
+kubectl delete crd kafkarebalances.kafka.strimzi.io
+kubectl delete crd kafkas.kafka.strimzi.io
+kubectl delete crd kafkatopics.kafka.strimzi.io
+kubectl delete crd kafkausers.kafka.strimzi.io
+kubectl delete crd strimzipodsets.core.strimzi.io
 ```
 
 ## Development
