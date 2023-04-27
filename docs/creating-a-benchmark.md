@@ -70,11 +70,14 @@ spec:
 
 In Theodolite, the system under test (SUT), the load generator as well as additional infrastructure (e.g., a middleware) are described by Kubernetes resources files.
 All resources defined for the SUT and the load generator are started and stopped for each SLO experiment, with SUT resources being started before the load generator.
-Infrastructure resources live over the entire duration of a benchmark run. They avoid time-consuming recreation of software components like middlewares, but should be used with caution to not let previous SLO experiments influence latte ones.
+Infrastructure resources are kept alive throughout the entire duration of a benchmark run. They avoid time-consuming recreation of software components like middlewares, but should be used with caution so that earlier SLO experiments do not influence later ones.
 
 ### Resources
 
 The recommended way to link Kubernetes resources files from a Benchmark is by bundling them in one or multiple ConfigMaps and refer to that ConfigMap from `sut.resources`, `loadGenerator.resources` or `infrastructure.resources`.
+
+**Note:** Theodolite requires that each resources file contains only a single resource (i.e., YAML document).
+
 To create a ConfigMap from all the Kubernetes resources in a directory run:
 
 ```sh
