@@ -41,12 +41,13 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
 
     private fun loadSingleResource(resource: Path, client: NamespacedKubernetesClient): Pair<String, HasMetadata> {
         return try {
-            val stream = FileInputStream(resource.toFile())
-            val text = BufferedReader(
-                InputStreamReader(stream, StandardCharsets.UTF_8)
-            ).lines().collect(Collectors.joining("\n"))
-            val k8sResource = client.resource(text).get()
-            Pair(resource.last().toString(), k8sResource)
+            FileInputStream(resource.toFile()).use {
+                val text = BufferedReader(InputStreamReader(it, StandardCharsets.UTF_8))
+                        .lines()
+                        .collect(Collectors.joining("\n"))
+                val k8sResource = client.resource(text).get()
+                Pair(resource.last().toString(), k8sResource)
+            }
         } catch (e: FileNotFoundException){
             throw DeploymentFailedException("File $resource not found.", e)
         } catch (e: IllegalArgumentException) {
