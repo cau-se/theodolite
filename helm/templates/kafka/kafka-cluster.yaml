@@ -68,6 +68,10 @@ spec:
   {{- if .Values.strimzi.topicOperator.enabled }}
   entityOperator:
     topicOperator: {}
+    {{- with .Values.strimzi.topicOperator.template}}
+    template:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
   {{- end }}
 
 
