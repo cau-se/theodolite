@@ -96,8 +96,9 @@ class PatcherFactory {
                     )
                     "GenericResourcePatcher" -> GenericResourcePatcher(
                         path = (patcher.properties["path"] ?: throwInvalid(patcher))
-                            .split("/")
-                            .map { it.toIntOrNull() ?: it },
+                                .removePrefix("/")
+                                .split("/")
+                                .map { it.toIntOrNull() ?: it },
                         type = patcher.properties["type"]?.let { GenericResourcePatcher.Type.from(it) } ?: GenericResourcePatcher.Type.STRING
                     )
                     else -> throw InvalidPatcherConfigurationException("Patcher type ${patcher.type} not found.")

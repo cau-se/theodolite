@@ -78,4 +78,18 @@ internal class PatcherFactoryTest {
         assertEquals(GenericResourcePatcher.Type.NUMBER, castedPatcher.type)
     }
 
+    @Test
+    fun testGenericResourcePatcherWithLeadingSlashInPath() {
+        val patcherDefinition = PatcherDefinition()
+        patcherDefinition.type = "GenericResourcePatcher"
+        patcherDefinition.properties = mapOf(
+                "path" to "/some/path/123/toSomeField",
+                "type" to "string"
+        )
+        val patcher = PatcherFactory.createPatcher(patcherDefinition)
+        assertTrue(patcher is GenericResourcePatcher)
+        val castedPatcher = patcher as GenericResourcePatcher
+        assertEquals(listOf("some", "path", 123, "toSomeField"), castedPatcher.path)
+    }
+
 }
