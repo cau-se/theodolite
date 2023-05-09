@@ -23,7 +23,7 @@ internal class SchedulerNamePatcherTest : AbstractPatcherTest(){
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             assertTrue((it as Deployment).spec.template.spec.schedulerName == value)

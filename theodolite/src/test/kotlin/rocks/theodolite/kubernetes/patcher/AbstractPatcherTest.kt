@@ -1,6 +1,7 @@
 package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.*
+import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
 import io.quarkus.test.junit.QuarkusTest
@@ -13,7 +14,7 @@ abstract class AbstractPatcherTest {
     lateinit var patcher: Patcher
     lateinit var value: String
 
-    fun createDeployment(): HasMetadata {
+    fun createDeployment(): Deployment {
         return DeploymentBuilder()
             .withNewMetadata()
                 .withName("dummy")
@@ -90,9 +91,5 @@ abstract class AbstractPatcherTest {
     fun patch() {
         resource = patcher.patch(resource, value)
     }
-
-    @Test
-    abstract fun validate()
-
 
 }

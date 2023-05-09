@@ -19,7 +19,7 @@ internal class TemplateLabelPatcherTest: AbstractPatcherTest() {
 
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             assertTrue((it as Deployment).spec.template.metadata.labels.containsKey("labelName"))

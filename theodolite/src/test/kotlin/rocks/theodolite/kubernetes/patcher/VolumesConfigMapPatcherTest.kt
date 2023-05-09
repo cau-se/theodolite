@@ -23,7 +23,7 @@ internal class VolumesConfigMapPatcherTest: AbstractPatcherTest() {
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             it as Deployment

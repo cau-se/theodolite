@@ -24,7 +24,7 @@ internal class EnvVarPatcherTest : AbstractPatcherTest() {
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         val envVar = EnvVarBuilder().withName("testEnv").withValue("testValue").build()
         resource.forEach {

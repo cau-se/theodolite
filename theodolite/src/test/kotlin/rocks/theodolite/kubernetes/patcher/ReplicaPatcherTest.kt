@@ -23,7 +23,7 @@ internal class ReplicaPatcherTest: AbstractPatcherTest() {
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             assertTrue((it as Deployment).spec.replicas == 5)

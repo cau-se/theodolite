@@ -23,7 +23,7 @@ internal class MatchLabelPatcherTest: AbstractPatcherTest() {
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             assertTrue((it as Deployment).spec.selector.matchLabels.containsKey("labelName"))

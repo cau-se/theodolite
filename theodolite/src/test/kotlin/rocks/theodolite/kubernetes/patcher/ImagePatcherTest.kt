@@ -23,7 +23,7 @@ internal class ImagePatcherTest: AbstractPatcherTest(){
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             assertTrue((it as Deployment).spec.template.spec.containers[0].image  == value)

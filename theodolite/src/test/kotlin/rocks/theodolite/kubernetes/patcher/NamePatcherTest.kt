@@ -22,7 +22,7 @@ internal class NamePatcherTest: AbstractPatcherTest() {
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             println(it.toString())

@@ -24,7 +24,7 @@ internal class NodeSelectorPatcherTest: AbstractPatcherTest() {
     }
 
     @Test
-    override fun validate() {
+    fun validate() {
         patch()
         resource.forEach {
             assertTrue((it as Deployment).spec.template.spec.nodeSelector.containsKey("nodeName"))
