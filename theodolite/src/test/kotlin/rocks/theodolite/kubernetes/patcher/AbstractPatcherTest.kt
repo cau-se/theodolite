@@ -3,9 +3,9 @@ package rocks.theodolite.kubernetes.patcher
 import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.Test
 
 @QuarkusTest
 abstract class AbstractPatcherTest {
@@ -45,7 +45,7 @@ abstract class AbstractPatcherTest {
             .build()
     }
 
-    fun createStateFulSet(): HasMetadata {
+    fun createStatefulSet(): StatefulSet {
         return StatefulSetBuilder()
             .withNewMetadata()
                 .withName("dummy")
@@ -71,7 +71,7 @@ abstract class AbstractPatcherTest {
             .build()
     }
 
-    fun createService(): HasMetadata {
+    fun createService(): Service {
         return ServiceBuilder()
             .withNewMetadata()
             .withName("dummy")
@@ -79,7 +79,7 @@ abstract class AbstractPatcherTest {
             .build()
     }
 
-    fun createConfigMap(): HasMetadata {
+    fun createConfigMap(): ConfigMap {
         return ConfigMapBuilder()
             .withNewMetadata()
                 .withName("dummy")
