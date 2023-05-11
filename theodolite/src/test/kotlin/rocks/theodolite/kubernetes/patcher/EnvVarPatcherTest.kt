@@ -1,34 +1,53 @@
 package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.EnvVarBuilder
+import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 
 @QuarkusTest
 internal class EnvVarPatcherTest : AbstractPatcherTest() {
 
-    @BeforeEach
-    fun setUp() {
-        resource = listOf(createDeployment())
-        patcher = EnvVarPatcher(variableName = "testEnv", container = "container")
-        value = "testValue"
-    }
-
-    @AfterEach
-    fun tearDown() {
+    @Test
+    fun testDeployment() {
+        val sourceResource = createDeployment()
+        val patcher = EnvVarPatcher("main-container", "TEST_ENV")
+        val patchedResources = patcher.patch(listOf(sourceResource), "some-value")
+        patchedResources.forEach {
+            val containers = (it as Deployment).spec.template.spec.containers.filter { it.name == "main-container" }
+            assertEquals(1, containers.size)
+            val expectedEnvVar = EnvVarBuilder().withName("TEST_ENV").withValue("some-value").build()
+            assertTrue(containers[0].env.contains(expectedEnvVar))
+        }
     }
 
     @Test
-    fun validate() {
-        patch()
-        val envVar = EnvVarBuilder().withName("testEnv").withValue("testValue").build()
-        resource.forEach {
-        assertTrue((it as Deployment).spec.template.spec.containers[0].env.contains(envVar))
+    fun testStatefulSet() {
+        val sourceResource = createStatefulSet()
+        val patcher = EnvVarPatcher("main-container", "TEST_ENV")
+        val patchedResources = patcher.patch(listOf(sourceResource), "some-value")
+        patchedResources.forEach {
+            val containers = (it as StatefulSet).spec.template.spec.containers.filter { it.name == "main-container" }
+            assertEquals(1, containers.size)
+            val expectedEnvVar = EnvVarBuilder().withName("TEST_ENV").withValue("some-value").build()
+            assertTrue(containers[0].env.contains(expectedEnvVar))
+        }
+    }
+
+    @Test
+    fun testPod() {
+        val sourceResource = createPod()
+        val patcher = EnvVarPatcher("main-container", "TEST_ENV")
+        val patchedResources = patcher.patch(listOf(sourceResource), "some-value")
+        patchedResources.forEach {
+            val containers = (it as Pod).spec.containers.filter { it.name == "main-container" }
+            assertEquals(1, containers.size)
+            val expectedEnvVar = EnvVarBuilder().withName("TEST_ENV").withValue("some-value").build()
+            assertTrue(containers[0].env.contains(expectedEnvVar))
         }
     }
 }

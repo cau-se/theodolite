@@ -18,91 +18,101 @@ class PatcherFactory {
          */
         fun createPatcher(patcher: PatcherDefinition): Patcher {
             return when (patcher.type) {
-                    "ReplicaPatcher" -> ReplicaPatcher(
-                    )
-                    "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
-                        loadGenMaxRecords = (patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)).toInt(),
-                        numSensors = (patcher.properties["numSensors"] ?: throwInvalid(patcher)).toInt()
-                    )
-                    "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
-                        loadGenMaxRecords = (patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)).toInt()
-                    )
-                    "DataVolumeLoadGeneratorReplicaPatcher" -> DataVolumeLoadGeneratorReplicaPatcher(
-                        maxVolume = (patcher.properties["maxVolume"] ?: throwInvalid(patcher)).toInt(),
+                "ReplicaPatcher" -> ReplicaPatcher(
+                )
+                "NumNestedGroupsLoadGeneratorReplicaPatcher" -> NumNestedGroupsLoadGeneratorReplicaPatcher(
+                    loadGenMaxRecords = (patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)).toInt(),
+                    numSensors = (patcher.properties["numSensors"] ?: throwInvalid(patcher)).toInt()
+                )
+                "NumSensorsLoadGeneratorReplicaPatcher" -> NumSensorsLoadGeneratorReplicaPatcher(
+                    loadGenMaxRecords = (patcher.properties["loadGenMaxRecords"] ?: throwInvalid(patcher)).toInt()
+                )
+                "DataVolumeLoadGeneratorReplicaPatcher" -> DataVolumeLoadGeneratorReplicaPatcher(
+                    maxVolume = (patcher.properties["maxVolume"] ?: throwInvalid(patcher)).toInt(),
+                    container = patcher.properties["container"] ?: throwInvalid(patcher),
+                    variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                )
+                "EnvVarPatcher" -> DecoratingPatcher(
+                    EnvVarPatcher(
                         container = patcher.properties["container"] ?: throwInvalid(patcher),
                         variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                    )
-                    "EnvVarPatcher" -> DecoratingPatcher(
-                        EnvVarPatcher(
-                            container = patcher.properties["container"] ?: throwInvalid(patcher),
-                            variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                        ),
-                        prefix = patcher.properties["prefix"],
-                        suffix = patcher.properties["suffix"],
-                        factor = patcher.properties["factor"]?.toInt(),
-                    )
-                    "NodeSelectorPatcher" -> NodeSelectorPatcher(
+                    ),
+                    prefix = patcher.properties["prefix"],
+                    suffix = patcher.properties["suffix"],
+                    factor = patcher.properties["factor"]?.toInt(),
+                )
+                "NodeSelectorPatcher" -> NodeSelectorPatcher(
+                        nodeLabelName = patcher.properties["nodeLabelName"]
+                                ?: patcher.properties["variableName"] // TODO Deprecate!
+                                ?: throwInvalid(patcher)
+                )
+                "ResourceLimitPatcher" -> ResourceLimitPatcher(
+                    container = patcher.properties["container"] ?: throwInvalid(patcher),
+                    limitedResource = patcher.properties["limitedResource"] ?: throwInvalid(patcher),
+                    format = patcher.properties["format"],
+                    factor = patcher.properties["factor"]?.toInt()
+                )
+                "ResourceRequestPatcher" -> ResourceRequestPatcher(
+                    container = patcher.properties["container"] ?: throwInvalid(patcher),
+                    requestedResource = patcher.properties["requestedResource"] ?: throwInvalid(patcher),
+                    format = patcher.properties["format"],
+                    factor = patcher.properties["factor"]?.toInt()
+                )
+                "SchedulerNamePatcher" -> SchedulerNamePatcher()
+                "LabelPatcher" -> LabelPatcher(
+                    labelName = patcher.properties["labelName"]
+                            ?: patcher.properties["variableName"] // TODO Deprecate!
+                            ?: throwInvalid(patcher)
+                )
+                "MatchLabelPatcher" -> MatchLabelPatcher(
+                    labelName = patcher.properties["labelName"]
+                            ?: patcher.properties["variableName"] // TODO Deprecate!
+                            ?: throwInvalid(patcher)
+                )
+                "TemplateLabelPatcher" -> TemplateLabelPatcher(
+                    labelName = patcher.properties["labelName"]
+                            ?: patcher.properties["variableName"] // TODO Deprecate!
+                            ?: throwInvalid(patcher)
+                )
+                "ImagePatcher" -> ImagePatcher(
+                    container = patcher.properties["container"] ?: throwInvalid(patcher)
+                )
+                "ConfigMapYamlPatcher" -> DecoratingPatcher(
+                    ConfigMapYamlPatcher(
+                        fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
                         variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                    )
-                    "ResourceLimitPatcher" -> ResourceLimitPatcher(
-                        container = patcher.properties["container"] ?: throwInvalid(patcher),
-                        limitedResource = patcher.properties["limitedResource"] ?: throwInvalid(patcher),
-                        format = patcher.properties["format"],
-                        factor = patcher.properties["factor"]?.toInt()
-                    )
-                    "ResourceRequestPatcher" -> ResourceRequestPatcher(
-                        container = patcher.properties["container"] ?: throwInvalid(patcher),
-                        requestedResource = patcher.properties["requestedResource"] ?: throwInvalid(patcher),
-                        format = patcher.properties["format"],
-                        factor = patcher.properties["factor"]?.toInt()
-                    )
-                    "SchedulerNamePatcher" -> SchedulerNamePatcher()
-                    "LabelPatcher" -> LabelPatcher(
+                    ),
+                    prefix = patcher.properties["prefix"],
+                    suffix = patcher.properties["suffix"],
+                    factor = patcher.properties["factor"]?.toInt(),
+                )
+                "ConfigMapPropertiesPatcher" -> DecoratingPatcher(
+                    ConfigMapPropertiesPatcher(
+                        fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
                         variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                    )
-                    "MatchLabelPatcher" -> MatchLabelPatcher(
-                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                    )
-                    "TemplateLabelPatcher" -> TemplateLabelPatcher(
-                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                    )
-                    "ImagePatcher" -> ImagePatcher(
-                        container = patcher.properties["container"] ?: throwInvalid(patcher)
-                    )
-                    "ConfigMapYamlPatcher" -> DecoratingPatcher(
-                            ConfigMapYamlPatcher(
-                            fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
-                            variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                        ),
-                        prefix = patcher.properties["prefix"],
-                        suffix = patcher.properties["suffix"],
-                        factor = patcher.properties["factor"]?.toInt(),
-                    )
-                    "ConfigMapPropertiesPatcher" -> DecoratingPatcher(
-                        ConfigMapPropertiesPatcher(
-                            fileName = patcher.properties["fileName"] ?: throwInvalid(patcher),
-                            variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
-                        ),
-                        prefix = patcher.properties["prefix"],
-                        suffix = patcher.properties["suffix"],
-                        factor = patcher.properties["factor"]?.toInt(),
-                    )
-                    "NamePatcher" -> NamePatcher()
-                    "ServiceSelectorPatcher" -> ServiceSelectorPatcher(
-                        variableName = patcher.properties["label"] ?: throwInvalid(patcher)
-                    )
-                    "VolumesConfigMapPatcher" -> VolumesConfigMapPatcher(
-                        volumeName = patcher.properties["volumeName"] ?: throwInvalid(patcher)
-                    )
-                    "GenericResourcePatcher" -> GenericResourcePatcher(
-                        path = (patcher.properties["path"] ?: throwInvalid(patcher))
-                                .removePrefix("/")
-                                .split("/")
-                                .map { it.toIntOrNull() ?: it },
-                        type = patcher.properties["type"]?.let { GenericResourcePatcher.Type.from(it) } ?: GenericResourcePatcher.Type.STRING
-                    )
-                    else -> throw InvalidPatcherConfigurationException("Patcher type ${patcher.type} not found.")
-                }
+                    ),
+                    prefix = patcher.properties["prefix"],
+                    suffix = patcher.properties["suffix"],
+                    factor = patcher.properties["factor"]?.toInt(),
+                )
+                "NamePatcher" -> NamePatcher()
+                "ServiceSelectorPatcher" -> ServiceSelectorPatcher(
+                    labelName = patcher.properties["labelName"]
+                            ?: patcher.properties["label"] // TODO Deprecate!
+                            ?: throwInvalid(patcher)
+                )
+                "VolumesConfigMapPatcher" -> VolumesConfigMapPatcher(
+                    volumeName = patcher.properties["volumeName"] ?: throwInvalid(patcher)
+                )
+                "GenericResourcePatcher" -> GenericResourcePatcher(
+                    path = (patcher.properties["path"] ?: throwInvalid(patcher))
+                            .removePrefix("/")
+                            .split("/")
+                            .map { it.toIntOrNull() ?: it },
+                    type = patcher.properties["type"]?.let { GenericResourcePatcher.Type.from(it) } ?: GenericResourcePatcher.Type.STRING
+                )
+                else -> throw InvalidPatcherConfigurationException("Patcher type ${patcher.type} not found.")
+            }
         }
 
         private fun throwInvalid(patcher: PatcherDefinition): String {

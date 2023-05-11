@@ -7,9 +7,9 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 /**
  * This patcher is able to set the `spec.selector.matchLabels` for a `Deployment` or `StatefulSet` Kubernetes resource.
  *
- * @property variableName The matchLabel which should be set
+ * @property labelName The matchLabel which should be set
  */
-class MatchLabelPatcher(val variableName: String) : AbstractStringPatcher() {
+class MatchLabelPatcher(val labelName: String) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
@@ -17,13 +17,13 @@ class MatchLabelPatcher(val variableName: String) : AbstractStringPatcher() {
                 if (resource.spec.selector.matchLabels == null) {
                     resource.spec.selector.matchLabels = mutableMapOf()
                 }
-                resource.spec.selector.matchLabels[this.variableName] = value
+                resource.spec.selector.matchLabels[this.labelName] = value
             }
             is StatefulSet -> {
                 if (resource.spec.selector.matchLabels == null) {
                     resource.spec.selector.matchLabels = mutableMapOf()
                 }
-                resource.spec.selector.matchLabels[this.variableName] = value
+                resource.spec.selector.matchLabels[this.labelName] = value
             }
         }
         return resource

@@ -2,6 +2,7 @@ package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.HasMetadata
+import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
@@ -33,6 +34,11 @@ abstract class AbstractResourcePatcher(
             }
             is StatefulSet -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
+                    setValues(it, value)
+                }
+            }
+            is Pod -> {
+                resource.spec.containers.filter { it.name == container }.forEach {
                     setValues(it, value)
                 }
             }

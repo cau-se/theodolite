@@ -1,32 +1,31 @@
 package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
 internal class ReplicaPatcherTest: AbstractPatcherTest() {
 
-    @BeforeEach
-    fun setUp() {
-        resource = listOf(createDeployment())
-        patcher = ReplicaPatcher()
-        value = "5"
-    }
-
-    @AfterEach
-    fun tearDown() {
+    @Test
+    fun testDeployment() {
+        val sourceResource = createDeployment()
+        val patcher = ReplicaPatcher()
+        val patchedResources = patcher.patch(listOf(sourceResource), "5")
+        patchedResources.forEach { resource ->
+            assertEquals(5, (resource as Deployment).spec.replicas)
+        }
     }
 
     @Test
-    fun validate() {
-        patch()
-        resource.forEach {
-            assertTrue((it as Deployment).spec.replicas == 5)
+    fun testStatefulSet() {
+        val sourceResource = createStatefulSet()
+        val patcher = ReplicaPatcher()
+        val patchedResources = patcher.patch(listOf(sourceResource), "5")
+        patchedResources.forEach { resource ->
+            assertEquals(5, (resource as StatefulSet).spec.replicas)
         }
     }
 }
