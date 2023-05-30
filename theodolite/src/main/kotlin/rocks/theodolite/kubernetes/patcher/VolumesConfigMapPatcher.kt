@@ -4,6 +4,11 @@ import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 
+/**
+ * Sets the name of a ConfigMap of Deployment's or StatefulSets's volume.
+ *
+ * @property volumeName The name of the volume for which a new ConfigMap should be set
+ */
 class VolumesConfigMapPatcher(private var volumeName: String) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
