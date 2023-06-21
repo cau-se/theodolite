@@ -43,6 +43,8 @@ strimzi:
     jvmOptions:
       "-Xmx": "512M"
       "-Xms": "512M"
+    storage:
+      type: ephemeral
     nodeSelectorTerms: []
     resources: {}
     
