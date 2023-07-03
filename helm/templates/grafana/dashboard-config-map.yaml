@@ -624,7 +624,7 @@ data:
               "editorMode": "code",
               "expr": "sum by(consumergroup) (kafka_consumergroup_members >= 0)",
               "format": "time_series",
-              "hide": false,
+              "hide": true,
               "intervalFactor": 1,
               "legendFormat": "{{consumergroup}} (Kafka Consumer)",
               "range": true,
