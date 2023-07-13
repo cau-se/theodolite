@@ -71,23 +71,6 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end}}
         {{- end }}
-        {{- if .Values.operator.sloChecker.droppedRecordsKStreams.enabled }}
-        - name: slo-checker-dropped-records-kstreams
-          image: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.image }}:{{ .Values.operator.sloChecker.droppedRecordsKStreams.imageTag }}"
-          imagePullPolicy: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.imagePullPolicy }}"
-          ports:
-          - containerPort: 8081
-            name: analysis
-          env:
-          - name: PORT
-            value: "8081"
-          - name: LOG_LEVEL
-            value: INFO
-          {{- with .Values.operator.sloChecker.droppedRecordsKStreams.resources}}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end}}
-        {{- end }}
         {{- if .Values.operator.resultsVolume.accessSidecar.enabled }}
         - name: results-access
           image: busybox:stable

@@ -770,22 +770,6 @@ test-slo-checker-lag-trend:
     - when: manual
       allow_failure: true
 
-test-slo-checker-dropped-records-kstreams:
-  stage: test
-  needs: []
-  image: python:3.8-slim
-  before_script:
-    - cd slo-checker/dropped-records
-  script:
-    - pip install -r requirements.txt
-    - cd app
-    - python -m unittest
-  rules:
-    - changes:
-      - slo-checker/dropped-records/**/*
-    - when: manual
-      allow_failure: true
-
 test-slo-checker-generic:
   stage: test
   needs: []
@@ -815,24 +799,6 @@ deploy-slo-checker-lag-trend:
   rules:
     - changes:
       - slo-checker/record-lag/**/*
-      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
-    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
-      when: manual
-      allow_failure: true
-
-deploy-slo-checker-dropped-records-kstreams:
-  stage: deploy
-  extends:
-    - .kaniko-push
-  needs:
-    - test-slo-checker-dropped-records-kstreams
-  before_script:
-    - cd slo-checker/dropped-records
-  variables:
-    IMAGE_NAME: theodolite-slo-checker-dropped-records-kstreams
-  rules:
-    - changes:
-      - slo-checker/dropped-records/**/*
       if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
     - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual

@@ -255,18 +255,6 @@ operator:
         limits:
           memory: "128Mi"
           cpu: "100m"
-    droppedRecordsKStreams:
-      enabled: false
-      image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
-      imageTag: latest
-      imagePullPolicy: Always
-      resources:
-        requests:
-          memory: "64Mi"
-          cpu: "50m"
-        limits:
-          memory: "128Mi"
-          cpu: "100m"
 
   resultsVolume:
     persistent:
