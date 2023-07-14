@@ -91,7 +91,7 @@ test-docs-links:
 build-docs-crds:
   stage: build
   image:
-    name: ghcr.io/fybrik/crdoc:0.6.1
+    name: ghcr.io/fybrik/crdoc:0.6.2
     entrypoint: [""]
   script: /crdoc --resources theodolite/crd/ --template docs/api-reference/crds.tmpl --output docs/api-reference/crds.ref.md
   artifacts:
