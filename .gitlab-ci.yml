@@ -831,12 +831,12 @@ deploy-random-scheduler:
     - .kaniko-push
   needs: []
   before_script:
-    - cd execution/infrastructure/random-scheduler
+    - cd util/random-scheduler
   variables:
     IMAGE_NAME: theodolite-random-scheduler
   rules:
     - changes:
-      - execution/infrastructure/random-scheduler/**/*
+      - util/random-scheduler/**/*
       if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
     - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
