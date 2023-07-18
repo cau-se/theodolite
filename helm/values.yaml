@@ -215,8 +215,8 @@ operator:
   enabled: true
   
   image: ghcr.io/cau-se/theodolite
-  imageTag: latest
-  imagePullPolicy: Always
+  imageTag: v0.9.0
+  imagePullPolicy: IfNotPresent
 
   nodeSelector: {}
 
@@ -234,8 +234,8 @@ operator:
     generic:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-generic
-      imageTag: latest
-      imagePullPolicy: Always
+      imageTag: v0.9.0
+      imagePullPolicy: IfNotPresent
       resources:
         requests:
           memory: "64Mi"
@@ -246,8 +246,8 @@ operator:
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
-      imageTag: latest
-      imagePullPolicy: Always
+      imageTag: v0.9.0
+      imagePullPolicy: IfNotPresent
       resources:
         requests:
           memory: "64Mi"
@@ -329,8 +329,8 @@ rbac:
 randomScheduler:
   enabled: false
   image: ghcr.io/cau-se/theodolite-random-scheduler
-  imageTag: latest
-  imagePullPolicy: Always
+  imageTag: v0.9.0
+  imagePullPolicy: IfNotPresent
   rbac:
     create: true
   serviceAccount:

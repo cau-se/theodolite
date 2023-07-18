@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: taskmanager
-          image: ghcr.io/cau-se/theodolite-uc4-beam-flink:latest
+          image: ghcr.io/cau-se/theodolite-uc4-beam-flink:v0.9.0
           args: ["taskmanager"]
           resources:
             limits:

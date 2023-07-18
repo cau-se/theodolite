@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: jobmanager
-          image: ghcr.io/cau-se/theodolite-uc1-beam-flink:latest
+          image: ghcr.io/cau-se/theodolite-uc1-beam-flink:v0.9.0
           args: ["standalone-job", "--job-classname", "rocks.theodolite.benchmarks.uc1.beam.flink.Uc1BeamFlink",
                   "--parallelism=$(PARALLELISM)",
                   "--disableMetrics=$(DISABLE_METRICS)",

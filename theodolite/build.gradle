@@ -39,7 +39,7 @@ dependencies {
 }
 
 group 'theodolite'
-version '0.9.0-SNAPSHOT'
+version '0.9.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11

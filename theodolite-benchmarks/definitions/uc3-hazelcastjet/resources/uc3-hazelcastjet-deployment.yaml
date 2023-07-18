@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: uc-application
-          image: ghcr.io/cau-se/theodolite-uc3-hazelcastjet:latest
+          image: ghcr.io/cau-se/theodolite-uc3-hazelcastjet:v0.9.0
           ports:
             - containerPort: 5701
           env:
