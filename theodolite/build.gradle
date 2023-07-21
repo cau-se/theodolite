@@ -33,7 +33,7 @@ dependencies {
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-test-kubernetes-client'
     //testImplementation 'io.rest-assured:rest-assured'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.33.2'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.0'
     testImplementation 'org.junit-pioneer:junit-pioneer:1.5.0'
     testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
 }
