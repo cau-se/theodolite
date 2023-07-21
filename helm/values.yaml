@@ -6,6 +6,9 @@ kafkaClient:
   enabled: false
   nodeSelector: {}
 
+kcat:
+  enabled: false
+  nodeSelector: {}
 
 ####
 ## configuration of sub charts
