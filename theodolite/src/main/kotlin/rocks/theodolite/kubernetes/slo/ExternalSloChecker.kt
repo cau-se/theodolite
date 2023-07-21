@@ -1,8 +1,13 @@
 package rocks.theodolite.kubernetes.slo
 
-import khttp.post
 import mu.KotlinLogging
 import java.net.ConnectException
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
+import java.time.Duration
+
 
 /**
  * [SloChecker] that uses an external source for the concrete evaluation.
@@ -15,7 +20,7 @@ class ExternalSloChecker(
 ) : SloChecker {
 
     private val RETRIES = 2
-    private val TIMEOUT = 60.0
+    private val TIMEOUT = Duration.ofSeconds(60)
 
     private val logger = KotlinLogging.logger {}
 
@@ -36,12 +41,19 @@ class ExternalSloChecker(
         ).toJson()
 
         while (counter < RETRIES) {
-            val result = post(externalSlopeURL, data = data, timeout = TIMEOUT)
-            if (result.statusCode != 200) {
+            val request = HttpRequest.newBuilder()
+                    .uri(URI.create(externalSlopeURL))
+                    .POST(HttpRequest.BodyPublishers.ofString(data))
+                    .timeout(TIMEOUT)
+                    .build()
+            val response = HttpClient.newBuilder()
+                    .build()
+                    .send(request, BodyHandlers.ofString())
+            if (response.statusCode() != 200) {
                 counter++
                 logger.error { "Could not reach external SLO checker at $externalSlopeURL." }
             } else {
-                val booleanResult = result.text.toBoolean()
+                val booleanResult = response.body().toBoolean()
                 logger.info { "SLO checker result is: $booleanResult." }
                 return booleanResult
             }
