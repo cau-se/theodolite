@@ -60,7 +60,7 @@ class AnalysisExecutor(
                 sloType = slo.sloType,
                 properties = slo.properties,
                 load = load,
-                resource = resource,
+                resources = resource,
                 metric = metric
             )
 

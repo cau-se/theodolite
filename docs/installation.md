@@ -15,9 +15,6 @@ helm repo update
 helm install theodolite theodolite/theodolite
 ```
 
-This installs Theodolite in operator mode. Operator mode is the easiest to use, but requires some permissions in the installation. If those cannot be granted, Theodolite can also be installed for standalone mode. 
-
-
 ## Installation Options
 
 As usual, the installation via Helm can be configured by passing a values YAML file:
@@ -37,6 +34,16 @@ For Kubernetes clusters with limited resources such as on local developer instal
 To store the results of benchmark executions in a [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes), `operator.resultsVolume.persistent.enabled` has to be set to `true`. This requires that either a statically provisioned PersistentVolume is available or a dynamic provisioner exists (which is the case for many Kubernetes installations). If required, you can select a storage class with `operator.resultsVolume.persistent.storageClassName`.
 You can also use an existing PersistentVolumeClaim by setting `operator.resultsVolume.persistent.existingClaim`.
 If persistence is not enabled, all results will be gone upon pod termination.
+
+### Exposing Grafana
+
+Per default, Theodolite exposes a Grafana instance as NodePort at port `31199`. This can configured by setting `grafana.service.nodePort`.
+
+### Additional Kubernetes cluster metrics
+
+As long as you have sufficient permissions on your cluster, you can integrate additional Kubernetes metrics into Prometheus. This involes enabling some exporters, additional Grafana dashboards and additional permissions. We provide a [values file for enabling extended metrics](https://github.com/cau-se/theodolite/blob/main/helm/preconfigs/extended-metrics.yaml).
+
+See the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) for more details on configuring the individual exporters.
 
 ### Random scheduler
 

@@ -24,7 +24,7 @@ class ResourceLimitPatcher(
     format = format,
     factor = factor
 ) {
-    override fun setLimits(container: Container, quantity: Quantity) {
+    override fun setValues(container: Container, quantity: Quantity) {
         when {
             container.resources == null -> {
                 val resource = ResourceRequirements()

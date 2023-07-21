@@ -7,6 +7,7 @@ import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+
 @QuarkusTest
 @WithKubernetesTestServer
 class ResourceRequestPatcherTest {

@@ -14,7 +14,7 @@ import rocks.theodolite.benchmarks.commons.kstreams.KafkaStreamsBuilder;
 public class Uc3KafkaStreamsBuilder extends KafkaStreamsBuilder {
 
   private String outputTopic; // NOPMD
-  private Duration aggregtionDuration; // NOPMD
+  private Duration aggregationDuration; // NOPMD
   private Duration aggregationAdvance; // NOPMD
 
   public Uc3KafkaStreamsBuilder(final Configuration config) {
@@ -26,8 +26,8 @@ public class Uc3KafkaStreamsBuilder extends KafkaStreamsBuilder {
     return this;
   }
 
-  public Uc3KafkaStreamsBuilder aggregtionDuration(final Duration aggregtionDuration) {
-    this.aggregtionDuration = aggregtionDuration;
+  public Uc3KafkaStreamsBuilder aggregationDuration(final Duration aggregationDuration) {
+    this.aggregationDuration = aggregationDuration;
     return this;
   }
 
@@ -40,14 +40,14 @@ public class Uc3KafkaStreamsBuilder extends KafkaStreamsBuilder {
   protected Topology buildTopology(final Properties properties) {
     Objects.requireNonNull(this.inputTopic, "Input topic has not been set.");
     Objects.requireNonNull(this.outputTopic, "Output topic has not been set.");
-    Objects.requireNonNull(this.aggregtionDuration, "Aggregation duration has not been set.");
+    Objects.requireNonNull(this.aggregationDuration, "Aggregation duration has not been set.");
     Objects.requireNonNull(this.aggregationAdvance, "Aggregation advance period has not been set.");
 
     final TopologyBuilder topologyBuilder = new TopologyBuilder(
         this.inputTopic,
         this.outputTopic,
         new SchemaRegistryAvroSerdeFactory(this.schemaRegistryUrl),
-        this.aggregtionDuration,
+        this.aggregationDuration,
         this.aggregationAdvance);
 
     return topologyBuilder.build(properties);

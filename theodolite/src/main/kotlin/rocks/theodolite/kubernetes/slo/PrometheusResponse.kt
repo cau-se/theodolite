@@ -1,4 +1,4 @@
-package rocks.theodolite.kubernetes.util
+package rocks.theodolite.kubernetes.slo
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import java.util.*

@@ -5,3 +5,10 @@ metadata:
     app: titan-ccp-aggregation
     appScope: titan-ccp
   name: test-service-monitor
+spec:
+  selector:
+    matchLabels:
+      app: flink
+  endpoints:
+    - port: metrics
+      interval: 10s

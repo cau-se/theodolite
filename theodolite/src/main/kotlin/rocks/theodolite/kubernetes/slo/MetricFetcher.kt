@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import khttp.get
 import khttp.responses.Response
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.util.PrometheusResponse
 import java.net.ConnectException
 import java.time.Duration
 import java.time.Instant

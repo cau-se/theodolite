@@ -1,7 +1,7 @@
 package rocks.theodolite.kubernetes.slo
 
+import net.objecthunter.exp4j.ExpressionBuilder
 import rocks.theodolite.core.strategies.Metric
-
 
 /**
  * Factory used to potentially create different [SloChecker]s.
@@ -34,7 +34,9 @@ class SloCheckerFactory {
      *
      * @param sloType Type of the [SloChecker].
      * @param properties map of properties to use for the SLO checker creation.
-     * @param load that is executed in the experiment.
+     * @param load Load that is generated in the experiment.
+     * @param resources Resources that are used in the experiment.
+     * @param metric Metric used in the benchmark execution.
      *
      * @return A [SloChecker]
      * @throws IllegalArgumentException If [sloType] not supported.
@@ -43,10 +45,10 @@ class SloCheckerFactory {
         sloType: String,
         properties: Map<String, String>,
         load: Int,
-        resource: Int,
+        resources: Int,
         metric: Metric
-    ): SloChecker {
-        return when (SloTypes.from(sloType)) {
+    ): SloChecker =
+        when (SloTypes.from(sloType)) {
             SloTypes.GENERIC -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
@@ -58,20 +60,26 @@ class SloCheckerFactory {
                     "repetitionAggregation" to (properties["repetitionAggregation"]
                         ?: throw IllegalArgumentException("repetitionAggregation expected")),
                     "operator" to (properties["operator"] ?: throw IllegalArgumentException("operator expected")),
-                    "threshold" to (properties["threshold"]?.toDouble()
-                        ?: throw IllegalArgumentException("threshold expected"))
+                    "threshold" to (properties["threshold"]?.toDoubleOrNull()
+                        ?: properties["thresholdRelToLoad"]?.toDoubleOrNull()?.times(load)
+                        ?: properties["thresholdRelToResources"]?.toDoubleOrNull()?.times(resources)
+                        ?: properties["thresholdFromExpression"]?.let { this.eval(it, load, resources) }
+                        ?: throw IllegalArgumentException("'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' or 'thresholdFromExpression' expected"))
                 )
             )
-            SloTypes.LAG_TREND, SloTypes.DROPPED_RECORDS -> ExternalSloChecker(
+            SloTypes.LAG_TREND -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
                 metadata = mapOf(
                     "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
-                    "threshold" to (properties["threshold"]?.toDouble()
-                        ?: throw IllegalArgumentException("threshold expected"))
+                    "threshold" to (properties["threshold"]?.toDoubleOrNull()
+                        ?: properties["thresholdRelToLoad"]?.toDoubleOrNull()?.times(load)
+                        ?: properties["thresholdRelToResources"]?.toDoubleOrNull()?.times(resources)
+                        ?: properties["thresholdFromExpression"]?.let { this.eval(it, load, resources) }
+                        ?: throw IllegalArgumentException("Valid 'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' or 'thresholdFromExpression' expected"))
                 )
             )
-            SloTypes.LAG_TREND_RATIO, SloTypes.DROPPED_RECORDS_RATIO -> {
+            SloTypes.LAG_TREND_RATIO -> {
                 val thresholdRatio =
                     properties["ratio"]?.toDouble()
                         ?: throw IllegalArgumentException("ratio for threshold expected")
@@ -91,6 +99,15 @@ class SloCheckerFactory {
                     )
                 )
             }
-        }
+
+    }
+
+    private fun eval(expression: String, load: Int, resources: Int): Double {
+        return ExpressionBuilder(expression)
+            .variables("L", "R")
+            .build()
+            .setVariable("L", load.toDouble())
+            .setVariable("R", resources.toDouble())
+            .evaluate()
     }
 }

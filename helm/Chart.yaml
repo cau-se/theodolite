@@ -6,31 +6,27 @@ sources:
   - https://github.com/cau-se/theodolite
 maintainers:
 - name: Sören Henning
-  email: soeren.henning@email.uni-kiel.de
-  url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+  email: soeren.henning@jku.at
+  url: https://www.jku.at/lit-cyber-physical-systems-lab/ueber-uns/team/dr-ing-soeren-henning/
 icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
 
 type: application
 
 dependencies:
   - name: grafana
-    version: 6.17.5
+    version: 6.17.*
     repository: https://grafana.github.io/helm-charts
     condition: grafana.enabled
   - name: kube-prometheus-stack
-    version:  20.0.1
+    version: 41.7.*
     repository: https://prometheus-community.github.io/helm-charts
     condition: kube-prometheus-stack.enabled
-  - name: cp-helm-charts
-    version: 0.6.0
-    repository: https://soerenhenning.github.io/cp-helm-charts
-    condition: cp-helm-charts.enabled
   - name: strimzi-kafka-operator
-    version: 0.28.0
+    version: 0.29.*
     repository: https://strimzi.io/charts/
     condition: strimzi.enabled
 
 
-version: 0.9.0-SNAPSHOT
+version: 0.10.0-SNAPSHOT
 
-appVersion: 0.9.0-SNAPSHOT
+appVersion: 0.10.0-SNAPSHOT

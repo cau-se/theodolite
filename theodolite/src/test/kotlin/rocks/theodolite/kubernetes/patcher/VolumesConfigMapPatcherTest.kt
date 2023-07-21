@@ -11,23 +11,15 @@ import org.junit.jupiter.api.Assertions.*
 @QuarkusTest
 internal class VolumesConfigMapPatcherTest: AbstractPatcherTest() {
 
-    @BeforeEach
-    fun setUp() {
-        resource = listOf(createDeployment())
-        patcher = VolumesConfigMapPatcher("test-configmap")
-        value = "patchedVolumeName"
-    }
-
-    @AfterEach
-    fun tearDown() {
-    }
-
     @Test
-    override fun validate() {
-        patch()
-        resource.forEach {
-            println((it as Deployment).spec.template.spec.volumes[0].configMap.name)
-            assertTrue((it as Deployment).spec.template.spec.volumes[0].configMap.name == value)
+    fun testDeployment() {
+        val sourceResource = createDeployment()
+        val patcher = VolumesConfigMapPatcher("test-configmap")
+        val patchedResources = patcher.patch(listOf(sourceResource), "patchedVolumeName")
+        patchedResources.forEach {
+            assertEquals(
+                    "patchedVolumeName",
+                    (it as Deployment).spec.template.spec.volumes[0].configMap.name)
         }
     }
 }

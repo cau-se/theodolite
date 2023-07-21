@@ -2,7 +2,6 @@ package rocks.theodolite.kubernetes.slo
 
 import khttp.post
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.util.PrometheusResponse
 import java.net.ConnectException
 
 /**
@@ -23,7 +22,7 @@ class ExternalSloChecker(
     /**
      * Evaluates an experiment using an external service.
      * Will try to reach the external service until success or [RETRIES] times.
-     * Each request will timeout after [TIMEOUT].
+     * Each request will time out after [TIMEOUT].
      *
      * @param fetchedData that should be evaluated
      * @return true if the experiment was successful (the threshold was not exceeded).

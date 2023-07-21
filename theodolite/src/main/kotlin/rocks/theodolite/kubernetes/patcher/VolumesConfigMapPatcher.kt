@@ -4,41 +4,36 @@ import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 
-class VolumesConfigMapPatcher(private var volumeName: String
-) : AbstractPatcher() {
+/**
+ * Sets the name of a ConfigMap of Deployment's or StatefulSets's volume.
+ *
+ * @property volumeName The name of the volume for which a new ConfigMap should be set
+ */
+class VolumesConfigMapPatcher(private var volumeName: String) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
-        if (resource is Deployment) {
-            if (resource.spec.template.spec.volumes == null) {
-                resource.spec.template.spec.volumes = mutableListOf()
-            }
-            val volumeMounts = resource.spec.template.spec.volumes
-
-            for (mount in volumeMounts) {
-                try {
-                    if (mount.configMap.name == volumeName) {
-                        mount.configMap.name = value
-                    }
-                } catch (_: NullPointerException) {
+        val volumeMounts = when(resource) {
+            is Deployment -> {
+                if (resource.spec.template.spec.volumes == null) {
+                    resource.spec.template.spec.volumes = mutableListOf()
                 }
+                resource.spec.template.spec.volumes
             }
-        }
-        if (resource is StatefulSet) {
-            if (resource.spec.template.spec.volumes == null) {
-                resource.spec.template.spec.volumes = mutableListOf()
-            }
-            val volumeMounts = resource.spec.template.spec.volumes
-
-            for (mount in volumeMounts) {
-                try {
-                    if (mount.configMap.name == volumeName) {
-                        mount.configMap.name = value
-                    }
-                } catch (_: NullPointerException) {
+            is StatefulSet -> {
+                if (resource.spec.template.spec.volumes == null) {
+                    resource.spec.template.spec.volumes = mutableListOf()
                 }
+                resource.spec.template.spec.volumes
             }
+            else -> emptyList() // No volumes to patch
         }
 
+        for (mount in volumeMounts) {
+            // Find ConfigMap volume with requested name
+            if (mount.configMap?.name?.equals(volumeName) == true) {
+                mount.configMap.name = value
+            }
+        }
         return resource
     }
 }

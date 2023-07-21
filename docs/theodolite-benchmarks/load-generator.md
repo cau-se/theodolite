@@ -1,8 +1,8 @@
 ---
 title: Load Generators
-parent: Available Benchmarks
+parent: Streaming Benchmarks
 has_children: false
-nav_order: 1
+nav_order: 5
 ---
 
 # Load Generator Framework

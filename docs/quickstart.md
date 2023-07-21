@@ -18,6 +18,14 @@ All you need to get started is access to a Kubernetes cluster plus kubectl and H
    helm install theodolite theodolite/theodolite -f https://raw.githubusercontent.com/cau-se/theodolite/main/helm/preconfigs/minimal.yaml
    ```
 
+   After installation, it may take some time until all components are ready. You can check the status of the installation by running:
+
+   ```sh
+   kubectl get pods
+   ```
+
+   In particular, the Kafka Schema Registry may restart a couple of times.
+
 1. Get the Theodolite examples from the [Theodolite repository](https://github.com/cau-se/theodolite) and `cd` into its example directory:
 
    ```sh

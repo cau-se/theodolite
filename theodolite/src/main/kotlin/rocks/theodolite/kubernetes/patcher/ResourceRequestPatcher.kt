@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.ResourceRequirements
 
-
 /**
  * The Resource request [Patcher] sets resource requests for Deployments and StatefulSets.
  *
@@ -25,7 +24,7 @@ class ResourceRequestPatcher(
     factor = factor
 ) {
 
-    override fun setLimits(container: Container, quantity: Quantity) {
+    override fun setValues(container: Container, quantity: Quantity) {
         when {
             container.resources == null -> {
                 val resource = ResourceRequirements()

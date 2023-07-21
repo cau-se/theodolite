@@ -14,3 +14,6 @@ spec:
       port: 5701
       targetPort: 5701
       protocol: TCP
+    - name: metrics
+      port: 5556
+
