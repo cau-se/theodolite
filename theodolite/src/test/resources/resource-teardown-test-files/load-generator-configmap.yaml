@@ -1,0 +1,12 @@
+kind: ConfigMap
+metadata:
+  name: load-generator-configmap
+data:
+  load-generator-file-1.yaml: |
+    kind: Deployment
+    metadata:
+      name: load-generator-file-1
+  load-generator-file-2.yaml: |
+    kind: Service
+    metadata:
+      name: load-generator-file-2
