@@ -42,7 +42,7 @@ class ExternalSloChecker(
 
         while (counter < RETRIES) {
             val request = HttpRequest.newBuilder()
-                    .uri(URI(externalSlopeURL))
+                    .uri(URI.create(externalSlopeURL))
                     .POST(HttpRequest.BodyPublishers.ofString(data))
                     .timeout(TIMEOUT)
                     .build()
