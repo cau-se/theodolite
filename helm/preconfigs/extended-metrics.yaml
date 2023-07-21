@@ -1,0 +1,28 @@
+###
+# Prometheus Monitoring Stack (Prometheus Operator)
+###
+kube-prometheus-stack:
+  global:
+    rbac:
+      create: true # enable for full-stack monitoring
+  
+  grafana:
+    defaultDashboardsEnabled: true
+
+  kubelet:
+    enabled: true
+  
+  kubeDns:
+    enabled: true
+   
+  kubeStateMetrics:
+    enabled: true
+  
+  nodeExporter:
+    enabled: true
+  
+  prometheus:
+    enabled: true # Use built-in Prometheus
+
+prometheus: 
+  enabled: false # Use built-in Prometheus

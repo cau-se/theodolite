@@ -9,12 +9,14 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.triggers.ContinuousProcessingTimeTrigger;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.flink.AbstractFlinkService;
+import rocks.theodolite.benchmarks.commons.flink.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.commons.flink.serialization.StatsSerializer;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
@@ -49,12 +51,14 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
     final String kafkaBroker = this.config.getString(ConfigurationKeys.KAFKA_BOOTSTRAP_SERVERS);
     final String schemaRegistryUrl = this.config.getString(ConfigurationKeys.SCHEMA_REGISTRY_URL);
     final String inputTopic = this.config.getString(ConfigurationKeys.KAFKA_INPUT_TOPIC);
-    final String outputTopic = this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
-    final ZoneId timeZone = ZoneId.of(this.config.getString(ConfigurationKeys.TIME_ZONE));
+    final String outputTopic = this.config.getString(Uc3ConfigurationKeys.KAFKA_OUTPUT_TOPIC);
+    final ZoneId timeZone = ZoneId.of(this.config.getString(Uc3ConfigurationKeys.TIME_ZONE));
     final Time aggregationDuration =
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_DURATION_DAYS));
+        Time.days(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_DURATION_DAYS));
     final Time aggregationAdvance =
-        Time.days(this.config.getInt(ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+        Time.days(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_ADVANCE_DAYS));
+    final Time triggerDuration =
+        Time.seconds(this.config.getInt(Uc3ConfigurationKeys.AGGREGATION_TRIGGER_INTERVAL_SECONDS));
     final boolean checkpointing = this.config.getBoolean(ConfigurationKeys.CHECKPOINTING, true);
 
     final KafkaConnectorFactory kafkaConnector = new KafkaConnectorFactory(
@@ -80,13 +84,14 @@ public final class HistoryServiceFlinkJob extends AbstractFlinkService {
           return keyFactory.createKey(record.getIdentifier(), dateTime);
         })
         .window(SlidingEventTimeWindows.of(aggregationDuration, aggregationAdvance))
+        .trigger(ContinuousProcessingTimeTrigger.of(triggerDuration))
         .aggregate(new StatsAggregateFunction(), new HourOfDayProcessWindowFunction())
         .map(tuple -> {
-          final String newKey = keyFactory.getSensorId(tuple.f0);
-          final String newValue = tuple.f1.toString();
-          final int hourOfDay = tuple.f0.getHourOfDay();
-          LOGGER.info("{}|{}: {}", newKey, hourOfDay, newValue);
-          return new Tuple2<>(newKey, newValue);
+          final String sensorId = keyFactory.getSensorId(tuple.f0);
+          final String stats = tuple.f1.toString();
+          // final int hourOfDay = tuple.f0.getHourOfDay();
+          // LOGGER.info("{}|{}: {}", newKey, hourOfDay, newValue);
+          return new Tuple2<>(sensorId, stats);
         })
         .name("map")
         .returns(Types.TUPLE(Types.STRING, Types.STRING))

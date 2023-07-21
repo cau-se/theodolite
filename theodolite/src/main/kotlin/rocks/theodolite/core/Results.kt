@@ -58,13 +58,14 @@ class Results(val metric: Metric) {
     /**
      * Get the result for an experiment.
      *
-     * @param experiment A pair that identifies the experiment by the Load and Resource.
+     * @param load Load that identifies the experiment.
+     * @param resources Resource that identify the experiment.
      * @return true if the experiment was successful and false otherwise. If the result has not been reported so far,
      * null is returned.
      *
      */
-    fun getExperimentResult(experiment: Pair<Int, Int>): Boolean? {
-        return this.experimentResults[experiment]
+    fun getExperimentResult(load: Int, resources: Int): Boolean? {
+        return this.experimentResults[Pair(load, resources)]
     }
 
     /**

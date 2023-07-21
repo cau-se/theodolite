@@ -2,6 +2,7 @@ package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.Container
 import io.fabric8.kubernetes.api.model.HasMetadata
+import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.Quantity
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
@@ -22,18 +23,23 @@ abstract class AbstractResourcePatcher(
     protected val requiredResource: String,
     private val format: String? = null,
     private val factor: Int? = null
-) : AbstractPatcher() {
+) : AbstractStringPatcher() {
 
-    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
+    final override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
             is Deployment -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setLimits(it, value)
+                    setValues(it, value)
                 }
             }
             is StatefulSet -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
-                    setLimits(it, value)
+                    setValues(it, value)
+                }
+            }
+            is Pod -> {
+                resource.spec.containers.filter { it.name == container }.forEach {
+                    setValues(it, value)
                 }
             }
             else -> {
@@ -43,7 +49,7 @@ abstract class AbstractResourcePatcher(
         return resource
     }
 
-    private fun setLimits(container: Container, value: String) {
+    private fun setValues(container: Container, value: String) {
         val quantity = if (this.format != null || this.factor != null) {
             val amountAsInt = value.toIntOrNull()?.times(this.factor ?: 1)
             if (amountAsInt == null) {
@@ -56,8 +62,8 @@ abstract class AbstractResourcePatcher(
             Quantity(value)
         }
 
-        setLimits(container, quantity)
+        setValues(container, quantity)
     }
 
-    abstract fun setLimits(container: Container, quantity: Quantity)
+    abstract fun setValues(container: Container, quantity: Quantity)
 }

@@ -48,7 +48,8 @@ class KubernetesBenchmarkDeployment(
     /**
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
      *  - Create the needed topics.
-     *  - Deploy the needed resources.
+     *  - Deploy the needed [KubernetesResource]s (deployment order: SUT resources, loadgenerator resources;
+     *    No guaranteed order of files inside configmaps).
      */
     override fun setup() {
         val rolloutManager = RolloutManager(rolloutMode, client)
@@ -71,13 +72,14 @@ class KubernetesBenchmarkDeployment(
      * Tears down a [KubernetesBenchmark]:
      *  - Reset the Kafka Lag Exporter.
      *  - Remove the used topics.
-     *  - Remove the [KubernetesResource]s.
+     *  - Remove the [KubernetesResource]s (removal order: loadgenerator resources, SUT resources;
+     *    No guaranteed order of files inside configmaps).
      */
     override fun teardown() {
         val podCleaner = ResourceByLabelHandler(client)
-        loadGenResources.forEach { kubernetesManager.remove(it, false) }
+        loadGenResources.reversed().forEach { kubernetesManager.remove(it, false) }
         loadGenAfterActions.forEach { it.exec(client = client) }
-        appResources.forEach { kubernetesManager.remove(it,false) }
+        appResources.reversed().forEach { kubernetesManager.remove(it,false) }
         sutAfterActions.forEach { it.exec(client = client) }
         if (this.topics.isNotEmpty()) {
             kafkaController.removeTopics(this.topics.map { topic -> topic.name })

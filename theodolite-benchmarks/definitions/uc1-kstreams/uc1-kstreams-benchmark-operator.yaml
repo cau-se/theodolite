@@ -2,12 +2,17 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc1-kstreams
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc1
+    sut: kstreams
 spec:
   sut:
     resources:
       - configMap:
           name: "benchmark-resources-uc1-kstreams"
           files:
+          - "input-topic.yaml"
           - "uc1-kstreams-deployment.yaml"
           - "uc1-kstreams-service.yaml"
           - "uc1-jmx-configmap.yaml"
@@ -24,6 +29,27 @@ spec:
       patchers:
         - type: "ReplicaPatcher"
           resource: "uc1-kstreams-deployment.yaml"
+    - typeName: ThreadsAndPodResources
+      patchers:
+        - type: EnvVarPatcher
+          resource: uc1-kstreams-deployment.yaml
+          properties:
+            container: uc-application
+            variableName: NUM_STREAM_THREADS
+        - type: ResourceLimitPatcher
+          resource: uc1-kstreams-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: uc1-kstreams-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: memory
+            factor: 4
+            format: Gi
   loadTypes:
     - typeName: "NumSensors"
       patchers:
@@ -42,12 +68,7 @@ spec:
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
       properties:
+        consumerGroup: theodolite-uc1-application-0.0.1
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
-  kafkaConfig:
-    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
-    topics:
-      - name: "input"
-        numPartitions: 40
-        replicationFactor: 1

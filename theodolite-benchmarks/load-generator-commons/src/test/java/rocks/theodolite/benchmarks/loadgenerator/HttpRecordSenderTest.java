@@ -11,23 +11,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.net.URI;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 
 public class HttpRecordSenderTest {
 
-  private HttpRecordSender<ActivePowerRecord> httpRecordSender;
-
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
-
-  @Before
-  public void setup() {
-    this.httpRecordSender =
-        new HttpRecordSender<>(URI.create("http://localhost:" + this.wireMockRule.port()));
-  }
 
   @Test
   public void testValidUri() {
@@ -38,11 +29,33 @@ public class HttpRecordSenderTest {
                     .withStatus(200)
                     .withBody("received")));
 
+    final HttpRecordSender<ActivePowerRecord> httpRecordSender =
+        new HttpRecordSender<>(URI.create("http://localhost:" + this.wireMockRule.port()));
     final ActivePowerRecord record = new ActivePowerRecord("my-id", 12345L, 12.34);
-    this.httpRecordSender.send(record);
+    httpRecordSender.send(record);
 
     final String expectedJson = "{\"identifier\":\"my-id\",\"timestamp\":12345,\"valueInW\":12.34}";
     verify(exactly(1), postRequestedFor(urlEqualTo("/"))
+        .withRequestBody(equalTo(expectedJson))); // toJson
+  }
+
+  @Test
+  public void testValidUriWithPath() {
+    this.wireMockRule.stubFor(
+        post(urlPathEqualTo("/post"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody("received")));
+
+    final HttpRecordSender<ActivePowerRecord> httpRecordSender =
+        new HttpRecordSender<>(
+            URI.create("http://localhost:" + this.wireMockRule.port() + "/post"));
+    final ActivePowerRecord record = new ActivePowerRecord("my-id", 12345L, 12.34);
+    httpRecordSender.send(record);
+
+    final String expectedJson = "{\"identifier\":\"my-id\",\"timestamp\":12345,\"valueInW\":12.34}";
+    verify(exactly(1), postRequestedFor(urlEqualTo("/post"))
         .withRequestBody(equalTo(expectedJson))); // toJson
   }
 
@@ -56,8 +69,10 @@ public class HttpRecordSenderTest {
                     .withStatus(200)
                     .withBody("received")));
 
+    final HttpRecordSender<ActivePowerRecord> httpRecordSender =
+        new HttpRecordSender<>(URI.create("http://localhost:" + this.wireMockRule.port()));
     final ActivePowerRecord record = new ActivePowerRecord("my-id", 12345L, 12.34);
-    this.httpRecordSender.send(record);
+    httpRecordSender.send(record);
 
     final String expectedJson = "{\"identifier\":\"my-id\",\"timestamp\":12345,\"valueInW\":12.34}";
     verify(exactly(1), postRequestedFor(urlEqualTo("/"))

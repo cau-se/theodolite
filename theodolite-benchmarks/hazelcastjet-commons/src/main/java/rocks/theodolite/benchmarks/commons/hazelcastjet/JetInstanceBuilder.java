@@ -3,6 +3,7 @@ package rocks.theodolite.benchmarks.commons.hazelcastjet;
 import com.hazelcast.config.Config;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
+import com.hazelcast.jet.config.JetConfig;
 import org.slf4j.Logger;
 
 /**
@@ -42,18 +43,19 @@ public class JetInstanceBuilder {
   }
 
   /**
-   * Builds and returns a JetInstance. If a config is set, the JetInstance will contain the set
-   * config.
+   * Builds and returns a {@link JetInstance}. If a config is set, the {@link JetInstance} will
+   * contain the set config.
    *
    * @return JetInstance
    */
   public JetInstance build() {
-    final JetInstance jet = Jet.newJetInstance();
-    if (this.config == null) {
-      return jet;
+    final Config localConfig = this.config;
+    if (localConfig == null) {
+      throw new IllegalStateException("No Hazelcast config set.");
     } else {
-      jet.getConfig().setHazelcastConfig(this.config);
-      return jet;
+      final JetConfig jetConfig = new JetConfig();
+      jetConfig.setHazelcastConfig(localConfig);
+      return Jet.newJetInstance(jetConfig);
     }
 
   }

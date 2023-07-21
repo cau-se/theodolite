@@ -8,10 +8,10 @@ authors:
     given-names: Wilhelm
     orcid: "https://orcid.org/0000-0001-6625-4335"
 title: Theodolite
-version: "0.8.0"
+version: "0.9.0"
 repository-code: "https://github.com/cau-se/theodolite"
 license: "Apache-2.0"
-doi: "10.1016/j.bdr.2021.100209"
+doi: "10.1007/s10664-022-10162-1"
 preferred-citation:
   type: article
   authors:
@@ -21,9 +21,9 @@ preferred-citation:
     - family-names: Hasselbring
       given-names: Wilhelm
       orcid: "https://orcid.org/0000-0001-6625-4335"
-  doi: "10.1016/j.bdr.2021.100209"
-  journal: "Big Data Research"
-  month: 7
-  title: "Theodolite: Scalability Benchmarking of Distributed Stream Processing Engines in Microservice Architectures"
-  volume: 25
-  year: 2021
+  doi: "10.1007/s10664-022-10162-1"
+  journal: "Empirical Software Engineering"
+  month: 8
+  title: "A Configurable Method for Benchmarking Scalability of Cloud-Native Applications"
+  volume: 27
+  year: 2022

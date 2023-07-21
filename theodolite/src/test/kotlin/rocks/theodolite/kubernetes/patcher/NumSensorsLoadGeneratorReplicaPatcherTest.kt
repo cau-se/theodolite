@@ -1,32 +1,49 @@
 package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
 internal class NumSensorsLoadGeneratorReplicaPatcherTest: AbstractPatcherTest() {
 
-    @BeforeEach
-    fun setUp() {
-        resource = listOf(createDeployment())
-        patcher = NumSensorsLoadGeneratorReplicaPatcher("10")
-        value = "2"
-    }
-
-    @AfterEach
-    fun tearDown() {
+    @Test
+    fun testFullyUtilizedGeneratorDeployment() {
+        testInputVsExpectedForDeployment(50000, 5)
     }
 
     @Test
-    override fun validate() {
-        patch()
-        resource.forEach {
-            assertTrue((it as Deployment).spec.replicas == 1)
+    fun testNonFullyUtilizedGeneratorsDeployment() {
+        testInputVsExpectedForDeployment(45000, 5)
+    }
+
+    @Test
+    fun testFullyUtilizedGeneratorStatefulSet() {
+        testInputVsExpectedForSts(50000, 5)
+    }
+
+    @Test
+    fun testNonFullyUtilizedGeneratorsStatefulSet() {
+        testInputVsExpectedForSts(45000, 5)
+    }
+
+    private fun testInputVsExpectedForDeployment(inputLoad: Int, expectedReplicas: Int) {
+        val sourceResource = createDeployment()
+        val patcher = NumSensorsLoadGeneratorReplicaPatcher(10000)
+        val patchedResource = patcher.patch(listOf(sourceResource), inputLoad.toString())
+        patchedResource.forEach { resource ->
+            assertEquals(expectedReplicas, (resource as Deployment).spec.replicas)
+        }
+    }
+
+    private fun testInputVsExpectedForSts(inputLoad: Int, expectedReplicas: Int) {
+        val sourceResource = createStatefulSet()
+        val patcher = NumSensorsLoadGeneratorReplicaPatcher(10000)
+        val patchedResource = patcher.patch(listOf(sourceResource), inputLoad.toString())
+        patchedResource.forEach { resource ->
+            assertEquals(expectedReplicas, (resource as StatefulSet).spec.replicas)
         }
     }
 }

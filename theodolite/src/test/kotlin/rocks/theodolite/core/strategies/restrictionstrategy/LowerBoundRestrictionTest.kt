@@ -11,7 +11,7 @@ internal class LowerBoundRestrictionTest {
 
     @Test
     fun testNoPreviousResults() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         val strategy = LowerBoundRestriction(results)
         val load = 10000
         val resources = listOf(1, 2, 3)
@@ -23,7 +23,7 @@ internal class LowerBoundRestrictionTest {
 
     @Test
     fun testWithSuccessfulPreviousResults() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, true)
@@ -40,7 +40,7 @@ internal class LowerBoundRestrictionTest {
     @Disabled
     fun testWithNoSuccessfulPreviousResults() {
         // This test is currently not implemented this way, but might later be the desired behavior.
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, false)
@@ -57,7 +57,7 @@ internal class LowerBoundRestrictionTest {
 
     @Test
     fun testNoPreviousResults2() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 2, true)
         results.setResult(10000, 1, false)
@@ -73,7 +73,7 @@ internal class LowerBoundRestrictionTest {
     @Disabled
     fun testMinRequiredInstancesWhenNotSuccessful() {
         // This test is currently not implemented this way, but might later be the desired behavior.
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 2, true)
         results.setResult(10000, 1, false)

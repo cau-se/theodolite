@@ -1,4 +1,4 @@
-FROM jupyter/base-notebook
+FROM jupyter/base-notebook:python-3.8
 
 COPY . /home/jovyan
 

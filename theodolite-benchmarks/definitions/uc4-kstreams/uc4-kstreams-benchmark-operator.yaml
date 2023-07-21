@@ -2,12 +2,20 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc4-kstreams
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc4
+    sut: kstreams
 spec:
   sut:
     resources:
       - configMap:
           name: "benchmark-resources-uc4-kstreams"
           files:
+            - "input-topic.yaml"
+            - "output-topic.yaml"
+            - "aggregation-feedback-topic.yaml"
+            - "configuration-topic.yaml"
             - "uc4-kstreams-deployment.yaml"
             - "uc4-kstreams-service.yaml"
             - "uc4-jmx-configmap.yaml"
@@ -24,6 +32,27 @@ spec:
       patchers:
         - type: "ReplicaPatcher"
           resource: "uc4-kstreams-deployment.yaml"
+    - typeName: ThreadsAndPodResources
+      patchers:
+        - type: EnvVarPatcher
+          resource: uc4-kstreams-deployment.yaml
+          properties:
+            container: uc-application
+            variableName: NUM_STREAM_THREADS
+        - type: ResourceLimitPatcher
+          resource: uc4-kstreams-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: uc4-kstreams-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: memory
+            factor: 4
+            format: Gi
   loadTypes:
     - typeName: "NumNestedGroups"
       patchers:
@@ -31,35 +60,36 @@ spec:
           resource: "uc4-load-generator-deployment.yaml"
           properties:
             container: "workload-generator"
-            variableName: "NUM_SENSORS"
+            variableName: "NUM_NESTED_GROUPS"
         - type: NumNestedGroupsLoadGeneratorReplicaPatcher
           resource: "uc4-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
-            numSensors: "4.0"
+            numSensors: "4"
   slos:
     - name: "lag trend"
       sloType: "lag trend"
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
       properties:
+        consumerGroup: theodolite-uc4-application-0.0.1
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
+    - name: droppedRecords
+      sloType: generic
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        externalSloUrl: "http://localhost:8082"
+        promQLQuery: "sum(rate(kafka_streams_stream_task_metrics_dropped_records_total[30s])) by (job)"
+        warmup: 60 # in seconds
+        queryAggregation: max
+        repetitionAggregation: median
+        operator: lte
+        threshold: 100
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
-      - name: "input"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "output"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "configuration"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "aggregation-feedback"
-        numPartitions: 40
-        replicationFactor: 1
       - name: "theodolite-.*"
         removeOnly: True

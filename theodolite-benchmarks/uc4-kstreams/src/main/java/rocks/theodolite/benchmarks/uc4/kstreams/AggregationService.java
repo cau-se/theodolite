@@ -5,7 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.kafka.streams.KafkaStreams;
 import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
-import rocks.theodolite.benchmarks.commons.kstreams.ConfigurationKeys;
 
 /**
  * A microservice that manages the history and, therefore, stores and aggregates incoming
@@ -37,11 +36,11 @@ public class AggregationService {
   private void createKafkaStreamsApplication() {
     final Uc4KafkaStreamsBuilder uc4KafkaStreamsBuilder = new Uc4KafkaStreamsBuilder(this.config);
     uc4KafkaStreamsBuilder
-        .feedbackTopic(this.config.getString(ConfigurationKeys.KAFKA_FEEDBACK_TOPIC))
-        .outputTopic(this.config.getString(ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
-        .configurationTopic(this.config.getString(ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC))
-        .emitPeriod(Duration.ofMillis(this.config.getLong(ConfigurationKeys.EMIT_PERIOD_MS)))
-        .gracePeriod(Duration.ofMillis(this.config.getLong(ConfigurationKeys.GRACE_PERIOD_MS)));
+        .feedbackTopic(this.config.getString(Uc4ConfigurationKeys.KAFKA_FEEDBACK_TOPIC))
+        .outputTopic(this.config.getString(Uc4ConfigurationKeys.KAFKA_OUTPUT_TOPIC))
+        .configurationTopic(this.config.getString(Uc4ConfigurationKeys.KAFKA_CONFIGURATION_TOPIC))
+        .emitPeriod(Duration.ofMillis(this.config.getLong(Uc4ConfigurationKeys.EMIT_PERIOD_MS)))
+        .gracePeriod(Duration.ofMillis(this.config.getLong(Uc4ConfigurationKeys.GRACE_PERIOD_MS)));
 
     final KafkaStreams kafkaStreams = uc4KafkaStreamsBuilder.build();
 

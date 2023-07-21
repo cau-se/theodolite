@@ -91,7 +91,7 @@ test-docs-links:
 build-docs-crds:
   stage: build
   image:
-    name: ghcr.io/fybrik/crdoc:0.6.1
+    name: ghcr.io/fybrik/crdoc:0.6.2
     entrypoint: [""]
   script: /crdoc --resources theodolite/crd/ --template docs/api-reference/crds.tmpl --output docs/api-reference/crds.ref.md
   artifacts:
@@ -160,7 +160,7 @@ test-helm:
     # Display initial pods, etc.
     - cd helm
     - helm dependencies update .
-    - helm install theodolite . -f preconfigs/minimal.yaml --wait
+    - helm install theodolite . -f preconfigs/minimal.yaml --wait --timeout 10m0s
     - kubectl get nodes -o wide
     - kubectl get pods --all-namespaces -o wide
     - kubectl get services --all-namespaces -o wide
@@ -573,6 +573,16 @@ smoketest-uc3-kstreams:
     DOCKER_COMPOSE_DIR: "uc3-kstreams"
     JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
 
+smoketest-uc3-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-flink
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-flink"
+    JAVA_PROJECT_DEPS: "uc3-flink,flink-commons,uc3-load-generator,load-generator-commons"
+
+
 smoketest-uc3-beam-flink:
   extends: .smoketest-benchmarks
   needs:
@@ -747,7 +757,7 @@ deploy-theodolite:
 test-slo-checker-lag-trend:
   stage: test
   needs: []
-  image: python:3.7-slim
+  image: python:3.8-slim
   before_script:
     - cd slo-checker/record-lag
   script:
@@ -760,26 +770,10 @@ test-slo-checker-lag-trend:
     - when: manual
       allow_failure: true
 
-test-slo-checker-dropped-records-kstreams:
-  stage: test
-  needs: []
-  image: python:3.7-slim
-  before_script:
-    - cd slo-checker/dropped-records
-  script:
-    - pip install -r requirements.txt
-    - cd app
-    - python -m unittest
-  rules:
-    - changes:
-      - slo-checker/dropped-records/**/*
-    - when: manual
-      allow_failure: true
-
 test-slo-checker-generic:
   stage: test
   needs: []
-  image: python:3.7-slim
+  image: python:3.8-slim
   before_script:
     - cd slo-checker/generic
   script:
@@ -805,24 +799,6 @@ deploy-slo-checker-lag-trend:
   rules:
     - changes:
       - slo-checker/record-lag/**/*
-      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
-    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
-      when: manual
-      allow_failure: true
-
-deploy-slo-checker-dropped-records-kstreams:
-  stage: deploy
-  extends:
-    - .kaniko-push
-  needs:
-    - test-slo-checker-dropped-records-kstreams
-  before_script:
-    - cd slo-checker/dropped-records
-  variables:
-    IMAGE_NAME: theodolite-slo-checker-dropped-records-kstreams
-  rules:
-    - changes:
-      - slo-checker/dropped-records/**/*
       if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
     - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
@@ -855,12 +831,12 @@ deploy-random-scheduler:
     - .kaniko-push
   needs: []
   before_script:
-    - cd execution/infrastructure/random-scheduler
+    - cd util/random-scheduler
   variables:
     IMAGE_NAME: theodolite-random-scheduler
   rules:
     - changes:
-      - execution/infrastructure/random-scheduler/**/*
+      - util/random-scheduler/**/*
       if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
     - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
       when: manual
@@ -873,6 +849,7 @@ deploy-buildimage-docker-compose-jq:
   needs: []
   variables:
     DOCKER_VERSION: 20.10.12
+    BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
     IMAGE_NAME: theodolite-build-docker-compose-jq
     IMAGE_TAG: $DOCKER_VERSION
   before_script:

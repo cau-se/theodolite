@@ -59,6 +59,10 @@ spec:
               name: cluster-ca-certs
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
+      {{- with .Values.strimzi.zookeeper.zooEntrance.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         - name: cluster-operator-certs
           secret:

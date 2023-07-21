@@ -2,15 +2,21 @@ apiVersion: theodolite.rocks/v1beta1
 kind: benchmark
 metadata:
   name: uc1-beam-samza
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc1
+    sut: beam-samza
 spec:
   sut:
     resources:
       - configMap:
           name: "benchmark-resources-uc1-beam-samza"
           files:
+          - "input-topic.yaml"
           - "uc1-beam-samza-deployment.yaml"
           - "beam-samza-service.yaml"
           - "service-monitor.yaml"
+          - "uc1-jmx-configmap.yaml"
     afterActions:
       - exec:
           selector: # delete zookeeper nodes to reset zookeeper
@@ -32,6 +38,27 @@ spec:
       patchers:
         - type: "ReplicaPatcher"
           resource: "uc1-beam-samza-deployment.yaml"
+    - typeName: ThreadsAndPodResources
+      patchers:
+        - type: EnvVarPatcher
+          resource: uc1-beam-samza-deployment.yaml
+          properties:
+            container: uc1-beam-samza
+            variableName: SAMZA_JOB_CONTAINER_THREADS_POOL_SIZE
+        - type: ResourceLimitPatcher
+          resource: uc1-beam-samza-deployment.yaml
+          properties:
+            container: uc1-beam-samza
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: uc1-beam-samza-deployment.yaml
+          properties:
+            container: uc1-beam-samza
+            limitedResource: memory
+            factor: 4
+            format: Gi
   loadTypes:
     - typeName: "NumSensors"
       patchers:
@@ -50,15 +77,13 @@ spec:
       prometheusUrl: "http://prometheus-operated:9090"
       offset: 0
       properties:
+        consumerGroup: theodolite-uc1-application
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
   kafkaConfig:
     bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
     topics:
-      - name: "input"
-        numPartitions: 40
-        replicationFactor: 1
       - name: ".*samza.*"
         removeOnly: true
       - name: ".*uc1-application.*"

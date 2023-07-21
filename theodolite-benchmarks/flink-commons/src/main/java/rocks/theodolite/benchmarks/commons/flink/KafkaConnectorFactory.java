@@ -21,7 +21,9 @@ import rocks.theodolite.benchmarks.commons.flink.util.SerializableSupplier;
 /**
  * A class for creating {@link FlinkKafkaConsumer} and {@link FlinkKafkaProducer}.
  */
-public class KafkaConnectorFactory {
+public class KafkaConnectorFactory { // NOPMD
+
+  private static final String AUTO_OFFSET_RESET_EARLIEST = "earliest";
 
   private static final Duration PRODUCER_TRANSACTION_TIMEOUT = Duration.ofMinutes(5);
 
@@ -50,7 +52,7 @@ public class KafkaConnectorFactory {
   public <T> FlinkKafkaConsumer<T> createConsumer(final String topic,
       final DeserializationSchema<T> deserializationSchema) {
     return this.createBaseConsumer(
-        new FlinkKafkaConsumer<>(topic, deserializationSchema, this.cloneProperties()));
+        new FlinkKafkaConsumer<>(topic, deserializationSchema, this.buildConsumerProperties()));
   }
 
   /**
@@ -60,7 +62,7 @@ public class KafkaConnectorFactory {
   public <T> FlinkKafkaConsumer<T> createConsumer(final String topic,
       final KafkaDeserializationSchema<T> deserializationSchema) {
     return this.createBaseConsumer(
-        new FlinkKafkaConsumer<>(topic, deserializationSchema, this.cloneProperties()));
+        new FlinkKafkaConsumer<>(topic, deserializationSchema, this.buildConsumerProperties()));
   }
 
   /**
@@ -143,6 +145,14 @@ public class KafkaConnectorFactory {
         ProducerConfig.TRANSACTION_TIMEOUT_CONFIG,
         String.valueOf(PRODUCER_TRANSACTION_TIMEOUT.toMillis())); // TODO necessary?
     return producerProps;
+  }
+
+  private Properties buildConsumerProperties() {
+    final Properties consumerProps = this.cloneProperties();
+    consumerProps.setProperty(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        AUTO_OFFSET_RESET_EARLIEST);
+    return consumerProps;
   }
 
   private Properties cloneProperties() {

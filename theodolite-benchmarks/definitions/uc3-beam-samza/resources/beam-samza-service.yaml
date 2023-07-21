@@ -5,13 +5,8 @@ metadata:
   labels:
     app: titan-ccp-aggregation
 spec:
-  #type: NodePort
   selector:
     app: titan-ccp-aggregation
   ports:
-  - name: http
-    port: 80
-    targetPort: 80
-    protocol: TCP
   - name: metrics
     port: 5556

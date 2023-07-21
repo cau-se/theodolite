@@ -1,7 +1,7 @@
 ---
 title: Release Process
 has_children: false
-parent: Development
+parent: Contributing
 nav_order: 1
 ---
 
