@@ -5,10 +5,10 @@ import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
-import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import rocks.theodolite.kubernetes.operator.EventCreator
-import rocks.theodolite.kubernetes.slo.AnalysisExecutor
 import rocks.theodolite.kubernetes.patcher.PatcherDefinition
+import rocks.theodolite.kubernetes.slo.AnalysisExecutor
+import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import java.time.Duration
 import java.time.Instant
 
@@ -42,8 +42,11 @@ class ExperimentRunnerImpl(
         for (i in 1.rangeTo(repetitions)) {
             if (this.run.get()) {
                 logger.info { "Run repetition $i/$repetitions" }
-                executionIntervals.add(runSingleExperiment(
-                        load, resource))
+                executionIntervals.add(
+                    runSingleExperiment(
+                        load, resource
+                    )
+                )
             } else {
                 break
             }
@@ -63,7 +66,7 @@ class ExperimentRunnerImpl(
             }
 
             result = (false !in experimentResults)
-            this.results.setResult(Pair(load, resource), result)
+            this.results.addExperimentResult(Pair(load, resource), result)
         } else {
             throw ExecutionFailedException("The execution was interrupted")
         }
@@ -93,7 +96,8 @@ class ExperimentRunnerImpl(
                     executionName = executionName,
                     type = "NORMAL",
                     reason = "Start experiment",
-                    message = "load: $load, resources: $resource")
+                    message = "load: $load, resources: $resource"
+                )
             }
         } catch (e: Exception) {
             this.run.set(false)
@@ -103,7 +107,8 @@ class ExperimentRunnerImpl(
                     executionName = executionName,
                     type = "WARNING",
                     reason = "Start experiment failed",
-                    message = "load: $load, resources: $resource")
+                    message = "load: $load, resources: $resource"
+                )
             }
             throw ExecutionFailedException("Error during setup the experiment", e)
         }
@@ -115,7 +120,8 @@ class ExperimentRunnerImpl(
                     executionName = executionName,
                     type = "NORMAL",
                     reason = "Stop experiment",
-                    message = "Teardown complete")
+                    message = "Teardown complete"
+                )
             }
         } catch (e: Exception) {
             if (mode == ExecutionModes.OPERATOR.value) {
@@ -123,7 +129,8 @@ class ExperimentRunnerImpl(
                     executionName = executionName,
                     type = "WARNING",
                     reason = "Stop experiment failed",
-                    message = "Teardown failed: ${e.message}")
+                    message = "Teardown failed: ${e.message}"
+                )
             }
             throw ExecutionFailedException("Error during teardown the experiment", e)
         }

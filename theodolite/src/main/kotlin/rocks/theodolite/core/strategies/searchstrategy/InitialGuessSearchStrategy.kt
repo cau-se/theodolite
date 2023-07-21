@@ -1,9 +1,9 @@
 package rocks.theodolite.core.strategies.searchstrategy
 
 import mu.KotlinLogging
-import rocks.theodolite.core.strategies.guessstrategy.GuessStrategy
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
+import rocks.theodolite.core.strategies.guessstrategy.GuessStrategy
 
 private val logger = KotlinLogging.logger {}
 
@@ -16,19 +16,19 @@ private val logger = KotlinLogging.logger {}
  * @param results current results of all previously performed benchmarks.
  */
 class InitialGuessSearchStrategy(
-        experimentRunner: ExperimentRunner,
-        private val guessStrategy: GuessStrategy,
-        private var results: Results
+    experimentRunner: ExperimentRunner,
+    private val guessStrategy: GuessStrategy,
+    private var results: Results
 ) : SearchStrategy(experimentRunner) {
 
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
 
-        var lastLowestResource : Int? = null
+        var lastLowestResource: Int? = null
 
         // Getting the lastLowestResource from results and calling firstGuess() with it
         if (!results.isEmpty()) {
-            val maxLoad: Int? = this.results.getMaxBenchmarkedXDimensionValue(load)
-            lastLowestResource = this.results.getOptYDimensionValue(maxLoad)
+            val maxLoad: Int? = this.results.getPreviousXValue(load)
+            lastLowestResource = this.results.getOptimalYValue(maxLoad)
         }
         lastLowestResource = this.guessStrategy.firstGuess(resources, lastLowestResource)
 
@@ -54,10 +54,9 @@ class InitialGuessSearchStrategy(
                     }
                 }
                 return currentMin
-            }
-            else {
+            } else {
                 if (resources.size <= startIndex + 1) {
-                    logger.info{ "No more resources left to check." }
+                    logger.info { "No more resources left to check." }
                     return null
                 }
                 resourcesToCheck = resources.subList(startIndex + 1, resources.size)
@@ -68,21 +67,20 @@ class InitialGuessSearchStrategy(
                     if (this.experimentRunner.runExperiment(load, res)) return res
                 }
             }
-        }
-        else {
+        } else {
             logger.info { "lastLowestResource was null." }
         }
         return null
     }
 
-    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int?{
+    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int? {
 
-        var lastMaxLoad : Int? = null
+        var lastMaxLoad: Int? = null
 
         // Getting the lastLowestLoad from results and calling firstGuess() with it
         if (!results.isEmpty()) {
-            val maxResource: Int? = this.results.getMaxBenchmarkedXDimensionValue(resource)
-            lastMaxLoad = this.results.getOptYDimensionValue(maxResource)
+            val maxResource: Int? = this.results.getPreviousXValue(resource)
+            lastMaxLoad = this.results.getOptimalYValue(maxResource)
         }
         lastMaxLoad = this.guessStrategy.firstGuess(loads, lastMaxLoad)
 
@@ -107,8 +105,7 @@ class InitialGuessSearchStrategy(
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 // upward search
                 if (loads.size <= startIndex + 1) {
                     return lastMaxLoad
@@ -124,8 +121,7 @@ class InitialGuessSearchStrategy(
                 }
                 return currentMax
             }
-        }
-        else {
+        } else {
             logger.info { "lastMaxLoad was null." }
         }
         return null

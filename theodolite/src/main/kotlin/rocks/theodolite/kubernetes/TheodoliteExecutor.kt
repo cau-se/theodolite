@@ -2,16 +2,12 @@ package rocks.theodolite.kubernetes
 
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
-import rocks.theodolite.core.ExecutionRunner
-import rocks.theodolite.core.ExperimentRunner
-import rocks.theodolite.kubernetes.model.BenchmarkExecution
-import rocks.theodolite.kubernetes.patcher.PatcherDefinitionFactory
+import rocks.theodolite.core.*
 import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.strategies.StrategyFactory
-import rocks.theodolite.core.Config
-import rocks.theodolite.core.IOHandler
-import rocks.theodolite.core.Results
+import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
+import rocks.theodolite.kubernetes.patcher.PatcherDefinitionFactory
 import rocks.theodolite.kubernetes.slo.SloFactory
 import java.io.File
 import java.time.Duration
@@ -27,9 +23,9 @@ private val logger = KotlinLogging.logger {}
  * @constructor Create empty Theodolite executor
  */
 class TheodoliteExecutor(
-        private val benchmarkExecution: BenchmarkExecution,
-        private val benchmark: KubernetesBenchmark,
-        private val client: NamespacedKubernetesClient
+    private val benchmarkExecution: BenchmarkExecution,
+    private val benchmark: KubernetesBenchmark,
+    private val client: NamespacedKubernetesClient
 ) {
     /**
      * An executor object, configured with the specified benchmark, evaluation method, experiment duration
@@ -66,7 +62,7 @@ class TheodoliteExecutor(
 
         experimentRunner =
             ExperimentRunnerImpl(
-                benchmarkDeploymentBuilder = KubernetesBenchmarkDeploymentBuilder(this.benchmark,this.client),
+                benchmarkDeploymentBuilder = KubernetesBenchmarkDeploymentBuilder(this.benchmark, this.client),
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = benchmarkExecution.configOverrides,
@@ -100,9 +96,14 @@ class TheodoliteExecutor(
         return Config(
             loads = benchmarkExecution.load.loadValues,
             resources = benchmarkExecution.resources.resourceValues,
-            searchStrategy = strategyFactory.createSearchStrategy(experimentRunner, benchmarkExecution.execution.strategy.name,
-                    benchmarkExecution.execution.strategy.searchStrategy, benchmarkExecution.execution.strategy.restrictions,
-                    benchmarkExecution.execution.strategy.guessStrategy, results),
+            searchStrategy = strategyFactory.createSearchStrategy(
+                experimentRunner,
+                benchmarkExecution.execution.strategy.name,
+                benchmarkExecution.execution.strategy.searchStrategy,
+                benchmarkExecution.execution.strategy.restrictions,
+                benchmarkExecution.execution.strategy.guessStrategy,
+                results
+            ),
             metric = Metric.from(benchmarkExecution.execution.metric)
         )
     }
@@ -117,16 +118,21 @@ class TheodoliteExecutor(
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
         this.benchmarkExecution.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
-        ioHandler.writeToJSONFile(this.benchmarkExecution, "${resultsFolder}exp${this.benchmarkExecution.executionId}-execution-configuration")
         ioHandler.writeToJSONFile(
-                benchmark,
+            this.benchmarkExecution,
+            "${resultsFolder}exp${this.benchmarkExecution.executionId}-execution-configuration"
+        )
+        ioHandler.writeToJSONFile(
+            benchmark,
             "${resultsFolder}exp${this.benchmarkExecution.executionId}-benchmark-configuration"
         )
 
         val config = buildConfig()
 
-        val executionRunner = ExecutionRunner(config.searchStrategy, config.resources, config.loads,config.metric,
-                                              this.benchmarkExecution.executionId)
+        val executionRunner = ExecutionRunner(
+            config.searchStrategy, config.resources, config.loads, config.metric,
+            this.benchmarkExecution.executionId
+        )
 
         executionRunner.run()
 
@@ -137,15 +143,15 @@ class TheodoliteExecutor(
         benchmark.infrastructure.beforeActions.forEach { it.exec(client = client) }
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(benchmark.infrastructure.resources, this.client)
-                .map { it.second }
-                .forEach { kubernetesManager.deploy(it) }
+            .map { it.second }
+            .forEach { kubernetesManager.deploy(it) }
     }
 
     private fun teardownInfrastructure() {
         val kubernetesManager = K8sManager(this.client)
         loadKubernetesResources(benchmark.infrastructure.resources, this.client)
-                .map { it.second }
-                .forEach { kubernetesManager.remove(it) }
+            .map { it.second }
+            .forEach { kubernetesManager.remove(it) }
         benchmark.infrastructure.afterActions.forEach { it.exec(client = client) }
     }
 
@@ -160,7 +166,7 @@ class TheodoliteExecutor(
     }
 
     private fun calculateMetric(xValues: List<Int>, results: Results): List<List<String>> {
-        return xValues.map { listOf(it.toString(), results.getOptYDimensionValue(it).toString()) }
+        return xValues.map { listOf(it.toString(), results.getOptimalYValue(it).toString()) }
     }
 
     fun getExecution(): BenchmarkExecution {
