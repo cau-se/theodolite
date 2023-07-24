@@ -48,6 +48,7 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
                     .uri(URI.create(
                             "$prometheusURL/api/v1/query_range?query=$encodedQuery&start=$offsetStart&end=$offsetEnd&step=5s"))
                     .GET()
+                    .version(HttpClient.Version.HTTP_1_1)
                     .timeout(TIMEOUT)
                     .build()
             val response = HttpClient.newBuilder()

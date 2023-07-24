@@ -44,6 +44,7 @@ class ExternalSloChecker(
             val request = HttpRequest.newBuilder()
                     .uri(URI.create(externalSlopeURL))
                     .POST(HttpRequest.BodyPublishers.ofString(data))
+                    .version(HttpClient.Version.HTTP_1_1)
                     .timeout(TIMEOUT)
                     .build()
             val response = HttpClient.newBuilder()
@@ -51,7 +52,7 @@ class ExternalSloChecker(
                     .send(request, BodyHandlers.ofString())
             if (response.statusCode() != 200) {
                 counter++
-                logger.error { "Could not reach external SLO checker at $externalSlopeURL." }
+                logger.error { "Received status code ${response.statusCode()} for request to $externalSlopeURL." }
             } else {
                 val booleanResult = response.body().toBoolean()
                 logger.info { "SLO checker result is: $booleanResult." }
