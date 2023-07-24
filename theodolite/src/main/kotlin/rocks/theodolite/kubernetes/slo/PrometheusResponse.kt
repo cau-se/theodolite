@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.slo
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.quarkus.runtime.annotations.RegisterForReflection
 import java.util.*
 
@@ -22,6 +23,7 @@ data class PrometheusResponse(
      * Return the data of the PrometheusResponse as [List] of [List]s of [String]s
      * The format of the returned list is: `[[ group, timestamp, value ], [ group, timestamp, value ], ... ]`
      */
+    @JsonIgnore
     fun getResultAsList(): List<List<String>> {
         val group = data?.result?.get(0)?.metric?.toString()!!
         val values = data?.result?.get(0)?.values

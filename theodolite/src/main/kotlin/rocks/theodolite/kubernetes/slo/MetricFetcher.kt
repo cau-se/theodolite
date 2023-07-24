@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import java.net.ConnectException
 import java.net.URI
+import java.net.URLEncoder
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.time.Instant
 
@@ -41,8 +43,10 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
 
         while (counter < RETRIES) {
             logger.info { "Request collected metrics from Prometheus for interval [$offsetStart,$offsetEnd]." }
+            val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8)
             val request = HttpRequest.newBuilder()
-                    .uri(URI.create("$prometheusURL/api/v1/query_range?query=$query&start=$offsetStart&end=$offsetEnd&step=5s"))
+                    .uri(URI.create(
+                            "$prometheusURL/api/v1/query_range?query=$encodedQuery&start=$offsetStart&end=$offsetEnd&step=5s"))
                     .GET()
                     .timeout(TIMEOUT)
                     .build()
