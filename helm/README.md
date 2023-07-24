@@ -67,6 +67,7 @@ kubectl delete crd kafkaconnectors.kafka.strimzi.io
 kubectl delete crd kafkaconnects.kafka.strimzi.io
 kubectl delete crd kafkamirrormaker2s.kafka.strimzi.io
 kubectl delete crd kafkamirrormakers.kafka.strimzi.io
+kubectl delete crd kafkanodepools.kafka.strimzi.io
 kubectl delete crd kafkarebalances.kafka.strimzi.io
 kubectl delete crd kafkas.kafka.strimzi.io
 kubectl delete crd kafkatopics.kafka.strimzi.io

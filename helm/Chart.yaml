@@ -22,7 +22,7 @@ dependencies:
     repository: https://prometheus-community.github.io/helm-charts
     condition: kube-prometheus-stack.enabled
   - name: strimzi-kafka-operator
-    version: 0.30.*
+    version: 0.36.*
     repository: https://strimzi.io/charts/
     condition: strimzi.enabled
 
