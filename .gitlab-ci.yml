@@ -151,8 +151,7 @@ test-helm:
   before_script:
     - k3d help
     - k3d version
-    #- k3d cluster create testgitlabci --agents 1 --wait -p "30000:30000@agent[0]"
-    - k3d cluster create $CLUSTERNAME --agents 1 --wait -p "30000:30000@agent:0" # k3d 5.0
+    - k3d cluster create $CLUSTERNAME --agents 1 --wait -p "30000:30000@agent:0"
     # show cluster info
     - kubectl cluster-info
     - helm version
