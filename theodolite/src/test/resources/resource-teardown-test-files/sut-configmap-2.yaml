@@ -1,0 +1,8 @@
+kind: ConfigMap
+metadata:
+  name: sut-configmap-2
+data:
+  sut-file-3.yaml: |
+    kind: Deployment
+    metadata:
+      name: sut-file-3

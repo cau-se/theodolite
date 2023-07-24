@@ -8,7 +8,8 @@ import com.google.common.math.Stats;
 import java.io.Serializable;
 
 /**
- * Custom Kryo {@link Serializer} for efficient transmission between Flink instances.
+ * Custom Kryo {@link Serializer}for {@link Stats} objects for efficient transmission between Flink
+ * instances.
  */
 public class StatsSerializer extends Serializer<Stats> implements Serializable {
 

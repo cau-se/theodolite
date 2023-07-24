@@ -9,11 +9,12 @@ import rocks.theodolite.core.strategies.Metric
 @QuarkusTest
 internal class SloCheckerFactoryTest {
 
+    private val factory = SloCheckerFactory()
+
     @Test
     fun testCreateGenericSloWithoutUrl() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.GENERIC.value,
                 mapOf(
                     "warmup" to "60",
@@ -31,9 +32,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateGenericSloWithoutWarmup() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.GENERIC.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -51,9 +51,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateGenericSloWithoutQueryAggregation() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.GENERIC.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -71,9 +70,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateGenericSloWithoutRepetitionAggregation() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.GENERIC.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -91,9 +89,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateGenericSloWithoutOperator() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.GENERIC.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -111,9 +108,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateGenericSloWithoutThreshold() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.GENERIC.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -131,8 +127,7 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateGenericSloFloatThreshold() {
-        val factory = SloCheckerFactory()
-        val sloChecker = factory.create(
+        val sloChecker = this.factory.create(
             SloTypes.GENERIC.value,
             mapOf(
                 "externalSloUrl" to "http://localhost:1234",
@@ -153,10 +148,142 @@ internal class SloCheckerFactoryTest {
     }
 
     @Test
+    fun testCreateGenericSloWithThresholdRelToLoad() {
+        val sloChecker = this.factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "thresholdRelToLoad" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(10.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateGenericSloWithThresholdRelToLoadAndInvalidThreshold() {
+        val sloChecker = this.factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "threshold" to "",
+                "thresholdRelToLoad" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(10.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateGenericSloWithThresholdRelToResources() {
+        val sloChecker = this.factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "thresholdRelToResources" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(0.5, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateGenericSloWithConstantThresholdFromExpression() {
+        val sloChecker = this.factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "thresholdFromExpression" to "1111"
+            ),
+            8,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(1111.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateGenericSloWithSimpleThresholdFromExpression() {
+        val sloChecker = this.factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "thresholdFromExpression" to "L*5"
+            ),
+            8,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(40.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateGenericSloWithComplexThresholdFromExpression() {
+        val sloChecker = this.factory.create(
+            SloTypes.GENERIC.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "queryAggregation" to "median",
+                "repetitionAggregation" to "median",
+                "operator" to "lte",
+                "thresholdFromExpression" to "R*((2^L+4)-60)+111"
+            ),
+            8,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(1111.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
     fun testCreateLagTrendSloWithoutUrl() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.LAG_TREND.value,
                 mapOf(
                     "warmup" to "60",
@@ -171,9 +298,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateLagTrendSloWithoutWarmup() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.LAG_TREND.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -189,9 +315,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateLagTrendSloWithoutThreshold() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.LAG_TREND.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -206,8 +331,7 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateLagTrendSloFloatThreshold() {
-        val factory = SloCheckerFactory()
-        val sloChecker = factory.create(
+        val sloChecker = this.factory.create(
             SloTypes.LAG_TREND.value,
             mapOf(
                 "externalSloUrl" to "http://localhost:1234",
@@ -225,10 +349,67 @@ internal class SloCheckerFactoryTest {
     }
 
     @Test
+    fun testCreateLagTrendSloWithThresholdRelToLoad() {
+        val sloChecker = this.factory.create(
+            SloTypes.LAG_TREND.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "thresholdRelToLoad" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(10.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateLagTrendSloWithThresholdRelToLoadAndInvalidThreshold() {
+        val sloChecker = this.factory.create(
+            SloTypes.LAG_TREND.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "threshold" to "",
+                "thresholdRelToLoad" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(10.0, computedThreshold as Double, 0.001)
+    }
+
+    @Test
+    fun testCreateLagTrendSloWithThresholdRelToResources() {
+        val sloChecker = this.factory.create(
+            SloTypes.LAG_TREND.value,
+            mapOf(
+                "externalSloUrl" to "http://localhost:1234",
+                "warmup" to "60",
+                "thresholdRelToResources" to "0.1"
+            ),
+            100,
+            5,
+            Metric.DEMAND
+        )
+        assertTrue(sloChecker is ExternalSloChecker)
+        val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
+        assertTrue(computedThreshold is Double)
+        assertEquals(0.5, computedThreshold as Double, 0.001)
+    }
+
+    @Test
     fun testCreateLagTrendRatioSloWithoutUrl() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.LAG_TREND_RATIO.value,
                 mapOf(
                     "warmup" to "60",
@@ -243,9 +424,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateLagTrendRatioSloWithoutWarmup() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.LAG_TREND_RATIO.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -261,9 +441,8 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateLagTrendRatioSloWithoutRatioThreshold() {
-        val factory = SloCheckerFactory()
         assertThrows<IllegalArgumentException> {
-            factory.create(
+            this.factory.create(
                 SloTypes.LAG_TREND_RATIO.value,
                 mapOf(
                     "externalSloUrl" to "http://localhost:1234",
@@ -278,8 +457,7 @@ internal class SloCheckerFactoryTest {
 
     @Test
     fun testCreateLagTrendRatioSloFloatThreshold() {
-        val factory = SloCheckerFactory()
-        val sloChecker = factory.create(
+        val sloChecker = this.factory.create(
             SloTypes.LAG_TREND_RATIO.value,
             mapOf(
                 "externalSloUrl" to "http://localhost:1234",

@@ -16,22 +16,22 @@ import io.fabric8.kubernetes.api.model.HasMetadata
  */
 class DataVolumeLoadGeneratorReplicaPatcher(
     private val maxVolume: Int,
-    private val container: String,
-    private val variableName: String
-) : Patcher {
+    val container: String,
+    val variableName: String
+) : AbstractStringPatcher() {
 
-    override fun patch(resources: List<HasMetadata>, value: String) : List<HasMetadata> {
-        return resources.flatMap { patchSingeResource(it, value)}
-    }
+    private val envVarPatcher = EnvVarPatcher(container, variableName)
+    private val replicaPatcher = ReplicaPatcher()
 
-    private fun patchSingeResource(k8sResource: HasMetadata, value: String): List<HasMetadata> {
+    override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         // calculate number of load generator instances and load per instance
-        val load = Integer.parseInt(value)
+        val load = value.toInt()
         val loadGenInstances = (load + maxVolume - 1) / maxVolume
         val loadPerInstance = load / loadGenInstances
 
         // Patch instance values and load value of generators
-        val resourceList = ReplicaPatcher().patch(listOf(k8sResource), loadGenInstances.toString())
-        return EnvVarPatcher(this.container, this.variableName).patch(resourceList, loadPerInstance.toString())
+        return this.envVarPatcher.patchSingleResource(
+            replicaPatcher.patchSingleResource(resource, loadGenInstances),
+            loadPerInstance.toString())
     }
 }

@@ -1,7 +1,5 @@
 package rocks.theodolite.kubernetes.slo
 
-import rocks.theodolite.kubernetes.util.PrometheusResponse
-
 /**
  * A SloChecker can be used to evaluate data from Prometheus.
  * @constructor Creates an empty SloChecker

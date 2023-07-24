@@ -1,0 +1,90 @@
+apiVersion: theodolite.rocks/v1beta1
+kind: benchmark
+metadata:
+  name: uc4-hazelcastjet
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc4
+    sut: hazelcastjet
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-hazelcastjet"
+          files:
+            - "input-topic.yaml"
+            - "output-topic.yaml"
+            - "aggregation-feedback-topic.yaml"
+            - "configuration-topic.yaml"
+            - "uc4-hazelcastjet-deployment.yaml"
+            - "uc4-hazelcastjet-service.yaml"
+            - "uc4-jmx-configmap.yaml"
+            - "uc4-service-monitor.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc4-load-generator"
+          files:
+            - "uc4-load-generator-deployment.yaml"
+            - "uc4-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc4-hazelcastjet-deployment.yaml"
+    - typeName: PodResources
+      patchers:
+        - type: ResourceLimitPatcher
+          resource: uc4-hazelcastjet-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: uc4-hazelcastjet-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: memory
+            factor: 4
+            format: Gi
+  loadTypes:
+    - typeName: "NumNestedGroups"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_NESTED_GROUPS"
+        - type: NumNestedGroupsLoadGeneratorReplicaPatcher
+          resource: "uc4-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "150000"
+            numSensors: "4"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        consumerGroup: theodolite-uc4-application
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds
+    - name: droppedRecords
+      sloType: generic
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        externalSloUrl: "http://localhost:8082"
+        promQLQuery: "sum(rate(com_hazelcast_jet_metrics_lateeventsdropped[30s])) by(job)"
+        warmup: 60 # in seconds
+        queryAggregation: max
+        repetitionAggregation: median
+        operator: lte
+        threshold: 100
+  kafkaConfig:
+    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
+    topics:
+      - name: "theodolite-.*"
+        removeOnly: True

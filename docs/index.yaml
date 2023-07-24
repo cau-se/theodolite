@@ -1,6 +1,406 @@
 apiVersion: v1
 entries:
+  cp-helm-charts:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2023-04-14T16:35:13.695149306+02:00"
+    dependencies:
+    - condition: cp-kafka.enabled
+      name: cp-kafka
+      repository: file://./charts/cp-kafka
+      version: 0.1.0
+    - condition: cp-zookeeper.enabled
+      name: cp-zookeeper
+      repository: file://./charts/cp-zookeeper
+      version: 0.1.0
+    - condition: cp-schema-registry.enabled
+      name: cp-schema-registry
+      repository: file://./charts/cp-schema-registry
+      version: 0.1.0
+    - condition: cp-kafka-rest.enabled
+      name: cp-kafka-rest
+      repository: file://./charts/cp-kafka-rest
+      version: 0.1.0
+    - condition: cp-kafka-connect.enabled
+      name: cp-kafka-connect
+      repository: file://./charts/cp-kafka-connect
+      version: 0.1.0
+    - condition: cp-ksql-server.enabled
+      name: cp-ksql-server
+      repository: file://./charts/cp-ksql-server
+      version: 0.1.0
+    - condition: cp-control-center.enabled
+      name: cp-control-center
+      repository: file://./charts/cp-control-center
+      version: 0.1.0
+    description: A Helm chart for Confluent Platform Community Edition
+    digest: 45c1beba96b77f120f0d05e77be21b8d30431a9f2b63f05087defb54c5f3c60b
+    name: cp-helm-charts
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.6/charts/cp-helm-charts-0.6.0.tgz
+    version: 0.6.0
+  grafana:
+  - apiVersion: v2
+    appVersion: 8.2.5
+    created: "2023-04-14T16:35:13.696909309+02:00"
+    description: The leading tool for querying and visualizing time series and metrics.
+    digest: 56aec8d05f41792656f6a90a3e6ff1516b0e024a64fc2e39040128af9e3459c0
+    home: https://grafana.net
+    icon: https://raw.githubusercontent.com/grafana/grafana/master/public/img/logo_transparent_400x.png
+    kubeVersion: ^1.8.0-0
+    maintainers:
+    - email: zanhsieh@gmail.com
+      name: zanhsieh
+    - email: rluckie@cisco.com
+      name: rtluckie
+    - email: maor.friedman@redhat.com
+      name: maorfr
+    - email: miroslav.hadzhiev@gmail.com
+      name: Xtigyro
+    - email: mail@torstenwalter.de
+      name: torstenwalter
+    name: grafana
+    sources:
+    - https://github.com/grafana/grafana
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.6/charts/grafana-6.17.10.tgz
+    version: 6.17.10
+  kube-prometheus-stack:
+  - annotations:
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/prometheus-community/helm-charts
+        - name: Upstream Project
+          url: https://github.com/prometheus-operator/kube-prometheus
+      artifacthub.io/operator: "true"
+    apiVersion: v2
+    appVersion: 0.60.1
+    created: "2023-04-14T16:35:13.720986306+02:00"
+    dependencies:
+    - condition: kubeStateMetrics.enabled
+      name: kube-state-metrics
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 4.22.*
+    - condition: nodeExporter.enabled
+      name: prometheus-node-exporter
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 4.4.*
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.43.*
+    description: kube-prometheus-stack collects Kubernetes manifests, Grafana dashboards,
+      and Prometheus rules combined with documentation and scripts to provide easy
+      to operate end-to-end Kubernetes cluster monitoring with Prometheus using the
+      Prometheus Operator.
+    digest: 8360468fa9ec4eb2152f5b629b488571dc92be404682deb493207c5b2b552f07
+    home: https://github.com/prometheus-operator/kube-prometheus
+    icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
+    keywords:
+    - operator
+    - prometheus
+    - kube-prometheus
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: andrew@quadcorps.co.uk
+      name: andrewgkew
+    - email: gianrubio@gmail.com
+      name: gianrubio
+    - email: github.gkarthiks@gmail.com
+      name: gkarthiks
+    - email: kube-prometheus-stack@sisti.pt
+      name: GMartinez-Sisti
+    - email: scott@r6by.com
+      name: scottrigby
+    - email: miroslav.hadzhiev@gmail.com
+      name: Xtigyro
+    name: kube-prometheus-stack
+    sources:
+    - https://github.com/prometheus-community/helm-charts
+    - https://github.com/prometheus-operator/kube-prometheus
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.6/charts/kube-prometheus-stack-41.7.4.tgz
+    version: 41.7.4
+  strimzi-kafka-operator:
+  - apiVersion: v2
+    appVersion: 0.29.0
+    created: "2023-04-14T16:35:13.725738879+02:00"
+    description: 'Strimzi: Apache Kafka running on Kubernetes'
+    digest: 87bb22f4b674a91cea51b61edf7c0b3b92c706ac7427534c8f40278c8c712a59
+    home: https://strimzi.io/
+    icon: https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/documentation/logo/strimzi_logo.png
+    keywords:
+    - kafka
+    - queue
+    - stream
+    - event
+    - messaging
+    - datastore
+    - topic
+    maintainers:
+    - name: Frawless
+    - name: ppatierno
+    - name: samuel-hawker
+    - name: scholzj
+    - name: tombentley
+    - name: sknot-rh
+    name: strimzi-kafka-operator
+    sources:
+    - https://github.com/strimzi/strimzi-kafka-operator
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.6/charts/strimzi-kafka-operator-helm-3-chart-0.29.0.tgz
+    version: 0.29.0
   theodolite:
+  - apiVersion: v2
+    appVersion: 0.9.0
+    created: "2023-07-19T09:58:16.207401357+02:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.*
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 41.7.*
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.29.*
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: d23f73c4b9c838d45be659cd27e6003b16ae22da52706d4d7111709389ffc9c2
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@jku.at
+      name: Sören Henning
+      url: https://www.jku.at/lit-cyber-physical-systems-lab/ueber-uns/team/dr-ing-soeren-henning/
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.9.0/theodolite-0.9.0.tgz
+    version: 0.9.0
+  - apiVersion: v2
+    appVersion: 0.8.6
+    created: "2023-04-14T16:35:13.691461495+02:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.*
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 41.7.*
+    - condition: cp-helm-charts.enabled
+      name: cp-helm-charts
+      repository: https://soerenhenning.github.io/cp-helm-charts
+      version: 0.6.0
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.29.*
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: cb50c8f901462b8592232ca3af4a0316c82b89d6c66b83b018b9fdff0f9620e0
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@email.uni-kiel.de
+      name: Sören Henning
+      url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.6/theodolite-0.8.6.tgz
+    version: 0.8.6
+  - apiVersion: v2
+    appVersion: 0.8.5
+    created: "2023-02-09T12:34:28.130334604+01:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.*
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 41.7.*
+    - condition: cp-helm-charts.enabled
+      name: cp-helm-charts
+      repository: https://soerenhenning.github.io/cp-helm-charts
+      version: 0.6.0
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.29.*
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: 6b80c894c6db461a65262553d5dbe8880c4d22edebd150b9a97819a7e3355509
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@email.uni-kiel.de
+      name: Sören Henning
+      url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.5/theodolite-0.8.5.tgz
+    version: 0.8.5
+  - apiVersion: v2
+    appVersion: 0.8.4
+    created: "2023-02-01T14:02:42.124711907+01:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.*
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 41.7.*
+    - condition: cp-helm-charts.enabled
+      name: cp-helm-charts
+      repository: https://soerenhenning.github.io/cp-helm-charts
+      version: 0.6.0
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.29.*
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: 3f2815329938fcb018186d6db251e87ba05243adbbb29582370db6499ed69bcb
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@email.uni-kiel.de
+      name: Sören Henning
+      url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.4/theodolite-0.8.4.tgz
+    version: 0.8.4
+  - apiVersion: v2
+    appVersion: 0.8.3
+    created: "2023-01-31T18:28:08.273346921+01:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.*
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 41.7.*
+    - condition: cp-helm-charts.enabled
+      name: cp-helm-charts
+      repository: https://soerenhenning.github.io/cp-helm-charts
+      version: 0.6.0
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.29.*
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: f0b3ce50db9dec094993073cd8aebf548929e529d399710dda0235d1ea185546
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@email.uni-kiel.de
+      name: Sören Henning
+      url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.3/theodolite-0.8.3.tgz
+    version: 0.8.3
+  - apiVersion: v2
+    appVersion: 0.8.2
+    created: "2022-11-20T11:37:04.711009053+01:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.*
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 41.7.*
+    - condition: cp-helm-charts.enabled
+      name: cp-helm-charts
+      repository: https://soerenhenning.github.io/cp-helm-charts
+      version: 0.6.0
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.29.*
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: b6fc354d08b661dd75beb4e54efd0bb65b488247dcb528fd0c5e365f8f011808
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@email.uni-kiel.de
+      name: Sören Henning
+      url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.2/theodolite-0.8.2.tgz
+    version: 0.8.2
+  - apiVersion: v2
+    appVersion: 0.8.1
+    created: "2022-11-16T09:45:09.130711943+01:00"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.17.5
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 20.0.1
+    - condition: cp-helm-charts.enabled
+      name: cp-helm-charts
+      repository: https://soerenhenning.github.io/cp-helm-charts
+      version: 0.6.0
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.29.0
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: 02a1c6a5a8d0295fb9bf2d704cb04e0a17624b83b2a03cd59c1d61b74d8fe4ab
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@email.uni-kiel.de
+      name: Sören Henning
+      url: https://www.se.informatik.uni-kiel.de/en/team/soeren-henning-m-sc
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.8.1/theodolite-0.8.1.tgz
+    version: 0.8.1
   - apiVersion: v2
     appVersion: 0.8.0
     created: "2022-07-18T17:48:21.205921939+02:00"
@@ -387,4 +787,4 @@ entries:
     urls:
     - https://github.com/cau-se/theodolite/releases/download/v0.4.0/theodolite-0.4.0.tgz
     version: 0.4.0
-generated: "2022-07-18T17:48:21.163757427+02:00"
+generated: "2023-07-19T09:58:16.182895416+02:00"

@@ -1,0 +1,69 @@
+apiVersion: theodolite.rocks/v1beta1
+kind: benchmark
+metadata:
+  name: uc1-hazelcastjet
+  labels:
+    suite: theodolite-stream-processing
+    benchmark: uc1
+    sut: hazelcastjet
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc1-hazelcastjet"
+          files:
+          - "input-topic.yaml"
+          - "uc1-hazelcastjet-deployment.yaml"
+          - "uc1-hazelcastjet-service.yaml"
+          - "uc1-jmx-configmap.yaml"
+          - "uc1-service-monitor.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "benchmark-resources-uc1-load-generator"
+          files:
+          - "uc1-load-generator-deployment.yaml"
+          - "uc1-load-generator-service.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "uc1-hazelcastjet-deployment.yaml"
+    - typeName: PodResources
+      patchers:
+        - type: ResourceLimitPatcher
+          resource: uc1-hazelcastjet-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: cpu
+            factor: 1000
+            format: m
+        - type: ResourceLimitPatcher
+          resource: uc1-hazelcastjet-deployment.yaml
+          properties:
+            container: uc-application
+            limitedResource: memory
+            factor: 4
+            format: Gi
+  loadTypes:
+    - typeName: "NumSensors"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "uc1-load-generator-deployment.yaml"
+          properties:
+            container: "workload-generator"
+            variableName: "NUM_SENSORS"
+        - type: NumSensorsLoadGeneratorReplicaPatcher
+          resource: "uc1-load-generator-deployment.yaml"
+          properties:
+            loadGenMaxRecords: "150000"
+  slos:
+    - name: "lag trend"
+      sloType: "lag trend"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        consumerGroup: theodolite-uc1-application
+        threshold: 2000
+        externalSloUrl: "http://localhost:80/evaluate-slope"
+        warmup: 60 # in seconds

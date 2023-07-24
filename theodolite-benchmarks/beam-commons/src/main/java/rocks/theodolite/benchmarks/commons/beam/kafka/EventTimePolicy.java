@@ -10,15 +10,14 @@ import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 /**
  * TimeStampPolicy to use event time based on the timestamp of the record value.
  */
-public class EventTimePolicy
-    extends TimestampPolicy<String, ActivePowerRecord> {
+public class EventTimePolicy extends TimestampPolicy<String, ActivePowerRecord> {
+
   protected Instant currentWatermark;
 
   public EventTimePolicy(final Optional<Instant> previousWatermark) {
     super();
     this.currentWatermark = previousWatermark.orElse(BoundedWindow.TIMESTAMP_MIN_VALUE);
   }
-
 
   @Override
   public Instant getTimestampForRecord(final PartitionContext ctx,

@@ -30,7 +30,7 @@ class BenchmarkExecution : KubernetesResource {
     lateinit var benchmark: String
     lateinit var load: LoadDefinition
     lateinit var resources: ResourceDefinition
-    lateinit var slos: List<SloConfiguration>
+    var slos: List<SloConfiguration>? = null
     lateinit var execution: Execution
     lateinit var configOverrides: MutableList<ConfigurationOverride?>
 

@@ -3,7 +3,7 @@
 test-slo-checker-lag-trend:
   stage: test
   needs: []
-  image: python:3.7-slim
+  image: python:3.8-slim
   before_script:
     - cd slo-checker/record-lag
   script:
@@ -16,26 +16,10 @@ test-slo-checker-lag-trend:
     - when: manual
       allow_failure: true
 
-test-slo-checker-dropped-records-kstreams:
-  stage: test
-  needs: []
-  image: python:3.7-slim
-  before_script:
-    - cd slo-checker/dropped-records
-  script:
-    - pip install -r requirements.txt
-    - cd app
-    - python -m unittest
-  rules:
-    - changes:
-      - slo-checker/dropped-records/**/*
-    - when: manual
-      allow_failure: true
-
 test-slo-checker-generic:
   stage: test
   needs: []
-  image: python:3.7-slim
+  image: python:3.8-slim
   before_script:
     - cd slo-checker/generic
   script:
@@ -61,24 +45,6 @@ package-slo-checker-lag-trend:
   rules:
     - changes:
       - slo-checker/record-lag/**/*
-      if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
-    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
-      when: manual
-      allow_failure: true
-
-package-slo-checker-dropped-records-kstreams:
-  stage: package
-  extends:
-    - .kaniko-push
-  needs:
-    - test-slo-checker-dropped-records-kstreams
-  before_script:
-    - cd slo-checker/dropped-records
-  variables:
-    IMAGE_NAME: theodolite-slo-checker-dropped-records-kstreams
-  rules:
-    - changes:
-      - slo-checker/dropped-records/**/*
       if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
     - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
       when: manual

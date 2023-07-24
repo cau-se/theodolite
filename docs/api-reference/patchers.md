@@ -27,12 +27,32 @@ Patchers can be seen as functions which take a value as input and modify a Kuber
   * **properties**:
     * loadGenMaxRecords: 150000
 
+* **DataVolumeLoadGeneratorReplicaPatcher**: Takes the total load that should be generated and computes the number of instances needed for this load based on the `maxVolume` ((load + maxVolume - 1) / maxVolume) and calculates the load per instance (loadPerInstance = load / instances). The number of instances are set for the load generator and the given variable is set to the load per instance.
+  * **type**: "DataVolumeLoadGeneratorReplicaPatcher"
+  * **resource**: "osp-load-generator-deployment.yaml"
+  * **properties**:
+    * maxVolume: "50"
+    * container: "workload-generator"
+    * variableName: "DATA_VOLUME"
+
+* **ReplicaPatcher**: Allows to modify the number of Replicas for a kubernetes deployment.
+  * **type**: "ReplicaPatcher"
+  * **resource**: "uc1-kstreams-deployment.yaml"
+
 * **EnvVarPatcher**: Modifies the value of an environment variable for a container in a Kubernetes deployment. 
   * **type**: "EnvVarPatcher"
   * **resource**: "uc1-load-generator-deployment.yaml"
   * **properties**:
     * container: "workload-generator"
     * variableName: "NUM_SENSORS"
+
+* **ConfigMapYamlPatcher**: allows to add/modify a key-value pair in a YAML file of a ConfigMap
+  * **type**: "ConfigMapYamlPatcher"
+  * **resource**: "flink-configuration-configmap.yaml"
+  * **properties**:
+    * fileName: "flink-conf.yaml"
+    * variableName: "jobmanager.memory.process.size"
+  * **value**: "4Gb"
 
 * **NodeSelectorPatcher**: Changes the node selection field in Kubernetes resources.
   * **type**: "NodeSelectorPatcher"

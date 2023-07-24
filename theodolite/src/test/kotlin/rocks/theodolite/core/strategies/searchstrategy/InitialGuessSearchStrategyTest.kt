@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import rocks.theodolite.core.strategies.Metric
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.TestBenchmarkDeploymentBuilder
-import rocks.theodolite.kubernetes.TestExperimentRunnerImpl
+import rocks.theodolite.kubernetes.TestExperimentRunner
 import rocks.theodolite.core.strategies.guessstrategy.PrevInstanceOptGuess
 import rocks.theodolite.core.Results
-import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
+import rocks.theodolite.core.createResultsFromArray
+import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
 
 private val logger = KotlinLogging.logger {}
 
@@ -17,8 +17,32 @@ private val logger = KotlinLogging.logger {}
 class InitialGuessSearchStrategyTest {
 
     @Test
+    fun initialGuessSearchNoMatch() {
+        val mockResults = createResultsFromArray(arrayOf(
+            arrayOf(true, true),
+            arrayOf(false, false),
+            arrayOf(true, true),
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..3).toList()
+        val mockResources: List<Int> = (1..2).toList()
+        val results = Results(Metric.DEMAND)
+        val guessStrategy = PrevInstanceOptGuess()
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
+        val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
+
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, null, 1)
+
+        for (load in mockLoads) {
+            actual.add(strategy.findSuitableResource(load, mockResources))
+        }
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun testInitialGuessSearch() {
-        val mockResults = arrayOf(
+        val mockResults = createResultsFromArray(arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -26,19 +50,16 @@ class InitialGuessSearchStrategyTest {
             arrayOf(false, false, false, false, true, true, true),
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
-        )
-        val mockLoads: List<Int> = (0..6).toList()
-        val mockResources: List<Int> = (0..6).toList()
-        val results = Results(Metric.from("demand"))
-        val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..7).toList()
+        val mockResources: List<Int> = (1..7).toList()
+        val results = Results(Metric.DEMAND)
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker = Slo()
-        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
-        val actual: ArrayList<Int?> = ArrayList()
-        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 3, 4, 6))
-        expected.add(null)
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, 3, 3, 4, 5, 7, null)
 
         for (load in mockLoads) {
             val returnVal : Int? = strategy.findSuitableResource(load, mockResources)
@@ -56,7 +77,7 @@ class InitialGuessSearchStrategyTest {
 
     @Test
     fun testInitialGuessSearchLowerResourceDemandHigherLoad() {
-        val mockResults = arrayOf(
+        val mockResults = createResultsFromArray(arrayOf(
             arrayOf(true, true, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
             arrayOf(false, false, true, true, true, true, true),
@@ -64,19 +85,16 @@ class InitialGuessSearchStrategyTest {
             arrayOf(false, false, false, false, true, true, true),
             arrayOf(false, false, false, false, false, false, true),
             arrayOf(false, false, false, false, false, false, false)
-        )
-        val mockLoads: List<Int> = (0..6).toList()
-        val mockResources: List<Int> = (0..6).toList()
-        val results = Results(Metric.from("demand"))
-        val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..7).toList()
+        val mockResources: List<Int> = (1..7).toList()
+        val results = Results(Metric.DEMAND)
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker = Slo()
-        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor,guessStrategy, results)
 
-        val actual: ArrayList<Int?> = ArrayList()
-        val expected: ArrayList<Int?> = ArrayList(listOf(0, 2, 2, 1, 4, 6))
-        expected.add(null)
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(1, 3, 3, 2, 5, 7, null)
 
         for (load in mockLoads) {
             val returnVal : Int? = strategy.findSuitableResource(load, mockResources)
@@ -94,7 +112,7 @@ class InitialGuessSearchStrategyTest {
 
     @Test
     fun testInitialGuessSearchFirstNotDoable() {
-        val mockResults = arrayOf(
+        val mockResults = createResultsFromArray(arrayOf(
                 arrayOf(false, false, false, false, false, false, false),
                 arrayOf(false, false, true, true, true, true, true),
                 arrayOf(false, false, false, true, true, true, true),
@@ -102,20 +120,16 @@ class InitialGuessSearchStrategyTest {
                 arrayOf(false, false, false, false, true, true, true),
                 arrayOf(false, false, false, false, false, false, true),
                 arrayOf(false, false, false, false, false, false, false)
-        )
-        val mockLoads: List<Int> = (0..6).toList()
-        val mockResources: List<Int> = (0..6).toList()
-        val results = Results(Metric.from("demand"))
-        val benchmarkDeploymentBuilder = TestBenchmarkDeploymentBuilder()
+        ), Metric.DEMAND)
+        val mockLoads: List<Int> = (1..7).toList()
+        val mockResources: List<Int> = (1..7).toList()
+        val results = Results(Metric.DEMAND)
         val guessStrategy = PrevInstanceOptGuess()
-        val sloChecker = Slo()
-        val benchmarkExecutor = TestExperimentRunnerImpl(results, mockResults, benchmarkDeploymentBuilder, listOf(sloChecker), 0, 0, 5)
+        val benchmarkExecutor = TestExperimentRunner(results, mockResults)
         val strategy = InitialGuessSearchStrategy(benchmarkExecutor, guessStrategy, results)
 
-        val actual: ArrayList<Int?> = ArrayList()
-        var expected: ArrayList<Int?> = ArrayList(listOf(2, 3, 0, 4, 6))
-        expected.add(null)
-        expected = ArrayList(listOf(null) + expected)
+        val actual: MutableList<Int?> = mutableListOf()
+        val expected: List<Int?> = listOf(null, 3, 4, 1, 5, 7, null)
 
         for (load in mockLoads) {
             val returnVal : Int? = strategy.findSuitableResource(load, mockResources)

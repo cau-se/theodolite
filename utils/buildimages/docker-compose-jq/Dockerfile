@@ -1,4 +1,6 @@
-FROM docker:${DOCKER_VERSION:-latest}
+ARG DOCKER_VERSION=latest
+
+FROM docker:${DOCKER_VERSION}
 
 RUN apk update && \
     apk add jq && \

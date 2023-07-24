@@ -36,6 +36,7 @@ publish-random-scheduler:
 .buildimage-docker-compose-jq:
   variables:
     DOCKER_VERSION: 20.10.12
+    BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
     IMAGE_NAME: theodolite-build-docker-compose-jq
     IMAGE_TAG: $DOCKER_VERSION
   before_script:

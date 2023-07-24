@@ -9,50 +9,47 @@ import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 @QuarkusTest
 internal class SloFactoryTest {
 
+    private val sloFactory = SloFactory()
+
+    private val benchmark = KubernetesBenchmark().also { bench ->
+        bench.slos = mutableListOf(
+            KubernetesBenchmark.Slo().also {
+                it.name = "test"
+                it.sloType = "lag trend"
+                it.prometheusUrl = "test.de"
+                it.offset = 0
+                it.properties = mutableMapOf(
+                    "threshold" to "2000",
+                    "externalSloUrl" to "http://localhost:80/evaluate-slope",
+                    "warmup" to "60"
+                )
+            }
+        )
+    }
+
     @Test
     fun overwriteSloTest() {
+        val execution = BenchmarkExecution().also { exec ->
+            exec.slos = listOf(
+                // SLOs, which should override benchmark SLO values for these properties
+                BenchmarkExecution.SloConfiguration(). also {
+                    it.name = "test"
+                    it.properties = mutableMapOf(
+                        // overwriting properties 'threshold' and 'warmup' and adding property 'extensionTest'
+                        "threshold" to "3000",
+                        "warmup" to "80",
+                        "extensionTest" to "extended"
+                    )
+                },
+                // SLO with name that isn't defined in the benchmark, therefore it should be ignored by the SloFactory
+                BenchmarkExecution.SloConfiguration().also {
+                    it.name = "test2"
+                    it.properties = mutableMapOf() // No properties
+                }
+            )
+        }
 
-        val benchmark = KubernetesBenchmark()
-        val execution = BenchmarkExecution()
-
-        // Define Benchmark SLOs
-        val slo = KubernetesBenchmark.Slo()
-        slo.name="test"
-        slo.sloType="lag trend"
-        slo.prometheusUrl="test.de"
-        slo.offset=0
-
-        val benchmarkSloProperties = mutableMapOf<String, String>()
-        benchmarkSloProperties["threshold"] = "2000"
-        benchmarkSloProperties["externalSloUrl"] = "http://localhost:80/evaluate-slope"
-        benchmarkSloProperties["warmup"] = "60"
-
-        slo.properties=benchmarkSloProperties
-
-        benchmark.slos = mutableListOf(slo)
-
-
-        // Define Execution SLOs, benchmark SLO values for these properties should be overwritten
-        val sloConfig = BenchmarkExecution.SloConfiguration()
-        sloConfig.name = "test"
-
-        val executionSloProperties = mutableMapOf<String, String>()
-        // overwriting properties 'threshold' and 'warmup' and adding property 'extensionTest'
-        executionSloProperties["threshold"] = "3000"
-        executionSloProperties["warmup"] = "80"
-        executionSloProperties["extensionTest"] = "extended"
-
-        sloConfig.properties = executionSloProperties
-
-        // SLO has 'name' that isn't defined in the benchmark, therefore it will be ignored by the SloFactory
-        val sloConfig2 = BenchmarkExecution.SloConfiguration()
-        sloConfig2.name = "test2"
-        sloConfig2.properties = executionSloProperties
-
-        execution.slos = listOf(sloConfig, sloConfig2)
-
-        val sloFactory = SloFactory()
-        val combinedSlos = sloFactory.createSlos(execution,benchmark)
+        val combinedSlos = this.sloFactory.createSlos(execution, this.benchmark)
 
         Assertions.assertEquals(1, combinedSlos.size)
         Assertions.assertEquals("test", combinedSlos[0].name)
@@ -66,4 +63,5 @@ internal class SloFactoryTest {
         Assertions.assertEquals("80", combinedSlos[0].properties["warmup"])
         Assertions.assertEquals("extended", combinedSlos[0].properties["extensionTest"])
     }
+
 }

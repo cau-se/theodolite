@@ -4,15 +4,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import rocks.theodolite.core.strategies.Metric
-import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
 import rocks.theodolite.core.Results
+import rocks.theodolite.core.strategies.Metric
 
 internal class LowerBoundRestrictionTest {
 
     @Test
     fun testNoPreviousResults() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         val strategy = LowerBoundRestriction(results)
         val load = 10000
         val resources = listOf(1, 2, 3)
@@ -24,7 +23,7 @@ internal class LowerBoundRestrictionTest {
 
     @Test
     fun testWithSuccessfulPreviousResults() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, true)
@@ -41,7 +40,7 @@ internal class LowerBoundRestrictionTest {
     @Disabled
     fun testWithNoSuccessfulPreviousResults() {
         // This test is currently not implemented this way, but might later be the desired behavior.
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 1, false)
         results.setResult(20000, 2, false)
@@ -58,13 +57,13 @@ internal class LowerBoundRestrictionTest {
 
     @Test
     fun testNoPreviousResults2() {
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 2, true)
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, true)
 
-        val minRequiredInstances = results.getOptYDimensionValue(20000)
+        val minRequiredInstances = results.getOptimalYValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
@@ -74,21 +73,20 @@ internal class LowerBoundRestrictionTest {
     @Disabled
     fun testMinRequiredInstancesWhenNotSuccessful() {
         // This test is currently not implemented this way, but might later be the desired behavior.
-        val results = Results(Metric.from("demand"))
+        val results = Results(Metric.DEMAND)
         results.setResult(10000, 1, true)
         results.setResult(20000, 2, true)
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, false)
 
-        val minRequiredInstances = results.getOptYDimensionValue(20000)
+        val minRequiredInstances = results.getOptimalYValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
     }
 
 
-
     private fun Results.setResult(load: Int, resource: Int, successful: Boolean) {
-        this.setResult(Pair(load, resource),successful)
+        this.addExperimentResult(Pair(load, resource), successful)
     }
 }

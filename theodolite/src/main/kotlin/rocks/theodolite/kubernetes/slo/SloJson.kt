@@ -1,7 +1,6 @@
 package rocks.theodolite.kubernetes.slo
 
-import com.google.gson.Gson
-import rocks.theodolite.kubernetes.util.PromResult
+import com.fasterxml.jackson.databind.ObjectMapper
 
 class SloJson constructor(
     val results: List<List<PromResult>>,
@@ -9,7 +8,7 @@ class SloJson constructor(
 ) {
 
     fun toJson(): String {
-        return Gson().toJson(
+        return ObjectMapper().writeValueAsString(
             mapOf(
                 "results" to this.results,
                 "metadata" to this.metadata

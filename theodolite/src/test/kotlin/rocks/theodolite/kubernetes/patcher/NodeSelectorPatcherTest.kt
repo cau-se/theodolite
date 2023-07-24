@@ -1,34 +1,46 @@
 package rocks.theodolite.kubernetes.patcher
 
+import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 @QuarkusTest
 internal class NodeSelectorPatcherTest: AbstractPatcherTest() {
 
-    @BeforeEach
-    fun setUp() {
-        resource = listOf(createDeployment())
-        patcher = NodeSelectorPatcher("nodeName")
-        value = "nodeValue"
-
-    }
-
-    @AfterEach
-    fun tearDown() {
+    @Test
+    fun testDeployment() {
+        val sourceResource = createDeployment()
+        val patcher = NodeSelectorPatcher("node-label-name")
+        val patchedResources = patcher.patch(listOf(sourceResource), "nodeLabelValue")
+        patchedResources.forEach {
+            assertTrue((it as Deployment).spec.template.spec.nodeSelector.containsKey("node-label-name"))
+            assertEquals("nodeLabelValue", it.spec.template.spec.nodeSelector["node-label-name"])
+        }
     }
 
     @Test
-    override fun validate() {
-        patch()
-        resource.forEach {
-            assertTrue((it as Deployment).spec.template.spec.nodeSelector.containsKey("nodeName"))
-            assertTrue(it.spec.template.spec.nodeSelector["nodeName"] == value)
+    fun testStatefulSet() {
+        val sourceResource = createStatefulSet()
+        val patcher = NodeSelectorPatcher("node-label-name")
+        val patchedResources = patcher.patch(listOf(sourceResource), "nodeLabelValue")
+        patchedResources.forEach {
+            assertTrue((it as StatefulSet).spec.template.spec.nodeSelector.containsKey("node-label-name"))
+            assertEquals("nodeLabelValue", it.spec.template.spec.nodeSelector["node-label-name"])
+        }
+    }
+
+    @Test
+    fun testPod() {
+        val sourceResource = createPod()
+        val patcher = NodeSelectorPatcher("node-label-name")
+        val patchedResources = patcher.patch(listOf(sourceResource), "nodeLabelValue")
+        patchedResources.forEach {
+            assertTrue((it as Pod).spec.nodeSelector.containsKey("node-label-name"))
+            assertEquals("nodeLabelValue", it.spec.nodeSelector["node-label-name"])
         }
     }
 

@@ -3,7 +3,6 @@ package rocks.theodolite.kubernetes
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
-import org.json.JSONObject
 
 private val logger = KotlinLogging.logger {}
 
@@ -21,7 +20,8 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
     fun removePods(labelName: String, labelValue: String) {
         this.client
             .pods()
-            .withLabel("$labelName=$labelValue").delete()
+            .withLabel(labelName, labelValue)
+            .delete()
         logger.info { "Pod with label: $labelName=$labelValue deleted" }
     }
 
@@ -33,7 +33,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
     fun removeServices(labelName: String, labelValue: String) {
         this.client
             .services()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
             .delete()
     }
 
@@ -46,7 +46,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
         this.client
             .apps()
             .deployments()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
             .delete()
 
     }
@@ -60,7 +60,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
         this.client
             .apps()
             .statefulSets()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
             .delete()
     }
 
@@ -72,7 +72,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
     fun removeConfigMaps(labelName: String, labelValue: String) {
         this.client
             .configMaps()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
             .delete()
     }
 
@@ -81,16 +81,11 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
      * @param [labelName] the label name
      * @param [labelValue] the value of this label
      */
-    fun removeCR(labelName: String, labelValue: String, context: CustomResourceDefinitionContext) {
-        val customResources = JSONObject(
-            this.client.customResource(context)
-                .list(client.namespace, mapOf(Pair(labelName, labelValue)))
-        )
-            .getJSONArray("items")
-
-        (0 until customResources.length())
-            .map { customResources.getJSONObject(it).getJSONObject("metadata").getString("name") }
-            .forEach { this.client.customResource(context).delete(client.namespace, it) }
+    fun removeGenericResources(labelName: String, labelValue: String, context: CustomResourceDefinitionContext) {
+        this.client
+                .genericKubernetesResources(context)
+                .withLabel(labelName, labelValue)
+                .delete();
     }
 
     /**

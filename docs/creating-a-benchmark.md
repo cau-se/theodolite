@@ -1,6 +1,6 @@
 ---
 title: Creating Benchmarks
-has_children: false
+has_children: true
 nav_order: 5
 ---
 
@@ -70,11 +70,14 @@ spec:
 
 In Theodolite, the system under test (SUT), the load generator as well as additional infrastructure (e.g., a middleware) are described by Kubernetes resources files.
 All resources defined for the SUT and the load generator are started and stopped for each SLO experiment, with SUT resources being started before the load generator.
-Infrastructure resources live over the entire duration of a benchmark run. They avoid time-consuming recreation of software components like middlewares, but should be used with caution to not let previous SLO experiments influence latte ones.
+Infrastructure resources are kept alive throughout the entire duration of a benchmark run. They avoid time-consuming recreation of software components like middlewares, but should be used with caution so that earlier SLO experiments do not influence later ones.
 
 ### Resources
 
 The recommended way to link Kubernetes resources files from a Benchmark is by bundling them in one or multiple ConfigMaps and refer to that ConfigMap from `sut.resources`, `loadGenerator.resources` or `infrastructure.resources`.
+
+**Note:** Theodolite requires that each resources file contains only a single resource (i.e., YAML document).
+
 To create a ConfigMap from all the Kubernetes resources in a directory run:
 
 ```sh
@@ -175,7 +178,8 @@ An Execution must at least define one SLO to be checked.
 A good choice to get started is defining an SLO of type `generic`:
 
 ```yaml
-- sloType: "generic"
+- name: droppedRecords
+  sloType: generic
   prometheusUrl: "http://prometheus-operated:9090"
   offset: 0
   properties:
@@ -190,6 +194,9 @@ A good choice to get started is defining an SLO of type `generic`:
 
 All you have to do is to define a [PromQL query](https://prometheus.io/docs/prometheus/latest/querying/basics/) describing which metrics should be requested (`promQLQuery`) and how the resulting time series should be evaluated. With `queryAggregation` you specify how the resulting time series is aggregated to a single value and `repetitionAggregation` describes how the results of multiple repetitions are aggregated. Possible values are
 `mean`, `median`, `mode`, `sum`, `count`, `max`, `min`, `std`, `var`, `skew`, `kurt` as well as percentiles such as `p99` or `p99.9`. The result of aggregation all repetitions is checked against `threshold`. This check is performed using an `operator`, which describes that the result must be "less than" (`lt`), "less than equal" (`lte`), "greater than" (`gt`) or "greater than equal" (`gte`) to the threshold.
+
+If you do not want to have a static threshold, you can also define it relatively to the tested load with `thresholdRelToLoad` or relatively to the tested resource value with `thresholdRelToResources`. For example, setting `thresholdRelToLoad: 0.01` means that in each experiment, the threshold is 1% of the generated load.
+Even more complex thresholds can be defined with `thresholdFromExpression`. This field accepts a mathematical expression with two variables `L` and `R` for the load and resources, respectively. The previous example with a threshold of 1% of the generated load can thus also be defined with `thresholdFromExpression: 0.01*L`. For further details of allowed expressions, see the documentation of the underlying [exp4j](https://github.com/fasseg/exp4j) library.
 
 In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloUrl` to your custom SLO checker. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
 

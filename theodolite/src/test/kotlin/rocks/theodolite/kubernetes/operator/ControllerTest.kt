@@ -1,7 +1,6 @@
 package rocks.theodolite.kubernetes.operator
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.fabric8.kubernetes.client.CustomResourceList
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
@@ -19,7 +18,7 @@ import rocks.theodolite.kubernetes.model.crd.*
 class ControllerTest {
     private final val server = KubernetesServer(false, false)
     lateinit var controller: TheodoliteController
-    private val gson: Gson = GsonBuilder().enableComplexMapKeySerialization().create()
+    private val mapper = ObjectMapper()
 
     private var benchmark = KubernetesBenchmark()
     private var execution = BenchmarkExecution()
@@ -118,8 +117,8 @@ class ControllerTest {
 
         assertEquals(2, result.size)
         assertEquals(
-            gson.toJson(benchmark),
-            gson.toJson(result.firstOrNull()?.spec)
+            mapper.writeValueAsString(benchmark),
+            mapper.writeValueAsString(result.firstOrNull()?.spec)
         )
     }
 
@@ -133,8 +132,8 @@ class ControllerTest {
         val result = method.invoke(controller) as BenchmarkExecution?
 
         assertEquals(
-            gson.toJson(this.execution),
-            gson.toJson(result)
+            mapper.writeValueAsString(this.execution),
+            mapper.writeValueAsString(result)
         )
     }
 }

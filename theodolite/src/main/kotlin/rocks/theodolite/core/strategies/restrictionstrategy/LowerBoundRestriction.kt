@@ -1,6 +1,7 @@
 package rocks.theodolite.core.strategies.restrictionstrategy
 
 import rocks.theodolite.core.Results
+import java.util.*
 
 /**
  * The [LowerBoundRestriction] sets the lower bound of the resources to be examined in the experiment to the value
@@ -13,11 +14,10 @@ import rocks.theodolite.core.Results
 class LowerBoundRestriction(results: Results) : RestrictionStrategy(results) {
 
     override fun apply(xValue: Int, yValues: List<Int>): List<Int> {
-        val maxXValue: Int? = this.results.getMaxBenchmarkedXDimensionValue(xValue)
-        var lowerBound: Int? = this.results.getOptYDimensionValue(maxXValue)
-        if (lowerBound == null) {
-            lowerBound = yValues[0]
-        }
+        // Get previous largest x value or return full list
+        val maxXValue = this.results.getPreviousXValue(xValue) ?: return yValues.toList()
+        // Get previous largest y value or restrict to empty list
+        val lowerBound: Int = this.results.getOptimalYValue(maxXValue) ?: return listOf()
         return yValues.filter { x -> x >= lowerBound }
     }
 

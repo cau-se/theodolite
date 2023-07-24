@@ -50,7 +50,6 @@ services:
       BOOTSTRAP_SERVER: benchmark:5701
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      WINDOW_SIZE_UC4: 5000
   load-generator: 
     image: ghcr.io/cau-se/theodolite-uc4-workload-generator:${THEODOLITE_TAG:-latest}
     depends_on:
