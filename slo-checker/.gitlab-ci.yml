@@ -1,7 +1,21 @@
 # Theodolite SLO Checker
 
+.slo-checker-lag-trend:
+  before_script:
+    - cd slo-checker/record-lag
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-lag-trend
+
+.slo-checker-generic:
+  before_script:
+    - cd slo-checker/generic
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-generic
+
 test-slo-checker-lag-trend:
   stage: test
+  extends:
+    - .slo-checker-lag-trend
   needs: []
   image: python:3.8-slim
   before_script:
@@ -18,10 +32,10 @@ test-slo-checker-lag-trend:
 
 test-slo-checker-generic:
   stage: test
+  extends:
+    - .slo-checker-generic
   needs: []
   image: python:3.8-slim
-  before_script:
-    - cd slo-checker/generic
   script:
     - pip install -r requirements.txt
     - cd app
@@ -36,12 +50,9 @@ package-slo-checker-lag-trend:
   stage: package
   extends:
     - .kaniko-push
+    - .slo-checker-lag-trend
   needs:
     - test-slo-checker-lag-trend
-  before_script:
-    - cd slo-checker/record-lag
-  variables:
-    IMAGE_NAME: theodolite-slo-checker-lag-trend
   rules:
     - changes:
       - slo-checker/record-lag/**/*
@@ -54,12 +65,9 @@ package-slo-checker-generic:
   stage: package
   extends:
     - .kaniko-push
+    - .slo-checker-generic
   needs:
     - test-slo-checker-generic
-  before_script:
-    - cd slo-checker/generic
-  variables:
-    IMAGE_NAME: theodolite-slo-checker-generic
   rules:
     - changes:
       - slo-checker/generic/**/*
@@ -67,3 +75,23 @@ package-slo-checker-generic:
     - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
       when: manual
       allow_failure: true
+
+publish-slo-checker-lag-trend:
+  stage: publish
+  extends:
+    - .crane-copy
+    - .slo-checker-lag-trend
+  needs:
+    - package-slo-checker-lag-trend
+  rules:
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT && $CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+  
+publish-slo-checker-generic:
+  stage: publish
+  extends:
+    - .crane-copy
+    - .slo-checker-generic
+  needs:
+    - package-slo-checker-generic
+  rules:
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT && $CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
