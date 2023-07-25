@@ -2,8 +2,6 @@ package rocks.theodolite.kubernetes.slo
 
 import net.objecthunter.exp4j.ExpressionBuilder
 import rocks.theodolite.core.strategies.Metric
-import kotlin.math.pow
-
 
 /**
  * Factory used to potentially create different [SloChecker]s.
@@ -69,7 +67,7 @@ class SloCheckerFactory {
                         ?: throw IllegalArgumentException("'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' or 'thresholdFromExpression' expected"))
                 )
             )
-            SloTypes.LAG_TREND, SloTypes.DROPPED_RECORDS -> ExternalSloChecker(
+            SloTypes.LAG_TREND -> ExternalSloChecker(
                 externalSlopeURL = properties["externalSloUrl"]
                     ?: throw IllegalArgumentException("externalSloUrl expected"),
                 metadata = mapOf(
@@ -81,7 +79,7 @@ class SloCheckerFactory {
                         ?: throw IllegalArgumentException("Valid 'threshold', 'thresholdRelToLoad' or 'thresholdRelToResources' or 'thresholdFromExpression' expected"))
                 )
             )
-            SloTypes.LAG_TREND_RATIO, SloTypes.DROPPED_RECORDS_RATIO -> {
+            SloTypes.LAG_TREND_RATIO -> {
                 val thresholdRatio =
                     properties["ratio"]?.toDouble()
                         ?: throw IllegalArgumentException("ratio for threshold expected")

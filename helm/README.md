@@ -55,8 +55,10 @@ kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
 kubectl delete crd alertmanagers.monitoring.coreos.com
 kubectl delete crd podmonitors.monitoring.coreos.com
 kubectl delete crd probes.monitoring.coreos.com
+kubectl delete crd prometheusagents.monitoring.coreos.com
 kubectl delete crd prometheuses.monitoring.coreos.com
 kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd scrapeconfigs.monitoring.coreos.com
 kubectl delete crd servicemonitors.monitoring.coreos.com
 kubectl delete crd thanosrulers.monitoring.coreos.com
 # CRDs for Strimzi
@@ -65,6 +67,7 @@ kubectl delete crd kafkaconnectors.kafka.strimzi.io
 kubectl delete crd kafkaconnects.kafka.strimzi.io
 kubectl delete crd kafkamirrormaker2s.kafka.strimzi.io
 kubectl delete crd kafkamirrormakers.kafka.strimzi.io
+kubectl delete crd kafkanodepools.kafka.strimzi.io
 kubectl delete crd kafkarebalances.kafka.strimzi.io
 kubectl delete crd kafkas.kafka.strimzi.io
 kubectl delete crd kafkatopics.kafka.strimzi.io

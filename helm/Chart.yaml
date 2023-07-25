@@ -18,15 +18,15 @@ dependencies:
     repository: https://grafana.github.io/helm-charts
     condition: grafana.enabled
   - name: kube-prometheus-stack
-    version: 41.7.*
+    version: 48.1.*
     repository: https://prometheus-community.github.io/helm-charts
     condition: kube-prometheus-stack.enabled
   - name: strimzi-kafka-operator
-    version: 0.29.*
+    version: 0.36.*
     repository: https://strimzi.io/charts/
     condition: strimzi.enabled
 
 
-version: 0.9.0-SNAPSHOT
+version: 0.10.0-SNAPSHOT
 
-appVersion: 0.9.0-SNAPSHOT
+appVersion: 0.10.0-SNAPSHOT

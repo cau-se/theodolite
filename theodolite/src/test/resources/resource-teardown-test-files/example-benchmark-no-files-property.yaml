@@ -1,0 +1,17 @@
+name: example-benchmark-no-files-property
+waitForResourcesEnabled: false
+sut:
+  beforeActions: []
+  afterActions: []
+  resources:
+    - configMap:
+        name: "sut-configmap-1"
+    - configMap:
+        name: "sut-configmap-2"
+loadGenerator:
+  beforeActions: []
+  afterActions: []
+  resources:
+    - configMap:
+        name: "load-generator-configmap"
+

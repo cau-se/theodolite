@@ -22,8 +22,10 @@ spec:
     jvmOptions:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.strimzi.kafka.storage }}
     storage:
-      type: ephemeral
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:

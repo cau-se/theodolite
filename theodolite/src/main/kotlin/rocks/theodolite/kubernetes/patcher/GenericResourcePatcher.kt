@@ -1,11 +1,7 @@
 package rocks.theodolite.kubernetes.patcher
 
-import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.core.JsonToken
-import com.fasterxml.jackson.databind.node.JsonNodeType
 import io.fabric8.kubernetes.api.model.GenericKubernetesResource
 import io.fabric8.kubernetes.api.model.HasMetadata
-import org.json.JSONString
 
 /**
  * Patches an arbitrary field in a [GenericKubernetesResource].

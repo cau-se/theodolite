@@ -11,8 +11,8 @@ class TestExperimentRunner(
 ) {
 
     override fun runExperiment(load: Int, resource: Int): Boolean {
-        val result = this.mockResults.getResult(load, resource) ?: throw IllegalStateException("Result is null.")
-        this.results.setResult(Pair(load, resource), result)
+        val result = this.mockResults.getExperimentResult(load, resource) ?: throw IllegalStateException("Result is null.")
+        this.results.addExperimentResult(Pair(load, resource), result)
         return result
     }
 }

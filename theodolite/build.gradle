@@ -9,7 +9,6 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
-    jcenter()
 }
 
 dependencies {
@@ -22,24 +21,22 @@ dependencies {
 
     implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.69'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
-
-    implementation 'com.google.code.gson:gson:2.8.9'
+    
     implementation 'org.slf4j:slf4j-simple:1.7.32'
     implementation 'io.github.microutils:kotlin-logging:2.1.16'
     implementation 'org.apache.kafka:kafka-clients:2.8.0'
-    implementation 'khttp:khttp:1.0.0'
     implementation 'net.objecthunter:exp4j:0.4.8'
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-test-kubernetes-client'
     //testImplementation 'io.rest-assured:rest-assured'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.33.2'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.0'
     testImplementation 'org.junit-pioneer:junit-pioneer:1.5.0'
     testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
 }
 
 group 'theodolite'
-version '0.9.0-SNAPSHOT'
+version '0.10.0-SNAPSHOT'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11

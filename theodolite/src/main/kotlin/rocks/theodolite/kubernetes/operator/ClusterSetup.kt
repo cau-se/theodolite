@@ -80,7 +80,7 @@ class ClusterSetup(
             labelValue = "theodolite"
         )
         try {
-            resourceRemover.removeCR(
+            resourceRemover.removeGenericResources(
                 labelName = "app.kubernetes.io/created-by",
                 labelValue = "theodolite",
                 context = serviceMonitorContext

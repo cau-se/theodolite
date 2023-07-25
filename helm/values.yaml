@@ -6,6 +6,9 @@ kafkaClient:
   enabled: false
   nodeSelector: {}
 
+kcat:
+  enabled: false
+  nodeSelector: {}
 
 ####
 ## configuration of sub charts
@@ -43,6 +46,8 @@ strimzi:
     jvmOptions:
       "-Xmx": "512M"
       "-Xms": "512M"
+    storage:
+      type: ephemeral
     nodeSelectorTerms: []
     resources: {}
     
@@ -244,18 +249,6 @@ operator:
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
-      imageTag: latest
-      imagePullPolicy: Always
-      resources:
-        requests:
-          memory: "64Mi"
-          cpu: "50m"
-        limits:
-          memory: "128Mi"
-          cpu: "100m"
-    droppedRecordsKStreams:
-      enabled: false
-      image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
       imageTag: latest
       imagePullPolicy: Always
       resources:

@@ -1,7 +1,6 @@
 package rocks.theodolite.kubernetes.operator
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
@@ -22,8 +21,7 @@ class ExecutionEventHandler(
         private val controller: TheodoliteController,
         private val stateHandler: ExecutionStateHandler
 ) : ResourceEventHandler<ExecutionCRD> {
-
-    private val gson: Gson = GsonBuilder().enableComplexMapKeySerialization().create()
+    private val mapper: ObjectMapper = ObjectMapper()
 
     /**
      * Adds an execution to the end of the queue of the TheodoliteController.
@@ -60,7 +58,7 @@ class ExecutionEventHandler(
     override fun onUpdate(oldExecution: ExecutionCRD, newExecution: ExecutionCRD) {
         newExecution.spec.name = newExecution.metadata.name
         oldExecution.spec.name = oldExecution.metadata.name
-        if (gson.toJson(oldExecution.spec) != gson.toJson(newExecution.spec)) {
+        if (mapper.writeValueAsString(oldExecution.spec) != mapper.writeValueAsString(newExecution.spec)) {
             logger.info { "Receive update event for execution ${oldExecution.metadata.name}." }
             when (this.stateHandler.getExecutionState(newExecution.metadata.name)) {
                 ExecutionState.RUNNING -> {

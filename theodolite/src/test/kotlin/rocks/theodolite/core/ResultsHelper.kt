@@ -6,7 +6,7 @@ fun createResultsFromArray(array: Array<Array<Boolean>>, metric: Metric): Result
     val results = Results(metric)
     for (load in array.indices) {
         for (resources in array[load].indices) {
-            results.setResult(Pair(load + 1, resources + 1), array[load][resources])
+            results.addExperimentResult(Pair(load + 1, resources + 1), array[load][resources])
         }
     }
     return results
