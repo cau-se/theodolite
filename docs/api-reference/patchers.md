@@ -28,8 +28,6 @@ Modifies the number of replicas for a Kubernetes Deployment or StatefulSet.
 
 Supported Kubernetes resources: Deployment, StatefulSet.
 
-**DONE**
-
 ## NumSensorsLoadGeneratorReplicaPatcher
 
 Modifies the number of load generators, according to the following formula: *(value + loadGenMaxRecords - 1) / loadGenMaxRecords*
@@ -118,7 +116,7 @@ Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
 ## ResourceLimitPatcher
 
-***TODO Description***
+Modifies the resource limits (e.g., CPU or memory) of a container in a Pod or another resource having a Pod template.
 
 Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
@@ -132,7 +130,7 @@ Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
 ## ResourceRequestPatcher
 
-***TODO Description***
+Modifies the resource requests (e.g., CPU or memory) of a container in a Pod or another resource having a Pod template.
 
 Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
@@ -146,7 +144,7 @@ Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
 ## SchedulerNamePatcher
 
-***TODO Description***
+Modifies the scheduler of a Pod or another resource having a Pod template.
 
 Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
@@ -196,7 +194,7 @@ Supported Kubernetes resources: Service.
 
 ## ImagePatcher
 
-***TODO Description***
+Modifies the image (field `image`) of a container in a Pod or another resource having a Pod template.
 
 Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
@@ -206,7 +204,7 @@ Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
 ## NamePatcher
 
-***TODO Description***
+Modifies the name (`metadata.name`) of a Kubernetes resource.
 
 Supported Kubernetes resources: All.
 
