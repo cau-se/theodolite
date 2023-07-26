@@ -46,9 +46,9 @@ class TheodoliteStandalone (private val client: NamespacedKubernetesClient) {
 
         // load the BenchmarkExecution and the BenchmarkType
         val benchmarkExecution =
-            parser.parse(path = executionPath, E = BenchmarkExecution::class.java)!!
+            parser.parse(path = executionPath, clazz = BenchmarkExecution::class.java)!!
         val benchmark =
-            parser.parse(path = benchmarkPath, E = KubernetesBenchmark::class.java)!!
+            parser.parse(path = benchmarkPath, clazz = KubernetesBenchmark::class.java)!!
 
         // Add shutdown hook
         // Use thread{} with start = false, else the thread will start right away

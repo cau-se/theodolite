@@ -68,27 +68,18 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
                 benchmarkStateChecker = getBenchmarkStateChecker()
 
             )
-            getExecutionEventHandler(controller).startAllRegisteredInformers()
+
+            getExecutionClient().inform().addEventHandlerWithResyncPeriod(
+                ExecutionEventHandler(
+                    controller = controller,
+                    stateHandler = ExecutionStateHandler(this.client)
+                ),
+                RESYNC_PERIOD
+            )
+
+            this.client.informers().startAllRegisteredInformers()
             controller.run()
         }
-    }
-
-    private fun getExecutionEventHandler(
-            controller: TheodoliteController,
-    ): SharedInformerFactory {
-        val factory = this.client.informers()
-            .inNamespace(this.client.namespace)
-
-        factory.sharedIndexInformerForCustomResource(
-            ExecutionCRD::class.java,
-            RESYNC_PERIOD
-        ).addEventHandler(
-            ExecutionEventHandler(
-                controller = controller,
-                stateHandler = ExecutionStateHandler(this.client)
-            )
-        )
-        return factory
     }
 
     fun getExecutionStateHandler(): ExecutionStateHandler {
