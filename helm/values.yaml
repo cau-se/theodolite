@@ -201,6 +201,9 @@ prometheus:
   nodePort:
     enabled: false
     nodePort: 30900
+
+  scrapeInterval: 15s
+  enableAdminAPI: true
   
   serviceAccount:
     enabled: true
