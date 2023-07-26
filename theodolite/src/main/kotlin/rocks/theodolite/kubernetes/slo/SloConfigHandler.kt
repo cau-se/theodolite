@@ -2,7 +2,7 @@ package rocks.theodolite.kubernetes.slo
 
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.patcher.InvalidPatcherConfigurationException
-import javax.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.ApplicationScoped
 
 private const val DEFAULT_CONSUMER_LAG_METRIC_BASE = "kafka_consumergroup_lag"
 private const val DEFAULT_CONSUMER_LAG_QUERY = "sum by(consumergroup) (kafka_consumergroup_lag >= 0)"

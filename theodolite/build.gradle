@@ -1,6 +1,6 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.6.10"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.6.10"
+    id 'org.jetbrains.kotlin.jvm' version "1.8.22"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.8.22"
     id 'io.quarkus'
     id "io.gitlab.arturbosch.detekt" version "1.15.0"
     id "org.jlleitschuh.gradle.ktlint" version "10.0.0"
@@ -16,7 +16,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'io.quarkus:quarkus-arc'
-    implementation 'io.quarkus:quarkus-resteasy'
+    //implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-kubernetes-client'
 
     implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.69'
@@ -39,26 +39,28 @@ group 'theodolite'
 version '0.10.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 allOpen {
-    annotation("javax.ws.rs.Path")
-    annotation("javax.enterprise.context.ApplicationScoped")
+    annotation("jakarta.ws.rs.Path")
+    annotation("jakarta.enterprise.context.ApplicationScoped")
     annotation("io.quarkus.test.junit.QuarkusTest")
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
     kotlinOptions.javaParameters = true
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
 }
 
 test {
+    // systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+
     // Required because of https://github.com/quarkusio/quarkus/issues/18973
     minHeapSize = "256m"
     maxHeapSize = "1024m"
