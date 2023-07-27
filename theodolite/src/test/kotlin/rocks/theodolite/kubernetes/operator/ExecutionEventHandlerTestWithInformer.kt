@@ -139,13 +139,16 @@ class ExecutionEventHandlerTestWithInformer {
     @Test
     @DisplayName("Test onUpdate method for execution with no status")
     fun testOnUpdateWithoutStatus() {
+        // Start informer
+        this.executionClient.inform(eventHandler)
+
         // Create first version of execution resource
         val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
         val firstExecution = firstExecutionResource.create()
         val executionName = firstExecution.metadata.name
 
-        // Start informer
-        this.executionClient.inform(eventHandler)
+        // Await informer called
+        this.addCountDownLatch.await(10, TimeUnit.SECONDS)
 
         // Get execution from server
         val firstExecutionResponse = this.executionClient.withName(executionName).get()
