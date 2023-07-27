@@ -9,7 +9,7 @@ interface Parser {
      * Parse a file.
      *
      * @param path The path of the file
-     * @param E The class of the type to parse
+     * @param clazz The class of the type to parse
      * @param T The type to parse
      */
     fun <T> parse(path: String, clazz: Class<T>): T?
