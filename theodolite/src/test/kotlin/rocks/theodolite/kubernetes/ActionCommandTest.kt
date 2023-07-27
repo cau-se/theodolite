@@ -78,10 +78,10 @@ class ActionCommandTest {
     fun createReadyFrom(pod: Pod, status: String): Pod {
         return PodBuilder(pod)
             .withNewStatus()
-            .addNewCondition()
-            .withType("Ready")
-            .withStatus(status)
-            .endCondition()
+                .addNewCondition()
+                    .withType("Ready")
+                    .withStatus(status)
+                .endCondition()
             .endStatus()
             .build()
     }
@@ -93,18 +93,22 @@ class ActionCommandTest {
 
     @Test
     fun testGetPodName() {
-        assertEquals("pod1", ActionCommand(client = server.client).getPodName(mutableMapOf("app" to "pod"), 1))
+        assertEquals("pod1", ActionCommand(client = server.client).getPodName(mapOf("app" to "pod"), 1))
     }
 
     @Test
     fun testActionSuccess() {
-        val action = Action()
-        action.execCommand = ExecCommand()
-        action.execCommand!!.selector = ExecActionSelector()
-        action.execCommand!!.selector.pod = PodSelector()
-        action.execCommand!!.selector.pod.matchLabels = mutableMapOf("app" to "pod")
-        action.execCommand!!.command = arrayOf("ls")
-        action.execCommand!!.timeoutSeconds = 10L
+        val action = Action().apply {
+            execCommand = ExecCommand().apply {
+                selector = ExecActionSelector().apply {
+                    pod = PodSelector().apply {
+                        matchLabels = mapOf("app" to "pod")
+                    }
+                }
+                command = arrayOf("ls")
+                timeoutSeconds = 10L
+            }
+        }
 
         action.exec(server.client)
         assertEquals(
@@ -114,13 +118,17 @@ class ActionCommandTest {
 
     @Test
     fun testActionFailed() {
-        val action = Action()
-        action.execCommand = ExecCommand()
-        action.execCommand!!.selector = ExecActionSelector()
-        action.execCommand!!.selector.pod = PodSelector()
-        action.execCommand!!.selector.pod.matchLabels = mapOf("app" to "pod")
-        action.execCommand!!.command = arrayOf("error-command")
-        action.execCommand!!.timeoutSeconds = 10L
+        val action = Action().apply {
+            execCommand = ExecCommand().apply {
+                selector = ExecActionSelector().apply {
+                    pod = PodSelector().apply {
+                        matchLabels = mapOf("app" to "pod")
+                    }
+                }
+                command = arrayOf("error-command")
+                timeoutSeconds = 10L
+            }
+        }
 
         assertThrows<ActionCommandFailedException> { run { action.exec(server.client) } }
     }

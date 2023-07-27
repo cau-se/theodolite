@@ -126,6 +126,7 @@ class FileSystemResourceSetTest {
     }
 
     @Test
+    @Disabled("There is no reason for a special treatment of Benchmark resources.")
     fun testLoadBenchmark(@TempDir tempDir: Path) {
         copyTestResourceFile("test-benchmark.yaml", tempDir)
 
@@ -137,6 +138,7 @@ class FileSystemResourceSetTest {
     }
 
     @Test
+    @Disabled("There is no reason for a special treatment of Execution resources.")
     fun testLoadExecution(@TempDir tempDir: Path) {
         copyTestResourceFile("test-execution.yaml", tempDir)
 

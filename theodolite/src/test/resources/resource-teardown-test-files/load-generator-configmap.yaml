@@ -3,10 +3,12 @@ metadata:
   name: load-generator-configmap
 data:
   load-generator-file-1.yaml: |
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: load-generator-file-1
   load-generator-file-2.yaml: |
+    apiVersion: v1
     kind: Service
     metadata:
       name: load-generator-file-2

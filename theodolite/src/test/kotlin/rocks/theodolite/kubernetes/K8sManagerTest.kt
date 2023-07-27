@@ -120,7 +120,7 @@ internal class K8sManagerTest {
         val manager = K8sManager(server.client)
 
         val serviceMonitorStream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
-        val serviceMonitor = server.client.load(serviceMonitorStream).get()[0]
+        val serviceMonitor = server.client.load(serviceMonitorStream).items().first()
 
         manager.deploy(serviceMonitor)
 
