@@ -12,5 +12,5 @@ interface Parser {
      * @param E The class of the type to parse
      * @param T The type to parse
      */
-    fun <T> parse(path: String, E: Class<T>): T?
+    fun <T> parse(path: String, clazz: Class<T>): T?
 }

@@ -31,7 +31,7 @@ class AnalysisExecutor(
      *  @param executionIntervals list of start and end points of experiments
      *  @return true if the experiment succeeded.
      */
-    fun analyze(load: Int, resource: Int, executionIntervals: List<Pair<Instant, Instant>>, metric: Metric): Boolean {
+    fun analyze(load: Int, resource: Int, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
         var repetitionCounter = 1
 
         try {
@@ -60,8 +60,7 @@ class AnalysisExecutor(
                 sloType = slo.sloType,
                 properties = slo.properties,
                 load = load,
-                resources = resource,
-                metric = metric
+                resources = resource
             )
 
             return sloChecker.evaluate(prometheusData)

@@ -60,8 +60,7 @@ class ExperimentRunnerImpl(
                     .analyze(
                         load = load,
                         resource = resource,
-                        executionIntervals = executionIntervals,
-                        metric = this.results.metric
+                        executionIntervals = executionIntervals
                     )
             }
 
