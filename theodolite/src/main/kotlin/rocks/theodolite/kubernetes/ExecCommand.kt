@@ -20,7 +20,7 @@ class ExecCommand {
                 timeout = timeoutSeconds,
                 command = command
             )
-        if (exitCode != 0){
+        if (exitCode != 0) {
             throw ActionCommandFailedException("Error while executing action, finished with exit code $exitCode")
         }
     }
