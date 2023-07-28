@@ -62,8 +62,8 @@ test {
     // systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 
     // Required because of https://github.com/quarkusio/quarkus/issues/18973
-    minHeapSize = "256m"
-    maxHeapSize = "1024m"
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
 
     // Temporary fix environment variable test
     jvmArgs = [

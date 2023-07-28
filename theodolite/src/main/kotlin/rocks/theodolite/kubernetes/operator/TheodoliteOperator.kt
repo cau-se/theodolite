@@ -45,17 +45,6 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
     private fun startOperator() {
         logger.info { "Becoming the leading operator. Use namespace '${this.client.namespace}'." }
         client.use {
-            KubernetesDeserializer.registerCustomKind(
-                "$GROUP/$API_VERSION",
-                EXECUTION_SINGULAR,
-                ExecutionCRD::class.java
-            )
-
-            KubernetesDeserializer.registerCustomKind(
-                "$GROUP/$API_VERSION",
-                BENCHMARK_SINGULAR,
-                BenchmarkCRD::class.java
-            )
 
             ClusterSetup(
                 executionCRDClient = getExecutionClient(),
