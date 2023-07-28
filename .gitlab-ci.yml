@@ -658,7 +658,7 @@ smoketest-uc4-hazelcastjet:
 
 .theodolite:
   image:
-    name: ghcr.io/graalvm/native-image:java11-21.3.0
+    name: ghcr.io/graalvm/native-image-community:ol8-java17-22.3.3
     entrypoint: [""]
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
