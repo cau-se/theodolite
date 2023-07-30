@@ -122,6 +122,7 @@ kube-prometheus-stack:
     sidecar:
       dashboards:
         enabled: true
+        searchNamespace: null
         provider:
           # allow updating provisioned dashboards from the UI
           allowUiUpdates: true
