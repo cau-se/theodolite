@@ -107,12 +107,11 @@ class ExecutionEventHandlerTest {
         val executionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
         val execution = executionResource.create()
         val executionName = execution.metadata.name
-        stateHandler.setExecutionState(executionName, ExecutionState.RUNNING)
+        //stateHandler.setExecutionState(executionName, ExecutionState.RUNNING)
 
         // Update status of execution
         execution.status.executionState = ExecutionState.RUNNING
-        executionResource.patchStatus(execution)
-
+        this.executionClient.resource(execution).updateStatus()
 
         // Get execution from server
         val executionResponse = this.executionClient.withName(executionName).get()

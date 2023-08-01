@@ -22,7 +22,7 @@ class GenericResourcePatcher(val path: List<Any>, val type: Type = Type.STRING) 
             var current: Any? = resource.additionalProperties
             for (segment in path.dropLast(1)) {
                 current = if (segment is Int && current is MutableList<*> && current.size > segment) {
-                    current.toTypedArray()[segment]
+                    current[segment]
                 } else if (segment is String && current is Map<*, *>) {
                     current[segment]
                 } else {
@@ -33,8 +33,10 @@ class GenericResourcePatcher(val path: List<Any>, val type: Type = Type.STRING) 
             if (segment == null) {
                 throw IllegalArgumentException("Path must not be empty")
             } else if (segment is Int && current is MutableList<*> && current.size > segment) {
+                @Suppress("UNCHECKED_CAST")
                 (current as MutableList<Any?>)[segment] = castedValue
             } else if (segment is String && current is Map<*, *>) {
+                @Suppress("UNCHECKED_CAST")
                 (current as MutableMap<String, Any>)[segment] = castedValue
             } else {
                 throw IllegalArgumentException("Cannot set value for path")

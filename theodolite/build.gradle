@@ -1,6 +1,6 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.6.10"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.6.10"
+    id 'org.jetbrains.kotlin.jvm' version "1.8.22"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.8.22"
     id 'io.quarkus'
     id "io.gitlab.arturbosch.detekt" version "1.15.0"
     id "org.jlleitschuh.gradle.ktlint" version "10.0.0"
@@ -12,11 +12,15 @@ repositories {
 }
 
 dependencies {
-    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    // Use latest Kubernetes client to use TestStandardHttpClient for exec commands tests
+    implementation platform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation enforcedPlatform("io.fabric8:kubernetes-client-bom:6.8.0")
+    // Use default Quarkus once kubernetes-client 6.8.* is integrated
+    //implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'io.quarkus:quarkus-arc'
-    implementation 'io.quarkus:quarkus-resteasy'
+    //implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-kubernetes-client'
 
     implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.69'
@@ -29,6 +33,12 @@ dependencies {
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-test-kubernetes-client'
+    // Used for exec command tests
+    testImplementation ('io.fabric8:kubernetes-client-api') {
+        artifact {
+            classifier = 'tests'
+        }
+    }
     //testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.0'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.0.1'
@@ -39,29 +49,31 @@ group 'theodolite'
 version '0.10.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 allOpen {
-    annotation("javax.ws.rs.Path")
-    annotation("javax.enterprise.context.ApplicationScoped")
+    annotation("jakarta.ws.rs.Path")
+    annotation("jakarta.enterprise.context.ApplicationScoped")
     annotation("io.quarkus.test.junit.QuarkusTest")
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
     kotlinOptions.javaParameters = true
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
 }
 
 test {
+    // systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+
     // Required because of https://github.com/quarkusio/quarkus/issues/18973
-    minHeapSize = "256m"
-    maxHeapSize = "1024m"
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
 
     // Temporary fix environment variable test
     jvmArgs = [

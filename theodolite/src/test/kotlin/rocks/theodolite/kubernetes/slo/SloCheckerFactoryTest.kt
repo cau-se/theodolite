@@ -4,7 +4,6 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import rocks.theodolite.core.strategies.Metric
 
 @QuarkusTest
 internal class SloCheckerFactoryTest {
@@ -24,8 +23,7 @@ internal class SloCheckerFactoryTest {
                     "threshold" to "1234"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -43,8 +41,7 @@ internal class SloCheckerFactoryTest {
                     "threshold" to "1234"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -62,8 +59,7 @@ internal class SloCheckerFactoryTest {
                     "threshold" to "1234"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -81,8 +77,7 @@ internal class SloCheckerFactoryTest {
                     "threshold" to "1234"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -100,8 +95,7 @@ internal class SloCheckerFactoryTest {
                     "threshold" to "1234"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -119,8 +113,7 @@ internal class SloCheckerFactoryTest {
                     "operator" to "lte",
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -138,8 +131,7 @@ internal class SloCheckerFactoryTest {
                 "threshold" to "12.34"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertInstanceOf(ExternalSloChecker::class.java, sloChecker)
         val threshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -160,8 +152,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdRelToLoad" to "0.1"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -183,8 +174,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdRelToLoad" to "0.1"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -205,8 +195,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdRelToResources" to "0.1"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -227,8 +216,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdFromExpression" to "1111"
             ),
             8,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -249,8 +237,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdFromExpression" to "L*5"
             ),
             8,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -271,8 +258,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdFromExpression" to "R*((2^L+4)-60)+111"
             ),
             8,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -290,8 +276,7 @@ internal class SloCheckerFactoryTest {
                     "threshold" to "1234"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -306,8 +291,7 @@ internal class SloCheckerFactoryTest {
                     "threshold" to "1234"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -323,8 +307,7 @@ internal class SloCheckerFactoryTest {
                     "warmup" to "60",
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -339,8 +322,7 @@ internal class SloCheckerFactoryTest {
                 "threshold" to "12.34"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertInstanceOf(ExternalSloChecker::class.java, sloChecker)
         val threshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -358,8 +340,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdRelToLoad" to "0.1"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -378,8 +359,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdRelToLoad" to "0.1"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -397,8 +377,7 @@ internal class SloCheckerFactoryTest {
                 "thresholdRelToResources" to "0.1"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertTrue(sloChecker is ExternalSloChecker)
         val computedThreshold = (sloChecker as ExternalSloChecker).metadata["threshold"]
@@ -416,8 +395,7 @@ internal class SloCheckerFactoryTest {
                     "ratio" to "0.123"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -432,8 +410,7 @@ internal class SloCheckerFactoryTest {
                     "ratio" to "0.123"
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -449,8 +426,7 @@ internal class SloCheckerFactoryTest {
                     "warmup" to "60",
                 ),
                 100,
-                5,
-                Metric.DEMAND
+                5
             )
         }
     }
@@ -465,8 +441,7 @@ internal class SloCheckerFactoryTest {
                 "ratio" to "0.123"
             ),
             100,
-            5,
-            Metric.DEMAND
+            5
         )
         assertInstanceOf(ExternalSloChecker::class.java, sloChecker)
         val threshold = (sloChecker as ExternalSloChecker).metadata["threshold"]

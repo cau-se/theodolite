@@ -3,6 +3,7 @@ package rocks.theodolite.kubernetes
 import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
+import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 
@@ -13,7 +14,7 @@ private val logger = KotlinLogging.logger {}
  * Supports: Deployments, Services, ConfigMaps, StatefulSets, and CustomResources.
  * @param client KubernetesClient used to deploy or remove.
  */
-class K8sManager(private val client: NamespacedKubernetesClient) {
+class K8sManager(private val client: KubernetesClient) {
 
     /**
      * Deploys different k8s resources using the client.

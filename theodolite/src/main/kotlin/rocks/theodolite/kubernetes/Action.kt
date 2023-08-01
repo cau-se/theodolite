@@ -3,6 +3,7 @@ package rocks.theodolite.kubernetes
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 
@@ -18,11 +19,11 @@ class Action {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     var deleteCommand: DeleteCommand? = null
 
-    fun exec(client: NamespacedKubernetesClient) {
+    fun exec(client: KubernetesClient) {
         return if (execCommand != null) {
-            execCommand?.exec(client= client) !!
+            execCommand?.exec(client) !!
         } else if (deleteCommand != null) {
-            deleteCommand?.exec(client= client ) !!
+            deleteCommand?.exec(client) !!
         } else {
             throw DeploymentFailedException("Could not execute action. The action type must either be 'exec' or 'delete'.")
         }

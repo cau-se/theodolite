@@ -3,10 +3,12 @@ metadata:
   name: sut-configmap-1
 data:
   sut-file-1.yaml: |
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: sut-file-1
   sut-file-2.yaml: |
+    apiVersion: v1
     kind: Service
     metadata:
       name: sut-file-2

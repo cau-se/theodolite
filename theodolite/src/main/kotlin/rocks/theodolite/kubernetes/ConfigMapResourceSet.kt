@@ -41,7 +41,7 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
                 .map {
                     Pair(
                         it.key, // filename
-                        client.resource(it.value).get()
+                        client.resource(it.value).item()
                     )
                 }
         } catch (e: IllegalArgumentException) {

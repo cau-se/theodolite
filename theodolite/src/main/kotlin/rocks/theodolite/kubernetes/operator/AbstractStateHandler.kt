@@ -38,12 +38,8 @@ abstract class AbstractStateHandler<S : HasMetadata>(
     }
 
     @Synchronized
-    fun getState(resourceName: String, f: (S) -> String?): String? {
-        return this.crdClient
-            .list().items
-            .filter { it.metadata.name == resourceName }
-            .map { customResource -> f(customResource) }
-            .firstOrNull()
+    fun getState(resourceName: String, stateAccessor: (S) -> String?): String? {
+        return this.crdClient.withName(resourceName)?.get()?.let(stateAccessor)
     }
 
     @Synchronized
