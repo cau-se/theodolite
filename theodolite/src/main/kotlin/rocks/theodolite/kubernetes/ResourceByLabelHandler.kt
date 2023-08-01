@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes
 
+import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
@@ -10,7 +11,7 @@ private val logger = KotlinLogging.logger {}
  * The ResourceByLabelHandler provides basic functions to manage Kubernetes resources through their labels.
  * @param client NamespacedKubernetesClient used for the deletion.
  */
-class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
+class ResourceByLabelHandler(private val client: KubernetesClient) {
 
     /**
      * Deletes all pods with the selected label.
