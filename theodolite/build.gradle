@@ -69,7 +69,7 @@ compileTestKotlin {
 }
 
 test {
-    // systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 
     // Required because of https://github.com/quarkusio/quarkus/issues/18973
     minHeapSize = "512m"
