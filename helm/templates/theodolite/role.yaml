@@ -11,6 +11,7 @@ rules:
     - statefulsets
     verbs:
     - delete
+    - deletecollection
     - list
     - get
     - create
@@ -24,6 +25,7 @@ rules:
     verbs:
     - update
     - delete
+    - deletecollection
     - list
     - get
     - create
@@ -42,6 +44,7 @@ rules:
     verbs:
     - update
     - delete
+    - deletecollection
     - list
     - create
     - get
@@ -51,6 +54,7 @@ rules:
     - kafkatopics
     verbs:
     - delete
+    - deletecollection
     - list
     - get
     - create
@@ -83,6 +87,7 @@ rules:
     - get
     - create
     - update
+    - patch
   - apiGroups:
     - ""
     resources:
