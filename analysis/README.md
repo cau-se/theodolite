@@ -5,6 +5,7 @@ benchmark execution results and plotting. The following notebooks are provided:
 
 * [demand-metric.ipynb](demand-metric.ipynb): Create CSV files describing scalability according to the Theodolite `demand` metric.
 * [demand-metric-plot.ipynb](demand-metric-plot.ipynb): Create plots based on such CSV files of the `demand` metric.
+* [capacity-metric-plot.ipynb](capacity-metric-plot.ipynb): Create plots based on such CSV files of the `capacity` metric.
 
 For legacy reasons, we also provide the following notebooks, which, however, are not documented:
 
