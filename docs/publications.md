@@ -6,8 +6,9 @@ nav_order: 9
 
 # Publications
 
-Below you can find a list of publications that are utilize, describe, or evaluate Theodolite:
+Below you can find a list of publications that utilize, describe, or evaluate Theodolite:
 
+* S. Henning and W. Hasselbring. “[Benchmarking scalability of stream processing frameworks deployed as microservices in the cloud](https://dx.doi.org/10.2139/ssrn.4379579)”. In: *Journal of Systems and Software*. 2024. *In press.*
 * Govind KP, G. Pierre, R. Rouvoy. “[Studying the Energy Consumption of Stream Processing Engines in the Cloud](https://inria.hal.science/hal-04164074/file/main.pdf)”. In: *IEEE International Conference on Cloud Engineering*. 2023.
 * S. Henning. “[Scalability Benchmarking of Cloud-Native Applications Applied to Event-Driven Microservices](https://doi.org/10.21941/kcss/2023/2)”. In: *Kiel Computer Science Series 2023/2*. 2023. Dissertation, Faculty of Engineering, Kiel University. DOI: [10.21941/kcss/2023/2](https://doi.org/10.21941/kcss/2023/2).
 * S. Henning and W. Hasselbring. “[Benchmarking Scalability of Cloud-Native Applications](https://dl.gi.de/bitstream/handle/20.500.12116/40081/paper16.pdf)”. In: *Software Engineering*. 2023.
