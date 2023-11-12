@@ -30,11 +30,17 @@ class TestSloEvaluation(unittest.TestCase):
     def test_get_aggr_func_p99_(self):
         self.assertRaises(ValueError, get_aggr_func, 'p99.')
 
-    def test_get_aggr_func_p99_(self):
+    def test_get_aggr_func_q99(self):
         self.assertRaises(ValueError, get_aggr_func, 'q99')
 
-    def test_get_aggr_func_p99_(self):
+    def test_get_aggr_func_mux(self):
         self.assertRaises(ValueError, get_aggr_func, 'mux')
+
+    def test_get_aggr_func_first(self):
+        self.assertTrue(callable(get_aggr_func('first')))
+
+    def test_get_aggr_func_last(self):
+        self.assertTrue(callable(get_aggr_func('last')))
     
     def test_check_result_lt(self):
         self.assertEqual(check_result(100, 'lt', 200), True)

@@ -25,6 +25,16 @@ elif os.getenv('LOG_LEVEL') == 'DEBUG':
 def get_aggr_func(func_string: str):
     if func_string in ['mean', 'median', 'mode', 'sum', 'count', 'max', 'min', 'std', 'var', 'skew', 'kurt']:
         return func_string
+    elif func_string == 'first':
+        def first(x):
+            return x.iloc[0]
+        first.__name__ = 'first'
+        return first
+    elif func_string == 'last':
+        def last(x):
+            return x.iloc[-1]
+        last.__name__ = 'last'
+        return last
     elif re.search(r'^p\d\d?(\.\d+)?$', func_string): # matches strings like 'p99', 'p99.99', 'p1', 'p0.001'
         def percentile(x):
             return x.quantile(float(func_string[1:]) / 100)
