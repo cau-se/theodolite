@@ -59,6 +59,10 @@ def check_result(result, operator: str, threshold):
         return result > threshold
     if operator == 'gte':
         return result >= threshold
+    if operator == 'true':
+        return True # Mainly used for testing
+    if operator == 'false':
+        return False # Mainly used for testing
     else:
         raise ValueError('Invalid operator string.')
 
