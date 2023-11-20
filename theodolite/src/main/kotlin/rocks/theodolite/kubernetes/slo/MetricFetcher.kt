@@ -34,7 +34,7 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
      * @param query query for the prometheus server.
      * @throws ConnectException - if the prometheus server timed out/was not reached.
      */
-    fun fetchMetric(start: Instant, end: Instant, query: String): PrometheusResponse {
+    fun fetchMetric(start: Instant, end: Instant, stepSize: Duration, query: String): PrometheusResponse {
 
         val offsetStart = start.minus(offset)
         val offsetEnd = end.minus(offset)
@@ -46,7 +46,7 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
             val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8)
             val request = HttpRequest.newBuilder()
                     .uri(URI.create(
-                            "$prometheusURL/api/v1/query_range?query=$encodedQuery&start=$offsetStart&end=$offsetEnd&step=5s"))
+                            "$prometheusURL/api/v1/query_range?query=$encodedQuery&start=$offsetStart&end=$offsetEnd&step={${stepSize.toSeconds()}}s"))
                     .GET()
                     .version(HttpClient.Version.HTTP_1_1)
                     .timeout(TIMEOUT)

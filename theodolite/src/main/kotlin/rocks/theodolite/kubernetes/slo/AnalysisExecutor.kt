@@ -1,6 +1,5 @@
 package rocks.theodolite.kubernetes.slo
 
-import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.IOHandler
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import java.text.Normalizer
@@ -8,6 +7,8 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.regex.Pattern
+
+private val DEFAULT_STEP_SIZE = Duration.ofSeconds(5)
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
@@ -39,11 +40,14 @@ class AnalysisExecutor(
             val resultsFolder = ioHandler.getResultFolderURL()
             val fileURL = "${resultsFolder}exp${executionId}_${load}_${resource}_${slo.sloType.toSlug()}"
 
+            val stepSize = slo.properties["promQLStepSeconds"]?.toLong()?.let { Duration.ofSeconds(it) } ?: DEFAULT_STEP_SIZE
+
             val prometheusData = executionIntervals
                 .map { interval ->
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
+                        stepSize = stepSize,
                         query = SloConfigHandler.getQueryString(slo = slo)
                     )
                 }
