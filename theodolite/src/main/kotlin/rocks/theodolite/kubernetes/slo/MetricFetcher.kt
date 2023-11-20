@@ -46,7 +46,7 @@ class MetricFetcher(private val prometheusURL: String, private val offset: Durat
             val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8)
             val request = HttpRequest.newBuilder()
                     .uri(URI.create(
-                            "$prometheusURL/api/v1/query_range?query=$encodedQuery&start=$offsetStart&end=$offsetEnd&step={${stepSize.toSeconds()}}s"))
+                            "$prometheusURL/api/v1/query_range?query=$encodedQuery&start=$offsetStart&end=$offsetEnd&step=${stepSize.toSeconds()}s"))
                     .GET()
                     .version(HttpClient.Version.HTTP_1_1)
                     .timeout(TIMEOUT)
