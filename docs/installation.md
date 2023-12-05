@@ -53,8 +53,9 @@ Installation of the random scheduler can be enabled via `randomScheduler.enabled
 
 ### Multiple installations in the same cluster
 
-Multiple Theodolite installations in the same namespace are currently not fully tested.
-In cases, where you need to install multiple Theodolite instances, it's best to use dedicated namespaces **and** different release names.
+In cases, where you need to install multiple Theodolite instances, it's best to use dedicated namespaces.
+Make sure to [expose Grafana on different ports](#exposing-grafana) for each installation.
+Installing [additional cluster-level metrics](#additional-kubernetes-cluster-metrics) multiple times in the same cluster does not work.
 
 *Note that for meaningful results, usually only one benchmark should be executed at a time.*
 
