@@ -24,20 +24,24 @@ data class PrometheusResponse(
      * The format of the returned list is: `[[ group, timestamp, value ], [ group, timestamp, value ], ... ]`
      */
     @JsonIgnore
-    fun getResultAsList(): List<List<String>> {
-        val group = data?.result?.get(0)?.metric?.toString()!!
-        val values = data?.result?.get(0)?.values
-        val result = mutableListOf<List<String>>()
+    fun getResultAsList(onlyFirst: Boolean = true): List<List<String>> {
+        val resultsList = mutableListOf<List<String>>()
 
-        if (values != null) {
-            for (value in values) {
-                val valueList = value as List<*>
-                val timestamp = (valueList[0] as Double).toLong().toString()
-                val resultValue = valueList[1].toString()
-                result.add(listOf(group, timestamp, resultValue))
+        val results = data?.result ?: throw IllegalStateException("No 'results' available in the Prometheus response.")
+        for (result in results.subList(0, if (onlyFirst && results.isNotEmpty()) 1 else results.size)) {
+            val group = result.metric.toString()
+            val values = result.values
+
+            if (values != null) {
+                for (value in values) {
+                    val valueList = value as List<*>
+                    val timestamp = (valueList[0] as Number).toLong().toString()
+                    val resultValue = valueList[1].toString()
+                    resultsList.add(listOf(group, timestamp, resultValue))
+                }
             }
         }
-        return Collections.unmodifiableList(result)
+        return resultsList.toList()
     }
 }
 

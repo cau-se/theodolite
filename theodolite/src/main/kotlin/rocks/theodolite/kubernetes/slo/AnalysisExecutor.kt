@@ -26,7 +26,7 @@ class AnalysisExecutor(
 
     /**
      *  Analyses an experiment via prometheus data.
-     *  First fetches data from prometheus, then documents them and afterwards evaluate it via a [slo].
+     *  First fetches data from prometheus, then documents them and afterward evaluate it via a [slo].
      *  @param load of the experiment.
      *  @param resource of the experiment.
      *  @param executionIntervals list of start and end points of experiments
@@ -41,6 +41,7 @@ class AnalysisExecutor(
             val fileURL = "${resultsFolder}exp${executionId}_${load}_${resource}_${slo.sloType.toSlug()}"
 
             val stepSize = slo.properties["promQLStepSeconds"]?.toLong()?.let { Duration.ofSeconds(it) } ?: DEFAULT_STEP_SIZE
+            val onlyFirstMetric = slo.properties["takeOnlyFirstMetric"]?.toBoolean() ?: true
 
             val prometheusData = executionIntervals
                 .map { interval ->
@@ -55,7 +56,7 @@ class AnalysisExecutor(
             prometheusData.forEach{ data ->
                 ioHandler.writeToCSVFile(
                     fileURL = "${fileURL}_${slo.name}_${repetitionCounter++}",
-                    data = data.getResultAsList(),
+                    data = data.getResultAsList(onlyFirst = onlyFirstMetric),
                     columns = listOf("labels", "timestamp", "value")
                 )
             }
