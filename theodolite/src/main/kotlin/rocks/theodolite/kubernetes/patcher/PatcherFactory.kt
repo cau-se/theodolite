@@ -75,7 +75,8 @@ class PatcherFactory {
                             ?: throwInvalid(patcher)
                 )
                 "ImagePatcher" -> ImagePatcher(
-                    container = patcher.properties["container"] ?: throwInvalid(patcher)
+                    container = patcher.properties["container"] ?: throwInvalid(patcher),
+                    pullPolicy = patcher.properties["pullPolicy"]
                 )
                 "ConfigMapYamlPatcher" -> DecoratingPatcher(
                     ConfigMapYamlPatcher(

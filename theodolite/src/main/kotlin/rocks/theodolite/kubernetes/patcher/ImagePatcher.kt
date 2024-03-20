@@ -10,23 +10,32 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
  *
  * @param container Container to be patched.
  */
-class ImagePatcher(private val container: String) : AbstractStringPatcher() {
+class ImagePatcher(private val container: String, private val pullPolicy: String? = null) : AbstractStringPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         when (resource) {
             is Deployment -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
                     it.image = value
+                    if (pullPolicy != null) {
+                        it.imagePullPolicy = pullPolicy
+                    }
                 }
             }
             is StatefulSet -> {
                 resource.spec.template.spec.containers.filter { it.name == container }.forEach {
                     it.image = value
+                    if (pullPolicy != null) {
+                        it.imagePullPolicy = pullPolicy
+                    }
                 }
             }
             is Pod -> {
                 resource.spec.containers.filter { it.name == container }.forEach {
                     it.image = value
+                    if (pullPolicy != null) {
+                        it.imagePullPolicy = pullPolicy
+                    }
                 }
             }
         }
