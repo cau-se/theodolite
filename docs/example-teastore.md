@@ -82,14 +82,14 @@ We now have to create ConfigMaps bundling these resources and a Benchmark resour
 To create a ConfigMap containing all TeaStore resources, simply run:
 
 ```sh
-kubectl create configmap teastore-deployment --from-file=teastore/examples/kubernetes/teastore-clusterip-split/
+kubectl create configmap teastore-deployment --from-file=TeaStore/examples/kubernetes/teastore-clusterip-split/
 ```
 
 Likewise, we have to create a ConfigMap for the JMeter profile and a ConfigMap containing a [JMeter deployment](https://github.com/SoerenHenning/TeaStore/blob/add-theodolite-example/examples/theodolite/jmeter.yaml):
 
 ```sh
-kubectl create configmap teastore-jmeter-browse --from-file=teastore/examples/jmeter/teastore_browse_nogui.jmx
-kubectl create configmap teastore-jmeter-deployment --from-file=teastore/examples/theodolite/jmeter.yaml
+kubectl create configmap teastore-jmeter-browse --from-file=TeaStore/examples/jmeter/teastore_browse_nogui.jmx
+kubectl create configmap teastore-jmeter-deployment --from-file=TeaStore/examples/theodolite/jmeter.yaml
 ```
 
 ### Create the Benchmark file
@@ -232,6 +232,6 @@ As described at the [Running Benchmarks](running-benchmarks), we now have to wai
 ## Further Reading
 
 We published a short paper about this example:
-* S. Henning, B. Wetzel, and W. Hasselbring. “[Cloud-Native Scalability Benchmarking with Theodolite Applied to the TeaStore Benchmark](https://oceanrep.geomar.de/id/eprint/57338/)”. In: *Symposium on Software Performance*. 2022.
+> S. Henning, B. Wetzel, and W. Hasselbring. “[Cloud-Native Scalability Benchmarking with Theodolite Applied to the TeaStore Benchmark](https://dl.gi.de/server/api/core/bitstreams/40679f35-e37f-4991-9c5a-7332ec23f4ea/content)”. In: *Softwaretechnik-Trends* 43 (1) (Symposium on Software Performance). 2022.
 
 You might also want to have a look at the corresponding slides presented at the [Symposium on Software Performance 2022](https://www.performance-symposium.org/fileadmin/user_upload/palladio-conference/2022/presentations/Henning-Cloud-Native-Scalability-Benchmarking-with-Theodolite.pdf).
