@@ -43,9 +43,6 @@ strimzi:
       "auto.create.topics.enable": false
       "log.retention.ms": "7200000" # 2h
       "metrics.sample.window.ms": "5000" #5s
-    jvmOptions:
-      "-Xmx": "512M"
-      "-Xms": "512M"
     storage:
       type: ephemeral
     nodeSelectorTerms: []
