@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-operator-sdk-bom:${quarkusPlatformVersion}")
     // Use latest Kubernetes client to use TestStandardHttpClient for exec commands tests
     implementation platform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation enforcedPlatform("io.fabric8:kubernetes-client-bom:6.8.0")
@@ -22,6 +23,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-arc'
     //implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-kubernetes-client'
+    implementation 'io.quarkiverse.operatorsdk:quarkus-operator-sdk'
 
     implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.69'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
