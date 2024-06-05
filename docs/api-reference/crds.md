@@ -931,7 +931,7 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td><b>prometheusUrl</b></td>
         <td>string</td>
         <td>
-          Connection string for Promehteus.<br/>
+          Connection string for Prometheus.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2164,7 +2164,7 @@ Contains the Kafka configuration.
         <td><b>removeOnly</b></td>
         <td>boolean</td>
         <td>
-          Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.<br/>
+          Determines if this topic should only be deleted after each experiment. For removeOnly topics the name can be a RegEx describing the topic.<br/>
           <br/>
             <i>Default</i>: false<br/>
         </td>
