@@ -18,6 +18,10 @@ spec:
     config:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.strimzi.kafka.rack }}
+    rack: # This might require strimzi-kafka-operator.createGlobalResources=true or custom RBACs
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     {{- with .Values.strimzi.kafka.jvmOptions }}
     jvmOptions:
       {{- toYaml . | nindent 6 }}
