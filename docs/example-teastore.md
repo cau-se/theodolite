@@ -234,4 +234,4 @@ As described at the [Running Benchmarks](running-benchmarks), we now have to wai
 We published a short paper about this example:
 > S. Henning, B. Wetzel, and W. Hasselbring. “[Cloud-Native Scalability Benchmarking with Theodolite Applied to the TeaStore Benchmark](https://dl.gi.de/server/api/core/bitstreams/40679f35-e37f-4991-9c5a-7332ec23f4ea/content)”. In: *Softwaretechnik-Trends* 43 (1) (Symposium on Software Performance). 2022.
 
-You might also want to have a look at the corresponding slides presented at the [Symposium on Software Performance 2022](https://www.performance-symposium.org/fileadmin/user_upload/palladio-conference/2022/presentations/Henning-Cloud-Native-Scalability-Benchmarking-with-Theodolite.pdf).
+You might also want to have a look at the corresponding slides presented at the [Symposium on Software Performance 2022](https://www.performance-symposium.org/wp-content/uploads/2022/presentations/Henning-Cloud-Native-Scalability-Benchmarking-with-Theodolite.pdf).

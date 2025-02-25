@@ -588,7 +588,7 @@ spec:
                       description: The type of the SLO. It must match 'lag trend'.
                       type: string
                     prometheusUrl:
-                      description: Connection string for Promehteus.
+                      description: Connection string for Prometheus.
                       type: string
                     offset:
                       description: Hours by which the start and end timestamp will be shifted (for different timezones).
@@ -628,7 +628,7 @@ spec:
                           type: integer
                           default: 0
                         removeOnly:
-                          description: Determines if this topic should only be deleted after each experiement. For removeOnly topics the name can be a RegEx describing the topic.
+                          description: Determines if this topic should only be deleted after each experiment. For removeOnly topics the name can be a RegEx describing the topic.
                           type: boolean
                           default: false
           status:
