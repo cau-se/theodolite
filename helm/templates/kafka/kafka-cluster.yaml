@@ -5,7 +5,10 @@ metadata:
   name: {{ template "theodolite.fullname" . }}-kafka
 spec:
   kafka:
-    jmxOptions: {}
+    {{- with .Values.strimzi.kafka.image}}
+    image:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
     {{- with .Values.strimzi.kafka.listeners }}
     listeners:
       {{- toYaml . | nindent 6 }}
