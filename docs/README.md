@@ -33,7 +33,7 @@ bundle exec jekyll build
 We use the [crdoc](https://github.com/fybrik/crdoc) tool to generate the API reference for our CRDs:
 
 ```sh
-crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.md
+crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl --output api-reference/crds.md
 ```
 
 With the following command, crdoc is executed in Docker:
