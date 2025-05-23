@@ -847,7 +847,7 @@ deploy-buildimage-docker-compose-jq:
     - .kaniko-push
   needs: []
   variables:
-    DOCKER_VERSION: 20.10.12
+    DOCKER_VERSION: 20.10.24
     BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
     IMAGE_NAME: theodolite-build-docker-compose-jq
     IMAGE_TAG: $DOCKER_VERSION
