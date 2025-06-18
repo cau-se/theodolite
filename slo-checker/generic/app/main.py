@@ -68,7 +68,7 @@ def check_result(result, operator: str, threshold):
 
 
 
-@app.post("/",response_model=bool)
+@app.post("/", response_model=bool)
 async def check_slo(request: Request):
     data = json.loads(await request.body())
     logger.info('Received request with metadata: %s', data['metadata'])

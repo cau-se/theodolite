@@ -29,7 +29,7 @@ For more information see the [Gunicorn/FastAPI Docker docs](https://github.com/t
 
 The running webserver provides a REST API with the following route:
 
-* /dropped-records
+* /evaluate-slope
   * Method: POST
   * Body:
     * results
@@ -67,14 +67,14 @@ The body of the request must be a JSON string that satisfies the following condi
     }
     ```
 
-### description
+### Description
 
 * results:
   * metric-metadata:
-    * Labels of this metric. The `dropped-records` slo checker does not use labels in the calculation of the service level objective.
+    * Labels of this metric. The *Lag Trend* SLO checker does not use labels in the calculation of the service level objective.
   * results
-    * The `<unix_timestamp>` provided as the first element of each element in the "values" array must be the timestamp of the measurement value in seconds (with optional decimal precision)
+    * The `<unix_timestamp>` provided as the first element of each element in the `values` array must be the timestamp of the measurement value in seconds (with optional decimal precision).
     * The `<sample_value>` must be the measurement value as string.
-* metadata: For the calculation of the service level objective require metadata.
+* metadata: For the calculation of the service level objective required metadata.
   * **threshold**: Must be an unsigned integer that specifies the threshold for the SLO evaluation. The SLO is considered fulfilled, if the result value is below the threshold. If the result value is equal or above the threshold, the SLO is considered not fulfilled.
-  * **warmup**: Specifieds the warmup time in seconds that are ignored for evaluating the SLO.
+  * **warmup**: Specifies the warmup time in seconds that are ignored for evaluating the SLO.

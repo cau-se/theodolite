@@ -46,7 +46,7 @@ def calculate_slope_trend(results, warmup):
 def check_service_level_objective(results, threshold):
     return median(results) < threshold
 
-@app.post("/evaluate-slope",response_model=bool)
+@app.post("/evaluate-slope", response_model=bool)
 async def evaluate_slope(request: Request):
     data = json.loads(await request.body())
     results = [calculate_slope_trend(total_lag, data['metadata']['warmup']) for total_lag in data['results']]
