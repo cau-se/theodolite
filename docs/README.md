@@ -4,6 +4,8 @@ Theodolite's docs are generated with Jekyll from Markdown files.
 
 ## Installation
 
+**Prerequisite:** You need to have Ruby >=3.1 installed on your system.
+
 To set up Jekyll run:
 
 ```sh
