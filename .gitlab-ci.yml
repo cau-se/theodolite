@@ -59,12 +59,13 @@ default:
 # Theodolite Docs
 
 .docs:
-  image: alpine/bundle:3.0.3
+  image: ruby:3.1.2
   cache:
     paths:
       - docs/vendor
   before_script:
     - cd docs
+    - gem install bundler
     - bundle config set --local path 'vendor'
     - bundle install
   rules:
