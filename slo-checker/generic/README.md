@@ -93,7 +93,7 @@ The body of the request must be a JSON string that satisfies the following condi
     * The `<sample_value>` must be the measurement value as string.
 * metadata: For the calculation of the service level objective require metadata.
   * **warmup**: Specifies the warmup time in seconds that are ignored for evaluating the SLO.
-  * **queryAggregation**: Specifies the function used to aggregate a query. 
-  * **repetitionAggregation**: Specifies the function used to aggregate a the results of multiple query aggregations.
+  * **queryAggregation**: Specifies the function used to aggregate a query. Supported aggregation functions are `mean`, `median`, `mode`, `sum`, `count`, `max`, `min`, `std`, `var`, `skew`, `kurt`, `first`, `last` as well as percentiles such as `p99` or `p99.9`.
+  * **repetitionAggregation**: Specifies the function used to aggregate a the results of multiple query aggregations. Supported aggregation functions are the same as for `queryAggregation`.
   * **operator**: Specifies how the result should be checked against a threshold. Possible values are `lt`, `lte`, `gt` and `gte`. Additionally, the `true` and `false` are supported, which will cause an always successful or unsuccessful evaluation (can be helpful for testing and debugging).
   * **threshold**: Must be an unsigned integer that specifies the threshold for the SLO evaluation.
