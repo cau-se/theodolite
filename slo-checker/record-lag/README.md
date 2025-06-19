@@ -8,7 +8,15 @@ For development:
 uvicorn main:app --reload # run this command inside the app/ folder
 ```
 
-## Build the docker image:
+## Test
+
+Run unit tests via:
+
+```sh
+python -m unittest
+```
+
+## Build the Docker image:
 
 ```sh
 docker build . -t theodolite-evaluator
@@ -25,7 +33,9 @@ docker run -p 80:80 theodolite-evaluator
 You can set the `HOST` and the `PORT` (and a lot of more parameters) via environment variables. Default is `0.0.0.0:80`.
 For more information see the [Gunicorn/FastAPI Docker docs](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker#advanced-usage).
 
-# API Documentation
+Configure the log level via the `LOG_LEVEL` environment variable. Possible values are `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL`. The default is `WARNING`.
+
+## API Documentation
 
 The running webserver provides a REST API with the following route:
 

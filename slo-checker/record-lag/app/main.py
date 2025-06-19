@@ -13,13 +13,16 @@ logging.basicConfig(stream=sys.stdout,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("API")
 
-
-if os.getenv('LOG_LEVEL') == 'INFO':
+if os.getenv('LOG_LEVEL') == 'DEBUG':
+    logger.setLevel(logging.DEBUG)
+elif os.getenv('LOG_LEVEL') == 'INFO':
     logger.setLevel(logging.INFO)
+elif os.getenv('LOG_LEVEL') == 'ERROR':
+    logger.setLevel(logging.ERROR)
 elif os.getenv('LOG_LEVEL') == 'WARNING':
     logger.setLevel(logging.WARNING)
-elif os.getenv('LOG_LEVEL') == 'DEBUG':
-    logger.setLevel(logging.DEBUG)
+elif os.getenv('LOG_LEVEL') == 'CRITICAL':
+    logger.setLevel(logging.CRITICAL)
 
 def calculate_slope_trend(results, warmup):
     d = []

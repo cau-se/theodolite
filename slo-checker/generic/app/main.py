@@ -6,6 +6,7 @@ import sys
 import re
 import pandas as pd
 
+pd.options.mode.copy_on_write = True # Until Pandas 3.0, https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
 
 app = FastAPI()
 
@@ -13,13 +14,16 @@ logging.basicConfig(stream=sys.stdout,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("API")
 
-
-if os.getenv('LOG_LEVEL') == 'INFO':
+if os.getenv('LOG_LEVEL') == 'DEBUG':
+    logger.setLevel(logging.DEBUG)
+elif os.getenv('LOG_LEVEL') == 'INFO':
     logger.setLevel(logging.INFO)
+elif os.getenv('LOG_LEVEL') == 'ERROR':
+    logger.setLevel(logging.ERROR)
 elif os.getenv('LOG_LEVEL') == 'WARNING':
     logger.setLevel(logging.WARNING)
-elif os.getenv('LOG_LEVEL') == 'DEBUG':
-    logger.setLevel(logging.DEBUG)
+elif os.getenv('LOG_LEVEL') == 'CRITICAL':
+    logger.setLevel(logging.CRITICAL)
 
 
 def get_aggr_func(func_string: str):

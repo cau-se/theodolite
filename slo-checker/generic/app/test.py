@@ -12,6 +12,7 @@ class TestSloEvaluation(unittest.TestCase):
             response = self.client.post("/", json=data)
             self.assertEqual(response.json(), True)
 
+
     def test_get_aggr_func_mean(self):
         self.assertEqual(get_aggr_func('median'), 'median')
     
@@ -42,6 +43,7 @@ class TestSloEvaluation(unittest.TestCase):
     def test_get_aggr_func_last(self):
         self.assertTrue(callable(get_aggr_func('last')))
     
+
     def test_check_result_lt(self):
         self.assertEqual(check_result(100, 'lt', 200), True)
         
