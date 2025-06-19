@@ -6,11 +6,11 @@ nav_order: 8
 
 # Project Info
 
-Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de) and Johannes Kepler University Linz' [LIT CPS Lab](https://www.jku.at/en/lit-cyber-physical-systems-lab/).
+Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de), Johannes Kepler University Linz' [LIT CPS Lab](https://www.jku.at/en/lit-cyber-physical-systems-lab/) and [Dynatrace Research](https://www.dynatrace.com/engineering/research/).
 
 ## Getting Help
 
-To get support with using Theodolite, feel free to directly contact [Sören Henning](https://www.jku.at/en/lit-cyber-physical-systems-lab/about-us/our-team/dr-ing-soeren-henning/).
+To get support with using Theodolite, feel free to directly contact [Sören Henning](https://www.dynatrace.com/engineering/persons/soeren-henning/).
 You might also want to raise an issue on [GitHub](http://github.com/cau-se/theodolite).
 
 ## Project Management
@@ -32,7 +32,7 @@ Also releases are published via GitHub. See the following table for an overview:
 
 ## Contributors
 
-* [Sören Henning](https://www.jku.at/en/lit-cyber-physical-systems-lab/about-us/our-team/dr-ing-soeren-henning/) (Maintainer)
+* [Sören Henning](https://www.dynatrace.com/engineering/persons/soeren-henning/) (Maintainer)
 * [Marcel Becker](https://www.linkedin.com/in/marcel-becker-11b39b246)
 * [Jan Bensien](https://oceanrep.geomar.de/id/eprint/52342/)
 * [Nico Biernat](https://github.com/NicoBiernat)
@@ -42,7 +42,7 @@ Also releases are published via GitHub. See the following table for an overview:
 * [Christopher Konkel](https://github.com/ChristopherKonkel)
 * [Luca Mertens](https://www.linkedin.com/in/luca-mertens-35a932201)
 * [Tobias Pfandzelter](https://pfandzelter.com/)
-* [Julia Rossow](https://www.linkedin.com/in/julia-rossow/)
+* [Julia (Rossow) Andersen](https://www.linkedin.com/in/andersen-julia/)
 * [Björn Vonheiden](https://github.com/bvonheid)
 * [Benedikt Wetzel](https://github.com/benediktwetzel)
 * [Max Wiedenhöft](https://www.linkedin.com/in/maxwiedenhoeft/)

@@ -1,6 +1,4 @@
 from sklearn.linear_model import LinearRegression
-import pandas as pd
-import os
 
 def compute(data, warmup_sec):
     data['sec_start'] = data.loc[0:, 'timestamp'] - data.iloc[0]['timestamp']
