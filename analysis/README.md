@@ -16,8 +16,8 @@ For legacy reasons, we also provide the following notebooks, which, however, are
 ## Usage
 
 In general, the Theodolite Analysis Jupyter notebooks should be runnable by any Jupyter server. To make it a bit easier,
-we provide introductions for running notebooks with Docker and with Visual Studio Code. These intoduction may also be
-a good starting point for using another service.
+we provide introductions for running notebooks with Docker and with Visual Studio Code. These introductions may also be
+a good starting point for using other services.
 
 For analyzing and visualizing benchmark results, either Docker or a Jupyter installation with Python 3.10 is
 required (e.g., in a virtual environment).
@@ -37,7 +37,7 @@ docker run --rm -p 8888:8888 -v "$PWD/../results":/home/jovyan/results -v "$PWD/
 
 ### Running with Visual Studio Code
 
-The [Visual Studio Code Documentation](https://code.visualstudio.com/docs/python/jupyter-support) shows to run Jupyter
+The [Visual Studio Code Documentation](https://code.visualstudio.com/docs/python/jupyter-support) describes how to run Jupyter
 notebooks with Visual Studio Code. For our notebooks, Python 3.10 or newer is required (e.g., in a virtual environment).
 Moreover, they require some Python libraries, which can be installed by:
 
