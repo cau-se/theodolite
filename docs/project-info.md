@@ -11,13 +11,13 @@ Theodolite is open-source research software, actively maintained at Kiel Univers
 ## Getting Help
 
 To get support with using Theodolite, feel free to directly contact [Sören Henning](https://www.dynatrace.com/engineering/persons/soeren-henning/).
-You might also want to raise an issue on [GitHub](http://github.com/cau-se/theodolite).
+You might also want to raise an issue on [GitHub](https://github.com/cau-se/theodolite).
 
 ## Project Management
 
 Theodolite's internal development including issue boards, merge requests and extensive CI pipelines is tracked in our [internal GitLab](https://git.se.informatik.uni-kiel.de/she/theodolite).
 While all internal development is publicly accessible, contributing requires an account to be set up.
-To ease contribution, we provide a public mirror on GitHub, [cau-se/theodolite](http://github.com/cau-se/theodolite), where we are also happy to welcome issues and pull requests.
+To ease contribution, we provide a public mirror on GitHub, [cau-se/theodolite](https://github.com/cau-se/theodolite), where we are also happy to welcome issues and pull requests.
 Also releases are published via GitHub. See the following table for an overview:
 
 | Project management | Public GitHub | Internal GitLab |
