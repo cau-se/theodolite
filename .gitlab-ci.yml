@@ -59,7 +59,7 @@ default:
 # Theodolite Docs
 
 .docs:
-  image: ruby:3.1.2
+  image: ruby:3.4
   cache:
     paths:
       - docs/vendor
@@ -87,7 +87,10 @@ test-docs-links:
   extends: .docs
   needs:
     - build-docs
-  script: bundle exec htmlproofer --assume-extension --allow_hash_href --ignore-status-code 999 --ignore-urls "/^https:\\/\\/doi\\.org\\/10.1145\\/.*/" ./_site
+  # Ignore external hashes as there seems to be a bug in html-proofer
+  # Ignore status code 999 sent from LinkedIn
+  # Replace DOI URLs with API checks (required for ACM DL)
+  script: bundle exec htmlproofer --no-check-external-hash --ignore-status-code 999 --swap-urls "^https\:\/\/doi\.org\/(?\:(?!(api\/))):https\://doi.org/api/handles/" ./_site
 
 build-docs-crds:
   stage: build
