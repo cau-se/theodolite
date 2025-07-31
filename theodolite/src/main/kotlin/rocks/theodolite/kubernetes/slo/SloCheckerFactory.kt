@@ -1,7 +1,6 @@
 package rocks.theodolite.kubernetes.slo
 
 import net.objecthunter.exp4j.ExpressionBuilder
-import rocks.theodolite.core.strategies.Metric
 
 /**
  * Factory used to potentially create different [SloChecker]s.
@@ -36,7 +35,6 @@ class SloCheckerFactory {
      * @param properties map of properties to use for the SLO checker creation.
      * @param load Load that is generated in the experiment.
      * @param resources Resources that are used in the experiment.
-     * @param metric Metric used in the benchmark execution.
      *
      * @return A [SloChecker]
      * @throws IllegalArgumentException If [sloType] not supported.
@@ -49,8 +47,6 @@ class SloCheckerFactory {
     ): SloChecker =
         when (SloTypes.from(sloType)) {
             SloTypes.GENERIC -> ExternalSloChecker(
-                externalSlopeURL = properties["externalSloUrl"]
-                    ?: throw IllegalArgumentException("externalSloUrl expected"),
                 // TODO validate property contents
                 metadata = mapOf(
                     "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
@@ -67,8 +63,6 @@ class SloCheckerFactory {
                 )
             )
             SloTypes.LAG_TREND -> ExternalSloChecker(
-                externalSlopeURL = properties["externalSloUrl"]
-                    ?: throw IllegalArgumentException("externalSloUrl expected"),
                 metadata = mapOf(
                     "warmup" to (properties["warmup"]?.toInt() ?: throw IllegalArgumentException("warmup expected")),
                     "threshold" to (properties["threshold"]?.toDoubleOrNull()
@@ -89,8 +83,6 @@ class SloCheckerFactory {
                 val threshold = (load * thresholdRatio)
 
                 ExternalSloChecker(
-                    externalSlopeURL = properties["externalSloUrl"]
-                        ?: throw IllegalArgumentException("externalSloUrl expected"),
                     metadata = mapOf(
                         "warmup" to (properties["warmup"]?.toInt()
                             ?: throw IllegalArgumentException("warmup expected")),

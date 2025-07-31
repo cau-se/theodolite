@@ -7,7 +7,6 @@ import rocks.theodolite.kubernetes.Action
 import rocks.theodolite.kubernetes.ResourceSets
 import rocks.theodolite.kubernetes.model.crd.KafkaConfig
 import rocks.theodolite.kubernetes.patcher.PatcherDefinition
-import kotlin.properties.Delegates
 
 /**
  * Represents a benchmark in Kubernetes. An example for this is the BenchmarkType.yaml
@@ -62,8 +61,6 @@ class KubernetesBenchmark : KubernetesResource {
     class Slo : KubernetesResource {
         lateinit var name: String
         lateinit var sloType: String
-        lateinit var prometheusUrl: String
-        var offset by Delegates.notNull<Int>()
         lateinit var properties: MutableMap<String, String>
     }
 

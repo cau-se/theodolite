@@ -19,10 +19,7 @@ class AnalysisExecutor(
         private val executionId: Int
 ) {
 
-    private val fetcher = MetricFetcher(
-        prometheusURL = slo.prometheusUrl,
-        offset = Duration.ofHours(slo.offset.toLong())
-    )
+    private val fetcher = MetricFetcher()
 
     /**
      *  Analyses an experiment via prometheus data.
@@ -43,17 +40,18 @@ class AnalysisExecutor(
             val stepSize = slo.properties["promQLStepSeconds"]?.toLong()?.let { Duration.ofSeconds(it) } ?: DEFAULT_STEP_SIZE
             val onlyFirstMetric = slo.properties["takeOnlyFirstMetric"]?.toBoolean() ?: true
 
-            val prometheusData = executionIntervals
+            val metricData = executionIntervals
                 .map { interval ->
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
                         stepSize = stepSize,
-                        query = SloConfigHandler.getQueryString(slo = slo)
+                        query = SloConfigHandler.getQueryString(slo = slo),
+                        kind = MetricFetcher.Kind.valueOf((slo.properties["provider"] ?: throw NullPointerException("Provider must be specified in the benchmark.yaml")).uppercase()),
                     )
                 }
 
-            prometheusData.forEach{ data ->
+            metricData.forEach{ data ->
                 ioHandler.writeToCSVFile(
                     fileURL = "${fileURL}_${slo.name}_${repetitionCounter++}",
                     data = data.getResultAsList(onlyFirst = onlyFirstMetric),
@@ -68,7 +66,7 @@ class AnalysisExecutor(
                 resources = resource
             )
 
-            return sloChecker.evaluate(prometheusData)
+            return sloChecker.evaluate(metricData)
 
         } catch (e: Exception) {
             throw EvaluationFailedException("Evaluation failed for resource '$resource' and load '$load ", e)

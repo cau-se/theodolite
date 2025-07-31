@@ -579,7 +579,7 @@ spec:
                 type: array
                 items:
                   type: object
-                  required: ["name", "sloType", "prometheusUrl", "offset"]
+                  required: ["name", "sloType"]
                   properties:
                     name:
                       description: The name of the SLO.
@@ -587,12 +587,6 @@ spec:
                     sloType:
                       description: The type of the SLO. It must match 'lag trend'.
                       type: string
-                    prometheusUrl:
-                      description: Connection string for Prometheus.
-                      type: string
-                    offset:
-                      description: Hours by which the start and end timestamp will be shifted (for different timezones).
-                      type: integer
                     properties:
                       description: (Optional) SLO specific additional arguments.
                       type: object

@@ -3,32 +3,39 @@ package rocks.theodolite.kubernetes.slo
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import io.quarkus.test.common.QuarkusTestResource
+import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
+@QuarkusTestResource(ExternalSloCheckerTest.WireMockTestResource::class)
 internal class ExternalSloCheckerTest {
+    internal class WireMockTestResource : QuarkusTestResourceLifecycleManager {
 
-    private var wireMockServer: WireMockServer? = null
+        companion object {
+            lateinit var wireMockServer: WireMockServer private set
+        }
 
-    @BeforeEach
-    fun start() {
-        wireMockServer = WireMockServer().also {
-            it.start()
+        override fun start(): Map<String, String> {
+            wireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
+            wireMockServer.start()
+            return mapOf("slo.checker.url" to wireMockServer.baseUrl())
+        }
+
+        override fun stop() {
+            wireMockServer.stop()
         }
     }
 
-    @AfterEach
-    fun stop() {
-        wireMockServer?.stop()
-    }
+
 
     @Test
     fun testExternalTrueResult() {
-        this.wireMockServer!!.stubFor(
+        WireMockTestResource.wireMockServer.stubFor(
             post(urlEqualTo("/"))
                 .willReturn(
                     aResponse().withJsonBody(BooleanNode.getTrue())
@@ -36,7 +43,6 @@ internal class ExternalSloCheckerTest {
         )
 
         val sloChecker = ExternalSloChecker(
-            wireMockServer!!.baseUrl(),
             mapOf()
         )
         val result = sloChecker.evaluate(listOf())
@@ -45,7 +51,7 @@ internal class ExternalSloCheckerTest {
 
     @Test
     fun testExternalFalseResult() {
-        this.wireMockServer!!.stubFor(
+        WireMockTestResource.wireMockServer.stubFor(
             post(urlEqualTo("/"))
                 .willReturn(
                     aResponse().withJsonBody(BooleanNode.getFalse())
@@ -53,7 +59,6 @@ internal class ExternalSloCheckerTest {
         )
 
         val sloChecker = ExternalSloChecker(
-            wireMockServer!!.baseUrl(),
             mapOf()
         )
         val result = sloChecker.evaluate(listOf())

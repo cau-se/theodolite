@@ -6,10 +6,10 @@ spec:
   benchmark: "example-benchmark"
   load:
     loadType: "NumSensors"
-    loadValues: [25000, 50000, 75000, 100000, 125000, 150000]
+    loadValues: [25000]
   resources:
     resourceType: "Instances"
-    resourceValues: [1, 2, 3, 4, 5]
+    resourceValues: [1]
   slos:
     - name: "lag trend"
       properties:
@@ -20,9 +20,9 @@ spec:
       restrictions:
         - "LowerBound"
       searchStrategy: "LinearSearch"
-    duration: 300 # in seconds
+    duration: 60 # in seconds
     repetitions: 1
-    loadGenerationDelay: 30 # in seconds
+    loadGenerationDelay: 10 # in seconds
   configOverrides: []
   # - patcher:
   #     type: "NodeSelectorPatcher"
