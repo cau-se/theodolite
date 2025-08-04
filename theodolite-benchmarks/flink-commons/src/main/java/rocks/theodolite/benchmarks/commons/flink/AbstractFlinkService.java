@@ -5,7 +5,7 @@ import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import titan.ccp.common.configuration.ServiceConfigurations;
+import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
 
 /**
  * A general Apache Flink-based microservice. It is configured by {@link #configureEnv()}, and
