@@ -6,7 +6,7 @@ nav_order: 8
 
 # Project Info
 
-Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de), Johannes Kepler University Linz' [LIT CPS Lab](https://www.jku.at/en/lit-cyber-physical-systems-lab/) and [Dynatrace Research](https://www.dynatrace.com/engineering/research/).
+Theodolite is open-source research software, actively maintained at Kiel University's [Software Engineering Group](https://www.se.informatik.uni-kiel.de), Johannes Kepler University Linz' [LIT CPS Lab](https://www.jku.at/en/lit-cyber-physical-systems-lab/) and [Dynatrace Research](https://www.dynatrace.com/research/).
 
 ## Getting Help
 
@@ -38,7 +38,7 @@ Also releases are published via GitHub. See the following table for an overview:
 * [Nico Biernat](https://github.com/NicoBiernat)
 * [Lorenz Boguhn](https://github.com/lorenzboguhn)
 * [Simon Ehrenstein](https://github.com/sehrenstein)
-* [Willi Hasselbring](https://www.se.informatik.uni-kiel.de/en/team/prof.-dr.-wilhelm-willi-hasselbring)
+* [Willi Hasselbring](https://www.uni-kiel.de/en/person/hasselbring-wilhelm-46807)
 * [Christopher Konkel](https://github.com/ChristopherKonkel)
 * [Luca Mertens](https://www.linkedin.com/in/luca-mertens-35a932201)
 * [Tobias Pfandzelter](https://pfandzelter.com/)
