@@ -55,15 +55,6 @@ spec:
         threshold: 3000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
-  kafkaConfig:
-    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
-    topics:
-      - name: "input"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "theodolite-.*"
-        removeOnly: True
-
 ```
 
 ## System under Test (SUT), Load Generator and Infrastructure
@@ -199,17 +190,6 @@ If you do not want to have a static threshold, you can also define it relatively
 Even more complex thresholds can be defined with `thresholdFromExpression`. This field accepts a mathematical expression with two variables `L` and `R` for the load and resources, respectively. The previous example with a threshold of 1% of the generated load can thus also be defined with `thresholdFromExpression: 0.01*L`. For further details of allowed expressions, see the documentation of the underlying [exp4j](https://github.com/fasseg/exp4j) library.
 
 In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloUrl` to your custom SLO checker. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
-
-## Kafka Configuration
-
-Theodolite allows to automatically create and remove Kafka topics for each SLO experiment by setting a `kafkaConfig`.
-`bootstrapServer` needs to point your Kafka cluster and `topics` configures the list of Kafka topics to be created/removed.
-For each topic, you configure its name, the number of partitions and the replication factor.
-
-With the `removeOnly: True` property, you can also instruct Theodolite to only remove topics and not create them.
-This is useful when benchmarking SUTs, which create topics on their own (e.g., Kafka Streams and Samza applications).
-For those topics, also wildcards are allowed in the topic name and, of course, no partition count or replication factor must be provided.
-
 
 <!-- Further information: API Reference -->
 <!-- Further information: How to deploy -->
