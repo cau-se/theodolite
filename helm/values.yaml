@@ -11,15 +11,8 @@ kcat:
   nodeSelector: {}
 
 ####
-## configuration of sub charts
+## Configuration of sub charts
 ###
-
-###
-# Grafana
-###
-grafana:
-  enabled: false
- 
 
 
 ###

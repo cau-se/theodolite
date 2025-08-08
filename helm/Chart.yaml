@@ -13,10 +13,6 @@ icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.sv
 type: application
 
 dependencies:
-  - name: grafana
-    version: 6.17.*
-    repository: https://grafana.github.io/helm-charts
-    condition: grafana.enabled
   - name: kube-prometheus-stack
     version: 48.1.*
     repository: https://prometheus-community.github.io/helm-charts
