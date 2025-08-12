@@ -31,8 +31,8 @@ spec:
         - type: "EnvVarPatcher"
           resource: "uc1-load-generator-deployment.yaml"
           properties:
-            variableName: "NUM_SENSORS"
             container: "workload-generator"
+            variableName: "NUM_SENSORS"
         - type: "NumSensorsLoadGeneratorReplicaPatcher"
           resource: "uc1-load-generator-deployment.yaml"
           properties:
