@@ -1,3 +1,4 @@
+from inspect import signature
 from fastapi import FastAPI,Request
 import logging
 import os
@@ -5,6 +6,7 @@ import json
 import sys
 import re
 import pandas as pd
+from scipy import stats
 
 pd.options.mode.copy_on_write = True # Until Pandas 3.0, https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
 
@@ -39,6 +41,12 @@ def get_aggr_func(func_string: str):
             return x.iloc[-1]
         last.__name__ = 'last'
         return last
+    elif func_string == 'trend':
+        def trend(timestamps: pd.Series, values: pd.Series):
+            res = stats.linregress(timestamps, values)
+            return res.slope
+        trend.__name__ = 'trend'
+        return trend
     elif re.search(r'^p\d\d?(\.\d+)?$', func_string): # matches strings like 'p99', 'p99.99', 'p1', 'p0.001'
         def percentile(x):
             return x.quantile(float(func_string[1:]) / 100)
@@ -52,7 +60,10 @@ def aggr_query(values: dict, warmup: int, aggr_func):
     df.columns = ['timestamp', 'value']
     filtered = df[df['timestamp'] >= (df['timestamp'][0] + warmup)]
     filtered['value'] = filtered['value'].astype(float)
-    return filtered['value'].aggregate(aggr_func)
+    if callable(aggr_func) and len(signature(aggr_func).parameters) == 2:
+        return aggr_func(filtered['timestamp'], filtered['value'])
+    else:
+         return filtered['value'].agg(aggr_func)
 
 def check_result(result, operator: str, threshold):
     if operator == 'lt':
