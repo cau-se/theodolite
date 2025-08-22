@@ -154,6 +154,34 @@ entries:
     version: 0.29.0
   theodolite:
   - apiVersion: v2
+    appVersion: 0.10.0
+    created: "2025-08-22T14:05:42.466327715+02:00"
+    dependencies:
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 48.1.*
+    - condition: strimzi.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts/
+      version: 0.38.*
+    description: Theodolite is a framework for benchmarking the horizontal and vertical
+      scalability of cloud-native applications.
+    digest: 2e258f6a25df7bcf8380ee5d0432887b930fefaadb95dd1d5a7be4fde0a63747
+    home: https://www.theodolite.rocks
+    icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
+    maintainers:
+    - email: soeren.henning@dynatrace.com
+      name: Sören Henning
+      url: https://www.dynatrace.com/engineering/persons/soeren-henning/
+    name: theodolite
+    sources:
+    - https://github.com/cau-se/theodolite
+    type: application
+    urls:
+    - https://github.com/cau-se/theodolite/releases/download/v0.10.0/theodolite-0.10.0.tgz
+    version: 0.10.0
+  - apiVersion: v2
     appVersion: 0.9.0
     created: "2023-07-19T09:58:16.207401357+02:00"
     dependencies:
@@ -787,4 +815,4 @@ entries:
     urls:
     - https://github.com/cau-se/theodolite/releases/download/v0.4.0/theodolite-0.4.0.tgz
     version: 0.4.0
-generated: "2023-07-19T09:58:16.182895416+02:00"
+generated: "2025-08-22T14:05:42.431242088+02:00"
