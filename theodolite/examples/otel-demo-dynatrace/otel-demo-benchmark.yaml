@@ -1,0 +1,43 @@
+apiVersion: theodolite.rocks/v1beta1
+kind: benchmark
+metadata:
+  name: otel-demo
+spec:
+  sut:
+    resources:
+      - configMap:
+         name: "otel-demo-configmap"
+         files:
+           - "frontend-deployment.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+         name: "otel-demo-configmap"
+         files:
+            - load-generator-deployment.yaml
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "frontend-deployment.yaml"
+  loadTypes:
+    - typeName: "Users"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "load-generator-deployment.yaml"
+          properties:
+            container: "load-generator"
+            variableName: "LOCUST_USERS"
+  slos:
+    - name: dummy
+      sloType: generic
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        externalSloUrl: "http://localhost:8082"
+        promQLQuery: "vector(1)" # Return a constant value of 1
+        warmup: 60 # in seconds
+        queryAggregation: max
+        repetitionAggregation: median
+        operator: lte
+        threshold: 2
