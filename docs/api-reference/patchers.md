@@ -7,96 +7,230 @@ nav_order: 2
 
 # Patchers
 
-Patchers can be seen as functions which take a value as input and modify a Kubernetes resource in a patcher-specific way.
+Patchers can be seen as functions which take a Kubernetes resource and a value as input and produce a modified Kubernetes resource based on a patcher-specific method.
+For example, there are patchers available that modify the number of replicas of a Deployment or change an environment variable.
 
-## Available Patchers
+In general, patchers are defined as follows:
 
-* **ReplicaPatcher**: Modifies the number of replicas for a Kubernetes deployment.
-  * **type**: "ReplicaPatcher"
-  * **resource**: "uc1-kstreams-deployment.yaml"
+```yaml
+type: GenericResourcePatcher # The name of the patcher type
+resource: kubernetes-resource.yaml # The resource file to be patched
+properties: # Patcher type-specific properties
+  path: spec/to/field/to/change
+  type: integer
+```
 
-* **NumSensorsLoadGeneratorReplicaPatcher**: Modifies the number of load generators, according to the following formula: *(value + loadGenMaxRecords - 1) / loadGenMaxRecords*
-  * **type**: "NumSensorsLoadGeneratorReplicaPatcher"
-  * **resource**: "uc1-load-generator-deployment.yaml"
-  * **properties**:
-    * loadGenMaxRecords: 150000
+The following is a list of all currently available patcher types, sorted by importance:
 
-* **NumNestedGroupsLoadGeneratorReplicaPatcher**: Modifies the number of load generators, according to the following formula: *(4^(value) + loadGenMaxRecords - 1) / loadGenMaxRecords*
-  * **type**: "NumNestedGroupsLoadGeneratorReplicaPatcher"
-  * **resource**: "uc1-load-generator-deployment.yaml"
-  * **properties**:
-    * loadGenMaxRecords: 150000
 
-* **DataVolumeLoadGeneratorReplicaPatcher**: Takes the total load that should be generated and computes the number of instances needed for this load based on the `maxVolume` ((load + maxVolume - 1) / maxVolume) and calculates the load per instance (loadPerInstance = load / instances). The number of instances are set for the load generator and the given variable is set to the load per instance.
-  * **type**: "DataVolumeLoadGeneratorReplicaPatcher"
-  * **resource**: "osp-load-generator-deployment.yaml"
-  * **properties**:
-    * maxVolume: "50"
-    * container: "workload-generator"
-    * variableName: "DATA_VOLUME"
+## ReplicaPatcher
 
-* **ReplicaPatcher**: Allows to modify the number of Replicas for a kubernetes deployment.
-  * **type**: "ReplicaPatcher"
-  * **resource**: "uc1-kstreams-deployment.yaml"
+Modifies the number of replicas for a Kubernetes Deployment or StatefulSet.
 
-* **EnvVarPatcher**: Modifies the value of an environment variable for a container in a Kubernetes deployment. 
-  * **type**: "EnvVarPatcher"
-  * **resource**: "uc1-load-generator-deployment.yaml"
-  * **properties**:
-    * container: "workload-generator"
-    * variableName: "NUM_SENSORS"
+Supported Kubernetes resources: Deployment, StatefulSet.
 
-* **ConfigMapYamlPatcher**: allows to add/modify a key-value pair in a YAML file of a ConfigMap
-  * **type**: "ConfigMapYamlPatcher"
-  * **resource**: "flink-configuration-configmap.yaml"
-  * **properties**:
-    * fileName: "flink-conf.yaml"
-    * variableName: "jobmanager.memory.process.size"
-  * **value**: "4Gb"
 
-* **NodeSelectorPatcher**: Changes the node selection field in Kubernetes resources.
-  * **type**: "NodeSelectorPatcher"
-  * **resource**: "uc1-load-generator-deployment.yaml"
-  * **properties**:
-    * variableName: "env"
-  * **example value**: "prod"
+## ResourceLimitPatcher
 
-* **ResourceLimitPatcher**: Changes the resource limit for a Kubernetes resource.
-  * **resource**: "uc1-kstreams-deployment.yaml"
-  * **properties**:
-    * container: "uc-application"
-    * variableName: "cpu" or "memory"
-  * **example value**:"1000m" or "2Gi"
-  
-* **SchedulerNamePatcher**: Changes the scheduler for Kubernetes resources.
-  * **type**: "SchedulerNamePatcher"
-  * **resource**: "uc1-kstreams-deployment.yaml"
-  * **example value**: "random-scheduler"
+Modifies the resource limits (e.g., CPU or memory) of a container in a Pod or another resource having a Pod template.
 
-* **LabelPatcher**: Changes the label of a Kubernetes Deployment or StatefulSet. The patched field is: `metadata.labels`
-  * **type**: "LabelPatcher"
-  * **resource**: "uc1-kstreams-deployment.yaml"
-  * **properties**:
-    * variableName: "app"
-  * **example value**: "theodolite-sut"
+Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
-* **MatchLabelPatcher**: Changes the match labels of a Kubernetes Deployment or StatefulSet. The patched field is: `spec.selector.matchLabels`
-  * **type**: "MatchLabelPatcher"
-  * **resource**: "uc1-kstreams-deployment.yaml"
-  * **properties**:
-    * variableName: "app"
-  * **example value**: "theodolite-sut"
+| Property | Description | Optional |
+|:----|:----|:----|
+| container | The name of the container to be patched. | |
+| limitedResource | The resource to be limited (e.g., *cpu* or *memory*) | |
+| format | Format added to the provided value (e.g., `GBi` or `m`, see Kubernetes documentation for valid values. | yes |
+| factor | An integer to multiply the value with. Both *factor* and *format* are ignored if *factor* is not an integer. | yes |
 
-* **TemplateLabelPatcher**: Changes the template labels of a Kubernetes Deployment or StatefulSet. The patched field is: `spec.template.metadata.labels`
-  * **type**: "MatchLabelPatcher"
-  * **resource**: "uc1-kstreams-deployment.yaml"
-  * **properties**:
-    * variableName: "app"
-  * **example value**: "theodolite-sut"
 
-* **ImagePatcher**: Changes the image of a Kubernetes resource. **Currently not fully implemented.**
-  * **type**: "ImagePatcher"
-  * **resource**: "uc1-kstreams-deployment.yaml"
-  * **properties**:
-    * container: "uc-application"
-  * **example value**: "dockerhub-org/image-name"
+## ResourceRequestPatcher
+
+Modifies the resource requests (e.g., CPU or memory) of a container in a Pod or another resource having a Pod template.
+
+Supported Kubernetes resources: Pod, Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| container | The name of the container to be patched. | |
+| limitedResource | The resource to be limited (e.g., *cpu* or *memory*) | |
+| format | Format added to the provided value (e.g., `GBi` or `m`, see Kubernetes documentation for valid values. | yes |
+| factor | An integer to multiply the value with. Both *factor* and *format* are ignored if *factor* is not an integer. | yes |
+
+
+## EnvVarPatcher
+
+Modifies an environment variable.
+
+Supported Kubernetes resources: Pod, Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| container | Name of the container for which to set the environment variable. |  |
+| variableName | Name of the environment variable to be patched. |  |
+| factor | An integer to multiply the value with. Ignored if not an integer. | yes |
+| prefix | A string prefix for the value. | yes |
+| suffix | A string suffix for the value. | yes |
+
+
+## ConfigMapYamlPatcher
+
+Modifies the value of a key in a YAML file inside a ConfigMap.
+
+Supported Kubernetes resources: ConfigMap.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| fileName | The filename of a YAML file inside the ConfigMap to modify. |  |
+| variableName | The name of the variable to modify (e.g., `jobmanager.memory.process.size`). |  |
+| factor | An integer to multiply the value with. Ignored if not an integer. | yes |
+| prefix | A string prefix for the value. | yes |
+| suffix | A string suffix for the value. | yes |
+
+
+## ConfigMapPropertiesPatcher
+
+Modifies the value of a key in a `.properties` file inside a ConfigMap.
+
+Supported Kubernetes resources: ConfigMap.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| fileName | The filename of a `.properties` file inside the ConfigMap to modify. |  |
+| variableName | The name of the variable to modify. |  |
+| factor | An integer to multiply the value with. Ignored if not an integer. | yes |
+| prefix | A string prefix for the value. | yes |
+| suffix | A string suffix for the value. | yes |
+
+
+## NumSensorsLoadGeneratorReplicaPatcher
+
+Modifies the number of load generators, according to the following formula: *(value + loadGenMaxRecords - 1) / loadGenMaxRecords*.
+
+This is a load generator, particularly intended for [Theodolite's Stream Processing benchmarks](/theodolite-benchmarks).
+
+Supported Kubernetes resources: Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| loadGenMaxRecords | Maximum number of records to be generated by one load generator. |  |
+
+
+## NumNestedGroupsLoadGeneratorReplicaPatcher
+
+Modifies the number of load generators, according to the following formula: *(numSensor^(value) + loadGenMaxRecords - 1) / loadGenMaxRecords*.
+
+This is a load generator, particularly intended for [Theodolite's Stream Processing benchmarks](/theodolite-benchmarks).
+
+Supported Kubernetes resources: Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| loadGenMaxRecords | Maximum number of records to be generated by one load generator. |  |
+| numSensors | Base of the exponential formula as described above. |  |
+
+
+## DataVolumeLoadGeneratorReplicaPatcher
+
+Modifies both the number of replicas and an environment variable. Takes a total load that should be generated and computes the number of instances needed for this load based on the formula *instances = ((value + maxVolume - 1) / maxVolume)* and computes the load per instance according to *loadPerInstance = load / instances*. The number of replicas is set to *instances* and an environment variable of a container is set to *loadPerInstance*.
+
+Supported Kubernetes resources: Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| maxVolume | Maximum volume that can be handled by a single instance. |  |
+| container | Name of the container for which to set the environment variable. |  |
+| variableName | The name of the environment variable to be patched. |  |
+
+
+## NamePatcher
+
+Modifies the name (`metadata.name`) of a Kubernetes resource.
+
+Supported Kubernetes resources: All.
+
+
+## LabelPatcher
+
+Modifies the labels of a Kubernetes resource. The patched field is: `metadata.labels.<labelName>`
+
+Supported Kubernetes resources: All.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| labelName | The name of the label for which to modify the value. |  |
+
+
+## MatchLabelPatcher
+
+Modifies the `matchLabels` selector of a Deployment or StatefulSet. The patched field is: `spec.selector.matchLabels.<labelName>`.
+
+Supported Kubernetes resources: Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| labelName | The name of the label for which to modify the value. |  |
+
+
+## TemplateLabelPatcher
+
+Modifies the template labels of a Deployment or StatefulSet. The patched field is: `spec.template.metadata.labels.<labelName>`.
+
+Supported Kubernetes resources: Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| labelName | The name of the label for which to modify the value. |  |
+
+
+## ServiceSelectorPatcher
+
+Modifies the `selector` of a Service. The patched field is: `spec.selector.<labelName>`.
+
+Supported Kubernetes resources: Service.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| labelName | The name of the label for which to modify the value. |  |
+
+
+## ImagePatcher
+
+Modifies the image (field `image`) of a container in a Pod or another resource having a Pod template.
+
+Supported Kubernetes resources: Pod, Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| container | Name of the container for which the image should be patched. |  |
+
+
+## NodeSelectorPatcher
+
+Modifies the node selector of a Pod or another resource having a Pod template.
+
+Supported Kubernetes resources: Pod, Deployment, StatefulSet.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| nodeLabelName | The name of the node label to match. |  |
+
+
+## SchedulerNamePatcher
+
+Modifies the scheduler of a Pod or another resource having a Pod template.
+
+Supported Kubernetes resources: Pod, Deployment, StatefulSet.
+
+
+## GenericPatcher
+
+Modifies arbitrary fields of a Kubernetes resource.
+
+Supported Kubernetes resources: All.
+
+| Property | Description | Optional |
+|:----|:----|:----|
+| path | Path to the field to modify (e.g., `spec/to/field/to/change`). |  |
+| type | The type of the field to modify. Must be one of `string` (default), `boolean`, `number`, `integer`). | yes |
+
