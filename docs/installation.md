@@ -37,7 +37,7 @@ If persistence is not enabled, all results will be gone upon pod termination.
 
 ### Exposing Grafana
 
-Per default, Theodolite exposes a Grafana instance as NodePort at port `31199`. This can configured by setting `grafana.service.nodePort`.
+Per default, Theodolite exposes a Grafana instance as NodePort at port `31199`. This can configured by setting `kube-prometheus-stack.grafana.service.nodePort`.
 
 ### Additional Kubernetes cluster metrics
 
@@ -47,14 +47,15 @@ See the [kube-prometheus-stack](https://github.com/prometheus-community/helm-cha
 
 ### Random scheduler
 
-Installation of the random scheduler can be enabled via `randomScheduler.enabled`. Please note that the random scheduler is neither required in operator mode nor in standalone mode. However, it has to be installed if benchmark executions should use random scheduling.
+Installation of the random scheduler can be enabled via `randomScheduler.enabled`. Please note that the random scheduler is not required, but has to be installed if benchmark executions should use random scheduling.
 
 <!-- **TODO:** link-->
 
 ### Multiple installations in the same cluster
 
-Multiple Theodolite installations in the same namespace are currently not fully tested.
-In cases, where you need to install multiple Theodolite instances, it's best to use dedicated namespaces **and** different release names.
+In cases, where you need to install multiple Theodolite instances, it's best to use dedicated namespaces.
+Make sure to [expose Grafana on different ports](#exposing-grafana) for each installation.
+Installing [additional cluster-level metrics](#additional-kubernetes-cluster-metrics) multiple times in the same cluster does not work.
 
 *Note that for meaningful results, usually only one benchmark should be executed at a time.*
 

@@ -14,8 +14,8 @@ spec:
   resources:
     requests:
       memory: 400Mi
-  scrapeInterval: 15s
-  enableAdminAPI: true
+  scrapeInterval: {{ .Values.prometheus.scrapeInterval }}
+  enableAdminAPI: {{ .Values.prometheus.enableAdminAPI }}
   {{- with .Values.prometheus.nodeSelector }}
   nodeSelector:
     {{- toYaml . | nindent 8 }}

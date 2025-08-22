@@ -1,6 +1,5 @@
 package rocks.theodolite.kubernetes.slo
 
-import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.core.IOHandler
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import java.text.Normalizer
@@ -8,6 +7,8 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.regex.Pattern
+
+private val DEFAULT_STEP_SIZE = Duration.ofSeconds(5)
 
 /**
  * Contains the analysis. Fetches a metric from Prometheus, documents it, and evaluates it.
@@ -25,13 +26,13 @@ class AnalysisExecutor(
 
     /**
      *  Analyses an experiment via prometheus data.
-     *  First fetches data from prometheus, then documents them and afterwards evaluate it via a [slo].
+     *  First fetches data from prometheus, then documents them and afterward evaluate it via a [slo].
      *  @param load of the experiment.
      *  @param resource of the experiment.
      *  @param executionIntervals list of start and end points of experiments
      *  @return true if the experiment succeeded.
      */
-    fun analyze(load: Int, resource: Int, executionIntervals: List<Pair<Instant, Instant>>, metric: Metric): Boolean {
+    fun analyze(load: Int, resource: Int, executionIntervals: List<Pair<Instant, Instant>>): Boolean {
         var repetitionCounter = 1
 
         try {
@@ -39,11 +40,15 @@ class AnalysisExecutor(
             val resultsFolder = ioHandler.getResultFolderURL()
             val fileURL = "${resultsFolder}exp${executionId}_${load}_${resource}_${slo.sloType.toSlug()}"
 
+            val stepSize = slo.properties["promQLStepSeconds"]?.toLong()?.let { Duration.ofSeconds(it) } ?: DEFAULT_STEP_SIZE
+            val onlyFirstMetric = slo.properties["takeOnlyFirstMetric"]?.toBoolean() ?: true
+
             val prometheusData = executionIntervals
                 .map { interval ->
                     fetcher.fetchMetric(
                         start = interval.first,
                         end = interval.second,
+                        stepSize = stepSize,
                         query = SloConfigHandler.getQueryString(slo = slo)
                     )
                 }
@@ -51,7 +56,7 @@ class AnalysisExecutor(
             prometheusData.forEach{ data ->
                 ioHandler.writeToCSVFile(
                     fileURL = "${fileURL}_${slo.name}_${repetitionCounter++}",
-                    data = data.getResultAsList(),
+                    data = data.getResultAsList(onlyFirst = onlyFirstMetric),
                     columns = listOf("labels", "timestamp", "value")
                 )
             }
@@ -60,8 +65,7 @@ class AnalysisExecutor(
                 sloType = slo.sloType,
                 properties = slo.properties,
                 load = load,
-                resources = resource,
-                metric = metric
+                resources = resource
             )
 
             return sloChecker.evaluate(prometheusData)

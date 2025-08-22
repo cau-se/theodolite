@@ -143,7 +143,7 @@ class ResourceRequestPatcherTest {
     }
 
     private fun getDeployment(fileName: String): Deployment {
-        return server.client.apps().deployments().load(javaClass.getResourceAsStream(fileName)).get()
+        return server.client.apps().deployments().load(javaClass.getResourceAsStream(fileName)).item()
     }
 
 }

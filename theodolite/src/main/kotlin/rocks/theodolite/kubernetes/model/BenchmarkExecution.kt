@@ -3,6 +3,7 @@ package rocks.theodolite.kubernetes.model
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.quarkus.runtime.annotations.RegisterForReflection
+import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import kotlin.properties.Delegates
 
@@ -41,7 +42,7 @@ class BenchmarkExecution : KubernetesResource {
     @JsonDeserialize
     @RegisterForReflection
     class Execution : KubernetesResource {
-        var metric = "demand"
+        var metric = Metric.DEMAND.value
         lateinit var strategy: Strategy
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()

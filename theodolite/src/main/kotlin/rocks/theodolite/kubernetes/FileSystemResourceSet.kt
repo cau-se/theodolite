@@ -45,7 +45,7 @@ class FileSystemResourceSet: ResourceSet, KubernetesResource {
                 val text = BufferedReader(InputStreamReader(it, StandardCharsets.UTF_8))
                         .lines()
                         .collect(Collectors.joining("\n"))
-                val k8sResource = client.resource(text).get()
+                val k8sResource = client.resource(text).item()
                 Pair(resource.last().toString(), k8sResource)
             }
         } catch (e: FileNotFoundException){

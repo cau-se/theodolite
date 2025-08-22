@@ -2,8 +2,8 @@ package rocks.theodolite.kubernetes
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClientException
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 
@@ -16,7 +16,7 @@ class DeleteCommand {
 
     lateinit var selector: DeleteActionSelector
 
-    fun exec(client: NamespacedKubernetesClient) {
+    fun exec(client: KubernetesClient) {
         logger.info { "Deleting all resources with apiVersion ${selector.apiVersion} and Kind ${selector.kind} matching regular expression ${selector.nameRegex}" }
         val regExp = selector.nameRegex.toRegex()
         val k8sManager = K8sManager(client)

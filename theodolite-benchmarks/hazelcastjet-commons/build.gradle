@@ -5,16 +5,12 @@ plugins {
 repositories {
   mavenCentral()
   maven {
-    url "https://oss.sonatype.org/content/repositories/snapshots/"
-  }
-  maven {
       url 'https://packages.confluent.io/maven/'
   }
 }
 
 dependencies {
-    implementation('org.industrial-devops:titan-ccp-common:0.1.0-SNAPSHOT') { changing = true }
-    implementation('org.industrial-devops:titan-ccp-common-kafka:0.1.0-SNAPSHOT') { changing = true }
+    implementation project(':commons')
     implementation 'com.hazelcast.jet:hazelcast-jet:4.5'
     implementation 'com.hazelcast.jet:hazelcast-jet-kafka:4.5'
     implementation 'com.hazelcast:hazelcast-kubernetes:2.2.2'

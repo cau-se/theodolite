@@ -120,11 +120,11 @@ class TheodoliteExecutor(
         this.benchmarkExecution.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
         ioHandler.writeToJSONFile(
             this.benchmarkExecution,
-            "${resultsFolder}exp${this.benchmarkExecution.executionId}-execution-configuration"
+            "${resultsFolder}exp${this.benchmarkExecution.executionId}-execution-configuration.json"
         )
         ioHandler.writeToJSONFile(
             benchmark,
-            "${resultsFolder}exp${this.benchmarkExecution.executionId}-benchmark-configuration"
+            "${resultsFolder}exp${this.benchmarkExecution.executionId}-benchmark-configuration.json"
         )
 
         val config = buildConfig()

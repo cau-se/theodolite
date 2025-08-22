@@ -27,6 +27,16 @@ spec:
             container: "zookeeper-client"
           command: ["bash", "-c", "bin/zkCli.sh -server $ZOOKEEPER_SERVER deleteall /app-theodolite-uc2-application-1"]
           timeoutSeconds: 60
+      - delete:
+          selector:
+            apiVersion: kafka.strimzi.io/v1beta2
+            kind: KafkaTopic
+            nameRegex: ".*samza.*"
+      - delete:
+          selector:
+            apiVersion: kafka.strimzi.io/v1beta2
+            kind: KafkaTopic
+            nameRegex: ".*uc2-application.*"
   loadGenerator:
     resources:
       - configMap:
@@ -82,10 +92,3 @@ spec:
         threshold: 2000
         externalSloUrl: "http://localhost:80/evaluate-slope"
         warmup: 60 # in seconds
-  kafkaConfig:
-    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
-    topics:
-      - name: ".*samza.*"
-        removeOnly: true
-      - name: ".*uc2-application.*"
-        removeOnly: true

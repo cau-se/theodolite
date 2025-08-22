@@ -54,6 +54,7 @@ internal class MetricFetcherTest {
         val response = metricFetcher.fetchMetric(
                 exampleDateTime.minus(Duration.ofMinutes(10)),
                 exampleDateTime,
+                Duration.ofSeconds(5),
                 "sum by(consumergroup) (kafka_consumergroup_lag >= 0)")
 
         assertEquals(emptyPrometheusResponse, response)

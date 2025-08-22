@@ -45,17 +45,6 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
     private fun startOperator() {
         logger.info { "Becoming the leading operator. Use namespace '${this.client.namespace}'." }
         client.use {
-            KubernetesDeserializer.registerCustomKind(
-                "$GROUP/$API_VERSION",
-                EXECUTION_SINGULAR,
-                ExecutionCRD::class.java
-            )
-
-            KubernetesDeserializer.registerCustomKind(
-                "$GROUP/$API_VERSION",
-                BENCHMARK_SINGULAR,
-                BenchmarkCRD::class.java
-            )
 
             ClusterSetup(
                 executionCRDClient = getExecutionClient(),
@@ -68,27 +57,18 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
                 benchmarkStateChecker = getBenchmarkStateChecker()
 
             )
-            getExecutionEventHandler(controller).startAllRegisteredInformers()
+
+            getExecutionClient().inform().addEventHandlerWithResyncPeriod(
+                ExecutionEventHandler(
+                    controller = controller,
+                    stateHandler = ExecutionStateHandler(this.client)
+                ),
+                RESYNC_PERIOD
+            )
+
+            this.client.informers().startAllRegisteredInformers()
             controller.run()
         }
-    }
-
-    private fun getExecutionEventHandler(
-            controller: TheodoliteController,
-    ): SharedInformerFactory {
-        val factory = this.client.informers()
-            .inNamespace(this.client.namespace)
-
-        factory.sharedIndexInformerForCustomResource(
-            ExecutionCRD::class.java,
-            RESYNC_PERIOD
-        ).addEventHandler(
-            ExecutionEventHandler(
-                controller = controller,
-                stateHandler = ExecutionStateHandler(this.client)
-            )
-        )
-        return factory
     }
 
     fun getExecutionStateHandler(): ExecutionStateHandler {

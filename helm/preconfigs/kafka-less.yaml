@@ -17,37 +17,45 @@ operator:
       uc1LoadGenerator: false
       uc1Kstreams: false
       uc1Flink: false
+      uc1Hazelcast: false
       uc1BeamFlink: false
       uc1BeamSamza: false
       uc2LoadGenerator: false
       uc2Kstreams: false
       uc2Flink: false
+      uc2Hazelcast: false
       uc2BeamFlink: false
       uc2BeamSamza: false
       uc3LoadGenerator: false
       uc3Kstreams: false
       uc3Flink: false
+      uc3Hazelcast: false
       uc3BeamFlink: false
       uc3BeamSamza: false
       uc4LoadGenerator: false
       uc4Kstreams: false
       uc4Flink: false
+      uc4Hazelcast: false
       uc4BeamFlink: false
       uc4BeamSamza: false
     benchmarks:
       uc1Kstreams: false
       uc1Flink: false
+      uc1Hazelcast: false
       uc1BeamFlink: false
       uc1BeamSamza: false
       uc2Kstreams: false
       uc2Flink: false
+      uc2Hazelcast: false
       uc2BeamFlink: false
       uc2BeamSamza: false
       uc3Kstreams: false
       uc3Flink: false
+      uc3Hazelcast: false
       uc3BeamFlink: false
       uc3BeamSamza: false
       uc4Kstreams: false
       uc4Flink: false
+      uc4Hazelcast: false
       uc4BeamFlink: false
       uc4BeamSamza: false

@@ -45,8 +45,7 @@ class SloCheckerFactory {
         sloType: String,
         properties: Map<String, String>,
         load: Int,
-        resources: Int,
-        metric: Metric
+        resources: Int
     ): SloChecker =
         when (SloTypes.from(sloType)) {
             SloTypes.GENERIC -> ExternalSloChecker(

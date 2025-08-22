@@ -1,6 +1,7 @@
 import unittest
-from main import app, get_aggr_func, check_result
+from main import app, get_aggr_func, check_result, aggr_query
 import json
+import pandas as pd
 from fastapi.testclient import TestClient
 
 class TestSloEvaluation(unittest.TestCase):
@@ -11,6 +12,7 @@ class TestSloEvaluation(unittest.TestCase):
             data = json.load(json_file)
             response = self.client.post("/", json=data)
             self.assertEqual(response.json(), True)
+
 
     def test_get_aggr_func_mean(self):
         self.assertEqual(get_aggr_func('median'), 'median')
@@ -30,12 +32,22 @@ class TestSloEvaluation(unittest.TestCase):
     def test_get_aggr_func_p99_(self):
         self.assertRaises(ValueError, get_aggr_func, 'p99.')
 
-    def test_get_aggr_func_p99_(self):
+    def test_get_aggr_func_q99(self):
         self.assertRaises(ValueError, get_aggr_func, 'q99')
 
-    def test_get_aggr_func_p99_(self):
+    def test_get_aggr_func_mux(self):
         self.assertRaises(ValueError, get_aggr_func, 'mux')
+
+    def test_get_aggr_func_first(self):
+        self.assertTrue(callable(get_aggr_func('first')))
+
+    def test_get_aggr_func_last(self):
+        self.assertTrue(callable(get_aggr_func('last')))
+
+    def test_get_aggr_func_trend(self):
+        self.assertTrue(callable(get_aggr_func('trend')))
     
+
     def test_check_result_lt(self):
         self.assertEqual(check_result(100, 'lt', 200), True)
         
@@ -51,6 +63,25 @@ class TestSloEvaluation(unittest.TestCase):
     def test_check_result_invalid(self):
         self.assertRaises(ValueError, check_result, 100, 'xyz', 200)
 
+    def test_aggr_query_mean(self):
+        values = {
+            'timestamp': [1, 2, 3, 4, 5],
+            'value': [10, 20, 30, 40, 50]
+        }
+        warmup = 1
+        aggr_func = get_aggr_func('mean')
+        result = aggr_query(values, warmup, aggr_func)
+        self.assertEqual(result, 35.0)
+    
+    def test_aggr_query_trend(self):
+        values = {
+            'timestamp': [1, 2, 3, 4, 5],
+            'value': [10, 20, 30, 40, 50]
+        }
+        warmup = 0
+        aggr_func = get_aggr_func('trend')
+        result = aggr_query(values, warmup, aggr_func)
+        self.assertEqual(result, 10.0)
 
 if __name__ == '__main__':
     unittest.main()
