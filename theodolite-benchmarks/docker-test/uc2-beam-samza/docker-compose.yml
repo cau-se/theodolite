@@ -40,7 +40,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
   benchmark:
-    image: ghcr.io/cau-se/theodolite-uc2-beam-samza:${THEODOLITE_TAG:-latest}
+    image: ghcr.io/cau-se/theodolite-uc2-beam-samza:${THEODOLITE_TAG:-v0.10.0}
     scale: 1
     depends_on:
       - schema-registry
@@ -53,7 +53,7 @@ services:
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       ENABLE_METRICS: "false"
   load-generator: 
-    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:${THEODOLITE_TAG:-latest}
+    image: ghcr.io/cau-se/theodolite-uc2-workload-generator:${THEODOLITE_TAG:-v0.10.0}
     depends_on:
       - schema-registry
       - kafka

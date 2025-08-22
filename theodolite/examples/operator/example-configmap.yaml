@@ -31,7 +31,7 @@ data:
           terminationGracePeriodSeconds: 0
           containers:
             - name: uc-application
-              image: ghcr.io/cau-se/theodolite-uc1-kstreams-app:latest
+              image: ghcr.io/cau-se/theodolite-uc1-kstreams-app:v0.10.0
               env:
                 - name: KAFKA_BOOTSTRAP_SERVERS
                   value: "theodolite-kafka-kafka-bootstrap:9092"
@@ -63,7 +63,7 @@ data:
           terminationGracePeriodSeconds: 0
           containers:
             - name: workload-generator
-              image: ghcr.io/cau-se/theodolite-uc1-workload-generator:latest
+              image: ghcr.io/cau-se/theodolite-uc1-workload-generator:v0.10.0
               ports:
                 - containerPort: 5701
                   name: coordination

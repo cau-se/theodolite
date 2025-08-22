@@ -5,10 +5,10 @@
     "codeRepository": "https://github.com/cau-se/theodolite",
     "dateCreated": "2020-03-13",
     "datePublished": "2020-07-27",
-    "dateModified": "2023-07-18",
+    "dateModified": "2025-08-22",
     "downloadUrl": "https://github.com/cau-se/theodolite/releases",
     "name": "Theodolite",
-    "version": "0.9.0",
+    "version": "0.10.0",
     "description": "Theodolite is a framework for benchmarking the horizontal and vertical scalability of cloud-native applications.",
     "developmentStatus": "active",
     "relatedLink": [
@@ -28,10 +28,10 @@
             "@type": "Person",
             "givenName": "Sören",
             "familyName": "Henning",
-            "email": "soeren.henning@jku.at",
+            "email": "soeren.henning@dynatrace.com",
             "affiliation": {
                 "@type": "Organization",
-                "name": "JKU/Dynatrace Co-Innovation Lab, LIT CPS Lab, Johannes Kepler University Linz"
+                "name": "Dynatrace Research"
             }
         }
     ]
