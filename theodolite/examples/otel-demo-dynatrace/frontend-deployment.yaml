@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    opentelemetry.io/name: frontend
+    app.kubernetes.io/part-of: my-otel-demo
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/version: "2.0.2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      opentelemetry.io/name: frontend
+  template:
+    metadata:
+      labels:
+        opentelemetry.io/name: frontend
+        app.kubernetes.io/part-of: my-otel-demo
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/name: frontend
+    spec:
+      serviceAccountName: my-otel-demo
+      containers:
+        - name: frontend
+          image: 'ghcr.io/open-telemetry/demo:2.0.2-frontend'
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: service
+          env:
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app.kubernetes.io/component']
+            - name: OTEL_COLLECTOR_NAME
+              value: otel-collector
+            - name: OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+              value: cumulative
+            - name: FRONTEND_PORT
+              value: "8080"
+            - name: FRONTEND_ADDR
+              value: :8080
+            - name: AD_ADDR
+              value: ad:8080
+            - name: CART_ADDR
+              value: cart:8080
+            - name: CHECKOUT_ADDR
+              value: checkout:8080
+            - name: CURRENCY_ADDR
+              value: currency:8080
+            - name: PRODUCT_CATALOG_ADDR
+              value: product-catalog:8080
+            - name: RECOMMENDATION_ADDR
+              value: recommendation:8080
+            - name: SHIPPING_ADDR
+              value: shipping:8080
+            - name: FLAGD_HOST
+              value: flagd
+            - name: FLAGD_PORT
+              value: "8013"
+            - name: OTEL_COLLECTOR_HOST
+              value: $(OTEL_COLLECTOR_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://$(OTEL_COLLECTOR_NAME):4317
+            - name: WEB_OTEL_SERVICE_NAME
+              value: frontend-web
+            - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: http://localhost:8080/otlp-http/v1/traces
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,service.version=2.0.2
+          resources:
+            limits:
+              memory: 250Mi
+              cpu: 200m
+          securityContext:
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
