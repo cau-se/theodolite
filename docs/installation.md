@@ -29,6 +29,10 @@ For this purpose the [default values file](https://github.com/cau-se/theodolite/
 
 For Kubernetes clusters with limited resources such as on local developer installations, we provide a [minimal values file](https://github.com/cau-se/theodolite/blob/main/helm/preconfigs/minimal.yaml).
 
+### Installation without Kafka
+
+Per default, Theodolite sets up a Kafka cluster. For benchmarking scenarios where Kafka is not needed, you can disable all Kafka-related parts using a [*Kafka-less* values file](https://github.com/cau-se/theodolite/blob/main/helm/preconfigs/kafka-less.yaml).
+
 ### Persisting results
 
 To store the results of benchmark executions in a [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes), `operator.resultsVolume.persistent.enabled` has to be set to `true`. This requires that either a statically provisioned PersistentVolume is available or a dynamic provisioner exists (which is the case for many Kubernetes installations). If required, you can select a storage class with `operator.resultsVolume.persistent.storageClassName`.
