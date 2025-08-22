@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpbin-envoy
+  labels:
+    app: httpbin-envoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin-envoy
+  template:
+    metadata:
+      labels:
+        app: httpbin-envoy
+    spec:
+      containers:
+      - name: httpbin
+        image: kennethreitz/httpbin
+        ports:
+        - containerPort: 80
+        #resources:
+            #limits:
+              #memory: "64Mi"
+              #cpu: "50m"
+      - name: envoy
+        image: envoyproxy/envoy:v1.27.0
+        ports:
+        - containerPort: 8080 # Proxy port
+        - containerPort: 9901 # Admin interface for Prometheus metrics
+        args:
+        - "--config-path"
+        - "/etc/envoy/envoy.yaml"
+        resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy
+
+      # Shared Config Volume
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config

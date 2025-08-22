@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: httpbin-envoy-service-monitor
+  labels:
+    app: httpbin-envoy
+spec:
+  selector:
+    matchLabels:
+      app: httpbin-envoy
+  endpoints:
+    - port: admin
+      interval: 10s
+      path: /stats/prometheus

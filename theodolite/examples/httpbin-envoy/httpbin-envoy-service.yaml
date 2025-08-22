@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin-envoy
+  labels:
+    app: httpbin-envoy
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080 # Envoy's proxy port
+    name: public
+  - port: 9901
+    targetPort: 9901 # Envoy's Admin interface for Prometheus metrics
+    name: admin
+  selector:
+    app: httpbin-envoy

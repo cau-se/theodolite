@@ -1,0 +1,35 @@
+apiVersion: theodolite.com/v1
+kind: execution
+metadata:
+  name: nginx-benchmark-execution
+  namespace: default
+spec:
+  benchmark: "nginx-benchmark" # (2) refer to the benchmark to be run
+  load:
+    loadType: "curlTimeout" # (3) chose one of the benchmark's load types
+    loadValues: [3, 5, 7, 9] # Timeouts between curl-calls.
+  resources:
+    resourceType: "Instances" # (5) chose one of the benchmark's resource types
+    resourceValues: [1, 2, 3] # Instance counts
+  # "SLOs provide a way to quantify whether a certain load intensity
+  # can be handled by a certain amount of provisioned resources"
+  slos:
+    - sloType: "generic"
+      prometheusUrl: "http://prometheus-operated:9090"
+      offset: 0
+      properties:
+        externalSloUrl: "http://localhost:8082"
+        promQLQuery: sum(rate(nginx_http_response_count_total{status="502"}[1m])) OR on() vector(0)
+        warmup: 60 # in seconds
+        queryAggregation: max
+        repetitionAggregation: median
+        # The aggregated value from the promQL query is compared to the threshold.
+        operator: lte
+        threshold: 0
+  execution:
+    strategy: "LinearSearch" # (8) chose a search strategy
+    restrictions: ["LowerBound"] # (9) add restrictions for the strategy
+    duration: 200 # (10) set the experiment duration in seconds
+    repetitions: 1 # (11) set the number of repetitions
+    loadGenerationDelay: 30 # "Seconds to wait between the start of the SUT and the load generator."
+  configOverrides: []
