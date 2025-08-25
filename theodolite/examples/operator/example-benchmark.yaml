@@ -49,4 +49,4 @@ spec:
 #        operator: "lte"
         threshold: 3000
         externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
+        warmup: 30 # in seconds

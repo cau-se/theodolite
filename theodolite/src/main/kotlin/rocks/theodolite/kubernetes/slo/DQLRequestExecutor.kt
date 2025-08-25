@@ -96,7 +96,7 @@ class DQLRequestExecutor : MetricRequestExecutor {
             .uri(URI.create("$uri:execute"))
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer $authToken")
-            .POST(HttpRequest.BodyPublishers.ofString("{\"query\": \"$query, timeframe: toTimeframe(\\\"$offsetStart/$offsetEnd\\\")\"}"))
+            .POST(HttpRequest.BodyPublishers.ofString("{\"query\": \"$query\", \"defaultTimeframeStart\":\"$offsetStart\", \"defaultTimeframeEnd\": \"$offsetEnd\"}"))
             .version(HttpClient.Version.HTTP_1_1)
             .timeout(timeout)
             .build()
@@ -114,6 +114,7 @@ class DQLRequestExecutor : MetricRequestExecutor {
                 val requestToken: String,
                 val ttlSeconds: Int
             )
+
             val execResponse : ExecuteResponse =  jacksonObjectMapper().readValue(response.body())
 
             return execResponse.requestToken

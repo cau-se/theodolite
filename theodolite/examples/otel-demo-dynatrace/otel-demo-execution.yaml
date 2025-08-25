@@ -6,7 +6,7 @@ spec:
   benchmark: otel-demo
   load:
     loadType: "Users"
-    loadValues: [10, 20, 30]
+    loadValues: [5, 15, 25]
   resources:
     resourceType: "Instances"
     resourceValues: [1, 2, 3]
@@ -17,6 +17,6 @@ spec:
     metric: capacity
     strategy:
       name: "FullSearch"
-    duration: 300 # in seconds
+    duration: 900 # in seconds
     loadGenerationDelay: 30 # in seconds
     repetitions: 1

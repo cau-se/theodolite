@@ -26,7 +26,7 @@ class DQLPollResponse (
 
         data class ResultRecord (
             val timeframe: TimeFrame,
-            val interval: Long, //in milliseconds
+            val interval: Long, //in nanoseconds
         ){
             val grouping: MutableMap<String, String> = mutableMapOf()
             val metrics: MutableMap<String, List<Double?>> = mutableMapOf()
@@ -80,7 +80,7 @@ class DQLPollResponse (
             val group = record.grouping.keys.joinToString(", ")
             val values = record.metrics.values.first()
             values.mapIndexed { index, value ->
-                val timestamp = record.timeframe.start.plusMillis(index * record.interval)
+                val timestamp = record.timeframe.start.plusNanos(index * record.interval)
                 listOf(group, timestamp.toString(), value.toString())
             }
         }
@@ -105,7 +105,7 @@ class DQLPollResponse (
             val values = record.metrics.values.first()
             val resultsList = values.mapIndexedNotNull { index, value ->
                 if (value != null) {
-                    val timestamp = record.timeframe.start.plusMillis(index * record.interval)
+                    val timestamp = record.timeframe.start.plusNanos(index * record.interval)
                     listOf(timestamp.epochSecond, value.toString())
                 } else {
                     null

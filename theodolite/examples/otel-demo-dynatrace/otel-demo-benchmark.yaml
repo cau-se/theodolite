@@ -29,15 +29,16 @@ spec:
             container: "load-generator"
             variableName: "LOCUST_USERS"
   slos:
-    - name: dummy
-      sloType: generic
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
+    - name: "dummy"
+      sloType: "generic"
       properties:
-        externalSloUrl: "http://localhost:8082"
-        promQLQuery: "vector(1)" # Return a constant value of 1
+        externalSloUrl: "http://localhost:80"
+        query: "fetch spans, samplingRatio: 10, scanLimitGBytes: 50
+| filter request.is_root_span == true AND isNotNull(endpoint.name)
+| makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }"
+        provider: "dynatrace"
         warmup: 60 # in seconds
-        queryAggregation: max
-        repetitionAggregation: median
-        operator: lte
-        threshold: 2
+        queryAggregation: "mean"
+        repetitionAggregation: "median"
+        operator: "lte"
+        threshold: 500000000
