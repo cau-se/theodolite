@@ -86,7 +86,7 @@ opensearch:
 opentelemetry-collector:
   resources:
       limits:
-        memory: 300Mi # default 200
+        memory: 350Mi # default 200
   image:
     repository: "otel/opentelemetry-collector-contrib"
     tag: ""

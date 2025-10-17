@@ -8,7 +8,7 @@ object MetricRequestExecutorFactory {
         executors.getOrPut(kind) {
             when (kind) {
                 MetricFetcher.Kind.PROMETHEUS -> PrometheusRequestExecutor()
-                MetricFetcher.Kind.DYNATRACE -> DQLRequestExecutor()
+                MetricFetcher.Kind.DYNATRACE -> DqlRequestExecutor()
             }
         }
 }

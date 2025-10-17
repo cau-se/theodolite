@@ -17,12 +17,12 @@ import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
-class DQLRequestExecutor : MetricRequestExecutor {
+class DqlRequestExecutor : MetricRequestExecutor {
     private var clientId: String = ConfigProvider.getConfig().getValue("dql.clientid", String::class.java)
     private var clientSecret: String = ConfigProvider.getConfig().getValue("dql.clientsecret", String::class.java)
     private var scope: String = ConfigProvider.getConfig().getValue("dql.scope", String::class.java)
     private var resource: String = ConfigProvider.getConfig().getValue("dql.resource", String::class.java)
-    private var authURI: URI = ConfigProvider.getConfig().getValue("dql.authurl", URI::class.java)
+    private var authUri: URI = ConfigProvider.getConfig().getValue("dql.authurl", URI::class.java)
 
     override fun executeRequest(
         uri: URI,
@@ -38,11 +38,11 @@ class DQLRequestExecutor : MetricRequestExecutor {
 
         var tries = 0
         val maxTries = 5
-        var pollResponse : DQLPollResponse
+        var pollResponse : DqlPollResponse
         do {
             Thread.sleep(500)
             val queryResultJson = pollQueryResults(uri, authToken, timeout, requestToken)
-            pollResponse = DQLPollResponse.fromString(queryResultJson)
+            pollResponse = DqlPollResponse.fromString(queryResultJson)
             tries++
         } while (!pollResponse.isSuccessful() && tries < maxTries)
 
@@ -62,7 +62,7 @@ class DQLRequestExecutor : MetricRequestExecutor {
         }
 
         val request = HttpRequest.newBuilder()
-            .uri(authURI)
+            .uri(authUri)
             .header("Content-Type", "application/x-www-form-urlencoded")
             .POST(HttpRequest.BodyPublishers.ofString(encodedParams))
             .version(HttpClient.Version.HTTP_1_1)

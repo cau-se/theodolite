@@ -12,7 +12,7 @@ import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
-class DQLPollResponse (
+class DqlPollResponse (
     private val state : String,
     private val progress : Int,
     private val result : QueryResult
@@ -58,7 +58,7 @@ class DQLPollResponse (
     }
 
     companion object : MetricQueryResponseFactory<MetricQueryResponse> {
-        override fun fromString(json: String): DQLPollResponse{
+        override fun fromString(json: String): DqlPollResponse{
             return jacksonObjectMapper().registerModule(JavaTimeModule()).readValue(json)
         }
     }
@@ -81,7 +81,7 @@ class DQLPollResponse (
             val values = record.metrics.values.first()
             values.mapIndexed { index, value ->
                 val timestamp = record.timeframe.start.plusNanos(index * record.interval)
-                listOf(group, timestamp.toString(), value.toString())
+                listOf(group, timestamp.toEpochMilli().toString(), value.toString())
             }
         }
 
