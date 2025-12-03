@@ -73,7 +73,6 @@ spec:
         {{- end }}
         {{- if .Values.operator.resultsVolume.accessSidecar.enabled }}
         - name: results-access
-          image: busybox:stable
           image: "{{ .Values.operator.resultsVolume.accessSidecar.image }}:{{ .Values.operator.resultsVolume.accessSidecar.imageTag }}"
           imagePullPolicy: "{{ .Values.operator.resultsVolume.accessSidecar.imagePullPolicy }}"
           command:
