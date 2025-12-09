@@ -233,4 +233,7 @@ Supported Kubernetes resources: All.
 |:----|:----|:----|
 | path | Path to the field to modify (e.g., `spec/to/field/to/change`). |  |
 | type | The type of the field to modify. Must be one of `string` (default), `boolean`, `number`, `integer`). | yes |
+| factor | An integer to multiply the value with. Ignored if not an integer. | yes |
+| prefix | A string prefix for the value. Only allowed if `type=string`. | yes |
+| suffix | A string suffix for the value. Only allowed if `type=string`. | yes |
 
