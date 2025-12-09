@@ -223,7 +223,7 @@ Modifies the scheduler of a Pod or another resource having a Pod template.
 Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
 
-## GenericPatcher
+## GenericResourcePatcher
 
 Modifies arbitrary fields of a Kubernetes resource.
 
