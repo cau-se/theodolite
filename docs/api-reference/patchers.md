@@ -67,6 +67,7 @@ Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 | Property | Description | Optional |
 |:----|:----|:----|
 | container | Name of the container for which to set the environment variable. |  |
+| isInitContainer | Whether the container is an init container, `true` or `false` (default: `false`). | yes |
 | variableName | Name of the environment variable to be patched. |  |
 | factor | An integer to multiply the value with. Ignored if not an integer. | yes |
 | prefix | A string prefix for the value. | yes |

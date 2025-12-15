@@ -35,7 +35,8 @@ class PatcherFactory {
                 "EnvVarPatcher" -> DecoratingPatcher(
                     EnvVarPatcher(
                         container = patcher.properties["container"] ?: throwInvalid(patcher),
-                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher),
+                        isInitContainer = patcher.properties["isInitContainer"]?.toBoolean() ?: false,
                     ),
                     prefix = patcher.properties["prefix"],
                     suffix = patcher.properties["suffix"],
