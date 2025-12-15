@@ -226,9 +226,9 @@ Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
 ## GenericResourcePatcher
 
-Modifies arbitrary fields of a Kubernetes resource.
+Modifies arbitrary fields of a Kubernetes resource is not a standard resource.
 
-Supported Kubernetes resources: All.
+Supported Kubernetes resources: All non-standard resources, i.e., CRDs.
 
 | Property | Description | Optional |
 |:----|:----|:----|
