@@ -8,7 +8,6 @@ spec:
   storageClassName: {{ .Values.operator.resultsVolume.persistent.storageClassName }}
   {{- end }}
   accessModes:
-    - ReadWriteOnce
     {{- range .Values.operator.resultsVolume.persistent.accessModes }}
     - {{ . | quote }}
     {{- end }}
