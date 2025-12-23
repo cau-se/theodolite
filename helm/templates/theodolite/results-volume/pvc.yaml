@@ -14,4 +14,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.operator.resultsVolume.persistent.size | quote }}
+  {{- if .Values.operator.resultsVolume.persistent.volumeName }}
+  volumeName: {{ .Values.operator.resultsVolume.persistent.volumeName }}
+  {{- end }}
 {{- end }}

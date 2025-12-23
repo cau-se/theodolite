@@ -261,6 +261,7 @@ operator:
       accessModes:
         - ReadWriteOnce
       size: 1Gi
+      # volumeName:
     accessSidecar:
       enabled: true
       image: busybox
