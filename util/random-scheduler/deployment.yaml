@@ -18,7 +18,7 @@ spec:
       serviceAccount: random-scheduler
       containers:
         - name: random-scheduler
-          image: ghcr.io/cau-se/theodolite-random-scheduler:v0.10.0
+          image: ghcr.io/cau-se/theodolite-random-scheduler:v0.10.1
           imagePullPolicy: IfNotPresent
           env:
             - name: TARGET_NAMESPACE
