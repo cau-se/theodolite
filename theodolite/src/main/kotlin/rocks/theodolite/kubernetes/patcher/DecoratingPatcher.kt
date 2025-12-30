@@ -10,7 +10,7 @@ private val logger = KotlinLogging.logger {}
  * factor only has an effect if the supplied value is an integer.
  */
 class DecoratingPatcher(
-    private val innerPatcher: Patcher,
+    val innerPatcher: Patcher,
     private val prefix: String?,
     private val suffix: String?,
     private val factor: Int?

@@ -35,7 +35,8 @@ class PatcherFactory {
                 "EnvVarPatcher" -> DecoratingPatcher(
                     EnvVarPatcher(
                         container = patcher.properties["container"] ?: throwInvalid(patcher),
-                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher)
+                        variableName = patcher.properties["variableName"] ?: throwInvalid(patcher),
+                        isInitContainer = patcher.properties["isInitContainer"]?.toBoolean() ?: false,
                     ),
                     prefix = patcher.properties["prefix"],
                     suffix = patcher.properties["suffix"],
@@ -105,12 +106,17 @@ class PatcherFactory {
                 "VolumesConfigMapPatcher" -> VolumesConfigMapPatcher(
                     volumeName = patcher.properties["volumeName"] ?: throwInvalid(patcher)
                 )
-                "GenericResourcePatcher" -> GenericResourcePatcher(
-                    path = (patcher.properties["path"] ?: throwInvalid(patcher))
-                            .removePrefix("/")
-                            .split("/")
-                            .map { it.toIntOrNull() ?: it },
-                    type = patcher.properties["type"]?.let { GenericResourcePatcher.Type.from(it) } ?: GenericResourcePatcher.Type.STRING
+                "GenericResourcePatcher" -> DecoratingPatcher(
+                    GenericResourcePatcher(
+                        path = (patcher.properties["path"] ?: throwInvalid(patcher))
+                                .removePrefix("/")
+                                .split("/")
+                                .map { it.toIntOrNull() ?: it },
+                        type = patcher.properties["type"]?.let { GenericResourcePatcher.Type.from(it) } ?: GenericResourcePatcher.Type.STRING
+                    ),
+                    prefix = patcher.properties["prefix"],
+                    suffix = patcher.properties["suffix"],
+                    factor = patcher.properties["factor"]?.toInt()
                 )
                 else -> throw InvalidPatcherConfigurationException("Patcher type ${patcher.type} not found.")
             }

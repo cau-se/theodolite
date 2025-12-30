@@ -67,6 +67,7 @@ Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 | Property | Description | Optional |
 |:----|:----|:----|
 | container | Name of the container for which to set the environment variable. |  |
+| isInitContainer | Whether the container is an init container, `true` or `false` (default: `false`). | yes |
 | variableName | Name of the environment variable to be patched. |  |
 | factor | An integer to multiply the value with. Ignored if not an integer. | yes |
 | prefix | A string prefix for the value. | yes |
@@ -223,14 +224,17 @@ Modifies the scheduler of a Pod or another resource having a Pod template.
 Supported Kubernetes resources: Pod, Deployment, StatefulSet.
 
 
-## GenericPatcher
+## GenericResourcePatcher
 
-Modifies arbitrary fields of a Kubernetes resource.
+Modifies arbitrary fields of a Kubernetes resource is not a standard resource.
 
-Supported Kubernetes resources: All.
+Supported Kubernetes resources: All non-standard resources, i.e., CRDs.
 
 | Property | Description | Optional |
 |:----|:----|:----|
 | path | Path to the field to modify (e.g., `spec/to/field/to/change`). |  |
-| type | The type of the field to modify. Must be one of `string` (default), `boolean`, `number`, `integer`). | yes |
+| type | The type of the field to modify. Must be one of `string` (default), `boolean`, `number`, `integer`. | yes |
+| factor | An integer to multiply the value with. Ignored if not an integer. | yes |
+| prefix | A string prefix for the value. Only allowed if *type* is `string`. | yes |
+| suffix | A string suffix for the value. Only allowed if *type* is `string`. | yes |
 
