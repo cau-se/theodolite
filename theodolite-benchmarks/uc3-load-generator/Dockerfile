@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-slim
+FROM eclipse-temurin:11-jre
 
 ADD build/distributions/uc3-load-generator.tar /
 
