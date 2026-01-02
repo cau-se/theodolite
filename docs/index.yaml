@@ -155,7 +155,7 @@ entries:
   theodolite:
   - apiVersion: v2
     appVersion: 0.10.1
-    created: "2025-12-30T16:05:21.12091454+01:00"
+    created: "2026-01-02T15:06:47.591173607+01:00"
     dependencies:
     - condition: kube-prometheus-stack.enabled
       name: kube-prometheus-stack
@@ -167,7 +167,7 @@ entries:
       version: 0.38.*
     description: Theodolite is a framework for benchmarking the horizontal and vertical
       scalability of cloud-native applications.
-    digest: 209e23bd730bc2af756223c1d9d06fecafec5efc4b4f8c2b67d1f64fbc72b560
+    digest: f2d4fb5c46e80f010486d618443c91afd44cf59106dea11f99ef3ac922b8f43b
     home: https://www.theodolite.rocks
     icon: https://www.theodolite.rocks/assets/logo/theodolite-stacked-transparent.svg
     maintainers:
@@ -843,4 +843,4 @@ entries:
     urls:
     - https://github.com/cau-se/theodolite/releases/download/v0.4.0/theodolite-0.4.0.tgz
     version: 0.4.0
-generated: "2025-12-30T16:05:21.099373614+01:00"
+generated: "2026-01-02T15:06:47.566566858+01:00"
