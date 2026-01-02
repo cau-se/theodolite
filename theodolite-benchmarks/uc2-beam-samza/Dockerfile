@@ -1,4 +1,4 @@
-FROM openjdk:11-slim
+FROM eclipse-temurin:11-jre
 
 ENV MAX_SOURCE_PARALLELISM=1024
 ENV ENABLE_METRICS=true
