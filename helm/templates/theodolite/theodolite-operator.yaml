@@ -45,7 +45,7 @@ spec:
           imagePullPolicy: "{{ .Values.operator.sloChecker.generic.imagePullPolicy }}"
           ports:
           - containerPort: 8082
-            name: analysis
+            name: slo-checker-generic
           env:
           - name: PORT
             value: "8082"
@@ -62,7 +62,7 @@ spec:
           imagePullPolicy: "{{ .Values.operator.sloChecker.lagTrend.imagePullPolicy }}"
           ports:
           - containerPort: 80
-            name: analysis
+            name: lag-trend-slo-checker
           env:
           - name: LOG_LEVEL
             value: INFO
