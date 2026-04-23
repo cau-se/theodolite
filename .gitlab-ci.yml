@@ -83,14 +83,15 @@ build-docs:
       - docs/_site
 
 test-docs-links:
-  stage: test
+  stage: testP
   extends: .docs
   needs:
     - build-docs
   # Ignore external hashes as there seems to be a bug in html-proofer
   # Ignore status code 999 sent from LinkedIn
+  # Ignore URLs to the GI Digital Library as they are constantly producing timeouts
   # Replace DOI URLs with API checks (required for ACM DL)
-  script: bundle exec htmlproofer --no-check-external-hash --ignore-status-code 999 --swap-urls "^https\:\/\/doi\.org\/(?\:(?!(api\/))):https\://doi.org/api/handles/" ./_site
+  script: bundle exec htmlproofer --no-check-external-hash --ignore-status-code 999 --ignore_urls "^https://dl\.gi\.de/" --swap-urls "^https\:\/\/doi\.org\/(?\:(?!(api\/))):https\://doi.org/api/handles/" ./_site
 
 build-docs-crds:
   stage: build
