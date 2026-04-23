@@ -111,6 +111,30 @@ internal class IOHandlerTest {
     }
 
     @Test
+    fun testReadFollowedByWriteOnSameFile() {
+        temporaryFolder.create()
+        val folder = temporaryFolder.newFolder(FOLDER_URL)
+        val fileURL = "${folder.absolutePath}/test-file.txt"
+
+        IOHandler().writeStringToTextFile(fileURL, "initial")
+        IOHandler().readFileAsString(fileURL)
+        IOHandler().writeStringToTextFile(fileURL, "updated")
+
+        assertEquals("updated", IOHandler().readFileAsString(fileURL))
+    }
+
+    @Test
+    fun testGetAndIncrementExecutionID() {
+        temporaryFolder.create()
+        val folder = temporaryFolder.newFolder(FOLDER_URL)
+        val fileURL = "${folder.absolutePath}/expID.txt"
+
+        assertEquals(0, IOHandler().getAndIncrementExecutionID(fileURL))
+        assertEquals(1, IOHandler().getAndIncrementExecutionID(fileURL))
+        assertEquals(2, IOHandler().getAndIncrementExecutionID(fileURL))
+    }
+
+    @Test
     fun testWriteToJSONFile() {
         temporaryFolder.create()
         val folder = temporaryFolder.newFolder(FOLDER_URL)

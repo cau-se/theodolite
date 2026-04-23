@@ -9,7 +9,6 @@ import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.patcher.PatcherDefinitionFactory
 import rocks.theodolite.kubernetes.slo.SloFactory
-import java.io.File
 import java.time.Duration
 
 
@@ -117,7 +116,7 @@ class TheodoliteExecutor(
 
         val ioHandler = IOHandler()
         val resultsFolder = ioHandler.getResultFolderURL()
-        this.benchmarkExecution.executionId = getAndIncrementExecutionID(resultsFolder + "expID.txt")
+        this.benchmarkExecution.executionId = ioHandler.getAndIncrementExecutionID(resultsFolder + "expID.txt")
         ioHandler.writeToJSONFile(
             this.benchmarkExecution,
             "${resultsFolder}exp${this.benchmarkExecution.executionId}-execution-configuration.json"
@@ -153,16 +152,6 @@ class TheodoliteExecutor(
             .map { it.second }
             .forEach { kubernetesManager.remove(it) }
         benchmark.infrastructure.afterActions.forEach { it.exec(client = client) }
-    }
-
-    private fun getAndIncrementExecutionID(fileURL: String): Int {
-        val ioHandler = IOHandler()
-        var executionID = 0
-        if (File(fileURL).exists()) {
-            executionID = ioHandler.readFileAsString(fileURL).toInt() + 1
-        }
-        ioHandler.writeStringToTextFile(fileURL, (executionID).toString())
-        return executionID
     }
 
     private fun calculateMetric(xValues: List<Int>, results: Results): List<List<String>> {
