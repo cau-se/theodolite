@@ -83,7 +83,7 @@ build-docs:
       - docs/_site
 
 test-docs-links:
-  stage: testP
+  stage: test
   extends: .docs
   needs:
     - build-docs
