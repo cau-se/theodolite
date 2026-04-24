@@ -4,10 +4,12 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
+import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Sli
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.operator.EventCreator
 import rocks.theodolite.kubernetes.patcher.PatcherDefinition
-import rocks.theodolite.kubernetes.slo.AnalysisExecutor
+import rocks.theodolite.kubernetes.slo.SliCollector
+import rocks.theodolite.kubernetes.slo.SloEvaluator
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import java.time.Duration
 import java.time.Instant
@@ -20,6 +22,7 @@ class ExperimentRunnerImpl(
     private val benchmarkDeploymentBuilder: BenchmarkDeploymentBuilder,
     private val executionDuration: Duration,
     private val configurationOverrides: List<ConfigurationOverride?>,
+    private val slis: List<Sli>,
     private val slos: List<Slo>,
     private val repetitions: Int,
     private val executionId: Int,
@@ -55,16 +58,10 @@ class ExperimentRunnerImpl(
          * Analyse the experiment, if [run] is true, otherwise the experiment was canceled by the user.
          */
         if (this.run.get()) {
-            val experimentResults = slos.map {
-                AnalysisExecutor(slo = it, executionId = executionId)
-                    .analyze(
-                        load = load,
-                        resource = resource,
-                        executionIntervals = executionIntervals
-                    )
-            }
-
-            result = (false !in experimentResults)
+            val collectedSliData = SliCollector(slis = slis, executionId = executionId)
+                .collect(load = load, resource = resource, executionIntervals = executionIntervals)
+            result = SloEvaluator(slos = slos, executionId = executionId)
+                .evaluate(load = load, resource = resource, collectedSliData = collectedSliData)
             this.results.addExperimentResult(Pair(load, resource), result)
         } else {
             throw ExecutionFailedException("The execution was interrupted")

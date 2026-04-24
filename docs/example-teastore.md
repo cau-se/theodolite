@@ -98,7 +98,7 @@ Once all the required resources are bundled in ConfigMaps, we can define a Bench
 The following resource defines a simple benchmark providing one load type, one resource type and one SLO.
 
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: benchmark
 metadata:
   name: teastore
@@ -133,19 +133,19 @@ spec:
           properties:
             container: jmeter
             variableName: NUM_USERS
+  slis:
+    - name: uiLatency
+      provider: prometheus
+      query: "histogram_quantile(0.95,sum(irate(osm_request_duration_ms_bucket{destination_name='teastore_webui'}[1m])) by (le, destination_name))"
   slos:
-    - sloType: "generic"
-      name: "uiLatency"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        externalSloUrl: "http://localhost:8082"
-        promQLQuery: "histogram_quantile(0.95,sum(irate(osm_request_duration_ms_bucket{destination_name='teastore_webui'}[1m])) by (le, destination_name))"
-        warmup: 600 #in seconds
-        queryAggregation: max
-        repetitionAggregation: median
-        operator: lte
-        threshold: 200
+    - name: "uiLatency"
+      sli: uiLatency
+      warmupSeconds: 600
+      queryAggregation: max
+      repetitionAggregation: median
+      operator: lte
+      threshold: 200
+      externalSloChecker: "http://localhost:8082"
 ```
 
 #### SUT and Load Generator
@@ -163,10 +163,10 @@ See our [extended version of this benchmark](https://github.com/SoerenHenning/Te
 
 We focus on increasing the load on the TeaStore by increasing the number of concurrent users. Each user is simulated by JMeter and performs a series of UI interactions in an endless loop. Our load type is called *NumUsers* and modifies the `NUM_USERS` environment variable of the JMeter Deployment with an *EnvVarPatcher*.
 
-#### SLOs
+#### SLIs and SLOs
 
-The SLO is defined as that the 95th percentile of the response time of the TeaStore's WebUI service must not exceed 200ms.
-If multiple repetitions are performed, the median of the response times is used. Measurements from the first 600 seconds are discarded as warmup.
+The SLI collects the 95th percentile of the response time of the TeaStore's WebUI service from Prometheus using a PromQL query. The SLO then asserts that this value must not exceed 200ms (`operator: lte`, `threshold: 200`).
+If multiple repetitions are performed, the median of the response times is used (`repetitionAggregation: median`). Measurements from the first 600 seconds are discarded as warmup (`warmupSeconds: 600`).
 
 
 ## Run the Benchmark
@@ -178,7 +178,7 @@ To run the benchmark, we first have to define an Execution resource, which we af
 A simple Execution resource for our benchmark could look like this:
 
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
   name: teastore-example

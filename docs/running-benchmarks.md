@@ -56,7 +56,7 @@ The status of a benchmark tells you whether executions of it are ready to run:
 To run a benchmark, an Execution YAML file needs to be created such as the following one.
 
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
   name: theodolite-example-execution # (1) give a name to your execution
@@ -69,9 +69,8 @@ spec:
     resourceType: "Instances" # (5) chose one of the benchmark's resource types
     resourceValues: [1, 2] # (6) select a set of resource amounts
   slos:
-    - name: "lag trend"
-      properties:
-        threshold: 2000
+    - name: "lag-trend"
+      threshold: 2000
   execution:
     strategy:
       name: "RestrictionSearch" # (8) chose a search strategy

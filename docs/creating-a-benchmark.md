@@ -11,7 +11,7 @@ Please note that to simply run a benchmark, it is not required to define one. Th
 A typical benchmark looks like this:
 
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: benchmark
 metadata:
   name: example-benchmark
@@ -46,15 +46,16 @@ spec:
           resource: "uc1-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
+  slis:
+    - name: consumerLag
+      provider: prometheus
+      query: "sum by(consumergroup) (kafka_consumergroup_lag{consumergroup='theodolite-uc1-application-0.0.1'} >= 0)"
   slos:
-    - name: "lag trend"
-      sloType: "lag trend"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        threshold: 3000
-        externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
+    - name: lag-trend
+      sli: consumerLag
+      warmupSeconds: 60
+      threshold: 3000
+      externalSloChecker: "http://localhost:80/evaluate-slope"
 ```
 
 ## System under Test (SUT), Load Generator and Infrastructure
@@ -160,36 +161,54 @@ See the [patcher API reference](api-reference/patchers) for an overview of avail
 
 If a benchmark is [executed by an Execution](running-benchmarks), these patchers are used to configure SUT and load generator according to the [load and resource values](creating-an-execution) set in the Execution.
 
-## Service Level Objectives SLOs
+## Service Level Indicators and Service Level Objectives
 
 SLOs provide a way to quantify whether a certain load intensity can be handled by a certain amount of provisioned resources.
-In Theodolite, SLOs are evaluated by requesting monitoring data from Prometheus and analyzing it in a benchmark-specific way.
+In Theodolite, SLOs are evaluated by collecting monitoring data (described as SLIs) from Prometheus and analyzing it in a benchmark-specific way.
 An Execution must at least define one SLO to be checked.
 
-A good choice to get started is defining an SLO of type `generic`:
+Benchmarks use two separate sections: `slis:` (Service Level Indicators) describe *what* data to collect from Prometheus, and `slos:` (Service Level Objectives) describe *how* to evaluate that data.
+
+A good choice to get started is defining an SLI and SLO for a generic Prometheus metric:
 
 ```yaml
-- name: droppedRecords
-  sloType: generic
-  prometheusUrl: "http://prometheus-operated:9090"
-  offset: 0
-  properties:
-    externalSloUrl: "http://localhost:8082"
-    promQLQuery: "sum by(job) (kafka_streams_stream_task_metrics_dropped_records_total>=0)"
-    warmup: 60 # in seconds
-    queryAggregation: max
-    repetitionAggregation: median
-    operator: lte
+slis:
+  - name: droppedRecords
+    provider: prometheus
+    query: "sum by(job) (kafka_streams_stream_task_metrics_dropped_records_total>=0)"
+    intervalSeconds: 5           # optional, default 5s
+slos:
+  - name: dropped-records-slo
+    sli: droppedRecords          # references the SLI by name
+    warmupSeconds: 60            # seconds to skip at start of interval
+    queryAggregation: max        # optional
+    repetitionAggregation: median # optional
+    operator: lte                # optional
     threshold: 1000
+    externalSloChecker: "http://localhost:8082"
 ```
 
-All you have to do is to define a [PromQL query](https://prometheus.io/docs/prometheus/latest/querying/basics/) describing which metrics should be requested (`promQLQuery`) and how the resulting time series should be evaluated. With `queryAggregation` you specify how the resulting time series is aggregated to a single value and `repetitionAggregation` describes how the results of multiple repetitions are aggregated. Possible values are
+All you have to do is define a [PromQL query](https://prometheus.io/docs/prometheus/latest/querying/basics/) in the SLI (`query`) and configure how the resulting time series should be evaluated in the SLO. With `queryAggregation` you specify how the resulting time series is aggregated to a single value and `repetitionAggregation` describes how the results of multiple repetitions are aggregated. Possible values are
 `mean`, `median`, `mode`, `sum`, `count`, `max`, `min`, `std`, `var`, `skew`, `kurt`, `first`, `last` as well as percentiles such as `p99` or `p99.9` and `trend` which computes the increase or decrease slope using linear regression. The result of aggregating all repetitions is checked against `threshold`. This check is performed using an `operator`, which describes that the result must be "less than" (`lt`), "less than equal" (`lte`), "greater than" (`gt`) or "greater than equal" (`gte`) to the threshold.
 
 If you do not want to have a static threshold, you can also define it relatively to the tested load with `thresholdRelToLoad` or relatively to the tested resource value with `thresholdRelToResources`. For example, setting `thresholdRelToLoad: 0.01` means that in each experiment, the threshold is 1% of the generated load.
 Even more complex thresholds can be defined with `thresholdFromExpression`. This field accepts a mathematical expression with two variables `L` and `R` for the load and resources, respectively. The previous example with a threshold of 1% of the generated load can thus also be defined with `thresholdFromExpression: 0.01*L`. For further details of allowed expressions, see the documentation of the underlying [exp4j](https://github.com/fasseg/exp4j) library.
 
-In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloUrl` to your custom SLO checker. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
+In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloChecker` to your custom SLO checker URL. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
+
+Note that all SLI results are exported to CSV files regardless of whether an SLO references them. Only SLOs drive the pass/fail decision for each experiment.
+
+The Prometheus URL defaults to the `THEODOLITE_PROMETHEUS_URL` environment variable. To override it for a specific SLI, use `providerConfig`:
+
+```yaml
+slis:
+  - name: droppedRecords
+    provider: prometheus
+    query: "..."
+    providerConfig:
+      prometheusUrl: "http://custom-prometheus:9090"  # overrides THEODOLITE_PROMETHEUS_URL
+      offsetHours: 0                                  # overrides THEODOLITE_PROMETHEUS_OFFSET_HOURS
+```
 
 <!-- Further information: API Reference -->
 <!-- Further information: How to deploy -->

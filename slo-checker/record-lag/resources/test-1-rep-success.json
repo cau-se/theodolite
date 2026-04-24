@@ -136,6 +136,6 @@
     ],
     "metadata": {
         "threshold": 2000,
-        "warmup": 0
+        "warmupSeconds": 0
     }
 }

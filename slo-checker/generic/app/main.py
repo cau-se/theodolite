@@ -88,7 +88,7 @@ async def check_slo(request: Request):
     data = json.loads(await request.body())
     logger.info('Received request with metadata: %s', data['metadata'])
 
-    warmup = int(data['metadata']['warmup'])
+    warmup = int(data['metadata']['warmupSeconds'])
     query_aggregation = get_aggr_func(data['metadata']['queryAggregation'])
     rep_aggregation = get_aggr_func(data['metadata']['repetitionAggregation'])
     operator = data['metadata']['operator']

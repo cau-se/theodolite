@@ -54,14 +54,14 @@ class ControllerTest {
         server
             .expect()
             .get()
-            .withPath("/apis/theodolite.rocks/v1beta1/namespaces/test/benchmarks")
+            .withPath("/apis/theodolite.rocks/v1beta2/namespaces/test/benchmarks")
             .andReturn(200, benchmarkResourceList)
             .always()
 
         server
             .expect()
             .get()
-            .withPath("/apis/theodolite.rocks/v1beta1/namespaces/test/executions")
+            .withPath("/apis/theodolite.rocks/v1beta2/namespaces/test/executions")
             .andReturn(200, executionResourceList)
             .always()
     }

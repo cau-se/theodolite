@@ -9,7 +9,7 @@ import io.fabric8.kubernetes.model.annotation.Version
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 
 @JsonDeserialize
-@Version("v1beta1")
+@Version("v1beta2")
 @Group("theodolite.rocks")
 @Kind("benchmark")
 class BenchmarkCRD : CustomResource<KubernetesBenchmark, BenchmarkStatus>(), Namespaced {

@@ -15,7 +15,7 @@ import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 
 private const val EXECUTION_SINGULAR = "execution"
 private const val BENCHMARK_SINGULAR = "benchmark"
-private const val API_VERSION = "v1beta1"
+private const val API_VERSION = "v1beta2"
 private const val RESYNC_PERIOD = 10 * 60 * 1000.toLong()
 private const val GROUP = "theodolite.rocks"
 private val logger = KotlinLogging.logger {}

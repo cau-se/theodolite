@@ -10,7 +10,7 @@ spec:
     shortNames:
       - bench
   versions:
-  - name: v1beta1
+  - name: v1beta2
     served: true
     storage: true
     schema:
@@ -20,7 +20,7 @@ spec:
         properties:
           spec:
             type: object
-            required: ["sut", "loadGenerator", "resourceTypes", "loadTypes", "slos"]
+            required: ["sut", "loadGenerator", "resourceTypes", "loadTypes", "slis", "slos"]
             properties:
               name:
                 description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
@@ -574,31 +574,72 @@ spec:
                             additionalProperties: true
                             x-kubernetes-map-type: "granular"
                             default: {}
-              slos: # def of service level objectives
-                description: List of resource values for the specified resource type.
+              slis: # def of service level indicators
+                description: List of Service Level Indicators (SLIs). All SLI results are exported to CSV.
                 type: array
                 items:
                   type: object
-                  required: ["name", "sloType", "prometheusUrl", "offset"]
+                  required: ["name", "provider", "query"]
                   properties:
                     name:
-                      description: The name of the SLO.
+                      description: Unique name for this SLI. Referenced by SLOs.
                       type: string
-                    sloType:
-                      description: The type of the SLO. It must match 'lag trend'.
+                    provider:
+                      description: Metric provider. Currently only 'prometheus' is supported.
                       type: string
-                    prometheusUrl:
-                      description: Connection string for Prometheus.
+                    query:
+                      description: The PromQL query string for this SLI.
                       type: string
-                    offset:
-                      description: Hours by which the start and end timestamp will be shifted (for different timezones).
+                    intervalSeconds:
+                      description: (Optional) Prometheus step size in seconds. Defaults to 5.
                       type: integer
-                    properties:
-                      description: (Optional) SLO specific additional arguments.
+                    providerConfig:
+                      description: (Optional) Provider-specific configuration (e.g., prometheusUrl, offsetHours).
                       type: object
                       additionalProperties: true
                       x-kubernetes-map-type: "granular"
                       default: { }
+              slos: # def of service level objectives
+                description: List of Service Level Objectives (SLOs). Only SLOs drive pass/fail decisions.
+                type: array
+                items:
+                  type: object
+                  required: ["name", "sli", "externalSloChecker"]
+                  properties:
+                    name:
+                      description: Unique name for this SLO.
+                      type: string
+                    sli:
+                      description: Name of the SLI this SLO is based on. Must match an entry in slis.
+                      type: string
+                    warmupSeconds:
+                      description: Seconds at the start of each interval to skip before evaluation. Defaults to 0.
+                      type: integer
+                      default: 0
+                    queryAggregation:
+                      description: (Optional) Aggregation function applied across the time series values (e.g., mean, max, median).
+                      type: string
+                    repetitionAggregation:
+                      description: (Optional) Aggregation function applied across repetitions (e.g., mean, max, median).
+                      type: string
+                    operator:
+                      description: (Optional) Comparison operator for the threshold check (e.g., lte, lt, gte, gt).
+                      type: string
+                    threshold:
+                      description: (Optional) Fixed threshold value. Exactly one of threshold, thresholdRelToLoad, thresholdRelToResources, or thresholdFromExpression must be set.
+                      type: number
+                    thresholdRelToLoad:
+                      description: (Optional) Threshold computed as this factor times the current load value.
+                      type: number
+                    thresholdRelToResources:
+                      description: (Optional) Threshold computed as this factor times the current resource value.
+                      type: number
+                    thresholdFromExpression:
+                      description: (Optional) Threshold computed from an expression using variables L (load) and R (resources).
+                      type: string
+                    externalSloChecker:
+                      description: URL of the SLO checker service to call for evaluation.
+                      type: string
               kafkaConfig:
                 description: Contains the Kafka configuration.
                 type: object
