@@ -33,18 +33,18 @@ class K8sManager(private val client: KubernetesClient) {
         if(blockUntilDeleted) {
             when (resource) {
                 is Deployment -> {
-                    ResourceByLabelHandler(client = client)
-                        .blockUntilPodsDeleted(
-                            matchLabels = resource.spec.selector.matchLabels
-                        )
+                    resource.spec?.selector?.matchLabels?.let { matchLabels ->
+                        ResourceByLabelHandler(client = client)
+                            .blockUntilPodsDeleted(matchLabels = matchLabels)
+                    }
                     logger.info { "Deployment '${resource.metadata.name}' deleted." }
                 }
                 is StatefulSet -> {
-                    ResourceByLabelHandler(client = client)
-                        .blockUntilPodsDeleted(
-                            matchLabels = resource.spec.selector.matchLabels
-                        )
-                    logger.info { "StatefulSet '$resource.metadata.name' deleted." }
+                    resource.spec?.selector?.matchLabels?.let { matchLabels ->
+                        ResourceByLabelHandler(client = client)
+                            .blockUntilPodsDeleted(matchLabels = matchLabels)
+                    }
+                    logger.info { "StatefulSet '${resource.metadata.name}' deleted." }
                 }
             }
         }
