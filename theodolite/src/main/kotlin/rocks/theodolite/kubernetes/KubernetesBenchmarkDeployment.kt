@@ -77,14 +77,15 @@ class KubernetesBenchmarkDeployment(
      */
     override fun teardown() {
         val podCleaner = ResourceByLabelHandler(client)
-        loadGenResources.reversed().forEach { kubernetesManager.remove(it, false) }
+        loadGenResources.reversed().forEach { kubernetesManager.remove(it, true) }
         loadGenAfterActions.forEach { it.exec(client = client) }
-        appResources.reversed().forEach { kubernetesManager.remove(it,false) }
+        appResources.reversed().forEach { kubernetesManager.remove(it, true) }
         sutAfterActions.forEach { it.exec(client = client) }
         if (this.topics.isNotEmpty()) {
             kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         }
 
+        // TODO This does not work because of the listOf(..)
         listOf(loadGenResources, appResources)
             .forEach {
                 if (it is Deployment) {
