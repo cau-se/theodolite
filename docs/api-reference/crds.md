@@ -115,10 +115,17 @@ Resource Types:
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b><a href="#benchmarkspecslisindex">slis</a></b></td>
+        <td>[]object</td>
+        <td>
+          List of Service Level Indicators (SLIs). All SLI results are exported to CSV.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b><a href="#benchmarkspecslosindex">slos</a></b></td>
         <td>[]object</td>
         <td>
-          List of resource values for the specified resource type.<br/>
+          List of Service Level Objectives (SLOs). Only SLOs drive pass/fail decisions.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -897,7 +904,7 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
 </table>
 
 
-### benchmark.spec.slos[index]
+### benchmark.spec.slis[index]
 <sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
 
 
@@ -917,37 +924,136 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          The name of the SLO.<br/>
+          Unique name for this SLI. Referenced by SLOs.<br/>
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>offset</b></td>
+        <td><b>provider</b></td>
+        <td>string</td>
+        <td>
+          Metric provider. Currently only 'prometheus' is supported.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>query</b></td>
+        <td>string</td>
+        <td>
+          The PromQL query string for this SLI.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>intervalSeconds</b></td>
         <td>integer</td>
         <td>
-          Hours by which the start and end timestamp will be shifted (for different timezones).<br/>
+          (Optional) Prometheus step size in seconds. Defaults to 5.<br/>
         </td>
-        <td>true</td>
+        <td>false</td>
       </tr><tr>
-        <td><b>prometheusUrl</b></td>
-        <td>string</td>
-        <td>
-          Connection string for Prometheus.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>sloType</b></td>
-        <td>string</td>
-        <td>
-          The type of the SLO. It must match 'lag trend'.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>properties</b></td>
+        <td><b>providerConfig</b></td>
         <td>map[string]string</td>
         <td>
-          (Optional) SLO specific additional arguments.<br/>
+          (Optional) Provider-specific configuration (e.g., prometheusUrl, offsetHours).<br/>
           <br/>
             <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### benchmark.spec.slos[index]
+<sup><sup>[↩ Parent](#benchmarkspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>externalSloChecker</b></td>
+        <td>string</td>
+        <td>
+          URL of the SLO checker service to call for evaluation.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Unique name for this SLO.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>sli</b></td>
+        <td>string</td>
+        <td>
+          Name of the SLI this SLO is based on. Must match an entry in slis.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>operator</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Comparison operator for the threshold check (e.g., lte, lt, gte, gt).<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>queryAggregation</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Aggregation function applied across the time series values (e.g., mean, max, median).<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>repetitionAggregation</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Aggregation function applied across repetitions (e.g., mean, max, median).<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>threshold</b></td>
+        <td>number</td>
+        <td>
+          (Optional) Fixed threshold value. Exactly one of threshold, thresholdRelToLoad, thresholdRelToResources, or thresholdFromExpression must be set.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>thresholdFromExpression</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Threshold computed from an expression using variables L (load) and R (resources).<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>thresholdRelToLoad</b></td>
+        <td>number</td>
+        <td>
+          (Optional) Threshold computed as this factor times the current load value.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>thresholdRelToResources</b></td>
+        <td>number</td>
+        <td>
+          (Optional) Threshold computed as this factor times the current resource value.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>warmupSeconds</b></td>
+        <td>integer</td>
+        <td>
+          Seconds at the start of each interval to skip before evaluation. Defaults to 0.<br/>
+          <br/>
+            <i>Default</i>: 0<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -2325,10 +2431,17 @@ Contains the Kafka configuration.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b><a href="#executionspecslisindex">slis</a></b></td>
+        <td>[]object</td>
+        <td>
+          (Optional) Per-execution overrides for SLIs defined in the benchmark. Matched by name.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b><a href="#executionspecslosindex">slos</a></b></td>
         <td>[]object</td>
         <td>
-          List of SLOs with their properties, which differ from the benchmark definition.<br/>
+          (Optional) Per-execution overrides for SLOs defined in the benchmark. Matched by name.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -2587,6 +2700,63 @@ Patcher used to patch a resource
 </table>
 
 
+### execution.spec.slis[index]
+<sup><sup>[↩ Parent](#executionspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the SLI to override. Must match an SLI in the referenced benchmark.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>intervalSeconds</b></td>
+        <td>integer</td>
+        <td>
+          (Optional) Override for the Prometheus step size in seconds.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>provider</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Override for the metric provider.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>providerConfig</b></td>
+        <td>map[string]string</td>
+        <td>
+          (Optional) Override/extend provider-specific configuration (e.g., prometheusUrl, offsetHours).<br/>
+          <br/>
+            <i>Default</i>: map[]<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>query</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Override for the PromQL query.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
 ### execution.spec.slos[index]
 <sup><sup>[↩ Parent](#executionspec)</sup></sup>
 
@@ -2607,18 +2777,79 @@ Patcher used to patch a resource
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          The name of the SLO. It must match a SLO specified in the Benchmark.<br/>
+          Name of the SLO to override. Must match an SLO in the referenced benchmark.<br/>
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>properties</b></td>
-        <td>map[string]string</td>
+        <td><b>externalSloChecker</b></td>
+        <td>string</td>
         <td>
-          (Optional) SLO specific additional arguments.<br/>
-          <br/>
-            <i>Default</i>: map[]<br/>
+          (Optional) Override for the SLO checker URL.<br/>
         </td>
-        <td>true</td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>operator</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Override for the comparison operator.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>queryAggregation</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Override for the query aggregation function.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>repetitionAggregation</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Override for the repetition aggregation function.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sli</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Override for the referenced SLI name.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>threshold</b></td>
+        <td>number</td>
+        <td>
+          (Optional) Override for the fixed threshold value.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>thresholdFromExpression</b></td>
+        <td>string</td>
+        <td>
+          (Optional) Override for threshold from expression.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>thresholdRelToLoad</b></td>
+        <td>number</td>
+        <td>
+          (Optional) Override for threshold relative to load.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>thresholdRelToResources</b></td>
+        <td>number</td>
+        <td>
+          (Optional) Override for threshold relative to resources.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>warmupSeconds</b></td>
+        <td>integer</td>
+        <td>
+          (Optional) Override for warmup duration in seconds.<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
