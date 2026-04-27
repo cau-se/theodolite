@@ -49,7 +49,7 @@ class KubernetesBenchmarkDeployment(
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
      *  - Create the needed topics.
      *  - Deploy the needed [KubernetesResource]s (deployment order: SUT resources, loadgenerator resources;
-     *    No guaranteed order of files inside configmaps).
+     *    Order of files within a configmap follows the `files` list when specified, otherwise the ConfigMap data order).
      */
     override fun setup() {
         val rolloutManager = RolloutManager(rolloutMode, client)
@@ -73,7 +73,7 @@ class KubernetesBenchmarkDeployment(
      *  - Reset the Kafka Lag Exporter.
      *  - Remove the used topics.
      *  - Remove the [KubernetesResource]s (removal order: loadgenerator resources, SUT resources;
-     *    No guaranteed order of files inside configmaps).
+     *    Order of files within a ConfigMap follows the reverse of the `files` list when specified, otherwise the reverse of the ConfigMap data order).
      */
     override fun teardown() {
         val podCleaner = ResourceByLabelHandler(client)
@@ -91,7 +91,7 @@ class KubernetesBenchmarkDeployment(
             kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         }
 
-        // TODO This does not work because of the listOf(..)
+        // TODO This does NOT work because of the listOf(..) (should be (loadGenResources + appResources)), but might be removed anyways
         listOf(loadGenResources, appResources)
             .forEach {
                 if (it is Deployment) {
