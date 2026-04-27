@@ -5,7 +5,6 @@ import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.kubernetes.Action
 import rocks.theodolite.kubernetes.ResourceSets
-import rocks.theodolite.kubernetes.model.crd.KafkaConfig
 import rocks.theodolite.kubernetes.patcher.PatcherDefinition
 
 /**
@@ -16,7 +15,6 @@ import rocks.theodolite.kubernetes.patcher.PatcherDefinition
  * - [loadGenResource] resource that generates the load,
  * - [resourceTypes] types of scaling resources,
  * - [loadTypes] types of loads that can be scaled for the benchmark,
- * - [kafkaConfig] for the [theodolite.k8s.TopicManager],
  * - [namespace] for the client,
  * - [path] under which the resource yamls can be found.
  *
@@ -33,7 +31,6 @@ class KubernetesBenchmark : KubernetesResource {
     lateinit var loadTypes: List<TypeName>
     lateinit var slis: MutableList<Sli>
     lateinit var slos: MutableList<Slo>
-    var kafkaConfig: KafkaConfig? = null
     lateinit var infrastructure: Resources
     lateinit var sut: Resources
     lateinit var loadGenerator: Resources
