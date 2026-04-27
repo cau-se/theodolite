@@ -77,9 +77,15 @@ class KubernetesBenchmarkDeployment(
      */
     override fun teardown() {
         val podCleaner = ResourceByLabelHandler(client)
-        loadGenResources.reversed().forEach { kubernetesManager.remove(it, true) }
+        loadGenResources.reversed().forEach {
+            logger.info { "Deleting ${it.kind} '${it.metadata.name}'." }
+            kubernetesManager.remove(it, true)
+        }
         loadGenAfterActions.forEach { it.exec(client = client) }
-        appResources.reversed().forEach { kubernetesManager.remove(it, true) }
+        appResources.reversed().forEach {
+            logger.info { "Deleting ${it.kind} '${it.metadata.name}'." }
+            kubernetesManager.remove(it, true)
+        }
         sutAfterActions.forEach { it.exec(client = client) }
         if (this.topics.isNotEmpty()) {
             kafkaController.removeTopics(this.topics.map { topic -> topic.name })
