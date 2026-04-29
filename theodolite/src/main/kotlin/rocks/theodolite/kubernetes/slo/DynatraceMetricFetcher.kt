@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
 import org.eclipse.microprofile.config.ConfigProvider
+import rocks.theodolite.kubernetes.Configuration
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Sli
 import java.net.ConnectException
 import java.net.HttpURLConnection
@@ -22,8 +23,9 @@ private val logger = KotlinLogging.logger {}
  * Fetches metrics from Dynatrace using DQL (Dynatrace Query Language).
  *
  * Provider config keys read from [Sli.providerConfig]:
- * - `dynatraceUrl` — required; base URL of the Dynatrace DQL query API endpoint
- *   (e.g. `https://<tenant>.apps.dynatrace.com/platform/storage/query/v1/query`)
+ * - `dynatraceUrl` — base URL of the Dynatrace DQL query API endpoint
+ *   (e.g. `https://<tenant>.apps.dynatrace.com/platform/storage/query/v1/query`).
+ *   Falls back to the `THEODOLITE_DYNATRACE_URL` environment variable / [Configuration.DYNATRACE_URL].
  *
  * OAuth credentials are read from MicroProfile config (environment variables or application.properties):
  * - `dql.clientid`, `dql.clientsecret`, `dql.scope`, `dql.resource`, `dql.authurl`
@@ -34,7 +36,11 @@ private val logger = KotlinLogging.logger {}
 class DynatraceMetricFetcher(sli: Sli) : MetricFetcher {
     private val queryUri: URI = URI.create(
         sli.providerConfig["dynatraceUrl"]
-            ?: error("Dynatrace SLI '${sli.name}' requires providerConfig.dynatraceUrl")
+            ?: Configuration.DYNATRACE_URL
+            ?: error(
+                "Dynatrace SLI '${sli.name}' requires either providerConfig.dynatraceUrl " +
+                    "or the THEODOLITE_DYNATRACE_URL environment variable."
+            )
     )
 
     private val timeout = Duration.ofSeconds(60)

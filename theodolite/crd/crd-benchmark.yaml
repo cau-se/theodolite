@@ -604,7 +604,7 @@ spec:
                 type: array
                 items:
                   type: object
-                  required: ["name", "sli", "externalSloChecker"]
+                  required: ["name", "sli"]
                   properties:
                     name:
                       description: Unique name for this SLO.
@@ -638,7 +638,7 @@ spec:
                       description: (Optional) Threshold computed from an expression using variables L (load) and R (resources).
                       type: string
                     externalSloChecker:
-                      description: URL of the SLO checker service to call for evaluation.
+                      description: "(Optional) URL of the SLO checker service. Defaults to the generic SLO checker sidecar (THEODOLITE_SLO_CHECKER_URL, default: http://localhost:8082)."
                       type: string
           status:
             type: object

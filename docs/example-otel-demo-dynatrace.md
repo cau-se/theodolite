@@ -51,17 +51,34 @@ Theodolite controls load and scaling, so remove the statically deployed componen
 kubectl delete deployment load-generator frontend
 ```
 
-### Step 3: Configure the Theodolite Operator for DQL
+### Step 3: Configure Theodolite with Dynatrace Credentials via Helm
 
-Theodolite reads Dynatrace OAuth credentials from environment variables on the operator pod. Set these before running the benchmark (e.g. via a Kubernetes Secret and an `envFrom` block in the operator Helm values):
+All Dynatrace configuration is managed in the Theodolite Helm chart. Create a Kubernetes Secret with your DQL OAuth credentials:
 
-| Variable | Description |
-|---|---|
-| `DQL_CLIENTID` | OAuth client ID |
-| `DQL_CLIENTSECRET` | OAuth client secret |
-| `DQL_SCOPE` | OAuth scope (e.g. `storage:query:read`) |
-| `DQL_RESOURCE` | OAuth resource URN of your Dynatrace environment |
-| `DQL_AUTHURL` | Token endpoint (e.g. `https://sso.dynatrace.com/sso/oauth2/token`) |
+```sh
+kubectl create secret generic theodolite-dynatrace \
+  --from-literal=clientId="<oauth-client-id>" \
+  --from-literal=clientSecret="<oauth-client-secret>" \
+  --from-literal=scope="storage:query:read" \
+  --from-literal=resource="urn:dynatrace:environment:<environment-id>" \
+  --from-literal=authUrl="https://sso.dynatrace.com/sso/oauth2/token"
+```
+
+Install or upgrade Theodolite with your Dynatrace values:
+
+```yaml
+# theodolite-values.yaml
+operator:
+  dynatrace:
+    url: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+    existingSecret: "theodolite-dynatrace"
+```
+
+```sh
+helm upgrade --install theodolite theodolite/theodolite --values theodolite-values.yaml
+```
+
+The generic SLO checker sidecar is deployed automatically — the benchmark YAML does not require an `externalSloChecker` URL.
 
 ## Defining the Benchmark
 
@@ -77,11 +94,9 @@ slis:
       fetch spans, samplingRatio: 10, scanLimitGBytes: 50
       | filter request.is_root_span == true AND isNotNull(endpoint.name)
       | makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }
-    providerConfig:
-      dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
 ```
 
-`providerConfig.dynatraceUrl` sets the DQL query API endpoint for your specific tenant.
+The Dynatrace API endpoint and OAuth credentials come from the Helm chart (`operator.dynatrace.url` / `operator.dynatrace.existingSecret`) — no URLs or credentials appear in the benchmark YAML.
 
 ### SLO — When to Pass
 
@@ -92,14 +107,13 @@ slos:
   - name: "p90-latency-slo"
     sli: "p90Latency"
     warmupSeconds: 60
-    externalSloChecker: "http://localhost:80/evaluate"
     queryAggregation: "mean"
     repetitionAggregation: "median"
     operator: "lte"
     threshold: 500000000   # 500 ms in nanoseconds
 ```
 
-Dynatrace reports span durations in nanoseconds, so 500 ms = 500,000,000 ns.
+`externalSloChecker` is omitted — Theodolite defaults to the generic SLO checker sidecar deployed alongside the operator by the Helm chart. Dynatrace reports span durations in nanoseconds, so 500 ms = 500,000,000 ns.
 
 ## Running the Benchmark
 

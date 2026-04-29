@@ -2,9 +2,11 @@
 
 This example demonstrates how to benchmark the [OpenTelemetry Demo application](https://opentelemetry.io/docs/demo/) using Theodolite with **Dynatrace as the metric provider** (via DQL — Dynatrace Query Language). The SLO checks the 90th-percentile end-to-end request latency.
 
+Metric collection and SLO evaluation are fully configured via the Helm chart — the benchmark YAML itself does not require any Dynatrace-specific URLs or credentials.
+
 ## Prerequisites
 
-- A running Kubernetes cluster with Theodolite installed
+- A running Kubernetes cluster with Theodolite installed via Helm
 - A Dynatrace tenant with an OAuth client configured to access the DQL query API
 - Helm CLI
 
@@ -40,24 +42,34 @@ Remove the default load generator and frontend deployments so Theodolite can man
 kubectl delete deployment load-generator frontend
 ```
 
-## Step 3: Configure the Theodolite Operator for DQL
+## Step 3: Configure Theodolite with Dynatrace Credentials via Helm
 
-Theodolite's Dynatrace metric fetcher reads OAuth credentials from environment variables on the operator pod. Set the following environment variables (e.g. via a Kubernetes Secret and an `envFrom` reference in the Helm values):
+All Dynatrace configuration is set in the Theodolite Helm chart. Create a Kubernetes Secret with your DQL OAuth credentials:
 
-| Variable | Description |
-|---|---|
-| `DQL_CLIENTID` | OAuth client ID |
-| `DQL_CLIENTSECRET` | OAuth client secret |
-| `DQL_SCOPE` | OAuth scope (e.g. `storage:query:read`) |
-| `DQL_RESOURCE` | OAuth resource URN of your Dynatrace environment |
-| `DQL_AUTHURL` | Token endpoint URL (e.g. `https://sso.dynatrace.com/sso/oauth2/token`) |
+```sh
+kubectl create secret generic theodolite-dynatrace \
+  --from-literal=clientId="<oauth-client-id>" \
+  --from-literal=clientSecret="<oauth-client-secret>" \
+  --from-literal=scope="storage:query:read" \
+  --from-literal=resource="urn:dynatrace:environment:<environment-id>" \
+  --from-literal=authUrl="https://sso.dynatrace.com/sso/oauth2/token"
+```
 
-Update `otel-demo-benchmark.yaml` to set `providerConfig.dynatraceUrl` to the DQL query API endpoint of your tenant:
+Then install or upgrade the Theodolite Helm chart with:
 
 ```yaml
-providerConfig:
-  dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+# theodolite-values.yaml
+operator:
+  dynatrace:
+    url: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+    existingSecret: "theodolite-dynatrace"
 ```
+
+```sh
+helm upgrade --install theodolite theodolite/theodolite --values theodolite-values.yaml
+```
+
+The generic SLO checker sidecar is deployed automatically by the Helm chart and is used as the default SLO checker — no further configuration is needed in the benchmark YAML.
 
 ## Step 4: Create the Benchmark
 
@@ -89,7 +101,7 @@ Adjust `otel-demo-execution.yaml` if needed (load values, resource values, durat
 kubectl apply -f otel-demo-execution.yaml
 ```
 
-Theodolite will iterate over the configured user counts and instance counts, collecting DQL metrics for each combination and evaluating the p90 latency SLO.
+Theodolite will iterate over the configured user counts and instance counts, collecting DQL metrics for each combination and evaluating the p90 latency SLO against a 500 ms threshold.
 
 Follow progress with:
 

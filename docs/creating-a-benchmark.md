@@ -199,11 +199,13 @@ All you have to do is define a [PromQL query](https://prometheus.io/docs/prometh
 If you do not want to have a static threshold, you can also define it relatively to the tested load with `thresholdRelToLoad` or relatively to the tested resource value with `thresholdRelToResources`. For example, setting `thresholdRelToLoad: 0.01` means that in each experiment, the threshold is 1% of the generated load.
 Even more complex thresholds can be defined with `thresholdFromExpression`. This field accepts a mathematical expression with two variables `L` and `R` for the load and resources, respectively. The previous example with a threshold of 1% of the generated load can thus also be defined with `thresholdFromExpression: 0.01*L`. For further details of allowed expressions, see the documentation of the underlying [exp4j](https://github.com/fasseg/exp4j) library.
 
-In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloChecker` to your custom SLO checker URL. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
+The `externalSloChecker` field is optional. When omitted, Theodolite uses the URL from the `THEODOLITE_SLO_CHECKER_URL` environment variable, which defaults to `http://localhost:8082` — the generic SLO checker sidecar deployed automatically by the Helm chart. In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloChecker` to your custom SLO checker URL. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
 
 Note that all SLI results are exported to CSV files regardless of whether an SLO references them. Only SLOs drive the pass/fail decision for each experiment.
 
-The Prometheus URL defaults to the `THEODOLITE_PROMETHEUS_URL` environment variable. To override it for a specific SLI, use `providerConfig`:
+### Prometheus provider configuration
+
+The Prometheus URL defaults to the `THEODOLITE_PROMETHEUS_URL` environment variable (set via Helm: `operator.prometheusUrl`). To override it for a specific SLI, use `providerConfig`:
 
 ```yaml
 slis:
@@ -215,18 +217,31 @@ slis:
       offsetHours: 0                                  # overrides THEODOLITE_PROMETHEUS_OFFSET_HOURS
 ```
 
-For Dynatrace SLIs, `providerConfig` carries the DQL query API endpoint instead. OAuth credentials are supplied via operator-pod environment variables (`DQL_CLIENTID`, `DQL_CLIENTSECRET`, `DQL_SCOPE`, `DQL_RESOURCE`, `DQL_AUTHURL`):
+### Dynatrace provider configuration
+
+For Dynatrace SLIs, the DQL query API endpoint defaults to the `THEODOLITE_DYNATRACE_URL` environment variable (set via Helm: `operator.dynatrace.url`). OAuth credentials are configured via Helm as well and never need to appear in the benchmark YAML. The endpoint can optionally be overridden per SLI via `providerConfig`:
 
 ```yaml
 slis:
   - name: p90Latency
     provider: dynatrace
     query: "fetch spans | makeTimeseries {p90 = percentile(duration, 90)}"
+    # providerConfig.dynatraceUrl is optional if THEODOLITE_DYNATRACE_URL is set via Helm
     providerConfig:
       dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
 ```
 
-For a complete Dynatrace example, see [OTel Demo with Dynatrace](example-otel-demo-dynatrace).
+Configure the Theodolite Helm chart with your Dynatrace credentials (preferably via a Kubernetes Secret):
+
+```yaml
+# values excerpt
+operator:
+  dynatrace:
+    url: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+    existingSecret: "my-dynatrace-secret"  # keys: clientId, clientSecret, scope, resource, authUrl
+```
+
+For a complete end-to-end Dynatrace example, see [OTel Demo with Dynatrace](example-otel-demo-dynatrace).
 
 <!-- Further information: API Reference -->
 <!-- Further information: How to deploy -->

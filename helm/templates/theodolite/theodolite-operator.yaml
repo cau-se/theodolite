@@ -32,6 +32,64 @@ spec:
               value: operator
             - name: RESULTS_FOLDER
               value: "/deployments/results"
+            {{- if .Values.operator.prometheusUrl }}
+            - name: THEODOLITE_PROMETHEUS_URL
+              value: {{ .Values.operator.prometheusUrl | quote }}
+            {{- end }}
+            - name: THEODOLITE_SLO_CHECKER_URL
+              value: {{ .Values.operator.sloCheckerUrl | default "http://localhost:8082" | quote }}
+            {{- if .Values.operator.dynatrace.url }}
+            - name: THEODOLITE_DYNATRACE_URL
+              value: {{ .Values.operator.dynatrace.url | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.existingSecret }}
+            - name: DQL_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: clientId
+            - name: DQL_CLIENTSECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: clientSecret
+            - name: DQL_SCOPE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: scope
+            - name: DQL_RESOURCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: resource
+            - name: DQL_AUTHURL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: authUrl
+            {{- else }}
+            {{- if .Values.operator.dynatrace.clientId }}
+            - name: DQL_CLIENTID
+              value: {{ .Values.operator.dynatrace.clientId | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.clientSecret }}
+            - name: DQL_CLIENTSECRET
+              value: {{ .Values.operator.dynatrace.clientSecret | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.scope }}
+            - name: DQL_SCOPE
+              value: {{ .Values.operator.dynatrace.scope | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.resource }}
+            - name: DQL_RESOURCE
+              value: {{ .Values.operator.dynatrace.resource | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.authUrl }}
+            - name: DQL_AUTHURL
+              value: {{ .Values.operator.dynatrace.authUrl | quote }}
+            {{- end }}
+            {{- end }}
           volumeMounts:
             - name: theodolite-results-volume
               mountPath: "/deployments/results"
