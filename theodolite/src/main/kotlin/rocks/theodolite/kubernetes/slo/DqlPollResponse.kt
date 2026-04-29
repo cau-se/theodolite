@@ -57,8 +57,8 @@ class DqlPollResponse (
         }
     }
 
-    companion object : MetricQueryResponseFactory<MetricQueryResponse> {
-        override fun fromString(json: String): DqlPollResponse{
+    companion object {
+        fun fromString(json: String): DqlPollResponse {
             return jacksonObjectMapper().registerModule(JavaTimeModule()).readValue(json)
         }
     }
@@ -98,10 +98,11 @@ class DqlPollResponse (
     }
 
     @JsonIgnore
-    override fun getDataForSLOChecker(): List<SloJson.MetricResult> {
+    override fun getDataForSLOChecker(onlyFirst: Boolean): List<SloJson.MetricResult> {
+        val records = if (onlyFirst && result.records.isNotEmpty()) result.records.take(1) else result.records
         if (result.records.isNotEmpty() && result.records.first().metrics.values.size > 1)
             logger.warn { "DQL Query includes multiple metrics, only taking first for SLO check" }
-        return result.records.mapTo(mutableListOf()) { record ->
+        return records.mapTo(mutableListOf()) { record ->
             val values = record.metrics.values.first()
             val resultsList = values.mapIndexedNotNull { index, value ->
                 if (value != null) {

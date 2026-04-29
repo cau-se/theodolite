@@ -1,4 +1,4 @@
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
   name: otel-demo
@@ -10,9 +10,6 @@ spec:
   resources:
     resourceType: "Instances"
     resourceValues: [1, 3]
-  slos:
-    - name: dummy
-      properties: {}
   execution:
     metric: capacity
     strategy:

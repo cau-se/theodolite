@@ -19,8 +19,8 @@ data class PrometheusResponse (
      */
     var data: PromData? = null
 ) : MetricQueryResponse {
-    companion object : MetricQueryResponseFactory<MetricQueryResponse> {
-        override fun fromString(json: String): PrometheusResponse{
+    companion object {
+        fun fromString(json: String): PrometheusResponse {
             return ObjectMapper().readValue(
                 json,
                 PrometheusResponse::class.java
@@ -34,13 +34,15 @@ data class PrometheusResponse (
     }
 
     @JsonIgnore
-    override fun getDataForSLOChecker(): List<SloJson.MetricResult> {
-        return this.data?.result?.map { promResult ->
+    override fun getDataForSLOChecker(onlyFirst: Boolean): List<SloJson.MetricResult> {
+        val results = this.data?.result ?: return emptyList()
+        val slice = if (onlyFirst && results.isNotEmpty()) results.take(1) else results
+        return slice.map { promResult ->
             SloJson.MetricResult(
                 metric = promResult.metric,
                 values = promResult.values
             )
-        } ?: emptyList()
+        }
     }
 
     @JsonIgnore

@@ -164,10 +164,15 @@ If a benchmark is [executed by an Execution](running-benchmarks), these patchers
 ## Service Level Indicators and Service Level Objectives
 
 SLOs provide a way to quantify whether a certain load intensity can be handled by a certain amount of provisioned resources.
-In Theodolite, SLOs are evaluated by collecting monitoring data (described as SLIs) from Prometheus and analyzing it in a benchmark-specific way.
+In Theodolite, SLOs are evaluated by collecting monitoring data (described as SLIs) from a metric provider and analyzing it in a benchmark-specific way.
 An Execution must at least define one SLO to be checked.
 
-Benchmarks use two separate sections: `slis:` (Service Level Indicators) describe *what* data to collect from Prometheus, and `slos:` (Service Level Objectives) describe *how* to evaluate that data.
+Theodolite supports multiple metric providers. The `provider` field on an SLI selects the backend:
+
+- **`prometheus`** (default for the Theodolite stream-processing benchmarks) — fetches metrics via PromQL
+- **`dynatrace`** — fetches metrics via DQL (Dynatrace Query Language); see the [OTel Demo / Dynatrace example](example-otel-demo-dynatrace) for a complete setup guide
+
+Benchmarks use two separate sections: `slis:` (Service Level Indicators) describe *what* data to collect and from *which provider*, and `slos:` (Service Level Objectives) describe *how* to evaluate that data.
 
 A good choice to get started is defining an SLI and SLO for a generic Prometheus metric:
 
@@ -209,6 +214,19 @@ slis:
       prometheusUrl: "http://custom-prometheus:9090"  # overrides THEODOLITE_PROMETHEUS_URL
       offsetHours: 0                                  # overrides THEODOLITE_PROMETHEUS_OFFSET_HOURS
 ```
+
+For Dynatrace SLIs, `providerConfig` carries the DQL query API endpoint instead. OAuth credentials are supplied via operator-pod environment variables (`DQL_CLIENTID`, `DQL_CLIENTSECRET`, `DQL_SCOPE`, `DQL_RESOURCE`, `DQL_AUTHURL`):
+
+```yaml
+slis:
+  - name: p90Latency
+    provider: dynatrace
+    query: "fetch spans | makeTimeseries {p90 = percentile(duration, 90)}"
+    providerConfig:
+      dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+```
+
+For a complete Dynatrace example, see [OTel Demo with Dynatrace](example-otel-demo-dynatrace).
 
 <!-- Further information: API Reference -->
 <!-- Further information: How to deploy -->

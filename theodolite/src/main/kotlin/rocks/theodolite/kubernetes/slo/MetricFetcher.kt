@@ -1,51 +1,23 @@
 package rocks.theodolite.kubernetes.slo
 
-import org.eclipse.microprofile.config.ConfigProvider
-import java.net.ConnectException
-import java.net.URI
 import java.time.Duration
 import java.time.Instant
 
-
 /**
- * Used to fetch metrics from Prometheus or Dynatrace.
+ * Abstraction for fetching metrics from a specific provider.
+ * Each provider implementation owns its own configuration, transport, and retry logic.
  */
-class MetricFetcher {
-    private val queryURI: URI = ConfigProvider.getConfig().getValue("query.url", URI::class.java)
-    private val offset: Duration = ConfigProvider.getConfig().getValue("time.offset.ms", Duration::class.java)
-
-    enum class Kind {
-        PROMETHEUS, DYNATRACE
-    }
-
-
-    private val TIMEOUT = Duration.ofSeconds(60)
-
-
+interface MetricFetcher {
     /**
-     * Tries to fetch a metric by a query to a Prometheus server or DQL.
-     * Retries to fetch the metric [RETRIES] times.
-     * Connects to the server via [queryURI].
+     * Fetches a metric for the given time interval.
      *
-     * @param start start point of the query.
-     * @param end end point of the query.
-     * @param query query for the server.
-     * @throws ConnectException - if the server timed out/was not reached.
+     * @param start start of the measurement interval.
+     * @param end end of the measurement interval.
+     * @param stepSize resolution step size (may be ignored by providers that use fixed resolution).
+     * @param query provider-specific query string (PromQL, DQL, etc.).
+     * @return the collected [MetricQueryResponse].
+     * @throws java.net.ConnectException if the provider cannot be reached.
+     * @throws NoSuchFieldException if the query yields an empty result.
      */
-    fun fetchMetric(start: Instant, end: Instant, stepSize: Duration, query: String, kind: Kind): MetricQueryResponse {
-        val offsetStart = start.minus(offset)
-        val offsetEnd = end.minus(offset)
-
-        val executor = MetricRequestExecutorFactory.get(kind)
-
-        val queryResponse = executor.executeRequest(queryURI, query, offsetStart, offsetEnd, stepSize, TIMEOUT)
-
-        if (queryResponse.isNullOrEmpty()) {
-            throw NoSuchFieldException(
-                "Empty query result: $queryResponse between for query '$query' in interval [$offsetStart,$offsetEnd] .")
-        }
-        return queryResponse
-    }
-
-
+    fun fetchMetric(start: Instant, end: Instant, stepSize: Duration, query: String): MetricQueryResponse
 }

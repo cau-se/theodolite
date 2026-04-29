@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test
 @QuarkusTestResource(ExternalSloCheckerTest.WireMockTestResource::class)
 internal class ExternalSloCheckerTest {
     internal class WireMockTestResource : QuarkusTestResourceLifecycleManager {
-
         companion object {
             lateinit var wireMockServer: WireMockServer private set
         }
@@ -23,7 +22,7 @@ internal class ExternalSloCheckerTest {
         override fun start(): Map<String, String> {
             wireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
             wireMockServer.start()
-            return mapOf("slo.checker.url" to wireMockServer.baseUrl())
+            return emptyMap()
         }
 
         override fun stop() {
@@ -31,21 +30,18 @@ internal class ExternalSloCheckerTest {
         }
     }
 
-
-
     @Test
     fun testExternalTrueResult() {
         WireMockTestResource.wireMockServer.stubFor(
             post(urlEqualTo("/"))
-                .willReturn(
-                    aResponse().withJsonBody(BooleanNode.getTrue())
-                )
+                .willReturn(aResponse().withJsonBody(BooleanNode.getTrue()))
         )
 
         val sloChecker = ExternalSloChecker(
-            mapOf()
+            externalSlopeURL = "${WireMockTestResource.wireMockServer.baseUrl()}/",
+            metadata = emptyMap()
         )
-        val result = sloChecker.evaluate(listOf())
+        val result = sloChecker.evaluate(emptyList())
         assertTrue(result)
     }
 
@@ -53,16 +49,14 @@ internal class ExternalSloCheckerTest {
     fun testExternalFalseResult() {
         WireMockTestResource.wireMockServer.stubFor(
             post(urlEqualTo("/"))
-                .willReturn(
-                    aResponse().withJsonBody(BooleanNode.getFalse())
-                )
+                .willReturn(aResponse().withJsonBody(BooleanNode.getFalse()))
         )
 
         val sloChecker = ExternalSloChecker(
-            mapOf()
+            externalSlopeURL = "${WireMockTestResource.wireMockServer.baseUrl()}/",
+            metadata = emptyMap()
         )
-        val result = sloChecker.evaluate(listOf())
+        val result = sloChecker.evaluate(emptyList())
         assertFalse(result)
     }
-
 }

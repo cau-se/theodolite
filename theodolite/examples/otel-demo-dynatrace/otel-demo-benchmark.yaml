@@ -1,4 +1,4 @@
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: benchmark
 metadata:
   name: otel-demo
@@ -6,15 +6,15 @@ spec:
   sut:
     resources:
       - configMap:
-         name: "otel-demo-configmap"
-         files:
-           - "frontend-deployment.yaml"
+          name: "otel-demo-configmap"
+          files:
+            - "frontend-deployment.yaml"
   loadGenerator:
     resources:
       - configMap:
-         name: "otel-demo-configmap"
-         files:
-            - load-generator-deployment.yaml
+          name: "otel-demo-configmap"
+          files:
+            - "load-generator-deployment.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
@@ -28,17 +28,27 @@ spec:
           properties:
             container: "load-generator"
             variableName: "LOCUST_USERS"
+  slis:
+    - name: "p90Latency"
+      provider: "dynatrace"
+      # DQL query fetching the 90th percentile end-to-end latency across all root spans.
+      # OAuth credentials and the Dynatrace API endpoint are configured via operator environment
+      # variables (DQL_CLIENTID, DQL_CLIENTSECRET, DQL_SCOPE, DQL_RESOURCE, DQL_AUTHURL)
+      # and providerConfig.dynatraceUrl below.
+      query: >-
+        fetch spans, samplingRatio: 10, scanLimitGBytes: 50
+        | filter request.is_root_span == true AND isNotNull(endpoint.name)
+        | makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }
+      providerConfig:
+        # Replace <tenant-id> with your Dynatrace environment identifier.
+        dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
   slos:
-    - name: "dummy"
-      sloType: "generic"
-      properties:
-        externalSloUrl: "http://localhost:80"
-        query: "fetch spans, samplingRatio: 10, scanLimitGBytes: 50
-| filter request.is_root_span == true AND isNotNull(endpoint.name)
-| makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }"
-        provider: "dynatrace"
-        warmup: 60 # in seconds
-        queryAggregation: "mean"
-        repetitionAggregation: "median"
-        operator: "lte"
-        threshold: 500000000
+    - name: "p90-latency-slo"
+      sli: "p90Latency"
+      warmupSeconds: 60
+      externalSloChecker: "http://localhost:80/evaluate"
+      queryAggregation: "mean"
+      repetitionAggregation: "median"
+      operator: "lte"
+      # 500 ms expressed in nanoseconds (Dynatrace reports span duration in nanoseconds)
+      threshold: 500000000

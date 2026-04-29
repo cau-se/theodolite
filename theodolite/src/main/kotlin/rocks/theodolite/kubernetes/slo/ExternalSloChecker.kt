@@ -1,7 +1,6 @@
 package rocks.theodolite.kubernetes.slo
 
 import mu.KotlinLogging
-import org.eclipse.microprofile.config.ConfigProvider
 import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URI
@@ -10,49 +9,45 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 import java.time.Duration
 
-
 /**
- * [SloChecker] that uses an external source for the concrete evaluation.
- * @param metadata metadata passed to the external SLO checker.
+ * [SloChecker] that delegates evaluation to an external HTTP service.
+ *
+ * @param externalSlopeURL URL of the external SLO checker service (per-SLO).
+ * @param metadata metadata passed to the external checker (warmupSeconds, threshold, etc.).
  */
 class ExternalSloChecker(
+    val externalSlopeURL: String,
     val metadata: Map<String, Any>
 ) : SloChecker {
-    private val externalSLOURL: URI = ConfigProvider.getConfig().getValue("slo.checker.url", URI::class.java)
-    private val RETRIES = 2
-    private val TIMEOUT = Duration.ofSeconds(60)
 
+    private val retries = 2
+    private val timeout = Duration.ofSeconds(60)
     private val logger = KotlinLogging.logger {}
 
     /**
-     * Evaluates an experiment using an external service.
-     * Will try to reach the external service until success or [RETRIES] times.
-     * Each request will time out after [TIMEOUT].
+     * Sends [fetchedData] to the external service and returns its pass/fail verdict.
+     * Only the first time series of each response is included in the payload.
      *
-     * @param fetchedData that should be evaluated
-     * @return true if the experiment was successful (the threshold was not exceeded).
-     * @throws ConnectException if the external service could not be reached.
+     * @throws ConnectException if the external service cannot be reached after [retries] attempts.
      */
     override fun evaluate(fetchedData: List<MetricQueryResponse>): Boolean {
         var counter = 0
         val data = SloJson(
-            results = fetchedData.map { it.getDataForSLOChecker() },
+            results = fetchedData.map { it.getDataForSLOChecker(onlyFirst = true) },
             metadata = metadata
         ).toJson()
 
-        while (counter < RETRIES) {
+        while (counter < retries) {
             val request = HttpRequest.newBuilder()
-                    .uri(externalSLOURL)
-                    .POST(HttpRequest.BodyPublishers.ofString(data))
-                    .version(HttpClient.Version.HTTP_1_1)
-                    .timeout(TIMEOUT)
-                    .build()
-            val response = HttpClient
-                .newHttpClient()
-                .send(request, BodyHandlers.ofString())
+                .uri(URI.create(externalSlopeURL))
+                .POST(HttpRequest.BodyPublishers.ofString(data))
+                .version(HttpClient.Version.HTTP_1_1)
+                .timeout(timeout)
+                .build()
+            val response = HttpClient.newHttpClient().send(request, BodyHandlers.ofString())
             if (response.statusCode() != HttpURLConnection.HTTP_OK) {
                 counter++
-                logger.error { "Received status code ${response.statusCode()} for request to $externalSLOURL." }
+                logger.error { "Received status code ${response.statusCode()} for request to $externalSlopeURL." }
             } else {
                 val booleanResult = response.body().toBoolean()
                 logger.info { "SLO checker result is: $booleanResult." }
@@ -60,6 +55,6 @@ class ExternalSloChecker(
             }
         }
 
-        throw ConnectException("Could not reach external SLO checker at $externalSLOURL.")
+        throw ConnectException("Could not reach external SLO checker at $externalSlopeURL.")
     }
 }
