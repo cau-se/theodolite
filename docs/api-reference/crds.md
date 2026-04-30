@@ -978,13 +978,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>externalSloChecker</b></td>
-        <td>string</td>
-        <td>
-          URL of the SLO checker service to call for evaluation.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
@@ -998,6 +991,13 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
           Name of the SLI this SLO is based on. Must match an entry in slis.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>externalSloChecker</b></td>
+        <td>string</td>
+        <td>
+          (Optional) URL of the SLO checker service. Defaults to the generic SLO checker sidecar (THEODOLITE_SLO_CHECKER_URL, default: http://localhost:8082).<br/>
+        </td>
+        <td>false</td>
       </tr><tr>
         <td><b>operator</b></td>
         <td>string</td>
