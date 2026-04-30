@@ -1,6 +1,8 @@
 package rocks.theodolite.kubernetes.slo
 
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.QuarkusTestProfile
+import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -8,7 +10,11 @@ import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 
 @QuarkusTest
+@TestProfile(SloFactoryTest.SLOTestProfile::class)
 internal class SloFactoryTest {
+    class SLOTestProfile : QuarkusTestProfile {
+        override fun getConfigOverrides(): Map<String, String> = emptyMap()
+    }
 
     private val sloFactory = SloFactory()
 

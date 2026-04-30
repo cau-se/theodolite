@@ -2,6 +2,7 @@ package rocks.theodolite.kubernetes.slo
 
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.*
+
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark

@@ -6,15 +6,18 @@ spec:
   sut:
     resources:
       - configMap:
-         name: "example-configmap"
+         name: "benchmark-resources-uc1-kstreams"
          files:
-           - "uc1-input-topic.yaml"
+           - "input-topic.yaml"
            - "uc1-kstreams-deployment.yaml"
+           - "uc1-kstreams-service.yaml"
+           - "uc1-jmx-configmap.yaml"
+           - "uc1-service-monitor.yaml"
   loadGenerator:
     resources:
       - configMap:
-         name: "example-configmap"
-         files:
+          name: "benchmark-resources-uc1-load-generator"
+          files:
             - uc1-load-generator-service.yaml
             - uc1-load-generator-deployment.yaml
   resourceTypes:
