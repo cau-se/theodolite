@@ -924,28 +924,28 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td><b>provider</b></td>
         <td>string</td>
         <td>
-          Metric provider. Currently only 'prometheus' is supported.<br/>
+          Metric provider. Supported values are 'prometheus' and 'dynatrace'.<br/>
         </td>
         <td>true</td>
       </tr><tr>
         <td><b>query</b></td>
         <td>string</td>
         <td>
-          The PromQL query string for this SLI.<br/>
+          The query string for this SLI (PromQL for Prometheus, DQL for Dynatrace).<br/>
         </td>
         <td>true</td>
       </tr><tr>
         <td><b>intervalSeconds</b></td>
         <td>integer</td>
         <td>
-          (Optional) Prometheus step size in seconds. Defaults to 5.<br/>
+          (Optional) Step size in seconds. Defaults to 5.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>providerConfig</b></td>
         <td>map[string]string</td>
         <td>
-          (Optional) Provider-specific configuration (e.g., prometheusUrl, offsetHours).<br/>
+          (Optional) Provider-specific configuration. For Prometheus: prometheusUrl, offsetHours. For Dynatrace: dynatraceUrl.<br/>
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
