@@ -210,7 +210,7 @@ prometheus:
 ###
 operator:
   enabled: true
-  
+
   image: ghcr.io/cau-se/theodolite
   imageTag: latest
   imagePullPolicy: Always
@@ -226,6 +226,14 @@ operator:
     limits:
       memory: "1024Mi"
       cpu: "500m"
+
+  # Default Prometheus URL (THEODOLITE_PROMETHEUS_URL). Leave empty to use the in-cluster default.
+  prometheusUrl: ""
+
+  # Default external SLO checker URL (THEODOLITE_SLO_CHECKER_URL).
+  # Defaults to the generic SLO checker sidecar at http://localhost:8082.
+  # Set this if you want all SLOs without an explicit externalSloChecker to use a different endpoint.
+  sloCheckerUrl: ""
 
   sloChecker:
     generic:
