@@ -32,6 +32,12 @@ spec:
               value: operator
             - name: RESULTS_FOLDER
               value: "/deployments/results"
+            {{- if .Values.operator.prometheusUrl }}
+            - name: THEODOLITE_PROMETHEUS_URL
+              value: {{ .Values.operator.prometheusUrl | quote }}
+            {{- end }}
+            - name: THEODOLITE_SLO_CHECKER_URL
+              value: {{ .Values.operator.sloCheckerUrl | default "http://localhost:8082" | quote }}
           volumeMounts:
             - name: theodolite-results-volume
               mountPath: "/deployments/results"

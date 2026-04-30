@@ -1,6 +1,7 @@
 package rocks.theodolite.kubernetes.slo
 
 import net.objecthunter.exp4j.ExpressionBuilder
+import rocks.theodolite.kubernetes.Configuration
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 
 /**
@@ -9,11 +10,7 @@ import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 class SloCheckerFactory {
 
     fun create(slo: Slo, load: Int, resources: Int): SloChecker {
-        val url = slo.externalSloChecker
-            ?: throw IllegalArgumentException(
-                "SLO '${slo.name}' has no externalSloChecker URL. " +
-                    "Set 'externalSloChecker' on the SLO."
-            )
+        val url = slo.externalSloChecker ?: Configuration.SLO_CHECKER_URL
 
         val threshold = slo.threshold
             ?: slo.thresholdRelToLoad?.times(load)

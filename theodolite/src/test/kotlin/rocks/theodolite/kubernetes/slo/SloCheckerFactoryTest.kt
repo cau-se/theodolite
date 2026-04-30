@@ -38,10 +38,10 @@ internal class SloCheckerFactoryTest {
     private val factory = SloCheckerFactory()
 
     @Test
-    fun testMissingUrlThrows() {
-        assertThrows<IllegalArgumentException> {
-            factory.create(slo(externalSloChecker = null, threshold = 1234.0), 100, 5)
-        }
+    fun testMissingUrlFallsBackToDefault() {
+        // When externalSloChecker is null, SloCheckerFactory falls back to Configuration.SLO_CHECKER_URL
+        val checker = factory.create(slo(externalSloChecker = null, threshold = 1234.0), 100, 5)
+        assertInstanceOf(ExternalSloChecker::class.java, checker)
     }
 
     @Test
