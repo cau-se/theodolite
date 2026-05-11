@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: http-server-service-monitor
+  labels:
+    app: http-server
+spec:
+  selector:
+    matchLabels:
+      app: http-server
+  endpoints:
+  - port: admin
+    interval: 10s
+    path: /stats/prometheus

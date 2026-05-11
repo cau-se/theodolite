@@ -13,18 +13,18 @@ Theodolite Executions look similar to the following example.
 apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
-  name: theodolite-example-execution
+  name: example-execution
 spec:
   benchmark: "example-benchmark"
   load:
-    loadType: "NumSensors"
-    loadValues: [25000, 50000]
+    loadType: "CallsPerSecond"
+    loadValues: [10, 20, 50]
   resources:
     resourceType: "Instances"
-    resourceValues: [1, 2]
+    resourceValues: [1, 2, 3]
   slos:
-    - name: "lag-trend"
-      threshold: 2000
+    - name: "low-error-rate"
+      threshold: 0.01
   execution:
     metric: "demand"
     strategy:
@@ -32,13 +32,13 @@ spec:
       restrictions:
         - "LowerBound"
       searchStrategy: "LinearSearch"
-    duration: 300 # in seconds
+    duration: 180 # in seconds
     repetitions: 1
-    loadGenerationDelay: 30 # in seconds
+    loadGenerationDelay: 10 # in seconds
   configOverrides:
     - patcher:
         type: "SchedulerNamePatcher"
-        resource: "uc1-kstreams-deployment.yaml"
+        resource: "http-server-deployment.yaml"
       value: "random-scheduler"
 ```
 
@@ -60,11 +60,13 @@ For example, to override the threshold and warmup of an SLO and the query of an 
 
 ```yaml
 slis:
-  - name: consumerLag
-    query: "sum by(consumergroup) (kafka_consumergroup_lag{consumergroup='my-app'} >= 0)"
+  - name: errorRate
+    query: >-
+      sum(rate(envoy_http_downstream_rq_xx{envoy_response_code_class="5"}[1m]))
+      / sum(rate(envoy_http_downstream_rq_xx[1m]))
 slos:
-  - name: lag-trend
-    threshold: 500
+  - name: low-error-rate
+    threshold: 0.05
     warmupSeconds: 0
 ```
 

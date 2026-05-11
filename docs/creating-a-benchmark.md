@@ -8,7 +8,7 @@ nav_order: 5
 
 Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a [set of benchmarks](theodolite-benchmarks), which are ready to be executed. See the [fundamental concepts](concepts) page to learn more about our distinction between benchmarks and executions.
 
-A typical benchmark looks like this:
+A typical benchmark looks like this (see the [HTTP server example](example-http-server) for a full walkthrough):
 
 ```yaml
 apiVersion: theodolite.rocks/v1beta2
@@ -19,43 +19,44 @@ spec:
   sut:
     resources:
       - configMap:
-         name: "example-configmap"
-         files:
-           - "uc1-kstreams-deployment.yaml"
+          name: "example-configmap"
+          files:
+            - "http-server-deployment.yaml"
+            - "http-server-service.yaml"
+            - "http-server-service-monitor.yaml"
   loadGenerator:
     resources:
       - configMap:
-         name: "example-configmap"
-         files:
-            - uc1-load-generator-service.yaml
-            - uc1-load-generator-deployment.yaml
+          name: "example-configmap"
+          files:
+            - "load-generator-deployment.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc1-kstreams-deployment.yaml"
+          resource: "http-server-deployment.yaml"
   loadTypes:
-    - typeName: "NumSensors"
+    - typeName: "CallsPerSecond"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc1-load-generator-deployment.yaml"
+          resource: "load-generator-deployment.yaml"
           properties:
-            variableName: "NUM_SENSORS"
-            container: "workload-generator"
-        - type: "NumSensorsLoadGeneratorReplicaPatcher"
-          resource: "uc1-load-generator-deployment.yaml"
-          properties:
-            loadGenMaxRecords: "150000"
+            container: "load-generator"
+            variableName: "CALLS_PER_SECOND"
   slis:
-    - name: consumerLag
+    - name: errorRate
       provider: prometheus
-      query: "sum by(consumergroup) (kafka_consumergroup_lag{consumergroup='theodolite-uc1-application-0.0.1'} >= 0)"
+      query: >-
+        sum(rate(envoy_http_downstream_rq_xx{envoy_response_code_class="5"}[1m]))
+        / sum(rate(envoy_http_downstream_rq_xx[1m]))
   slos:
-    - name: lag-trend
-      sli: consumerLag
+    - name: "low-error-rate"
+      sli: errorRate
       warmupSeconds: 60
-      threshold: 3000
-      externalSloChecker: "http://localhost:80/evaluate-slope"
+      queryAggregation: max
+      repetitionAggregation: median
+      operator: lte
+      threshold: 0.01
 ```
 
 ## System under Test (SUT), Load Generator and Infrastructure

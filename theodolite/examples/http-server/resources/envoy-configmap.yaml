@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: envoy-config
   labels:
-    app: httpbin-envoy
+    app: http-server
 data:
   envoy.yaml: |
     static_resources:
@@ -17,10 +17,6 @@ data:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
               stat_prefix: ingress_http
-              access_log:
-              - name: envoy.access_loggers.stdout
-                typed_config:
-                  "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
               codec_type: AUTO
               route_config:
                 name: local_route
@@ -33,6 +29,7 @@ data:
                     route:
                       cluster: httpbin
                       prefix_rewrite: "/delay/1"
+                      timeout: 2s
               http_filters:
               - name: envoy.filters.http.router
                 typed_config:
@@ -44,8 +41,8 @@ data:
         lb_policy: ROUND_ROBIN
         circuit_breakers:
           thresholds:
-          - max_connections: 10
-            max_pending_requests: 100
+          - max_connections: 100
+            max_pending_requests: 1000
         load_assignment:
           cluster_name: httpbin
           endpoints:
@@ -53,14 +50,6 @@ data:
             - endpoint:
                 address:
                   socket_address: { address: 127.0.0.1, port_value: 80 }
-    #stats_config:
-    #  stats_matcher:
-    #    inclusion_list:
-    #      patterns:
-    #        - exact: "http.ingress_http.downstream_rq_time"
-    #        - prefix: "http.ingress_http.downstream_rq_time."
-      
     admin:
-      access_log_path: "/dev/null"
       address:
         socket_address: { address: 0.0.0.0, port_value: 9901 }
