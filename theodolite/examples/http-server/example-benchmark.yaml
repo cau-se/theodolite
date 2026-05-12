@@ -35,7 +35,7 @@ spec:
     - name: errorRate
       provider: prometheus
       query: >-
-        sum(rate(envoy_http_downstream_rq_xx{envoy_response_code_class="5"}[1m]))
+        (sum(rate(envoy_http_downstream_rq_xx{envoy_response_code_class="5"}[1m])) or vector(0))
         / sum(rate(envoy_http_downstream_rq_xx[1m]))
   slos:
     - name: "low-error-rate"
