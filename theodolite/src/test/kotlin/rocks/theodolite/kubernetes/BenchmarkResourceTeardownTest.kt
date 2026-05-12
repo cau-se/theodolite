@@ -13,6 +13,7 @@ import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import mu.KotlinLogging
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -114,8 +115,8 @@ class BenchmarkResourceTeardownTest {
     @Test
     fun testFullFilesProperties() {
         // Make sure lists are cleared for the current test.
-        assertTrue(addedOrder.size == 0)
-        assertTrue(deletedOrder.size == 0)
+        assertTrue(addedOrder.isEmpty())
+        assertTrue(deletedOrder.isEmpty())
 
         // Setup
         val benchmarkDeployment =
@@ -125,17 +126,22 @@ class BenchmarkResourceTeardownTest {
         benchmarkDeployment.setup()
         benchmarkDeployment.teardown()
 
-        // Assertions
-        assertTrue(addedOrder.size > 0)
-        assertTrue(deletedOrder.size > 0)
-        assertTrue(addedOrder == deletedOrder.reversed())
+        // Verify that resources were deployed in the exact order specified by the `files` lists,
+        // NOT in the ConfigMap data key order (which intentionally differs in the test data).
+        val expectedAddedOrder = listOf(
+            "sut-file-1", "sut-file-2", "sut-file-3",
+            "load-generator-file-1", "load-generator-file-2"
+        )
+        assertEquals(expectedAddedOrder, addedOrder)
+        // Teardown must be the exact reverse of setup.
+        assertEquals(addedOrder, deletedOrder.reversed())
     }
 
     @Test
     fun testPartialFilesProperties() {
         // Make sure lists are cleared for the current test.
-        assertTrue(addedOrder.size == 0)
-        assertTrue(deletedOrder.size == 0)
+        assertTrue(addedOrder.isEmpty())
+        assertTrue(deletedOrder.isEmpty())
 
         // Setup
         val benchmarkDeployment =
@@ -145,17 +151,17 @@ class BenchmarkResourceTeardownTest {
         benchmarkDeployment.setup()
         benchmarkDeployment.teardown()
 
-        // Assertions
-        assertTrue(addedOrder.size > 0)
-        assertTrue(deletedOrder.size > 0)
-        assertTrue(addedOrder == deletedOrder.reversed())
+        // Assertions: teardown must be the exact reverse of setup.
+        assertTrue(addedOrder.isNotEmpty())
+        assertTrue(deletedOrder.isNotEmpty())
+        assertEquals(addedOrder, deletedOrder.reversed())
     }
 
     @Test
     fun testNoFilesProperties() {
         // Make sure lists are cleared for the current test.
-        assertTrue(addedOrder.size == 0)
-        assertTrue(deletedOrder.size == 0)
+        assertTrue(addedOrder.isEmpty())
+        assertTrue(deletedOrder.isEmpty())
 
         // Setup
         val benchmarkDeployment =
@@ -165,9 +171,9 @@ class BenchmarkResourceTeardownTest {
         benchmarkDeployment.setup()
         benchmarkDeployment.teardown()
 
-        // Assertions
-        assertTrue(addedOrder.size > 0)
-        assertTrue(deletedOrder.size > 0)
-        assertTrue(addedOrder == deletedOrder.reversed())
+        // Assertions: teardown must be the exact reverse of setup.
+        assertTrue(addedOrder.isNotEmpty())
+        assertTrue(deletedOrder.isNotEmpty())
+        assertEquals(addedOrder, deletedOrder.reversed())
     }
 }

@@ -49,7 +49,7 @@ class KubernetesBenchmarkDeployment(
      * Setup a [KubernetesBenchmark] using the [TopicManager] and the [K8sManager]:
      *  - Create the needed topics.
      *  - Deploy the needed [KubernetesResource]s (deployment order: SUT resources, loadgenerator resources;
-     *    No guaranteed order of files inside configmaps).
+     *    Order of files within a configmap follows the `files` list when specified, otherwise the ConfigMap data order).
      */
     override fun setup() {
         val rolloutManager = RolloutManager(rolloutMode, client)
@@ -73,18 +73,25 @@ class KubernetesBenchmarkDeployment(
      *  - Reset the Kafka Lag Exporter.
      *  - Remove the used topics.
      *  - Remove the [KubernetesResource]s (removal order: loadgenerator resources, SUT resources;
-     *    No guaranteed order of files inside configmaps).
+     *    Order of files within a ConfigMap follows the reverse of the `files` list when specified, otherwise the reverse of the ConfigMap data order).
      */
     override fun teardown() {
         val podCleaner = ResourceByLabelHandler(client)
-        loadGenResources.reversed().forEach { kubernetesManager.remove(it, false) }
+        loadGenResources.reversed().forEach {
+            logger.info { "Deleting ${it.kind} '${it.metadata.name}'." }
+            kubernetesManager.remove(it, true)
+        }
         loadGenAfterActions.forEach { it.exec(client = client) }
-        appResources.reversed().forEach { kubernetesManager.remove(it,false) }
+        appResources.reversed().forEach {
+            logger.info { "Deleting ${it.kind} '${it.metadata.name}'." }
+            kubernetesManager.remove(it, true)
+        }
         sutAfterActions.forEach { it.exec(client = client) }
         if (this.topics.isNotEmpty()) {
             kafkaController.removeTopics(this.topics.map { topic -> topic.name })
         }
 
+        // TODO This does NOT work because of the listOf(..) (should be (loadGenResources + appResources)), but might be removed anyways
         listOf(loadGenResources, appResources)
             .forEach {
                 if (it is Deployment) {
