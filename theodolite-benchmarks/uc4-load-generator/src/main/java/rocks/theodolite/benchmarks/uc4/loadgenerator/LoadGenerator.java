@@ -12,8 +12,6 @@ import rocks.theodolite.benchmarks.loadgenerator.KeySpace;
  */
 public final class LoadGenerator {
 
-  private static final int SLEEP_PERIOD = 30_000;
-
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadGenerator.class);
 
   private LoadGenerator() {}
@@ -34,6 +32,9 @@ public final class LoadGenerator {
     final int numNestedGroups = Integer.parseInt(Objects.requireNonNullElse(
         System.getenv("NUM_NESTED_GROUPS"),
         "1"));
+    final int sleepPeriodMs = Integer.parseInt(Objects.requireNonNullElse(
+        System.getenv("SLEEP_PERIOD_MS"),
+        "30000"));
 
     // Build sensor hierarchy
     final SensorRegistry sensorRegistry =
@@ -50,9 +51,9 @@ public final class LoadGenerator {
             configPublisher.close();
             LOGGER.info("Configuration sent.");
 
-            LOGGER.info("Now wait 30 seconds...");
+            LOGGER.info("Now wait {} ms...", sleepPeriodMs);
             try {
-              Thread.sleep(SLEEP_PERIOD);
+              Thread.sleep(sleepPeriodMs);
             } catch (final InterruptedException e) {
               LOGGER.error(e.getMessage(), e);
             }
