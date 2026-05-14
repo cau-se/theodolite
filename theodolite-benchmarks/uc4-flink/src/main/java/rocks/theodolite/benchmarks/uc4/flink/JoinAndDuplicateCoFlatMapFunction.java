@@ -1,8 +1,6 @@
 package rocks.theodolite.benchmarks.uc4.flink;
 
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -11,6 +9,8 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.RichCoFlatMapFunction;
 import org.apache.flink.util.Collector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKey;
 
@@ -24,7 +24,8 @@ public class JoinAndDuplicateCoFlatMapFunction extends
     RichCoFlatMapFunction<ActivePowerRecord, Tuple2<String, Set<String>>, Tuple2<SensorParentKey, ActivePowerRecord>> { // NOCS
 
   private static final long serialVersionUID = -6992783644887835979L; // NOPMD
-  private static final Logger LOGGER = LoggerFactory.getLogger(JoinAndDuplicateCoFlatMapFunction.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(JoinAndDuplicateCoFlatMapFunction.class);
 
   private transient MapState<String, Set<String>> state;
 
