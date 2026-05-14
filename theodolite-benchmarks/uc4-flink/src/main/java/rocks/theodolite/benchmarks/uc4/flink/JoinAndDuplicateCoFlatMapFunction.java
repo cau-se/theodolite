@@ -1,6 +1,8 @@
 package rocks.theodolite.benchmarks.uc4.flink;
 
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -22,6 +24,7 @@ public class JoinAndDuplicateCoFlatMapFunction extends
     RichCoFlatMapFunction<ActivePowerRecord, Tuple2<String, Set<String>>, Tuple2<SensorParentKey, ActivePowerRecord>> { // NOCS
 
   private static final long serialVersionUID = -6992783644887835979L; // NOPMD
+  private static final Logger LOGGER = LoggerFactory.getLogger(JoinAndDuplicateCoFlatMapFunction.class);
 
   private transient MapState<String, Set<String>> state;
 
@@ -40,6 +43,7 @@ public class JoinAndDuplicateCoFlatMapFunction extends
       final Collector<Tuple2<SensorParentKey, ActivePowerRecord>> out) throws Exception {
     final Set<String> parents = this.state.get(value.getIdentifier());
     if (parents == null) {
+      LOGGER.warn("No parents found for sensor: {}", value.getIdentifier());
       return;
     }
     for (final String parent : parents) {
