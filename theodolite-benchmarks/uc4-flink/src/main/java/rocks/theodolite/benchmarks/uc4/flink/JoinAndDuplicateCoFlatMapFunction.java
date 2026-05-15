@@ -48,6 +48,7 @@ public class JoinAndDuplicateCoFlatMapFunction extends
       return;
     }
     for (final String parent : parents) {
+      LOGGER.info("Emit record for sensor {} with parent {}", value.getIdentifier(), parent);
       out.collect(new Tuple2<>(new SensorParentKey(value.getIdentifier(), parent), value));
     }
   }
