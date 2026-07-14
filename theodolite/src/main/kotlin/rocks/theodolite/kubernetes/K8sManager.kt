@@ -1,8 +1,10 @@
 package rocks.theodolite.kubernetes
 
 import io.fabric8.kubernetes.api.model.HasMetadata
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaim
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
+import io.fabric8.kubernetes.api.model.batch.v1.Job
 import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
@@ -45,6 +47,17 @@ class K8sManager(private val client: KubernetesClient) {
                             .blockUntilPodsDeleted(matchLabels = matchLabels)
                     }
                     logger.info { "StatefulSet '${resource.metadata.name}' deleted." }
+                }
+                is Job -> {
+                    // Kubernetes automatically labels Job pods with job-name=<job-name>.
+                    ResourceByLabelHandler(client = client)
+                        .blockUntilPodsDeleted(matchLabels = mapOf("job-name" to resource.metadata.name))
+                    logger.info { "Job '${resource.metadata.name}' deleted." }
+                }
+                is PersistentVolumeClaim -> {
+                    ResourceByLabelHandler(client = client)
+                        .blockUntilPvcDeleted(name = resource.metadata.name)
+                    logger.info { "PersistentVolumeClaim '${resource.metadata.name}' deleted." }
                 }
             }
         }
