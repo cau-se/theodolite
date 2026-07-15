@@ -32,6 +32,15 @@ rules:
   - apiGroups:
     - ""
     resources:
+    - persistentvolumeclaims
+    verbs:
+    - delete
+    - deletecollection
+    - list
+    - get
+  - apiGroups:
+    - ""
+    resources:
     - pods/exec
     verbs:
     - create
@@ -48,6 +57,17 @@ rules:
     - list
     - create
     - get
+  - apiGroups:
+    - batch
+    resources:
+    - jobs
+    verbs:
+    - delete
+    - deletecollection
+    - list
+    - get
+    - create
+    - update
   - apiGroups:
     - kafka.strimzi.io
     resources:
