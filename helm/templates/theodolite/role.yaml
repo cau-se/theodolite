@@ -34,10 +34,12 @@ rules:
     resources:
     - persistentvolumeclaims
     verbs:
+    - update
     - delete
     - deletecollection
     - list
     - get
+    - create
   - apiGroups:
     - ""
     resources:
