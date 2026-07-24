@@ -8,6 +8,7 @@ nav_order: 9
 
 Below you can find a list of publications that utilize, describe, or evaluate Theodolite:
 
+* D. Chen, S. Henning, K. Matteussi, and R. Rabiser. “[Performance Optimization in Stream Processing Systems: Experiment-Driven Configuration Tuning for Kafka Streams](https://arxiv.org/abs/2603.04027)”. In: *Companion of the 17th ACM/SPEC International Conference on Performance Engineering*. 2026. DOI: [10.1145/3777911.3800636](https://doi.org/10.1145/3777911.3800636).
 * S. Henning, A. Vogel, E. Perez-Wohlfeil, O. Ertl, and R. Rabiser. “[When Should I Run My Application Benchmark?: Studying Cloud Performance Variability for the Case of Stream Processing Applications](https://doi.org/10.48550/arXiv.2504.11826)”. In: *33rd ACM International Conference on the Foundations of Software Engineering*. 2025. DOI: [10.1145/3696630.3728563](https://doi.org/10.1145/3696630.3728563).
 * S. Henning, A. Vogel, E. Perez-Wohlfeil, O. Ertl, and R. Rabiser. “[Should I Run My Cloud Benchmark on Black Friday?](https://dl.gi.de/items/9323c23f-3de2-4a6c-bf7e-a3cefef6bebd)”. In: *Softwaretechnik-Trends* 45 (4) (Symposium on Software Performance). 2025.
 * L. Leko, S. Henning, A. Vogel, O. Ertl, and R. Rabiser. “[Benchmarking Pattern Matching Strategies for Scalable Log Analytics](https://dl.gi.de/items/5e1afe24-f7af-4dd9-967e-0ab3b66f192f)”. In: *Softwaretechnik-Trends* 45 (4) (Symposium on Software Performance). 2025.
