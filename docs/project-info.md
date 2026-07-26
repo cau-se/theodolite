@@ -10,7 +10,7 @@ Theodolite is open-source research software, actively maintained at Kiel Univers
 
 ## Getting Help
 
-To get support with using Theodolite, feel free to directly contact [Sören Henning](https://www.dynatrace.com/engineering/persons/soeren-henning/).
+To get support with using Theodolite, feel free to directly contact [Sören Henning](https://soerenhenning.github.io/).
 You might also want to raise an issue on [GitHub](https://github.com/cau-se/theodolite).
 
 ## Project Management
@@ -26,13 +26,14 @@ Also releases are published via GitHub. See the following table for an overview:
 | Issue Tracking | [GitHub Issues](https://github.com/cau-se/theodolite/issues) | [GitLab Issues](https://git.se.informatik.uni-kiel.de/she/theodolite/-/issues) |
 | Pull/Merge requests | [GitHub Pull requests](https://github.com/cau-se/theodolite/pulls) | [GitLab Merge requests](https://git.se.informatik.uni-kiel.de/she/theodolite/-/merge_requests) | 
 | Roadmap | | [GitLab Milestones](https://git.se.informatik.uni-kiel.de/she/theodolite/-/milestones) | 
-| CI/CD pipelines | | [GitLab CI/CD](https://git.se.informatik.uni-kiel.de/she/theodolite/-/pipelines) | 
 | Releases   | [GitHub Releases](https://github.com/cau-se/theodolite/releases) | [GitLab Releases](https://git.se.informatik.uni-kiel.de/she/theodolite/-/releases) | 
 | Container images | [GitHub Packages](https://github.com/orgs/cau-se/packages?repo_name=theodolite) | |
 
+<!--| CI/CD pipelines | | [GitLab CI/CD](https://git.se.informatik.uni-kiel.de/she/theodolite/-/pipelines) | -->
+
 ## Contributors
 
-* [Sören Henning](https://www.dynatrace.com/engineering/persons/soeren-henning/) (Maintainer)
+* [Sören Henning](https://soerenhenning.github.io/) (Maintainer)
 * [Marcel Becker](https://www.linkedin.com/in/marcel-becker-11b39b246)
 * [Jan Bensien](https://oceanrep.geomar.de/id/eprint/52342/)
 * [Nico Biernat](https://github.com/NicoBiernat)
