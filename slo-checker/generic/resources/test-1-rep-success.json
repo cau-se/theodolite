@@ -267,7 +267,7 @@
         ]
     ],
     "metadata": {
-        "warmup": 60,
+        "warmupSeconds": 60,
         "queryAggregation": "max",
         "repetitionAggregation": "median",
         "operator": "lt",

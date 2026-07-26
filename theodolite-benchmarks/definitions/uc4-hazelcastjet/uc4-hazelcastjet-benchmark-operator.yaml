@@ -1,4 +1,4 @@
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: benchmark
 metadata:
   name: uc4-hazelcastjet
@@ -61,25 +61,24 @@ spec:
           properties:
             loadGenMaxRecords: "150000"
             numSensors: "4"
+  slis:
+    - name: consumerLag
+      provider: prometheus
+      query: "sum by(consumergroup) (kafka_consumergroup_lag{consumergroup='theodolite-uc4-application'} >= 0)"
+    - name: droppedRecords
+      provider: prometheus
+      query: "sum(rate(com_hazelcast_jet_metrics_lateeventsdropped[30s])) by(job)"
   slos:
     - name: "lag trend"
-      sloType: "lag trend"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        consumerGroup: theodolite-uc4-application
-        threshold: 2000
-        externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
+      sli: consumerLag
+      warmupSeconds: 60
+      externalSloChecker: "http://localhost:80/evaluate-slope"
+      threshold: 2000
     - name: droppedRecords
-      sloType: generic
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        externalSloUrl: "http://localhost:8082"
-        promQLQuery: "sum(rate(com_hazelcast_jet_metrics_lateeventsdropped[30s])) by(job)"
-        warmup: 60 # in seconds
-        queryAggregation: max
-        repetitionAggregation: median
-        operator: lte
-        threshold: 100
+      sli: droppedRecords
+      warmupSeconds: 60
+      queryAggregation: max
+      repetitionAggregation: median
+      operator: lte
+      threshold: 100
+      externalSloChecker: "http://localhost:8082"

@@ -56,7 +56,7 @@ The status of a benchmark tells you whether executions of it are ready to run:
 To run a benchmark, an Execution YAML file needs to be created such as the following one.
 
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
   name: theodolite-example-execution # (1) give a name to your execution
@@ -69,9 +69,8 @@ spec:
     resourceType: "Instances" # (5) chose one of the benchmark's resource types
     resourceValues: [1, 2] # (6) select a set of resource amounts
   slos:
-    - name: "lag trend"
-      properties:
-        threshold: 2000
+    - name: "lag-trend"
+      threshold: 2000
   execution:
     strategy:
       name: "RestrictionSearch" # (8) chose a search strategy
@@ -146,7 +145,7 @@ The notebooks allow to compute a scalability function using Theodolite's *demand
 
 After finishing a benchmark execution, Theodolite creates a `exp<id>_demand.csv` file. It maps the tested load intensities to the minimal required resources for that load. If the monitoring data collected during benchmark execution should be analyzed in more detail, the `demand-metric.ipynb` notebook can be used. 
 
-Theodolite stores monitoring data for each conducted SLO experiment in `exp<id>_<load>_<resources>_<slo-slug>_<rep>.csv` files, where `<id>` is the ID of an execution, `<load>` the corresponding load intensity value, `<resources>` the resources value, `<slo-slug>` the [name of the SLO](creating-a-benchmark#service-level-objectives-slos) and `<rep>` the repetition counter.
+Theodolite stores monitoring data for each conducted SLO experiment in `exp<id>_<load>_<resources>_<slo-slug>_<rep>.csv` files, where `<id>` is the ID of an execution, `<load>` the corresponding load intensity value, `<resources>` the resources value, `<slo-slug>` the [name of the SLO](creating-a-benchmark#service-level-indicators-and-service-level-objectives) and `<rep>` the repetition counter.
 The `demand-metric.ipynb` notebook reads these files and generates a new CSV file mapping load intensities to the minimal required resources. The format of this file corresponds to the original `exp<id>_demand.csv` file created when running the benchmark, but allows, for example, to evaluate different warm-up periods.
 
 Currently, the `demand-metric.ipynb` notebook only supports benchmarks with the *lag trend SLO* out-of-the-box, but can easily be adjusted to perform any other type of analysis.

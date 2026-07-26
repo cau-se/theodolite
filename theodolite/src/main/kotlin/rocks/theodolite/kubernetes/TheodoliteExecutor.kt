@@ -8,6 +8,7 @@ import rocks.theodolite.core.strategies.StrategyFactory
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.patcher.PatcherDefinitionFactory
+import rocks.theodolite.kubernetes.slo.SliFactory
 import rocks.theodolite.kubernetes.slo.SloFactory
 import java.time.Duration
 
@@ -57,7 +58,12 @@ class TheodoliteExecutor(
                 this.benchmark.loadTypes
             )
 
-        val slos = SloFactory().createSlos(this.benchmarkExecution, this.benchmark)
+        val slis = SliFactory().createSlis(this.benchmarkExecution, this.benchmark)
+        val slos = SloFactory().createSlos(
+            this.benchmarkExecution,
+            this.benchmark,
+            slis.map { it.name }.toSet()
+        )
 
         experimentRunner =
             ExperimentRunnerImpl(
@@ -65,6 +71,7 @@ class TheodoliteExecutor(
                 results = results,
                 executionDuration = executionDuration,
                 configurationOverrides = benchmarkExecution.configOverrides,
+                slis = slis,
                 slos = slos,
                 repetitions = benchmarkExecution.execution.repetitions,
                 executionId = benchmarkExecution.executionId,

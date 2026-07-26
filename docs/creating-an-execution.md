@@ -9,9 +9,8 @@ nav_order: 6
 
 Theodolite Executions look similar to the following example.
 
-<!-- TODO align with upstream -->
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
   name: theodolite-example-execution
@@ -24,9 +23,8 @@ spec:
     resourceType: "Instances"
     resourceValues: [1, 2]
   slos:
-    - name: "lag trend"
-      properties:
-        threshold: 2000
+    - name: "lag-trend"
+      threshold: 2000
   execution:
     metric: "demand"
     strategy:
@@ -56,8 +54,19 @@ An Execution always refers to a Benchmark. For the Execution to run, the Benchma
 
 As a Benchmark may define multiple supported load and resource types, an Execution has to pick exactly one of each by its name. Additionally, it defines the set of load values and resource values the benchmark should be executed with.
 Both these values are represented as integers, which are interpreted in a [Benchmark-specific way](creating-a-benchmark#load-and-resource-types) to configure the SUT and load generator.
-Similarly, an Execution must select a subset of the [SLOs defined in the Benchmark](creating-a-benchmark#service-level-objectives-slos). Additionally, these SLOs can be configured by their `properties`.
-<!-- TODO: What happpens if slos are not set? -->
+Similarly, an Execution may override any of the [SLIs and SLOs defined in the Benchmark](creating-a-benchmark#service-level-indicators-and-service-level-objectives). Override entries must match by `name` and may override any field directly — there is no nested `properties` map.
+
+For example, to override the threshold and warmup of an SLO and the query of an SLI:
+
+```yaml
+slis:
+  - name: consumerLag
+    query: "sum by(consumergroup) (kafka_consumergroup_lag{consumergroup='my-app'} >= 0)"
+slos:
+  - name: lag-trend
+    threshold: 500
+    warmupSeconds: 0
+```
 
 ## Experimental Setup
 
