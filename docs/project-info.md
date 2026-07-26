@@ -26,7 +26,7 @@ Also releases are published via GitHub. See the following table for an overview:
 | Issue Tracking | [GitHub Issues](https://github.com/cau-se/theodolite/issues) | [GitLab Issues](https://git.se.informatik.uni-kiel.de/she/theodolite/-/issues) |
 | Pull/Merge requests | [GitHub Pull requests](https://github.com/cau-se/theodolite/pulls) | [GitLab Merge requests](https://git.se.informatik.uni-kiel.de/she/theodolite/-/merge_requests) | 
 | Roadmap | | [GitLab Milestones](https://git.se.informatik.uni-kiel.de/she/theodolite/-/milestones) | 
-| CI/CD pipelines | | [GitLab CI/CD](https://git.se.informatik.uni-kiel.de/she/theodolite/-/pipelines) | 
+<!--| CI/CD pipelines | | [GitLab CI/CD](https://git.se.informatik.uni-kiel.de/she/theodolite/-/pipelines) | -->
 | Releases   | [GitHub Releases](https://github.com/cau-se/theodolite/releases) | [GitLab Releases](https://git.se.informatik.uni-kiel.de/she/theodolite/-/releases) | 
 | Container images | [GitHub Packages](https://github.com/orgs/cau-se/packages?repo_name=theodolite) | |
 
