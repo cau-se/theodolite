@@ -12,11 +12,6 @@ class BenchmarkCRDummy(name: String) {
     }
 
     init {
-        val kafkaConfig = KafkaConfig()
-
-        kafkaConfig.bootstrapServer = ""
-        kafkaConfig.topics = emptyList()
-
         benchmarkCR.spec = benchmark
         benchmarkCR.metadata.name = name
         benchmarkCR.kind = "Benchmark"
@@ -42,7 +37,6 @@ class BenchmarkCRDummy(name: String) {
         benchmark.loadTypes = emptyList()
         benchmark.slis = mutableListOf()
         benchmark.slos = mutableListOf()
-        benchmark.kafkaConfig = kafkaConfig
         benchmark.name = benchmarkCR.metadata.name
     }
 }
