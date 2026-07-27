@@ -1,5 +1,6 @@
 package rocks.theodolite.core
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.core.strategies.Metric
 
@@ -108,12 +109,19 @@ class Results(val metric: Metric) {
             .maxOrNull()
     }
 
+    fun getExperimentResults(): List<ExperimentResult> {
+        return experimentResults.map { (k, v) -> ExperimentResult(load = k.first, resources = k.second, successful = v) }
+    }
+
     /**
      * Checks whether the results are empty.
      *
      * @return true if [experimentResults] is empty.
      */
+    @JsonIgnore
     fun isEmpty(): Boolean {
         return experimentResults.isEmpty()
     }
+
+    data class ExperimentResult(val load: Int, val resources: Int, val successful: Boolean)
 }

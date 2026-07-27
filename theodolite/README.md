@@ -94,51 +94,23 @@ docker run -i --rm theodolite-native
 
 ## Environment variables
 
-**Execution in Docker**:
-
-| Variables name               | Default value                      |Usage         |
-| -----------------------------|:----------------------------------:| ------------:|
-| `NAMESPACE`                  | `default`                          |Determines the namespace of the Theodolite will be executed in. Used in the KubernetesBenchmark|
-| `THEODOLITE_EXECUTION`       |  `execution/execution.yaml`        |The complete path to the benchmarkExecution file. Used in the TheodoliteYamlExecutor. |
-| `THEODOLITE_BENCHMARK_TYPE`  |  `benchmark/benchmark.yaml`        |The complete path to the benchmarkType file. Used in the TheodoliteYamlExecutor.|
-| `THEODOLITE_APP_RESOURCES`   |  `./benchmark-resources`           |The path under which the yamls for the resources for the subexperiments are found. Used in the KubernetesBenchmark|
-| `MODE`                       | `standalone`                       |Defines the mode of operation: either `standalone` or `operator`
-
 **Execution in IntelliJ**:
 
 When running Theodolite from within IntelliJ via
-[Run Configurations](https://www.jetbrains.com/help/idea/work-with-gradle-tasks.html#gradle_run_config), set the *Environment variables* field to:
-
-Set the following environment variables to run the example in the `standalone` mode within the IDE:
+[Run Configurations](https://www.jetbrains.com/help/idea/work-with-gradle-tasks.html#gradle_run_config), set the *Environment variables* field to run in `operator` mode:
 
 ```sh
-THEODOLITE_BENCHMARK=./../../../../examples/standalone/example-benchmark.yaml;THEODOLITE_EXECUTION=./../../../../examples/standalone/example-execution.yaml;THEODOLITE_APP_RESOURCES=./../../../../examples/resources;
+MODE=operator
 ```
 
 Alternative:
 
-``` sh
-export THEODOLITE_BENCHMARK=./../../../../examples/standalone/example-benchmark.yaml
-export THEODOLITE_APP_RESOURCES=./../../../../examples/resources;
-export THEODOLITE_EXECUTION=./../../../../examples/standalone/example-execution.yaml
-./gradlew quarkusDev
-```
-
-Set the following environment variables to run the example in the `operator` mode within the IDE:
-
 ```sh
-THEODOLITE_APP_RESOURCES=./../../../../examples/resources;MODE=operator
-```
-
-Alternative:
-
-``` sh
-export THEODOLITE_APP_RESOURCES=./../../../../examples/resources;
 export MODE=operator
 ./gradlew quarkusDev
 ```
 
-Additionally, the benchmark and execution resources must be installed.
+The benchmark and execution resources must be installed in the cluster separately.
 
 ### Install Detekt Code analysis Plugin
 
