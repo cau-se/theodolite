@@ -1,0 +1,47 @@
+apiVersion: theodolite.rocks/v1beta2
+kind: benchmark
+metadata:
+  name: example-benchmark
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "example-configmap"
+          files:
+            - "envoy-configmap.yaml"
+            - "http-server-deployment.yaml"
+            - "http-server-service.yaml"
+            - "http-server-service-monitor.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "example-configmap"
+          files:
+            - "load-generator-deployment.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "http-server-deployment.yaml"
+  loadTypes:
+    - typeName: "CallsPerSecond"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "load-generator-deployment.yaml"
+          properties:
+            container: "load-generator"
+            variableName: "CALLS_PER_SECOND"
+  slis:
+    - name: errorRate
+      provider: prometheus
+      query: >-
+        (sum(rate(envoy_http_downstream_rq_xx{envoy_response_code_class="5"}[1m])) or vector(0))
+        / sum(rate(envoy_http_downstream_rq_xx[1m]))
+  slos:
+    - name: "low-error-rate"
+      sli: errorRate
+      warmupSeconds: 60
+      queryAggregation: max
+      repetitionAggregation: median
+      operator: lte
+      threshold: 0.01
