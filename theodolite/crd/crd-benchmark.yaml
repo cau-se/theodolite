@@ -591,10 +591,10 @@ spec:
                       description: The query string for this SLI (PromQL for Prometheus, DQL for Dynatrace).
                       type: string
                     intervalSeconds:
-                      description: (Optional) Step size in seconds. Defaults to 5.
+                      description: (Optional) Query step size in seconds. Defaults to 5.
                       type: integer
                     providerConfig:
-                      description: "(Optional) Provider-specific configuration. For Prometheus: prometheusUrl, offsetHours. For Dynatrace: dynatraceUrl."
+                      description: "(Optional) Provider-specific configuration (e.g., offsetHours, prometheusUrl, dynatraceUrl)."
                       type: object
                       additionalProperties: true
                       x-kubernetes-map-type: "granular"

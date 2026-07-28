@@ -26,7 +26,7 @@ class DqlPollResponse (
 
         data class ResultRecord (
             val timeframe: TimeFrame,
-            val interval: Long, //in nanoseconds
+            val interval: Long, // in nanoseconds
         ){
             val grouping: MutableMap<String, String> = mutableMapOf()
             val metrics: MutableMap<String, List<Double?>> = mutableMapOf()

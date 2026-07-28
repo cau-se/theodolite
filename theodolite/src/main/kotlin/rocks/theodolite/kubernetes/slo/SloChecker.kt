@@ -1,7 +1,7 @@
 package rocks.theodolite.kubernetes.slo
 
 /**
- * A SloChecker can be used to evaluate data from Prometheus or Dynatrace.
+ * A SloChecker can be used to evaluate data from an external metrics source.
  * @constructor Creates an empty SloChecker
  */
 interface SloChecker {

@@ -169,7 +169,7 @@ An Execution must at least define one SLO to be checked.
 
 Theodolite supports multiple metric providers. The `provider` field on an SLI selects the backend:
 
-- **`prometheus`** (default for the Theodolite stream-processing benchmarks) — fetches metrics via PromQL
+- **`prometheus`** (default for most benchmarks) — fetches metrics via PromQL (Prometheus Query Language); see the example below
 - **`dynatrace`** — fetches metrics via DQL (Dynatrace Query Language); see the [OTel Demo / Dynatrace example](example-otel-demo-dynatrace) for a complete setup guide
 
 Benchmarks use two separate sections: `slis:` (Service Level Indicators) describe *what* data to collect and from *which provider*, and `slos:` (Service Level Objectives) describe *how* to evaluate that data.

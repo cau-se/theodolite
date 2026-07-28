@@ -2,79 +2,79 @@ components:
   accounting:
     resources:
         limits:
-          memory: 180Mi #default 120
+          memory: 180Mi # default 120Mi
   ad:
     resources:
       limits:
-        memory: 300Mi #default 300
+        memory: 300Mi # default 300Mi
   cart:
     resources:
       limits:
-        memory: 130Mi #default 160
+        memory: 130Mi # default 160Mi
   checkout:
     resources:
       limits:
-        memory: 20Mi #default 20
+        memory: 20Mi # default 20Mi
   currency:
     resources:
       limits:
-        memory: 20Mi #default 20
+        memory: 20Mi # default 20Mi
   email:
     resources:
       limits:
-        memory: 70Mi #default 100
+        memory: 70Mi # default 100Mi
   fraud-detection:
     resources:
       limits:
-        memory: 270Mi #default 300
+        memory: 270Mi # default 300Mi
   frontend:
     resources:
       limits:
-        memory: 250Mi #default 250
+        memory: 250Mi # default 250Mi
   frontend-proxy:
     resources:
       limits:
-        memory: 65Mi #default 65
+        memory: 65Mi # default 65Mi
   image-provider:
     resources:
       limits:
-        memory: 50Mi #default 50
+        memory: 50Mi # default 50Mi
   load-generator:
     resources:
       limits:
-        memory: 4000Mi #default 1500
+        memory: 4000Mi # default 1500Mi
   payment:
     resources:
       limits:
-        memory: 140Mi #default 120
+        memory: 140Mi # default 120Mi
   product-catalog:
     resources:
       limits:
-        memory: 20Mi #default 20
+        memory: 20Mi # default 20Mi
   quote:
     resources:
       limits:
-        memory: 40Mi #default 40
+        memory: 40Mi # default 40Mi
   recommendation:
     resources:
       limits:
-        memory: 450Mi #default 500
+        memory: 450Mi # default 500Mi
   shipping:
     resources:
       limits:
-        memory: 20Mi #default 20
+        memory: 20Mi # default 20Mi
   flagd:
     resources:
       limits:
-        memory: 80Mi #default 75
+        memory: 80Mi # default 75Mi
   kafka:
     resources:
       limits:
-        memory: 600Mi #default 600
+        memory: 600Mi # default 600Mi
   valkey-cart:
     resources:
       limits:
-        memory: 20Mi #default 20
+        memory: 20Mi # default 20Mi
 jaeger:
   enabled: false
 prometheus:
@@ -86,7 +86,7 @@ opensearch:
 opentelemetry-collector:
   resources:
       limits:
-        memory: 350Mi # default 200
+        memory: 350Mi # default 200Mi
   image:
     repository: "otel/opentelemetry-collector-contrib"
     tag: ""
@@ -225,8 +225,6 @@ opentelemetry-collector:
       pipelines:
         logs:
           exporters:
-            #- opensearch
-            #- debug
             - otlphttp/dynatrace
           processors:
             - k8sattributes
@@ -238,8 +236,6 @@ opentelemetry-collector:
             - otlp
         metrics:
           exporters:
-            #- otlphttp/prometheus
-            #- debug
             - otlphttp/dynatrace
           processors:
             - k8sattributes
@@ -254,8 +250,6 @@ opentelemetry-collector:
             - spanmetrics
         traces:
           exporters:
-            #- otlp
-            #- debug
             - spanmetrics
             - otlphttp/dynatrace
           processors:
@@ -266,8 +260,6 @@ opentelemetry-collector:
             - batch
           receivers:
             - otlp
-            #- jaeger
-            #- zipkin
       telemetry:
         metrics:
           address: ${env:MY_POD_IP}:8888

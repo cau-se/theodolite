@@ -7,16 +7,16 @@ nav_order: 2
 
 # Example: A Benchmark for the OpenTelemetry Demo with Dynatrace
 
-The [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) is a microservice-based web shop used to showcase OpenTelemetry instrumentation across multiple languages. This example shows how to benchmark it with Theodolite using **Dynatrace** as the metric provider — collecting span-based latency data via DQL (Dynatrace Query Language) instead of Prometheus.
+The [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) is a microservice-based web shop used to showcase OpenTelemetry instrumentation across multiple languages. This example shows how to benchmark it with Theodolite using **Dynatrace** as the metric provider — collecting span-based latency data via DQL (Dynatrace Query Language).
 
 All example files are located in [`theodolite/examples/otel-demo-dynatrace/`](https://github.com/cau-se/theodolite/tree/main/theodolite/examples/otel-demo-dynatrace).
 
 ## Prerequisites
 
-- A running Kubernetes cluster with Theodolite installed
-- A Dynatrace tenant (SaaS or Managed) with:
-  - An OTel-compatible API token for data ingestion
-  - An OAuth client with the `storage:query:read` scope for DQL queries
+- A running Kubernetes cluster with [Theodolite installed](installation)
+- A Dynatrace tenant with:
+  - An [OTel-compatible API token](https://docs.dynatrace.com/docs/ingest-from/opentelemetry/otlp-api#authentication-export-to-activegate) for data ingestion
+  - An [OAuth client](https://docs.dynatrace.com/docs/manage/identity-access-management/access-tokens-and-oauth-clients/oauth-clients#create-an-oauth2-client) with the `storage:query:read` scope for DQL queries
 - Helm CLI
 
 ## Cluster Preparation
@@ -78,9 +78,9 @@ operator:
 helm upgrade --install theodolite theodolite/theodolite --values theodolite-values.yaml
 ```
 
-The generic SLO checker sidecar is deployed automatically — the benchmark YAML does not require an `externalSloChecker` URL.
-
 ## Defining the Benchmark
+
+The benchmark measures how the OTel Demo web shop scales with increasing load. Load is the number of simulated **users** and resources are the number of frontend **replicas**. For each (users, replicas) combination, Theodolite runs the load generator at the configured user count, collects DQL span metrics, and checks whether the p90 latency stays below 500 ms. The result is the **capacity metric**: the maximum number of users the web shop can handle at a given number of replicas while meeting the latency SLO.
 
 ### SLI — What to Measure
 
@@ -95,8 +95,6 @@ slis:
       | filter request.is_root_span == true AND isNotNull(endpoint.name)
       | makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }
 ```
-
-The Dynatrace API endpoint and OAuth credentials come from the Helm chart (`operator.dynatrace.url` / `operator.dynatrace.existingSecret`) — no URLs or credentials appear in the benchmark YAML.
 
 ### SLO — When to Pass
 
@@ -113,7 +111,7 @@ slos:
     threshold: 500000000   # 500 ms in nanoseconds
 ```
 
-`externalSloChecker` is omitted — Theodolite defaults to the generic SLO checker sidecar deployed alongside the operator by the Helm chart. Dynatrace reports span durations in nanoseconds, so 500 ms = 500,000,000 ns.
+Note that Dynatrace reports span durations in nanoseconds, so 500 ms = 500,000,000 ns.
 
 ## Running the Benchmark
 
@@ -125,10 +123,21 @@ kubectl create configmap otel-demo-configmap \
   --from-file=load-generator-deployment.yaml
 ```
 
-Apply the benchmark and execution:
+Apply the benchmark:
 
 ```sh
 kubectl apply -f otel-demo-benchmark.yaml
+```
+
+Verify that the benchmark is ready before starting the execution:
+
+```sh
+kubectl get benchmarks
+```
+
+Then apply the execution to start the benchmark run:
+
+```sh
 kubectl apply -f otel-demo-execution.yaml
 ```
 
