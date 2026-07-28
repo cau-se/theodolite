@@ -585,16 +585,16 @@ spec:
                       description: Unique name for this SLI. Referenced by SLOs.
                       type: string
                     provider:
-                      description: Metric provider. Currently only 'prometheus' is supported.
+                      description: Metric provider. Supported values are 'prometheus' and 'dynatrace'.
                       type: string
                     query:
-                      description: The PromQL query string for this SLI.
+                      description: The query string for this SLI (PromQL for Prometheus, DQL for Dynatrace).
                       type: string
                     intervalSeconds:
-                      description: (Optional) Prometheus step size in seconds. Defaults to 5.
+                      description: (Optional) Query step size in seconds. Defaults to 5.
                       type: integer
                     providerConfig:
-                      description: (Optional) Provider-specific configuration (e.g., prometheusUrl, offsetHours).
+                      description: "(Optional) Provider-specific configuration (e.g., offsetHours, prometheusUrl, dynatraceUrl)."
                       type: object
                       additionalProperties: true
                       x-kubernetes-map-type: "granular"

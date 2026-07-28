@@ -164,10 +164,15 @@ If a benchmark is [executed by an Execution](running-benchmarks), these patchers
 ## Service Level Indicators and Service Level Objectives
 
 SLOs provide a way to quantify whether a certain load intensity can be handled by a certain amount of provisioned resources.
-In Theodolite, SLOs are evaluated by collecting monitoring data (described as SLIs) from Prometheus and analyzing it in a benchmark-specific way.
+In Theodolite, SLOs are evaluated by collecting monitoring data (described as SLIs) from a metric provider and analyzing it in a benchmark-specific way.
 An Execution must at least define one SLO to be checked.
 
-Benchmarks use two separate sections: `slis:` (Service Level Indicators) describe *what* data to collect from Prometheus, and `slos:` (Service Level Objectives) describe *how* to evaluate that data.
+Theodolite supports multiple metric providers. The `provider` field on an SLI selects the backend:
+
+- **`prometheus`** (default for most benchmarks) — fetches metrics via PromQL (Prometheus Query Language); see the example below
+- **`dynatrace`** — fetches metrics via DQL (Dynatrace Query Language); see the [OTel Demo / Dynatrace example](example-otel-demo-dynatrace) for a complete setup guide
+
+Benchmarks use two separate sections: `slis:` (Service Level Indicators) describe *what* data to collect and from *which provider*, and `slos:` (Service Level Objectives) describe *how* to evaluate that data.
 
 A good choice to get started is defining an SLI and SLO for a generic Prometheus metric:
 
@@ -212,6 +217,31 @@ slis:
       offsetHours: 0                                  # overrides THEODOLITE_PROMETHEUS_OFFSET_HOURS
 ```
 
+### Dynatrace provider configuration
+
+For Dynatrace SLIs, the DQL query API endpoint defaults to the `THEODOLITE_DYNATRACE_URL` environment variable (set via Helm: `operator.dynatrace.url`). OAuth credentials are configured via Helm as well and never need to appear in the benchmark YAML. The endpoint can optionally be overridden per SLI via `providerConfig`:
+
+```yaml
+slis:
+  - name: p90Latency
+    provider: dynatrace
+    query: "fetch spans | makeTimeseries {p90 = percentile(duration, 90)}"
+    # providerConfig.dynatraceUrl is optional if THEODOLITE_DYNATRACE_URL is set via Helm
+    providerConfig:
+      dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+```
+
+Configure the Theodolite Helm chart with your Dynatrace credentials (preferably via a Kubernetes Secret):
+
+```yaml
+# values excerpt
+operator:
+  dynatrace:
+    url: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+    existingSecret: "my-dynatrace-secret"  # keys: clientId, clientSecret, scope, resource, authUrl
+```
+
+For a complete end-to-end Dynatrace example, see [OTel Demo with Dynatrace](example-otel-demo-dynatrace).
 
 <!-- Further information: API Reference -->
 <!-- Further information: How to deploy -->

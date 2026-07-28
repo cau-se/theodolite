@@ -2,7 +2,6 @@ package rocks.theodolite.kubernetes.slo
 
 import mu.KotlinLogging
 import rocks.theodolite.core.IOHandler
-import rocks.theodolite.kubernetes.Configuration
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Sli
 import java.text.Normalizer
 import java.time.Duration
@@ -14,7 +13,7 @@ private val logger = KotlinLogging.logger {}
 private val DEFAULT_INTERVAL_SECONDS = 5
 
 /**
- * Collects Prometheus metrics for a set of SLIs across a list of experiment intervals.
+ * Collects metrics for a set of SLIs across a list of experiment intervals.
  * All collected data is exported to CSV; results are returned for SLO evaluation.
  *
  * @param slis List of resolved SLIs to collect.
@@ -31,24 +30,18 @@ class SliCollector(
      * Collects data for all SLIs over the given [executionIntervals].
      * Writes full (all-labels) CSV per SLI per repetition.
      *
-     * @return Map from SLI name to its list of [PrometheusResponse]s (one per interval/repetition).
+     * @return Map from SLI name to its list of [MetricQueryResponse]s (one per interval/repetition).
      */
     fun collect(
         load: Int,
         resource: Int,
         executionIntervals: List<Pair<Instant, Instant>>
-    ): Map<String, List<PrometheusResponse>> {
+    ): Map<String, List<MetricQueryResponse>> {
         return slis.associate { sli ->
-            val prometheusUrl = sli.providerConfig["prometheusUrl"] ?: Configuration.PROMETHEUS_URL
-            val offsetHours = sli.providerConfig["offsetHours"]?.toLongOrNull() ?: Configuration.PROMETHEUS_OFFSET_HOURS
             val stepSize = Duration.ofSeconds((sli.intervalSeconds ?: DEFAULT_INTERVAL_SECONDS).toLong())
+            val fetcher = MetricFetcherFactory.create(sli)
 
-            val fetcher = MetricFetcher(
-                prometheusURL = prometheusUrl,
-                offset = Duration.ofHours(offsetHours)
-            )
-
-            logger.info { "Collecting SLI '${sli.name}' with query '${sli.query}'" }
+            logger.info { "Collecting SLI '${sli.name}' (provider: ${sli.provider}) with query '${sli.query}'" }
 
             val data = executionIntervals.map { interval ->
                 fetcher.fetchMetric(

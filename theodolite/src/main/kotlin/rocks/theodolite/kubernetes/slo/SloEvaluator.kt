@@ -19,14 +19,13 @@ class SloEvaluator(
      * Evaluates all SLOs against the [collectedSliData] map and returns
      * true only if all SLO checks pass.
      *
-     * For each SLO, the PrometheusResponse for its referenced SLI is truncated to
-     * the first time series before being forwarded to the SLO checker, so that the
-     * checker never receives multi-labeled data in a single request.
+     * First-series trimming is handled by [MetricQueryResponse.getDataForSLOChecker]
+     * inside [ExternalSloChecker], so full responses are forwarded here.
      */
     fun evaluate(
         load: Int,
         resource: Int,
-        collectedSliData: Map<String, List<PrometheusResponse>>
+        collectedSliData: Map<String, List<MetricQueryResponse>>
     ): Boolean {
         val results = slos.map { slo ->
             val sliData = collectedSliData[slo.sli]
@@ -38,19 +37,7 @@ class SloEvaluator(
 
             try {
                 val sloChecker = SloCheckerFactory().create(slo = slo, load = load, resources = resource)
-                // Forward only the first series per repetition to the checker.
-                val firstSeriesOnly = sliData.map { response ->
-                    PrometheusResponse(
-                        status = response.status,
-                        data = response.data?.let { data ->
-                            PromData(
-                                resultType = data.resultType,
-                                result = data.result?.take(1)
-                            )
-                        }
-                    )
-                }
-                sloChecker.evaluate(firstSeriesOnly)
+                sloChecker.evaluate(sliData)
             } catch (e: Exception) {
                 throw EvaluationFailedException(
                     "Evaluation of SLO '${slo.name}' failed for resource=$resource, load=$load",

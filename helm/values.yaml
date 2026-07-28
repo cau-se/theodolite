@@ -235,6 +235,23 @@ operator:
   # Set this if you want all SLOs without an explicit externalSloChecker to use a different endpoint.
   sloCheckerUrl: ""
 
+  # Dynatrace DQL configuration. Only required when using SLIs with provider: dynatrace.
+  dynatrace:
+    # Default DQL query API endpoint (THEODOLITE_DYNATRACE_URL).
+    # Can be overridden per SLI via providerConfig.dynatraceUrl.
+    url: ""
+
+    # OAuth credentials for the Dynatrace DQL API.
+    # Recommended: use existingSecret to avoid storing credentials in plain text.
+    existingSecret: ""  # name of a Kubernetes Secret with keys: clientId, clientSecret, scope, resource, authUrl
+
+    # Plain-text credentials (used only when existingSecret is empty):
+    clientId: ""
+    clientSecret: ""
+    scope: ""
+    resource: ""
+    authUrl: ""
+
   sloChecker:
     generic:
       enabled: true

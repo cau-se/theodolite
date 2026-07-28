@@ -21,6 +21,12 @@ class Configuration {
         val PROMETHEUS_OFFSET_HOURS = (System.getenv("THEODOLITE_PROMETHEUS_OFFSET_HOURS") ?: DEFAULT_PROMETHEUS_OFFSET_HOURS).toLong()
 
         /**
+         * Default Dynatrace DQL query API endpoint used when an SLI does not specify dynatraceUrl in its providerConfig.
+         * Set via THEODOLITE_DYNATRACE_URL environment variable.
+         */
+        val DYNATRACE_URL: String? = System.getenv("THEODOLITE_DYNATRACE_URL")?.takeIf { it.isNotBlank() }
+
+        /**
          * Default external SLO checker URL used when an SLO does not specify externalSloChecker.
          * Defaults to the generic SLO checker sidecar (port 8082).
          * Set via THEODOLITE_SLO_CHECKER_URL environment variable.
