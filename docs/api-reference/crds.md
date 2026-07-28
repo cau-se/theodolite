@@ -938,14 +938,14 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         <td><b>intervalSeconds</b></td>
         <td>integer</td>
         <td>
-          (Optional) Step size in seconds. Defaults to 5.<br/>
+          (Optional) Query step size in seconds. Defaults to 5.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>providerConfig</b></td>
         <td>map[string]string</td>
         <td>
-          (Optional) Provider-specific configuration. For Prometheus: prometheusUrl, offsetHours. For Dynatrace: dynatraceUrl.<br/>
+          (Optional) Provider-specific configuration (e.g., offsetHours, prometheusUrl, dynatraceUrl).<br/>
           <br/>
             <i>Default</i>: map[]<br/>
         </td>
