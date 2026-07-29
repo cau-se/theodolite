@@ -50,7 +50,7 @@ All Dynatrace configuration is set in the Theodolite Helm chart. Create a Kubern
 kubectl create secret generic theodolite-dynatrace \
   --from-literal=clientId="<oauth-client-id>" \
   --from-literal=clientSecret="<oauth-client-secret>" \
-  --from-literal=scope="storage:query:read" \
+  --from-literal=scope="storage:logs:read storage:metrics:read storage:spans:read" \  # adjust to match the data types your DQL queries access
   --from-literal=resource="urn:dynatrace:environment:<environment-id>" \
   --from-literal=authUrl="https://sso.dynatrace.com/sso/oauth2/token"
 ```
