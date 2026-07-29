@@ -74,8 +74,6 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
             }
         }
 
-        val kafkaConfig = kubernetesBenchmark.kafkaConfig
-
         return KubernetesBenchmarkDeployment(
                 sutBeforeActions = kubernetesBenchmark.sut.beforeActions,
                 sutAfterActions = kubernetesBenchmark.sut.afterActions,
@@ -85,8 +83,6 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
                 loadGenResources = loadGenResources.toList().flatMap { it.second },
                 loadGenerationDelay = loadGenerationDelay,
                 afterTeardownDelay = afterTeardownDelay,
-                kafkaConfig = if (kafkaConfig != null) mapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
-                topics = kafkaConfig?.topics ?: listOf(),
                 client = this.client,
                 rolloutMode = waitForResourcesEnabled
         )
@@ -95,9 +91,5 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
 }
 
 private fun Collection<Pair<String, HasMetadata>>.toResourceMap(): MutableMap<String, List<HasMetadata>> {
-    return this.toMap()
-        .toMutableMap()
-        .map { Pair(it.key, listOf(it.value)) }
-        .toMap()
-        .toMutableMap()
+    return this.groupBy({ it.first }, { it.second }).toMutableMap()
 }

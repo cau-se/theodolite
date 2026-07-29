@@ -11,9 +11,6 @@ tasks.distZip.enabled = false
 repositories {
   mavenCentral()
   maven {
-    url "https://oss.sonatype.org/content/repositories/snapshots/"
-  }
-  maven {
       url 'https://packages.confluent.io/maven/'
   }
 }

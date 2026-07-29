@@ -1,4 +1,4 @@
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
   name: theodolite-example-execution
@@ -13,12 +13,10 @@ spec:
     resourceValues:
       - 1
   slos:
-    - sloType: "lag trend"
+    - name: "lag trend"
       threshold: 1000
-      prometheusUrl: "http://localhost:32656"
-      externalSloUrl: "http://localhost:80/evaluate-slope"
-      offset: 0
-      warmup: 0
+      externalSloChecker: "http://localhost:80/evaluate-slope"
+      warmupSeconds: 0
   execution:
     strategy: "LinearSearch"
     duration: 60

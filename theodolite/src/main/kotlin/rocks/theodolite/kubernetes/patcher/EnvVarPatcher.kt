@@ -12,7 +12,8 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
  */
 class EnvVarPatcher(
         private val container: String,
-        private val variableName: String
+        private val variableName: String,
+        private val isInitContainer: Boolean = false
 ) : AbstractStringPatcher() {
 
 
@@ -63,8 +64,8 @@ class EnvVarPatcher(
      * Set the environment variable for a container in a [PodSpec].
      */
     private fun setEnvInPodSpec(podSpec: PodSpec, value: String) {
-        podSpec.containers
-                .filter { it.name == this.container }
-                .forEach { setEnvInContainer(it, value) }
+        (if (this.isInitContainer) podSpec.initContainers else podSpec.containers)
+            .filter { it.name == this.container }
+            .forEach { setEnvInContainer(it, value) }
     }
 }

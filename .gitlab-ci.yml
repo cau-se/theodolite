@@ -59,12 +59,13 @@ default:
 # Theodolite Docs
 
 .docs:
-  image: alpine/bundle:3.0.3
+  image: ruby:3.4
   cache:
     paths:
       - docs/vendor
   before_script:
     - cd docs
+    - gem install bundler
     - bundle config set --local path 'vendor'
     - bundle install
   rules:
@@ -86,7 +87,11 @@ test-docs-links:
   extends: .docs
   needs:
     - build-docs
-  script: bundle exec htmlproofer --assume-extension --allow_hash_href --http-status-ignore 999 ./_site
+  # Ignore external hashes as there seems to be a bug in html-proofer
+  # Ignore status code 999 sent from LinkedIn
+  # Ignore URLs to the GI Digital Library as they are constantly producing timeouts
+  # Replace DOI URLs with API checks (required for ACM DL)
+  script: bundle exec htmlproofer --no-check-external-hash --ignore-status-code 999 --ignore_urls "/^https:\/\/dl\.gi\.de\//" --swap-urls "^https\:\/\/doi\.org\/(?\:(?!(api\/))):https\://doi.org/api/handles/" ./_site
 
 build-docs-crds:
   stage: build
@@ -171,7 +176,7 @@ test-helm:
 # Theodolite Benchmarks
 
 .benchmarks:
-  image: openjdk:11-jdk
+  image: eclipse-temurin:11-jdk
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -756,7 +761,7 @@ deploy-theodolite:
 test-slo-checker-lag-trend:
   stage: test
   needs: []
-  image: python:3.8-slim
+  image: python:3.10-slim
   before_script:
     - cd slo-checker/record-lag
   script:
@@ -772,7 +777,7 @@ test-slo-checker-lag-trend:
 test-slo-checker-generic:
   stage: test
   needs: []
-  image: python:3.8-slim
+  image: python:3.10-slim
   before_script:
     - cd slo-checker/generic
   script:
@@ -847,7 +852,7 @@ deploy-buildimage-docker-compose-jq:
     - .kaniko-push
   needs: []
   variables:
-    DOCKER_VERSION: 20.10.12
+    DOCKER_VERSION: 20.10.24
     BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
     IMAGE_NAME: theodolite-build-docker-compose-jq
     IMAGE_TAG: $DOCKER_VERSION

@@ -42,7 +42,10 @@ object Theodolite {
                 val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
                 when (mode.lowercase()) {
-                    ExecutionModes.STANDALONE.value -> TheodoliteStandalone(client).start()
+                    ExecutionModes.STANDALONE.value -> {
+                        LOGGER.error { "Theodolite's standalone mode is deprecated and will be removed in future versions." }
+                        TheodoliteStandalone(client).start()
+                    }
                     ExecutionModes.OPERATOR.value -> TheodoliteOperator(client).start()
                     else -> {
                         LOGGER.error { "MODE $mode not found" }

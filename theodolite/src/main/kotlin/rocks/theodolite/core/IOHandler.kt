@@ -45,7 +45,7 @@ class IOHandler {
      * @return The content of the file as String
      */
     fun readFileAsString(fileURL: String): String {
-        return File(fileURL).inputStream().readBytes().toString(Charsets.UTF_8).trim()
+        return File(fileURL).inputStream().use { it.readBytes() }.toString(Charsets.UTF_8).trim()
     }
 
     /**
@@ -103,6 +103,22 @@ class IOHandler {
             }
         }
         return stringMutableList
+    }
+
+    /**
+     * Reads the integer stored in the file at [fileURL], increments it by 1, writes it back, and returns it.
+     * If the file does not exist yet, 0 is written and returned.
+     *
+     * @param fileURL the URL of the file storing the execution ID counter
+     * @return the new execution ID
+     */
+    fun getAndIncrementExecutionID(fileURL: String): Int {
+        var executionID = 0
+        if (File(fileURL).exists()) {
+            executionID = readFileAsString(fileURL).toInt() + 1
+        }
+        writeStringToTextFile(fileURL, executionID.toString())
+        return executionID
     }
 
     /**

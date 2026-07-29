@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.10
 
 WORKDIR /code
 
@@ -9,7 +9,7 @@ COPY ./app /code/app
 
 WORKDIR /code/app
 
-ENV HOST 0.0.0.0
-ENV PORT 80
+ENV HOST=0.0.0.0
+ENV PORT=80
 
 CMD ["sh", "-c", "uvicorn main:app --host $HOST --port $PORT"]

@@ -24,7 +24,13 @@ class RolloutManager(private val blockUntilResourcesReady: Boolean, private val 
                         is StatefulSet -> waitFor { client.apps().statefulSets().withName(it.metadata.name).isReady }
                         is DaemonSet -> waitFor { client.apps().daemonSets().withName(it.metadata.name).isReady }
                         is ReplicaSet -> waitFor { client.apps().replicaSets().withName(it.metadata.name).isReady }
-                        is Job -> waitFor { client.batch().v1().cronjobs().withName(it.metadata.name).isReady }
+                        is Job -> {
+                            val jobName = it.metadata.name
+                            // Wait until the Job has at least one active (running) pod.
+                            waitFor {
+                                (client.batch().v1().jobs().withName(jobName).get()?.status?.active ?: 0) > 0
+                            }
+                        }
                     }
                 }
         }

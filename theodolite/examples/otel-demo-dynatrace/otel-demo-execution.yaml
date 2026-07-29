@@ -1,0 +1,19 @@
+apiVersion: theodolite.rocks/v1beta2
+kind: execution
+metadata:
+  name: otel-demo
+spec:
+  benchmark: otel-demo
+  load:
+    loadType: "Users"
+    loadValues: [5, 7, 10, 13, 15]
+  resources:
+    resourceType: "Instances"
+    resourceValues: [1, 2, 3]
+  execution:
+    metric: capacity
+    strategy:
+      name: "FullSearch"
+    duration: 600 # in seconds
+    loadGenerationDelay: 30 # in seconds
+    repetitions: 1

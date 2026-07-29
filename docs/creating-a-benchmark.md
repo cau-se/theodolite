@@ -8,10 +8,10 @@ nav_order: 5
 
 Please note that to simply run a benchmark, it is not required to define one. Theodolite comes with a [set of benchmarks](theodolite-benchmarks), which are ready to be executed. See the [fundamental concepts](concepts) page to learn more about our distinction between benchmarks and executions.
 
-A typical benchmark looks like this:
+A typical benchmark looks like this (see the [HTTP server example](example-http-server) for a full walkthrough):
 
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: benchmark
 metadata:
   name: example-benchmark
@@ -19,51 +19,44 @@ spec:
   sut:
     resources:
       - configMap:
-         name: "example-configmap"
-         files:
-           - "uc1-kstreams-deployment.yaml"
+          name: "example-configmap"
+          files:
+            - "http-server-deployment.yaml"
+            - "http-server-service.yaml"
+            - "http-server-service-monitor.yaml"
   loadGenerator:
     resources:
       - configMap:
-         name: "example-configmap"
-         files:
-            - uc1-load-generator-service.yaml
-            - uc1-load-generator-deployment.yaml
+          name: "example-configmap"
+          files:
+            - "load-generator-deployment.yaml"
   resourceTypes:
     - typeName: "Instances"
       patchers:
         - type: "ReplicaPatcher"
-          resource: "uc1-kstreams-deployment.yaml"
+          resource: "http-server-deployment.yaml"
   loadTypes:
-    - typeName: "NumSensors"
+    - typeName: "CallsPerSecond"
       patchers:
         - type: "EnvVarPatcher"
-          resource: "uc1-load-generator-deployment.yaml"
+          resource: "load-generator-deployment.yaml"
           properties:
-            variableName: "NUM_SENSORS"
-            container: "workload-generator"
-        - type: "NumSensorsLoadGeneratorReplicaPatcher"
-          resource: "uc1-load-generator-deployment.yaml"
-          properties:
-            loadGenMaxRecords: "150000"
+            container: "load-generator"
+            variableName: "CALLS_PER_SECOND"
+  slis:
+    - name: errorRate
+      provider: prometheus
+      query: >-
+        sum(rate(envoy_http_downstream_rq_xx{envoy_response_code_class="5"}[1m]))
+        / sum(rate(envoy_http_downstream_rq_xx[1m]))
   slos:
-    - name: "lag trend"
-      sloType: "lag trend"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        threshold: 3000
-        externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
-  kafkaConfig:
-    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
-    topics:
-      - name: "input"
-        numPartitions: 40
-        replicationFactor: 1
-      - name: "theodolite-.*"
-        removeOnly: True
-
+    - name: "low-error-rate"
+      sli: errorRate
+      warmupSeconds: 60
+      queryAggregation: max
+      repetitionAggregation: median
+      operator: lte
+      threshold: 0.01
 ```
 
 ## System under Test (SUT), Load Generator and Infrastructure
@@ -169,47 +162,87 @@ See the [patcher API reference](api-reference/patchers) for an overview of avail
 
 If a benchmark is [executed by an Execution](running-benchmarks), these patchers are used to configure SUT and load generator according to the [load and resource values](creating-an-execution) set in the Execution.
 
-## Service Level Objectives SLOs
+## Service Level Indicators and Service Level Objectives
 
 SLOs provide a way to quantify whether a certain load intensity can be handled by a certain amount of provisioned resources.
-In Theodolite, SLOs are evaluated by requesting monitoring data from Prometheus and analyzing it in a benchmark-specific way.
+In Theodolite, SLOs are evaluated by collecting monitoring data (described as SLIs) from a metric provider and analyzing it in a benchmark-specific way.
 An Execution must at least define one SLO to be checked.
 
-A good choice to get started is defining an SLO of type `generic`:
+Theodolite supports multiple metric providers. The `provider` field on an SLI selects the backend:
+
+- **`prometheus`** (default for most benchmarks) — fetches metrics via PromQL (Prometheus Query Language); see the example below
+- **`dynatrace`** — fetches metrics via DQL (Dynatrace Query Language); see the [OTel Demo / Dynatrace example](example-otel-demo-dynatrace) for a complete setup guide
+
+Benchmarks use two separate sections: `slis:` (Service Level Indicators) describe *what* data to collect and from *which provider*, and `slos:` (Service Level Objectives) describe *how* to evaluate that data.
+
+A good choice to get started is defining an SLI and SLO for a generic Prometheus metric:
 
 ```yaml
-- name: droppedRecords
-  sloType: generic
-  prometheusUrl: "http://prometheus-operated:9090"
-  offset: 0
-  properties:
-    externalSloUrl: "http://localhost:8082"
-    promQLQuery: "sum by(job) (kafka_streams_stream_task_metrics_dropped_records_total>=0)"
-    warmup: 60 # in seconds
+slis:
+  - name: droppedRecords
+    provider: prometheus
+    query: "sum by(job) (kafka_streams_stream_task_metrics_dropped_records_total>=0)"
+    intervalSeconds: 5           # optional, default 5s
+slos:
+  - name: dropped-records-slo
+    sli: droppedRecords          # references the SLI by name
+    warmupSeconds: 60            # seconds to skip at start of interval
     queryAggregation: max
     repetitionAggregation: median
     operator: lte
     threshold: 1000
+    # externalSloChecker: "http://localhost:8082"  # optional, defaults to generic SLO checker sidecar
 ```
 
-All you have to do is to define a [PromQL query](https://prometheus.io/docs/prometheus/latest/querying/basics/) describing which metrics should be requested (`promQLQuery`) and how the resulting time series should be evaluated. With `queryAggregation` you specify how the resulting time series is aggregated to a single value and `repetitionAggregation` describes how the results of multiple repetitions are aggregated. Possible values are
-`mean`, `median`, `mode`, `sum`, `count`, `max`, `min`, `std`, `var`, `skew`, `kurt`, `first`, `last` as well as percentiles such as `p99` or `p99.9`. The result of aggregation all repetitions is checked against `threshold`. This check is performed using an `operator`, which describes that the result must be "less than" (`lt`), "less than equal" (`lte`), "greater than" (`gt`) or "greater than equal" (`gte`) to the threshold.
+All you have to do is define a [PromQL query](https://prometheus.io/docs/prometheus/latest/querying/basics/) in the SLI (`query`) and configure how the resulting time series should be evaluated in the SLO. With `queryAggregation` you specify how the resulting time series is aggregated to a single value and `repetitionAggregation` describes how the results of multiple repetitions are aggregated. Possible values are
+`mean`, `median`, `mode`, `sum`, `count`, `max`, `min`, `std`, `var`, `skew`, `kurt`, `first`, `last` as well as percentiles such as `p99` or `p99.9` and `trend` which computes the increase or decrease slope using linear regression. The result of aggregating all repetitions is checked against `threshold`. This check is performed using an `operator`, which describes that the result must be "less than" (`lt`), "less than equal" (`lte`), "greater than" (`gt`) or "greater than equal" (`gte`) to the threshold.
 
 If you do not want to have a static threshold, you can also define it relatively to the tested load with `thresholdRelToLoad` or relatively to the tested resource value with `thresholdRelToResources`. For example, setting `thresholdRelToLoad: 0.01` means that in each experiment, the threshold is 1% of the generated load.
 Even more complex thresholds can be defined with `thresholdFromExpression`. This field accepts a mathematical expression with two variables `L` and `R` for the load and resources, respectively. The previous example with a threshold of 1% of the generated load can thus also be defined with `thresholdFromExpression: 0.01*L`. For further details of allowed expressions, see the documentation of the underlying [exp4j](https://github.com/fasseg/exp4j) library.
 
-In case you need to evaluate monitoring data in a more flexible fashion, you can also change the value of `externalSloUrl` to your custom SLO checker. Have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started.
+The `externalSloChecker` field is optional. In case you need to evaluate monitoring data in a more flexible fashion, set it to your custom SLO checker URL. To implement a custom SLO checker, have a look at the source code of the [generic SLO checker](https://github.com/cau-se/theodolite/tree/main/slo-checker/generic) to get started. By default, Theodolite's generic SLO checker sidecar is used.
 
-## Kafka Configuration
+Note that all SLI results are exported to CSV files regardless of whether an SLO references them. Only SLOs drive the pass/fail decision for each experiment.
 
-Theodolite allows to automatically create and remove Kafka topics for each SLO experiment by setting a `kafkaConfig`.
-`bootstrapServer` needs to point your Kafka cluster and `topics` configures the list of Kafka topics to be created/removed.
-For each topic, you configure its name, the number of partitions and the replication factor.
+### Prometheus provider configuration
 
-With the `removeOnly: True` property, you can also instruct Theodolite to only remove topics and not create them.
-This is useful when benchmarking SUTs, which create topics on their own (e.g., Kafka Streams and Samza applications).
-For those topics, also wildcards are allowed in the topic name and, of course, no partition count or replication factor must be provided.
+The Prometheus URL defaults to the `THEODOLITE_PROMETHEUS_URL` environment variable (set via Helm: `operator.prometheusUrl`). To override it for a specific SLI, use `providerConfig`:
 
+```yaml
+slis:
+  - name: droppedRecords
+    provider: prometheus
+    query: "..."
+    providerConfig:
+      prometheusUrl: "http://custom-prometheus:9090"  # overrides THEODOLITE_PROMETHEUS_URL
+      offsetHours: 0                                  # overrides THEODOLITE_PROMETHEUS_OFFSET_HOURS
+```
+
+### Dynatrace provider configuration
+
+For Dynatrace SLIs, the DQL query API endpoint defaults to the `THEODOLITE_DYNATRACE_URL` environment variable (set via Helm: `operator.dynatrace.url`). OAuth credentials are configured via Helm as well and never need to appear in the benchmark YAML. The endpoint can optionally be overridden per SLI via `providerConfig`:
+
+```yaml
+slis:
+  - name: p90Latency
+    provider: dynatrace
+    query: "fetch spans | makeTimeseries {p90 = percentile(duration, 90)}"
+    # providerConfig.dynatraceUrl is optional if THEODOLITE_DYNATRACE_URL is set via Helm
+    providerConfig:
+      dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+```
+
+Configure the Theodolite Helm chart with your Dynatrace credentials (preferably via a Kubernetes Secret):
+
+```yaml
+# values excerpt
+operator:
+  dynatrace:
+    url: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
+    existingSecret: "my-dynatrace-secret"  # keys: clientId, clientSecret, scope, resource, authUrl
+```
+
+For a complete end-to-end Dynatrace example, see [OTel Demo with Dynatrace](example-otel-demo-dynatrace).
 
 <!-- Further information: API Reference -->
 <!-- Further information: How to deploy -->
