@@ -103,13 +103,18 @@ class DynatraceMetricFetcher(sli: Sli) : MetricFetcher {
 
     private fun executeQuery(query: String, start: Instant, end: Instant, authToken: String): String {
         logger.info { "Requesting metrics from Dynatrace for interval [$start,$end]." }
+        val requestBody = jacksonObjectMapper().writeValueAsString(
+            mapOf(
+                "query" to query,
+                "defaultTimeframeStart" to start.toString(),
+                "defaultTimeframeEnd" to end.toString()
+            )
+        )
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$queryUri:execute"))
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer $authToken")
-            .POST(HttpRequest.BodyPublishers.ofString(
-                """{"query": "$query", "defaultTimeframeStart": "$start", "defaultTimeframeEnd": "$end"}"""
-            ))
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .version(HttpClient.Version.HTTP_1_1)
             .timeout(timeout)
             .build()
