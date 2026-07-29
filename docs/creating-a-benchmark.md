@@ -232,6 +232,8 @@ slis:
       dynatraceUrl: "https://<tenant-id>.apps.dynatrace.com/platform/storage/query/v1/query"
 ```
 
+A Dynatrace SLI query must return a **timeseries** (e.g., ends with a `makeTimeseries` command).
+
 Configure the Theodolite Helm chart with your Dynatrace credentials (preferably via a Kubernetes Secret):
 
 ```yaml

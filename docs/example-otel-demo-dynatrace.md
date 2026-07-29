@@ -90,7 +90,7 @@ The benchmark defines a single SLI using `provider: dynatrace`. The DQL query co
 slis:
   - name: "p90Latency"
     provider: "dynatrace"
-    query: >-
+    query: |
       fetch spans, samplingRatio: 10, scanLimitGBytes: 50
       | filter request.is_root_span == true AND isNotNull(endpoint.name)
       | makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }
