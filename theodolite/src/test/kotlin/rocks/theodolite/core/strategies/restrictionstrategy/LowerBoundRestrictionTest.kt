@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import rocks.theodolite.core.Results
+import rocks.theodolite.core.SloExperimentResult
 import rocks.theodolite.core.strategies.Metric
 
 internal class LowerBoundRestrictionTest {
@@ -87,6 +88,6 @@ internal class LowerBoundRestrictionTest {
 
 
     private fun Results.setResult(load: Int, resource: Int, successful: Boolean) {
-        this.addExperimentResult(Pair(load, resource), successful)
+        this.addExperimentResult(Pair(load, resource), if (successful) SloExperimentResult.SUCCESS else SloExperimentResult.FAILURE)
     }
 }

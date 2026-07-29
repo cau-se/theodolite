@@ -2,6 +2,7 @@ package rocks.theodolite.core.strategies.searchstrategy
 
 import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
+import rocks.theodolite.core.SloExperimentResult
 
 private val logger = KotlinLogging.logger {}
 
@@ -43,7 +44,7 @@ class BinarySearch(experimentRunner: ExperimentRunner) : SearchStrategy(experime
         if (lower == upper) {
             val res = resources[lower]
             logger.info { "Running experiment with load '$load' and resource '$res'" }
-            if (this.experimentRunner.runExperiment(load, res)) return lower
+            if (this.experimentRunner.runExperiment(load, res) == SloExperimentResult.SUCCESS) return lower
             else {
                 if (lower + 1 == resources.size) return -1
                 return lower + 1
@@ -54,7 +55,7 @@ class BinarySearch(experimentRunner: ExperimentRunner) : SearchStrategy(experime
             val mid = (upper + lower) / 2
             val res = resources[mid]
             logger.info { "Running experiment with load '$load' and resource '$res'" }
-            if (this.experimentRunner.runExperiment(load, res)) {
+            if (this.experimentRunner.runExperiment(load, res) == SloExperimentResult.SUCCESS) {
                 // case length = 2
                 if (mid == lower) {
                     return lower
@@ -83,7 +84,7 @@ class BinarySearch(experimentRunner: ExperimentRunner) : SearchStrategy(experime
         if (lower == upper) {
             val load = loads[lower]
             logger.info { "Running experiment with load '$load' and resource '$resource'" }
-            if (this.experimentRunner.runExperiment(load, resource)) return lower
+            if (this.experimentRunner.runExperiment(load, resource) == SloExperimentResult.SUCCESS) return lower
             else {
                 if (lower + 1 == loads.size) return -1
                 return lower - 1
@@ -94,7 +95,7 @@ class BinarySearch(experimentRunner: ExperimentRunner) : SearchStrategy(experime
             val mid = (upper + lower + 1) / 2 //round to next int
             val load = loads[mid]
             logger.info { "Running experiment with load '$load' and resource '$resource'" }
-            if (this.experimentRunner.runExperiment(load, resource)) {
+            if (this.experimentRunner.runExperiment(load, resource) == SloExperimentResult.SUCCESS) {
                 // length = 2, so since we round down mid is equal to lower
                 if (mid == upper) {
                     return upper
