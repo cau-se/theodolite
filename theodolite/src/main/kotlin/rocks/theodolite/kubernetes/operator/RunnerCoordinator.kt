@@ -3,6 +3,7 @@ package rocks.theodolite.kubernetes.operator
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
+import io.quarkus.arc.Unremovable
 import jakarta.enterprise.context.ApplicationScoped
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.loadKubernetesResources
@@ -32,6 +33,9 @@ private val logger = KotlinLogging.logger {}
  *
  * Call [initialize] once (from [TheodoliteOperator]) before any other method.
  */
+// @Unremovable: looked up programmatically via Arc.container() in TheodoliteOperator;
+// no @Inject site exists yet, so Quarkus's build-time CDI optimizer would otherwise remove it.
+@Unremovable
 @ApplicationScoped
 class RunnerCoordinator {
 
