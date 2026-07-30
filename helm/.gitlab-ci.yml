@@ -21,6 +21,16 @@ test-helm:
       optional: true
     - job: package-theodolite
       optional: true
+  rules:
+    # Keep in sync with lint-helm
+    - changes:
+      - helm/**/*
+    # Keep in sync with package-theodolite
+    - changes:
+      - theodolite/**/*
+      if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT"
+    - when: manual
+      allow_failure: true
   image: ghcr.io/cau-se/theodolite-build-k3d-helm:20.10.12
   variables:
     CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
@@ -37,7 +47,10 @@ test-helm:
   script:
     - cd helm
     - helm dependencies update .
-    - helm install theodolite . -f preconfigs/minimal.yaml --wait --timeout 10m0s # ${PACKAGE_THEODOLITE:+-f operator.image=$STAGE_IMAGE -f operator.imageTag=ci-"$CI_PIPELINE_ID"}
+    - >
+      helm install theodolite . -f preconfigs/minimal.yaml
+      ${CR_STAGE_HOST:+--set operator.image="$CR_STAGE_HOST/$CR_STAGE_PROJECT/theodolite" --set operator.imageTag="ci-$CI_PIPELINE_ID"}
+      --wait --timeout 10m0s
     - kubectl get nodes -o wide
     - kubectl get pods --all-namespaces -o wide
     - kubectl get services --all-namespaces -o wide
