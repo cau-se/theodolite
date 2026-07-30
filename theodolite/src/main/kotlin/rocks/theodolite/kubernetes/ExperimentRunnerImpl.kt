@@ -4,6 +4,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
+import rocks.theodolite.core.SloExperimentResult
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Sli
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 import rocks.theodolite.kubernetes.operator.EventCreator
@@ -38,8 +39,8 @@ class ExperimentRunnerImpl(
     private val eventCreator = EventCreator()
     private val mode = Configuration.EXECUTION_MODE
 
-    override fun runExperiment(load: Int, resource: Int): Boolean {
-        var result = false
+    override fun runExperiment(load: Int, resource: Int): SloExperimentResult {
+        var result = SloExperimentResult.FAILURE
         val executionIntervals: MutableList<Pair<Instant, Instant>> = ArrayList()
 
         for (i in 1.rangeTo(repetitions)) {

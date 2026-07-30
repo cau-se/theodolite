@@ -1,6 +1,7 @@
 package rocks.theodolite.kubernetes.slo
 
 import mu.KotlinLogging
+import rocks.theodolite.core.SloExperimentResult
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark.Slo
 
 private val logger = KotlinLogging.logger {}
@@ -26,7 +27,7 @@ class SloEvaluator(
         load: Int,
         resource: Int,
         collectedSliData: Map<String, List<MetricQueryResponse>>
-    ): Boolean {
+    ): SloExperimentResult {
         val results = slos.map { slo ->
             val sliData = collectedSliData[slo.sli]
                 ?: throw EvaluationFailedException(
@@ -45,6 +46,6 @@ class SloEvaluator(
                 )
             }
         }
-        return false !in results
+        return if (results.all { it == SloExperimentResult.SUCCESS }) SloExperimentResult.SUCCESS else SloExperimentResult.FAILURE
     }
 }

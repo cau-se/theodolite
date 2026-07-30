@@ -7,9 +7,9 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import rocks.theodolite.core.SloExperimentResult
 
 @QuarkusTest
 @QuarkusTestResource(ExternalSloCheckerTest.WireMockTestResource::class)
@@ -42,7 +42,7 @@ internal class ExternalSloCheckerTest {
             metadata = emptyMap()
         )
         val result = sloChecker.evaluate(emptyList())
-        assertTrue(result)
+        assertEquals(SloExperimentResult.SUCCESS, result)
     }
 
     @Test
@@ -57,6 +57,6 @@ internal class ExternalSloCheckerTest {
             metadata = emptyMap()
         )
         val result = sloChecker.evaluate(emptyList())
-        assertFalse(result)
+        assertEquals(SloExperimentResult.FAILURE, result)
     }
 }

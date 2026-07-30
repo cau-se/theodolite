@@ -1,7 +1,8 @@
 package rocks.theodolite.kubernetes
 
-import rocks.theodolite.core.Results
 import rocks.theodolite.core.ExperimentRunner
+import rocks.theodolite.core.Results
+import rocks.theodolite.core.SloExperimentResult
 
 class TestExperimentRunner(
         results: Results,
@@ -10,7 +11,7 @@ class TestExperimentRunner(
         results
 ) {
 
-    override fun runExperiment(load: Int, resource: Int): Boolean {
+    override fun runExperiment(load: Int, resource: Int): SloExperimentResult {
         val result = this.mockResults.getExperimentResult(load, resource) ?: throw IllegalStateException("Result is null.")
         this.results.addExperimentResult(Pair(load, resource), result)
         return result
