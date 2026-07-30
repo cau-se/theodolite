@@ -9,7 +9,6 @@ import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
-import rocks.theodolite.kubernetes.TheodoliteExecutor
 import rocks.theodolite.kubernetes.model.crd.*
 import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
 import rocks.theodolite.kubernetes.model.crd.ExecutionStateComparator
@@ -37,7 +36,7 @@ class TheodoliteController(
         private val benchmarkStateChecker: BenchmarkStateChecker,
 
 ) {
-    lateinit var executor: TheodoliteExecutor
+    val runner = TheodoliteRunner()
 
     /**
      * Runs the TheodoliteController forever.
@@ -95,8 +94,7 @@ class TheodoliteController(
             executionStateHandler.setExecutionState(execution.name, ExecutionState.RUNNING)
             executionStateHandler.startDurationStateTimer(execution.name)
 
-            executor = TheodoliteExecutor(execution, benchmark, this.client)
-            executor.setupAndRunExecution()
+            runner.run(execution, benchmark, this.client)
             when (executionStateHandler.getExecutionState(execution.name)) {
                 ExecutionState.RESTART -> runExecution(execution, benchmark)
                 ExecutionState.RUNNING -> {
@@ -122,11 +120,12 @@ class TheodoliteController(
 
     @Synchronized
     fun stop(restart: Boolean = false) {
-        if (!::executor.isInitialized) return
         if (restart) {
-            executionStateHandler.setExecutionState(this.executor.getExecution().name, ExecutionState.RESTART)
+            runner.getExecution()?.let { execution ->
+                executionStateHandler.setExecutionState(execution.name, ExecutionState.RESTART)
+            }
         }
-        this.executor.experimentRunner.run.set(false)
+        runner.stop()
     }
 
     /**
@@ -174,7 +173,6 @@ class TheodoliteController(
     }
 
     fun isExecutionRunning(executionName: String): Boolean {
-        if (!::executor.isInitialized) return false
-        return this.executor.getExecution().name == executionName
+        return runner.isRunning(executionName)
     }
 }
