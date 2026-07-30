@@ -3,8 +3,7 @@ package rocks.theodolite.kubernetes.operator
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
-import io.fabric8.kubernetes.client.informers.SharedInformerFactory
-import io.fabric8.kubernetes.internal.KubernetesDeserializer
+import io.quarkus.arc.Arc
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.Configuration
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
@@ -52,10 +51,17 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
                 client = this.client
             ).clearClusterState()
 
-            controller = getController(
-                executionStateHandler = getExecutionStateHandler(),
-                benchmarkStateChecker = getBenchmarkStateChecker()
+            val coordinator = getCoordinator()
+            coordinator.initialize(
+                client = this.client,
+                executionCRDClient = getExecutionClient(),
+                benchmarkCRDClient = getBenchmarkClient(),
+                executionStateHandler = getExecutionStateHandler()
+            )
 
+            controller = getController(
+                coordinator = coordinator,
+                benchmarkStateChecker = getBenchmarkStateChecker()
             )
 
             getExecutionClient().inform().addEventHandlerWithResyncPeriod(
@@ -96,16 +102,17 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
     }
 
 
+    fun getCoordinator(): RunnerCoordinator {
+        return Arc.container().instance(RunnerCoordinator::class.java).get()
+    }
+
     fun getController(
-            executionStateHandler: ExecutionStateHandler,
+            coordinator: RunnerCoordinator,
             benchmarkStateChecker: BenchmarkStateChecker
     ): TheodoliteController {
         if (!::controller.isInitialized) {
             this.controller = TheodoliteController(
-                client = this.client,
-                benchmarkCRDClient = getBenchmarkClient(),
-                executionCRDClient = getExecutionClient(),
-                executionStateHandler = executionStateHandler,
+                coordinator = coordinator,
                 benchmarkStateChecker = benchmarkStateChecker
             )
         }
