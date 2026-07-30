@@ -1,9 +1,9 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.8.22"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.8.22"
+    id 'org.jetbrains.kotlin.jvm' version "1.9.22"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.22"
     id 'io.quarkus'
-    id "io.gitlab.arturbosch.detekt" version "1.15.0"
-    id "org.jlleitschuh.gradle.ktlint" version "10.0.0"
+    id "io.gitlab.arturbosch.detekt" version "1.23.6"
+    id "org.jlleitschuh.gradle.ktlint" version "12.1.0"
 }
 
 repositories {
@@ -11,13 +11,13 @@ repositories {
     mavenLocal()
 }
 
+configurations.all {
+    exclude group: 'io.fabric8', module: 'openshift-model-monitoring'
+}
+
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-operator-sdk-bom:${quarkusPlatformVersion}")
-    // Use latest Kubernetes client to use TestStandardHttpClient for exec commands tests
     implementation platform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation enforcedPlatform("io.fabric8:kubernetes-client-bom:6.8.0")
-    // Use default Quarkus once kubernetes-client 6.8.* is integrated
-    //implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'io.quarkus:quarkus-arc'
@@ -78,7 +78,7 @@ test {
 
     // Required because of https://github.com/quarkusio/quarkus/issues/18973
     minHeapSize = "512m"
-    maxHeapSize = "2048m"
+    maxHeapSize = "3584m"
 
     // Temporary fix environment variable test
     jvmArgs = [
@@ -88,7 +88,7 @@ test {
 }
 
 detekt {
-    failFast = true // fail build on any finding
+    allRules = false
     buildUponDefaultConfig = true
     ignoreFailures = true
 }
