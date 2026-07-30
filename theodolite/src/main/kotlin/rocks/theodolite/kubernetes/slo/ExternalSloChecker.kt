@@ -1,6 +1,7 @@
 package rocks.theodolite.kubernetes.slo
 
 import mu.KotlinLogging
+import rocks.theodolite.core.SloExperimentResult
 import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URI
@@ -30,7 +31,7 @@ class ExternalSloChecker(
      *
      * @throws ConnectException if the external service cannot be reached after [retries] attempts.
      */
-    override fun evaluate(fetchedData: List<MetricQueryResponse>): Boolean {
+    override fun evaluate(fetchedData: List<MetricQueryResponse>): SloExperimentResult {
         var counter = 0
         val data = SloJson(
             results = fetchedData.map { it.getDataForSLOChecker(onlyFirst = true) },
@@ -49,9 +50,9 @@ class ExternalSloChecker(
                 counter++
                 logger.error { "Received status code ${response.statusCode()} for request to $externalSlopeURL." }
             } else {
-                val booleanResult = response.body().toBoolean()
-                logger.info { "SLO checker result is: $booleanResult." }
-                return booleanResult
+                val result = if (response.body().toBoolean()) SloExperimentResult.SUCCESS else SloExperimentResult.FAILURE
+                logger.info { "SLO checker result is: $result." }
+                return result
             }
         }
 

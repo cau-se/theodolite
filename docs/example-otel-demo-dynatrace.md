@@ -16,7 +16,7 @@ All example files are located in [`theodolite/examples/otel-demo-dynatrace/`](ht
 - A running Kubernetes cluster with [Theodolite installed](installation)
 - A Dynatrace tenant with:
   - An [OTel-compatible API token](https://docs.dynatrace.com/docs/ingest-from/opentelemetry/otlp-api#authentication-export-to-activegate) for data ingestion
-  - An [OAuth client](https://docs.dynatrace.com/docs/manage/identity-access-management/access-tokens-and-oauth-clients/oauth-clients#create-an-oauth2-client) with the `storage:query:read` scope for DQL queries
+  - An [OAuth client](https://docs.dynatrace.com/docs/manage/identity-access-management/access-tokens-and-oauth-clients/oauth-clients#create-an-oauth2-client) for DQL queries with the required OAuth scopes (e.g. `storage:logs:read storage:metrics:read storage:spans:read` — the exact scope depends on the data types your DQL queries access)
 - Helm CLI
 
 ## Cluster Preparation
@@ -59,7 +59,7 @@ All Dynatrace configuration is managed in the Theodolite Helm chart. Create a Ku
 kubectl create secret generic theodolite-dynatrace \
   --from-literal=clientId="<oauth-client-id>" \
   --from-literal=clientSecret="<oauth-client-secret>" \
-  --from-literal=scope="storage:query:read" \
+  --from-literal=scope="storage:logs:read storage:metrics:read storage:spans:read" \  # adjust to match the data types your DQL queries access
   --from-literal=resource="urn:dynatrace:environment:<environment-id>" \
   --from-literal=authUrl="https://sso.dynatrace.com/sso/oauth2/token"
 ```
@@ -90,7 +90,7 @@ The benchmark defines a single SLI using `provider: dynatrace`. The DQL query co
 slis:
   - name: "p90Latency"
     provider: "dynatrace"
-    query: >-
+    query: |
       fetch spans, samplingRatio: 10, scanLimitGBytes: 50
       | filter request.is_root_span == true AND isNotNull(endpoint.name)
       | makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }

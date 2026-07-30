@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
 import java.time.Instant
 
@@ -59,7 +58,18 @@ class DqlPollResponse (
 
     companion object {
         fun fromString(json: String): DqlPollResponse {
-            return jacksonObjectMapper().registerModule(JavaTimeModule()).readValue(json)
+            val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+            val root = mapper.readTree(json)
+            val records = root.path("result").path("records")
+            // A timeseries result has 'timeframe' and 'interval' on every record. If any record is
+            // missing them, the query returned raw records instead of a timeseries.
+            if (records.isArray && records.any { !it.hasNonNull("timeframe") || !it.hasNonNull("interval") }) {
+                throw IllegalStateException(
+                    "DQL query did not return a timeseries. Ensure the query returns a timeseries " +
+                        "(e.g. ends with a 'makeTimeseries' command)."
+                )
+            }
+            return mapper.treeToValue(root, DqlPollResponse::class.java)
         }
     }
 

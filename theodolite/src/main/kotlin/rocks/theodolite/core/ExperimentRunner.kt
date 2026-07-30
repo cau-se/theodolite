@@ -19,11 +19,10 @@ abstract class ExperimentRunner(val results: Results) {
      *
      * @param load to be tested.
      * @param resource to be tested.
-     * @return True, if the number of resources are suitable for the
-     *     given load, false otherwise (demand metric), or
-     *     True, if there is a load suitable for the
-     *     given resource, false otherwise.
+     * @return [SloExperimentResult.SUCCESS] if the resources are suitable for the given load
+     *     (demand metric) or if the load is suitable for the given resources (capacity metric),
+     *     [SloExperimentResult.FAILURE] otherwise.
      */
-    abstract fun runExperiment(load: Int, resource: Int): Boolean
+    abstract fun runExperiment(load: Int, resource: Int): SloExperimentResult
 
 }

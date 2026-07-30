@@ -41,6 +41,32 @@ internal class DqlPollResponseTest {
         }
     """.trimIndent()
 
+    /**
+     * A raw-record (non-timeseries) response: records carry a `timestamp` and scalar values instead of
+     * `timeframe`/`interval` and metric arrays.
+     */
+    private val nonTimeseriesJson = """
+        {
+          "state": "SUCCEEDED",
+          "progress": 100,
+          "result": {
+            "records": [
+              {
+                "timestamp": "2026-07-29T14:17:31.809000000Z",
+                "runtime_ms": "222698",
+                "total_operations": "573199",
+                "canceled": "0",
+                "k8s.pod.name": "blobcachebench-m6i-caffeine-846dccbd6b-wxl9x",
+                "message": "summary total_runtime_ms=222698 total_operations=573199 canceled=0",
+                "log.logger": "BenchmarkResultWriter"
+              }
+            ],
+            "types": [],
+            "metadata": {}
+          }
+        }
+    """.trimIndent()
+
     @Test
     fun testFromStringSucceeded() {
         val response = DqlPollResponse.fromString(succeededJson)
@@ -90,5 +116,12 @@ internal class DqlPollResponseTest {
     fun testImplementsMetricQueryResponse() {
         val response = DqlPollResponse.fromString(succeededJson)
         assertInstanceOf(MetricQueryResponse::class.java, response)
+    }
+
+    @Test
+    fun testFromStringNonTimeseriesFails() {
+        val exception = assertThrows(IllegalStateException::class.java) {
+            DqlPollResponse.fromString(nonTimeseriesJson)
+        }
     }
 }
