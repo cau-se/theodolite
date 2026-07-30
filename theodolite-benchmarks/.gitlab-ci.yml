@@ -284,11 +284,14 @@ package-http-bridge:
     - .dind
   image: ghcr.io/cau-se/theodolite-build-docker-compose-jq:20.10.12
   before_script:
+    - mkdir -p /etc/docker/certs.d/$CR_STAGE_HOST && cp $CR_STAGE_CERT /etc/docker/certs.d/$CR_STAGE_HOST/ca.crt
+    - docker login -u "$CR_STAGE_USER" -p "$CR_STAGE_PW" "$CR_STAGE_HOST"
     - cd theodolite-benchmarks/docker-test
   # variables:
   #   TEST_LOG_FILE: "test.log"
   script:
-    - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
+    - export THEODOLITE_TAG="ci-$CI_PIPELINE_ID"
+    - export THEODOLITE_REGISTRY="$CR_STAGE_HOST/$CR_STAGE_PROJECT"
     - ./smoketest-runner.sh ./$DOCKER_COMPOSE_DIR
     # - cat test.log
   after_script:
