@@ -104,6 +104,6 @@ internal class GenericResourcePatcherTest {
         server.registerResource(serviceMonitorContext)
 
         val serviceMonitorStream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
-        return server.client.load(serviceMonitorStream).get()[0]
+        return server.client.load(serviceMonitorStream).items().first()
     }
 }

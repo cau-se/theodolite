@@ -16,8 +16,10 @@ internal class PatcherFactoryTest {
             "path" to "some/path/123/toSomeField"
         )
         val patcher = PatcherFactory.createPatcher(patcherDefinition)
-        assertTrue(patcher is GenericResourcePatcher)
-        val castedPatcher = patcher as GenericResourcePatcher
+        assertTrue(patcher is DecoratingPatcher)
+        val castedInnerPatcher = patcher as DecoratingPatcher
+        assertTrue(castedInnerPatcher.innerPatcher is GenericResourcePatcher)
+        val castedPatcher = castedInnerPatcher.innerPatcher as GenericResourcePatcher
         assertEquals(listOf("some", "path", 123, "toSomeField"), castedPatcher.path)
         assertEquals(GenericResourcePatcher.Type.STRING, castedPatcher.type)
     }
@@ -31,8 +33,10 @@ internal class PatcherFactoryTest {
             "type" to "string"
         )
         val patcher = PatcherFactory.createPatcher(patcherDefinition)
-        assertTrue(patcher is GenericResourcePatcher)
-        val castedPatcher = patcher as GenericResourcePatcher
+        assertTrue(patcher is DecoratingPatcher)
+        val castedInnerPatcher = patcher as DecoratingPatcher
+        assertTrue(castedInnerPatcher.innerPatcher is GenericResourcePatcher)
+        val castedPatcher = castedInnerPatcher.innerPatcher as GenericResourcePatcher
         assertEquals(GenericResourcePatcher.Type.STRING, castedPatcher.type)
     }
 
@@ -45,8 +49,10 @@ internal class PatcherFactoryTest {
             "type" to "boolean"
         )
         val patcher = PatcherFactory.createPatcher(patcherDefinition)
-        assertTrue(patcher is GenericResourcePatcher)
-        val castedPatcher = patcher as GenericResourcePatcher
+        assertTrue(patcher is DecoratingPatcher)
+        val castedInnerPatcher = patcher as DecoratingPatcher
+        assertTrue(castedInnerPatcher.innerPatcher is GenericResourcePatcher)
+        val castedPatcher = castedInnerPatcher.innerPatcher as GenericResourcePatcher
         assertEquals(GenericResourcePatcher.Type.BOOLEAN, castedPatcher.type)
     }
 
@@ -59,8 +65,10 @@ internal class PatcherFactoryTest {
             "type" to "integer"
         )
         val patcher = PatcherFactory.createPatcher(patcherDefinition)
-        assertTrue(patcher is GenericResourcePatcher)
-        val castedPatcher = patcher as GenericResourcePatcher
+        assertTrue(patcher is DecoratingPatcher)
+        val castedInnerPatcher = patcher as DecoratingPatcher
+        assertTrue(castedInnerPatcher.innerPatcher is GenericResourcePatcher)
+        val castedPatcher = castedInnerPatcher.innerPatcher as GenericResourcePatcher
         assertEquals(GenericResourcePatcher.Type.INTEGER, castedPatcher.type)
     }
 
@@ -73,8 +81,10 @@ internal class PatcherFactoryTest {
             "type" to "number"
         )
         val patcher = PatcherFactory.createPatcher(patcherDefinition)
-        assertTrue(patcher is GenericResourcePatcher)
-        val castedPatcher = patcher as GenericResourcePatcher
+        assertTrue(patcher is DecoratingPatcher)
+        val castedInnerPatcher = patcher as DecoratingPatcher
+        assertTrue(castedInnerPatcher.innerPatcher is GenericResourcePatcher)
+        val castedPatcher = castedInnerPatcher.innerPatcher as GenericResourcePatcher
         assertEquals(GenericResourcePatcher.Type.NUMBER, castedPatcher.type)
     }
 
@@ -87,8 +97,10 @@ internal class PatcherFactoryTest {
                 "type" to "string"
         )
         val patcher = PatcherFactory.createPatcher(patcherDefinition)
-        assertTrue(patcher is GenericResourcePatcher)
-        val castedPatcher = patcher as GenericResourcePatcher
+        assertTrue(patcher is DecoratingPatcher)
+        val castedInnerPatcher = patcher as DecoratingPatcher
+        assertTrue(castedInnerPatcher.innerPatcher is GenericResourcePatcher)
+        val castedPatcher = castedInnerPatcher.innerPatcher as GenericResourcePatcher
         assertEquals(listOf("some", "path", 123, "toSomeField"), castedPatcher.path)
     }
 

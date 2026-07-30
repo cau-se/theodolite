@@ -25,7 +25,7 @@ class StateHandlerTest {
     fun setUp() {
         server.before()
         val executionStream = javaClass.getResourceAsStream("/k8s-resource-files/test-execution.yaml")
-        val executionResource = server.client.resources(ExecutionCRD::class.java).load(executionStream).get()
+        val executionResource = server.client.resources(ExecutionCRD::class.java).load(executionStream).item()
 
         K8sManager(server.client).deploy(executionResource)
     }

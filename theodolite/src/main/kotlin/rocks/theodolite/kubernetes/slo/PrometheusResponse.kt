@@ -1,15 +1,15 @@
 package rocks.theodolite.kubernetes.slo
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.quarkus.runtime.annotations.RegisterForReflection
-import java.util.*
 
 /**
  * This class corresponds to the JSON response format of a Prometheus
  * [range-query](https://www.prometheus.io/docs/prometheus/latest/querying/api/#range-queries)
  */
 @RegisterForReflection
-data class PrometheusResponse(
+data class PrometheusResponse (
     /**
      * Indicates whether the query was successful.
      */
@@ -18,26 +18,53 @@ data class PrometheusResponse(
      * The data section of the query result contains the information about the resultType and the values itself.
      */
     var data: PromData? = null
-) {
-    /**
-     * Return the data of the PrometheusResponse as [List] of [List]s of [String]s
-     * The format of the returned list is: `[[ group, timestamp, value ], [ group, timestamp, value ], ... ]`
-     */
-    @JsonIgnore
-    fun getResultAsList(): List<List<String>> {
-        val group = data?.result?.get(0)?.metric?.toString()!!
-        val values = data?.result?.get(0)?.values
-        val result = mutableListOf<List<String>>()
+) : MetricQueryResponse {
+    companion object {
+        fun fromString(json: String): PrometheusResponse {
+            return ObjectMapper().readValue(
+                json,
+                PrometheusResponse::class.java
+            )
+        }
+    }
 
-        if (values != null) {
-            for (value in values) {
-                val valueList = value as List<*>
-                val timestamp = (valueList[0] as Double).toLong().toString()
-                val resultValue = valueList[1].toString()
-                result.add(listOf(group, timestamp, resultValue))
+    @JsonIgnore
+    override fun isNullOrEmpty(): Boolean {
+        return data?.result.isNullOrEmpty()
+    }
+
+    @JsonIgnore
+    override fun getDataForSLOChecker(onlyFirst: Boolean): List<SloJson.MetricResult> {
+        val results = this.data?.result ?: return emptyList()
+        val slice = if (onlyFirst && results.isNotEmpty()) results.take(1) else results
+        return slice.map { promResult ->
+            SloJson.MetricResult(
+                metric = promResult.metric,
+                values = promResult.values
+            )
+        }
+    }
+
+    @JsonIgnore
+    override fun getResultAsList(onlyFirst: Boolean): List<List<String>> {
+        val resultsList = mutableListOf<List<String>>()
+        val results = data?.result
+        check(results != null) {"No 'results' available in the Prometheus response."}
+
+        for (result in results.subList(0, if (onlyFirst && results.isNotEmpty()) 1 else results.size)) {
+            val group = result.metric.toString()
+            val values = result.values
+
+            if (values != null) {
+                for (value in values) {
+                    val valueList = value as List<*>
+                    val timestamp = (valueList[0] as Number).toLong().toString()
+                    val resultValue = valueList[1].toString()
+                    resultsList.add(listOf(group, timestamp, resultValue))
+                }
             }
         }
-        return Collections.unmodifiableList(result)
+        return resultsList.toList()
     }
 }
 
@@ -72,3 +99,4 @@ data class PromResult(
      */
     var values: List<Any>? = null
 )
+

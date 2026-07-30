@@ -47,7 +47,7 @@ default:
     entrypoint: [""]
   script:
     - export SSL_CERT_FILE=$CR_STAGE_CERT
-    - crane auth login -u "${CR_STAGE_USER}" -p "${CR_STAGE_PW}" ${CR_STAGE_HOST} 
+    - crane auth login -u "${CR_STAGE_USER}" -p "${CR_STAGE_PW}" ${CR_STAGE_HOST}
     - crane auth login -u "${CR_PUBLIC_USER}" -p "${CR_PUBLIC_PW}" ${CR_PUBLIC_HOST}
     - SRC_IMAGE_TAG="$CR_STAGE_HOST/$CR_STAGE_PROJECT/$IMAGE_NAME:ci-$CI_PIPELINE_ID"
     - DEST_IMAGE="$CR_PUBLIC_HOST/$CR_PUBLIC_ORG/$IMAGE_NAME"
@@ -69,3 +69,765 @@ include:
   - local: 'theodolite/.gitlab-ci.yml'
   - local: 'theodolite-benchmarks/.gitlab-ci.yml'
   - local: 'utils/.gitlab-ci.yml'
+
+
+# Theodolite Helm Chart
+
+lint-helm:
+  stage: check
+  needs: []
+  image:
+    name: alpine/helm:3.5.2
+    entrypoint: [""]
+  script: helm lint helm/
+  rules:
+  - changes:
+    - helm/**/*
+  - when: manual
+    allow_failure: true
+
+test-helm:
+  stage: smoketest
+  extends: .dind
+  needs:
+    - lint-helm
+    # - deploy-theodolite
+  image: ghcr.io/cau-se/theodolite-build-k3d-helm:20.10.12
+  variables:
+    CLUSTERNAME: "$CI_PROJECT_NAME-$CI_PIPELINE_ID"
+  cache:
+    paths:
+      - helm/charts
+  before_script:
+    - k3d help
+    - k3d version
+    - k3d cluster create $CLUSTERNAME --agents 1 --wait -p "30000:30000@agent:0"
+    # show cluster info
+    - kubectl cluster-info
+    - helm version
+  script:
+    # Display initial pods, etc.
+    - cd helm
+    - helm dependencies update .
+    - helm install theodolite . -f preconfigs/minimal.yaml --wait --timeout 10m0s
+    - kubectl get nodes -o wide
+    - kubectl get pods --all-namespaces -o wide
+    - kubectl get services --all-namespaces -o wide
+    - helm test theodolite
+  after_script:
+    - k3d cluster delete $CLUSTERNAME
+
+
+# Theodolite Benchmarks
+
+.benchmarks:
+  image: eclipse-temurin:11-jdk
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite-benchmarks
+  rules:
+    - changes:
+      - theodolite-benchmarks/**/*
+    - when: manual
+      allow_failure: true
+
+build-benchmarks:
+  stage: build
+  extends: .benchmarks
+  script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/libs/*.jar"
+      - "theodolite-benchmarks/*/build/distributions/*.tar"
+    expire_in: 6 hours
+
+test-benchmarks:
+  stage: test
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+  script: ./gradlew test --continue
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "theodolite-benchmarks/**/build/test-results/test/TEST-*.xml"
+
+checkstyle-benchmarks:
+  stage: check
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew checkstyle --continue
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/*/build/reports/checkstyle/main.html"
+    when: on_failure
+    expire_in: 1 day
+
+pmd-benchmarks:
+  stage: check
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew pmd --continue
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/*/build/reports/pmd/*.html"
+    when: on_failure
+    expire_in: 1 day
+
+spotbugs-benchmarks:
+  stage: check
+  extends: .benchmarks
+  needs:
+    - build-benchmarks
+    - test-benchmarks
+  script: ./gradlew spotbugs --continue
+  artifacts:
+    paths:
+      - "theodolite-benchmarks/*/build/reports/spotbugs/*.html"
+    when: on_failure
+    expire_in: 1 day
+
+.deploy-benchmarks:
+  stage: deploy
+  extends:
+    - .benchmarks
+    - .kaniko-push
+  needs:
+    - build-benchmarks
+    - checkstyle-benchmarks
+    - pmd-benchmarks
+    - spotbugs-benchmarks
+  variables:
+    CONTEXT: "/$JAVA_PROJECT_NAME"
+  #before_script:
+  #  - cd theodolite-benchmarks/$JAVA_PROJECT_NAME
+  rules:
+    - changes:
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/$JAVA_PROJECT_NAME/**/*
+      - theodolite-benchmarks/{commons,$JAVA_PROJECT_DEPS}/**/*
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME && $JAVA_PROJECT_DEPS"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $IMAGE_NAME && $JAVA_PROJECT_NAME"
+      when: manual
+      allow_failure: true
+
+deploy-uc1-kstreams:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-kstreams-app"
+    JAVA_PROJECT_NAME: "uc1-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+deploy-uc2-kstreams:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-kstreams-app"
+    JAVA_PROJECT_NAME: "uc2-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+deploy-uc3-kstreams:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-kstreams-app"
+    JAVA_PROJECT_NAME: "uc3-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+deploy-uc4-kstreams:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-kstreams-app"
+    JAVA_PROJECT_NAME: "uc4-kstreams"
+    JAVA_PROJECT_DEPS: "kstreams-commons"
+
+deploy-uc1-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-flink"
+    JAVA_PROJECT_NAME: "uc1-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+deploy-uc2-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-flink"
+    JAVA_PROJECT_NAME: "uc2-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+deploy-uc3-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-flink"
+    JAVA_PROJECT_NAME: "uc3-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+deploy-uc4-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-flink"
+    JAVA_PROJECT_NAME: "uc4-flink"
+    JAVA_PROJECT_DEPS: "flink-commons"
+
+deploy-uc1-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc1-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc2-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc2-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc3-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc3-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc4-hazelcastjet:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-hazelcastjet"
+    JAVA_PROJECT_NAME: "uc4-hazelcastjet"
+    JAVA_PROJECT_DEPS: "hazelcastjet-commons"
+
+deploy-uc1-beam-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-flink"
+    JAVA_PROJECT_NAME: "uc1-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
+
+deploy-uc2-beam-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-flink"
+    JAVA_PROJECT_NAME: "uc2-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
+
+deploy-uc3-beam-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-flink"
+    JAVA_PROJECT_NAME: "uc3-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
+
+deploy-uc4-beam-flink:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-flink"
+    JAVA_PROJECT_NAME: "uc4-beam-flink"
+    JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
+
+deploy-uc1-beam-samza:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-samza"
+    JAVA_PROJECT_NAME: "uc1-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc1-beam"
+
+deploy-uc2-beam-samza:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-samza"
+    JAVA_PROJECT_NAME: "uc2-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc2-beam"
+
+deploy-uc3-beam-samza:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-samza"
+    JAVA_PROJECT_NAME: "uc3-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc3-beam"
+
+deploy-uc4-beam-samza:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-samza"
+    JAVA_PROJECT_NAME: "uc4-beam-samza"
+    JAVA_PROJECT_DEPS: "beam-commons,uc4-beam"
+
+deploy-uc1-load-generator:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc1-workload-generator"
+    JAVA_PROJECT_NAME: "uc1-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+deploy-uc2-load-generator:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc2-workload-generator"
+    JAVA_PROJECT_NAME: "uc2-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+deploy-uc3-load-generator:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc3-workload-generator"
+    JAVA_PROJECT_NAME: "uc3-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+deploy-uc4-load-generator:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-uc4-workload-generator"
+    JAVA_PROJECT_NAME: "uc4-load-generator"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+deploy-http-bridge:
+  extends: .deploy-benchmarks
+  variables:
+    IMAGE_NAME: "theodolite-http-bridge"
+    JAVA_PROJECT_NAME: "http-bridge"
+    JAVA_PROJECT_DEPS: "load-generator-commons"
+
+.smoketest-benchmarks:
+  stage: smoketest
+  extends:
+    - .dind
+  image: ghcr.io/cau-se/theodolite-build-docker-compose-jq:20.10.12
+  before_script:
+    - cd theodolite-benchmarks/docker-test
+  # variables:
+  #   TEST_LOG_FILE: "test.log"
+  script:
+    - export THEODOLITE_TAG=$PUBLISHED_IMAGE_TAG
+    - ./smoketest-runner.sh ./$DOCKER_COMPOSE_DIR
+    # - cat test.log
+  after_script:
+    - cd ./$DOCKER_COMPOSE_DIR
+    - docker-compose down
+  rules:
+    - changes:
+      - theodolite-benchmarks/*
+      - theodolite-benchmarks/{$JAVA_PROJECT_DEPS}/**/*
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $DOCKER_COMPOSE_DIR && $JAVA_PROJECT_DEPS"
+      when: manual
+      allow_failure: true
+
+smoketest-uc1-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-kstreams
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-kstreams"
+    JAVA_PROJECT_DEPS: "uc1-kstreams,kstreams-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-flink
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-flink"
+    JAVA_PROJECT_DEPS: "uc1-flink,flink-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-beam-flink
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-beam-flink"
+    JAVA_PROJECT_DEPS: "uc1-beam-flink,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-beam-samza
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-beam-samza"
+    JAVA_PROJECT_DEPS: "uc1-beam-samza,uc1-beam,beam-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc1-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc1-hazelcastjet
+    - deploy-uc1-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc1-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc1-hazelcastjet,hazelcastjet-commons,uc1-load-generator,load-generator-commons"
+
+smoketest-uc2-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-kstreams
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-kstreams"
+    JAVA_PROJECT_DEPS: "uc2-kstreams,kstreams-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-flink
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-flink"
+    JAVA_PROJECT_DEPS: "uc2-flink,flink-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-beam-flink
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-flink"
+    JAVA_PROJECT_DEPS: "uc2-beam-flink,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-beam-samza
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-beam-samza"
+    JAVA_PROJECT_DEPS: "uc2-beam-samza,uc2-beam,beam-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc2-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc2-hazelcastjet
+    - deploy-uc2-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc2-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc2-hazelcastjet,hazelcastjet-commons,uc2-load-generator,load-generator-commons"
+
+smoketest-uc3-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-kstreams
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-kstreams"
+    JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-flink
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-flink"
+    JAVA_PROJECT_DEPS: "uc3-flink,flink-commons,uc3-load-generator,load-generator-commons"
+
+
+smoketest-uc3-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-beam-flink
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-beam-flink"
+    JAVA_PROJECT_DEPS: "uc3-beam-flink,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-beam-samza
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-beam-samza"
+    JAVA_PROJECT_DEPS: "uc3-beam-samza,uc3-beam,beam-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc3-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc3-hazelcastjet
+    - deploy-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc3-hazelcastjet,hazelcastjet-commons,uc3-load-generator,load-generator-commons"
+
+smoketest-uc4-kstreams:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-kstreams
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-kstreams"
+    JAVA_PROJECT_DEPS: "uc4-kstreams,kstreams-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-flink
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-flink"
+    JAVA_PROJECT_DEPS: "uc4-flink,flink-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-beam-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-beam-flink
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-beam-flink"
+    JAVA_PROJECT_DEPS: "uc4-beam-flink,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-beam-samza:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-beam-samza
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-beam-samza"
+    JAVA_PROJECT_DEPS: "uc4-beam-samza,uc4-beam,beam-commons,uc4-load-generator,load-generator-commons"
+
+smoketest-uc4-hazelcastjet:
+  extends: .smoketest-benchmarks
+  needs:
+    - deploy-uc4-hazelcastjet
+    - deploy-uc4-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc4-hazelcastjet"
+    JAVA_PROJECT_DEPS: "uc4-hazelcastjet,hazelcastjet-commons,uc4-load-generator,load-generator-commons"
+
+# Theodolite Framework
+
+.theodolite:
+  image:
+    name: ghcr.io/graalvm/native-image:ol8-java17-22.3.3
+    entrypoint: [""]
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - cd theodolite
+  rules:
+    - changes:
+      - theodolite/**/*
+    - when: manual
+      allow_failure: true
+
+build-theodolite-jvm:
+  stage: build
+  extends: .theodolite
+  script: ./gradlew --build-cache assemble
+  artifacts:
+    paths:
+      - "theodolite/build/quarkus-app/lib/"
+      - "theodolite/build/quarkus-app/*.jar"
+      - "theodolite/build/quarkus-app/app/"
+      - "theodolite/build/quarkus-app/quarkus/"
+    expire_in: 6 hours
+
+build-theodolite-native:
+  stage: build
+  extends: .theodolite
+  script:
+    - ./gradlew --build-cache assemble -Dquarkus.package.type=native
+  when: manual
+  artifacts:
+    paths:
+      - "theodolite/build/*-runner"
+    expire_in: 6 hours
+
+test-theodolite:
+  stage: test
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    #- build-theodolite-native
+  script: ./gradlew test --stacktrace
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "theodolite/**/build/test-results/test/TEST-*.xml"
+
+# Disabled for now
+.ktlint-theodolite:
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    - test-theodolite
+  script: ./gradlew ktlintCheck --continue
+
+# Disabled for now
+.detekt-theodolite: 
+  stage: check
+  extends: .theodolite
+  needs:
+    - build-theodolite-jvm
+    - test-theodolite
+  script: ./gradlew detekt --continue
+
+deploy-theodolite:
+  stage: deploy
+  extends:
+    - .theodolite
+    - .kaniko-push
+  needs:
+    #- build-theodolite-native
+    - build-theodolite-jvm
+    - test-theodolite
+  variables:
+    IMAGE_NAME: theodolite
+    DOCKERFILE: src/main/docker/Dockerfile.jvm
+    #DOCKERFILE: src/main/docker/Dockerfile.native
+  rules:
+    - changes:
+      - theodolite/**/*
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+      when: manual
+      allow_failure: true
+
+
+# Theodolite SLO Checker
+
+test-slo-checker-lag-trend:
+  stage: test
+  needs: []
+  image: python:3.10-slim
+  before_script:
+    - cd slo-checker/record-lag
+  script:
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/record-lag/**/*
+    - when: manual
+      allow_failure: true
+
+test-slo-checker-generic:
+  stage: test
+  needs: []
+  image: python:3.10-slim
+  before_script:
+    - cd slo-checker/generic
+  script:
+    - pip install -r requirements.txt
+    - cd app
+    - python -m unittest
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
+    - when: manual
+      allow_failure: true
+
+deploy-slo-checker-lag-trend:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs:
+    - test-slo-checker-lag-trend
+  before_script:
+    - cd slo-checker/record-lag
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-lag-trend
+  rules:
+    - changes:
+      - slo-checker/record-lag/**/*
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+      when: manual
+      allow_failure: true
+
+deploy-slo-checker-generic:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs:
+    - test-slo-checker-generic
+  before_script:
+    - cd slo-checker/generic
+  variables:
+    IMAGE_NAME: theodolite-slo-checker-generic
+  rules:
+    - changes:
+      - slo-checker/generic/**/*
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+      when: manual
+      allow_failure: true
+
+
+# Theodolite Random Scheduler
+
+deploy-random-scheduler:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs: []
+  before_script:
+    - cd util/random-scheduler
+  variables:
+    IMAGE_NAME: theodolite-random-scheduler
+  rules:
+    - changes:
+      - util/random-scheduler/**/*
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+      when: manual
+      allow_failure: true
+
+deploy-buildimage-docker-compose-jq:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    DOCKER_VERSION: 20.10.24
+    BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
+    IMAGE_NAME: theodolite-build-docker-compose-jq
+    IMAGE_TAG: $DOCKER_VERSION
+  before_script:
+    - cd buildimages/docker-compose-jq
+  rules:
+    - changes:
+      - buildimages/docker-compose-jq/Dockerfile
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $CI_PIPELINE_SOURCE == 'web'"
+      when: manual
+      allow_failure: true
+
+deploy-buildimage-k3d-helm:
+  stage: deploy
+  extends:
+    - .kaniko-push
+  needs: []
+  variables:
+    DOCKER_VERSION: 20.10.12
+    BUILD_ARG_DOCKER_VERSION: $DOCKER_VERSION
+    BUILD_ARG_KUBECTL: v1.21.3
+    IMAGE_NAME: theodolite-build-k3d-helm
+    IMAGE_TAG: $DOCKER_VERSION
+  before_script:
+    - cd buildimages/k3d-helm
+  rules:
+    - changes:
+      - buildimages/k3d-helm/Dockerfile
+      if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+    - if: "$CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW && $CI_PIPELINE_SOURCE == 'web'"
+      when: manual
+      allow_failure: true

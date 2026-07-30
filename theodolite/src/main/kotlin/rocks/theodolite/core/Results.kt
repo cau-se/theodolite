@@ -1,7 +1,9 @@
 package rocks.theodolite.core
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.core.strategies.Metric
+import rocks.theodolite.core.SloExperimentResult
 
 /**
  * Central class that saves the state of an execution of Theodolite. For an execution, it is used to save the result of
@@ -10,8 +12,7 @@ import rocks.theodolite.core.strategies.Metric
  */
 @RegisterForReflection
 class Results(val metric: Metric) {
-    // (load, resource) -> Boolean map
-    private val experimentResults: MutableMap<Pair<Int, Int>, Boolean> = mutableMapOf()
+    private val experimentResults: MutableMap<Pair<Int, Int>, SloExperimentResult> = mutableMapOf()
 
     // if metric is "demand"  : load     -> resource
     // if metric is "capacity": resource -> load
@@ -21,14 +22,14 @@ class Results(val metric: Metric) {
      * Set the result for an experiment and update the [optimalYValues] list accordingly.
      *
      * @param experiment A pair that identifies the experiment by the Load and Resource.
-     * @param successful the result of the experiment. Successful == true and Unsuccessful == false.
+     * @param result the result of the experiment.
      */
-    fun addExperimentResult(experiment: Pair<Int, Int>, successful: Boolean) {
-        this.experimentResults[experiment] = successful
+    fun addExperimentResult(experiment: Pair<Int, Int>, result: SloExperimentResult) {
+        this.experimentResults[experiment] = result
 
         when (metric) {
             Metric.DEMAND ->
-                if (successful) {
+                if (result == SloExperimentResult.SUCCESS) {
                     if (optimalYValues.containsKey(experiment.first)) {
                         if (optimalYValues[experiment.first]!! > experiment.second) {
                             optimalYValues[experiment.first] = experiment.second
@@ -41,7 +42,7 @@ class Results(val metric: Metric) {
                 }
 
             Metric.CAPACITY ->
-                if (successful) {
+                if (result == SloExperimentResult.SUCCESS) {
                     if (optimalYValues.containsKey(experiment.second)) {
                         if (optimalYValues[experiment.second]!! < experiment.first) {
                             optimalYValues[experiment.second] = experiment.first
@@ -60,11 +61,9 @@ class Results(val metric: Metric) {
      *
      * @param load Load that identifies the experiment.
      * @param resources Resource that identify the experiment.
-     * @return true if the experiment was successful and false otherwise. If the result has not been reported so far,
-     * null is returned.
-     *
+     * @return the [SloExperimentResult] for the given experiment, or null if no result has been reported yet.
      */
-    fun getExperimentResult(load: Int, resources: Int): Boolean? {
+    fun getExperimentResult(load: Int, resources: Int): SloExperimentResult? {
         return this.experimentResults[Pair(load, resources)]
     }
 
@@ -108,12 +107,19 @@ class Results(val metric: Metric) {
             .maxOrNull()
     }
 
+    fun getExperimentResults(): List<ExperimentResult> {
+        return experimentResults.map { (k, v) -> ExperimentResult(load = k.first, resources = k.second, result = v) }
+    }
+
     /**
      * Checks whether the results are empty.
      *
      * @return true if [experimentResults] is empty.
      */
+    @JsonIgnore
     fun isEmpty(): Boolean {
         return experimentResults.isEmpty()
     }
+
+    data class ExperimentResult(val load: Int, val resources: Int, val result: SloExperimentResult)
 }

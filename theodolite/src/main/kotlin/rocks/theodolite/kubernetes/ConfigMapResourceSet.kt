@@ -29,11 +29,11 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
         }
 
         files?.run {
-            val filteredResources = resources.filter { this.contains(it.key) }
-            if (filteredResources.size != this.size) {
-                throw DeploymentFailedException("Could not find all specified Kubernetes manifests files")
+            // Iterate over `files` (not over the map) to preserve the user-specified order.
+            resources = this.associateWith { key ->
+                resources[key]
+                    ?: throw DeploymentFailedException("Could not find Kubernetes manifest file '$key' in ConfigMap '$name'.")
             }
-            resources = filteredResources
         }
 
         return try {
@@ -41,7 +41,7 @@ class ConfigMapResourceSet : ResourceSet, KubernetesResource {
                 .map {
                     Pair(
                         it.key, // filename
-                        client.resource(it.value).get()
+                        client.resource(it.value).item()
                     )
                 }
         } catch (e: IllegalArgumentException) {

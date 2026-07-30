@@ -4,6 +4,7 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import rocks.theodolite.core.SloExperimentResult
 import rocks.theodolite.core.strategies.Metric
 
 @QuarkusTest
@@ -12,10 +13,10 @@ internal class ResultsTest {
     @Test
     fun testMinRequiredInstancesWhenSuccessfulDemand() {
         val results = Results(Metric.DEMAND)
-        results.addExperimentResult(Pair(10000, 1), true)
-        results.addExperimentResult(Pair(10000, 2), true)
-        results.addExperimentResult(Pair(20000, 1), false)
-        results.addExperimentResult(Pair(20000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.FAILURE)
+        results.addExperimentResult(Pair(20000, 2), SloExperimentResult.SUCCESS)
 
         val minRequiredInstances = results.getOptimalYValue(20000)
 
@@ -26,8 +27,8 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulDemand() {
         val results = Results(Metric.DEMAND)
-        results.addExperimentResult(Pair(10000, 1), true)
-        results.addExperimentResult(Pair(10000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
 
         val test1 = results.getPreviousXValue(100000)
 
@@ -38,9 +39,9 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenLargestNotSuccessfulDemand() {
         val results = Results(Metric.DEMAND)
-        results.addExperimentResult(Pair(10000, 1), true)
-        results.addExperimentResult(Pair(10000, 2), true)
-        results.addExperimentResult(Pair(20000, 1), false)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.FAILURE)
 
         val test2 = results.getPreviousXValue(100000)
 
@@ -51,10 +52,10 @@ internal class ResultsTest {
     @Test
     fun testMaxRequiredInstancesWhenSuccessfulCapacity() {
         val results = Results(Metric.CAPACITY)
-        results.addExperimentResult(Pair(10000, 1), true)
-        results.addExperimentResult(Pair(20000, 1), false)
-        results.addExperimentResult(Pair(10000, 2), true)
-        results.addExperimentResult(Pair(20000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.FAILURE)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 2), SloExperimentResult.SUCCESS)
 
         val maxRequiredInstances = results.getOptimalYValue(2)
 
@@ -65,8 +66,8 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulCapacity() {
         val results = Results(Metric.CAPACITY)
-        results.addExperimentResult(Pair(10000, 1), true)
-        results.addExperimentResult(Pair(10000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
 
         val test1 = results.getPreviousXValue(5)
 
@@ -77,9 +78,9 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenLargestNotSuccessfulCapacity() {
         val results = Results(Metric.CAPACITY)
-        results.addExperimentResult(Pair(10000, 1), true)
-        results.addExperimentResult(Pair(20000, 1), true)
-        results.addExperimentResult(Pair(10000, 2), false)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.FAILURE)
 
 
         val test2 = results.getPreviousXValue(5)

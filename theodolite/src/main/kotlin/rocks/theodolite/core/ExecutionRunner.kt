@@ -26,7 +26,7 @@ class ExecutionRunner(
         } finally {
             ioHandler.writeToJSONFile(
                 searchStrategy.experimentRunner.results,
-                "${resultsFolder}exp${executionId}-result"
+                "${resultsFolder}exp${executionId}-result.json"
             )
             // Create expXYZ_demand.csv file or expXYZ_capacity.csv depending on metric
             when (metric) {

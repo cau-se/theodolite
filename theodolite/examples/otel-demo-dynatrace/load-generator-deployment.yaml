@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  labels:
+    opentelemetry.io/name: load-generator
+    app.kubernetes.io/part-of: my-otel-demo
+    app.kubernetes.io/component: load-generator
+    app.kubernetes.io/name: load-generator
+    app.kubernetes.io/version: "2.0.2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      opentelemetry.io/name: load-generator
+  template:
+    metadata:
+      labels:
+        opentelemetry.io/name: load-generator
+        app.kubernetes.io/part-of: my-otel-demo
+        app.kubernetes.io/component: load-generator
+        app.kubernetes.io/name: load-generator
+    spec:
+      serviceAccountName: my-otel-demo
+      containers:
+        - name: load-generator
+          image: 'ghcr.io/open-telemetry/demo:2.0.2-load-generator'
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8089
+              name: service
+          env:
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app.kubernetes.io/component']
+            - name: OTEL_COLLECTOR_NAME
+              value: otel-collector
+            - name: OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+              value: cumulative
+            - name: LOCUST_WEB_HOST
+              value: 0.0.0.0
+            - name: LOCUST_WEB_PORT
+              value: "8089"
+            - name: LOCUST_USERS
+              value: "10"
+            - name: LOCUST_SPAWN_RATE
+              value: "10"
+            - name: LOCUST_HOST
+              value: http://frontend-proxy:8080
+            - name: LOCUST_HEADLESS
+              value: "false"
+            - name: LOCUST_AUTOSTART
+              value: "true"
+            - name: LOCUST_BROWSER_TRAFFIC_ENABLED
+              value: "true"
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: python
+            - name: FLAGD_HOST
+              value: flagd
+            - name: FLAGD_OFREP_PORT
+              value: "8016"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://$(OTEL_COLLECTOR_NAME):4317
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,service.version=2.0.2
+          resources:
+            limits:
+              memory: 4000Mi

@@ -1,4 +1,4 @@
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: benchmark
 metadata:
   name: uc3-beam-samza
@@ -27,6 +27,16 @@ spec:
             container: "zookeeper-client"
           command: ["bash", "-c", "bin/zkCli.sh -server $ZOOKEEPER_SERVER deleteall /app-theodolite-uc3-application-1"]
           timeoutSeconds: 60
+      - delete:
+          selector:
+            apiVersion: kafka.strimzi.io/v1beta2
+            kind: KafkaTopic
+            nameRegex: ".*samza.*"
+      - delete:
+          selector:
+            apiVersion: kafka.strimzi.io/v1beta2
+            kind: KafkaTopic
+            nameRegex: ".*uc3-application.*"
   loadGenerator:
     resources:
       - configMap:
@@ -79,20 +89,13 @@ spec:
           properties:
             container: "uc3-beam-samza"
             variableName: "AGGREGATION_DURATION_DAYS"
+  slis:
+    - name: consumerLag
+      provider: prometheus
+      query: "sum by(consumergroup) (kafka_consumergroup_lag{consumergroup='theodolite-uc3-application'} >= 0)"
   slos:
     - name: "lag trend"
-      sloType: "lag trend"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        consumerGroup: theodolite-uc3-application
-        threshold: 2000
-        externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
-  kafkaConfig:
-    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
-    topics:
-      - name: ".*samza.*"
-        removeOnly: true
-      - name: ".*uc3-application.*"
-        removeOnly: true
+      sli: consumerLag
+      warmupSeconds: 60
+      externalSloChecker: "http://localhost:80/evaluate-slope"
+      threshold: 2000

@@ -38,17 +38,10 @@ spec:
               memory: 4Gi
               cpu: 1000m
         - name: prometheus-jmx-exporter
-          image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
-          command:
-            - java
-            - -XX:+UnlockExperimentalVMOptions
-            - -XX:+UseCGroupMemoryLimitForHeap
-            - -XX:MaxRAMFraction=1
-            - -XshowSettings:vm
-            - -jar
-            - jmx_prometheus_httpserver.jar
+          image: "bitnami/jmx-exporter:0.20.0"
+          args:
             - "5556"
-            - /etc/jmx-aggregation/jmx-prometheus.yml
+            - "/etc/jmx-aggregation/jmx-prometheus.yml"
           ports:
             - containerPort: 5556
           volumeMounts:

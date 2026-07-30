@@ -1,0 +1,51 @@
+apiVersion: theodolite.rocks/v1beta2
+kind: benchmark
+metadata:
+  name: otel-demo
+spec:
+  sut:
+    resources:
+      - configMap:
+          name: "otel-demo-configmap"
+          files:
+            - "frontend-deployment.yaml"
+  loadGenerator:
+    resources:
+      - configMap:
+          name: "otel-demo-configmap"
+          files:
+            - "load-generator-deployment.yaml"
+  resourceTypes:
+    - typeName: "Instances"
+      patchers:
+        - type: "ReplicaPatcher"
+          resource: "frontend-deployment.yaml"
+  loadTypes:
+    - typeName: "Users"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "load-generator-deployment.yaml"
+          properties:
+            container: "load-generator"
+            variableName: "LOCUST_USERS"
+  slis:
+    - name: "p90Latency"
+      provider: "dynatrace"
+      # DQL query fetching the 90th percentile end-to-end latency across all root spans.
+      # The Dynatrace API endpoint is set via the THEODOLITE_DYNATRACE_URL env var on the operator
+      # (configured in Helm values: operator.dynatrace.url). OAuth credentials are also set via Helm.
+      query: |
+        fetch spans, samplingRatio: 10, scanLimitGBytes: 50
+        | filter request.is_root_span == true AND isNotNull(endpoint.name)
+        | makeTimeseries {p90 = percentile(duration, 90)}, bins: 120, by: { dt.system.sampling_ratio }
+  slos:
+    - name: "p90-latency-slo"
+      sli: "p90Latency"
+      warmupSeconds: 60
+      # externalSloChecker is omitted — defaults to the generic SLO checker sidecar (port 8082)
+      # deployed alongside the operator by the Helm chart.
+      queryAggregation: "mean"
+      repetitionAggregation: "median"
+      operator: "lte"
+      # 500 ms expressed in nanoseconds (Dynatrace reports span duration in nanoseconds)
+      threshold: 500000000

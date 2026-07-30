@@ -15,6 +15,7 @@ import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import java.io.FileInputStream
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.stream.Stream
 
 @WithKubernetesTestServer
@@ -51,7 +52,7 @@ class ExecutionEventHandlerTestWithInformer {
         this.controller = mock()
         this.stateHandler = ExecutionStateHandler(server.client)
         this.addCountDownLatch = CountDownLatch(1)
-        this.updateCountDownLatch = CountDownLatch(2)
+        this.updateCountDownLatch = CountDownLatch(1)
         this.deleteCountDownLatch = CountDownLatch(1)
         this.eventHandler = ExecutionEventHandlerWrapper(
             ExecutionEventHandler(this.controller, this.stateHandler),
@@ -103,7 +104,7 @@ class ExecutionEventHandlerTestWithInformer {
         this.executionClient.inform(eventHandler)
 
         // Await informer called
-        this.addCountDownLatch.await()
+        this.addCountDownLatch.await(10, TimeUnit.SECONDS)
         assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
     }
 
@@ -130,7 +131,7 @@ class ExecutionEventHandlerTestWithInformer {
         // assertEquals(ExecutionStates.RUNNING, this.executionClient.withName(executionName).get().status.executionState)
 
         // Await informer called
-        this.addCountDownLatch.await()
+        this.addCountDownLatch.await(10, TimeUnit.SECONDS)
         verify(this.controller).stop(true)
         assertEquals(ExecutionState.RESTART, this.executionClient.withName(executionName).get().status.executionState)
     }
@@ -138,13 +139,16 @@ class ExecutionEventHandlerTestWithInformer {
     @Test
     @DisplayName("Test onUpdate method for execution with no status")
     fun testOnUpdateWithoutStatus() {
+        // Start informer
+        this.executionClient.inform(eventHandler)
+
         // Create first version of execution resource
         val firstExecutionResource = getExecutionFromSystemResource("k8s-resource-files/test-execution.yaml")
         val firstExecution = firstExecutionResource.create()
         val executionName = firstExecution.metadata.name
 
-        // Start informer
-        this.executionClient.inform(eventHandler)
+        // Await informer called
+        this.addCountDownLatch.await(10, TimeUnit.SECONDS)
 
         // Get execution from server
         val firstExecutionResponse = this.executionClient.withName(executionName).get()
@@ -155,7 +159,7 @@ class ExecutionEventHandlerTestWithInformer {
         getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
 
         // Await informer called
-        this.updateCountDownLatch.await()
+        this.updateCountDownLatch.await(10, TimeUnit.SECONDS)
         // Get execution from server and assert that new status matches expected one
         assertEquals(ExecutionState.PENDING, this.executionClient.withName(executionName).get().status.executionState)
     }
@@ -185,7 +189,7 @@ class ExecutionEventHandlerTestWithInformer {
         getExecutionFromSystemResource("k8s-resource-files/test-execution-update.yaml").createOrReplace()
 
         // Await informer called
-        this.updateCountDownLatch.await()
+        this.updateCountDownLatch.await(10, TimeUnit.SECONDS)
         // Get execution from server and assert that new status matches expected one
         assertEquals(expectedState, this.executionClient.withName(executionName).get().status.executionState)
     }
@@ -222,7 +226,7 @@ class ExecutionEventHandlerTestWithInformer {
         assertNull(secondExecutionResponse)
 
         // Await informer called
-        this.deleteCountDownLatch.await()
+        this.deleteCountDownLatch.await(10, TimeUnit.SECONDS)
 
         verify(this.controller).stop(false)
     }
@@ -258,7 +262,7 @@ class ExecutionEventHandlerTestWithInformer {
         assertNull(secondExecutionResponse)
 
         // Await informer called
-        this.deleteCountDownLatch.await()
+        this.deleteCountDownLatch.await(10, TimeUnit.SECONDS)
 
         verify(this.controller, never()).stop(false)
     }

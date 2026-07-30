@@ -79,6 +79,14 @@ class ClusterSetup(
             labelName = "app.kubernetes.io/created-by",
             labelValue = "theodolite"
         )
+        resourceRemover.removeJobs(
+            labelName = "app.kubernetes.io/created-by",
+            labelValue = "theodolite"
+        )
+        resourceRemover.removePersistentVolumeClaims(
+            labelName = "app.kubernetes.io/created-by",
+            labelValue = "theodolite"
+        )
         try {
             resourceRemover.removeGenericResources(
                 labelName = "app.kubernetes.io/created-by",

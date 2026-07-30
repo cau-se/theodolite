@@ -2,6 +2,7 @@ package rocks.theodolite.core.strategies.searchstrategy
 
 import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
+import rocks.theodolite.core.SloExperimentResult
 
 private val logger = KotlinLogging.logger {}
 
@@ -16,7 +17,7 @@ class LinearSearch(experimentRunner: ExperimentRunner) : SearchStrategy(experime
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
         for (res in resources) {
             logger.info { "Running experiment with load '$load' and resources '$res'" }
-            if (this.experimentRunner.runExperiment(load, res)) return res
+            if (this.experimentRunner.runExperiment(load, res) == SloExperimentResult.SUCCESS) return res
         }
         return null
     }
@@ -25,7 +26,7 @@ class LinearSearch(experimentRunner: ExperimentRunner) : SearchStrategy(experime
         var maxSuitableLoad: Int? = null
         for (load in loads) {
             logger.info { "Running experiment with resources '$resource' and load '$load'" }
-            if (this.experimentRunner.runExperiment(load, resource)) {
+            if (this.experimentRunner.runExperiment(load, resource) == SloExperimentResult.SUCCESS) {
                 maxSuitableLoad = load
             } else break
         }

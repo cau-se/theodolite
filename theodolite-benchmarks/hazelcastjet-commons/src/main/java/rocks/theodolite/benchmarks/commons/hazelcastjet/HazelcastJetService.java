@@ -7,7 +7,7 @@ import java.util.Objects;
 import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import titan.ccp.common.configuration.ServiceConfigurations;
+import rocks.theodolite.benchmarks.commons.commons.configuration.ServiceConfigurations;
 
 /**
  * Abstract HazelcastJetService. Holds common fields and logic shared for all hazelcast jet

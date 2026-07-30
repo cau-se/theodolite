@@ -3,6 +3,7 @@ package rocks.theodolite.core.strategies.searchstrategy
 import mu.KotlinLogging
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
+import rocks.theodolite.core.SloExperimentResult
 import rocks.theodolite.core.strategies.guessstrategy.GuessStrategy
 
 private val logger = KotlinLogging.logger {}
@@ -40,7 +41,7 @@ class InitialGuessSearchStrategy(
 
             // If the first experiment passes, starting downward linear search
             // otherwise starting upward linear search
-            if (this.experimentRunner.runExperiment(load, lastLowestResource)) {
+            if (this.experimentRunner.runExperiment(load, lastLowestResource) == SloExperimentResult.SUCCESS) {
 
                 resourcesToCheck = resources.subList(0, startIndex).reversed()
                 if (resourcesToCheck.isEmpty()) return lastLowestResource
@@ -49,7 +50,7 @@ class InitialGuessSearchStrategy(
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '$load' and resources '$res'" }
-                    if (this.experimentRunner.runExperiment(load, res)) {
+                    if (this.experimentRunner.runExperiment(load, res) == SloExperimentResult.SUCCESS) {
                         currentMin = res
                     }
                 }
@@ -64,7 +65,7 @@ class InitialGuessSearchStrategy(
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '$load' and resources '$res'" }
-                    if (this.experimentRunner.runExperiment(load, res)) return res
+                    if (this.experimentRunner.runExperiment(load, res) == SloExperimentResult.SUCCESS) return res
                 }
             }
         } else {
@@ -92,7 +93,7 @@ class InitialGuessSearchStrategy(
 
             // If the first experiment passes, starting upwards linear search
             // otherwise starting downward linear search
-            if (!this.experimentRunner.runExperiment(lastMaxLoad, resource)) {
+            if (this.experimentRunner.runExperiment(lastMaxLoad, resource) != SloExperimentResult.SUCCESS) {
                 // downward search
 
                 loadsToCheck = loads.subList(0, startIndex).reversed()
@@ -100,7 +101,7 @@ class InitialGuessSearchStrategy(
                     for (load in loadsToCheck) {
 
                         logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                        if (this.experimentRunner.runExperiment(load, resource)) {
+                        if (this.experimentRunner.runExperiment(load, resource) == SloExperimentResult.SUCCESS) {
                             return load
                         }
                     }
@@ -115,7 +116,7 @@ class InitialGuessSearchStrategy(
                 var currentMax: Int = lastMaxLoad
                 for (load in loadsToCheck) {
                     logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                    if (this.experimentRunner.runExperiment(load, resource)) {
+                    if (this.experimentRunner.runExperiment(load, resource) == SloExperimentResult.SUCCESS) {
                         currentMax = load
                     }
                 }

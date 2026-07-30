@@ -50,4 +50,17 @@ internal class EnvVarPatcherTest : AbstractPatcherTest() {
             assertTrue(containers[0].env.contains(expectedEnvVar))
         }
     }
+
+    @Test
+    fun testInitContainer() {
+        val sourceResource = createDeployment()
+        val patcher = EnvVarPatcher("init-container", "SOME_NUMERIC_VAR", isInitContainer = true)
+        val patchedResources = patcher.patch(listOf(sourceResource), "456")
+        patchedResources.forEach {
+            val initContainers = (it as Deployment).spec.template.spec.initContainers.filter { it.name == "init-container" }
+            assertEquals(1, initContainers.size)
+            val expectedEnvVar = EnvVarBuilder().withName("SOME_NUMERIC_VAR").withValue("456").build()
+            assertTrue(initContainers[0].env.contains(expectedEnvVar))
+        }
+    }
 }

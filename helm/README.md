@@ -84,7 +84,6 @@ The following 3rd party charts are used by Theodolite:
 - Kube Prometheus Stack
   - to install the Prometheus Operator, which is used to create a Prometheus instances
   - to deploy Grafana (including a dashboard and a data source configuration)
-- Grafana (deprecated as replaced by Kube Prometheus Stack)
 - Strimzi (for managing Kafka and Zookeeper)
 
 ### Hints
