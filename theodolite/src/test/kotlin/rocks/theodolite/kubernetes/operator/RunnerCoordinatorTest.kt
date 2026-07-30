@@ -6,6 +6,8 @@ import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -125,5 +127,19 @@ class RunnerCoordinatorTest {
     @Test
     fun `isRunning returns false when no execution is active`() {
         assert(!coordinator.isRunning("any-execution"))
+    }
+
+    @Test
+    fun `getCoordinator returns a non-null singleton`() {
+        val server2 = KubernetesServer(false, false)
+        server2.before()
+        try {
+            val operator = TheodoliteOperator(server2.client)
+            val first = operator.getCoordinator()
+            assertNotNull(first)
+            assertSame(first, operator.getCoordinator())
+        } finally {
+            server2.after()
+        }
     }
 }
