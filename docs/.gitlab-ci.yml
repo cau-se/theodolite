@@ -1,12 +1,13 @@
 # Theodolite Docs
 
 .docs:
-  image: alpine/bundle:3.0.3
+  image: ruby:3.4
   cache:
     paths:
       - docs/vendor
   before_script:
     - cd docs
+    - gem install bundler
     - bundle config set --local path 'vendor'
     - bundle install
   rules:
@@ -28,7 +29,11 @@ test-docs-links:
   extends: .docs
   needs:
     - build-docs
-  script: bundle exec htmlproofer --assume-extension --allow_hash_href --http-status-ignore 999 ./_site
+  # Ignore external hashes as there seems to be a bug in html-proofer
+  # Ignore status code 999 sent from LinkedIn
+  # Ignore URLs to the GI Digital Library as they are constantly producing timeouts
+  # Replace DOI URLs with API checks (required for ACM DL)
+  script: bundle exec htmlproofer --no-check-external-hash --ignore-status-code 999 --ignore_urls "/^https:\/\/dl\.gi\.de\//" --swap-urls "^https\:\/\/doi\.org\/(?\:(?!(api\/))):https\://doi.org/api/handles/" ./_site
 
 build-docs-crds:
   stage: build

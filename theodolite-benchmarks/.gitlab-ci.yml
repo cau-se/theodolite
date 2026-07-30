@@ -1,7 +1,7 @@
 # Theodolite Benchmarks
 
 .benchmarks:
-  image: openjdk:11-jdk
+  image: eclipse-temurin:11-jdk
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:

@@ -17,7 +17,7 @@ test-slo-checker-lag-trend:
   extends:
     - .slo-checker-lag-trend
   needs: []
-  image: python:3.8-slim
+  image: python:3.10-slim
   before_script:
     - cd slo-checker/record-lag
   script:
@@ -35,7 +35,7 @@ test-slo-checker-generic:
   extends:
     - .slo-checker-generic
   needs: []
-  image: python:3.8-slim
+  image: python:3.10-slim
   script:
     - pip install -r requirements.txt
     - cd app
