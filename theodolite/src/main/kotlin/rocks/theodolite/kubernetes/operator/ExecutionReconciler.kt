@@ -1,8 +1,11 @@
 package rocks.theodolite.kubernetes.operator
 
+import io.fabric8.kubernetes.api.model.MicroTime
 import io.javaoperatorsdk.operator.api.config.informer.InformerConfiguration
+import io.javaoperatorsdk.operator.api.reconciler.Cleaner
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration
+import io.javaoperatorsdk.operator.api.reconciler.DeleteControl
 import io.javaoperatorsdk.operator.api.reconciler.EventSourceContext
 import io.javaoperatorsdk.operator.api.reconciler.EventSourceInitializer
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler
@@ -12,30 +15,46 @@ import io.javaoperatorsdk.operator.processing.event.source.EventSource
 import io.javaoperatorsdk.operator.processing.event.source.PrimaryToSecondaryMapper
 import io.javaoperatorsdk.operator.processing.event.source.SecondaryToPrimaryMapper
 import io.javaoperatorsdk.operator.processing.event.source.informer.InformerEventSource
+import jakarta.inject.Inject
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
-import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
+import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
 /**
- * Passive / observational reconciler for [ExecutionCRD].
+ * Reconciler for [ExecutionCRD] and the **sole** writer of its status.
  *
- * **Read-only:** always returns [UpdateControl.noUpdate]; no status patches, no finalizers.
+ * The reconciler does not run benchmarks itself.  [RunnerCoordinator] owns the runner and the
+ * in-memory runtime state; this reconciler reads that state and persists it to the CR status,
+ * and asks the coordinator to start/stop runs.  The coordinator triggers reconciles through the
+ * registered [ExecutionEventSource] whenever runtime state changes, so status stays in sync
+ * without any second writer.
  *
- * Wires a [BenchmarkCRD] [InformerEventSource] so that a change to the benchmark
- * referenced by an execution (e.g., its `resourceSetsState` flipping to READY)
- * immediately triggers a reconcile of the dependent executions.  Inside [reconcile]
- * the observed eligibility — whether this execution would be a candidate for selection
- * — is computed and logged for comparison with the selection path in [RunnerCoordinator].
+ * Reconcile responsibilities:
+ * - Give a freshly created execution its initial [ExecutionState.PENDING] state.
+ * - Persist [ExecutionState.RUNNING] (with `startTime`) once the coordinator starts a run.
+ * - Persist the terminal [ExecutionState.FINISHED]/[ExecutionState.FAILURE] (with `completionTime`)
+ *   the coordinator recorded for a finished run.
+ * - Detect a spec change to a running execution (via `metadata.generation`) and ask the coordinator
+ *   to stop it so it re-runs with the new spec.
+ * - Ask the coordinator to (re)select whenever an eligible execution is observed.
  *
- * The real [ExecutionState] written into the CR is still managed exclusively by
- * [RunnerCoordinator] / [ExecutionStateHandler]; this reconciler observes but does not write.
+ * A [BenchmarkCRD] [InformerEventSource] links each execution to its benchmark so that a change to
+ * the benchmark (e.g. its `resourceSetsState` becoming READY) triggers a reconcile of the dependent
+ * executions.  Implementing [Cleaner] registers a finalizer so that deleting a running execution
+ * stops the runner cleanly before the CR is removed.
  */
 @ControllerConfiguration
-class ExecutionReconciler : Reconciler<ExecutionCRD>, EventSourceInitializer<ExecutionCRD> {
+class ExecutionReconciler :
+    Reconciler<ExecutionCRD>,
+    Cleaner<ExecutionCRD>,
+    EventSourceInitializer<ExecutionCRD> {
+
+    @Inject
+    lateinit var coordinator: RunnerCoordinator
 
     override fun prepareEventSources(
         context: EventSourceContext<ExecutionCRD>
@@ -71,7 +90,9 @@ class ExecutionReconciler : Reconciler<ExecutionCRD>, EventSourceInitializer<Exe
                 .build(),
             context
         )
-        return EventSourceInitializer.nameEventSources(benchmarkEventSource)
+        val triggerEventSource = ExecutionEventSource()
+        coordinator.registerTrigger(triggerEventSource)
+        return EventSourceInitializer.nameEventSources(benchmarkEventSource, triggerEventSource)
     }
 
     override fun reconcile(
@@ -79,22 +100,64 @@ class ExecutionReconciler : Reconciler<ExecutionCRD>, EventSourceInitializer<Exe
         context: Context<ExecutionCRD>
     ): UpdateControl<ExecutionCRD> {
         val name = resource.metadata.name
-        logger.debug { "Reconcile execution $name." }
+        logger.debug { "Reconcile execution '$name'." }
 
-        val executionState = resource.status.executionState
-        val benchmark = context.getSecondaryResource(BenchmarkCRD::class.java).orElse(null)
-
-        val benchmarkReady = benchmark?.status?.resourceSetsState == BenchmarkState.READY
-        val stateEligible = executionState == ExecutionState.PENDING ||
-            executionState == ExecutionState.RESTART
-        val observedEligibility = stateEligible && benchmarkReady
-
-        logger.info {
-            "Execution '$name': observedEligibility=$observedEligibility" +
-                " (state=$executionState, benchmarkReady=$benchmarkReady)"
+        // 1. Give a new execution its initial state.
+        if (resource.status.executionState == ExecutionState.NO_STATE) {
+            resource.status.executionState = ExecutionState.PENDING
+            logger.info { "Execution '$name': initial state → ${ExecutionState.PENDING.value}." }
+            return UpdateControl.patchStatus(resource)
         }
 
-        // Read-only: RunnerCoordinator / ExecutionStateHandler remain the sole status writers.
+        // 2. Persist a terminal result the coordinator recorded for a finished run.
+        val completion = coordinator.completionFor(name)
+        if (completion != null) {
+            resource.status.executionState = completion.state
+            resource.status.startTime = completion.startTime.toMicroTime()
+            resource.status.completionTime = completion.completionTime.toMicroTime()
+            coordinator.clearCompletion(name)
+            logger.info { "Execution '$name': state → ${completion.state.value}." }
+            return UpdateControl.patchStatus(resource)
+        }
+
+        // 3. Handle the currently active run.
+        if (coordinator.activeExecutionName() == name) {
+            val generation = resource.metadata.generation
+            if (generation != null && generation != coordinator.activeGeneration()) {
+                logger.info { "Execution '$name': spec changed while running, stopping to re-run." }
+                coordinator.stopForRespec(name)
+                return UpdateControl.noUpdate()
+            }
+            if (resource.status.executionState != ExecutionState.RUNNING) {
+                resource.status.executionState = ExecutionState.RUNNING
+                resource.status.startTime = coordinator.activeStartTime()?.toMicroTime()
+                resource.status.completionTime = null
+                logger.info { "Execution '$name': state → ${ExecutionState.RUNNING.value}." }
+                return UpdateControl.patchStatus(resource)
+            }
+            return UpdateControl.noUpdate()
+        }
+
+        // 4. Otherwise, if this execution is eligible, ask the coordinator to (re)select.
+        val state = resource.status.executionState
+        if (state == ExecutionState.PENDING || state == ExecutionState.RUNNING) {
+            coordinator.triggerSelection()
+        }
         return UpdateControl.noUpdate()
     }
+
+    override fun cleanup(
+        resource: ExecutionCRD,
+        context: Context<ExecutionCRD>
+    ): DeleteControl {
+        val name = resource.metadata.name
+        if (coordinator.activeExecutionName() == name) {
+            logger.info { "Execution '$name' is being deleted while running, stopping the runner." }
+            coordinator.stopForDeletion(name)
+        }
+        coordinator.clearCompletion(name)
+        return DeleteControl.defaultDelete()
+    }
 }
+
+private fun Instant.toMicroTime(): MicroTime = MicroTime(this.toString())

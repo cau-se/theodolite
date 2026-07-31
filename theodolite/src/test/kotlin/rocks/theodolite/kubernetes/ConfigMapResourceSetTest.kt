@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import registerResource
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
-import rocks.theodolite.kubernetes.operator.ExecutionClient
+import rocks.theodolite.kubernetes.model.crd.ExecutionClient
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import java.io.FileInputStream

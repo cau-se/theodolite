@@ -1,43 +1,55 @@
 package rocks.theodolite.kubernetes.operator
 
+import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
-import io.fabric8.kubernetes.client.dsl.MixedOperation
-import io.fabric8.kubernetes.client.dsl.Resource
+import io.javaoperatorsdk.operator.processing.event.ResourceID
 import io.quarkus.arc.Unremovable
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.loadKubernetesResources
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
-import rocks.theodolite.kubernetes.model.crd.BenchmarkExecutionList
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
-import rocks.theodolite.kubernetes.model.crd.ExecutionStateComparator
-import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 import rocks.theodolite.kubernetes.patcher.ConfigOverrideModifier
+import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
+const val DEPLOYED_FOR_EXECUTION_LABEL_NAME = "deployed-for-execution"
+const val DEPLOYED_FOR_BENCHMARK_LABEL_NAME = "deployed-for-benchmark"
+const val CREATED_BY_LABEL_NAME = "app.kubernetes.io/created-by"
+const val CREATED_BY_LABEL_VALUE = "theodolite"
+
 /**
- * CDI singleton that owns [TheodoliteRunner], the execution selection/ordering logic,
- * and duration timing for each run.
+ * CDI singleton that owns [TheodoliteRunner], the execution selection/ordering logic, and the
+ * in-memory runtime state of the currently active benchmark run.
  *
- * Still fabric8-triggered in Stage 2: [TheodoliteController] calls [selectAndRunExecution]
- * from its 2-second reconcile loop.  In later stages, [ExecutionReconciler] will inject and
- * call this coordinator, and the fabric8 machinery will be retired.
+ * The coordinator never writes Execution status itself.  Instead it holds the runtime state
+ * (which execution is running and any pending terminal result) and asks [ExecutionReconciler]
+ * to persist it by triggering a reconcile through the registered [ExecutionEventSource].  This
+ * keeps [ExecutionReconciler] the single writer of Execution status.
  *
- * **Single-thread guarantee:** the embedded [TheodoliteRunner] uses a single-thread executor,
- * so at most one execution is active at any given time and ordering is strictly enforced.
- *
- * Call [initialize] once (from [TheodoliteOperator]) before any other method.
+ * **Capacity 1:** at most one execution runs at a time.  The embedded [TheodoliteRunner] uses a
+ * single-thread executor, and [triggerSelection] is synchronized and starts a new run only when
+ * none is active, so global ordering (interrupted-first, then oldest) is strictly enforced.
  */
-// @Unremovable: looked up programmatically via Arc.container() in TheodoliteOperator;
-// no @Inject site exists yet, so Quarkus's build-time CDI optimizer would otherwise remove it.
+// @Unremovable: injected into ExecutionReconciler and looked up via Arc.container() in
+// TheodoliteOperator; keep it even though Quarkus's build-time optimizer might drop it.
 @Unremovable
 @ApplicationScoped
 class RunnerCoordinator {
+
+    /**
+     * Kubernetes client used to list Executions/Benchmarks and to apply deployment labels.
+     * Set by CDI in production; set directly in tests.
+     */
+    @Inject
+    lateinit var client: KubernetesClient
 
     private val runner: TheodoliteRunner
 
@@ -49,163 +61,228 @@ class RunnerCoordinator {
         this.runner = runner
     }
 
-    @Volatile private var client: NamespacedKubernetesClient? = null
-    @Volatile private var executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>? = null
-    @Volatile private var benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>? = null
-    @Volatile private var executionStateHandler: ExecutionStateHandler? = null
+    /** Event source used to trigger reconciles; registered by [ExecutionReconciler]. */
+    @Volatile
+    private var trigger: ExecutionEventSource? = null
 
-    /**
-     * Initializes this coordinator with the Kubernetes client and CRD clients.
-     * Must be called once before any other method.
-     */
-    fun initialize(
-        client: NamespacedKubernetesClient,
-        executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
-        benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
-        executionStateHandler: ExecutionStateHandler
-    ) {
-        this.client = client
-        this.executionCRDClient = executionCRDClient
-        this.benchmarkCRDClient = benchmarkCRDClient
-        this.executionStateHandler = executionStateHandler
+    /** The currently active run, or `null` when the runner is idle. */
+    private data class ActiveRun(val name: String, val generation: Long?, val startTime: Instant)
+
+    /** A terminal result awaiting persistence by [ExecutionReconciler]. */
+    internal data class Completion(
+        val state: ExecutionState,
+        val startTime: Instant,
+        val completionTime: Instant
+    )
+
+    @Volatile
+    private var active: ActiveRun? = null
+
+    private val completions = ConcurrentHashMap<String, Completion>()
+    private val respecStops = ConcurrentHashMap.newKeySet<String>()
+    private val deletionStops = ConcurrentHashMap.newKeySet<String>()
+
+    /** Registers the event source used to trigger execution reconciles. */
+    fun registerTrigger(eventSource: ExecutionEventSource) {
+        this.trigger = eventSource
     }
 
-    /**
-     * Selects the next eligible execution and runs it synchronously.
-     *
-     * @return `true` if an execution was found and run; `false` if no eligible execution was found.
-     */
-    fun selectAndRunExecution(): Boolean {
-        val execution = getNextExecution() ?: return false
-        val benchmark = getBenchmarks()
-            .map { it.spec }
-            .firstOrNull { it.name == execution.benchmark } ?: return false
-        runExecution(execution, benchmark)
-        return true
+    // --- state read by ExecutionReconciler ---------------------------------------------------
+
+    /** Name of the currently active execution, or `null` if none is running. */
+    fun activeExecutionName(): String? = active?.name
+
+    /** Generation of the currently active execution, or `null` if none is running. */
+    fun activeGeneration(): Long? = active?.generation
+
+    /** Start time of the currently active execution, or `null` if none is running. */
+    fun activeStartTime(): Instant? = active?.startTime
+
+    /** Pending terminal result for [name], or `null` if none is awaiting persistence. */
+    internal fun completionFor(name: String): Completion? = completions[name]
+
+    /** Clears the pending terminal result for [name] once it has been persisted. */
+    fun clearCompletion(name: String) {
+        completions.remove(name)
     }
 
+    /** Returns `true` if the execution with the given name is currently running. */
+    fun isRunning(executionName: String): Boolean =
+        active?.name == executionName && runner.isRunning(executionName)
+
+    // --- run control -------------------------------------------------------------------------
+
     /**
-     * Runs the given [execution] synchronously, including label patching, state transitions,
-     * and duration timing.  Handles the `RESTART` state by re-running recursively.
+     * Selects the next eligible execution and starts it, unless a run is already active.
+     * Fast and non-blocking: the benchmark itself runs on the [TheodoliteRunner] thread.
      */
-    private fun runExecution(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
-        val c = requireClient()
-        val stateHandler = requireStateHandler()
-        try {
-            val modifier = ConfigOverrideModifier(
-                execution = execution,
-                resources = loadKubernetesResources(benchmark.sut.resources, c).map { it.first }
-                        + loadKubernetesResources(benchmark.loadGenerator.resources, c).map { it.first }
-            )
-            modifier.setAdditionalLabels(
-                labelValue = execution.name,
-                labelName = DEPLOYED_FOR_EXECUTION_LABEL_NAME
-            )
-            modifier.setAdditionalLabels(
-                labelValue = benchmark.name,
-                labelName = DEPLOYED_FOR_BENCHMARK_LABEL_NAME
-            )
-            modifier.setAdditionalLabels(
-                labelValue = CREATED_BY_LABEL_VALUE,
-                labelName = CREATED_BY_LABEL_NAME
-            )
-
-            stateHandler.setExecutionState(execution.name, ExecutionState.RUNNING)
-            stateHandler.startDurationStateTimer(execution.name)
-
-            runner.run(execution, benchmark, c)
-
-            when (stateHandler.getExecutionState(execution.name)) {
-                ExecutionState.RESTART -> runExecution(execution, benchmark)
-                ExecutionState.RUNNING -> {
-                    stateHandler.setExecutionState(execution.name, ExecutionState.FINISHED)
-                    logger.info { "Execution of ${execution.name} is finally stopped." }
-                }
-                else -> {
-                    stateHandler.setExecutionState(execution.name, ExecutionState.FAILURE)
-                    logger.warn { "Unexpected execution state, set state to ${ExecutionState.FAILURE.value}." }
-                }
-            }
-        } catch (e: Exception) {
-            EventCreator().createEvent(
-                executionName = execution.name,
-                type = "WARNING",
-                reason = "Execution failed",
-                message = "An error occurs while executing:  ${e.message}"
-            )
-            logger.error(e) { "Failure while executing execution ${execution.name} with benchmark ${benchmark.name}." }
-            stateHandler.setExecutionState(execution.name, ExecutionState.FAILURE)
+    @Synchronized
+    fun triggerSelection() {
+        if (active != null) {
+            return
         }
-        stateHandler.stopDurationStateTimer(execution.name)
+        val (execution, benchmark) = selectNext() ?: return
+        val name = execution.metadata.name
+        val startTime = Instant.now()
+        active = ActiveRun(name, execution.metadata.generation, startTime)
+        logger.info { "Starting execution '$name' with benchmark '${benchmark.name}'." }
+        propagate(name)
+
+        val spec = execution.spec
+        runner.start(
+            execution = spec,
+            benchmark = benchmark,
+            client = namespacedClient(),
+            beforeRun = { applyLabels(spec, benchmark) }
+        ) { error -> onRunComplete(name, startTime, error) }
     }
 
     /**
-     * Returns all available [BenchmarkCRD]s.
+     * Invoked on the runner thread when a run finishes.  Records the terminal result (unless the
+     * run was stopped for a spec change or deletion), triggers the reconciler to persist it, and
+     * selects the next execution.
      */
+    @Synchronized
+    private fun onRunComplete(name: String, startTime: Instant, error: Throwable?) {
+        active = null
+        when {
+            deletionStops.remove(name) -> {
+                logger.info { "Execution '$name' was stopped for deletion." }
+            }
+            respecStops.remove(name) -> {
+                logger.info { "Execution '$name' was stopped for a spec change and will be re-run." }
+                propagate(name)
+            }
+            else -> {
+                val state = if (error != null) ExecutionState.FAILURE else ExecutionState.FINISHED
+                completions[name] = Completion(state, startTime, Instant.now())
+                if (error != null) {
+                    logger.error(error) { "Failure while executing execution '$name'." }
+                    EventCreator().createEvent(
+                        executionName = name,
+                        type = "WARNING",
+                        reason = "Execution failed",
+                        message = "An error occurs while executing:  ${error.message}"
+                    )
+                } else {
+                    logger.info { "Execution '$name' is finally stopped." }
+                }
+                propagate(name)
+            }
+        }
+        triggerSelection()
+    }
+
+    /**
+     * Stops the active execution because its spec changed; it stays eligible and will be re-run.
+     */
+    @Synchronized
+    fun stopForRespec(name: String) {
+        if (active?.name == name) {
+            respecStops.add(name)
+            runner.stop()
+        }
+    }
+
+    /**
+     * Stops the active execution because it is being deleted; no terminal status is written.
+     */
+    @Synchronized
+    fun stopForDeletion(name: String) {
+        if (active?.name == name) {
+            deletionStops.add(name)
+            runner.stop()
+        }
+    }
+
+    // --- selection ---------------------------------------------------------------------------
+
+    /**
+     * Selects the next eligible execution together with its benchmark spec.
+     *
+     * An execution is eligible when its benchmark is [BenchmarkState.READY] and its state is
+     * [ExecutionState.PENDING] or [ExecutionState.RUNNING].  Because this runs only while the
+     * runner is idle, a `RUNNING` state means the execution was interrupted mid-run (e.g. by an
+     * operator restart or a spec change) and should resume.  Executions with a pending terminal
+     * result are excluded.
+     *
+     * Interrupted-mid-run executions are preferred, then the oldest by `creationTimestamp`.
+     */
+    internal fun selectNext(): Pair<ExecutionCRD, KubernetesBenchmark>? {
+        val readyBenchmarks = getBenchmarks()
+            .filter { it.status.resourceSetsState == BenchmarkState.READY }
+        val readyNames = readyBenchmarks.map { it.spec.name }.toSet()
+
+        val interruptedFirst = Comparator<ExecutionCRD> { a, b ->
+            val aRank = if (a.status.executionState == ExecutionState.RUNNING) 0 else 1
+            val bRank = if (b.status.executionState == ExecutionState.RUNNING) 0 else 1
+            aRank - bRank
+        }
+
+        val candidate = listExecutions()
+            .asSequence()
+            .map { it.spec.name = it.metadata.name; it }
+            .filter {
+                it.status.executionState == ExecutionState.PENDING ||
+                    it.status.executionState == ExecutionState.RUNNING
+            }
+            .filter { !completions.containsKey(it.metadata.name) }
+            .filter { readyNames.contains(it.spec.benchmark) }
+            .sortedWith(interruptedFirst.thenBy { it.metadata.creationTimestamp })
+            .firstOrNull() ?: return null
+
+        val benchmark = readyBenchmarks
+            .firstOrNull { it.spec.name == candidate.spec.benchmark }
+            ?.spec ?: return null
+        return candidate to benchmark
+    }
+
+    /**
+     * Applies the Theodolite ownership labels to the SUT and load-generator resources so that
+     * they can be cleaned up per execution/benchmark.
+     */
+    private fun applyLabels(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
+        val c = namespacedClient()
+        val modifier = ConfigOverrideModifier(
+            execution = execution,
+            resources = loadKubernetesResources(benchmark.sut.resources, c).map { it.first } +
+                loadKubernetesResources(benchmark.loadGenerator.resources, c).map { it.first }
+        )
+        modifier.setAdditionalLabels(
+            labelValue = execution.name,
+            labelName = DEPLOYED_FOR_EXECUTION_LABEL_NAME
+        )
+        modifier.setAdditionalLabels(
+            labelValue = benchmark.name,
+            labelName = DEPLOYED_FOR_BENCHMARK_LABEL_NAME
+        )
+        modifier.setAdditionalLabels(
+            labelValue = CREATED_BY_LABEL_VALUE,
+            labelName = CREATED_BY_LABEL_NAME
+        )
+    }
+
+    /** Returns all available [BenchmarkCRD]s with their spec name populated. */
     internal fun getBenchmarks(): List<BenchmarkCRD> {
-        return requireBenchmarkCRDClient()
+        return namespacedClient()
+            .resources(BenchmarkCRD::class.java)
             .list()
             .items
             .map { it.apply { it.spec.name = it.metadata.name } }
     }
 
-    /**
-     * Selects the next eligible [BenchmarkExecution].
-     *
-     * An execution is eligible if:
-     * 1. Its state is [ExecutionState.PENDING] or [ExecutionState.RESTART].
-     * 2. Its referenced benchmark is available and in state [BenchmarkState.READY].
-     *
-     * Among eligible executions, those with state [ExecutionState.RESTART] are preferred,
-     * then the oldest by `creationTimestamp`.
-     */
-    internal fun getNextExecution(): BenchmarkExecution? {
-        val comparator = ExecutionStateComparator(ExecutionState.RESTART)
-        val availableBenchmarkNames = getBenchmarks()
-            .filter { it.status.resourceSetsState == BenchmarkState.READY }
-            .map { it.spec.name }
-
-        return requireExecutionCRDClient()
+    private fun listExecutions(): List<ExecutionCRD> {
+        return namespacedClient()
+            .resources(ExecutionCRD::class.java)
             .list()
             .items
-            .asSequence()
-            .map { it.spec.name = it.metadata.name; it }
-            .filter {
-                it.status.executionState == ExecutionState.PENDING ||
-                        it.status.executionState == ExecutionState.RESTART
-            }
-            .filter { availableBenchmarkNames.contains(it.spec.benchmark) }
-            .sortedWith(comparator.thenBy { it.metadata.creationTimestamp })
-            .map { it.spec }
-            .firstOrNull()
     }
 
-    /**
-     * Signals the currently running execution to stop.
-     * If [restart] is `true`, the execution state is set to [ExecutionState.RESTART] first.
-     */
-    @Synchronized
-    fun stop(restart: Boolean = false) {
-        if (restart) {
-            runner.getExecution()?.let { execution ->
-                requireStateHandler().setExecutionState(execution.name, ExecutionState.RESTART)
-            }
-        }
-        runner.stop()
+    private fun propagate(name: String) {
+        trigger?.propagateEvent(ResourceID(name, namespacedClient().namespace))
     }
 
-    /** Returns `true` if the execution with the given name is currently running. */
-    fun isRunning(executionName: String): Boolean = runner.isRunning(executionName)
-
-    private fun requireClient(): NamespacedKubernetesClient =
-        client ?: error("RunnerCoordinator has not been initialized — call initialize() first")
-
-    private fun requireStateHandler(): ExecutionStateHandler =
-        executionStateHandler ?: error("RunnerCoordinator has not been initialized — call initialize() first")
-
-    private fun requireExecutionCRDClient() =
-        executionCRDClient ?: error("RunnerCoordinator has not been initialized — call initialize() first")
-
-    private fun requireBenchmarkCRDClient() =
-        benchmarkCRDClient ?: error("RunnerCoordinator has not been initialized — call initialize() first")
+    // DefaultKubernetesClient (what Quarkus CDI produces) implements NamespacedKubernetesClient,
+    // so this cast is safe at runtime.
+    private fun namespacedClient(): NamespacedKubernetesClient = client as NamespacedKubernetesClient
 }

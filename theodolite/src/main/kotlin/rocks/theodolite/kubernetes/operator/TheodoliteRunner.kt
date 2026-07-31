@@ -62,6 +62,38 @@ class TheodoliteRunner(
     }
 
     /**
+     * Submits a benchmark execution to the dedicated runner thread and returns immediately.
+     *
+     * [beforeRun] is invoked on the runner thread just before
+     * [TheodoliteExecutor.setupAndRunExecution] (e.g. to apply deployment labels).
+     * [onComplete] is invoked on the runner thread once the execution finishes, receiving the
+     * throwable that terminated it or `null` on success.  The single-thread executor guarantees
+     * that a subsequent submission does not start until the current one has fully completed.
+     */
+    fun start(
+        execution: BenchmarkExecution,
+        benchmark: KubernetesBenchmark,
+        client: NamespacedKubernetesClient,
+        beforeRun: () -> Unit = {},
+        onComplete: (Throwable?) -> Unit
+    ) {
+        threadExecutor.submit {
+            val executor = executorFactory(execution, benchmark, client)
+            currentExecutor = executor
+            var error: Throwable? = null
+            try {
+                beforeRun()
+                executor.setupAndRunExecution()
+            } catch (t: Throwable) {
+                error = t
+            } finally {
+                currentExecutor = null
+                onComplete(error)
+            }
+        }
+    }
+
+    /**
      * Signals the currently running execution to stop.
      * Has no effect if no execution is currently running.
      */

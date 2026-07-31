@@ -31,16 +31,10 @@ class RunnerCoordinatorTest {
     @BeforeEach
     fun setUp() {
         server.before()
-        val operator = TheodoliteOperator(server.client)
 
-        // Use the public no-arg constructor and initialize manually (not the CDI-managed instance).
+        // Use the public no-arg constructor and set the client directly (not the CDI-managed instance).
         this.coordinator = RunnerCoordinator()
-        this.coordinator.initialize(
-            client = server.client,
-            executionCRDClient = operator.getExecutionClient(),
-            benchmarkCRDClient = operator.getBenchmarkClient(),
-            executionStateHandler = operator.getExecutionStateHandler()
-        )
+        this.coordinator.client = server.client
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
@@ -78,7 +72,7 @@ class RunnerCoordinatorTest {
     }
 
     @Test
-    @DisplayName("Check namespaced property of benchmarkCRDClient")
+    @DisplayName("Check namespaced property of benchmark client")
     fun testBenchmarkClientNamespaced() {
         coordinator.getBenchmarks()
 
@@ -91,9 +85,9 @@ class RunnerCoordinatorTest {
     }
 
     @Test
-    @DisplayName("Check namespaced property of executionCRDClient")
+    @DisplayName("Check namespaced property of execution client")
     fun testExecutionClientNamespaced() {
-        coordinator.getNextExecution()
+        coordinator.selectNext()
 
         assert(
             server
@@ -115,12 +109,12 @@ class RunnerCoordinatorTest {
     }
 
     @Test
-    fun getNextExecution() {
-        val result = coordinator.getNextExecution()
+    fun `selectNext returns the oldest matching execution with a ready benchmark`() {
+        val result = coordinator.selectNext()
 
         assertEquals(
             mapper.writeValueAsString(this.execution),
-            mapper.writeValueAsString(result)
+            mapper.writeValueAsString(result?.first?.spec)
         )
     }
 
