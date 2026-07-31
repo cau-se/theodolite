@@ -283,8 +283,11 @@ package-http-bridge:
   extends:
     - .dind
   image: ghcr.io/cau-se/theodolite-build-docker-compose-jq:20.10.12
+  services:
+    # Skip TLS verification for the registry's custom CA, which the dind daemon does not trust.
+    - name: docker:20.10.12-dind
+      command: ["--insecure-registry=$CR_STAGE_HOST"]
   before_script:
-    - mkdir -p /etc/docker/certs.d/$CR_STAGE_HOST && cp $CR_STAGE_CERT /etc/docker/certs.d/$CR_STAGE_HOST/ca.crt
     - docker login -u "$CR_STAGE_USER" -p "$CR_STAGE_PW" "$CR_STAGE_HOST"
     - cd theodolite-benchmarks/docker-test
   # variables:
