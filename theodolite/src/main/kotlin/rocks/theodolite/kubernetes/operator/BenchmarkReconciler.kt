@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.javaoperatorsdk.operator.api.config.informer.InformerConfiguration
+import io.javaoperatorsdk.operator.api.reconciler.Constants
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.EventSourceContext
@@ -41,7 +42,7 @@ private val logger = KotlinLogging.logger {}
  * Reconcile returns [UpdateControl.patchStatus] when the computed state differs from the
  * current CR status, and [UpdateControl.noUpdate] otherwise (idempotent).
  */
-@ControllerConfiguration
+@ControllerConfiguration(namespaces = [Constants.WATCH_CURRENT_NAMESPACE])
 class BenchmarkReconciler : Reconciler<BenchmarkCRD>, EventSourceInitializer<BenchmarkCRD> {
 
     /**

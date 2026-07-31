@@ -1,6 +1,7 @@
 package rocks.theodolite.kubernetes.operator
 
 import io.javaoperatorsdk.operator.api.config.informer.InformerConfiguration
+import io.javaoperatorsdk.operator.api.reconciler.Constants
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.EventSourceContext
@@ -34,7 +35,7 @@ private val logger = KotlinLogging.logger {}
  * The real [ExecutionState] written into the CR is still managed exclusively by
  * [RunnerCoordinator] / [ExecutionStateHandler]; this reconciler observes but does not write.
  */
-@ControllerConfiguration
+@ControllerConfiguration(namespaces = [Constants.WATCH_CURRENT_NAMESPACE])
 class ExecutionReconciler : Reconciler<ExecutionCRD>, EventSourceInitializer<ExecutionCRD> {
 
     override fun prepareEventSources(
