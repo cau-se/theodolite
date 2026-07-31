@@ -32,6 +32,8 @@ spec:
               value: operator
             - name: RESULTS_FOLDER
               value: "/deployments/results"
+            - name: QUARKUS_LOG_LEVEL
+              value: {{ .Values.operator.logLevel | quote }}
             {{- if .Values.operator.prometheusUrl }}
             - name: THEODOLITE_PROMETHEUS_URL
               value: {{ .Values.operator.prometheusUrl | quote }}

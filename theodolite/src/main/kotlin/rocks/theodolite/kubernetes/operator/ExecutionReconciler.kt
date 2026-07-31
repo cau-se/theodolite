@@ -3,6 +3,7 @@ package rocks.theodolite.kubernetes.operator
 import io.fabric8.kubernetes.api.model.MicroTime
 import io.javaoperatorsdk.operator.api.config.informer.InformerConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.Cleaner
+import io.javaoperatorsdk.operator.api.reconciler.Constants
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.DeleteControl
@@ -47,7 +48,7 @@ private val logger = KotlinLogging.logger {}
  * executions.  Implementing [Cleaner] registers a finalizer so that deleting a running execution
  * stops the runner cleanly before the CR is removed.
  */
-@ControllerConfiguration
+@ControllerConfiguration(namespaces = [Constants.WATCH_CURRENT_NAMESPACE])
 class ExecutionReconciler :
     Reconciler<ExecutionCRD>,
     Cleaner<ExecutionCRD>,
