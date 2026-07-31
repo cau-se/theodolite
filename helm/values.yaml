@@ -227,6 +227,10 @@ operator:
       memory: "1024Mi"
       cpu: "500m"
 
+  # Log level for the Theodolite operator.
+  # Valid values: TRACE, DEBUG, INFO, WARN, ERROR
+  logLevel: INFO
+
   # Default Prometheus URL (THEODOLITE_PROMETHEUS_URL). Leave empty to use the in-cluster default.
   prometheusUrl: ""
 
