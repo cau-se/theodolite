@@ -62,19 +62,6 @@ default:
         crane copy $SRC_IMAGE_TAG $DEST_IMAGE:$TAG_NAME$CI_COMMIT_SHORT_SHA
       fi
 
-# Standalone check that the dind daemon can reach the internal registry over TLS
-# (i.e. the runner-provided registry CA is trusted). Runs immediately, independent
-# of the rest of the pipeline.
-test-registry-connectivity:
-  stage: build
-  extends:
-    - .dind
-  needs: []
-  script:
-    - docker login -u "$CR_STAGE_USER" -p "$CR_STAGE_PW" "$CR_STAGE_HOST"
-  rules:
-    - if: "$CR_STAGE_HOST && $CR_STAGE_USER && $CR_STAGE_PW"
-
 include:
   - local: 'docs/.gitlab-ci.yml'
   - local: 'helm/.gitlab-ci.yml'

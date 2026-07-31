@@ -284,7 +284,7 @@ package-http-bridge:
     - .dind
   image: ghcr.io/cau-se/theodolite-build-docker-compose-jq:20.10.12
   before_script:
-    - docker login -u "$CR_STAGE_USER" -p "$CR_STAGE_PW" "$CR_STAGE_HOST"
+    - echo "$CR_STAGE_PW" | docker login -u "$CR_STAGE_USER" --password-stdin "$CR_STAGE_HOST"
     - cd theodolite-benchmarks/docker-test
   # variables:
   #   TEST_LOG_FILE: "test.log"
