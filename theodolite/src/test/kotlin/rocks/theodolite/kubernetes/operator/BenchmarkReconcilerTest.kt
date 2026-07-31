@@ -70,15 +70,12 @@ internal class BenchmarkReconcilerTest {
     }
 
     @Test
-    fun `reconcile patches status to READY when all SUT and loadGen ConfigMaps are present`() {
+    fun `computeReadiness is READY when all SUT and loadGen ConfigMaps are present`() {
         val benchmark = benchmarkWithConfigMaps(sut = "cm-sut", loadGenerator = "cm-loadgen")
 
         val context = mockContextWith(setOf(configMap("cm-sut"), configMap("cm-loadgen")))
-        val result = reconciler.reconcile(benchmark, context)
 
-        // Desired = READY, current = PENDING (default) → patchStatus
-        assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.READY, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.READY, reconciler.computeReadiness(benchmark, context))
     }
 
     @Test
@@ -105,20 +102,17 @@ internal class BenchmarkReconcilerTest {
     }
 
     @Test
-    fun `reconcile patches status to PENDING when a required ConfigMap disappears`() {
+    fun `computeReadiness is PENDING when a required ConfigMap is missing`() {
         val benchmark = benchmarkWithConfigMaps(sut = "cm-sut", loadGenerator = "cm-loadgen")
-        benchmark.status.resourceSetsState = BenchmarkState.READY
 
         // loadgen ConfigMap is gone
         val context = mockContextWith(setOf(configMap("cm-sut")))
-        val result = reconciler.reconcile(benchmark, context)
 
-        assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.PENDING, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.PENDING, reconciler.computeReadiness(benchmark, context))
     }
 
     @Test
-    fun `reconcile patches status to READY for a benchmark with only fileSystem resource sets`() {
+    fun `computeReadiness is READY for a benchmark with only fileSystem resource sets`() {
         // fileSystem resources are local-pod files; no ConfigMaps → secondary cache is empty but
         // the section is non-empty, so it must be treated as ready.
         val benchmark = BenchmarkCRDummy("fs-benchmark").getCR()
@@ -126,23 +120,19 @@ internal class BenchmarkReconcilerTest {
         benchmark.spec.loadGenerator.resources = listOf(fileSystemResourceSet("/mnt/loadgen"))
 
         val context = mockContextWith(emptySet())
-        val result = reconciler.reconcile(benchmark, context)
 
-        assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.READY, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.READY, reconciler.computeReadiness(benchmark, context))
     }
 
     @Test
-    fun `reconcile patches status to READY for a mixed ConfigMap and fileSystem benchmark when ConfigMaps are present`() {
+    fun `computeReadiness is READY for a mixed ConfigMap and fileSystem benchmark when ConfigMaps are present`() {
         val benchmark = BenchmarkCRDummy("mixed-benchmark").getCR()
         benchmark.spec.sut.resources = listOf(resourceSetsFor("cm-sut"), fileSystemResourceSet("/mnt/extra"))
         benchmark.spec.loadGenerator.resources = listOf(resourceSetsFor("cm-lg"))
 
         val context = mockContextWith(setOf(configMap("cm-sut"), configMap("cm-lg")))
-        val result = reconciler.reconcile(benchmark, context)
 
-        assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.READY, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.READY, reconciler.computeReadiness(benchmark, context))
     }
 
     @Test
