@@ -133,7 +133,8 @@ class RunnerCoordinator {
             execution = spec,
             benchmark = benchmark,
             client = namespacedClient(),
-            beforeRun = { applyLabels(spec, benchmark) }
+            beforeRun = { applyLabels(spec, benchmark) },
+            isCancelled = { respecStops.contains(name) || deletionStops.contains(name) }
         ) { error -> onRunComplete(name, startTime, error) }
     }
 
@@ -175,6 +176,8 @@ class RunnerCoordinator {
 
     /**
      * Stops the active execution because its spec changed; it stays eligible and will be re-run.
+     * Also cancels a run that is still queued (executor not yet created) so the obsolete spec is
+     * never deployed.
      */
     @Synchronized
     fun stopForRespec(name: String) {
@@ -186,6 +189,8 @@ class RunnerCoordinator {
 
     /**
      * Stops the active execution because it is being deleted; no terminal status is written.
+     * Also cancels a run that is still queued (executor not yet created) so nothing is deployed
+     * after the CR has gone away.
      */
     @Synchronized
     fun stopForDeletion(name: String) {

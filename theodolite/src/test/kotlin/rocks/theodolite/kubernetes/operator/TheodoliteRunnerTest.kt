@@ -96,6 +96,32 @@ class TheodoliteRunnerTest {
     }
 
     @Test
+    fun `start skips beforeRun and the executor when cancelled before it begins`() {
+        val done = CountDownLatch(1)
+        var executorCreated = false
+        var beforeRunInvoked = false
+        val runner = TheodoliteRunner { _, _, _ ->
+            executorCreated = true
+            mock<TheodoliteExecutor>()
+        }
+
+        var reportedError: Throwable? = Exception("unset")
+        runner.start(
+            mock(), mock(), mock(),
+            beforeRun = { beforeRunInvoked = true },
+            isCancelled = { true }
+        ) { error ->
+            reportedError = error
+            done.countDown()
+        }
+
+        assert(done.await(5, TimeUnit.SECONDS)) { "onComplete was not called within timeout" }
+        assertFalse(executorCreated) { "executor must not be created for a cancelled run" }
+        assertFalse(beforeRunInvoked) { "beforeRun must not run for a cancelled run" }
+        assertNull(reportedError)
+    }
+
+    @Test
     fun `stop delegates to the current executor while running`() {
         val runnerStarted = CountDownLatch(1)
         val allowComplete = CountDownLatch(1)

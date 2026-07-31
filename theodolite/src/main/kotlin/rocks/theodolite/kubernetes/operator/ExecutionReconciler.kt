@@ -111,12 +111,20 @@ class ExecutionReconciler :
         }
 
         // 2. Persist a terminal result the coordinator recorded for a finished run.
+        //    The completion is retained until the terminal status is observed as persisted on the
+        //    resource, and only then cleared. This makes status persistence retry-safe: if the
+        //    patch below is rejected (e.g. a transient conflict), the completion survives, the
+        //    execution stays excluded from selection, and the next reconcile retries the patch —
+        //    instead of losing the result and re-running the already-finished execution.
         val completion = coordinator.completionFor(name)
         if (completion != null) {
+            if (resource.status.executionState == completion.state) {
+                coordinator.clearCompletion(name)
+                return UpdateControl.noUpdate()
+            }
             resource.status.executionState = completion.state
             resource.status.startTime = completion.startTime.toMicroTime()
             resource.status.completionTime = completion.completionTime.toMicroTime()
-            coordinator.clearCompletion(name)
             logger.info { "Execution '$name': state → ${completion.state.value}." }
             return UpdateControl.patchStatus(resource)
         }

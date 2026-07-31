@@ -38,7 +38,7 @@ internal class ExecutionReconcilerTest {
     }
 
     @Test
-    fun `reconcile persists a pending FINISHED completion and clears it`() {
+    fun `reconcile persists a pending FINISHED completion without clearing it yet`() {
         val execution = ExecutionCRDummy("exec", "bench").getCR()
         execution.status.executionState = ExecutionState.RUNNING
         val start = Instant.parse("2026-01-01T00:00:00Z")
@@ -54,7 +54,44 @@ internal class ExecutionReconcilerTest {
         assertEquals(ExecutionState.FINISHED, execution.status.executionState)
         assertEquals(start.toString(), execution.status.startTime?.time)
         assertEquals(end.toString(), execution.status.completionTime?.time)
+        // The completion must survive until the terminal status is observed as persisted, so a
+        // rejected patch can be retried instead of losing the result.
+        verify(coordinator, never()).clearCompletion("exec")
+    }
+
+    @Test
+    fun `reconcile clears the completion only once the terminal status is persisted`() {
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.FINISHED
+        val start = Instant.parse("2026-01-01T00:00:00Z")
+        val end = Instant.parse("2026-01-01T00:05:00Z")
+        val coordinator = mock<RunnerCoordinator> {
+            on { completionFor("exec") }
+                .thenReturn(RunnerCoordinator.Completion(ExecutionState.FINISHED, start, end))
+        }
+
+        val result = reconcilerWith(coordinator).reconcile(execution, context())
+
+        assertTrue(result.isNoUpdate)
         verify(coordinator).clearCompletion("exec")
+    }
+
+    @Test
+    fun `reconcile does not select while a terminal result is pending persistence`() {
+        // A rejected status patch leaves the execution RUNNING while the completion is retained.
+        // The reconciler must not treat it as an interrupted run and trigger a second selection.
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.RUNNING
+        val start = Instant.parse("2026-01-01T00:00:00Z")
+        val end = Instant.parse("2026-01-01T00:05:00Z")
+        val coordinator = mock<RunnerCoordinator> {
+            on { completionFor("exec") }
+                .thenReturn(RunnerCoordinator.Completion(ExecutionState.FAILURE, start, end))
+        }
+
+        reconcilerWith(coordinator).reconcile(execution, context())
+
+        verify(coordinator, never()).triggerSelection()
     }
 
     @Test

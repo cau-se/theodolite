@@ -66,28 +66,42 @@ class TheodoliteRunner(
      *
      * [beforeRun] is invoked on the runner thread just before
      * [TheodoliteExecutor.setupAndRunExecution] (e.g. to apply deployment labels).
-     * [onComplete] is invoked on the runner thread once the execution finishes, receiving the
-     * throwable that terminated it or `null` on success.  The single-thread executor guarantees
-     * that a subsequent submission does not start until the current one has fully completed.
+     * [isCancelled] is checked on the runner thread — while holding the same monitor as [stop] —
+     * immediately before the executor is created. If it returns `true` the run is abandoned before
+     * any deployment happens ([beforeRun] and the executor are skipped); this closes the window in
+     * which a queued run could otherwise deploy resources after a stop/delete request that arrived
+     * before the executor existed. Once the executor exists, an in-flight run is stopped via [stop].
+     * [onComplete] is invoked on the runner thread once the execution finishes (or is cancelled),
+     * receiving the throwable that terminated it or `null` on success/cancellation. The single-thread
+     * executor guarantees that a subsequent submission does not start until the current one has fully
+     * completed.
      */
     fun start(
         execution: BenchmarkExecution,
         benchmark: KubernetesBenchmark,
         client: NamespacedKubernetesClient,
         beforeRun: () -> Unit = {},
+        isCancelled: () -> Boolean = { false },
         onComplete: (Throwable?) -> Unit
     ) {
         threadExecutor.submit {
-            val executor = executorFactory(execution, benchmark, client)
-            currentExecutor = executor
             var error: Throwable? = null
             try {
-                beforeRun()
-                executor.setupAndRunExecution()
+                val executor = synchronized(this) {
+                    if (isCancelled()) {
+                        return@submit
+                    }
+                    executorFactory(execution, benchmark, client).also { currentExecutor = it }
+                }
+                try {
+                    beforeRun()
+                    executor.setupAndRunExecution()
+                } finally {
+                    synchronized(this) { currentExecutor = null }
+                }
             } catch (t: Throwable) {
                 error = t
             } finally {
-                currentExecutor = null
                 onComplete(error)
             }
         }
