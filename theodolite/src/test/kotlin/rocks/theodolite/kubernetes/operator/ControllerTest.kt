@@ -17,10 +17,7 @@ class ControllerTest {
     @Test
     fun `stop delegates to coordinator`() {
         val coordinator = mock<RunnerCoordinator>()
-        val controller = TheodoliteController(
-            coordinator = coordinator,
-            benchmarkStateChecker = mock()
-        )
+        val controller = TheodoliteController(coordinator = coordinator)
 
         controller.stop(restart = false)
 
@@ -30,10 +27,7 @@ class ControllerTest {
     @Test
     fun `stop with restart delegates restart flag to coordinator`() {
         val coordinator = mock<RunnerCoordinator>()
-        val controller = TheodoliteController(
-            coordinator = coordinator,
-            benchmarkStateChecker = mock()
-        )
+        val controller = TheodoliteController(coordinator = coordinator)
 
         controller.stop(restart = true)
 
@@ -43,10 +37,7 @@ class ControllerTest {
     @Test
     fun `isExecutionRunning delegates to coordinator isRunning`() {
         val coordinator = mock<RunnerCoordinator>()
-        val controller = TheodoliteController(
-            coordinator = coordinator,
-            benchmarkStateChecker = mock()
-        )
+        val controller = TheodoliteController(coordinator = coordinator)
 
         controller.isExecutionRunning("my-execution")
 

@@ -17,7 +17,6 @@ const val CREATED_BY_LABEL_VALUE = "theodolite"
  */
 class TheodoliteController(
         private val coordinator: RunnerCoordinator,
-        private val benchmarkStateChecker: BenchmarkStateChecker,
 ) {
 
     /**
@@ -25,7 +24,6 @@ class TheodoliteController(
      */
     fun run() {
         sleep(5000) // wait until all states are correctly set
-        benchmarkStateChecker.start(true)
         while (true) {
             reconcile()
             sleep(2000)

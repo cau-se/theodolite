@@ -27,8 +27,6 @@ private val logger = KotlinLogging.logger {}
 class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
     private lateinit var controller: TheodoliteController
     private lateinit var executionStateHandler: ExecutionStateHandler
-    private lateinit var benchmarkStateHandler: BenchmarkStateHandler
-    private lateinit var benchmarkStateChecker: BenchmarkStateChecker
 
 
     fun start() {
@@ -59,10 +57,7 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
                 executionStateHandler = getExecutionStateHandler()
             )
 
-            controller = getController(
-                coordinator = coordinator,
-                benchmarkStateChecker = getBenchmarkStateChecker()
-            )
+            controller = getController(coordinator = coordinator)
 
             getExecutionClient().inform().addEventHandlerWithResyncPeriod(
                 ExecutionEventHandler(
@@ -84,37 +79,13 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
         return executionStateHandler
     }
 
-    fun getBenchmarkStateHandler() : BenchmarkStateHandler {
-        if (!::benchmarkStateHandler.isInitialized) {
-            this.benchmarkStateHandler = BenchmarkStateHandler(client = this.client)
-        }
-        return benchmarkStateHandler
-    }
-
-    fun getBenchmarkStateChecker() : BenchmarkStateChecker {
-        if (!::benchmarkStateChecker.isInitialized) {
-            this.benchmarkStateChecker = BenchmarkStateChecker(
-                client = this.client,
-                benchmarkStateHandler = getBenchmarkStateHandler(),
-                benchmarkCRDClient = getBenchmarkClient())
-        }
-        return benchmarkStateChecker
-    }
-
-
     fun getCoordinator(): RunnerCoordinator {
         return Arc.container().instance(RunnerCoordinator::class.java).get()
     }
 
-    fun getController(
-            coordinator: RunnerCoordinator,
-            benchmarkStateChecker: BenchmarkStateChecker
-    ): TheodoliteController {
+    fun getController(coordinator: RunnerCoordinator): TheodoliteController {
         if (!::controller.isInitialized) {
-            this.controller = TheodoliteController(
-                coordinator = coordinator,
-                benchmarkStateChecker = benchmarkStateChecker
-            )
+            this.controller = TheodoliteController(coordinator = coordinator)
         }
         return this.controller
     }
