@@ -404,6 +404,15 @@ smoketest-uc3-kstreams:
     DOCKER_COMPOSE_DIR: "uc3-kstreams"
     JAVA_PROJECT_DEPS: "uc3-kstreams,kstreams-commons,uc3-load-generator,load-generator-commons"
 
+smoketest-uc3-flink:
+  extends: .smoketest-benchmarks
+  needs:
+    - package-uc3-flink
+    - package-uc3-load-generator
+  variables:
+    DOCKER_COMPOSE_DIR: "uc3-flink"
+    JAVA_PROJECT_DEPS: "uc3-flink,flink-commons,uc3-load-generator,load-generator-commons"
+
 smoketest-uc3-beam-flink:
   extends: .smoketest-benchmarks
   needs:
@@ -563,7 +572,7 @@ publish-uc3-kstreams:
 publish-uc3-flink:
   extends: .publish-benchmarks
   needs:
-    - package-uc3-flink
+    - smoketest-uc3-flink
   variables:
     IMAGE_NAME: "theodolite-uc3-flink"
 
