@@ -1,6 +1,7 @@
 package rocks.theodolite.kubernetes.operator
 
 import io.quarkus.test.junit.QuarkusTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -53,6 +54,71 @@ class TheodoliteRunnerTest {
         runner.run(mockExecution, mock(), mock())
 
         assertFalse(runner.isRunning("test-execution"))
+    }
+
+    @Test
+    fun `start invokes beforeRun and reports success via onComplete`() {
+        val done = CountDownLatch(1)
+        val order = mutableListOf<String>()
+        val mockExecutor = mock<TheodoliteExecutor> {
+            on { setupAndRunExecution() } doAnswer { order.add("run"); Unit }
+        }
+        val runner = TheodoliteRunner { _, _, _ -> mockExecutor }
+
+        var reportedError: Throwable? = Exception("unset")
+        runner.start(mock(), mock(), mock(), beforeRun = { order.add("before") }) { error ->
+            reportedError = error
+            done.countDown()
+        }
+
+        assert(done.await(5, TimeUnit.SECONDS)) { "onComplete was not called within timeout" }
+        assertNull(reportedError)
+        assertEquals(listOf("before", "run"), order)
+    }
+
+    @Test
+    fun `start reports the failure cause via onComplete`() {
+        val done = CountDownLatch(1)
+        val failure = RuntimeException("boom")
+        val mockExecutor = mock<TheodoliteExecutor> {
+            on { setupAndRunExecution() } doAnswer { throw failure }
+        }
+        val runner = TheodoliteRunner { _, _, _ -> mockExecutor }
+
+        var reportedError: Throwable? = null
+        runner.start(mock(), mock(), mock()) { error ->
+            reportedError = error
+            done.countDown()
+        }
+
+        assert(done.await(5, TimeUnit.SECONDS)) { "onComplete was not called within timeout" }
+        assertEquals(failure, reportedError)
+    }
+
+    @Test
+    fun `start skips beforeRun and the executor when cancelled before it begins`() {
+        val done = CountDownLatch(1)
+        var executorCreated = false
+        var beforeRunInvoked = false
+        val runner = TheodoliteRunner { _, _, _ ->
+            executorCreated = true
+            mock<TheodoliteExecutor>()
+        }
+
+        var reportedError: Throwable? = Exception("unset")
+        runner.start(
+            mock(), mock(), mock(),
+            beforeRun = { beforeRunInvoked = true },
+            isCancelled = { true }
+        ) { error ->
+            reportedError = error
+            done.countDown()
+        }
+
+        assert(done.await(5, TimeUnit.SECONDS)) { "onComplete was not called within timeout" }
+        assertFalse(executorCreated) { "executor must not be created for a cancelled run" }
+        assertFalse(beforeRunInvoked) { "beforeRun must not run for a cancelled run" }
+        assertNull(reportedError)
     }
 
     @Test
