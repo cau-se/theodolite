@@ -604,10 +604,11 @@ publish-uc4-kstreams:
   variables:
     IMAGE_NAME: "theodolite-uc4-kstreams-app"
 
-.publish-uc4-flink:
+publish-uc4-flink:
   extends: .publish-benchmarks
   needs:
     - smoketest-uc4-flink
+    - package-uc4-flink
   variables:
     IMAGE_NAME: "theodolite-uc4-flink"
 
