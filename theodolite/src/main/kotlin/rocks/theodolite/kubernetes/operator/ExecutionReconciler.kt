@@ -23,9 +23,20 @@ import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
 import rocks.theodolite.kubernetes.model.crd.ExecutionStatus
+import java.time.Duration
 import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
+
+/**
+ * How often a still-`RUNNING` execution is re-patched to refresh `status.executionDuration`.
+ *
+ * That field is a computed value (`now - startTime`) rather than something kubectl can derive on
+ * its own, and it is only surfaced through the CRD's `Duration` printer column when the status
+ * subresource is actually patched. Without a periodic refresh it would stay frozen at whatever it
+ * was when `RUNNING` was first persisted, for the entire lifetime of the run.
+ */
+private val DURATION_REFRESH_INTERVAL: Duration = Duration.ofSeconds(1)
 
 /**
  * Reconciler for [ExecutionCRD] and the **sole** writer of its status.
@@ -158,7 +169,12 @@ class ExecutionReconciler :
                 }
                 return UpdateControl.noUpdate()
             }
-            return UpdateControl.noUpdate()
+
+            // Already RUNNING: re-patch (no field changes) purely to refresh the computed
+            // `executionDuration` and reschedule so this keeps happening for as long as the
+            // execution stays active.
+            patchStatus(resource) { }
+            return UpdateControl.noUpdate<ExecutionCRD>().rescheduleAfter(DURATION_REFRESH_INTERVAL)
         }
 
         // 4. Otherwise, if this execution is eligible, ask the coordinator to (re)select.

@@ -153,16 +153,21 @@ internal class ExecutionReconcilerTest {
     }
 
     @Test
-    fun `reconcile is a no-op for the active execution once RUNNING is set`() {
+    fun `reconcile re-patches and reschedules to refresh duration once RUNNING is set`() {
         val execution = ExecutionCRDummy("exec", "bench").getCR()
         execution.status.executionState = ExecutionState.RUNNING
+        createOnServer(execution)
         val coordinator = mock<RunnerCoordinator> {
             on { activeExecutionName() }.thenReturn("exec")
         }
 
         val result = reconcilerWith(coordinator).reconcile(execution, context())
 
+        // Still a status no-op (no field changes), but rescheduled so `executionDuration` --
+        // which kubectl surfaces via a printer column but cannot compute itself -- keeps
+        // refreshing for as long as the execution stays RUNNING.
         assertTrue(result.isNoUpdate)
+        assertEquals(1000L, result.scheduleDelay.get())
     }
 
     @Test
