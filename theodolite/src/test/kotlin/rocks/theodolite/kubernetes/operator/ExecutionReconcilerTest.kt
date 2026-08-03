@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRDummy
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
@@ -60,6 +61,13 @@ internal class ExecutionReconcilerTest {
             .withName(name)
             .get()
             .status
+
+    /** Reads the persisted resource back from the mock server (e.g. to re-feed a reconcile call). */
+    private fun persistedResource(name: String): ExecutionCRD =
+        server.client.resources(ExecutionCRD::class.java)
+            .inNamespace(NAMESPACE)
+            .withName(name)
+            .get()
 
     private fun context(): Context<ExecutionCRD> = mock()
 
@@ -161,11 +169,16 @@ internal class ExecutionReconcilerTest {
             on { activeStartTime() }.thenReturn(start)
         }
 
-        reconcilerWith(coordinator).reconcile(execution, context())
+        val result = reconcilerWith(coordinator).reconcile(execution, context())
 
         val persisted = persistedStatus("exec")
         assertEquals(ExecutionState.RUNNING, persisted.executionState)
         assertEquals(start.toString(), persisted.startTime?.time)
+        // This first RUNNING patch must reschedule too (not just later no-op reconciles):
+        // it is a status-only patch (no `metadata.generation` bump), so without an explicit
+        // reschedule here nothing would ever call reconcile() again for this resource.
+        assertTrue(result.isNoUpdate)
+        assertEquals(1000L, result.scheduleDelay.get())
     }
 
     @Test
@@ -184,6 +197,48 @@ internal class ExecutionReconcilerTest {
         // refreshing for as long as the execution stays RUNNING.
         assertTrue(result.isNoUpdate)
         assertEquals(1000L, result.scheduleDelay.get())
+    }
+
+    @Test
+    fun `reconcile keeps re-patching and rescheduling across repeated invocations while RUNNING`() {
+        // Traces the self-sustaining loop end to end by manually simulating what JOSDK does with
+        // the returned `rescheduleAfter`: invoke reconcile() again with the freshly persisted
+        // resource. Regression test for a bug where the *first* RUNNING patch didn't reschedule,
+        // so the loop never started and `executionDuration` stayed frozen at its initial value.
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.PENDING
+        createOnServer(execution)
+        val start = Instant.parse("2026-01-01T00:00:00Z")
+        val coordinator = mock<RunnerCoordinator> {
+            on { activeExecutionName() }.thenReturn("exec")
+            on { activeStartTime() }.thenReturn(start)
+        }
+        val reconciler = reconcilerWith(coordinator)
+
+        // Round 1: PENDING -> RUNNING.
+        val first = reconciler.reconcile(execution, context())
+        assertTrue(first.isNoUpdate)
+        assertEquals(1000L, first.scheduleDelay.get())
+        assertEquals(ExecutionState.RUNNING, persistedStatus("exec").executionState)
+
+        // The mock server assigns `metadata.generation` on create; keep the mocked "currently
+        // active generation" in sync so rounds 2/3 are recognized as the same, unchanged spec
+        // instead of spuriously taking the spec-changed/respec branch.
+        whenever(coordinator.activeGeneration()).thenReturn(persistedResource("exec").metadata.generation)
+
+        // Round 2: simulates the framework re-invoking reconcile() after the scheduled delay,
+        // passing the now-RUNNING resource back in. Must still be rescheduled -- this is the
+        // branch that previously existed but was unreachable because round 1 never rescheduled.
+        val second = reconciler.reconcile(persistedResource("exec"), context())
+        assertTrue(second.isNoUpdate)
+        assertEquals(1000L, second.scheduleDelay.get())
+        assertEquals(ExecutionState.RUNNING, persistedStatus("exec").executionState)
+
+        // Round 3: the loop must keep going indefinitely, not just once more.
+        val third = reconciler.reconcile(persistedResource("exec"), context())
+        assertTrue(third.isNoUpdate)
+        assertEquals(1000L, third.scheduleDelay.get())
+        assertEquals(ExecutionState.RUNNING, persistedStatus("exec").executionState)
     }
 
     @Test

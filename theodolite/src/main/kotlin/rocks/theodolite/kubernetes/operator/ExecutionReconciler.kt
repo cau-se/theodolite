@@ -173,13 +173,16 @@ class ExecutionReconciler :
                     it.startTime = startTime
                     it.completionTime = null
                 }
-                return UpdateControl.noUpdate()
+            } else {
+                // Already RUNNING: re-patch (no field changes) purely to refresh the computed
+                // `executionDuration`.
+                patchStatus(resource) { }
             }
-
-            // Already RUNNING: re-patch (no field changes) purely to refresh the computed
-            // `executionDuration` and reschedule so this keeps happening for as long as the
-            // execution stays active.
-            patchStatus(resource) { }
+            // Setting/keeping RUNNING is a status-only patch, so it does not bump
+            // `metadata.generation` and the resulting primary-informer event is filtered out by
+            // JOSDK's generation-aware processing. Without an explicit reschedule here, reconcile
+            // would never run again for this resource while it stays RUNNING, and
+            // `executionDuration` would stay frozen at whatever it was on this patch.
             return UpdateControl.noUpdate<ExecutionCRD>().rescheduleAfter(DURATION_REFRESH_INTERVAL)
         }
 
