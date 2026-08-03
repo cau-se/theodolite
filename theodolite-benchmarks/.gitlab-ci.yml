@@ -440,7 +440,7 @@ smoketest-uc4-kstreams:
     DOCKER_COMPOSE_DIR: "uc4-kstreams"
     JAVA_PROJECT_DEPS: "uc4-kstreams,kstreams-commons,uc4-load-generator,load-generator-commons"
 
-smoketest-uc4-flink:
+.smoketest-uc4-flink:
   extends: .smoketest-benchmarks
   needs:
     - package-uc4-flink
@@ -475,3 +475,200 @@ smoketest-uc4-hazelcastjet:
   variables:
     DOCKER_COMPOSE_DIR: "uc4-hazelcastjet"
     JAVA_PROJECT_DEPS: "uc4-hazelcastjet,hazelcastjet-commons,uc4-load-generator,load-generator-commons"
+
+.publish-benchmarks:
+  stage: publish
+  extends:
+    - .crane-copy
+  rules:
+    - if: "$CR_STAGE_HOST && $CR_STAGE_PROJECT && $CR_STAGE_USER && $CR_STAGE_PW && $CR_STAGE_CERT && $CR_PUBLIC_HOST && $CR_PUBLIC_ORG && $CR_PUBLIC_USER && $CR_PUBLIC_PW"
+
+publish-uc1-kstreams:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc1-kstreams
+  variables:
+    IMAGE_NAME: "theodolite-uc1-kstreams-app"
+
+publish-uc1-flink:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc1-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc1-flink"
+
+publish-uc1-beam-flink:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc1-beam-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-flink"
+
+publish-uc1-beam-samza:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc1-beam-samza
+  variables:
+    IMAGE_NAME: "theodolite-uc1-beam-samza"
+
+publish-uc1-hazelcastjet:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc1-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc1-hazelcastjet"
+
+publish-uc2-kstreams:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc2-kstreams
+  variables:
+    IMAGE_NAME: "theodolite-uc2-kstreams-app"
+
+publish-uc2-flink:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc2-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc2-flink"
+
+publish-uc2-beam-flink:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc2-beam-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-flink"
+
+publish-uc2-beam-samza:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc2-beam-samza
+  variables:
+    IMAGE_NAME: "theodolite-uc2-beam-samza"
+
+publish-uc2-hazelcastjet:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc2-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc2-hazelcastjet"
+
+publish-uc3-kstreams:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc3-kstreams
+  variables:
+    IMAGE_NAME: "theodolite-uc3-kstreams-app"
+
+publish-uc3-flink:
+  extends: .publish-benchmarks
+  needs:
+    - package-uc3-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc3-flink"
+
+publish-uc3-beam-flink:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc3-beam-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-flink"
+
+publish-uc3-beam-samza:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc3-beam-samza
+  variables:
+    IMAGE_NAME: "theodolite-uc3-beam-samza"
+
+publish-uc3-hazelcastjet:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc3-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc3-hazelcastjet"
+
+publish-uc4-kstreams:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc4-kstreams
+  variables:
+    IMAGE_NAME: "theodolite-uc4-kstreams-app"
+
+.publish-uc4-flink:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc4-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc4-flink"
+
+publish-uc4-beam-flink:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc4-beam-flink
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-flink"
+
+publish-uc4-beam-samza:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc4-beam-samza
+  variables:
+    IMAGE_NAME: "theodolite-uc4-beam-samza"
+
+publish-uc4-hazelcastjet:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc4-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc4-hazelcastjet"
+
+publish-uc1-load-generator:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc1-kstreams
+    - smoketest-uc1-flink
+    - smoketest-uc1-beam-flink
+    - smoketest-uc1-beam-samza
+    - smoketest-uc1-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc1-workload-generator"
+
+publish-uc2-load-generator:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc2-kstreams
+    - smoketest-uc2-flink
+    - smoketest-uc2-beam-flink
+    - smoketest-uc2-beam-samza
+    - smoketest-uc2-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc2-workload-generator"
+
+publish-uc3-load-generator:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc3-kstreams
+    - smoketest-uc3-beam-flink
+    - smoketest-uc3-beam-samza
+    - smoketest-uc3-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc3-workload-generator"
+
+publish-uc4-load-generator:
+  extends: .publish-benchmarks
+  needs:
+    - smoketest-uc4-kstreams
+    #- smoketest-uc4-flink
+    - smoketest-uc4-beam-flink
+    - smoketest-uc4-beam-samza
+    - smoketest-uc4-hazelcastjet
+  variables:
+    IMAGE_NAME: "theodolite-uc4-workload-generator"
+
+publish-http-bridge:
+  extends: .publish-benchmarks
+  needs:
+    - package-http-bridge
+  variables:
+    IMAGE_NAME: "theodolite-http-bridge"
