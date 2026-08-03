@@ -127,6 +127,12 @@ class ExecutionReconciler :
         if (resource.status.executionState == ExecutionState.NO_STATE) {
             logger.info { "Execution '$name': initial state → ${ExecutionState.PENDING.value}." }
             patchStatus(resource) { it.executionState = ExecutionState.PENDING }
+            // Ask the coordinator to (re)select immediately: this status patch only changes
+            // `status`, not `metadata.generation`, so the primary informer's resulting event is
+            // filtered out by JOSDK's generation-aware processing and would never reach case 4
+            // below. Without this, a freshly created execution whose benchmark is already READY
+            // is never picked up.
+            coordinator.triggerSelection()
             return UpdateControl.noUpdate()
         }
 

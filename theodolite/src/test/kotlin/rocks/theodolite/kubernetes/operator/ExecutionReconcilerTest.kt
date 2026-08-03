@@ -76,6 +76,22 @@ internal class ExecutionReconcilerTest {
     }
 
     @Test
+    fun `reconcile triggers selection immediately for a newly PENDING execution`() {
+        // A status-only patch does not bump `metadata.generation`, so JOSDK's generation-aware
+        // processing would filter out the resulting primary-informer event and never call
+        // reconcile again for this resource. Selection must therefore be triggered inline here,
+        // otherwise an execution whose benchmark is already READY would never be picked up.
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.NO_STATE
+        createOnServer(execution)
+        val coordinator = mock<RunnerCoordinator>()
+
+        reconcilerWith(coordinator).reconcile(execution, context())
+
+        verify(coordinator).triggerSelection()
+    }
+
+    @Test
     fun `reconcile persists a pending FINISHED completion without clearing it yet`() {
         val execution = ExecutionCRDummy("exec", "bench").getCR()
         execution.status.executionState = ExecutionState.RUNNING
