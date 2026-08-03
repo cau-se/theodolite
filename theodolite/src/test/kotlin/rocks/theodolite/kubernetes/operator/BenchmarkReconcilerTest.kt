@@ -28,14 +28,19 @@ import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 @QuarkusTest
 internal class BenchmarkReconcilerTest {
 
+    private companion object {
+        const val NAMESPACE = "test"
+    }
+
     /** CRUD-mode mock server used for action-command tests that need real k8s objects. */
     private val server = KubernetesServer(false, true)
-
     private val reconciler = BenchmarkReconciler()
 
     @BeforeEach
     fun setUp() {
         server.before()
+        // The reconciler persists status through the fabric8 client (patchState workaround).
+        reconciler.client = server.client
     }
 
     @AfterEach
@@ -46,27 +51,28 @@ internal class BenchmarkReconcilerTest {
     // ---- reconcile() tests: ConfigMap-based readiness -----------------------------------------
 
     @Test
-    fun `reconcile returns noUpdate when spec is uninitialized`() {
+    fun `reconcile does not throw when spec is uninitialized`() {
         val benchmark = BenchmarkCRD()
         benchmark.metadata.name = "bare-benchmark"
-        // spec fields are not set (lateinit) – computeReadiness must not throw
+        benchmark.metadata.namespace = NAMESPACE
+        // spec fields are not set (lateinit) – computeReadiness must not throw and, since the CR
+        // is not present in the cluster, patchState must be a safe no-op.
 
-        val context = mockContextWith(emptySet())
-        val result = reconciler.reconcile(benchmark, context)
+        val result = reconciler.reconcile(benchmark, mockContextWith(emptySet()))
 
-        // Already PENDING (default) and desired is PENDING → no status change
         assertTrue(result.isNoUpdate)
     }
 
     @Test
-    fun `reconcile returns noUpdate when benchmark references no ConfigMaps`() {
+    fun `reconcile persists initial PENDING when benchmark references no ConfigMaps`() {
         // BenchmarkCRDummy has no resources → empty SUT/loadGen ConfigMap lists → PENDING
         val benchmark = BenchmarkCRDummy("empty-benchmark").getCR()
+        benchmark.metadata.namespace = NAMESPACE
+        createOnServer(benchmark)
 
-        val context = mockContextWith(emptySet())
-        val result = reconciler.reconcile(benchmark, context)
+        reconciler.reconcile(benchmark, mockContextWith(emptySet()))
 
-        assertTrue(result.isNoUpdate)
+        assertEquals(BenchmarkState.PENDING, persistedState("empty-benchmark"))
     }
 
     @Test
@@ -91,14 +97,14 @@ internal class BenchmarkReconcilerTest {
     }
 
     @Test
-    fun `reconcile returns noUpdate when a referenced ConfigMap is missing`() {
+    fun `reconcile persists PENDING when a referenced ConfigMap is missing`() {
         val benchmark = benchmarkWithConfigMaps(sut = "cm-present", loadGenerator = "cm-missing")
+        createOnServer(benchmark)
 
-        val context = mockContextWith(setOf(configMap("cm-present")))
-        val result = reconciler.reconcile(benchmark, context)
+        reconciler.reconcile(benchmark, mockContextWith(setOf(configMap("cm-present"))))
 
-        // Desired = PENDING, current = PENDING (default) → no change
-        assertTrue(result.isNoUpdate)
+        // Desired = PENDING, no persisted status yet → PENDING must be written.
+        assertEquals(BenchmarkState.PENDING, persistedState(benchmark.metadata.name))
     }
 
     @Test
@@ -136,15 +142,17 @@ internal class BenchmarkReconcilerTest {
     }
 
     @Test
-    fun `reconcile stays PENDING for a mixed benchmark when the ConfigMap is missing`() {
+    fun `reconcile persists PENDING for a mixed benchmark when the ConfigMap is missing`() {
         val benchmark = BenchmarkCRDummy("mixed-pending").getCR()
+        benchmark.metadata.namespace = NAMESPACE
         benchmark.spec.sut.resources = listOf(resourceSetsFor("cm-missing"), fileSystemResourceSet("/mnt/extra"))
         benchmark.spec.loadGenerator.resources = listOf(resourceSetsFor("cm-lg"))
+        createOnServer(benchmark)
 
         val context = mockContextWith(setOf(configMap("cm-lg"))) // cm-missing not present
-        val result = reconciler.reconcile(benchmark, context)
+        reconciler.reconcile(benchmark, context)
 
-        assertTrue(result.isNoUpdate) // PENDING→PENDING, no status change
+        assertEquals(BenchmarkState.PENDING, persistedState("mixed-pending"))
     }
 
     // ---- configMapNamesOf() tests --------------------------------------------------------------
@@ -227,6 +235,22 @@ internal class BenchmarkReconcilerTest {
 
     // ---- helpers -------------------------------------------------------------------------------
 
+    /** Creates the benchmark CR in the mock server so the reconciler can patch its status. */
+    private fun createOnServer(benchmark: BenchmarkCRD) {
+        server.client.resources(BenchmarkCRD::class.java)
+            .inNamespace(benchmark.metadata.namespace)
+            .resource(benchmark)
+            .create()
+    }
+
+    /** Reads the persisted `resourceSetsState` of the named benchmark back from the mock server. */
+    private fun persistedState(name: String): BenchmarkState? =
+        server.client.resources(BenchmarkCRD::class.java)
+            .inNamespace(NAMESPACE)
+            .withName(name)
+            .get()
+            ?.status?.resourceSetsState
+
     @Suppress("UNCHECKED_CAST")
     private fun mockContextWith(configMaps: Set<ConfigMap>): Context<BenchmarkCRD> {
         val context: Context<BenchmarkCRD> = mock()
@@ -240,6 +264,7 @@ internal class BenchmarkReconcilerTest {
         infrastructure: String? = null
     ): BenchmarkCRD {
         val base = BenchmarkCRDummy("test-benchmark").getCR()
+        base.metadata.namespace = NAMESPACE
         val spec = base.spec
         spec.sut.resources = listOfNotNull(sut?.let { resourceSetsFor(it) })
         spec.loadGenerator.resources = listOfNotNull(loadGenerator?.let { resourceSetsFor(it) })
