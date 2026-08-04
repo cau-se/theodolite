@@ -12,6 +12,8 @@ import kotlin.reflect.KFunction0
 
 private val logger = KotlinLogging.logger {}
 
+// TODO: retire this hand-rolled fabric8 leader election once quarkus-operator-sdk exposes JOSDK's
+//  built-in leader election (see the TODO on OperatorReadiness for the version/mechanism needed).
 class LeaderElector(
     val client: NamespacedKubernetesClient,
     val name: String

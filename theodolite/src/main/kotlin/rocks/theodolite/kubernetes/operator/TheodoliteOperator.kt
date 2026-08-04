@@ -37,8 +37,8 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
         // Leader election blocks its thread for as long as leadership is held. Run it off the
         // Quarkus StartupEvent thread so that observer returns and the quarkus-operator-sdk
         // startup observer (which runs after this one) can start the JOSDK reconcilers.
-        // This extra thread can be removed once this fabric8-based leader election is replaced
-        // by the operator-sdk's built-in leader election and this whole bootstrap goes away.
+        // TODO: this whole daemon-thread bootstrap, LeaderElector, and stopOperator() go away once
+        //  JOSDK's built-in leader election is adopted (see the TODO on OperatorReadiness).
         Thread {
             LeaderElector(
                 client = this.client,

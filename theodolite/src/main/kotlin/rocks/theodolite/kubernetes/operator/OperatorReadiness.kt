@@ -14,6 +14,13 @@ import java.util.concurrent.atomic.AtomicLong
  * anything either — closing the window where an execution could be selected/started before
  * cleanup finishes, by a non-leader instance, or by a former leader that hasn't noticed yet.
  */
+// TODO: JOSDK's built-in leader election (see https://javaoperatorsdk.io/docs/documentation/operations/leader-election/)
+//  exits the process on leadership loss instead of continuing to run, and requires a
+//  quarkus-operator-sdk/JOSDK-core upgrade beyond the pinned 6.6.7/4.8.2 (quarkusPlatformVersion
+//  in gradle.properties; check for a ConfigurationServiceCustomizer CDI hook to wire
+//  LeaderElectionConfiguration, since QOSDK still has no dedicated runtime properties for it as of
+//  7.8.0). Once adopted, drop beginTerm()/close()/the term guard here and LeaderElector.kt
+//  entirely; this class only needs to remain a one-shot "cleanup done" flag.
 @Unremovable
 @ApplicationScoped
 class OperatorReadiness {
