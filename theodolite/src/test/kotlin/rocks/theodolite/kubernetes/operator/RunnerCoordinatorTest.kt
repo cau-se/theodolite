@@ -136,4 +136,19 @@ class RunnerCoordinatorTest {
             server2.after()
         }
     }
+
+    @Test
+    fun `getReadiness returns a non-null singleton that starts closed`() {
+        val server2 = KubernetesServer(false, false)
+        server2.before()
+        try {
+            val operator = TheodoliteOperator(server2.client)
+            val first = operator.getReadiness()
+            assertNotNull(first)
+            assertSame(first, operator.getReadiness())
+            assert(!first.isReady())
+        } finally {
+            server2.after()
+        }
+    }
 }

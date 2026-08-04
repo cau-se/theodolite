@@ -18,7 +18,7 @@ class LeaderElector(
 ) {
 
     // TODO(what is the name of the lock? .withName() or LeaseLock(..,name..) ?)
-    fun getLeadership(leader: () -> Unit) {
+    fun getLeadership(leader: () -> Unit, stoppedLeading: () -> Unit = {}) {
         val lockIdentity: String = UUID.randomUUID().toString()
         DefaultKubernetesClient().use { kc ->
             kc.leaderElector()
@@ -31,7 +31,10 @@ class LeaderElector(
                         .withRetryPeriod(Duration.ofSeconds(2))
                         .withLeaderCallbacks(LeaderCallbacks(
                             { Thread { leader() }.start() },
-                            { logger.info { "Stop being the leading operator." } }
+                            {
+                                logger.info { "Stop being the leading operator." }
+                                stoppedLeading()
+                            }
                         ) { newLeader: String? ->
                             logger.info { "New leader elected: $newLeader" }
                         })

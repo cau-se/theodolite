@@ -41,6 +41,8 @@ internal class BenchmarkReconcilerTest {
         server.before()
         // The reconciler persists status through the fabric8 client (patchState workaround).
         reconciler.client = server.client
+        // Open by default so existing tests exercise reconcile() as if this were the leader.
+        reconciler.readiness = OperatorReadiness().apply { open() }
     }
 
     @AfterEach
@@ -153,6 +155,39 @@ internal class BenchmarkReconcilerTest {
         reconciler.reconcile(benchmark, context)
 
         assertEquals(BenchmarkState.PENDING, persistedState("mixed-pending"))
+    }
+
+    // ---- OperatorReadiness gate -----------------------------------------------------------
+
+    @Test
+    fun `reconcile does nothing and reschedules while the operator readiness gate is closed`() {
+        val benchmark = BenchmarkCRDummy("empty-benchmark").getCR()
+        benchmark.metadata.namespace = NAMESPACE
+        createOnServer(benchmark)
+        reconciler.readiness = OperatorReadiness() // closed: simulates a non-leader replica
+
+        val result = reconciler.reconcile(benchmark, mockContextWith(emptySet()))
+
+        assertTrue(result.isNoUpdate)
+        assertEquals(2000L, result.scheduleDelay.get())
+        assertEquals(null, persistedState("empty-benchmark"))
+    }
+
+    @Test
+    fun `reconcile becomes a no-op and reschedules once a previously open gate is closed`() {
+        // Simulates this replica losing leadership after having been the leader: the desired
+        // state (READY) must not be written once the gate closes.
+        val benchmark = benchmarkWithConfigMaps(sut = "cm-sut", loadGenerator = "cm-loadgen")
+        benchmark.status.resourceSetsState = BenchmarkState.PENDING
+        createOnServer(benchmark)
+        reconciler.readiness.close()
+
+        val context = mockContextWith(setOf(configMap("cm-sut"), configMap("cm-loadgen")))
+        val result = reconciler.reconcile(benchmark, context)
+
+        assertTrue(result.isNoUpdate)
+        assertEquals(2000L, result.scheduleDelay.get())
+        assertEquals(BenchmarkState.PENDING, persistedState(benchmark.metadata.name))
     }
 
     // ---- configMapNamesOf() tests --------------------------------------------------------------

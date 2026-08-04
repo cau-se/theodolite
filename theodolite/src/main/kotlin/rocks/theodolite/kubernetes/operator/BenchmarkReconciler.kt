@@ -54,6 +54,9 @@ class BenchmarkReconciler : Reconciler<BenchmarkCRD>, EventSourceInitializer<Ben
     @Inject
     lateinit var client: KubernetesClient
 
+    @Inject
+    lateinit var readiness: OperatorReadiness
+
     override fun prepareEventSources(
         context: EventSourceContext<BenchmarkCRD>
     ): Map<String, EventSource> {
@@ -88,6 +91,10 @@ class BenchmarkReconciler : Reconciler<BenchmarkCRD>, EventSourceInitializer<Ben
     ): UpdateControl<BenchmarkCRD> {
         val name = resource.metadata.name
         logger.debug { "Reconcile benchmark '$name'." }
+
+        if (!readiness.isReady()) {
+            return UpdateControl.noUpdate<BenchmarkCRD>().rescheduleAfter(OperatorReadiness.RETRY_INTERVAL)
+        }
 
         val desiredState = computeReadiness(resource, context)
         val currentState = resource.status.resourceSetsState

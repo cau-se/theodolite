@@ -77,6 +77,9 @@ class ExecutionReconciler :
     @Inject
     lateinit var client: KubernetesClient
 
+    @Inject
+    lateinit var readiness: OperatorReadiness
+
     override fun prepareEventSources(
         context: EventSourceContext<ExecutionCRD>
     ): Map<String, EventSource> {
@@ -122,6 +125,10 @@ class ExecutionReconciler :
     ): UpdateControl<ExecutionCRD> {
         val name = resource.metadata.name
         logger.debug { "Reconcile execution '$name'." }
+
+        if (!readiness.isReady()) {
+            return UpdateControl.noUpdate<ExecutionCRD>().rescheduleAfter(OperatorReadiness.RETRY_INTERVAL)
+        }
 
         // 1. Give a new execution its initial state.
         if (resource.status.executionState == ExecutionState.NO_STATE) {
