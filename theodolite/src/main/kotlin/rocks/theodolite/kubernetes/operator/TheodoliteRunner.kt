@@ -13,7 +13,7 @@ private val logger = KotlinLogging.logger {}
 /**
  * Manages the execution of Theodolite benchmarks on a dedicated single-thread executor.
  *
- * Provides the run/stop/isRunning interface used by [TheodoliteController].
+ * Provides the run/stop/isRunning interface used by [RunnerCoordinator].
  * Using a single-thread executor ensures at most one execution is active at any point.
  *
  * @param executorFactory factory for creating [TheodoliteExecutor] instances; override in tests.
