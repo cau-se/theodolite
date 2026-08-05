@@ -9,7 +9,8 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesServer
+
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import registerResource
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
 import rocks.theodolite.kubernetes.model.crd.ExecutionClient
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD

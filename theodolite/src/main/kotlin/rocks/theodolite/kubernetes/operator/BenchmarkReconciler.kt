@@ -5,12 +5,12 @@ import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
-import io.javaoperatorsdk.operator.api.config.informer.InformerConfiguration
+import io.javaoperatorsdk.operator.api.config.informer.Informer
+import io.javaoperatorsdk.operator.api.config.informer.InformerEventSourceConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.Constants
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.EventSourceContext
-import io.javaoperatorsdk.operator.api.reconciler.EventSourceInitializer
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl
 import io.javaoperatorsdk.operator.processing.event.ResourceID
@@ -42,8 +42,8 @@ private val logger = KotlinLogging.logger {}
  * Reconcile returns [UpdateControl.patchStatus] when the computed state differs from the
  * current CR status, and [UpdateControl.noUpdate] otherwise (idempotent).
  */
-@ControllerConfiguration(namespaces = [Constants.WATCH_CURRENT_NAMESPACE])
-class BenchmarkReconciler : Reconciler<BenchmarkCRD>, EventSourceInitializer<BenchmarkCRD> {
+@ControllerConfiguration(informer = Informer(namespaces = [Constants.WATCH_CURRENT_NAMESPACE]))
+class BenchmarkReconciler : Reconciler<BenchmarkCRD> {
 
     /**
      * Kubernetes client used for live pod/infrastructure checks inside [checkActionCommands].
@@ -59,9 +59,9 @@ class BenchmarkReconciler : Reconciler<BenchmarkCRD>, EventSourceInitializer<Ben
 
     override fun prepareEventSources(
         context: EventSourceContext<BenchmarkCRD>
-    ): Map<String, EventSource> {
+    ): List<EventSource<*, BenchmarkCRD>> {
         val configMapEventSource = InformerEventSource(
-            InformerConfiguration.from(ConfigMap::class.java, context)
+            InformerEventSourceConfiguration.from(ConfigMap::class.java, BenchmarkCRD::class.java)
                 // Benchmark → ConfigMaps: enables getSecondaryResources(ConfigMap) in reconcile.
                 .withPrimaryToSecondaryMapper(
                     PrimaryToSecondaryMapper { benchmark: BenchmarkCRD ->
@@ -82,7 +82,7 @@ class BenchmarkReconciler : Reconciler<BenchmarkCRD>, EventSourceInitializer<Ben
                 .build(),
             context
         )
-        return EventSourceInitializer.nameEventSources(configMapEventSource)
+        return listOf(configMapEventSource)
     }
 
     override fun reconcile(

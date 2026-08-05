@@ -2,14 +2,14 @@ package rocks.theodolite.kubernetes.operator
 
 import io.fabric8.kubernetes.api.model.MicroTime
 import io.fabric8.kubernetes.client.KubernetesClient
-import io.javaoperatorsdk.operator.api.config.informer.InformerConfiguration
+import io.javaoperatorsdk.operator.api.config.informer.Informer
+import io.javaoperatorsdk.operator.api.config.informer.InformerEventSourceConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.Cleaner
 import io.javaoperatorsdk.operator.api.reconciler.Constants
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.DeleteControl
 import io.javaoperatorsdk.operator.api.reconciler.EventSourceContext
-import io.javaoperatorsdk.operator.api.reconciler.EventSourceInitializer
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl
 import io.javaoperatorsdk.operator.processing.event.ResourceID
@@ -61,11 +61,10 @@ private val DURATION_REFRESH_INTERVAL: Duration = Duration.ofSeconds(1)
  * executions.  Implementing [Cleaner] registers a finalizer so that deleting a running execution
  * stops the runner cleanly before the CR is removed.
  */
-@ControllerConfiguration(namespaces = [Constants.WATCH_CURRENT_NAMESPACE])
+@ControllerConfiguration(informer = Informer(namespaces = [Constants.WATCH_CURRENT_NAMESPACE]))
 class ExecutionReconciler :
     Reconciler<ExecutionCRD>,
-    Cleaner<ExecutionCRD>,
-    EventSourceInitializer<ExecutionCRD> {
+    Cleaner<ExecutionCRD> {
 
     @Inject
     lateinit var coordinator: RunnerCoordinator
@@ -82,9 +81,9 @@ class ExecutionReconciler :
 
     override fun prepareEventSources(
         context: EventSourceContext<ExecutionCRD>
-    ): Map<String, EventSource> {
+    ): List<EventSource<*, ExecutionCRD>> {
         val benchmarkEventSource = InformerEventSource(
-            InformerConfiguration.from(BenchmarkCRD::class.java, context)
+            InformerEventSourceConfiguration.from(BenchmarkCRD::class.java, ExecutionCRD::class.java)
                 // Execution → Benchmark: enables getSecondaryResource(BenchmarkCRD) in reconcile.
                 .withPrimaryToSecondaryMapper(
                     PrimaryToSecondaryMapper { execution: ExecutionCRD ->
@@ -116,7 +115,7 @@ class ExecutionReconciler :
         )
         val triggerEventSource = ExecutionEventSource()
         coordinator.registerTrigger(triggerEventSource)
-        return EventSourceInitializer.nameEventSources(benchmarkEventSource, triggerEventSource)
+        return listOf(benchmarkEventSource, triggerEventSource)
     }
 
     override fun reconcile(

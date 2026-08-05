@@ -5,7 +5,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder
 import io.fabric8.kubernetes.api.model.HasMetadata
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesServer
+
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer

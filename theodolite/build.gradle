@@ -54,8 +54,8 @@ group 'theodolite'
 version '0.11.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 allOpen {
@@ -65,12 +65,12 @@ allOpen {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
     kotlinOptions.javaParameters = true
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
 }
 
 test {
