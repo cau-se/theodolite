@@ -5,9 +5,12 @@ import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder
 import io.fabric8.kubernetes.api.model.PodBuilder
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.kubernetes.client.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -26,21 +29,32 @@ import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 
 @QuarkusTest
+@WithKubernetesTestServer(crud = true, https = false)
 internal class BenchmarkReconcilerTest {
 
-    /** CRUD-mode mock server used for action-command tests that need real k8s objects. */
-    private val server = KubernetesServer(false, true)
+    private companion object {
+        const val NAMESPACE = "test"
+    }
 
+    @KubernetesTestServer
+    lateinit var server: KubernetesServer
     private val reconciler = BenchmarkReconciler()
 
     @BeforeEach
     fun setUp() {
-        server.before()
+        server.kubernetesMockServer.expectCustomResource(
+            CustomResourceDefinitionContext.fromCustomResourceType(BenchmarkCRD::class.java)
+        )
+        // Live pod/infrastructure checks in checkActionCommands() go through this client.
+        reconciler.client = server.client
+        // Open by default so existing tests exercise reconcile() as if this were the leader.
+        reconciler.readiness = OperatorReadiness().apply { open() }
     }
 
+    // The Quarkus test server is shared across the class; reset CRUD state for per-test isolation.
     @AfterEach
     fun tearDown() {
-        server.after()
+        server.kubernetesMockServer.reset()
     }
 
     // ---- reconcile() tests: ConfigMap-based readiness -----------------------------------------
@@ -51,12 +65,11 @@ internal class BenchmarkReconcilerTest {
         benchmark.metadata.name = "bare-benchmark"
         // spec fields are not set (lateinit) – computeReadiness must not throw
 
-        val context = mockContextWith(emptySet())
-        val result = reconciler.reconcile(benchmark, context)
+        val result = reconciler.reconcile(benchmark, mockContextWith(emptySet()))
 
         // A freshly applied benchmark has no persisted status (null); desired PENDING is written.
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.PENDING, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.PENDING, benchmark.status.resourceSetsState)
     }
 
     @Test
@@ -64,11 +77,10 @@ internal class BenchmarkReconcilerTest {
         // BenchmarkCRDummy has no resources → empty SUT/loadGen ConfigMap lists → PENDING
         val benchmark = BenchmarkCRDummy("empty-benchmark").getCR()
 
-        val context = mockContextWith(emptySet())
-        val result = reconciler.reconcile(benchmark, context)
+        val result = reconciler.reconcile(benchmark, mockContextWith(emptySet()))
 
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.PENDING, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.PENDING, benchmark.status.resourceSetsState)
     }
 
     @Test
@@ -80,7 +92,7 @@ internal class BenchmarkReconcilerTest {
 
         // Desired = READY, current = PENDING (default) → patchStatus
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.READY, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.READY, benchmark.status.resourceSetsState)
     }
 
     @Test
@@ -104,7 +116,7 @@ internal class BenchmarkReconcilerTest {
 
         // Desired = PENDING, current = null (no persisted status) → PENDING is written.
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.PENDING, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.PENDING, benchmark.status.resourceSetsState)
     }
 
     @Test
@@ -117,7 +129,7 @@ internal class BenchmarkReconcilerTest {
         val result = reconciler.reconcile(benchmark, context)
 
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.PENDING, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.PENDING, benchmark.status.resourceSetsState)
     }
 
     @Test
@@ -132,7 +144,7 @@ internal class BenchmarkReconcilerTest {
         val result = reconciler.reconcile(benchmark, context)
 
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.READY, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.READY, benchmark.status.resourceSetsState)
     }
 
     @Test
@@ -145,7 +157,7 @@ internal class BenchmarkReconcilerTest {
         val result = reconciler.reconcile(benchmark, context)
 
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.READY, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.READY, benchmark.status.resourceSetsState)
     }
 
     @Test
@@ -158,7 +170,40 @@ internal class BenchmarkReconcilerTest {
         val result = reconciler.reconcile(benchmark, context)
 
         assertFalse(result.isNoUpdate)
-        assertEquals(BenchmarkState.PENDING, result.resource!!.status.resourceSetsState)
+        assertEquals(BenchmarkState.PENDING, benchmark.status.resourceSetsState)
+    }
+
+    // ---- OperatorReadiness gate -----------------------------------------------------------
+
+    @Test
+    fun `reconcile does nothing and reschedules while the operator readiness gate is closed`() {
+        val benchmark = BenchmarkCRDummy("empty-benchmark").getCR()
+        benchmark.metadata.namespace = NAMESPACE
+        createOnServer(benchmark)
+        reconciler.readiness = OperatorReadiness() // closed: simulates a non-leader replica
+
+        val result = reconciler.reconcile(benchmark, mockContextWith(emptySet()))
+
+        assertTrue(result.isNoUpdate)
+        assertEquals(2000L, result.scheduleDelay.get())
+        assertEquals(null, persistedState("empty-benchmark"))
+    }
+
+    @Test
+    fun `reconcile becomes a no-op and reschedules once a previously open gate is closed`() {
+        // Simulates this replica losing leadership after having been the leader: the desired
+        // state (READY) must not be written once the gate closes.
+        val benchmark = benchmarkWithConfigMaps(sut = "cm-sut", loadGenerator = "cm-loadgen")
+        benchmark.status.resourceSetsState = BenchmarkState.PENDING
+        createOnServer(benchmark)
+        reconciler.readiness.close()
+
+        val context = mockContextWith(setOf(configMap("cm-sut"), configMap("cm-loadgen")))
+        val result = reconciler.reconcile(benchmark, context)
+
+        assertTrue(result.isNoUpdate)
+        assertEquals(2000L, result.scheduleDelay.get())
+        assertEquals(BenchmarkState.PENDING, persistedState(benchmark.metadata.name))
     }
 
     // ---- configMapNamesOf() tests --------------------------------------------------------------
@@ -240,6 +285,24 @@ internal class BenchmarkReconcilerTest {
     }
 
     // ---- helpers -------------------------------------------------------------------------------
+
+    /** Creates the benchmark CR in the mock server so a gated-out reconcile can be observed. */
+    private fun createOnServer(benchmark: BenchmarkCRD) {
+        benchmark.metadata.namespace = NAMESPACE
+        server.client.resources(BenchmarkCRD::class.java)
+            .inNamespace(NAMESPACE)
+            .resource(benchmark)
+            .create()
+    }
+
+    /** Reads the persisted `resourceSetsState` of the named benchmark back from the mock server. */
+    private fun persistedState(name: String): BenchmarkState? =
+        server.client.resources(BenchmarkCRD::class.java)
+            .inNamespace(NAMESPACE)
+            .withName(name)
+            .get()
+            .status
+            .resourceSetsState
 
     @Suppress("UNCHECKED_CAST")
     private fun mockContextWith(configMaps: Set<ConfigMap>): Context<BenchmarkCRD> {

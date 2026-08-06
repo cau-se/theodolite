@@ -4,7 +4,8 @@ import io.fabric8.kubernetes.api.model.*
 import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesServer
+
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.io.TempDir
-import registerResource
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import java.io.FileInputStream

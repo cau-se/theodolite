@@ -20,10 +20,74 @@ internal class ExecutionReconcilerTest {
     private fun reconcilerWith(coordinator: RunnerCoordinator): ExecutionReconciler {
         val reconciler = ExecutionReconciler()
         reconciler.coordinator = coordinator
+        // Open by default so existing tests exercise reconcile() as if this were the leader.
+        reconciler.readiness = OperatorReadiness().apply { open() }
         return reconciler
     }
 
     private fun context(): Context<ExecutionCRD> = mock()
+
+    // ---- OperatorReadiness gate -----------------------------------------------------------
+
+    @Test
+    fun `reconcile does nothing and reschedules while the operator readiness gate is closed`() {
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.NO_STATE
+        val coordinator = mock<RunnerCoordinator>()
+        val reconciler = reconcilerWith(coordinator)
+        reconciler.readiness = OperatorReadiness() // closed: simulates a non-leader replica
+
+        val result = reconciler.reconcile(execution, context())
+
+        assertTrue(result.isNoUpdate)
+        assertEquals(2000L, result.scheduleDelay.get())
+        assertEquals(ExecutionState.NO_STATE, execution.status.executionState)
+        verify(coordinator, never()).triggerSelection()
+    }
+
+    @Test
+    fun `reconcile becomes a no-op and reschedules once a previously open gate is closed`() {
+        // Simulates this replica losing leadership after having been the leader: no status write
+        // and no selection must happen once the gate closes.
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.NO_STATE
+        val coordinator = mock<RunnerCoordinator>()
+        val reconciler = reconcilerWith(coordinator) // readiness open by default
+        reconciler.readiness.close()
+
+        val result = reconciler.reconcile(execution, context())
+
+        assertTrue(result.isNoUpdate)
+        assertEquals(2000L, result.scheduleDelay.get())
+        assertEquals(ExecutionState.NO_STATE, execution.status.executionState)
+        verify(coordinator, never()).triggerSelection()
+    }
+
+    @Test
+    fun `only the instance whose readiness gate is open selects and starts an execution`() {
+        // Simulates a leader and a non-leader replica reconciling the same execution against the
+        // same cluster state: only the "leader" (gate open) may trigger selection or mutate a
+        // status; the "non-leader" (gate closed) must be a complete no-op.
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.NO_STATE
+
+        val leaderCoordinator = mock<RunnerCoordinator>()
+        val leader = reconcilerWith(leaderCoordinator) // readiness open by default
+
+        val nonLeaderCoordinator = mock<RunnerCoordinator>()
+        val nonLeader = reconcilerWith(nonLeaderCoordinator)
+        nonLeader.readiness = OperatorReadiness()
+
+        val nonLeaderResult = nonLeader.reconcile(execution, context())
+        assertTrue(nonLeaderResult.isNoUpdate)
+        assertEquals(ExecutionState.NO_STATE, execution.status.executionState)
+        verify(nonLeaderCoordinator, never()).triggerSelection()
+
+        val leaderResult = leader.reconcile(execution, context())
+        assertFalse(leaderResult.isNoUpdate)
+        assertEquals(ExecutionState.PENDING, execution.status.executionState)
+        verify(leaderCoordinator).triggerSelection()
+    }
 
     @Test
     fun `reconcile assigns initial PENDING state to a new execution`() {
@@ -35,6 +99,21 @@ internal class ExecutionReconcilerTest {
 
         assertFalse(result.isNoUpdate)
         assertEquals(ExecutionState.PENDING, execution.status.executionState)
+    }
+
+    @Test
+    fun `reconcile triggers selection immediately for a newly PENDING execution`() {
+        // A status-only patch does not bump `metadata.generation`, so JOSDK's generation-aware
+        // processing would filter out the resulting primary-informer event and never call
+        // reconcile again for this resource. Selection must therefore be triggered inline here,
+        // otherwise an execution whose benchmark is already READY would never be picked up.
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.NO_STATE
+        val coordinator = mock<RunnerCoordinator>()
+
+        reconcilerWith(coordinator).reconcile(execution, context())
+
+        verify(coordinator).triggerSelection()
     }
 
     @Test
@@ -106,13 +185,17 @@ internal class ExecutionReconcilerTest {
 
         val result = reconcilerWith(coordinator).reconcile(execution, context())
 
-        assertFalse(result.isNoUpdate)
         assertEquals(ExecutionState.RUNNING, execution.status.executionState)
         assertEquals(start.toString(), execution.status.startTime?.time)
+        // This first RUNNING patch must reschedule too (not just later reconciles): it is a
+        // status-only patch (no `metadata.generation` bump), so without an explicit reschedule
+        // here nothing would ever call reconcile() again for this resource.
+        assertFalse(result.isNoUpdate)
+        assertEquals(1000L, result.scheduleDelay.get())
     }
 
     @Test
-    fun `reconcile is a no-op for the active execution once RUNNING is set`() {
+    fun `reconcile re-patches and reschedules to refresh duration once RUNNING is set`() {
         val execution = ExecutionCRDummy("exec", "bench").getCR()
         execution.status.executionState = ExecutionState.RUNNING
         val coordinator = mock<RunnerCoordinator> {
@@ -121,7 +204,47 @@ internal class ExecutionReconcilerTest {
 
         val result = reconcilerWith(coordinator).reconcile(execution, context())
 
-        assertTrue(result.isNoUpdate)
+        // No status field changes, but the status is still patched and rescheduled so
+        // `executionDuration` -- which kubectl surfaces via a printer column but cannot compute
+        // itself -- keeps refreshing for as long as the execution stays RUNNING.
+        assertFalse(result.isNoUpdate)
+        assertEquals(1000L, result.scheduleDelay.get())
+    }
+
+    @Test
+    fun `reconcile keeps re-patching and rescheduling across repeated invocations while RUNNING`() {
+        // Traces the self-sustaining loop end to end by manually simulating what JOSDK does with
+        // the returned `rescheduleAfter`: invoke reconcile() again with the same RUNNING resource.
+        // Regression test for a bug where the *first* RUNNING patch didn't reschedule, so the loop
+        // never started and `executionDuration` stayed frozen at its initial value.
+        val execution = ExecutionCRDummy("exec", "bench").getCR()
+        execution.status.executionState = ExecutionState.PENDING
+        val start = Instant.parse("2026-01-01T00:00:00Z")
+        val coordinator = mock<RunnerCoordinator> {
+            on { activeExecutionName() }.thenReturn("exec")
+            on { activeStartTime() }.thenReturn(start)
+        }
+        val reconciler = reconcilerWith(coordinator)
+
+        // Round 1: PENDING -> RUNNING.
+        val first = reconciler.reconcile(execution, context())
+        assertFalse(first.isNoUpdate)
+        assertEquals(1000L, first.scheduleDelay.get())
+        assertEquals(ExecutionState.RUNNING, execution.status.executionState)
+
+        // Round 2: simulates the framework re-invoking reconcile() after the scheduled delay,
+        // passing the now-RUNNING resource back in. Must still be rescheduled -- this is the
+        // branch that previously existed but was unreachable because round 1 never rescheduled.
+        val second = reconciler.reconcile(execution, context())
+        assertFalse(second.isNoUpdate)
+        assertEquals(1000L, second.scheduleDelay.get())
+        assertEquals(ExecutionState.RUNNING, execution.status.executionState)
+
+        // Round 3: the loop must keep going indefinitely, not just once more.
+        val third = reconciler.reconcile(execution, context())
+        assertFalse(third.isNoUpdate)
+        assertEquals(1000L, third.scheduleDelay.get())
+        assertEquals(ExecutionState.RUNNING, execution.status.executionState)
     }
 
     @Test
