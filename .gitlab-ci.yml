@@ -663,7 +663,7 @@ smoketest-uc4-hazelcastjet:
 
 .theodolite:
   image:
-    name: ghcr.io/graalvm/native-image-community:21
+    name: quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21
     entrypoint: [""]
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
