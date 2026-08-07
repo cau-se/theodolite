@@ -52,7 +52,6 @@ class ClusterSetup(
                     .firstOrNull { it.metadata.name == execution.spec.benchmark }
 
                 if (benchmark != null) {
-                    execution.spec.name = execution.metadata.name
                     benchmark.spec.name = benchmark.metadata.name
                     Shutdown(execution.spec, benchmark.spec, client).run()
                 } else {

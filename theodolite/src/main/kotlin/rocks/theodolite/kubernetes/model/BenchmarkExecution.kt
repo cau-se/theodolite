@@ -12,7 +12,6 @@ import kotlin.properties.Delegates
  * This class represents the configuration for an execution of a benchmark.
  * An example for this is the BenchmarkExecution.yaml
  * A BenchmarkExecution consists of:
- *  - A [name].
  *  - The [benchmark] that should be executed.
  *  - The [load]s that should be checked in the benchmark.
  *  - The [resources] that should be checked in the benchmark.
@@ -27,7 +26,6 @@ import kotlin.properties.Delegates
 @RegisterForReflection
 class BenchmarkExecution : KubernetesResource {
     var executionId: Int = 0
-    lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition
     lateinit var resources: ResourceDefinition
