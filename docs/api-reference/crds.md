@@ -2325,15 +2325,6 @@ The fileSystem resourceSet loads the Kubernetes manifests from the filesystem.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.<br/>
-          <br/>
-            <i>Default</i>: <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b><a href="#executionspecslisindex">slis</a></b></td>
         <td>[]object</td>
         <td>

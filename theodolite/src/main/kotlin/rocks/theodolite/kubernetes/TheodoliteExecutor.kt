@@ -23,6 +23,7 @@ private val logger = KotlinLogging.logger {}
  * @constructor Create empty Theodolite executor
  */
 class TheodoliteExecutor(
+    private val executionName: String,
     private val benchmarkExecution: BenchmarkExecution,
     private val benchmark: KubernetesBenchmark,
     private val client: NamespacedKubernetesClient
@@ -77,7 +78,7 @@ class TheodoliteExecutor(
                 executionId = benchmarkExecution.executionId,
                 loadGenerationDelay = benchmarkExecution.execution.loadGenerationDelay,
                 afterTeardownDelay = benchmarkExecution.execution.afterTeardownDelay,
-                executionName = benchmarkExecution.name,
+                executionName = executionName,
                 loadPatcherDefinitions = loadDimensionPatcherDefinition,
                 resourcePatcherDefinitions = resourcePatcherDefinition,
                 waitForResourcesEnabled = this.benchmark.waitForResourcesEnabled
@@ -177,5 +178,9 @@ class TheodoliteExecutor(
 
     fun getExecution(): BenchmarkExecution {
         return this.benchmarkExecution
+    }
+
+    fun getExecutionName(): String {
+        return this.executionName
     }
 }

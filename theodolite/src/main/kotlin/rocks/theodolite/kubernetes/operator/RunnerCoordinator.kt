@@ -130,10 +130,11 @@ class RunnerCoordinator {
 
         val spec = execution.spec
         runner.start(
+            executionName = name,
             execution = spec,
             benchmark = benchmark,
             client = namespacedClient(),
-            beforeRun = { applyLabels(spec, benchmark) },
+            beforeRun = { applyLabels(name, spec, benchmark) },
             isCancelled = { respecStops.contains(name) || deletionStops.contains(name) }
         ) { error -> onRunComplete(name, startTime, error) }
     }
@@ -226,7 +227,6 @@ class RunnerCoordinator {
 
         val candidate = listExecutions()
             .asSequence()
-            .map { it.spec.name = it.metadata.name; it }
             .filter {
                 it.status.executionState == ExecutionState.PENDING ||
                     it.status.executionState == ExecutionState.RUNNING
@@ -246,7 +246,7 @@ class RunnerCoordinator {
      * Applies the Theodolite ownership labels to the SUT and load-generator resources so that
      * they can be cleaned up per execution/benchmark.
      */
-    private fun applyLabels(execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
+    private fun applyLabels(executionName: String, execution: BenchmarkExecution, benchmark: KubernetesBenchmark) {
         val c = namespacedClient()
         val modifier = ConfigOverrideModifier(
             execution = execution,
@@ -254,7 +254,7 @@ class RunnerCoordinator {
                 loadKubernetesResources(benchmark.loadGenerator.resources, c).map { it.first }
         )
         modifier.setAdditionalLabels(
-            labelValue = execution.name,
+            labelValue = executionName,
             labelName = DEPLOYED_FOR_EXECUTION_LABEL_NAME
         )
         modifier.setAdditionalLabels(

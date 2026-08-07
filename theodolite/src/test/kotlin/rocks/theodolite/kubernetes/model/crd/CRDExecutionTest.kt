@@ -52,7 +52,6 @@ internal class CRDExecutionTest {
           val execution = executionClient.load(ClassLoader.getSystemResourceAsStream("k8s-resource-files/test-execution.yaml")).create().spec
 
           assertEquals(0, execution.executionId)
-          assertEquals("test", execution.name)
           assertEquals("uc1-kstreams", execution.benchmark)
           assertEquals(mutableListOf<ConfigurationOverride?>(), execution.configOverrides)
 

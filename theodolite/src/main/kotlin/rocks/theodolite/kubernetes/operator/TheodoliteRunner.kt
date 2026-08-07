@@ -19,8 +19,8 @@ private val logger = KotlinLogging.logger {}
  * @param executorFactory factory for creating [TheodoliteExecutor] instances; override in tests.
  */
 class TheodoliteRunner(
-    private val executorFactory: (BenchmarkExecution, KubernetesBenchmark, NamespacedKubernetesClient) -> TheodoliteExecutor =
-        { execution, benchmark, client -> TheodoliteExecutor(execution, benchmark, client) }
+    private val executorFactory: (String, BenchmarkExecution, KubernetesBenchmark, NamespacedKubernetesClient) -> TheodoliteExecutor =
+        { executionName, execution, benchmark, client -> TheodoliteExecutor(executionName, execution, benchmark, client) }
 ) {
     private val threadExecutor = Executors.newSingleThreadExecutor()
 
@@ -37,13 +37,14 @@ class TheodoliteRunner(
      *     is unwrapped so callers see the original exception type.
      */
     fun run(
+        executionName: String,
         execution: BenchmarkExecution,
         benchmark: KubernetesBenchmark,
         client: NamespacedKubernetesClient,
         onComplete: () -> Unit = {}
     ) {
         val future = threadExecutor.submit {
-            val executor = executorFactory(execution, benchmark, client)
+            val executor = executorFactory(executionName, execution, benchmark, client)
             currentExecutor = executor
             try {
                 executor.setupAndRunExecution()
@@ -77,6 +78,7 @@ class TheodoliteRunner(
      * completed.
      */
     fun start(
+        executionName: String,
         execution: BenchmarkExecution,
         benchmark: KubernetesBenchmark,
         client: NamespacedKubernetesClient,
@@ -91,7 +93,7 @@ class TheodoliteRunner(
                     if (isCancelled()) {
                         return@submit
                     }
-                    executorFactory(execution, benchmark, client).also { currentExecutor = it }
+                    executorFactory(executionName, execution, benchmark, client).also { currentExecutor = it }
                 }
                 try {
                     beforeRun()
@@ -120,7 +122,7 @@ class TheodoliteRunner(
      * Returns true if the execution with the given name is currently running.
      */
     fun isRunning(executionName: String): Boolean {
-        return currentExecutor?.getExecution()?.name == executionName
+        return currentExecutor?.getExecutionName() == executionName
     }
 
     /**

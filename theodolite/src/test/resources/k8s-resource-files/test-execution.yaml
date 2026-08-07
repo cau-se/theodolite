@@ -3,7 +3,6 @@ kind: execution
 metadata:
   name: example-execution
 spec:
-  name: test
   benchmark: "uc1-kstreams"
   load:
     loadType: "NumSensors"
