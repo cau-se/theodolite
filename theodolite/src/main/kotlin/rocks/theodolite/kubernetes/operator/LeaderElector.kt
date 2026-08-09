@@ -12,13 +12,15 @@ import kotlin.reflect.KFunction0
 
 private val logger = KotlinLogging.logger {}
 
+// TODO: retire this hand-rolled fabric8 leader election once quarkus-operator-sdk exposes JOSDK's
+//  built-in leader election (see the TODO on OperatorReadiness for the version/mechanism needed).
 class LeaderElector(
     val client: NamespacedKubernetesClient,
     val name: String
 ) {
 
     // TODO(what is the name of the lock? .withName() or LeaseLock(..,name..) ?)
-    fun getLeadership(leader: () -> Unit) {
+    fun getLeadership(leader: () -> Unit, stoppedLeading: () -> Unit = {}) {
         val lockIdentity: String = UUID.randomUUID().toString()
         DefaultKubernetesClient().use { kc ->
             kc.leaderElector()
@@ -31,7 +33,10 @@ class LeaderElector(
                         .withRetryPeriod(Duration.ofSeconds(2))
                         .withLeaderCallbacks(LeaderCallbacks(
                             { Thread { leader() }.start() },
-                            { logger.info { "Stop being the leading operator." } }
+                            {
+                                logger.info { "Stop being the leading operator." }
+                                stoppedLeading()
+                            }
                         ) { newLeader: String? ->
                             logger.info { "New leader elected: $newLeader" }
                         })

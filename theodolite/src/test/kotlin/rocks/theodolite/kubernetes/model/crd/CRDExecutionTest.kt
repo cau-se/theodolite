@@ -11,10 +11,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
-import rocks.theodolite.kubernetes.operator.ExecutionEventHandler
-import rocks.theodolite.kubernetes.operator.ExecutionStateHandler
-import rocks.theodolite.kubernetes.operator.TheodoliteController
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import java.io.FileInputStream
 
@@ -31,12 +27,6 @@ internal class CRDExecutionTest {
 
      lateinit var executionClient: ExecutionClient
 
-     lateinit var controller: TheodoliteController
-
-     lateinit var stateHandler: ExecutionStateHandler
-
-     lateinit var eventHandler: ExecutionEventHandler
-
      @BeforeEach
      fun setUp() {
           server.before()
@@ -48,10 +38,6 @@ internal class CRDExecutionTest {
                   .create()
 
           this.executionClient = this.server.client.resources(ExecutionCRD::class.java)
-
-          this.controller = mock()
-          this.stateHandler = ExecutionStateHandler(server.client)
-          this.eventHandler = ExecutionEventHandler(this.controller, this.stateHandler)
      }
 
      @AfterEach

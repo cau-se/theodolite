@@ -12,7 +12,6 @@ import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.operator.TheodoliteOperator
-import rocks.theodolite.kubernetes.standalone.TheodoliteStandalone
 
 private val LOGGER = KotlinLogging.logger {}
 
@@ -42,10 +41,6 @@ object Theodolite {
                 val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
 
                 when (mode.lowercase()) {
-                    ExecutionModes.STANDALONE.value -> {
-                        LOGGER.error { "Theodolite's standalone mode is deprecated and will be removed in future versions." }
-                        TheodoliteStandalone(client).start()
-                    }
                     ExecutionModes.OPERATOR.value -> TheodoliteOperator(client).start()
                     else -> {
                         LOGGER.error { "MODE $mode not found" }

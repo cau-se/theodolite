@@ -6,6 +6,8 @@ import io.fabric8.kubernetes.client.server.mock.KubernetesServer
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -13,11 +15,11 @@ import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 import rocks.theodolite.kubernetes.model.crd.*
 
-
 @QuarkusTest
-class ControllerTest {
-    private final val server = KubernetesServer(false, false)
-    lateinit var controller: TheodoliteController
+class RunnerCoordinatorTest {
+
+    private val server = KubernetesServer(false, false)
+    private lateinit var coordinator: RunnerCoordinator
     private val mapper = ObjectMapper()
 
     private var benchmark = KubernetesBenchmark()
@@ -26,15 +28,13 @@ class ControllerTest {
     private val benchmarkResourceList = CustomResourceList<BenchmarkCRD>()
     private val executionResourceList = CustomResourceList<ExecutionCRD>()
 
-
     @BeforeEach
     fun setUp() {
         server.before()
-        val operator = TheodoliteOperator(server.client)
-        this.controller = operator.getController(
-            executionStateHandler = operator.getExecutionStateHandler(),
-            benchmarkStateChecker = operator.getBenchmarkStateChecker()
-        )
+
+        // Use the public no-arg constructor and set the client directly (not the CDI-managed instance).
+        this.coordinator = RunnerCoordinator()
+        this.coordinator.client = server.client
 
         // benchmark
         val benchmark1 = BenchmarkCRDummy(name = "Test-Benchmark")
@@ -72,13 +72,9 @@ class ControllerTest {
     }
 
     @Test
-    @DisplayName("Check namespaced property of benchmarkCRDClient")
+    @DisplayName("Check namespaced property of benchmark client")
     fun testBenchmarkClientNamespaced() {
-        val method = controller
-            .javaClass
-            .getDeclaredMethod("getBenchmarks")
-        method.isAccessible = true
-        method.invoke(controller)
+        coordinator.getBenchmarks()
 
         assert(
             server
@@ -89,13 +85,9 @@ class ControllerTest {
     }
 
     @Test
-    @DisplayName("Check namespaced property of executionCRDClient")
+    @DisplayName("Check namespaced property of execution client")
     fun testExecutionClientNamespaced() {
-        val method = controller
-            .javaClass
-            .getDeclaredMethod("getNextExecution")
-        method.isAccessible = true
-        method.invoke(controller)
+        coordinator.selectNext()
 
         assert(
             server
@@ -107,13 +99,7 @@ class ControllerTest {
 
     @Test
     fun getBenchmarksTest() {
-        val method = controller
-            .javaClass
-            .getDeclaredMethod("getBenchmarks")
-        method.isAccessible = true
-
-        @Suppress("UNCHECKED_CAST")
-        val result = method.invoke(controller) as List<BenchmarkCRD>
+        val result = coordinator.getBenchmarks()
 
         assertEquals(2, result.size)
         assertEquals(
@@ -123,17 +109,46 @@ class ControllerTest {
     }
 
     @Test
-    fun getNextExecution() {
-        val method = controller
-            .javaClass
-            .getDeclaredMethod("getNextExecution")
-        method.isAccessible = true
-
-        val result = method.invoke(controller) as BenchmarkExecution?
+    fun `selectNext returns the oldest matching execution with a ready benchmark`() {
+        val result = coordinator.selectNext()
 
         assertEquals(
             mapper.writeValueAsString(this.execution),
-            mapper.writeValueAsString(result)
+            mapper.writeValueAsString(result?.first?.spec)
         )
+    }
+
+    @Test
+    fun `isRunning returns false when no execution is active`() {
+        assert(!coordinator.isRunning("any-execution"))
+    }
+
+    @Test
+    fun `getCoordinator returns a non-null singleton`() {
+        val server2 = KubernetesServer(false, false)
+        server2.before()
+        try {
+            val operator = TheodoliteOperator(server2.client)
+            val first = operator.getCoordinator()
+            assertNotNull(first)
+            assertSame(first, operator.getCoordinator())
+        } finally {
+            server2.after()
+        }
+    }
+
+    @Test
+    fun `getReadiness returns a non-null singleton that starts closed`() {
+        val server2 = KubernetesServer(false, false)
+        server2.before()
+        try {
+            val operator = TheodoliteOperator(server2.client)
+            val first = operator.getReadiness()
+            assertNotNull(first)
+            assertSame(first, operator.getReadiness())
+            assert(!first.isReady())
+        } finally {
+            server2.after()
+        }
     }
 }

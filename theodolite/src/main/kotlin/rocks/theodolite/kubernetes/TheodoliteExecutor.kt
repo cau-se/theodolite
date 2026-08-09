@@ -165,6 +165,16 @@ class TheodoliteExecutor(
         return xValues.map { listOf(it.toString(), results.getOptimalYValue(it).toString()) }
     }
 
+    /**
+     * Signals the currently running experiment to stop by setting the run flag to false.
+     * Has no effect if the experiment runner has not been initialized yet.
+     */
+    fun stop() {
+        if (::experimentRunner.isInitialized) {
+            experimentRunner.run.set(false)
+        }
+    }
+
     fun getExecution(): BenchmarkExecution {
         return this.benchmarkExecution
     }
