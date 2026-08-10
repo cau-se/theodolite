@@ -1,7 +1,6 @@
 package rocks.theodolite.kubernetes.operator
 
 import io.fabric8.kubernetes.api.model.MicroTime
-import io.fabric8.kubernetes.client.KubernetesClient
 import io.javaoperatorsdk.operator.api.config.informer.Informer
 import io.javaoperatorsdk.operator.api.config.informer.InformerEventSourceConfiguration
 import io.javaoperatorsdk.operator.api.reconciler.Cleaner
@@ -22,7 +21,6 @@ import mu.KotlinLogging
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionState
-import rocks.theodolite.kubernetes.model.crd.ExecutionStatus
 import java.time.Duration
 import java.time.Instant
 
@@ -68,13 +66,6 @@ class ExecutionReconciler :
 
     @Inject
     lateinit var coordinator: RunnerCoordinator
-
-    /**
-     * Kubernetes client used to persist status through [patchStatus] rather than through
-     * [UpdateControl.patchStatus]. Set automatically by CDI in production; set directly in tests.
-     */
-    @Inject
-    lateinit var client: KubernetesClient
 
     @Inject
     lateinit var readiness: OperatorReadiness
@@ -132,14 +123,14 @@ class ExecutionReconciler :
         // 1. Give a new execution its initial state.
         if (resource.status.executionState == ExecutionState.NO_STATE) {
             logger.info { "Execution '$name': initial state → ${ExecutionState.PENDING.value}." }
-            patchStatus(resource) { it.executionState = ExecutionState.PENDING }
+            resource.status.executionState = ExecutionState.PENDING
             // Ask the coordinator to (re)select immediately: this status patch only changes
             // `status`, not `metadata.generation`, so the primary informer's resulting event is
             // filtered out by JOSDK's generation-aware processing and would never reach case 4
             // below. Without this, a freshly created execution whose benchmark is already READY
             // is never picked up.
             coordinator.triggerSelection()
-            return UpdateControl.noUpdate()
+            return UpdateControl.patchStatus(resource)
         }
 
         // 2. Persist a terminal result the coordinator recorded for a finished run.
@@ -155,12 +146,10 @@ class ExecutionReconciler :
                 return UpdateControl.noUpdate()
             }
             logger.info { "Execution '$name': state → ${completion.state.value}." }
-            patchStatus(resource) {
-                it.executionState = completion.state
-                it.startTime = completion.startTime.toMicroTime()
-                it.completionTime = completion.completionTime.toMicroTime()
-            }
-            return UpdateControl.noUpdate()
+            resource.status.executionState = completion.state
+            resource.status.startTime = completion.startTime.toMicroTime()
+            resource.status.completionTime = completion.completionTime.toMicroTime()
+            return UpdateControl.patchStatus(resource)
         }
 
         // 3. Handle the currently active run.
@@ -172,24 +161,18 @@ class ExecutionReconciler :
                 return UpdateControl.noUpdate()
             }
             if (resource.status.executionState != ExecutionState.RUNNING) {
-                val startTime = coordinator.activeStartTime()?.toMicroTime()
                 logger.info { "Execution '$name': state → ${ExecutionState.RUNNING.value}." }
-                patchStatus(resource) {
-                    it.executionState = ExecutionState.RUNNING
-                    it.startTime = startTime
-                    it.completionTime = null
-                }
-            } else {
-                // Already RUNNING: re-patch (no field changes) purely to refresh the computed
-                // `executionDuration`.
-                patchStatus(resource) { }
+                resource.status.executionState = ExecutionState.RUNNING
+                resource.status.startTime = coordinator.activeStartTime()?.toMicroTime()
+                resource.status.completionTime = null
             }
-            // Setting/keeping RUNNING is a status-only patch, so it does not bump
-            // `metadata.generation` and the resulting primary-informer event is filtered out by
-            // JOSDK's generation-aware processing. Without an explicit reschedule here, reconcile
-            // would never run again for this resource while it stays RUNNING, and
-            // `executionDuration` would stay frozen at whatever it was on this patch.
-            return UpdateControl.noUpdate<ExecutionCRD>().rescheduleAfter(DURATION_REFRESH_INTERVAL)
+            // Whether newly RUNNING or already RUNNING, patch the status subresource: the patch
+            // re-serializes the computed `executionDuration` (now - startTime) so kubectl's printer
+            // column keeps advancing. A status-only patch does not bump `metadata.generation`, so
+            // the resulting primary-informer event is filtered out by JOSDK's generation-aware
+            // processing; without an explicit reschedule reconcile would never run again while the
+            // execution stays RUNNING and `executionDuration` would freeze.
+            return UpdateControl.patchStatus(resource).rescheduleAfter(DURATION_REFRESH_INTERVAL)
         }
 
         // 4. Otherwise, if this execution is eligible, ask the coordinator to (re)select.
@@ -211,25 +194,6 @@ class ExecutionReconciler :
         }
         coordinator.clearCompletion(name)
         return DeleteControl.defaultDelete()
-    }
-
-    /**
-     * Applies [mutate] to the execution's status and persists it via the fabric8 client rather than
-     * through [UpdateControl.patchStatus]. The bundled operator-sdk builds the status patch as a
-     * diff over the whole resource (metadata + spec + status), which the API server rejects with 422
-     * on the /status subresource. Fetching the current resource and patching only its status sends a
-     * status-only request.
-     *
-     * TODO: remove this workaround and go back to [UpdateControl.patchStatus] once the operator-sdk
-     *  is upgraded to a version based on JOSDK >= 5.1.4 (see
-     *  operator-framework/java-operator-sdk#2943). Note: `quarkus.operator-sdk.enable-ssa=true` does
-     *  not help on the current version, as it only affects primary-resource patches, not the status.
-     */
-    private fun patchStatus(resource: ExecutionCRD, mutate: (ExecutionStatus) -> Unit) {
-        val crdClient = client.resources(ExecutionCRD::class.java).inNamespace(resource.metadata.namespace)
-        val current = crdClient.withName(resource.metadata.name).get() ?: return
-        mutate(current.status)
-        crdClient.withName(resource.metadata.name).patchStatus(current)
     }
 }
 

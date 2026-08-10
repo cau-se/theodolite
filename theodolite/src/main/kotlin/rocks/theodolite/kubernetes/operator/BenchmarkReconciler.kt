@@ -101,40 +101,15 @@ class BenchmarkReconciler : Reconciler<BenchmarkCRD> {
 
         return if (desiredState != currentState) {
             logger.info { "Benchmark '$name': state $currentState → $desiredState." }
-            patchState(resource, desiredState)
-            UpdateControl.noUpdate()
-            // TODO: once the operator-sdk is upgraded to a version based on JOSDK >= 5.1.4
-            //  (operator-framework/java-operator-sdk#2943, which makes the status patch diff only
-            //  the status), replace the patchState(...) + noUpdate() workaround above with the
-            //  idiomatic single-writer form:
-            //      resource.status.resourceSetsState = desiredState
-            //      UpdateControl.patchStatus(resource)
+            resource.status.resourceSetsState = desiredState
+            UpdateControl.patchStatus(resource)
         } else {
             logger.debug { "Benchmark '$name': state already $currentState, no update." }
             UpdateControl.noUpdate()
         }
     }
 
-    /**
-     * Writes [desiredState] into the benchmark's status via the fabric8 client rather than through
-     * [UpdateControl.patchStatus]. The bundled operator-sdk builds the status patch as a diff over
-     * the whole resource (metadata + spec + status), which the API server rejects with 422 on the
-     * /status subresource. Fetching the current resource and patching only its status sends a
-     * status-only request.
-     *
-     * TODO: remove this workaround and go back to [UpdateControl.patchStatus] once the operator-sdk
-     *  is upgraded to a version based on JOSDK >= 5.1.4 (see
-     *  operator-framework/java-operator-sdk#2943). Note: `quarkus.operator-sdk.enable-ssa=true` does
-     *  not help on the current version, as it only affects primary-resource patches, not the status.
-     */
-    private fun patchState(resource: BenchmarkCRD, desiredState: BenchmarkState) {
-        val crdClient = client.resources(BenchmarkCRD::class.java).inNamespace(resource.metadata.namespace)
-        val current = crdClient.withName(resource.metadata.name).get() ?: return
-        current.status.resourceSetsState = desiredState
-        crdClient.withName(resource.metadata.name).patchStatus(current)
-    }
-
-    internal fun computeReadiness(resource: BenchmarkCRD, context: Context<BenchmarkCRD>): BenchmarkState {
+    private fun computeReadiness(resource: BenchmarkCRD, context: Context<BenchmarkCRD>): BenchmarkState {
         return try {
             if (checkResources(resource, context) && checkActionCommands(resource)) {
                 BenchmarkState.READY
