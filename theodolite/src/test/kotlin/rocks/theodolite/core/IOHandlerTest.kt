@@ -22,7 +22,7 @@ internal class IOHandlerTest {
     @Test
     fun testWriteStringToText(@TempDir tempDir: Path) {
         val testContent = "Test-File-Content"
-        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { mkdirs() }
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
 
         IOHandler().writeStringToTextFile(
             fileURL = "${folder.absolutePath}/test-file.txt",
@@ -37,7 +37,7 @@ internal class IOHandlerTest {
 
     @Test
     fun testWriteToCSVFile(@TempDir tempDir: Path) {
-        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { mkdirs() }
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
 
         val columns = listOf("Fruit", "Color")
 
@@ -68,7 +68,7 @@ internal class IOHandlerTest {
      */
     @Test
     fun testWriteToCSVFileWithComma(@TempDir tempDir: Path) {
-        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { mkdirs() }
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
 
         val columns = listOf("Fruit, Fruit2", "Color")
         val expectedColumns = listOf("\"Fruit, Fruit2\"", "Color")
@@ -107,7 +107,7 @@ internal class IOHandlerTest {
 
     @Test
     fun testReadFollowedByWriteOnSameFile(@TempDir tempDir: Path) {
-        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { mkdirs() }
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
         val fileURL = "${folder.absolutePath}/test-file.txt"
 
         IOHandler().writeStringToTextFile(fileURL, "initial")
@@ -119,7 +119,7 @@ internal class IOHandlerTest {
 
     @Test
     fun testGetAndIncrementExecutionID(@TempDir tempDir: Path) {
-        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { mkdirs() }
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
         val fileURL = "${folder.absolutePath}/expID.txt"
 
         assertEquals(0, IOHandler().getAndIncrementExecutionID(fileURL))
@@ -129,7 +129,7 @@ internal class IOHandlerTest {
 
     @Test
     fun testWriteToJSONFile(@TempDir tempDir: Path) {
-        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { mkdirs() }
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
         val testContentResource = 0
 
         IOHandler().writeToJSONFile(
