@@ -3,6 +3,7 @@ package rocks.theodolite.kubernetes.util
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.fabric8.kubernetes.client.utils.KubernetesSerialization
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -14,10 +15,10 @@ internal class KotlinLateinitModuleTest {
     private fun mapperWithModule() = ObjectMapper().registerModule(KotlinLateinitModule())
 
     @Test
-    fun `uninitialized lateinit String property is serialized as null`() {
+    fun `uninitialized lateinit String property is omitted`() {
         val mapper = mapperWithModule()
         val json = mapper.readTree(mapper.writeValueAsString(BenchmarkExecution()))
-        assertTrue(json.get("benchmark").isNull)
+        assertFalse(json.has("benchmark"))
     }
 
     @Test
@@ -29,20 +30,19 @@ internal class KotlinLateinitModuleTest {
     }
 
     @Test
-    fun `uninitialized lateinit object properties are serialized as null`() {
+    fun `uninitialized lateinit object properties are omitted`() {
         val mapper = mapperWithModule()
         val json = mapper.readTree(mapper.writeValueAsString(BenchmarkExecution()))
-        assertTrue(json.get("load").isNull)
-        assertTrue(json.get("resources").isNull)
-        assertTrue(json.get("execution").isNull)
-        assertTrue(json.get("configOverrides").isNull)
+        assertFalse(json.has("load"))
+        assertFalse(json.has("resources"))
+        assertFalse(json.has("execution"))
+        assertFalse(json.has("configOverrides"))
     }
 
     @Test
     fun `properties without lateinit are not affected`() {
         val mapper = mapperWithModule()
         val json = mapper.readTree(mapper.writeValueAsString(BenchmarkExecution()))
-        assertEquals(0, json.get("executionId").asInt())
         assertTrue(json.get("slis").isNull)
         assertTrue(json.get("slos").isNull)
     }
@@ -66,7 +66,8 @@ internal class KotlinLateinitModuleTest {
         val json = ObjectMapper().readTree(serialization.asJson(crd))
 
         assertEquals("test-execution", json.at("/metadata/name").asText())
-        assertTrue(json.at("/spec/benchmark").isNull)
+        assertTrue(json.at("/spec").isObject)
+        assertFalse(json.at("/spec").fieldNames().hasNext())
     }
 
     @Test

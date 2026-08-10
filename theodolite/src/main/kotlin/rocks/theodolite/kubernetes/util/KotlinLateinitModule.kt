@@ -17,9 +17,13 @@ import java.lang.reflect.InvocationTargetException
  * Without this module, serializing an object with an uninitialized `lateinit` property throws
  * [UninitializedPropertyAccessException], which Jackson propagates wrapped in a
  * [com.fasterxml.jackson.databind.JsonMappingException]. This breaks the Java Operator SDK's
- * server-side apply calls (e.g. when adding a finalizer) for custom resources whose spec is missing
- * required fields. With this module registered, such properties are serialized as `null` instead,
+ * server-side apply calls (e.g. when adding a finalizer), which serialize a custom resource that
+ * only has its metadata set. With this module registered, such properties are omitted instead,
  * which keeps the fields non-nullable in the Kotlin type system.
+ *
+ * Properties are omitted rather than written as `null`, because an uninitialized `lateinit`
+ * property is unset rather than null. This also matters for server-side apply, where an explicit
+ * `null` requests the deletion of a field.
  *
  * Must be registered on the object mapper used by the Kubernetes client, see
  * [TheodoliteKubernetesClientObjectMapperCustomizer].
@@ -38,7 +42,7 @@ class KotlinLateinitModule : SimpleModule() {
 }
 
 /**
- * Delegating [BeanPropertyWriter] that serializes uninitialized `lateinit` properties as `null`.
+ * Delegating [BeanPropertyWriter] that omits uninitialized `lateinit` properties.
  *
  * Serialization is delegated to the [wrapped] writer instead of calling `super`, so that behavior
  * added by other modules (such as the Kubernetes client's own property writer delegates) is
@@ -53,14 +57,11 @@ private class LateinitSafeBeanPropertyWriter(
             this.wrapped.serializeAsField(bean, gen, prov)
         } catch (e: InvocationTargetException) {
             // Thrown if Jackson reads the property via its getter, which is the usual case.
-            if (e.targetException is UninitializedPropertyAccessException) {
-                gen.writeNullField(this.wrapped.name)
-            } else {
+            if (e.targetException !is UninitializedPropertyAccessException) {
                 throw e
             }
         } catch (_: UninitializedPropertyAccessException) {
             // Thrown if Jackson reads the property via its backing field.
-            gen.writeNullField(this.wrapped.name)
         }
     }
 
