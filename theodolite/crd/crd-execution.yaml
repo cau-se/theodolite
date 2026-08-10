@@ -22,10 +22,6 @@ spec:
             type: object
             required: ["benchmark", "load", "resources", "execution"]
             properties:
-              name:
-                description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
-                type: string
-                default: ""
               benchmark:
                 description: The name of the benchmark this execution is referring to.
                 type: string

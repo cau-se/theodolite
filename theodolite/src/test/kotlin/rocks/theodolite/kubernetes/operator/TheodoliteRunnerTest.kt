@@ -34,24 +34,22 @@ class TheodoliteRunnerTest {
         val mockExecutor = mock<TheodoliteExecutor> {
             on { getExecution() } doAnswer { mockExecution }
         }
-        val runner = TheodoliteRunner { _, _, _ -> mockExecutor }
+        val runner = TheodoliteRunner { _, _, _, _ -> mockExecutor }
 
-        runner.run(mockExecution, mock(), mock())
+        runner.run("test-execution", mockExecution, mock(), mock())
 
         verify(mockExecutor).setupAndRunExecution()
     }
 
     @Test
     fun `isRunning returns false after run completes`() {
-        val mockExecution = mock<BenchmarkExecution> {
-            on { name } doAnswer { "test-execution" }
-        }
+        val mockExecution = mock<BenchmarkExecution>()
         val mockExecutor = mock<TheodoliteExecutor> {
-            on { getExecution() } doAnswer { mockExecution }
+            on { getExecutionName() } doAnswer { "test-execution" }
         }
-        val runner = TheodoliteRunner { _, _, _ -> mockExecutor }
+        val runner = TheodoliteRunner { _, _, _, _ -> mockExecutor }
 
-        runner.run(mockExecution, mock(), mock())
+        runner.run("test-execution", mockExecution, mock(), mock())
 
         assertFalse(runner.isRunning("test-execution"))
     }
@@ -63,10 +61,10 @@ class TheodoliteRunnerTest {
         val mockExecutor = mock<TheodoliteExecutor> {
             on { setupAndRunExecution() } doAnswer { order.add("run"); Unit }
         }
-        val runner = TheodoliteRunner { _, _, _ -> mockExecutor }
+        val runner = TheodoliteRunner { _, _, _, _ -> mockExecutor }
 
         var reportedError: Throwable? = Exception("unset")
-        runner.start(mock(), mock(), mock(), beforeRun = { order.add("before") }) { error ->
+        runner.start("test-execution", mock(), mock(), mock(), beforeRun = { order.add("before") }) { error ->
             reportedError = error
             done.countDown()
         }
@@ -83,10 +81,10 @@ class TheodoliteRunnerTest {
         val mockExecutor = mock<TheodoliteExecutor> {
             on { setupAndRunExecution() } doAnswer { throw failure }
         }
-        val runner = TheodoliteRunner { _, _, _ -> mockExecutor }
+        val runner = TheodoliteRunner { _, _, _, _ -> mockExecutor }
 
         var reportedError: Throwable? = null
-        runner.start(mock(), mock(), mock()) { error ->
+        runner.start("test-execution", mock(), mock(), mock()) { error ->
             reportedError = error
             done.countDown()
         }
@@ -100,14 +98,14 @@ class TheodoliteRunnerTest {
         val done = CountDownLatch(1)
         var executorCreated = false
         var beforeRunInvoked = false
-        val runner = TheodoliteRunner { _, _, _ ->
+        val runner = TheodoliteRunner { _, _, _, _ ->
             executorCreated = true
             mock<TheodoliteExecutor>()
         }
 
         var reportedError: Throwable? = Exception("unset")
         runner.start(
-            mock(), mock(), mock(),
+            "test-execution", mock(), mock(), mock(),
             beforeRun = { beforeRunInvoked = true },
             isCancelled = { true }
         ) { error ->
@@ -133,9 +131,9 @@ class TheodoliteRunnerTest {
                 allowComplete.await()
             }
         }
-        val runner = TheodoliteRunner { _, _, _ -> mockExecutor }
+        val runner = TheodoliteRunner { _, _, _, _ -> mockExecutor }
 
-        val runThread = Thread { runner.run(mockExecution, mock(), mock()) }
+        val runThread = Thread { runner.run("test-execution", mockExecution, mock(), mock()) }
         runThread.start()
 
         assert(runnerStarted.await(5, TimeUnit.SECONDS)) { "Runner did not start within timeout" }

@@ -55,7 +55,6 @@ class ExecutionCRDummy(name: String, benchmark: String) {
         execution.slos = emptyList()
         execution.execution = exec
         execution.configOverrides = mutableListOf()
-        execution.name = executionCR.metadata.name
 
         executionState.executionState = ExecutionState.PENDING
     }
