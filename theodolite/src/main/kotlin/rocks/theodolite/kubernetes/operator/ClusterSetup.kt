@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.operator
 
+import io.fabric8.kubernetes.api.model.KubernetesResourceList
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
@@ -13,8 +14,8 @@ import rocks.theodolite.kubernetes.Shutdown
 private val logger = KotlinLogging.logger {}
 
 class ClusterSetup(
-        private val executionCRDClient: MixedOperation<ExecutionCRD, BenchmarkExecutionList, Resource<ExecutionCRD>>,
-        private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesBenchmarkList, Resource<BenchmarkCRD>>,
+        private val executionCRDClient: MixedOperation<ExecutionCRD, KubernetesResourceList<ExecutionCRD>, Resource<ExecutionCRD>>,
+        private val benchmarkCRDClient: MixedOperation<BenchmarkCRD, KubernetesResourceList<BenchmarkCRD>, Resource<BenchmarkCRD>>,
         private val client: NamespacedKubernetesClient
 
 ) {

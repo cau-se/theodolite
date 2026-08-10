@@ -1,8 +1,9 @@
 package rocks.theodolite.kubernetes.operator
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.fabric8.kubernetes.client.CustomResourceList
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.fabric8.kubernetes.api.model.DefaultKubernetesResourceList
+import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer
+import rocks.theodolite.kubernetes.client
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,19 +19,19 @@ import rocks.theodolite.kubernetes.model.crd.*
 @QuarkusTest
 class RunnerCoordinatorTest {
 
-    private val server = KubernetesServer(false, false)
+    private val server = KubernetesMockServer()
     private lateinit var coordinator: RunnerCoordinator
     private val mapper = ObjectMapper()
 
     private var benchmark = KubernetesBenchmark()
     private var execution = BenchmarkExecution()
 
-    private val benchmarkResourceList = CustomResourceList<BenchmarkCRD>()
-    private val executionResourceList = CustomResourceList<ExecutionCRD>()
+    private val benchmarkResourceList = DefaultKubernetesResourceList<BenchmarkCRD>()
+    private val executionResourceList = DefaultKubernetesResourceList<ExecutionCRD>()
 
     @BeforeEach
     fun setUp() {
-        server.before()
+        server.init()
 
         // Use the public no-arg constructor and set the client directly (not the CDI-managed instance).
         this.coordinator = RunnerCoordinator()
@@ -68,7 +69,7 @@ class RunnerCoordinatorTest {
 
     @AfterEach
     fun tearDown() {
-        server.after()
+        server.destroy()
     }
 
     @Test
@@ -125,22 +126,22 @@ class RunnerCoordinatorTest {
 
     @Test
     fun `getCoordinator returns a non-null singleton`() {
-        val server2 = KubernetesServer(false, false)
-        server2.before()
+        val server2 = KubernetesMockServer()
+        server2.init()
         try {
             val operator = TheodoliteOperator(server2.client)
             val first = operator.getCoordinator()
             assertNotNull(first)
             assertSame(first, operator.getCoordinator())
         } finally {
-            server2.after()
+            server2.destroy()
         }
     }
 
     @Test
     fun `getReadiness returns a non-null singleton that starts closed`() {
-        val server2 = KubernetesServer(false, false)
-        server2.before()
+        val server2 = KubernetesMockServer()
+        server2.init()
         try {
             val operator = TheodoliteOperator(server2.client)
             val first = operator.getReadiness()
@@ -148,7 +149,7 @@ class RunnerCoordinatorTest {
             assertSame(first, operator.getReadiness())
             assert(!first.isReady())
         } finally {
-            server2.after()
+            server2.destroy()
         }
     }
 }

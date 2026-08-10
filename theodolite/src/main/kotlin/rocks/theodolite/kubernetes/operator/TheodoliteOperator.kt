@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.operator
 
+import io.fabric8.kubernetes.api.model.KubernetesResourceList
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
@@ -7,9 +8,7 @@ import io.quarkus.arc.Arc
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.Configuration
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
-import rocks.theodolite.kubernetes.model.crd.BenchmarkExecutionList
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
-import rocks.theodolite.kubernetes.model.crd.KubernetesBenchmarkList
 
 
 private const val EXECUTION_SINGULAR = "execution"
@@ -87,21 +86,15 @@ class TheodoliteOperator(private val client: NamespacedKubernetesClient) {
 
     fun getExecutionClient(): MixedOperation<
             ExecutionCRD,
-            BenchmarkExecutionList,
+            KubernetesResourceList<ExecutionCRD>,
             Resource<ExecutionCRD>> {
-        return client.resources(
-            ExecutionCRD::class.java,
-            BenchmarkExecutionList::class.java
-        )
+        return client.resources(ExecutionCRD::class.java)
     }
 
     fun getBenchmarkClient(): MixedOperation<
             BenchmarkCRD,
-            KubernetesBenchmarkList,
+            KubernetesResourceList<BenchmarkCRD>,
             Resource<BenchmarkCRD>> {
-        return client.resources(
-            BenchmarkCRD::class.java,
-            KubernetesBenchmarkList::class.java
-        )
+        return client.resources(BenchmarkCRD::class.java)
     }
 }

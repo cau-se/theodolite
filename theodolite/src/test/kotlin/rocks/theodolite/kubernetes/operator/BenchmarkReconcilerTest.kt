@@ -5,9 +5,12 @@ import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder
 import io.fabric8.kubernetes.api.model.PodBuilder
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.kubernetes.client.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -26,28 +29,32 @@ import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
 import rocks.theodolite.kubernetes.model.crd.BenchmarkState
 
 @QuarkusTest
+@WithKubernetesTestServer(crud = true, https = false)
 internal class BenchmarkReconcilerTest {
 
     private companion object {
         const val NAMESPACE = "test"
     }
 
-    /** CRUD-mode mock server used for action-command tests that need real k8s objects. */
-    private val server = KubernetesServer(false, true)
+    @KubernetesTestServer
+    lateinit var server: KubernetesServer
     private val reconciler = BenchmarkReconciler()
 
     @BeforeEach
     fun setUp() {
-        server.before()
+        server.kubernetesMockServer.expectCustomResource(
+            CustomResourceDefinitionContext.fromCustomResourceType(BenchmarkCRD::class.java)
+        )
         // The reconciler persists status through the fabric8 client (patchState workaround).
         reconciler.client = server.client
         // Open by default so existing tests exercise reconcile() as if this were the leader.
         reconciler.readiness = OperatorReadiness().apply { open() }
     }
 
+    // The Quarkus test server is shared across the class; reset CRUD state for per-test isolation.
     @AfterEach
     fun tearDown() {
-        server.after()
+        server.kubernetesMockServer.reset()
     }
 
     // ---- reconcile() tests: ConfigMap-based readiness -----------------------------------------

@@ -662,9 +662,7 @@ smoketest-uc4-hazelcastjet:
 # Theodolite Framework
 
 .theodolite:
-  image:
-    name: ghcr.io/graalvm/native-image:ol8-java17-22.3.3
-    entrypoint: [""]
+  image: eclipse-temurin:21-jdk
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   cache:
@@ -695,6 +693,9 @@ build-theodolite-jvm:
 build-theodolite-native:
   stage: build
   extends: .theodolite
+  image:
+    name: ghcr.io/graalvm/native-image-community:21
+    entrypoint: [""]
   script:
     - ./gradlew --build-cache assemble -Dquarkus.package.type=native
   when: manual

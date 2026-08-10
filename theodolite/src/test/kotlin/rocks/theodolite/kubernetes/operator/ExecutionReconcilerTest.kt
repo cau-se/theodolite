@@ -1,8 +1,11 @@
 package rocks.theodolite.kubernetes.operator
 
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import io.javaoperatorsdk.operator.api.reconciler.Context
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.kubernetes.client.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesTestServer
+import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,23 +22,27 @@ import rocks.theodolite.kubernetes.model.crd.ExecutionStatus
 import java.time.Instant
 
 @QuarkusTest
+@WithKubernetesTestServer(crud = true, https = false)
 internal class ExecutionReconcilerTest {
 
     private companion object {
         const val NAMESPACE = "test"
     }
 
-    /** CRUD-mode mock server used to round-trip status writes (patchStatus workaround). */
-    private val server = KubernetesServer(false, true)
+    @KubernetesTestServer
+    lateinit var server: KubernetesServer
 
     @BeforeEach
     fun setUp() {
-        server.before()
+        server.kubernetesMockServer.expectCustomResource(
+            CustomResourceDefinitionContext.fromCustomResourceType(ExecutionCRD::class.java)
+        )
     }
 
+    // The Quarkus test server is shared across the class; reset CRUD state for per-test isolation.
     @AfterEach
     fun tearDown() {
-        server.after()
+        server.kubernetesMockServer.reset()
     }
 
     private fun reconcilerWith(coordinator: RunnerCoordinator): ExecutionReconciler {
