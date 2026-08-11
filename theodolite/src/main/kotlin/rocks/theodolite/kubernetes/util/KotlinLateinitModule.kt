@@ -22,8 +22,9 @@ import java.lang.reflect.InvocationTargetException
  * which keeps the fields non-nullable in the Kotlin type system.
  *
  * Properties are omitted rather than written as `null`, because an uninitialized `lateinit`
- * property is unset rather than null. This also matters for server-side apply, where an explicit
- * `null` requests the deletion of a field.
+ * property is unset rather than null. Writing `null` would also bypass the NON_NULL inclusion the
+ * Kubernetes client configures, and the API server rejects a `null` for a property that the CRD
+ * schema declares with a type.
  *
  * Must be registered on the object mapper used by the Kubernetes client, see
  * [TheodoliteKubernetesClientObjectMapperCustomizer].
