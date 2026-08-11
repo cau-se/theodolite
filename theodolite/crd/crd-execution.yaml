@@ -148,6 +148,9 @@ spec:
                   loadGenerationDelay:
                     description: Seconds to wait between the start of the SUT and the load generator.
                     type: integer
+                  afterTeardownDelay:
+                    description: Seconds to wait after the teardown of an experiment.
+                    type: integer
               configOverrides:
                 description:  List of patchers that are used to override existing configurations.
                 type: array
