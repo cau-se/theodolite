@@ -1,5 +1,6 @@
 package rocks.theodolite.kubernetes.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.quarkus.runtime.annotations.RegisterForReflection
@@ -25,6 +26,8 @@ import kotlin.properties.Delegates
 @JsonDeserialize
 @RegisterForReflection
 class BenchmarkExecution : KubernetesResource {
+    /** Runtime-only identifier used for naming result files. Not part of the CRD schema. */
+    @JsonIgnore
     var executionId: Int = 0
     lateinit var benchmark: String
     lateinit var load: LoadDefinition

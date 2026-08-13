@@ -2380,6 +2380,13 @@ Defines the overall parameter for the execution.
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b>afterTeardownDelay</b></td>
+        <td>integer</td>
+        <td>
+          Seconds to wait after the teardown of an experiment.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>loadGenerationDelay</b></td>
         <td>integer</td>
         <td>

@@ -42,6 +42,8 @@ dependencies {
         }
     }
     //testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'io.fabric8:kube-api-test-client-inject'
+    testImplementation 'io.javaoperatorsdk:operator-framework-junit'
     testImplementation 'org.wiremock:wiremock:3.13.2'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.3.0'
     testImplementation "org.mockito.kotlin:mockito-kotlin:6.3.0"

@@ -85,8 +85,9 @@ internal class ExecutionReconcilerTest {
 
         val leaderResult = leader.reconcile(execution, context())
         assertFalse(leaderResult.isNoUpdate)
+        assertEquals(0L, leaderResult.scheduleDelay.get())
         assertEquals(ExecutionState.PENDING, execution.status.executionState)
-        verify(leaderCoordinator).triggerSelection()
+        verify(leaderCoordinator, never()).triggerSelection()
     }
 
     @Test
@@ -102,18 +103,21 @@ internal class ExecutionReconcilerTest {
     }
 
     @Test
-    fun `reconcile triggers selection immediately for a newly PENDING execution`() {
+    fun `reconcile reschedules immediately after setting initial PENDING state`() {
         // A status-only patch does not bump `metadata.generation`, so JOSDK's generation-aware
-        // processing would filter out the resulting primary-informer event and never call
-        // reconcile again for this resource. Selection must therefore be triggered inline here,
-        // otherwise an execution whose benchmark is already READY would never be picked up.
+        // processing filters out the resulting primary-informer event. Without a reschedule,
+        // the execution would never reach case 4 and never be picked up.
+        // triggerSelection() cannot substitute for the reschedule: the patch has not been applied
+        // yet while reconcile() is running, so the live API still shows NO_STATE and selectNext()
+        // would find no eligible candidate.
         val execution = ExecutionCRDummy("exec", "bench").getCR()
         execution.status.executionState = ExecutionState.NO_STATE
         val coordinator = mock<RunnerCoordinator>()
 
-        reconcilerWith(coordinator).reconcile(execution, context())
+        val result = reconcilerWith(coordinator).reconcile(execution, context())
 
-        verify(coordinator).triggerSelection()
+        assertEquals(0L, result.scheduleDelay.get())
+        verify(coordinator, never()).triggerSelection()
     }
 
     @Test

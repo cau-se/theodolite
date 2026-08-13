@@ -287,7 +287,10 @@ class RunnerCoordinator {
         trigger?.propagateEvent(ResourceID(name, namespacedClient().namespace))
     }
 
-    // DefaultKubernetesClient (what Quarkus CDI produces) implements NamespacedKubernetesClient,
-    // so this cast is safe at runtime.
-    private fun namespacedClient(): NamespacedKubernetesClient = client as NamespacedKubernetesClient
+    // The client CDI injects in production is a normal-scoped client proxy. It implements the bean
+    // type of the producer method, KubernetesClient, but not NamespacedKubernetesClient, so casting
+    // it fails even though the client it delegates to does implement the latter. Adapting asks that
+    // underlying client instead.
+    private fun namespacedClient(): NamespacedKubernetesClient =
+        client.adapt(NamespacedKubernetesClient::class.java)
 }
