@@ -7,7 +7,6 @@ enum class ExecutionState(@JsonValue val value: String) {
     PENDING("Pending"),
     FAILURE("Failure"),
     FINISHED("Finished"),
-    RESTART("Restart"),
     INTERRUPTED("Interrupted"),
     NO_STATE("NoState"),
 }

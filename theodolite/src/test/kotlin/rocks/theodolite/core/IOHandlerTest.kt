@@ -1,16 +1,16 @@
 package rocks.theodolite.core
 
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.quarkus.test.junit.QuarkusTest
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Rule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import org.junitpioneer.jupiter.ClearEnvironmentVariable
 import org.junitpioneer.jupiter.SetEnvironmentVariable
+import java.nio.file.Path
 import java.util.stream.Collectors
 
 const val FOLDER_URL = "Test-Folder"
@@ -18,14 +18,11 @@ const val FOLDER_URL = "Test-Folder"
 @QuarkusTest
 internal class IOHandlerTest {
 
-    @Rule
-    private var temporaryFolder = TemporaryFolder()
 
     @Test
-    fun testWriteStringToText() {
-        temporaryFolder.create()
+    fun testWriteStringToText(@TempDir tempDir: Path) {
         val testContent = "Test-File-Content"
-        val folder = temporaryFolder.newFolder(FOLDER_URL)
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
 
         IOHandler().writeStringToTextFile(
             fileURL = "${folder.absolutePath}/test-file.txt",
@@ -39,9 +36,8 @@ internal class IOHandlerTest {
     }
 
     @Test
-    fun testWriteToCSVFile() {
-        temporaryFolder.create()
-        val folder = temporaryFolder.newFolder(FOLDER_URL)
+    fun testWriteToCSVFile(@TempDir tempDir: Path) {
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
 
         val columns = listOf("Fruit", "Color")
 
@@ -71,9 +67,8 @@ internal class IOHandlerTest {
      * Tests if values with commas and quotation marks are surrounded with additional quotation marks.
      */
     @Test
-    fun testWriteToCSVFileWithComma() {
-        temporaryFolder.create()
-        val folder = temporaryFolder.newFolder(FOLDER_URL)
+    fun testWriteToCSVFileWithComma(@TempDir tempDir: Path) {
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
 
         val columns = listOf("Fruit, Fruit2", "Color")
         val expectedColumns = listOf("\"Fruit, Fruit2\"", "Color")
@@ -111,9 +106,30 @@ internal class IOHandlerTest {
     }
 
     @Test
-    fun testWriteToJSONFile() {
-        temporaryFolder.create()
-        val folder = temporaryFolder.newFolder(FOLDER_URL)
+    fun testReadFollowedByWriteOnSameFile(@TempDir tempDir: Path) {
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
+        val fileURL = "${folder.absolutePath}/test-file.txt"
+
+        IOHandler().writeStringToTextFile(fileURL, "initial")
+        IOHandler().readFileAsString(fileURL)
+        IOHandler().writeStringToTextFile(fileURL, "updated")
+
+        assertEquals("updated", IOHandler().readFileAsString(fileURL))
+    }
+
+    @Test
+    fun testGetAndIncrementExecutionID(@TempDir tempDir: Path) {
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
+        val fileURL = "${folder.absolutePath}/expID.txt"
+
+        assertEquals(0, IOHandler().getAndIncrementExecutionID(fileURL))
+        assertEquals(1, IOHandler().getAndIncrementExecutionID(fileURL))
+        assertEquals(2, IOHandler().getAndIncrementExecutionID(fileURL))
+    }
+
+    @Test
+    fun testWriteToJSONFile(@TempDir tempDir: Path) {
+        val folder = tempDir.resolve(FOLDER_URL).toFile().apply { this.mkdirs() }
         val testContentResource = 0
 
         IOHandler().writeToJSONFile(
@@ -121,7 +137,7 @@ internal class IOHandlerTest {
             objectToSave = testContentResource
         )
 
-        val expected = GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create().toJson(testContentResource)
+        val expected = ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(testContentResource)
 
         assertEquals(
             expected,

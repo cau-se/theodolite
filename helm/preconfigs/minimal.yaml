@@ -1,7 +1,4 @@
 operator:
-  sloChecker:
-    droppedRecordsKStreams:
-      enabled: false
   resultsVolume:
     enabled: false
 

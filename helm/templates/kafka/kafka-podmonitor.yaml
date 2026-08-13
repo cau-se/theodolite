@@ -7,7 +7,6 @@ metadata:
     app: theodolite
 spec:
   selector:
-    selector:
     matchLabels:
       strimzi.io/name: {{ template "theodolite.fullname" . }}-kafka-kafka
   podMetricsEndpoints:

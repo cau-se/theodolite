@@ -9,7 +9,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.kafka.common.serialization.Deserializer;
 
 /**
- * Simple {@link PTransform} that read from Kafka using {@link KafkaIO}.
+ * Simple {@link PTransform} that reads from Kafka using {@link KafkaIO}.
  *
  * @param <K> Type of the Key.
  * @param <V> Type of the Value.
@@ -17,10 +17,11 @@ import org.apache.kafka.common.serialization.Deserializer;
 public class KafkaGenericReader<K, V> extends PTransform<PBegin, PCollection<KV<K, V>>> {
 
   private static final long serialVersionUID = 2603286150183186115L;
+
   private final PTransform<PBegin, PCollection<KV<K, V>>> reader;
 
   /**
-   * Instantiates a {@link PTransform} that reads from Kafka with the given Configuration.
+   * Instantiates a {@link PTransform} that reads from Kafka with the given configuration.
    */
   public KafkaGenericReader(
       final String bootstrapServer,
@@ -30,19 +31,18 @@ public class KafkaGenericReader<K, V> extends PTransform<PBegin, PCollection<KV<
       final Class<? extends Deserializer<V>> valueDeserializer) {
     super();
 
-    // Check if boostrap server and inputTopic are defined
+    // Check if the boostrap server and the input topic are defined
     if (bootstrapServer.isEmpty() || inputTopic.isEmpty()) {
       throw new IllegalArgumentException("bootstrapServer or inputTopic missing");
     }
 
-    this.reader =
-        KafkaIO.<K, V>read()
-            .withBootstrapServers(bootstrapServer)
-            .withTopic(inputTopic)
-            .withKeyDeserializer(keyDeserializer)
-            .withValueDeserializer(valueDeserializer)
-            .withConsumerConfigUpdates(consumerConfig)
-            .withoutMetadata();
+    this.reader = KafkaIO.<K, V>read()
+        .withBootstrapServers(bootstrapServer)
+        .withTopic(inputTopic)
+        .withKeyDeserializer(keyDeserializer)
+        .withValueDeserializer(valueDeserializer)
+        .withConsumerConfigUpdates(consumerConfig)
+        .withoutMetadata();
   }
 
   @Override

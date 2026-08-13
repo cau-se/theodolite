@@ -1,69 +1,87 @@
 package rocks.theodolite.kubernetes.slo
 
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.QuarkusTestProfile
+import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import rocks.theodolite.kubernetes.model.BenchmarkExecution
 import rocks.theodolite.kubernetes.model.KubernetesBenchmark
 
 @QuarkusTest
+@TestProfile(SloFactoryTest.SLOTestProfile::class)
 internal class SloFactoryTest {
+    class SLOTestProfile : QuarkusTestProfile {
+        override fun getConfigOverrides(): Map<String, String> = emptyMap()
+    }
+
+    private val sloFactory = SloFactory()
+
+    private val benchmark = KubernetesBenchmark().also { bench ->
+        bench.slis = mutableListOf(
+            KubernetesBenchmark.Sli().also {
+                it.name = "consumerLag"
+                it.provider = "prometheus"
+                it.query = "sum by(consumergroup) (kafka_consumergroup_lag >= 0)"
+            }
+        )
+        bench.slos = mutableListOf(
+            KubernetesBenchmark.Slo().also {
+                it.name = "lag trend"
+                it.sli = "consumerLag"
+                it.warmupSeconds = 60
+                it.externalSloChecker = "http://localhost:80/evaluate-slope"
+                it.threshold = 2000.0
+            }
+        )
+    }
 
     @Test
     fun overwriteSloTest() {
+        val execution = BenchmarkExecution().also { exec ->
+            exec.slos = listOf(
+                BenchmarkExecution.SloOverride().also {
+                    it.name = "lag trend"
+                    it.threshold = 3000.0
+                    it.warmupSeconds = 80
+                },
+                // SLO with name not in benchmark — should be ignored
+                BenchmarkExecution.SloOverride().also {
+                    it.name = "nonexistent"
+                    it.threshold = 999.0
+                }
+            )
+        }
 
-        val benchmark = KubernetesBenchmark()
-        val execution = BenchmarkExecution()
-
-        // Define Benchmark SLOs
-        val slo = KubernetesBenchmark.Slo()
-        slo.name="test"
-        slo.sloType="lag trend"
-        slo.prometheusUrl="test.de"
-        slo.offset=0
-
-        val benchmarkSloProperties = mutableMapOf<String, String>()
-        benchmarkSloProperties["threshold"] = "2000"
-        benchmarkSloProperties["externalSloUrl"] = "http://localhost:80/evaluate-slope"
-        benchmarkSloProperties["warmup"] = "60"
-
-        slo.properties=benchmarkSloProperties
-
-        benchmark.slos = mutableListOf(slo)
-
-
-        // Define Execution SLOs, benchmark SLO values for these properties should be overwritten
-        val sloConfig = BenchmarkExecution.SloConfiguration()
-        sloConfig.name = "test"
-
-        val executionSloProperties = mutableMapOf<String, String>()
-        // overwriting properties 'threshold' and 'warmup' and adding property 'extensionTest'
-        executionSloProperties["threshold"] = "3000"
-        executionSloProperties["warmup"] = "80"
-        executionSloProperties["extensionTest"] = "extended"
-
-        sloConfig.properties = executionSloProperties
-
-        // SLO has 'name' that isn't defined in the benchmark, therefore it will be ignored by the SloFactory
-        val sloConfig2 = BenchmarkExecution.SloConfiguration()
-        sloConfig2.name = "test2"
-        sloConfig2.properties = executionSloProperties
-
-        execution.slos = listOf(sloConfig, sloConfig2)
-
-        val sloFactory = SloFactory()
-        val combinedSlos = sloFactory.createSlos(execution,benchmark)
+        val sliNames = benchmark.slis.map { it.name }.toSet()
+        val combinedSlos = this.sloFactory.createSlos(execution, this.benchmark, sliNames)
 
         Assertions.assertEquals(1, combinedSlos.size)
-        Assertions.assertEquals("test", combinedSlos[0].name)
-        Assertions.assertEquals("lag trend", combinedSlos[0].sloType)
-        Assertions.assertEquals("test.de", combinedSlos[0].prometheusUrl)
-        Assertions.assertEquals(0, combinedSlos[0].offset)
+        Assertions.assertEquals("lag trend", combinedSlos[0].name)
+        Assertions.assertEquals("consumerLag", combinedSlos[0].sli)
+        Assertions.assertEquals(80, combinedSlos[0].warmupSeconds)
+        Assertions.assertEquals(3000.0, combinedSlos[0].threshold)
+        Assertions.assertEquals("http://localhost:80/evaluate-slope", combinedSlos[0].externalSloChecker)
+    }
 
-        Assertions.assertEquals(4, combinedSlos[0].properties.size)
-        Assertions.assertEquals("3000", combinedSlos[0].properties["threshold"])
-        Assertions.assertEquals("http://localhost:80/evaluate-slope", combinedSlos[0].properties["externalSloUrl"])
-        Assertions.assertEquals("80", combinedSlos[0].properties["warmup"])
-        Assertions.assertEquals("extended", combinedSlos[0].properties["extensionTest"])
+    @Test
+    fun unknownSliReferenceThrowsTest() {
+        val badBenchmark = KubernetesBenchmark().also { bench ->
+            bench.slis = mutableListOf()
+            bench.slos = mutableListOf(
+                KubernetesBenchmark.Slo().also {
+                    it.name = "bad-slo"
+                    it.sli = "doesNotExist"
+                    it.warmupSeconds = 0
+                    it.externalSloChecker = "http://localhost:80"
+                    it.threshold = 1.0
+                }
+            )
+        }
+        val execution = BenchmarkExecution().also { exec -> exec.slos = null }
+        assertThrows<IllegalArgumentException> {
+            this.sloFactory.createSlos(execution, badBenchmark, emptySet())
+        }
     }
 }

@@ -6,14 +6,14 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesServer
+
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import registerResource
 
 
 @QuarkusTest
@@ -120,7 +120,7 @@ internal class K8sManagerTest {
         val manager = K8sManager(server.client)
 
         val serviceMonitorStream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
-        val serviceMonitor = server.client.load(serviceMonitorStream).get()[0]
+        val serviceMonitor = server.client.load(serviceMonitorStream).items().first()
 
         manager.deploy(serviceMonitor)
 

@@ -1,10 +1,11 @@
 package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.*
+import io.fabric8.kubernetes.api.model.apps.Deployment
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.Test
 
 @QuarkusTest
 abstract class AbstractPatcherTest {
@@ -13,7 +14,7 @@ abstract class AbstractPatcherTest {
     lateinit var patcher: Patcher
     lateinit var value: String
 
-    fun createDeployment(): HasMetadata {
+    fun createDeployment(): Deployment {
         return DeploymentBuilder()
             .withNewMetadata()
                 .withName("dummy")
@@ -24,27 +25,41 @@ abstract class AbstractPatcherTest {
                 .endSelector()
                     .withNewTemplate()
                         .withNewMetadata()
-                            .withLabels<String, String>(mapOf("labelName" to "labelValue"))
+                            .withLabels<String, String>(mapOf("labelName" to "labelValue")
+                        )
                         .endMetadata()
                         .withNewSpec()
                         .withContainers(
                                 ContainerBuilder()
-                                    .withName("container")
+                                    .withName("main-container")
                                     .withImage("test-image")
-                                    .build())
-                            .addNewVolume()
-                                .withName("test-volume")
-                                .withNewConfigMap()
-                                    .withName("test-configmap")
-                                .endConfigMap()
-                            .endVolume()
-                        .endSpec()
+                                    .build()
+                        )
+                        .withInitContainers(
+                            ContainerBuilder()
+                                .withName("init-container")
+                                .withImage("test-image")
+                                .withEnv(
+                                    EnvVarBuilder()
+                                        .withName("SOME_NUMERIC_VAR")
+                                        .withValue("123")
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .addNewVolume()
+                            .withName("test-volume")
+                            .withNewConfigMap()
+                                .withName("test-configmap")
+                            .endConfigMap()
+                        .endVolume()
+                    .endSpec()
                 .endTemplate()
             .endSpec()
             .build()
     }
 
-    fun createStateFulSet(): HasMetadata {
+    fun createStatefulSet(): StatefulSet {
         return StatefulSetBuilder()
             .withNewMetadata()
                 .withName("dummy")
@@ -58,8 +73,13 @@ abstract class AbstractPatcherTest {
                         .withLabels<String, String>(mapOf("labelName" to "labelValue"))
                     .endMetadata()
                     .withNewSpec()
-                    .addNewVolume()
-                        .withName("test-volume")
+                        .withContainers(
+                            ContainerBuilder()
+                                .withName("main-container")
+                                .withImage("test-image")
+                                .build())
+                        .addNewVolume()
+                            .withName("test-volume")
                             .withNewConfigMap()
                                 .withName("test-configmap")
                             .endConfigMap()
@@ -70,15 +90,39 @@ abstract class AbstractPatcherTest {
             .build()
     }
 
-    fun createService(): HasMetadata {
-        return ServiceBuilder()
+    fun createPod(): Pod {
+        return PodBuilder()
             .withNewMetadata()
-            .withName("dummy")
+                .withName("some-pod-name")
+                .withLabels<String, String>(mapOf("labelName" to "labelValue"))
             .endMetadata()
+            .withNewSpec()
+                .withContainers(
+                    ContainerBuilder()
+                        .withName("main-container")
+                        .withImage("test-image")
+                    .build())
+                .addNewVolume()
+                    .withName("test-volume")
+                    .withNewConfigMap()
+                        .withName("test-configmap")
+                    .endConfigMap()
+                .endVolume()
+            .endSpec()
             .build()
     }
 
-    fun createConfigMap(): HasMetadata {
+    fun createService(): Service {
+        return ServiceBuilder()
+            .withNewMetadata()
+                .withName("some-service-name")
+            .endMetadata()
+            .withNewSpec()
+            .endSpec()
+            .build()
+    }
+
+    fun createConfigMap(): ConfigMap {
         return ConfigMapBuilder()
             .withNewMetadata()
                 .withName("dummy")
@@ -90,9 +134,5 @@ abstract class AbstractPatcherTest {
     fun patch() {
         resource = patcher.patch(resource, value)
     }
-
-    @Test
-    abstract fun validate()
-
 
 }

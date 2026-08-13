@@ -1,4 +1,4 @@
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: benchmark
 metadata:
   name: uc3-flink
@@ -12,6 +12,8 @@ spec:
       - configMap:
           name: "benchmark-resources-uc3-flink"
           files:
+            - "input-topic.yaml"
+            - "output-topic.yaml"
             - "flink-configuration-configmap.yaml"
             - "taskmanager-deployment.yaml"
             - "taskmanager-service.yaml"
@@ -81,24 +83,20 @@ spec:
           resource: "uc3-load-generator-deployment.yaml"
           properties:
             loadGenMaxRecords: "150000"
+    - typeName: "AggregationDurationDays"
+      patchers:
+        - type: "EnvVarPatcher"
+          resource: "jobmanager-deployment.yaml"
+          properties:
+            container: "jobmanager"
+            variableName: "AGGREGATION_DURATION_DAYS"
+  slis:
+    - name: consumerLag
+      provider: prometheus
+      query: "sum by(consumergroup) (kafka_consumergroup_lag{consumergroup='theodolite-uc3-application-0.0.1'} >= 0)"
   slos:
     - name: "lag trend"
-      sloType: "lag trend"
-      prometheusUrl: "http://prometheus-operated:9090"
-      offset: 0
-      properties:
-        consumerGroup: theodolite-uc3-application-0.0.1
-        threshold: 2000
-        externalSloUrl: "http://localhost:80/evaluate-slope"
-        warmup: 60 # in seconds
-  kafkaConfig:
-    bootstrapServer: "theodolite-kafka-kafka-bootstrap:9092"
-    topics:
-      - name: "input"
-        numPartitions: 100
-        replicationFactor: 1
-      - name: "output"
-        numPartitions: 100
-        replicationFactor: 1
-      - name: "theodolite-.*"
-        removeOnly: True
+      sli: consumerLag
+      warmupSeconds: 60
+      externalSloChecker: "http://localhost:80/evaluate-slope"
+      threshold: 2000

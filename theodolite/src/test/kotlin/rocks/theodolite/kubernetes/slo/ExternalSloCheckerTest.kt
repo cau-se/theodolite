@@ -3,61 +3,60 @@ package rocks.theodolite.kubernetes.slo
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import io.quarkus.test.common.QuarkusTestResource
+import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import rocks.theodolite.core.SloExperimentResult
 
 @QuarkusTest
+@QuarkusTestResource(ExternalSloCheckerTest.WireMockTestResource::class)
 internal class ExternalSloCheckerTest {
-
-    private var wireMockServer: WireMockServer? = null
-
-    @BeforeEach
-    fun start() {
-        wireMockServer = WireMockServer().also {
-            it.start()
+    internal class WireMockTestResource : QuarkusTestResourceLifecycleManager {
+        companion object {
+            lateinit var wireMockServer: WireMockServer private set
         }
-    }
 
-    @AfterEach
-    fun stop() {
-        wireMockServer?.stop()
+        override fun start(): Map<String, String> {
+            wireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
+            wireMockServer.start()
+            return emptyMap()
+        }
+
+        override fun stop() {
+            wireMockServer.stop()
+        }
     }
 
     @Test
     fun testExternalTrueResult() {
-        this.wireMockServer!!.stubFor(
+        WireMockTestResource.wireMockServer.stubFor(
             post(urlEqualTo("/"))
-                .willReturn(
-                    aResponse().withJsonBody(BooleanNode.getTrue())
-                )
+                .willReturn(aResponse().withJsonBody(BooleanNode.getTrue()))
         )
 
         val sloChecker = ExternalSloChecker(
-            wireMockServer!!.baseUrl(),
-            mapOf()
+            externalSlopeURL = "${WireMockTestResource.wireMockServer.baseUrl()}/",
+            metadata = emptyMap()
         )
-        val result = sloChecker.evaluate(listOf())
-        assertTrue(result)
+        val result = sloChecker.evaluate(emptyList())
+        assertEquals(SloExperimentResult.SUCCESS, result)
     }
 
     @Test
     fun testExternalFalseResult() {
-        this.wireMockServer!!.stubFor(
+        WireMockTestResource.wireMockServer.stubFor(
             post(urlEqualTo("/"))
-                .willReturn(
-                    aResponse().withJsonBody(BooleanNode.getFalse())
-                )
+                .willReturn(aResponse().withJsonBody(BooleanNode.getFalse()))
         )
 
         val sloChecker = ExternalSloChecker(
-            wireMockServer!!.baseUrl(),
-            mapOf()
+            externalSlopeURL = "${WireMockTestResource.wireMockServer.baseUrl()}/",
+            metadata = emptyMap()
         )
-        val result = sloChecker.evaluate(listOf())
-        assertFalse(result)
+        val result = sloChecker.evaluate(emptyList())
+        assertEquals(SloExperimentResult.FAILURE, result)
     }
-
 }

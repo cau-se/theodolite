@@ -1,7 +1,9 @@
 package rocks.theodolite.core
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.quarkus.runtime.annotations.RegisterForReflection
 import rocks.theodolite.core.strategies.Metric
+import rocks.theodolite.core.SloExperimentResult
 
 /**
  * Central class that saves the state of an execution of Theodolite. For an execution, it is used to save the result of
@@ -9,48 +11,47 @@ import rocks.theodolite.core.strategies.Metric
  * perform the [theodolite.strategies.restriction.RestrictionStrategy].
  */
 @RegisterForReflection
-class Results (val metric: Metric) {
-    // (load, resource) -> Boolean map
-    private val results: MutableMap<Pair<Int, Int>, Boolean> = mutableMapOf()
+class Results(val metric: Metric) {
+    private val experimentResults: MutableMap<Pair<Int, Int>, SloExperimentResult> = mutableMapOf()
 
     // if metric is "demand"  : load     -> resource
     // if metric is "capacity": resource -> load
-    private var optInstances: MutableMap<Int, Int> = mutableMapOf()
-
+    private var optimalYValues: MutableMap<Int, Int> = mutableMapOf()
 
     /**
-     * Set the result for an experiment and update the [optInstances] list accordingly.
+     * Set the result for an experiment and update the [optimalYValues] list accordingly.
      *
      * @param experiment A pair that identifies the experiment by the Load and Resource.
-     * @param successful the result of the experiment. Successful == true and Unsuccessful == false.
+     * @param result the result of the experiment.
      */
-    fun setResult(experiment: Pair<Int, Int>, successful: Boolean) {
-        this.results[experiment] = successful
+    fun addExperimentResult(experiment: Pair<Int, Int>, result: SloExperimentResult) {
+        this.experimentResults[experiment] = result
 
         when (metric) {
             Metric.DEMAND ->
-                if (successful) {
-                    if (optInstances.containsKey(experiment.first)) {
-                        if (optInstances[experiment.first]!! > experiment.second) {
-                            optInstances[experiment.first] = experiment.second
+                if (result == SloExperimentResult.SUCCESS) {
+                    if (optimalYValues.containsKey(experiment.first)) {
+                        if (optimalYValues[experiment.first]!! > experiment.second) {
+                            optimalYValues[experiment.first] = experiment.second
                         }
                     } else {
-                        optInstances[experiment.first] = experiment.second
+                        optimalYValues[experiment.first] = experiment.second
                     }
-                } else if (!optInstances.containsKey(experiment.first)) {
-                    optInstances[experiment.first] = Int.MAX_VALUE
+                } else if (!optimalYValues.containsKey(experiment.first)) {
+                    optimalYValues[experiment.first] = Int.MAX_VALUE
                 }
+
             Metric.CAPACITY ->
-                if (successful) {
-                    if (optInstances.containsKey(experiment.second)) {
-                        if (optInstances[experiment.second]!! < experiment.first) {
-                            optInstances[experiment.second] = experiment.first
+                if (result == SloExperimentResult.SUCCESS) {
+                    if (optimalYValues.containsKey(experiment.second)) {
+                        if (optimalYValues[experiment.second]!! < experiment.first) {
+                            optimalYValues[experiment.second] = experiment.first
                         }
                     } else {
-                        optInstances[experiment.second] = experiment.first
+                        optimalYValues[experiment.second] = experiment.first
                     }
-                } else if (!optInstances.containsKey(experiment.second)) {
-                    optInstances[experiment.second] = Int.MIN_VALUE
+                } else if (!optimalYValues.containsKey(experiment.second)) {
+                    optimalYValues[experiment.second] = Int.MIN_VALUE
                 }
         }
     }
@@ -60,12 +61,10 @@ class Results (val metric: Metric) {
      *
      * @param load Load that identifies the experiment.
      * @param resources Resource that identify the experiment.
-     * @return true if the experiment was successful and false otherwise. If the result has not been reported so far,
-     * null is returned.
-     *
+     * @return the [SloExperimentResult] for the given experiment, or null if no result has been reported yet.
      */
-    fun getResult(load: Int, resources: Int): Boolean? {
-        return this.results[Pair(load, resources)]
+    fun getExperimentResult(load: Int, resources: Int): SloExperimentResult? {
+        return this.experimentResults[Pair(load, resources)]
     }
 
     /**
@@ -80,9 +79,9 @@ class Results (val metric: Metric) {
      * If there is no experiment that has been executed yet, there is no experiment
      * for the given [xValue] or there is none marked successful yet, null is returned.
      */
-    fun getOptYDimensionValue(xValue: Int?): Int? {
+    fun getOptimalYValue(xValue: Int?): Int? {
         if (xValue != null) {
-            val res = optInstances[xValue]
+            val res = optimalYValues[xValue]
             if (res != Int.MAX_VALUE && res != Int.MIN_VALUE) {
                 return res
             }
@@ -102,27 +101,25 @@ class Results (val metric: Metric) {
      *
      * @return the largest tested x-Value or null, if there wasn't any tested which is smaller than the [xValue].
      */
-    fun getMaxBenchmarkedXDimensionValue(xValue: Int): Int? {
-        var maxBenchmarkedXValue: Int? = null
-        for (instance in optInstances) {
-            val instanceXValue= instance.key
-            if (instanceXValue <= xValue) {
-                if (maxBenchmarkedXValue == null) {
-                    maxBenchmarkedXValue = instanceXValue
-                } else if (maxBenchmarkedXValue < instanceXValue) {
-                    maxBenchmarkedXValue = instanceXValue
-                }
-            }
-        }
-        return maxBenchmarkedXValue
+    fun getPreviousXValue(xValue: Int): Int? {
+        return optimalYValues.map { it.key }
+            .filter { it <= xValue }
+            .maxOrNull()
+    }
+
+    fun getExperimentResults(): List<ExperimentResult> {
+        return experimentResults.map { (k, v) -> ExperimentResult(load = k.first, resources = k.second, result = v) }
     }
 
     /**
      * Checks whether the results are empty.
      *
-     * @return true if [results] is empty.
+     * @return true if [experimentResults] is empty.
      */
-    fun isEmpty(): Boolean{
-        return results.isEmpty()
+    @JsonIgnore
+    fun isEmpty(): Boolean {
+        return experimentResults.isEmpty()
     }
+
+    data class ExperimentResult(val load: Int, val resources: Int, val result: SloExperimentResult)
 }

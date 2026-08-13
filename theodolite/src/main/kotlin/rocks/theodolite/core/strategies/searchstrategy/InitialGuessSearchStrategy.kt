@@ -1,9 +1,10 @@
 package rocks.theodolite.core.strategies.searchstrategy
 
 import mu.KotlinLogging
-import rocks.theodolite.core.strategies.guessstrategy.GuessStrategy
 import rocks.theodolite.core.ExperimentRunner
 import rocks.theodolite.core.Results
+import rocks.theodolite.core.SloExperimentResult
+import rocks.theodolite.core.strategies.guessstrategy.GuessStrategy
 
 private val logger = KotlinLogging.logger {}
 
@@ -16,19 +17,19 @@ private val logger = KotlinLogging.logger {}
  * @param results current results of all previously performed benchmarks.
  */
 class InitialGuessSearchStrategy(
-        experimentRunner: ExperimentRunner,
-        private val guessStrategy: GuessStrategy,
-        private var results: Results
+    experimentRunner: ExperimentRunner,
+    private val guessStrategy: GuessStrategy,
+    private var results: Results
 ) : SearchStrategy(experimentRunner) {
 
     override fun findSuitableResource(load: Int, resources: List<Int>): Int? {
 
-        var lastLowestResource : Int? = null
+        var lastLowestResource: Int? = null
 
         // Getting the lastLowestResource from results and calling firstGuess() with it
         if (!results.isEmpty()) {
-            val maxLoad: Int? = this.results.getMaxBenchmarkedXDimensionValue(load)
-            lastLowestResource = this.results.getOptYDimensionValue(maxLoad)
+            val maxLoad: Int? = this.results.getPreviousXValue(load)
+            lastLowestResource = this.results.getOptimalYValue(maxLoad)
         }
         lastLowestResource = this.guessStrategy.firstGuess(resources, lastLowestResource)
 
@@ -40,7 +41,7 @@ class InitialGuessSearchStrategy(
 
             // If the first experiment passes, starting downward linear search
             // otherwise starting upward linear search
-            if (this.experimentRunner.runExperiment(load, lastLowestResource)) {
+            if (this.experimentRunner.runExperiment(load, lastLowestResource) == SloExperimentResult.SUCCESS) {
 
                 resourcesToCheck = resources.subList(0, startIndex).reversed()
                 if (resourcesToCheck.isEmpty()) return lastLowestResource
@@ -49,15 +50,14 @@ class InitialGuessSearchStrategy(
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '$load' and resources '$res'" }
-                    if (this.experimentRunner.runExperiment(load, res)) {
+                    if (this.experimentRunner.runExperiment(load, res) == SloExperimentResult.SUCCESS) {
                         currentMin = res
                     }
                 }
                 return currentMin
-            }
-            else {
+            } else {
                 if (resources.size <= startIndex + 1) {
-                    logger.info{ "No more resources left to check." }
+                    logger.info { "No more resources left to check." }
                     return null
                 }
                 resourcesToCheck = resources.subList(startIndex + 1, resources.size)
@@ -65,24 +65,23 @@ class InitialGuessSearchStrategy(
                 for (res in resourcesToCheck) {
 
                     logger.info { "Running experiment with load '$load' and resources '$res'" }
-                    if (this.experimentRunner.runExperiment(load, res)) return res
+                    if (this.experimentRunner.runExperiment(load, res) == SloExperimentResult.SUCCESS) return res
                 }
             }
-        }
-        else {
+        } else {
             logger.info { "lastLowestResource was null." }
         }
         return null
     }
 
-    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int?{
+    override fun findSuitableLoad(resource: Int, loads: List<Int>): Int? {
 
-        var lastMaxLoad : Int? = null
+        var lastMaxLoad: Int? = null
 
         // Getting the lastLowestLoad from results and calling firstGuess() with it
         if (!results.isEmpty()) {
-            val maxResource: Int? = this.results.getMaxBenchmarkedXDimensionValue(resource)
-            lastMaxLoad = this.results.getOptYDimensionValue(maxResource)
+            val maxResource: Int? = this.results.getPreviousXValue(resource)
+            lastMaxLoad = this.results.getOptimalYValue(maxResource)
         }
         lastMaxLoad = this.guessStrategy.firstGuess(loads, lastMaxLoad)
 
@@ -94,7 +93,7 @@ class InitialGuessSearchStrategy(
 
             // If the first experiment passes, starting upwards linear search
             // otherwise starting downward linear search
-            if (!this.experimentRunner.runExperiment(lastMaxLoad, resource)) {
+            if (this.experimentRunner.runExperiment(lastMaxLoad, resource) != SloExperimentResult.SUCCESS) {
                 // downward search
 
                 loadsToCheck = loads.subList(0, startIndex).reversed()
@@ -102,13 +101,12 @@ class InitialGuessSearchStrategy(
                     for (load in loadsToCheck) {
 
                         logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                        if (this.experimentRunner.runExperiment(load, resource)) {
+                        if (this.experimentRunner.runExperiment(load, resource) == SloExperimentResult.SUCCESS) {
                             return load
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 // upward search
                 if (loads.size <= startIndex + 1) {
                     return lastMaxLoad
@@ -118,14 +116,13 @@ class InitialGuessSearchStrategy(
                 var currentMax: Int = lastMaxLoad
                 for (load in loadsToCheck) {
                     logger.info { "Running experiment with resource '$resource' and load '$load'" }
-                    if (this.experimentRunner.runExperiment(load, resource)) {
+                    if (this.experimentRunner.runExperiment(load, resource) == SloExperimentResult.SUCCESS) {
                         currentMax = load
                     }
                 }
                 return currentMax
             }
-        }
-        else {
+        } else {
             logger.info { "lastMaxLoad was null." }
         }
         return null

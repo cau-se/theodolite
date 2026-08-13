@@ -25,7 +25,7 @@ class DataVolumeLoadGeneratorReplicaPatcher(
 
     override fun patchSingleResource(resource: HasMetadata, value: String): HasMetadata {
         // calculate number of load generator instances and load per instance
-        val load = Integer.parseInt(value)
+        val load = value.toInt()
         val loadGenInstances = (load + maxVolume - 1) / maxVolume
         val loadPerInstance = load / loadGenInstances
 

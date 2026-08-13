@@ -1,9 +1,9 @@
 package rocks.theodolite.kubernetes
 
+import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import mu.KotlinLogging
-import org.json.JSONObject
 
 private val logger = KotlinLogging.logger {}
 
@@ -11,7 +11,7 @@ private val logger = KotlinLogging.logger {}
  * The ResourceByLabelHandler provides basic functions to manage Kubernetes resources through their labels.
  * @param client NamespacedKubernetesClient used for the deletion.
  */
-class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
+class ResourceByLabelHandler(private val client: KubernetesClient) {
 
     /**
      * Deletes all pods with the selected label.
@@ -21,7 +21,8 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
     fun removePods(labelName: String, labelValue: String) {
         this.client
             .pods()
-            .withLabel("$labelName=$labelValue").delete()
+            .withLabel(labelName, labelValue)
+            .delete()
         logger.info { "Pod with label: $labelName=$labelValue deleted" }
     }
 
@@ -33,7 +34,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
     fun removeServices(labelName: String, labelValue: String) {
         this.client
             .services()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
             .delete()
     }
 
@@ -46,7 +47,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
         this.client
             .apps()
             .deployments()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
             .delete()
 
     }
@@ -60,7 +61,7 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
         this.client
             .apps()
             .statefulSets()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
             .delete()
     }
 
@@ -72,7 +73,33 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
     fun removeConfigMaps(labelName: String, labelValue: String) {
         this.client
             .configMaps()
-            .withLabel("$labelName=$labelValue")
+            .withLabel(labelName, labelValue)
+            .delete()
+    }
+
+    /**
+     * Deletes all Jobs with the selected label.
+     * @param [labelName] the label name
+     * @param [labelValue] the value of this label
+     */
+    fun removeJobs(labelName: String, labelValue: String) {
+        this.client
+            .batch()
+            .v1()
+            .jobs()
+            .withLabel(labelName, labelValue)
+            .delete()
+    }
+
+    /**
+     * Deletes all PersistentVolumeClaims with the selected label.
+     * @param [labelName] the label name
+     * @param [labelValue] the value of this label
+     */
+    fun removePersistentVolumeClaims(labelName: String, labelValue: String) {
+        this.client
+            .persistentVolumeClaims()
+            .withLabel(labelName, labelValue)
             .delete()
     }
 
@@ -81,16 +108,11 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
      * @param [labelName] the label name
      * @param [labelValue] the value of this label
      */
-    fun removeCR(labelName: String, labelValue: String, context: CustomResourceDefinitionContext) {
-        val customResources = JSONObject(
-            this.client.customResource(context)
-                .list(client.namespace, mapOf(Pair(labelName, labelValue)))
-        )
-            .getJSONArray("items")
-
-        (0 until customResources.length())
-            .map { customResources.getJSONObject(it).getJSONObject("metadata").getString("name") }
-            .forEach { this.client.customResource(context).delete(client.namespace, it) }
+    fun removeGenericResources(labelName: String, labelValue: String, context: CustomResourceDefinitionContext) {
+        this.client
+                .genericKubernetesResources(context)
+                .withLabel(labelName, labelValue)
+                .delete();
     }
 
     /**
@@ -108,6 +130,23 @@ class ResourceByLabelHandler(private val client: NamespacedKubernetesClient) {
                 .isNullOrEmpty()
         ) {
             logger.info { "Wait for pods with label $matchLabels to be deleted." }
+            Thread.sleep(1000)
+        }
+    }
+
+    /**
+     * Block until the PersistentVolumeClaim with the given name no longer exists.
+     *
+     * @param name the metadata.name of the PVC to wait for
+     */
+    fun blockUntilPvcDeleted(name: String) {
+        while (
+            this.client
+                .persistentVolumeClaims()
+                .withName(name)
+                .get() != null
+        ) {
+            logger.info { "Waiting for PersistentVolumeClaim '$name' to be fully deleted." }
             Thread.sleep(1000)
         }
     }

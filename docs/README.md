@@ -4,6 +4,8 @@ Theodolite's docs are generated with Jekyll from Markdown files.
 
 ## Installation
 
+**Prerequisite:** You need to have Ruby >=3.1 installed on your system.
+
 To set up Jekyll run:
 
 ```sh
@@ -33,11 +35,11 @@ bundle exec jekyll build
 We use the [crdoc](https://github.com/fybrik/crdoc) tool to generate the API reference for our CRDs:
 
 ```sh
-crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl  --output api-reference/crds.md
+crdoc --resources ../theodolite/crd/ --template api-reference/crds.tmpl --output api-reference/crds.md
 ```
 
 With the following command, crdoc is executed in Docker:
 
 ```sh
-docker run --rm -v "`pwd`/../theodolite/crd/":/crd -v "`pwd`/api-reference":/api-reference ghcr.io/fybrik/crdoc:0.6.1 --resources /crd/ --template /api-reference/crds.tmpl --output /api-reference/crds.md
+docker run --rm -v "`pwd`/../theodolite/crd/":/crd -v "`pwd`/api-reference":/api-reference ghcr.io/fybrik/crdoc:0.6.2 --resources /crd/ --template /api-reference/crds.tmpl --output /api-reference/crds.md
 ```

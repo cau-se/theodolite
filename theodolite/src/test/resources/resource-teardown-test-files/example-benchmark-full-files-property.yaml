@@ -1,0 +1,25 @@
+name: example-benchmark-full-files-property
+waitForResourcesEnabled: false
+sut:
+  beforeActions: []
+  afterActions: []
+  resources:
+    - configMap:
+        name: "sut-configmap-1"
+        files:
+          - "sut-file-1.yaml"
+          - "sut-file-2.yaml"
+    - configMap:
+        name: "sut-configmap-2"
+        files:
+          - "sut-file-3.yaml"
+loadGenerator:
+  beforeActions: []
+  afterActions: []
+  resources:
+    - configMap:
+        name: "load-generator-configmap"
+        files:
+          - "load-generator-file-1.yaml"
+          - "load-generator-file-2.yaml"
+

@@ -1,13 +1,14 @@
 package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.apps.Deployment
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesServer
+
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+
 @QuarkusTest
 @WithKubernetesTestServer
 class ResourceLimitPatcherTest {
@@ -143,6 +144,6 @@ class ResourceLimitPatcherTest {
     }
 
     private fun getDeployment(fileName: String): Deployment {
-        return server.client.apps().deployments().load(javaClass.getResourceAsStream(fileName)).get()
+        return server.client.apps().deployments().load(javaClass.getResourceAsStream(fileName)).item()
     }
 }

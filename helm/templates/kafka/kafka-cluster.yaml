@@ -5,7 +5,10 @@ metadata:
   name: {{ template "theodolite.fullname" . }}-kafka
 spec:
   kafka:
-    jmxOptions: {}
+    {{- with .Values.strimzi.kafka.image}}
+    image:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
     {{- with .Values.strimzi.kafka.listeners }}
     listeners:
       {{- toYaml . | nindent 6 }}
@@ -18,12 +21,18 @@ spec:
     config:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.strimzi.kafka.rack }}
+    rack: # This might require strimzi-kafka-operator.createGlobalResources=true or custom RBACs
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     {{- with .Values.strimzi.kafka.jvmOptions }}
     jvmOptions:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.strimzi.kafka.storage }}
     storage:
-      type: ephemeral
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:
@@ -47,16 +56,31 @@ spec:
     {{- end }}
     storage:
       type: ephemeral
-    {{- with .Values.strimzi.kafka.template}}
+    {{- with .Values.strimzi.zookeeper.template}}
     template:
       {{- toYaml . | nindent 6 }}
     {{- end}}
 
-  kafkaExporter: {}
+  {{- if .Values.strimzi.kafkaExporter.enabled }}
+  kafkaExporter:
+    {{- with .Values.strimzi.kafkaExporter.template}}
+    template:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
+    {{- with .Values.strimzi.kafkaExporter.resources}}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
+    logging: info
+  {{- end }}
 
   {{- if .Values.strimzi.topicOperator.enabled }}
   entityOperator:
     topicOperator: {}
+    {{- with .Values.strimzi.topicOperator.template}}
+    template:
+      {{- toYaml . | nindent 6 }}
+    {{- end}}
   {{- end }}
 
 

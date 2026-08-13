@@ -1,16 +1,18 @@
 package rocks.theodolite.kubernetes.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 import io.quarkus.runtime.annotations.RegisterForReflection
+import rocks.theodolite.core.strategies.Metric
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import kotlin.properties.Delegates
+
 
 /**
  * This class represents the configuration for an execution of a benchmark.
  * An example for this is the BenchmarkExecution.yaml
  * A BenchmarkExecution consists of:
- *  - A [name].
  *  - The [benchmark] that should be executed.
  *  - The [load]s that should be checked in the benchmark.
  *  - The [resources] that should be checked in the benchmark.
@@ -18,19 +20,19 @@ import kotlin.properties.Delegates
  *  - An [execution] that encapsulates: the strategy, the duration, and the restrictions
  *  for the execution of the benchmark.
  *  - [configOverrides] additional configurations.
- *  This class is used for parsing(in [theodolite.execution.TheodoliteStandalone]) and
- *  for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  *  @constructor construct an empty BenchmarkExecution.
  */
 @JsonDeserialize
 @RegisterForReflection
 class BenchmarkExecution : KubernetesResource {
+    /** Runtime-only identifier used for naming result files. Not part of the CRD schema. */
+    @JsonIgnore
     var executionId: Int = 0
-    lateinit var name: String
     lateinit var benchmark: String
     lateinit var load: LoadDefinition
     lateinit var resources: ResourceDefinition
-    lateinit var slos: List<SloConfiguration>
+    var slis: List<SliOverride>? = null
+    var slos: List<SloOverride>? = null
     lateinit var execution: Execution
     lateinit var configOverrides: MutableList<ConfigurationOverride?>
 
@@ -41,7 +43,7 @@ class BenchmarkExecution : KubernetesResource {
     @JsonDeserialize
     @RegisterForReflection
     class Execution : KubernetesResource {
-        var metric = "demand"
+        var metric = Metric.DEMAND.value
         lateinit var strategy: Strategy
         var duration by Delegates.notNull<Long>()
         var repetitions by Delegates.notNull<Int>()
@@ -65,13 +67,37 @@ class BenchmarkExecution : KubernetesResource {
     }
 
     /**
-     * Further SLO configurations for the SLOs specified in the Benchmark.
+     * Per-execution override for an SLI defined in the benchmark.
+     * All fields except [name] are optional; present fields replace the benchmark value.
      */
     @JsonDeserialize
     @RegisterForReflection
-    class SloConfiguration : KubernetesResource {
+    class SliOverride : KubernetesResource {
         lateinit var name: String
-        var properties: MutableMap<String, String>? = null
+        var provider: String? = null
+        var query: String? = null
+        var intervalSeconds: Int? = null
+        var providerConfig: MutableMap<String, String>? = null
+    }
+
+    /**
+     * Per-execution override for an SLO defined in the benchmark.
+     * All fields except [name] are optional; present fields replace the benchmark value.
+     */
+    @JsonDeserialize
+    @RegisterForReflection
+    class SloOverride : KubernetesResource {
+        lateinit var name: String
+        var sli: String? = null
+        var warmupSeconds: Int? = null
+        var queryAggregation: String? = null
+        var repetitionAggregation: String? = null
+        var operator: String? = null
+        var threshold: Double? = null
+        var thresholdRelToLoad: Double? = null
+        var thresholdRelToResources: Double? = null
+        var thresholdFromExpression: String? = null
+        var externalSloChecker: String? = null
     }
 
     /**

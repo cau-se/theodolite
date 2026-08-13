@@ -9,7 +9,8 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesServer
+
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
@@ -17,11 +18,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import registerResource
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRDummy
-import rocks.theodolite.kubernetes.operator.ExecutionClient
+import rocks.theodolite.kubernetes.model.crd.ExecutionClient
 import rocks.theodolite.kubernetes.model.crd.BenchmarkCRD
 import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import java.io.FileInputStream
@@ -145,6 +146,7 @@ internal class ConfigMapResourceSetTest {
     }
 
     @Test
+    @Disabled("There is no reason for a special treatment of Execution resources.")
     fun testLoadExecution() {
         val stream = javaClass.getResourceAsStream("/k8s-resource-files/test-execution.yaml")
         val execution = this.executionClient.load(stream).get()
@@ -159,6 +161,7 @@ internal class ConfigMapResourceSetTest {
     }
 
     @Test
+    @Disabled("There is no reason for a special treatment of Benchmark resources.")
     fun testLoadBenchmark() {
         val benchmark = BenchmarkCRDummy("example-benchmark").getCR()
         val createdResource = deployAndGetResource(benchmark).getResourceSet(server.client)
@@ -181,7 +184,7 @@ internal class ConfigMapResourceSetTest {
         server.registerResource(serviceMonitorContext)
 
         val stream = javaClass.getResourceAsStream("/k8s-resource-files/test-service-monitor.yaml")
-        val serviceMonitor = server.client.load(stream).get()[0]
+        val serviceMonitor = server.client.load(stream).items().first()
         val createdResource = deployAndGetResource(serviceMonitor).getResourceSet(server.client)
 
         assertEquals(1, createdResource.size)

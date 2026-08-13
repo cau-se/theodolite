@@ -40,14 +40,25 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
         val appResources = loadKubernetesResources(kubernetesBenchmark.sut.resources, this.client).toResourceMap()
         val loadGenResources = loadKubernetesResources(kubernetesBenchmark.loadGenerator.resources, this.client).toResourceMap()
 
-        // patch the load dimension the resources
+        // patch the load dimension
         loadPatcherDefinitions.forEach { patcherDefinition ->
-            loadGenResources[patcherDefinition.resource] =
-                PatchHandler.patchResource(loadGenResources, patcherDefinition, load.toString())
+            if (appResources.keys.contains(patcherDefinition.resource)) {
+                appResources[patcherDefinition.resource] =
+                    PatchHandler.patchResource(appResources, patcherDefinition, load.toString())
+            } else {
+                loadGenResources[patcherDefinition.resource] =
+                    PatchHandler.patchResource(loadGenResources, patcherDefinition, load.toString())
+            }
         }
+        // patch the resource dimension
         resourcePatcherDefinitions.forEach { patcherDefinition ->
-            appResources[patcherDefinition.resource] =
-                PatchHandler.patchResource(appResources, patcherDefinition, resource.toString())
+            if (appResources.keys.contains(patcherDefinition.resource)) {
+                appResources[patcherDefinition.resource] =
+                    PatchHandler.patchResource(appResources, patcherDefinition, resource.toString())
+            } else {
+                loadGenResources[patcherDefinition.resource] =
+                    PatchHandler.patchResource(loadGenResources, patcherDefinition, resource.toString())
+            }
         }
 
         // Patch the given overrides
@@ -63,8 +74,6 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
             }
         }
 
-        val kafkaConfig = kubernetesBenchmark.kafkaConfig
-
         return KubernetesBenchmarkDeployment(
                 sutBeforeActions = kubernetesBenchmark.sut.beforeActions,
                 sutAfterActions = kubernetesBenchmark.sut.afterActions,
@@ -74,8 +83,6 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
                 loadGenResources = loadGenResources.toList().flatMap { it.second },
                 loadGenerationDelay = loadGenerationDelay,
                 afterTeardownDelay = afterTeardownDelay,
-                kafkaConfig = if (kafkaConfig != null) mapOf("bootstrap.servers" to kafkaConfig.bootstrapServer) else mapOf(),
-                topics = kafkaConfig?.topics ?: listOf(),
                 client = this.client,
                 rolloutMode = waitForResourcesEnabled
         )
@@ -84,9 +91,5 @@ class KubernetesBenchmarkDeploymentBuilder (val kubernetesBenchmark: KubernetesB
 }
 
 private fun Collection<Pair<String, HasMetadata>>.toResourceMap(): MutableMap<String, List<HasMetadata>> {
-    return this.toMap()
-        .toMutableMap()
-        .map { Pair(it.key, listOf(it.value)) }
-        .toMap()
-        .toMutableMap()
+    return this.groupBy({ it.first }, { it.second }).toMutableMap()
 }

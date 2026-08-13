@@ -32,35 +32,89 @@ spec:
               value: operator
             - name: RESULTS_FOLDER
               value: "/deployments/results"
+            - name: QUARKUS_LOG_LEVEL
+              value: {{ .Values.operator.logLevel | quote }}
+            {{- if .Values.operator.prometheusUrl }}
+            - name: THEODOLITE_PROMETHEUS_URL
+              value: {{ .Values.operator.prometheusUrl | quote }}
+            {{- end }}
+            - name: THEODOLITE_SLO_CHECKER_URL
+              value: {{ .Values.operator.sloCheckerUrl | default "http://localhost:8082" | quote }}
+            {{- if .Values.operator.dynatrace.url }}
+            - name: THEODOLITE_DYNATRACE_URL
+              value: {{ .Values.operator.dynatrace.url | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.existingSecret }}
+            - name: DQL_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: clientId
+            - name: DQL_CLIENTSECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: clientSecret
+            - name: DQL_SCOPE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: scope
+            - name: DQL_RESOURCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: resource
+            - name: DQL_AUTHURL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operator.dynatrace.existingSecret }}
+                  key: authUrl
+            {{- else }}
+            {{- if .Values.operator.dynatrace.clientId }}
+            - name: DQL_CLIENTID
+              value: {{ .Values.operator.dynatrace.clientId | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.clientSecret }}
+            - name: DQL_CLIENTSECRET
+              value: {{ .Values.operator.dynatrace.clientSecret | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.scope }}
+            - name: DQL_SCOPE
+              value: {{ .Values.operator.dynatrace.scope | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.resource }}
+            - name: DQL_RESOURCE
+              value: {{ .Values.operator.dynatrace.resource | quote }}
+            {{- end }}
+            {{- if .Values.operator.dynatrace.authUrl }}
+            - name: DQL_AUTHURL
+              value: {{ .Values.operator.dynatrace.authUrl | quote }}
+            {{- end }}
+            {{- end }}
           volumeMounts:
             - name: theodolite-results-volume
               mountPath: "/deployments/results"
+          {{- with .Values.operator.resources}}
           resources:
-            requests:
-              memory: "512Mi"
-              cpu: "250m"
-            limits:
-              memory: "1024Mi"
-              cpu: "500m"
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- if .Values.operator.sloChecker.generic.enabled }}
         - name: slo-checker-generic
           image: "{{ .Values.operator.sloChecker.generic.image }}:{{ .Values.operator.sloChecker.generic.imageTag }}"
           imagePullPolicy: "{{ .Values.operator.sloChecker.generic.imagePullPolicy }}"
           ports:
           - containerPort: 8082
-            name: analysis
+            name: slo-generic
           env:
           - name: PORT
             value: "8082"
           - name: LOG_LEVEL
             value: INFO
+          {{- with .Values.operator.sloChecker.generic.resources}}
           resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- end }}
         {{- if .Values.operator.sloChecker.lagTrend.enabled }}
         - name: lag-trend-slo-checker
@@ -68,41 +122,17 @@ spec:
           imagePullPolicy: "{{ .Values.operator.sloChecker.lagTrend.imagePullPolicy }}"
           ports:
           - containerPort: 80
-            name: analysis
+            name: slo-lag-trend
           env:
           - name: LOG_LEVEL
             value: INFO
+          {{- with .Values.operator.sloChecker.lagTrend.resources}}
           resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
-        {{- end }}
-        {{- if .Values.operator.sloChecker.droppedRecordsKStreams.enabled }}
-        - name: slo-checker-dropped-records-kstreams
-          image: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.image }}:{{ .Values.operator.sloChecker.droppedRecordsKStreams.imageTag }}"
-          imagePullPolicy: "{{ .Values.operator.sloChecker.droppedRecordsKStreams.imagePullPolicy }}"
-          ports:
-          - containerPort: 8081
-            name: analysis
-          env:
-          - name: PORT
-            value: "8081"
-          - name: LOG_LEVEL
-            value: INFO
-          resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- end }}
         {{- if .Values.operator.resultsVolume.accessSidecar.enabled }}
         - name: results-access
-          image: busybox:stable
           image: "{{ .Values.operator.resultsVolume.accessSidecar.image }}:{{ .Values.operator.resultsVolume.accessSidecar.imageTag }}"
           imagePullPolicy: "{{ .Values.operator.resultsVolume.accessSidecar.imagePullPolicy }}"
           command:
@@ -112,6 +142,10 @@ spec:
           volumeMounts:
           - mountPath: /results
             name: theodolite-results-volume
+          {{- with .Values.operator.resultsVolume.accessSidecar.resources}}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
         {{- end }}
       volumes:
       - name: theodolite-results-volume

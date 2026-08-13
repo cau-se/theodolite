@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import mu.KotlinLogging
 import rocks.theodolite.kubernetes.Configuration
+import rocks.theodolite.kubernetes.model.crd.ExecutionCRD
 import java.time.Instant
 import java.util.*
 import kotlin.NoSuchElementException
@@ -41,8 +42,8 @@ class EventCreator {
     }
 
     private fun buildObjectReference(executionName: String): ObjectReference {
-        val exec = TheodoliteOperator(this.client)
-            .getExecutionClient()
+        val exec = this.client
+            .resources(ExecutionCRD::class.java)
             .list()
             .items
             .first{it.metadata.name == executionName}

@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import rocks.theodolite.core.strategies.Metric
-import rocks.theodolite.core.strategies.restrictionstrategy.LowerBoundRestriction
 import rocks.theodolite.core.Results
+import rocks.theodolite.core.SloExperimentResult
+import rocks.theodolite.core.strategies.Metric
 
 internal class LowerBoundRestrictionTest {
 
@@ -64,7 +64,7 @@ internal class LowerBoundRestrictionTest {
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, true)
 
-        val minRequiredInstances = results.getOptYDimensionValue(20000)
+        val minRequiredInstances = results.getOptimalYValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
@@ -80,15 +80,14 @@ internal class LowerBoundRestrictionTest {
         results.setResult(10000, 1, false)
         results.setResult(20000, 2, false)
 
-        val minRequiredInstances = results.getOptYDimensionValue(20000)
+        val minRequiredInstances = results.getOptimalYValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances!!)
     }
 
 
-
     private fun Results.setResult(load: Int, resource: Int, successful: Boolean) {
-        this.setResult(Pair(load, resource),successful)
+        this.addExperimentResult(Pair(load, resource), if (successful) SloExperimentResult.SUCCESS else SloExperimentResult.FAILURE)
     }
 }

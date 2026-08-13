@@ -6,17 +6,13 @@ kafkaClient:
   enabled: false
   nodeSelector: {}
 
+kcat:
+  enabled: false
+  nodeSelector: {}
 
 ####
-## configuration of sub charts
+## Configuration of sub charts
 ###
-
-###
-# Grafana
-###
-grafana:
-  enabled: false
- 
 
 
 ###
@@ -40,9 +36,8 @@ strimzi:
       "auto.create.topics.enable": false
       "log.retention.ms": "7200000" # 2h
       "metrics.sample.window.ms": "5000" #5s
-    jvmOptions:
-      "-Xmx": "512M"
-      "-Xms": "512M"
+    storage:
+      type: ephemeral
     nodeSelectorTerms: []
     resources: {}
     
@@ -50,12 +45,16 @@ strimzi:
     replicas: 3
     zooEntrance:
       enabled: true
+      nodeSelector: {}
       zookeeperClient:
         enabled: true
         nodeSelector: {}
     nodeSelectorTerms: []
   
   topicOperator:
+    enabled: true
+  
+  kafkaExporter:
     enabled: true
 
   schemaRegistry:
@@ -113,6 +112,7 @@ kube-prometheus-stack:
     sidecar:
       dashboards:
         enabled: true
+        searchNamespace: null
         provider:
           # allow updating provisioned dashboards from the UI
           allowUiUpdates: true
@@ -192,6 +192,9 @@ prometheus:
   nodePort:
     enabled: false
     nodePort: 30900
+
+  scrapeInterval: 15s
+  enableAdminAPI: true
   
   serviceAccount:
     enabled: true
@@ -207,7 +210,7 @@ prometheus:
 ###
 operator:
   enabled: true
-  
+
   image: ghcr.io/cau-se/theodolite
   imageTag: latest
   imagePullPolicy: Always
@@ -216,22 +219,68 @@ operator:
 
   podAnnotations: {}
 
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1024Mi"
+      cpu: "500m"
+
+  # Log level for the Theodolite operator.
+  # Valid values: TRACE, DEBUG, INFO, WARN, ERROR
+  logLevel: INFO
+
+  # Default Prometheus URL (THEODOLITE_PROMETHEUS_URL). Leave empty to use the in-cluster default.
+  prometheusUrl: ""
+
+  # Default external SLO checker URL (THEODOLITE_SLO_CHECKER_URL).
+  # Defaults to the generic SLO checker sidecar at http://localhost:8082.
+  # Set this if you want all SLOs without an explicit externalSloChecker to use a different endpoint.
+  sloCheckerUrl: ""
+
+  # Dynatrace DQL configuration. Only required when using SLIs with provider: dynatrace.
+  dynatrace:
+    # Default DQL query API endpoint (THEODOLITE_DYNATRACE_URL).
+    # Can be overridden per SLI via providerConfig.dynatraceUrl.
+    url: ""
+
+    # OAuth credentials for the Dynatrace DQL API.
+    # Recommended: use existingSecret to avoid storing credentials in plain text.
+    existingSecret: ""  # name of a Kubernetes Secret with keys: clientId, clientSecret, scope, resource, authUrl
+
+    # Plain-text credentials (used only when existingSecret is empty):
+    clientId: ""
+    clientSecret: ""
+    scope: ""
+    resource: ""
+    authUrl: ""
+
   sloChecker:
     generic:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-generic
       imageTag: latest
       imagePullPolicy: Always
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "50m"
+        limits:
+          memory: "128Mi"
+          cpu: "100m"
     lagTrend:
       enabled: true
       image: ghcr.io/cau-se/theodolite-slo-checker-lag-trend
       imageTag: latest
       imagePullPolicy: Always
-    droppedRecordsKStreams:
-      enabled: false
-      image: ghcr.io/cau-se/theodolite-slo-checker-dropped-records-kstreams
-      imageTag: latest
-      imagePullPolicy: Always
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "50m"
+        limits:
+          memory: "128Mi"
+          cpu: "100m"
 
   resultsVolume:
     persistent:
@@ -241,11 +290,13 @@ operator:
       accessModes:
         - ReadWriteOnce
       size: 1Gi
+      # volumeName:
     accessSidecar:
       enabled: true
       image: busybox
       imageTag: stable
       imagePullPolicy: IfNotPresent
+      #resources: {}
 
   theodoliteBenchmarks:
     resourceConfigMaps:

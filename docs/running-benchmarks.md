@@ -29,8 +29,8 @@ Suppose your benchmark is defined in `example-benchmark.yaml` and all resources 
 You can deploy both to Kubernetes by running:
 
 ```sh
-kubectl apply -f example-benchmark.yaml
 kubectl apply -f example-configmap.yaml
+kubectl apply -f example-benchmark.yaml
 ```
 
 To list all benchmarks currently deployed run:
@@ -56,30 +56,29 @@ The status of a benchmark tells you whether executions of it are ready to run:
 To run a benchmark, an Execution YAML file needs to be created such as the following one.
 
 ```yaml
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: execution
 metadata:
-  name: theodolite-example-execution # (1) give a name to your execution
+  name: example-execution # (1) give a name to your execution
 spec:
-  benchmark: "uc1-kstreams" # (2) refer to the benchmark to be run
+  benchmark: "example-benchmark" # (2) refer to the benchmark to be run
   load:
-    loadType: "NumSensors" # (3) chose one of the benchmark's load types
-    loadValues: [25000, 50000] # (4) select a set of load intensities
+    loadType: "CallsPerSecond" # (3) chose one of the benchmark's load types
+    loadValues: [10, 20, 50] # (4) select a set of load intensities
   resources:
     resourceType: "Instances" # (5) chose one of the benchmark's resource types
-    resourceValues: [1, 2] # (6) select a set of resource amounts
+    resourceValues: [1, 2, 3] # (6) select a set of resource amounts
   slos:
-    - name: "lag trend"
-      properties:
-        threshold: 2000
+    - name: "low-error-rate"
+      threshold: 0.01 # (7) override the SLO threshold
   execution:
     strategy:
       name: "RestrictionSearch" # (8) chose a search strategy
       restrictions: ["LowerBound"] # (9) configure the search strategy
       searchStrategy: "LinearSearch" # (10) configure the search strategy (cont.)
-    duration: 300 # (11) set the experiment duration in seconds
+    duration: 180 # (11) set the experiment duration in seconds
     repetitions: 1 # (12) set the number of repetitions
-    loadGenerationDelay: 30 # (13) configure a delay before load generation
+    loadGenerationDelay: 10 # (13) configure a delay before load generation
 ```
 
 See [Creating an Execution](creating-an-execution) for a more detailed explanation on how to create Executions.
@@ -146,7 +145,7 @@ The notebooks allow to compute a scalability function using Theodolite's *demand
 
 After finishing a benchmark execution, Theodolite creates a `exp<id>_demand.csv` file. It maps the tested load intensities to the minimal required resources for that load. If the monitoring data collected during benchmark execution should be analyzed in more detail, the `demand-metric.ipynb` notebook can be used. 
 
-Theodolite stores monitoring data for each conducted SLO experiment in `exp<id>_<load>_<resources>_<slo-slug>_<rep>.csv` files, where `<id>` is the ID of an execution, `<load>` the corresponding load intensity value, `<resources>` the resources value, `<slo-slug>` the [name of the SLO](creating-a-benchmark#service-level-objectives-slos) and `<rep>` the repetition counter.
+Theodolite stores monitoring data for each conducted SLO experiment in `exp<id>_<load>_<resources>_<slo-slug>_<rep>.csv` files, where `<id>` is the ID of an execution, `<load>` the corresponding load intensity value, `<resources>` the resources value, `<slo-slug>` the [name of the SLO](creating-a-benchmark#service-level-indicators-and-service-level-objectives) and `<rep>` the repetition counter.
 The `demand-metric.ipynb` notebook reads these files and generates a new CSV file mapping load intensities to the minimal required resources. The format of this file corresponds to the original `exp<id>_demand.csv` file created when running the benchmark, but allows, for example, to evaluate different warm-up periods.
 
 Currently, the `demand-metric.ipynb` notebook only supports benchmarks with the *lag trend SLO* out-of-the-box, but can easily be adjusted to perform any other type of analysis.

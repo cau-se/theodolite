@@ -4,6 +4,7 @@ import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import rocks.theodolite.core.SloExperimentResult
 import rocks.theodolite.core.strategies.Metric
 
 @QuarkusTest
@@ -12,12 +13,12 @@ internal class ResultsTest {
     @Test
     fun testMinRequiredInstancesWhenSuccessfulDemand() {
         val results = Results(Metric.DEMAND)
-        results.setResult(Pair(10000, 1), true)
-        results.setResult(Pair(10000, 2), true)
-        results.setResult(Pair(20000, 1), false)
-        results.setResult(Pair(20000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.FAILURE)
+        results.addExperimentResult(Pair(20000, 2), SloExperimentResult.SUCCESS)
 
-        val minRequiredInstances = results.getOptYDimensionValue(20000)
+        val minRequiredInstances = results.getOptimalYValue(20000)
 
         assertNotNull(minRequiredInstances)
         assertEquals(2, minRequiredInstances)
@@ -26,10 +27,10 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulDemand() {
         val results = Results(Metric.DEMAND)
-        results.setResult(Pair(10000, 1), true)
-        results.setResult(Pair(10000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
 
-        val test1 = results.getMaxBenchmarkedXDimensionValue(100000)
+        val test1 = results.getPreviousXValue(100000)
 
         assertNotNull(test1)
         assertEquals(10000, test1)
@@ -38,11 +39,11 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenLargestNotSuccessfulDemand() {
         val results = Results(Metric.DEMAND)
-        results.setResult(Pair(10000, 1), true)
-        results.setResult(Pair(10000, 2), true)
-        results.setResult(Pair(20000, 1), false)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.FAILURE)
 
-        val test2 = results.getMaxBenchmarkedXDimensionValue(100000)
+        val test2 = results.getPreviousXValue(100000)
 
         assertNotNull(test2)
         assertEquals(20000, test2)
@@ -51,12 +52,12 @@ internal class ResultsTest {
     @Test
     fun testMaxRequiredInstancesWhenSuccessfulCapacity() {
         val results = Results(Metric.CAPACITY)
-        results.setResult(Pair(10000, 1), true)
-        results.setResult(Pair(20000, 1), false)
-        results.setResult(Pair(10000, 2), true)
-        results.setResult(Pair(20000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.FAILURE)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 2), SloExperimentResult.SUCCESS)
 
-        val maxRequiredInstances = results.getOptYDimensionValue(2)
+        val maxRequiredInstances = results.getOptimalYValue(2)
 
         assertNotNull(maxRequiredInstances)
         assertEquals(20000, maxRequiredInstances)
@@ -65,10 +66,10 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenAllSuccessfulCapacity() {
         val results = Results(Metric.CAPACITY)
-        results.setResult(Pair(10000, 1), true)
-        results.setResult(Pair(10000, 2), true)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.SUCCESS)
 
-        val test1 = results.getMaxBenchmarkedXDimensionValue(5)
+        val test1 = results.getPreviousXValue(5)
 
         assertNotNull(test1)
         assertEquals(2, test1)
@@ -77,12 +78,12 @@ internal class ResultsTest {
     @Test
     fun testGetMaxBenchmarkedLoadWhenLargestNotSuccessfulCapacity() {
         val results = Results(Metric.CAPACITY)
-        results.setResult(Pair(10000, 1), true)
-        results.setResult(Pair(20000, 1), true)
-        results.setResult(Pair(10000, 2), false)
+        results.addExperimentResult(Pair(10000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(20000, 1), SloExperimentResult.SUCCESS)
+        results.addExperimentResult(Pair(10000, 2), SloExperimentResult.FAILURE)
 
 
-        val test2 = results.getMaxBenchmarkedXDimensionValue(5)
+        val test2 = results.getPreviousXValue(5)
 
         assertNotNull(test2)
         assertEquals(2, test2)

@@ -16,7 +16,11 @@ public class AggregatedToActive
   @Override
   public KV<String, ActivePowerRecord> apply(
       final KV<String, AggregatedActivePowerRecord> kv) {
-    return KV.of(kv.getKey(), new ActivePowerRecord(kv.getValue().getIdentifier(),
-        kv.getValue().getTimestamp(), kv.getValue().getSumInW()));
+    return KV.of(
+        kv.getKey(),
+        new ActivePowerRecord(
+            kv.getValue().getIdentifier(),
+            kv.getValue().getTimestamp(),
+            kv.getValue().getSumInW()));
   }
 }

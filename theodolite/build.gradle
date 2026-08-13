@@ -1,73 +1,93 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.6.10"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.6.10"
+    id 'org.jetbrains.kotlin.jvm' version "2.3.10"
+    id "org.jetbrains.kotlin.plugin.allopen" version "2.3.10"
     id 'io.quarkus'
-    id "io.gitlab.arturbosch.detekt" version "1.15.0"
-    id "org.jlleitschuh.gradle.ktlint" version "10.0.0"
+    id "io.gitlab.arturbosch.detekt" version "1.23.6"
+    id "org.jlleitschuh.gradle.ktlint" version "12.1.0"
 }
 
 repositories {
     mavenCentral()
     mavenLocal()
-    jcenter()
+}
+
+configurations.all {
+    exclude group: 'io.fabric8', module: 'openshift-model-monitoring'
 }
 
 dependencies {
-    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-operator-sdk-bom:${quarkusPlatformVersion}")
+    implementation platform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'io.quarkus:quarkus-arc'
-    implementation 'io.quarkus:quarkus-resteasy'
+    //implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-kubernetes-client'
+    implementation 'io.quarkiverse.operatorsdk:quarkus-operator-sdk'
 
-    implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.69'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
-
-    implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.slf4j:slf4j-simple:1.7.32'
     implementation 'io.github.microutils:kotlin-logging:2.1.16'
-    implementation 'org.apache.kafka:kafka-clients:2.8.0'
-    implementation 'khttp:khttp:1.0.0'
+    implementation 'net.objecthunter:exp4j:0.4.8'
 
-    testImplementation 'io.quarkus:quarkus-junit5'
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
+    implementation "io.quarkus:quarkus-jackson"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+
+    testImplementation 'io.quarkus:quarkus-junit'
     testImplementation 'io.quarkus:quarkus-test-kubernetes-client'
+    // Used for exec command tests
+    testImplementation ('io.fabric8:kubernetes-client-api') {
+        artifact {
+            classifier = 'tests'
+        }
+    }
     //testImplementation 'io.rest-assured:rest-assured'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.33.2'
-    testImplementation 'org.junit-pioneer:junit-pioneer:1.5.0'
-    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
+    testImplementation 'io.fabric8:kube-api-test-client-inject'
+    testImplementation 'io.javaoperatorsdk:operator-framework-junit'
+    testImplementation 'org.wiremock:wiremock:3.13.2'
+    testImplementation 'org.junit-pioneer:junit-pioneer:2.3.0'
+    testImplementation "org.mockito.kotlin:mockito-kotlin:6.3.0"
 }
 
 group 'theodolite'
-version '0.9.0-SNAPSHOT'
+version '0.11.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 allOpen {
-    annotation("javax.ws.rs.Path")
-    annotation("javax.enterprise.context.ApplicationScoped")
+    annotation("jakarta.ws.rs.Path")
+    annotation("jakarta.enterprise.context.ApplicationScoped")
     annotation("io.quarkus.test.junit.QuarkusTest")
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
     kotlinOptions.javaParameters = true
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
 }
 
 test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+
     // Required because of https://github.com/quarkusio/quarkus/issues/18973
-    minHeapSize = "256m"
-    maxHeapSize = "1024m"
+    minHeapSize = "512m"
+    maxHeapSize = "3584m"
+
+    // Temporary fix environment variable test
+    jvmArgs = [
+            "--add-opens",  "java.base/java.util=ALL-UNNAMED",
+            "--add-opens",  "java.base/java.lang=ALL-UNNAMED"
+    ]
 }
 
 detekt {
-    failFast = true // fail build on any finding
+    allRules = false
     buildUponDefaultConfig = true
     ignoreFailures = true
 }

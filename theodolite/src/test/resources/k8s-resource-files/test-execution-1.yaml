@@ -1,4 +1,4 @@
-apiVersion: theodolite.rocks/v1beta1
+apiVersion: theodolite.rocks/v1beta2
 kind: Execution
 metadata:
   name: example-execution
@@ -13,8 +13,7 @@ spec:
     resourceValues: [1, 2, 3, 4, 5]
   slos:
     - name: "lag trend"
-      properties:
-        threshold: 2000
+      threshold: 2000
   execution:
     strategy:
       name: "RestrictionSearch"

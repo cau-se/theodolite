@@ -2,6 +2,7 @@ package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.HasMetadata
 import io.fabric8.kubernetes.api.model.apps.Deployment
+import io.fabric8.kubernetes.api.model.apps.StatefulSet
 
 
 class NumSensorsLoadGeneratorReplicaPatcher(
@@ -9,9 +10,14 @@ class NumSensorsLoadGeneratorReplicaPatcher(
 ) : AbstractIntPatcher() {
 
     override fun patchSingleResource(resource: HasMetadata, value: Int): HasMetadata {
-        if (resource is Deployment) {
-            resource.spec.replicas = (value + loadGenMaxRecords - 1) / loadGenMaxRecords
-
+        val replicas = (value + loadGenMaxRecords - 1) / loadGenMaxRecords
+        when (resource) {
+            is Deployment -> {
+                resource.spec.replicas = replicas
+            }
+            is StatefulSet -> {
+                resource.spec.replicas = replicas
+            }
         }
         return resource
     }

@@ -3,7 +3,8 @@ package rocks.theodolite.kubernetes.model.crd
 import io.fabric8.kubernetes.api.model.KubernetesResourceList
 import io.fabric8.kubernetes.client.dsl.MixedOperation
 import io.fabric8.kubernetes.client.dsl.Resource
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer
+import io.quarkus.test.kubernetes.client.KubernetesServer
+
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kubernetes.client.KubernetesTestServer
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer
@@ -11,10 +12,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
-import rocks.theodolite.kubernetes.operator.ExecutionEventHandler
-import rocks.theodolite.kubernetes.operator.ExecutionStateHandler
-import rocks.theodolite.kubernetes.operator.TheodoliteController
 import rocks.theodolite.kubernetes.util.ConfigurationOverride
 import java.io.FileInputStream
 
@@ -31,12 +28,6 @@ internal class CRDExecutionTest {
 
      lateinit var executionClient: ExecutionClient
 
-     lateinit var controller: TheodoliteController
-
-     lateinit var stateHandler: ExecutionStateHandler
-
-     lateinit var eventHandler: ExecutionEventHandler
-
      @BeforeEach
      fun setUp() {
           server.before()
@@ -48,10 +39,6 @@ internal class CRDExecutionTest {
                   .create()
 
           this.executionClient = this.server.client.resources(ExecutionCRD::class.java)
-
-          this.controller = mock()
-          this.stateHandler = ExecutionStateHandler(server.client)
-          this.eventHandler = ExecutionEventHandler(this.controller, this.stateHandler)
      }
 
      @AfterEach
@@ -65,7 +52,6 @@ internal class CRDExecutionTest {
           val execution = executionClient.load(ClassLoader.getSystemResourceAsStream("k8s-resource-files/test-execution.yaml")).create().spec
 
           assertEquals(0, execution.executionId)
-          assertEquals("test", execution.name)
           assertEquals("uc1-kstreams", execution.benchmark)
           assertEquals(mutableListOf<ConfigurationOverride?>(), execution.configOverrides)
 

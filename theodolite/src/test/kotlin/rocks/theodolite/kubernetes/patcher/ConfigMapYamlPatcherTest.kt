@@ -2,13 +2,14 @@ package rocks.theodolite.kubernetes.patcher
 
 import io.fabric8.kubernetes.api.model.ConfigMap
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import io.quarkus.test.junit.QuarkusTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
+@QuarkusTest
 internal class ConfigMapYamlPatcherTest {
 
     private lateinit var configMap: ConfigMap
@@ -20,6 +21,7 @@ internal class ConfigMapYamlPatcherTest {
         val data = mapOf(
             "some-file.yaml" to """
                 first: some-test
+                # some comment: with colon
                 second: 1
                 third: 1234
             """.trimIndent()
@@ -27,7 +29,7 @@ internal class ConfigMapYamlPatcherTest {
 
         this.configMap = ConfigMapBuilder()
             .withNewMetadata()
-            .withName("example")
+                .withName("example")
             .endMetadata()
             .addToData(data)
             .build()

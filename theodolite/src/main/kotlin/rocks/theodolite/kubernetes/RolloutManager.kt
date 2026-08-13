@@ -7,9 +7,14 @@ import io.fabric8.kubernetes.api.model.apps.ReplicaSet
 import io.fabric8.kubernetes.api.model.apps.StatefulSet
 import io.fabric8.kubernetes.api.model.batch.v1.Job
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient
+import mu.KotlinLogging
 import rocks.theodolite.kubernetes.K8sManager
 
+private val logger = KotlinLogging.logger {}
+
 private var SLEEP_TIME_MS = 500L
+private var NOT_READY_LOG_INTERVAL_MS = 5000L
+
 class RolloutManager(private val blockUntilResourcesReady: Boolean, private val client: NamespacedKubernetesClient) {
 
     fun rollout(resources: List<HasMetadata>) {
@@ -24,14 +29,26 @@ class RolloutManager(private val blockUntilResourcesReady: Boolean, private val 
                         is StatefulSet -> waitFor { client.apps().statefulSets().withName(it.metadata.name).isReady }
                         is DaemonSet -> waitFor { client.apps().daemonSets().withName(it.metadata.name).isReady }
                         is ReplicaSet -> waitFor { client.apps().replicaSets().withName(it.metadata.name).isReady }
-                        is Job -> waitFor { client.batch().v1().cronjobs().withName(it.metadata.name).isReady }
+                        is Job -> {
+                            val jobName = it.metadata.name
+                            // Wait until the Job has at least one active (running) pod.
+                            waitFor {
+                                (client.batch().v1().jobs().withName(jobName).get()?.status?.active ?: 0) > 0
+                            }
+                        }
                     }
                 }
         }
     }
 
     private fun waitFor(isResourceReady: () -> Boolean) {
+        var lastLogTime = 0L
         while (!isResourceReady()) {
+            val now = System.currentTimeMillis()
+            if (now - lastLogTime >= NOT_READY_LOG_INTERVAL_MS) {
+                logger.info { "Waiting for resource to become ready..." }
+                lastLogTime = now
+            }
             Thread.sleep(SLEEP_TIME_MS)
         }
     }

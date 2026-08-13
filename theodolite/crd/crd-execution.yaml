@@ -10,7 +10,7 @@ spec:
     shortNames:
       - exec
   versions:
-  - name: v1beta1
+  - name: v1beta2
     served: true
     storage: true
     schema:
@@ -22,10 +22,6 @@ spec:
             type: object
             required: ["benchmark", "load", "resources", "execution"]
             properties:
-              name:
-                description: This field exists only for technical reasons and should not be set by the user. The value of the field will be overwritten.
-                type: string
-                default: ""
               benchmark:
                 description: The name of the benchmark this execution is referring to.
                 type: string
@@ -55,22 +51,71 @@ spec:
                     type: array
                     items:
                       type: integer
-              slos: # def of service level objectives
-                description:  List of SLOs with their properties, which differ from the benchmark definition.
+              slis: # per-execution SLI overrides
+                description: (Optional) Per-execution overrides for SLIs defined in the benchmark. Matched by name.
                 type: array
                 items:
                   type: object
-                  required: ["name", "properties"]
+                  required: ["name"]
                   properties:
                     name:
-                      description: The name of the SLO. It must match a SLO specified in the Benchmark.
+                      description: Name of the SLI to override. Must match an SLI in the referenced benchmark.
                       type: string
-                    properties:
-                        description: (Optional) SLO specific additional arguments.
-                        type: object
-                        additionalProperties: true
-                        x-kubernetes-map-type: "granular"
-                        default: {}
+                    provider:
+                      description: (Optional) Override for the metric provider.
+                      type: string
+                    query:
+                      description: (Optional) Override for the PromQL query.
+                      type: string
+                    intervalSeconds:
+                      description: (Optional) Override for the Prometheus step size in seconds.
+                      type: integer
+                    providerConfig:
+                      description: (Optional) Override/extend provider-specific configuration (e.g., prometheusUrl, offsetHours).
+                      type: object
+                      additionalProperties: true
+                      x-kubernetes-map-type: "granular"
+                      default: { }
+              slos: # per-execution SLO overrides
+                description: (Optional) Per-execution overrides for SLOs defined in the benchmark. Matched by name.
+                type: array
+                items:
+                  type: object
+                  required: ["name"]
+                  properties:
+                    name:
+                      description: Name of the SLO to override. Must match an SLO in the referenced benchmark.
+                      type: string
+                    sli:
+                      description: (Optional) Override for the referenced SLI name.
+                      type: string
+                    warmupSeconds:
+                      description: (Optional) Override for warmup duration in seconds.
+                      type: integer
+                    queryAggregation:
+                      description: (Optional) Override for the query aggregation function.
+                      type: string
+                    repetitionAggregation:
+                      description: (Optional) Override for the repetition aggregation function.
+                      type: string
+                    operator:
+                      description: (Optional) Override for the comparison operator.
+                      type: string
+                    threshold:
+                      description: (Optional) Override for the fixed threshold value.
+                      type: number
+                    thresholdRelToLoad:
+                      description: (Optional) Override for threshold relative to load.
+                      type: number
+                    thresholdRelToResources:
+                      description: (Optional) Override for threshold relative to resources.
+                      type: number
+                    thresholdFromExpression:
+                      description: (Optional) Override for threshold from expression.
+                      type: string
+                    externalSloChecker:
+                      description: (Optional) Override for the SLO checker URL.
+                      type: string
               execution: # def execution config
                 description: Defines the overall parameter for the execution.
                 type: object
@@ -102,6 +147,9 @@ spec:
                     type: integer
                   loadGenerationDelay:
                     description: Seconds to wait between the start of the SUT and the load generator.
+                    type: integer
+                  afterTeardownDelay:
+                    description: Seconds to wait after the teardown of an experiment.
                     type: integer
               configOverrides:
                 description:  List of patchers that are used to override existing configurations.
