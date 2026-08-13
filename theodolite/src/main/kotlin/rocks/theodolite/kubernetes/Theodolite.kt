@@ -1,7 +1,5 @@
 package rocks.theodolite.kubernetes
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient
 import io.quarkus.runtime.LaunchMode
 import io.quarkus.runtime.Quarkus
 import io.quarkus.runtime.ShutdownEvent
@@ -11,7 +9,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import mu.KotlinLogging
-import rocks.theodolite.kubernetes.operator.TheodoliteOperator
 
 private val LOGGER = KotlinLogging.logger {}
 
@@ -36,12 +33,8 @@ object Theodolite {
                 val mode = Configuration.EXECUTION_MODE
                 LOGGER.info { "Start Theodolite in $mode mode." }
 
-                val namespace = Configuration.NAMESPACE
-                //val client = KubernetesClientBuilder().withConfig(ConfigBuilder().withNamespace(namespace).build()))
-                val client: NamespacedKubernetesClient = DefaultKubernetesClient().inNamespace(namespace)
-
                 when (mode.lowercase()) {
-                    ExecutionModes.OPERATOR.value -> TheodoliteOperator(client).start()
+                    ExecutionModes.OPERATOR.value -> Unit
                     else -> {
                         LOGGER.error { "MODE $mode not found" }
                         Quarkus.asyncExit()

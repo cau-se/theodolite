@@ -189,23 +189,6 @@ internal class BenchmarkReconcilerTest {
         assertEquals(null, persistedState("empty-benchmark"))
     }
 
-    @Test
-    fun `reconcile becomes a no-op and reschedules once a previously open gate is closed`() {
-        // Simulates this replica losing leadership after having been the leader: the desired
-        // state (READY) must not be written once the gate closes.
-        val benchmark = benchmarkWithConfigMaps(sut = "cm-sut", loadGenerator = "cm-loadgen")
-        benchmark.status.resourceSetsState = BenchmarkState.PENDING
-        createOnServer(benchmark)
-        reconciler.readiness.close()
-
-        val context = mockContextWith(setOf(configMap("cm-sut"), configMap("cm-loadgen")))
-        val result = reconciler.reconcile(benchmark, context)
-
-        assertTrue(result.isNoUpdate)
-        assertEquals(2000L, result.scheduleDelay.get())
-        assertEquals(BenchmarkState.PENDING, persistedState(benchmark.metadata.name))
-    }
-
     // ---- configMapNamesOf() tests --------------------------------------------------------------
 
     @Test

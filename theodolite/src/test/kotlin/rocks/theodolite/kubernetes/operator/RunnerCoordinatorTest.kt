@@ -7,8 +7,6 @@ import rocks.theodolite.kubernetes.client
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -124,32 +122,4 @@ class RunnerCoordinatorTest {
         assert(!coordinator.isRunning("any-execution"))
     }
 
-    @Test
-    fun `getCoordinator returns a non-null singleton`() {
-        val server2 = KubernetesMockServer()
-        server2.init()
-        try {
-            val operator = TheodoliteOperator(server2.client)
-            val first = operator.getCoordinator()
-            assertNotNull(first)
-            assertSame(first, operator.getCoordinator())
-        } finally {
-            server2.destroy()
-        }
-    }
-
-    @Test
-    fun `getReadiness returns a non-null singleton that starts closed`() {
-        val server2 = KubernetesMockServer()
-        server2.init()
-        try {
-            val operator = TheodoliteOperator(server2.client)
-            val first = operator.getReadiness()
-            assertNotNull(first)
-            assertSame(first, operator.getReadiness())
-            assert(!first.isReady())
-        } finally {
-            server2.destroy()
-        }
-    }
 }

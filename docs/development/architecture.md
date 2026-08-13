@@ -28,6 +28,12 @@ CDI singleton, `RunnerCoordinator`, rather than derived from reconcile order. Th
 a `TheodoliteRunner`, a single-thread executor that hosts the actual (potentially long-running)
 benchmark execution, keeping `reconcile()` itself fast and non-blocking.
 
+JOSDK leader election ensures that only one operator replica reconciles at a time. When a replica
+acquires the `theodolite-operator` Lease, its leader callback clears orphaned cluster state and
+opens `OperatorReadiness`; only then does JOSDK start event processing. On leadership loss, the
+configured callback closes the readiness gate, so the replica cannot reconcile until it acquires
+the Lease again and repeats cleanup.
+
 ```mermaid
 flowchart TB
     K8s["Kubernetes API<br/>Benchmark &amp; Execution"]

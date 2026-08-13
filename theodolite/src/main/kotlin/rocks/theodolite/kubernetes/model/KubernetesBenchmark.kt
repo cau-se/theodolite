@@ -18,7 +18,6 @@ import rocks.theodolite.kubernetes.patcher.PatcherDefinition
  * - [namespace] for the client,
  * - [path] under which the resource yamls can be found.
  *
- *  This class is used for the deserializing in the [theodolite.execution.operator.TheodoliteOperator].
  * @constructor construct an empty Benchmark.
  */
 @JsonDeserialize

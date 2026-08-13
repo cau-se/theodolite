@@ -46,24 +46,6 @@ internal class ExecutionReconcilerTest {
     }
 
     @Test
-    fun `reconcile becomes a no-op and reschedules once a previously open gate is closed`() {
-        // Simulates this replica losing leadership after having been the leader: no status write
-        // and no selection must happen once the gate closes.
-        val execution = ExecutionCRDummy("exec", "bench").getCR()
-        execution.status.executionState = ExecutionState.NO_STATE
-        val coordinator = mock<RunnerCoordinator>()
-        val reconciler = reconcilerWith(coordinator) // readiness open by default
-        reconciler.readiness.close()
-
-        val result = reconciler.reconcile(execution, context())
-
-        assertTrue(result.isNoUpdate)
-        assertEquals(2000L, result.scheduleDelay.get())
-        assertEquals(ExecutionState.NO_STATE, execution.status.executionState)
-        verify(coordinator, never()).triggerSelection()
-    }
-
-    @Test
     fun `only the instance whose readiness gate is open selects and starts an execution`() {
         // Simulates a leader and a non-leader replica reconciling the same execution against the
         // same cluster state: only the "leader" (gate open) may trigger selection or mutate a

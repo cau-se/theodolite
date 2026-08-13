@@ -38,8 +38,8 @@ const val CREATED_BY_LABEL_VALUE = "theodolite"
  * single-thread executor, and [triggerSelection] is synchronized and starts a new run only when
  * none is active, so global ordering (interrupted-first, then oldest) is strictly enforced.
  */
-// @Unremovable: injected into ExecutionReconciler and looked up via Arc.container() in
-// TheodoliteOperator; keep it even though Quarkus's build-time optimizer might drop it.
+// @Unremovable: injected into ExecutionReconciler; keep it even though Quarkus's build-time
+// optimizer might drop it.
 @Unremovable
 @ApplicationScoped
 class RunnerCoordinator {
