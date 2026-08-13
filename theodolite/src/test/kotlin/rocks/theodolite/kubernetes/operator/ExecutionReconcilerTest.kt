@@ -104,12 +104,6 @@ internal class ExecutionReconcilerTest {
 
     @Test
     fun `reconcile reschedules immediately after setting initial PENDING state`() {
-        // A status-only patch does not bump `metadata.generation`, so JOSDK's generation-aware
-        // processing filters out the resulting primary-informer event. Without a reschedule,
-        // the execution would never reach case 4 and never be picked up.
-        // triggerSelection() cannot substitute for the reschedule: the patch has not been applied
-        // yet while reconcile() is running, so the live API still shows NO_STATE and selectNext()
-        // would find no eligible candidate.
         val execution = ExecutionCRDummy("exec", "bench").getCR()
         execution.status.executionState = ExecutionState.NO_STATE
         val coordinator = mock<RunnerCoordinator>()

@@ -124,14 +124,7 @@ class ExecutionReconciler :
         if (resource.status.executionState == ExecutionState.NO_STATE) {
             logger.info { "Execution '$name': initial state → ${ExecutionState.PENDING.value}." }
             resource.status.executionState = ExecutionState.PENDING
-            // Reschedule immediately so that case 4 below fires after the status patch is applied.
-            // A status-only patch doesn't bump `metadata.generation`, so JOSDK's generation-aware
-            // processing filters out the informer event it produces — without the reschedule the
-            // execution would never reach case 4 and never be picked up.
-            //
-            // triggerSelection() cannot substitute for the reschedule: the patch hasn't been
-            // applied yet while reconcile() is running, so the live API still shows NO_STATE
-            // and listExecutions() inside selectNext() won't find an eligible candidate.
+            // Reconcile again after the status patch so the coordinator can select this execution.
             return UpdateControl.patchStatus(resource).rescheduleAfter(Duration.ZERO)
         }
 

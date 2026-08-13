@@ -30,8 +30,7 @@ internal class JacksonConfigTest {
 
         assertEquals("test-execution", json.at("/metadata/name").asText())
         // The spec must not contain any field, as the Kubernetes API server rejects both fields that
-        // are not declared in the CRD schema and null values for fields that are declared with a
-        // type. See ExecutionServerSideApplyKubeApiTest for the corresponding API server behavior.
+        // are not declared in the CRD schema and null values for fields that are declared with a type.
         assertTrue(json.at("/spec").isObject)
         assertFalse(json.at("/spec").fieldNames().hasNext())
     }
