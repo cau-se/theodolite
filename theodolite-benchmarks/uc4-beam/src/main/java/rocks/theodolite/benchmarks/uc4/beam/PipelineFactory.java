@@ -49,6 +49,7 @@ import rocks.theodolite.benchmarks.uc4.beam.serialization.AggregatedActivePowerR
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventCoder;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.EventDeserializer;
 import rocks.theodolite.benchmarks.uc4.beam.serialization.SensorParentKeyCoder;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * {@link AbstractPipelineFactory} for UC4.

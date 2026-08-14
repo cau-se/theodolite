@@ -33,6 +33,7 @@ import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorR
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MachineSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableAggregatedSensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.MutableSensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 
 @Category(SerialTest.class)
@@ -201,7 +202,7 @@ public class Uc4PipelineTest extends JetTestSupport {
 
       final JobConfig jobConfig = new JobConfig()
           .registerSerializer(ValueGroup.class, ValueGroupSerializer.class)
-          .registerSerializer(SensorGroupKey.class, SensorGroupKeySerializer.class)
+          .registerSerializer(SensorParentKey.class, SensorParentKeySerializer.class)
           .registerSerializer(ImmutableSensorRegistry.class,
               ImmutableSensorRegistryUc4Serializer.class);
       this.testInstance.newJob(this.testPipeline, jobConfig).join();

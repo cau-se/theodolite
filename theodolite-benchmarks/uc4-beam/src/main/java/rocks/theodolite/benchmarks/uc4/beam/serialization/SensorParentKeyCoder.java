@@ -10,7 +10,7 @@ import java.util.List;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CoderException;
 import org.apache.kafka.common.serialization.Serde;
-import rocks.theodolite.benchmarks.uc4.beam.SensorParentKey;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * Wrapper Class that encapsulates a SensorParentKey Serde in a org.apache.beam.sdk.coders.Coder.

@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import java.io.Serializable;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * Kryo serializer for {@link SensorParentKey}.

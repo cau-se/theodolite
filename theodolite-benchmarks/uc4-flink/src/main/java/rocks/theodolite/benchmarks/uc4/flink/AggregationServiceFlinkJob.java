@@ -28,9 +28,9 @@ import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 import rocks.theodolite.benchmarks.uc4.flink.util.ImmutableSensorRegistrySerializer;
 import rocks.theodolite.benchmarks.uc4.flink.util.ImmutableSetSerializer;
-import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKey;
 import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKeySerializer;
 
 /**

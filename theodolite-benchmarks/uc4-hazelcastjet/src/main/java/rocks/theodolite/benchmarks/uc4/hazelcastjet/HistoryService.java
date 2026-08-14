@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.ImmutableSensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 
 /**
@@ -76,7 +77,7 @@ public class HistoryService extends HazelcastJetService {
   @Override
   protected void registerSerializer() {
     this.jobConfig.registerSerializer(ValueGroup.class, ValueGroupSerializer.class)
-        .registerSerializer(SensorGroupKey.class, SensorGroupKeySerializer.class)
+        .registerSerializer(SensorParentKey.class, SensorParentKeySerializer.class)
         .registerSerializer(ImmutableSensorRegistry.class,
             ImmutableSensorRegistryUc4Serializer.class);
   }
