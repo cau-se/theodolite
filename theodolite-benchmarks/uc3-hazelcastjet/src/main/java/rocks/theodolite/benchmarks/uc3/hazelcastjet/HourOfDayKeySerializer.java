@@ -4,6 +4,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import java.io.IOException;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * A pipeline serializer for the HourOfDayKey to allow for parallelization.

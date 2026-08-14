@@ -20,7 +20,7 @@ import rocks.theodolite.benchmarks.commons.flink.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.flink.KafkaConnectorFactory;
 import rocks.theodolite.benchmarks.commons.flink.serialization.StatsSerializer;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
-import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeyFactory;
 import rocks.theodolite.benchmarks.uc3.flink.util.HourOfDayKeySerde;
 import rocks.theodolite.benchmarks.uc3.flink.util.StatsKeyFactory;

@@ -2,6 +2,7 @@ package rocks.theodolite.benchmarks.uc3.beam;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * {@link StatsKeyFactory} for {@link HourOfDayKey}.

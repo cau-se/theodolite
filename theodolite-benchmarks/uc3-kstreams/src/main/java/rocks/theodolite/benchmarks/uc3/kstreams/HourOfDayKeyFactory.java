@@ -1,6 +1,7 @@
 package rocks.theodolite.benchmarks.uc3.kstreams;
 
 import java.time.LocalDateTime;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * {@link StatsKeyFactory} for {@link HourOfDayKey}.

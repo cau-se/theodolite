@@ -2,4 +2,8 @@ plugins {
   id 'theodolite.beam'
 }
 
+dependencies {
+  implementation project(':uc3-commons')
+}
+
 

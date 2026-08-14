@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 
 /**

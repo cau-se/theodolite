@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * Maps the key of incoming records from pure sensor ID strings to {@link HourOfDayKey}s.

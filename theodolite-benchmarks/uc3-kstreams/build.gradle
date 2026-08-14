@@ -2,4 +2,8 @@ plugins {
   id 'theodolite.kstreams'
 }
 
+dependencies {
+  implementation project(':uc3-commons')
+}
+
 mainClassName = "rocks.theodolite.benchmarks.uc3.kstreams.HistoryService"
