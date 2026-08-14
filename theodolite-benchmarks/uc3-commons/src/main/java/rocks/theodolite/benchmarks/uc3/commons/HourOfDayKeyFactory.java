@@ -1,8 +1,7 @@
-package rocks.theodolite.benchmarks.uc3.beam;
+package rocks.theodolite.benchmarks.uc3.commons;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * {@link StatsKeyFactory} for {@link HourOfDayKey}.
@@ -13,8 +12,7 @@ public class HourOfDayKeyFactory implements StatsKeyFactory<HourOfDayKey>, Seria
 
   @Override
   public HourOfDayKey createKey(final String sensorId, final LocalDateTime dateTime) {
-    final int hourOfDay = dateTime.getHour();
-    return new HourOfDayKey(hourOfDay, sensorId);
+    return new HourOfDayKey(dateTime.getHour(), sensorId);
   }
 
   @Override

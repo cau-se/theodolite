@@ -20,6 +20,8 @@ import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFac
 import rocks.theodolite.benchmarks.commons.kstreams.GenericSerde;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKeyFactory;
+import rocks.theodolite.benchmarks.uc3.commons.StatsKeyFactory;
 import rocks.theodolite.benchmarks.uc3.kstreams.util.StatsFactory;
 
 /**

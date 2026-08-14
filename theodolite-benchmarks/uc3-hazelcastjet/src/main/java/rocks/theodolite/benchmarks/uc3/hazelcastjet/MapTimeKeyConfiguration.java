@@ -2,6 +2,7 @@ package rocks.theodolite.benchmarks.uc3.hazelcastjet;
 
 import java.time.ZoneId;
 import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.commons.StatsKeyFactory;
 
 /**
  * Stores a configuration consisting of a {@link StatsKeyFactory} and a {@link ZoneId}.

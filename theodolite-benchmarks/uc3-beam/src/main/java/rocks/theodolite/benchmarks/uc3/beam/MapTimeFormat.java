@@ -7,6 +7,8 @@ import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKeyFactory;
+import rocks.theodolite.benchmarks.uc3.commons.StatsKeyFactory;
 
 /**
  * Maps the key of incoming records from pure sensor ID strings to {@link HourOfDayKey}s.
