@@ -1,6 +1,7 @@
 package rocks.theodolite.benchmarks.uc4.kstreams;
 
 import org.junit.Test;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 public class SensorParentKeySerdeTest {
 
