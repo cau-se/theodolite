@@ -26,6 +26,8 @@ import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.ChildParentPairBuilder;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 
 /**
@@ -212,7 +214,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
     //////////////////////////////////
     // (4) UC4 Duplicate as flatmap joined Stream
     // [(sensorKey, Group) , value]
-    final StreamStage<Entry<SensorGroupKey, ActivePowerRecord>> dupliAsFlatmappedStage = joinedStage
+    final StreamStage<Entry<SensorParentKey, ActivePowerRecord>>
+        dupliAsFlatmappedStage = joinedStage
         .flatMap(entry -> {
 
           // Supplied data
@@ -224,22 +227,22 @@ public class Uc4PipelineFactory extends PipelineFactory {
           return Traversers.traverseStream(
               groups
                   .stream()
-                  .map(group -> Util.entry(new SensorGroupKey(keyGroupId, group), record)));
+                  .map(parent -> Util.entry(new SensorParentKey(keyGroupId, parent), record)));
         });
 
     //////////////////////////////////
     // (5) UC4 Last Value Map
     // Table with tumbling window differentiation [ (sensorKey,Group) , value ],Time
-    final StageWithWindow<Entry<SensorGroupKey, ActivePowerRecord>> windowedLastValues =
+    final StageWithWindow<Entry<SensorParentKey, ActivePowerRecord>> windowedLastValues =
         dupliAsFlatmappedStage.window(WindowDefinition
             .tumbling(this.emitPeriod.toMillis())
             .setEarlyResultsPeriod(this.triggerPeriod.toMillis()));
 
-    final AggregateOperation1<Entry<SensorGroupKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
+    final AggregateOperation1<Entry<SensorParentKey, ActivePowerRecord>, AggregatedActivePowerRecordAccumulator, AggregatedActivePowerRecord> aggrOp = // NOCS
         AggregateOperation
             .withCreate(AggregatedActivePowerRecordAccumulator::new)
-            .<Entry<SensorGroupKey, ActivePowerRecord>>andAccumulate((acc, rec) -> {
-              acc.setId(rec.getKey().getGroup());
+            .<Entry<SensorParentKey, ActivePowerRecord>>andAccumulate((acc, rec) -> {
+              acc.setId(rec.getKey().getParent());
               acc.addInputs(rec.getValue());
             })
             .andCombine((acc, acc2) -> acc.addInputs(acc2.getId(), acc2.getSumInW(),
@@ -254,7 +257,7 @@ public class Uc4PipelineFactory extends PipelineFactory {
     // write aggregation back to kafka
 
     return windowedLastValues
-        .groupingKey(entry -> entry.getKey().getGroup())
+        .groupingKey(entry -> entry.getKey().getParent())
         .aggregate(aggrOp)
         .map(agg -> Util.entry(agg.getKey(), agg.getValue()));
   }
@@ -273,9 +276,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
         final Map<String, Set<String>> flatMapStage,
         final Entry<Event, SensorRegistry> eventItem) {
       // Transform new Input
-      final ChildParentsTransformer transformer = new ChildParentsTransformer();
       final Map<String, Set<String>> mapFromRegistry =
-          transformer.constructChildParentsPairs(eventItem.getValue());
+          ChildParentPairBuilder.build(eventItem.getValue());
 
       // Compare both tables
       final Map<String, Set<String>> updates = new HashMap<>();

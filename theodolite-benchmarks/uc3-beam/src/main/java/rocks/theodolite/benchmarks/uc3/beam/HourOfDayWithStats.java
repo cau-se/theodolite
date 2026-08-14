@@ -3,6 +3,8 @@ package rocks.theodolite.benchmarks.uc3.beam;
 import com.google.common.math.Stats;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKeyFactory;
 
 /**
  * {@link SimpleFunction} that transforms into the sensorId and the Value.

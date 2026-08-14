@@ -9,6 +9,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.hazelcastjet.HazelcastJetService;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * A microservice that aggregate incoming messages in a sliding window.

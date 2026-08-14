@@ -1,9 +1,9 @@
-package rocks.theodolite.benchmarks.uc4.kstreams;
+package rocks.theodolite.benchmarks.uc4.commons;
 
 import java.util.Objects;
 
 /**
- * A key consisting of the identifier of a sensor and an identifier of parent sensor.
+ * A key consisting of the identifier of a sensor and an identifier of its parent sensor.
  */
 public class SensorParentKey {
 
@@ -39,12 +39,12 @@ public class SensorParentKey {
     if (obj == this) {
       return true;
     }
-    if (obj instanceof SensorParentKey) {
-      final SensorParentKey other = (SensorParentKey) obj;
-      return Objects.equals(this.sensorIdentifier, other.sensorIdentifier)
-          && Objects.equals(this.parentIdentifier, other.parentIdentifier);
+    if (!(obj instanceof SensorParentKey)) {
+      return false;
     }
-    return false;
+    final SensorParentKey other = (SensorParentKey) obj;
+    return Objects.equals(this.sensorIdentifier, other.sensorIdentifier)
+        && Objects.equals(this.parentIdentifier, other.parentIdentifier);
   }
 
 }

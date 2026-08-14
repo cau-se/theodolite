@@ -10,6 +10,7 @@ import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueStore;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * Transforms the join result of an {@link ActivePowerRecord} and the corresponding sensor parents

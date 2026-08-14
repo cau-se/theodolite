@@ -10,7 +10,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.RichCoFlatMapFunction;
 import org.apache.flink.util.Collector;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
-import rocks.theodolite.benchmarks.uc4.flink.util.SensorParentKey;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * A {@link RichCoFlatMapFunction} which joins each incoming {@link ActivePowerRecord} with its

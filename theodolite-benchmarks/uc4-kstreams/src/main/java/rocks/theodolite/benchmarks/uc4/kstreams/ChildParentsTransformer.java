@@ -4,16 +4,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 import rocks.theodolite.benchmarks.commons.configuration.events.Event;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.Sensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.ChildParentPairBuilder;
 
 /**
  * Transforms a {@link SensorRegistry} into key value pairs of Sensor identifiers and their parents'
@@ -44,7 +42,7 @@ public class ChildParentsTransformer implements
       final SensorRegistry registry) {
 
     // Values may later be null for deleting a sensor
-    final Map<String, Set<String>> childParentsPairs = this.constructChildParentsPairs(registry);
+    final Map<String, Set<String>> childParentsPairs = ChildParentPairBuilder.build(registry);
 
     this.updateChildParentsPairs(childParentsPairs);
 
@@ -60,23 +58,6 @@ public class ChildParentsTransformer implements
   @Override
   public void close() {
     // Do nothing
-  }
-
-  private Map<String, Set<String>> constructChildParentsPairs(final SensorRegistry registry) {
-    return this.streamAllChildren(registry.getTopLevelSensor())
-        .collect(Collectors.toMap(
-            child -> child.getIdentifier(),
-            child -> child.getParent()
-                .map(p -> Set.of(p.getIdentifier()))
-                .orElseGet(() -> Set.of())));
-  }
-
-  private Stream<Sensor> streamAllChildren(final AggregatedSensor sensor) {
-    return sensor.getChildren().stream()
-        .flatMap(s -> Stream.concat(
-            Stream.of(s),
-            s instanceof AggregatedSensor ? this.streamAllChildren((AggregatedSensor) s)
-                : Stream.empty()));
   }
 
   private void updateChildParentsPairs(final Map<String, Set<String>> childParentsPairs) {

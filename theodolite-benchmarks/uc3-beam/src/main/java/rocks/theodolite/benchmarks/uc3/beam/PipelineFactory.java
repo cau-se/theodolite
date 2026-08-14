@@ -24,6 +24,7 @@ import rocks.theodolite.benchmarks.commons.beam.ConfigurationKeys;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaActivePowerTimestampReader;
 import rocks.theodolite.benchmarks.commons.beam.kafka.KafkaWriterTransformation;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * {@link AbstractPipelineFactory} for UC3.

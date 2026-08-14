@@ -24,6 +24,7 @@ import rocks.theodolite.benchmarks.commons.kafka.avro.SchemaRegistryAvroSerdeFac
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * Builds Kafka Stream Topology for the History microservice.

@@ -26,6 +26,7 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * Test methods for the Hazelcast Jet Implementation of UC3.

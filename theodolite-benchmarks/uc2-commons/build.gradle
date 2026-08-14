@@ -1,0 +1,19 @@
+plugins {
+    id 'theodolite.java-commons'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
+    url 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  implementation project(':commons')
+
+  testImplementation 'junit:junit:4.12'
+}

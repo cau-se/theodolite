@@ -42,7 +42,6 @@ public final class StatsAggregatorFactory {
         .andCombine((left, right) -> {
           final Stats rightStats = right.snapshot();
           left.addAll(rightStats);
-
         })
         // Finishes the aggregation
         .andExportFinish(StatsAccumulator::snapshot);

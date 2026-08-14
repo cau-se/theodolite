@@ -10,6 +10,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * Supplier class for {@link JointFlatTransformerSupplier}.

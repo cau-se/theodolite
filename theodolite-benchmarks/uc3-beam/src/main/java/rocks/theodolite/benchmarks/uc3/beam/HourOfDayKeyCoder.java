@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CoderException;
 import org.apache.kafka.common.serialization.Serde;
+import rocks.theodolite.benchmarks.uc3.commons.HourOfDayKey;
 
 /**
  * Wrapper Class that encapsulates a {@link HourOfDayKeySerde} in a {@link Coder}.

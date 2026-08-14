@@ -5,7 +5,7 @@ import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.BufferSerde;
 import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.ReadBuffer;
 import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.SimpleSerdes;
 import rocks.theodolite.benchmarks.commons.kafka.simpleserdes.WriteBuffer;
-import rocks.theodolite.benchmarks.uc4.beam.SensorParentKey;
+import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 /**
  * {@link Serde} factory for {@link SensorParentKey}.
