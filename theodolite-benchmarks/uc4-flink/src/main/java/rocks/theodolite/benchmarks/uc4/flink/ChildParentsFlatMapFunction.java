@@ -3,8 +3,6 @@ package rocks.theodolite.benchmarks.uc4.flink;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -13,9 +11,8 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.AggregatedSensor;
-import rocks.theodolite.benchmarks.commons.model.sensorregistry.Sensor;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.ChildParentPairBuilder;
 
 /**
  * Transforms a {@link SensorRegistry} into key value pairs of Sensor identifiers and their parents'
@@ -43,7 +40,7 @@ public class ChildParentsFlatMapFunction
   @Override
   public void flatMap(final SensorRegistry value, final Collector<Tuple2<String, Set<String>>> out)
       throws Exception {
-    final Map<String, Set<String>> childParentsPairs = this.constructChildParentsPairs(value);
+    final Map<String, Set<String>> childParentsPairs = ChildParentPairBuilder.build(value);
     this.updateChildParentsPairs(childParentsPairs);
     this.updateState(childParentsPairs);
     childParentsPairs
@@ -51,23 +48,6 @@ public class ChildParentsFlatMapFunction
         .stream()
         .map(e -> new Tuple2<>(e.getKey(), e.getValue()))
         .forEach(out::collect);
-  }
-
-  private Map<String, Set<String>> constructChildParentsPairs(final SensorRegistry registry) {
-    return this.streamAllChildren(registry.getTopLevelSensor())
-        .collect(Collectors.toMap(
-            Sensor::getIdentifier,
-            child -> child.getParent()
-                .map(p -> Set.of(p.getIdentifier()))
-                .orElseGet(Set::of)));
-  }
-
-  private Stream<Sensor> streamAllChildren(final AggregatedSensor sensor) {
-    return sensor.getChildren().stream()
-        .flatMap(s -> Stream.concat(
-            Stream.of(s),
-            s instanceof AggregatedSensor ? this.streamAllChildren((AggregatedSensor) s)
-                : Stream.empty()));
   }
 
   private void updateChildParentsPairs(final Map<String, Set<String>> childParentsPairs)

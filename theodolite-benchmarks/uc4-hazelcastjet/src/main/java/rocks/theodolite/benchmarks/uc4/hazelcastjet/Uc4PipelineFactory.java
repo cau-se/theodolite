@@ -26,6 +26,7 @@ import rocks.theodolite.benchmarks.commons.hazelcastjet.PipelineFactory;
 import rocks.theodolite.benchmarks.commons.model.records.ActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.records.AggregatedActivePowerRecord;
 import rocks.theodolite.benchmarks.commons.model.sensorregistry.SensorRegistry;
+import rocks.theodolite.benchmarks.uc4.commons.ChildParentPairBuilder;
 import rocks.theodolite.benchmarks.uc4.commons.SensorParentKey;
 
 
@@ -275,9 +276,8 @@ public class Uc4PipelineFactory extends PipelineFactory {
         final Map<String, Set<String>> flatMapStage,
         final Entry<Event, SensorRegistry> eventItem) {
       // Transform new Input
-      final ChildParentsTransformer transformer = new ChildParentsTransformer();
       final Map<String, Set<String>> mapFromRegistry =
-          transformer.constructChildParentsPairs(eventItem.getValue());
+          ChildParentPairBuilder.build(eventItem.getValue());
 
       // Compare both tables
       final Map<String, Set<String>> updates = new HashMap<>();
