@@ -37,7 +37,6 @@ class ExperimentRunnerImpl(
     results
 ) {
     private val eventCreator = EventCreator()
-    private val mode = Configuration.EXECUTION_MODE
 
     override fun runExperiment(load: Int, resource: Int): SloExperimentResult {
         var result = SloExperimentResult.FAILURE
@@ -88,47 +87,39 @@ class ExperimentRunnerImpl(
             from = Instant.now()
 
             this.waitAndLog()
-            if (mode == ExecutionModes.OPERATOR.value) {
-                eventCreator.createEvent(
-                    executionName = executionName,
-                    type = "NORMAL",
-                    reason = "Start experiment",
-                    message = "load: $load, resources: $resource"
-                )
-            }
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "NORMAL",
+                reason = "Start experiment",
+                message = "load: $load, resources: $resource"
+            )
         } catch (e: Exception) {
             this.run.set(false)
 
-            if (mode == ExecutionModes.OPERATOR.value) {
-                eventCreator.createEvent(
-                    executionName = executionName,
-                    type = "WARNING",
-                    reason = "Start experiment failed",
-                    message = "load: $load, resources: $resource"
-                )
-            }
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "WARNING",
+                reason = "Start experiment failed",
+                message = "load: $load, resources: $resource"
+            )
             throw ExecutionFailedException("Error during setup the experiment", e)
         }
         val to = Instant.now()
         try {
             benchmarkDeployment.teardown()
-            if (mode == ExecutionModes.OPERATOR.value) {
-                eventCreator.createEvent(
-                    executionName = executionName,
-                    type = "NORMAL",
-                    reason = "Stop experiment",
-                    message = "Teardown complete"
-                )
-            }
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "NORMAL",
+                reason = "Stop experiment",
+                message = "Teardown complete"
+            )
         } catch (e: Exception) {
-            if (mode == ExecutionModes.OPERATOR.value) {
-                eventCreator.createEvent(
-                    executionName = executionName,
-                    type = "WARNING",
-                    reason = "Stop experiment failed",
-                    message = "Teardown failed: ${e.message}"
-                )
-            }
+            eventCreator.createEvent(
+                executionName = executionName,
+                type = "WARNING",
+                reason = "Stop experiment failed",
+                message = "Teardown failed: ${e.message}"
+            )
             throw ExecutionFailedException("Error during teardown the experiment", e)
         }
         return Pair(from, to)

@@ -30,16 +30,7 @@ object Theodolite {
             if (launchMode == LaunchMode.TEST) {
                 LOGGER.warn("Theodolite does not automatically start in TEST mode.")
             } else {
-                val mode = Configuration.EXECUTION_MODE
-                LOGGER.info { "Start Theodolite in $mode mode." }
-
-                when (mode.lowercase()) {
-                    ExecutionModes.OPERATOR.value -> Unit
-                    else -> {
-                        LOGGER.error { "MODE $mode not found" }
-                        Quarkus.asyncExit()
-                    }
-                }
+                LOGGER.info("Start Theodolite.")
             }
         }
 

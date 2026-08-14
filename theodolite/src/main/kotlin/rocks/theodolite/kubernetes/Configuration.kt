@@ -12,7 +12,6 @@ class Configuration {
     companion object {
         val NAMESPACE = System.getenv("NAMESPACE") ?: DEFAULT_NAMESPACE
         val COMPONENT_NAME = System.getenv("COMPONENT_NAME") ?: DEFAULT_COMPONENT_NAME
-        val EXECUTION_MODE = System.getenv("MODE") ?: ExecutionModes.OPERATOR.value
 
         /** Default Prometheus URL used when an SLI does not specify one in its providerConfig. */
         val PROMETHEUS_URL = System.getenv("THEODOLITE_PROMETHEUS_URL") ?: DEFAULT_PROMETHEUS_URL

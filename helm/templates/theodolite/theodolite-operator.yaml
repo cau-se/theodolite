@@ -28,8 +28,6 @@ spec:
           env:
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
-            - name: MODE
-              value: operator
             - name: RESULTS_FOLDER
               value: "/deployments/results"
             - name: QUARKUS_LOG_LEVEL
