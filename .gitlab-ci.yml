@@ -768,7 +768,7 @@ test-slo-checker-lag-trend:
   script:
     - pip install -r requirements.txt pytest
     - cd app
-    - pytest --junitxml=report.xml
+    - pytest test.py --junitxml=report.xml
   artifacts:
     when: always
     reports:
@@ -789,7 +789,7 @@ test-slo-checker-generic:
   script:
     - pip install -r requirements.txt pytest
     - cd app
-    - pytest --junitxml=report.xml
+    - pytest test.py --junitxml=report.xml
   artifacts:
     when: always
     reports:
