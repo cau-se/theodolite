@@ -20,7 +20,8 @@ This page describes how to run the HTTP server example end-to-end against locall
 ## Step 1: Create a k3d cluster
 
 ```sh
-k3d cluster create theodolite-test --agents 1
+k3d cluster create theodolite-test --agents 1 # --k3s-arg '--kubelet-arg=eviction-hard=imagefs.available<1%,nodefs.available<1%@agent:*' --k3s-arg '--kubelet-arg=eviction-minimum-reclaim=imagefs.available=1%,nodefs.available=1%@agent:*' # Add if you see "disk pressure" errors on the k3d nodes
+
 ```
 
 ## Step 2: Compile the operator
@@ -29,7 +30,7 @@ k3d cluster create theodolite-test --agents 1
 theodolite/gradlew -p theodolite quarkusBuild --no-daemon
 ```
 
-> If your default JDK is not 17, set it first, e.g. with sdkman: `sdk use java 17.0.8-tem`
+> If your default JDK is not 21, set it first, e.g. with sdkman: `sdk use java 21.0.6-tem`
 
 ## Step 3: Build and import all images
 
@@ -50,6 +51,7 @@ k3d image import \
 Install Theodolite with the Kafka-less preconfig, pointing every image to the locally built `:dev` tags:
 
 ```sh
+helm dependencies update ./helm
 helm install theodolite ./helm \
   -f helm/preconfigs/kafka-less.yaml \
   --set operator.image=theodolite \
