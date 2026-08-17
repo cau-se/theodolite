@@ -715,7 +715,7 @@ test-theodolite:
     when: always
     reports:
       junit:
-        - "theodolite/**/build/test-results/test/TEST-*.xml"
+        - "theodolite/build/test-results/test/TEST-*.xml"
 
 # Disabled for now
 .ktlint-theodolite:
@@ -766,9 +766,14 @@ test-slo-checker-lag-trend:
   before_script:
     - cd slo-checker/record-lag
   script:
-    - pip install -r requirements.txt
+    - pip install -r requirements.txt pytest
     - cd app
-    - python -m unittest
+    - pytest --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "slo-checker/record-lag/app/report.xml"
   rules:
     - changes:
       - slo-checker/record-lag/**/*
@@ -782,9 +787,14 @@ test-slo-checker-generic:
   before_script:
     - cd slo-checker/generic
   script:
-    - pip install -r requirements.txt
+    - pip install -r requirements.txt pytest
     - cd app
-    - python -m unittest
+    - pytest --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "slo-checker/generic/app/report.xml"
   rules:
     - changes:
       - slo-checker/generic/**/*
