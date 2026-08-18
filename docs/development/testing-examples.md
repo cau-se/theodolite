@@ -15,7 +15,7 @@ This page describes how to run the HTTP server example end-to-end against locall
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [helm](https://helm.sh/docs/intro/install/) (≥ v3)
 - [Docker](https://docs.docker.com/get-docker/)
-- JDK 17 (for building the operator)
+- JDK 21 (for building the operator)
 
 ## Step 1: Create a k3d cluster
 
