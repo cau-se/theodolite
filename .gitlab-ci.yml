@@ -170,6 +170,7 @@ test-helm:
     - kubectl get services --all-namespaces -o wide
     - helm test theodolite
   after_script:
+    - kubectl get pods --all-namespaces -o wide
     - k3d cluster delete $CLUSTERNAME
 
 
