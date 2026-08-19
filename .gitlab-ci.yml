@@ -171,6 +171,15 @@ test-helm:
     - helm test theodolite
   after_script:
     - kubectl get pods --all-namespaces -o wide
+    - |
+      kubectl get pods --all-namespaces --no-headers -o custom-columns='NAMESPACE:.metadata.namespace,NAME:.metadata.name' |
+      while read -r namespace pod; do
+        ready=$(kubectl get pod "$pod" -n "$namespace" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+        if [ "$ready" != "True" ]; then
+          echo "Logs for not-ready pod $namespace/$pod:"
+          kubectl logs "$pod" -n "$namespace" --all-containers=true --ignore-errors=true || true
+        fi
+      done
     - k3d cluster delete $CLUSTERNAME
 
 
