@@ -10,7 +10,7 @@ Theodolite is open-source research software, actively maintained at Kiel Univers
 
 ## Getting Help
 
-To get support with using Theodolite, feel free to directly contact [Sören Henning](https://soerenhenning.github.io/).
+To get support with using Theodolite, feel free to directly contact [Sören Henning](https://soeren-henning.de/).
 You might also want to raise an issue on [GitHub](https://github.com/cau-se/theodolite).
 
 ## Project Management
@@ -33,7 +33,7 @@ Also releases are published via GitHub. See the following table for an overview:
 
 ## Contributors
 
-* [Sören Henning](https://soerenhenning.github.io/) (Maintainer)
+* [Sören Henning](https://soeren-henning.de/) (Maintainer)
 * [Marcel Becker](https://www.linkedin.com/in/marcel-becker-11b39b246)
 * [Jan Bensien](https://oceanrep.geomar.de/id/eprint/52342/)
 * [Nico Biernat](https://github.com/NicoBiernat)
