@@ -66,7 +66,7 @@ The prebuilt container images can be configured with the following environment v
 | `THREADS` | Number of worker threads used to generate the load. | 4 |
 | `DISABLE_DNS_CACHING` | Set to `true` to disable DNS caching by the underlying JVM. You might want to do so when generating load via HTTP that should be sent to different target instances. | `false` |
 
-Please note that there are some additional configuration options for benchmark [UC4's load generator](hhttps://github.com/cau-se/theodolite/blob/main/theodolite-benchmarks/uc4-load-generator/src/main/java/rocks/theodolite/benchmarks/uc4/loadgenerator/LoadGenerator.java).
+Please note that there are some additional configuration options for benchmark [UC4's load generator](https://github.com/cau-se/theodolite/blob/main/theodolite-benchmarks/uc4-load-generator/src/main/java/rocks/theodolite/benchmarks/uc4/loadgenerator/LoadGenerator.java).
 
 ## Creating a custom load generator
 
