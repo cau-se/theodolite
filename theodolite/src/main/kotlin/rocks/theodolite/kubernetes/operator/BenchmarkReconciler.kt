@@ -47,8 +47,10 @@ class BenchmarkReconciler : Reconciler<BenchmarkCRD> {
 
     /**
      * Kubernetes client used for live pod/infrastructure checks inside [checkActionCommands].
-     * Set automatically by CDI in production; set directly in tests that exercise the
-     * action-command logic.  Left unset in tests that only verify ConfigMap-based readiness
+     * Injected as [KubernetesClient] because that is the only bean type registered by the
+     * Quarkus kubernetes-client extension; adapted to [NamespacedKubernetesClient] at call
+     * sites via [KubernetesClient.adapt].  Set directly in tests that exercise the
+     * action-command logic; left unset in tests that only verify ConfigMap-based readiness
      * (those benchmarks carry no exec actions so the field is never accessed).
      */
     @Inject
@@ -173,10 +175,7 @@ class BenchmarkReconciler : Reconciler<BenchmarkCRD> {
         val hasExecActions = actionGroups.any { actions -> actions.any { it.execCommand != null } }
         if (!hasExecActions) return true
 
-        // DefaultKubernetesClient (what Quarkus CDI produces) implements NamespacedKubernetesClient,
-        // so this cast is safe at runtime.
-        @Suppress("UNCHECKED_CAST")
-        val namespacedClient = (client as NamespacedKubernetesClient)
+        val namespacedClient = client.adapt(NamespacedKubernetesClient::class.java)
             .inNamespace(resource.metadata.namespace)
         return actionGroups.all { actions -> checkIfActionPossible(infraResources, actions, namespacedClient) }
     }
